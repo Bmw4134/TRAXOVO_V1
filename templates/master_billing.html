@@ -1,259 +1,293 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">Master Equipment Billing</h1>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-primary" onclick="uploadNewFile()">
-                        <i class="fas fa-upload"></i> Upload May Report
-                    </button>
-                    <button class="btn btn-success" onclick="exportBilling()">
-                        <i class="fas fa-download"></i> Export Data
-                    </button>
-                </div>
-            </div>
-
-            <!-- Revenue Overview Cards -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card bg-primary text-white">
-                        <div class="card-body">
-                            <h4 class="card-title">${{ "{:,.0f}".format(summary.total_ytd_revenue) }}</h4>
-                            <p class="card-text">YTD Revenue</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-success text-white">
-                        <div class="card-body">
-                            <h4 class="card-title">{{ summary.months_processed|length }}</h4>
-                            <p class="card-text">Months Processed</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-info text-white">
-                        <div class="card-body">
-                            <h4 class="card-title">${{ "{:,.0f}".format(summary.division_performance.PM) }}</h4>
-                            <p class="card-text">PM Division</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-warning text-white">
-                        <div class="card-body">
-                            <h4 class="card-title">${{ "{:,.0f}".format(summary.division_performance.EJ) }}</h4>
-                            <p class="card-text">EJ Division</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- File Upload Section -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5>Upload RAGLE Billing Reports</h5>
-                    <small class="text-muted">Supports Excel (.xlsx, .xlsm) and CSV files. Automatically handles GAUGE fluff headers.</small>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="billingFile" class="form-label">Select Billing File</label>
-                                <input type="file" class="form-control" id="billingFile" accept=".xlsx,.xlsm,.csv,.xls">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Time Format Preference</label>
-                                <div>
-                                    <input type="radio" name="timeFormat" value="decimal" id="decimalTime" checked>
-                                    <label for="decimalTime">Decimal Hours (8.5)</label>
-                                </div>
-                                <div>
-                                    <input type="radio" name="timeFormat" value="hhmm" id="hhmmTime">
-                                    <label for="hhmmTime">Hours:Minutes (8:30)</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Equipment Filter</label>
-                                <select class="form-select" id="equipmentFilter">
-                                    <option value="all">All Equipment</option>
-                                    <option value="on-road">On-Road Vehicles Only</option>
-                                    <option value="heavy-equipment">Heavy Equipment Only</option>
-                                    <option value="generators">Generators Only</option>
-                                </select>
-                            </div>
-                            <button class="btn btn-primary" onclick="processFile()">
-                                <i class="fas fa-cog"></i> Process File
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Monthly Reports Table -->
-            <div class="card">
-                <div class="card-header">
-                    <h5>Monthly Billing Reports</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Month</th>
-                                    <th>Total Revenue</th>
-                                    <th>Equipment Hours</th>
-                                    <th>Records</th>
-                                    <th>PM Division</th>
-                                    <th>EJ Division</th>
-                                    <th>Utilization</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for month in summary.months_processed %}
-                                <tr>
-                                    <td>{{ month.filename.split(' - ')[1] if ' - ' in month.filename else month.filename }}</td>
-                                    <td>${{ "{:,.0f}".format(month.total_revenue) }}</td>
-                                    <td>{{ "{:,.0f}".format(month.equipment_hours) }} hrs</td>
-                                    <td>{{ month.records_processed }}</td>
-                                    <td>${{ "{:,.0f}".format(month.division_breakdown.PM) }}</td>
-                                    <td>${{ "{:,.0f}".format(month.division_breakdown.EJ) }}</td>
-                                    <td>{{ month.utilization_metrics.utilization_rate }}%</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('{{ month.filename }}')">
-                                            <i class="fas fa-eye"></i> View
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-success" onclick="exportMonth('{{ month.filename }}')">
-                                            <i class="fas fa-download"></i> Export
-                                        </button>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Equipment Breakdown Chart -->
-            <div class="row mt-4">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Equipment Type Breakdown</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="equipmentChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Division Performance</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="divisionChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Master Equipment Billing</h1>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary" onclick="uploadNewFile()">
+            <i class="fas fa-upload"></i> Upload May Report
+          </button>
+          <button class="btn btn-success" onclick="exportBilling()">
+            <i class="fas fa-download"></i> Export Data
+          </button>
         </div>
+      </div>
+
+      <!-- Revenue Overview Cards -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card bg-primary text-white">
+            <div class="card-body">
+              <h4 class="card-title">
+                ${{ "{:,.0f}".format(summary.total_ytd_revenue) }}
+              </h4>
+              <p class="card-text">YTD Revenue</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-success text-white">
+            <div class="card-body">
+              <h4 class="card-title">{{ summary.months_processed|length }}</h4>
+              <p class="card-text">Months Processed</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-info text-white">
+            <div class="card-body">
+              <h4 class="card-title">
+                ${{ "{:,.0f}".format(summary.division_performance.PM) }}
+              </h4>
+              <p class="card-text">PM Division</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-warning text-white">
+            <div class="card-body">
+              <h4 class="card-title">
+                ${{ "{:,.0f}".format(summary.division_performance.EJ) }}
+              </h4>
+              <p class="card-text">EJ Division</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- File Upload Section -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5>Upload RAGLE Billing Reports</h5>
+          <small class="text-muted"
+            >Supports Excel (.xlsx, .xlsm) and CSV files. Automatically handles
+            GAUGE fluff headers.</small
+          >
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="billingFile" class="form-label"
+                  >Select Billing File</label
+                >
+                <input
+                  type="file"
+                  class="form-control"
+                  id="billingFile"
+                  accept=".xlsx,.xlsm,.csv,.xls"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Time Format Preference</label>
+                <div>
+                  <input
+                    type="radio"
+                    name="timeFormat"
+                    value="decimal"
+                    id="decimalTime"
+                    checked
+                  />
+                  <label for="decimalTime">Decimal Hours (8.5)</label>
+                </div>
+                <div>
+                  <input
+                    type="radio"
+                    name="timeFormat"
+                    value="hhmm"
+                    id="hhmmTime"
+                  />
+                  <label for="hhmmTime">Hours:Minutes (8:30)</label>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Equipment Filter</label>
+                <select class="form-select" id="equipmentFilter">
+                  <option value="all">All Equipment</option>
+                  <option value="on-road">On-Road Vehicles Only</option>
+                  <option value="heavy-equipment">Heavy Equipment Only</option>
+                  <option value="generators">Generators Only</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" onclick="processFile()">
+                <i class="fas fa-cog"></i> Process File
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly Reports Table -->
+      <div class="card">
+        <div class="card-header">
+          <h5>Monthly Billing Reports</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Total Revenue</th>
+                  <th>Equipment Hours</th>
+                  <th>Records</th>
+                  <th>PM Division</th>
+                  <th>EJ Division</th>
+                  <th>Utilization</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for month in summary.months_processed %}
+                <tr>
+                  <td>
+                    {{ month.filename.split(' - ')[1] if ' - ' in month.filename
+                    else month.filename }}
+                  </td>
+                  <td>${{ "{:,.0f}".format(month.total_revenue) }}</td>
+                  <td>{{ "{:,.0f}".format(month.equipment_hours) }} hrs</td>
+                  <td>{{ month.records_processed }}</td>
+                  <td>${{ "{:,.0f}".format(month.division_breakdown.PM) }}</td>
+                  <td>${{ "{:,.0f}".format(month.division_breakdown.EJ) }}</td>
+                  <td>{{ month.utilization_metrics.utilization_rate }}%</td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-outline-primary"
+                      onclick="viewDetails('{{ month.filename }}')"
+                    >
+                      <i class="fas fa-eye"></i> View
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-success"
+                      onclick="exportMonth('{{ month.filename }}')"
+                    >
+                      <i class="fas fa-download"></i> Export
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Equipment Breakdown Chart -->
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5>Equipment Type Breakdown</h5>
+            </div>
+            <div class="card-body">
+              <canvas id="equipmentChart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h5>Division Performance</h5>
+            </div>
+            <div class="card-body">
+              <canvas id="divisionChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
-function uploadNewFile() {
-    document.getElementById('billingFile').click();
-}
+  function uploadNewFile() {
+      document.getElementById('billingFile').click();
+  }
 
-function processFile() {
-    const fileInput = document.getElementById('billingFile');
-    const file = fileInput.files[0];
-    
-    if (!file) {
-        alert('Please select a file first');
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    const timeFormat = document.querySelector('input[name="timeFormat"]:checked').value;
-    const equipmentFilter = document.getElementById('equipmentFilter').value;
-    
-    formData.append('time_format', timeFormat);
-    formData.append('equipment_filter', equipmentFilter);
-    
-    fetch('/api/upload-billing-file', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('File processed successfully!');
-            location.reload();
-        } else {
-            alert('Error: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Upload error:', error);
-        alert('Upload failed. Please try again.');
-    });
-}
+  function processFile() {
+      const fileInput = document.getElementById('billingFile');
+      const file = fileInput.files[0];
 
-function exportBilling() {
-    const csvContent = generateBillingCSV();
-    downloadCSV(csvContent, `TRAXOVO_Master_Billing_${new Date().toISOString().split('T')[0]}.csv`);
-}
+      if (!file) {
+          alert('Please select a file first');
+          return;
+      }
 
-function generateBillingCSV() {
-    let csv = 'TRAXOVO MASTER EQUIPMENT BILLING REPORT\n';
-    csv += `Generated: ${new Date().toLocaleDateString()}\n\n`;
-    csv += 'SUMMARY\n';
-    csv += `Total YTD Revenue,$${{{ summary.total_ytd_revenue }}}\n`;
-    csv += `PM Division,$${{{ summary.division_performance.PM }}}\n`;
-    csv += `EJ Division,$${{{ summary.division_performance.EJ }}}\n\n`;
-    csv += 'MONTHLY BREAKDOWN\n';
-    csv += 'Month,Revenue,Hours,Records,PM,EJ,Utilization\n';
-    
-    {% for month in summary.months_processed %}
-    csv += '{{ month.filename.replace(",", "-") }},{{ month.total_revenue }},{{ month.equipment_hours }},{{ month.records_processed }},{{ month.division_breakdown.PM }},{{ month.division_breakdown.EJ }},{{ month.utilization_metrics.utilization_rate }}\n';
-    {% endfor %}
-    
-    return csv;
-}
+      const formData = new FormData();
+      formData.append('file', file);
 
-function downloadCSV(csvContent, filename) {
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-}
+      const timeFormat = document.querySelector('input[name="timeFormat"]:checked').value;
+      const equipmentFilter = document.getElementById('equipmentFilter').value;
 
-function viewDetails(filename) {
-    // Show detailed breakdown for specific month
-    alert(`Viewing details for: ${filename}`);
-}
+      formData.append('time_format', timeFormat);
+      formData.append('equipment_filter', equipmentFilter);
 
-function exportMonth(filename) {
-    // Export specific month data
-    alert(`Exporting data for: ${filename}`);
-}
+      fetch('/api/upload-billing-file', {
+          method: 'POST',
+          body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              alert('File processed successfully!');
+              location.reload();
+          } else {
+              alert('Error: ' + data.error);
+          }
+      })
+      .catch(error => {
+          console.error('Upload error:', error);
+          alert('Upload failed. Please try again.');
+      });
+  }
+
+  function exportBilling() {
+      const csvContent = generateBillingCSV();
+      downloadCSV(csvContent, `TRAXOVO_Master_Billing_${new Date().toISOString().split('T')[0]}.csv`);
+  }
+
+  function generateBillingCSV() {
+      let csv = 'TRAXOVO MASTER EQUIPMENT BILLING REPORT\n';
+      csv += `Generated: ${new Date().toLocaleDateString()}\n\n`;
+      csv += 'SUMMARY\n';
+      csv += `Total YTD Revenue,$${{{ summary.total_ytd_revenue }}}\n`;
+      csv += `PM Division,$${{{ summary.division_performance.PM }}}\n`;
+      csv += `EJ Division,$${{{ summary.division_performance.EJ }}}\n\n`;
+      csv += 'MONTHLY BREAKDOWN\n';
+      csv += 'Month,Revenue,Hours,Records,PM,EJ,Utilization\n';
+
+      {% for month in summary.months_processed %}
+      csv += '{{ month.filename.replace(",", "-") }},{{ month.total_revenue }},{{ month.equipment_hours }},{{ month.records_processed }},{{ month.division_breakdown.PM }},{{ month.division_breakdown.EJ }},{{ month.utilization_metrics.utilization_rate }}\n';
+      {% endfor %}
+
+      return csv;
+  }
+
+  function downloadCSV(csvContent, filename) {
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      if (link.download !== undefined) {
+          const url = URL.createObjectURL(blob);
+          link.setAttribute('href', url);
+          link.setAttribute('download', filename);
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+      }
+  }
+
+  function viewDetails(filename) {
+      // Show detailed breakdown for specific month
+      alert(`Viewing details for: ${filename}`);
+  }
+
+  function exportMonth(filename) {
+      // Export specific month data
+      alert(`Exporting data for: ${filename}`);
+  }
 </script>
 {% endblock %}

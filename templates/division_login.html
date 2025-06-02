@@ -1,84 +1,113 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Division Manager Access - TRAXOVO</title>
-    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-        .login-container {
-            max-width: 400px;
-            margin: 10% auto;
-            padding: 2rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .division-badge {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            margin: 0.25rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-        .dfw { background: #007bff; color: white; }
-        .houston { background: #28a745; color: white; }
-        .wtx { background: #fd7e14; color: white; }
+      .login-container {
+        max-width: 400px;
+        margin: 10% auto;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .division-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        margin: 0.25rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+      .dfw {
+        background: #007bff;
+        color: white;
+      }
+      .houston {
+        background: #28a745;
+        color: white;
+      }
+      .wtx {
+        background: #fd7e14;
+        color: white;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="login-container">
-            <div class="text-center mb-4">
-                <i class="fas fa-user-tie fa-3x text-primary mb-3"></i>
-                <h3>Division Manager Access</h3>
-                <p class="text-muted">TRAXOVO Fleet Management</p>
-            </div>
-
-            <div class="text-center mb-4">
-                <span class="division-badge dfw">DFW Division</span>
-                <span class="division-badge houston">Houston Division</span>
-                <span class="division-badge wtx">WTX Division</span>
-            </div>
-
-            {% if error %}
-            <div class="alert alert-danger">{{ error }}</div>
-            {% endif %}
-
-            <form method="POST" action="/division-auth">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
-                    <div class="form-text">Use your assigned division manager credentials</div>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
-                </div>
-                
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="fas fa-sign-in-alt me-2"></i>Access Dashboard
-                </button>
-            </form>
-
-            <div class="mt-4">
-                <small class="text-muted">
-                    <strong>Division Managers:</strong><br>
-                    • John Anderson (DFW)<br>
-                    • Maria Rodriguez (Houston)<br>
-                    • David Wilson (WTX)
-                </small>
-            </div>
-
-            <div class="text-center mt-3">
-                <a href="/" class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-arrow-left me-1"></i>Back to Main Dashboard
-                </a>
-            </div>
+      <div class="login-container">
+        <div class="text-center mb-4">
+          <i class="fas fa-user-tie fa-3x text-primary mb-3"></i>
+          <h3>Division Manager Access</h3>
+          <p class="text-muted">TRAXOVO Fleet Management</p>
         </div>
+
+        <div class="text-center mb-4">
+          <span class="division-badge dfw">DFW Division</span>
+          <span class="division-badge houston">Houston Division</span>
+          <span class="division-badge wtx">WTX Division</span>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="/division-auth">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input
+              type="text"
+              class="form-control"
+              id="username"
+              name="username"
+              required
+            />
+            <div class="form-text">
+              Use your assigned division manager credentials
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="fas fa-sign-in-alt me-2"></i>Access Dashboard
+          </button>
+        </form>
+
+        <div class="mt-4">
+          <small class="text-muted">
+            <strong>Division Managers:</strong><br />
+            • John Anderson (DFW)<br />
+            • Maria Rodriguez (Houston)<br />
+            • David Wilson (WTX)
+          </small>
+        </div>
+
+        <div class="text-center mt-3">
+          <a href="/" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back to Main Dashboard
+          </a>
+        </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>

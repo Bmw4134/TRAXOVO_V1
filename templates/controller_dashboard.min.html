@@ -1,97 +1,415 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Controller Financial Dashboard - TRAXOVO</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"><link rel="stylesheet" href="{{ url_for('static', filename='css/enterprise_polish.css') }}"><style>
-.financial-metric {
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-color: white;
-border-radius: 15px;
-padding: 1.5rem;
-text-align: center;
-box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-transition: transform 0.3s ease;
-}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Controller Financial Dashboard - TRAXOVO</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/enterprise_polish.css') }}"
+    />
+    <style>
+      .financial-metric {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
 
-.financial-metric:hover {
-transform: translateY(-5px);
-}
+      .financial-metric:hover {
+        transform: translateY(-5px);
+      }
 
-.metric-value {
-font-size: 2.5rem;
-font-weight: bold;
-margin-bottom: 0.5rem;
-}
+      .metric-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+      }
 
-.metric-label {
-font-size: 1rem;
-opacity: 0.9;
-}
+      .metric-label {
+        font-size: 1rem;
+        opacity: 0.9;
+      }
 
-.positive-impact {
-color: #28a745;
-font-weight: bold;
-}
+      .positive-impact {
+        color: #28a745;
+        font-weight: bold;
+      }
 
-.roi-card {
-background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-}
+      .roi-card {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      }
 
-.cost-savings-card {
-background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-}
+      .cost-savings-card {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+      }
 
-.revenue-card {
-background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
-}
+      .revenue-card {
+        background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+      }
 
-.action-item {
-border-left: 4px solid #007bff;
-background-color: #f8f9fa;
-padding: 1rem;
-margin-bottom: 1rem;
-border-radius: 0 8px 8px 0;
-}
+      .action-item {
+        border-left: 4px solid #007bff;
+        background-color: #f8f9fa;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 0 8px 8px 0;
+      }
 
-.impact-timeline {
-display: flex;
-align-items: center;
-gap: 0.5rem;
-}
+      .impact-timeline {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
 
-.timeline-badge {
-background: #007bff;
-color: white;
-padding: 0.25rem 0.75rem;
-border-radius: 20px;
-font-size: 0.8rem;
-}
-</style></head><body><nav class="navbar navbar-expand-lg navbar-dark bg-primary"><div class="container-fluid"><a class="navbar-brand fw-bold" href="/dashboard"><i class="bi bi-graph-up me-2"></i>TRAXOVO Controller
-</a><div class="navbar-nav ms-auto"><a class="nav-link" href="/dashboard"><i class="bi bi-house me-1"></i>Dashboard
-</a></div></div></nav><div class="container-fluid mt-4"><div class="row mb-4"><div class="col-12"><div class="d-flex justify-content-between align-items-center"><div><h1 class="display-6 fw-bold text-primary">Controller Financial Dashboard</h1><p class="lead text-muted">Real-time financial impact and ROI demonstration</p></div><div class="text-end"><div class="badge bg-success fs-6 p-3"><i class="bi bi-check-circle me-2"></i>Live Data Connected
-</div></div></div></div></div><div class="row mb-4"><div class="col-md-3"><div class="financial-metric revenue-card"><div class="metric-value">${{ "{:,.0f}".format(financial.daily_metrics.tracked_revenue) }}</div><div class="metric-label">Daily Revenue Tracked</div></div></div><div class="col-md-3"><div class="financial-metric cost-savings-card"><div class="metric-value">${{ "{:,.0f}".format(financial.daily_metrics.cost_savings_identified) }}</div><div class="metric-label">Daily Cost Savings</div></div></div><div class="col-md-3"><div class="financial-metric"><div class="metric-value">{{ financial.daily_metrics.billing_efficiency_gain }}%</div><div class="metric-label">Billing Efficiency</div></div></div><div class="col-md-3"><div class="financial-metric roi-card"><div class="metric-value">{{ financial.roi_demonstration.monthly_roi_percentage }}%</div><div class="metric-label">Monthly ROI</div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card shadow-sm"><div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Monthly Financial Projection</h5></div><div class="card-body"><div class="row text-center"><div class="col-md-4"><h3 class="positive-impact">${{ "{:,.0f}".format(financial.monthly_projection.additional_revenue) }}</h3><p class="text-muted">Additional Revenue</p></div><div class="col-md-4"><h3 class="positive-impact">${{ "{:,.0f}".format(financial.monthly_projection.cost_reduction) }}</h3><p class="text-muted">Cost Reduction</p></div><div class="col-md-4"><h3 class="text-success">${{ "{:,.0f}".format(financial.monthly_projection.total_monthly_impact) }}</h3><p class="text-muted"><strong>Total Monthly Impact</strong></p></div></div></div></div></div></div><div class="row mb-4"><div class="col-md-6"><div class="card shadow-sm h-100"><div class="card-header bg-warning text-dark"><h5 class="mb-0"><i class="bi bi-lightning-fill me-2"></i>Immediate Actions for William</h5></div><div class="card-body">
-{% for action in financial.immediate_actions %}
-<div class="action-item"><div class="d-flex justify-content-between align-items-start mb-2"><h6 class="mb-1">{{ action.action }}</h6><div class="impact-timeline"><span class="timeline-badge">{{ action.timeline }}</span></div></div><div class="text-success fw-bold mb-1">{{ action.impact }}</div><small class="text-muted">Setup time: {{ action.effort }}</small></div>
-{% endfor %}
-</div></div></div><div class="col-md-6"><div class="card shadow-sm h-100"><div class="card-header bg-info text-white"><h5 class="mb-0"><i class="bi bi-calculator me-2"></i>System ROI Analysis</h5></div><div class="card-body"><div class="row mb-3"><div class="col-6"><strong>Monthly Value Generated:</strong></div><div class="col-6 text-end positive-impact">
-${{ "{:,.0f}".format(financial.roi_demonstration.monthly_value_generated) }}
-</div></div><div class="row mb-3"><div class="col-6"><strong>System Investment:</strong></div><div class="col-6 text-end">
-${{ "{:,.0f}".format(financial.roi_demonstration.system_investment) }}
-</div></div><div class="row mb-3"><div class="col-6"><strong>Payback Period:</strong></div><div class="col-6 text-end text-success fw-bold">
-{{ financial.roi_demonstration.payback_period_days }} days
-</div></div><div class="row"><div class="col-6"><strong>Annual Value:</strong></div><div class="col-6 text-end text-success fw-bold">
-${{ "{:,.0f}".format(financial.roi_demonstration.annual_value) }}
-</div></div></div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card shadow-sm"><div class="card-header bg-secondary text-white"><h5 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Cost Center Analysis</h5></div><div class="card-body"><div class="row"><div class="col-md-4"><h6 class="text-primary">Equipment Operations</h6><ul class="list-unstyled"><li><strong>{{ cost_analysis.equipment_costs.tracked_assets }}</strong> Assets Tracked</li><li><strong>${{ "{:,.0f}".format(cost_analysis.equipment_costs.daily_operating_cost) }}</strong> Daily Operating Cost</li><li><strong>${{ "{:.2f}".format(cost_analysis.equipment_costs.cost_per_asset_per_day) }}</strong> Cost per Asset/Day</li></ul></div><div class="col-md-4"><h6 class="text-primary">Revenue Optimization</h6><ul class="list-unstyled"><li><strong>{{ cost_analysis.revenue_optimization.current_capture_rate }}%</strong> Current Capture Rate</li><li><strong>${{ "{:,.0f}".format(cost_analysis.revenue_optimization.revenue_gap_monthly) }}</strong> Monthly Revenue Gap</li><li><strong>{{ cost_analysis.revenue_optimization.potential_capture_rate }}%</strong> Target Capture Rate</li></ul></div><div class="col-md-4"><h6 class="text-primary">Efficiency Gains</h6><ul class="list-unstyled"><li><strong>${{ "{:,.0f}".format(cost_analysis.operational_efficiency.fuel_cost_optimization) }}</strong> Fuel Savings/Month</li><li><strong>${{ "{:,.0f}".format(cost_analysis.operational_efficiency.maintenance_cost_optimization) }}</strong> Maintenance Savings/Month</li><li><strong>${{ "{:,.0f}".format(cost_analysis.operational_efficiency.total_monthly_efficiency_gains) }}</strong> Total Monthly Gains</li></ul></div></div></div></div></div></div><div class="row"><div class="col-12"><div class="alert alert-success border-0 shadow-sm"><div class="row align-items-center"><div class="col-md-1 text-center"><i class="bi bi-check-circle-fill display-4 text-success"></i></div><div class="col-md-11"><h5 class="alert-heading mb-2">Immediate Value Demonstration</h5><p class="mb-2">
-This system is already tracking <strong>${{ "{:,.0f}".format(financial.daily_metrics.tracked_revenue + financial.daily_metrics.cost_savings_identified) }}</strong>
-in daily financial impact across your 717 assets and 92 drivers.
-</p><p class="mb-0"><strong>William:</strong> You can implement the first cost-saving measure today and see
-<strong>$450</strong>
-in immediate daily savings with just 15 minutes of setup time.
-</p></div></div></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script><script>
-// Auto-refresh financial data every 5 minutes
-setInterval(function() {
-fetch('/api/controller/daily-summary')
-.then(response => response.json())
-.then(data => {
-console.log('Financial data refreshed:', data);
-// Update key metrics if needed
-})
-.catch(error => console.log('Data refresh failed:', error));
-}, 300000); // 5 minutes
-</script></body></html>
+      .timeline-badge {
+        background: #007bff;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="/dashboard"
+          ><i class="bi bi-graph-up me-2"></i>TRAXOVO Controller
+        </a>
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="/dashboard"
+            ><i class="bi bi-house me-1"></i>Dashboard
+          </a>
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid mt-4">
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h1 class="display-6 fw-bold text-primary">
+                Controller Financial Dashboard
+              </h1>
+              <p class="lead text-muted">
+                Real-time financial impact and ROI demonstration
+              </p>
+            </div>
+            <div class="text-end">
+              <div class="badge bg-success fs-6 p-3">
+                <i class="bi bi-check-circle me-2"></i>Live Data Connected
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="financial-metric revenue-card">
+            <div class="metric-value">
+              ${{ "{:,.0f}".format(financial.daily_metrics.tracked_revenue) }}
+            </div>
+            <div class="metric-label">Daily Revenue Tracked</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="financial-metric cost-savings-card">
+            <div class="metric-value">
+              ${{
+              "{:,.0f}".format(financial.daily_metrics.cost_savings_identified)
+              }}
+            </div>
+            <div class="metric-label">Daily Cost Savings</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="financial-metric">
+            <div class="metric-value">
+              {{ financial.daily_metrics.billing_efficiency_gain }}%
+            </div>
+            <div class="metric-label">Billing Efficiency</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="financial-metric roi-card">
+            <div class="metric-value">
+              {{ financial.roi_demonstration.monthly_roi_percentage }}%
+            </div>
+            <div class="metric-label">Monthly ROI</div>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">
+                <i class="bi bi-graph-up me-2"></i>Monthly Financial Projection
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="row text-center">
+                <div class="col-md-4">
+                  <h3 class="positive-impact">
+                    ${{
+                    "{:,.0f}".format(financial.monthly_projection.additional_revenue)
+                    }}
+                  </h3>
+                  <p class="text-muted">Additional Revenue</p>
+                </div>
+                <div class="col-md-4">
+                  <h3 class="positive-impact">
+                    ${{
+                    "{:,.0f}".format(financial.monthly_projection.cost_reduction)
+                    }}
+                  </h3>
+                  <p class="text-muted">Cost Reduction</p>
+                </div>
+                <div class="col-md-4">
+                  <h3 class="text-success">
+                    ${{
+                    "{:,.0f}".format(financial.monthly_projection.total_monthly_impact)
+                    }}
+                  </h3>
+                  <p class="text-muted">
+                    <strong>Total Monthly Impact</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-header bg-warning text-dark">
+              <h5 class="mb-0">
+                <i class="bi bi-lightning-fill me-2"></i>Immediate Actions for
+                William
+              </h5>
+            </div>
+            <div class="card-body">
+              {% for action in financial.immediate_actions %}
+              <div class="action-item">
+                <div
+                  class="d-flex justify-content-between align-items-start mb-2"
+                >
+                  <h6 class="mb-1">{{ action.action }}</h6>
+                  <div class="impact-timeline">
+                    <span class="timeline-badge">{{ action.timeline }}</span>
+                  </div>
+                </div>
+                <div class="text-success fw-bold mb-1">{{ action.impact }}</div>
+                <small class="text-muted"
+                  >Setup time: {{ action.effort }}</small
+                >
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-header bg-info text-white">
+              <h5 class="mb-0">
+                <i class="bi bi-calculator me-2"></i>System ROI Analysis
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="row mb-3">
+                <div class="col-6">
+                  <strong>Monthly Value Generated:</strong>
+                </div>
+                <div class="col-6 text-end positive-impact">
+                  ${{
+                  "{:,.0f}".format(financial.roi_demonstration.monthly_value_generated)
+                  }}
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-6"><strong>System Investment:</strong></div>
+                <div class="col-6 text-end">
+                  ${{
+                  "{:,.0f}".format(financial.roi_demonstration.system_investment)
+                  }}
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-6"><strong>Payback Period:</strong></div>
+                <div class="col-6 text-end text-success fw-bold">
+                  {{ financial.roi_demonstration.payback_period_days }} days
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-6"><strong>Annual Value:</strong></div>
+                <div class="col-6 text-end text-success fw-bold">
+                  ${{ "{:,.0f}".format(financial.roi_demonstration.annual_value)
+                  }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white">
+              <h5 class="mb-0">
+                <i class="bi bi-pie-chart me-2"></i>Cost Center Analysis
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <h6 class="text-primary">Equipment Operations</h6>
+                  <ul class="list-unstyled">
+                    <li>
+                      <strong
+                        >{{ cost_analysis.equipment_costs.tracked_assets
+                        }}</strong
+                      >
+                      Assets Tracked
+                    </li>
+                    <li>
+                      <strong
+                        >${{
+                        "{:,.0f}".format(cost_analysis.equipment_costs.daily_operating_cost)
+                        }}</strong
+                      >
+                      Daily Operating Cost
+                    </li>
+                    <li>
+                      <strong
+                        >${{
+                        "{:.2f}".format(cost_analysis.equipment_costs.cost_per_asset_per_day)
+                        }}</strong
+                      >
+                      Cost per Asset/Day
+                    </li>
+                  </ul>
+                </div>
+                <div class="col-md-4">
+                  <h6 class="text-primary">Revenue Optimization</h6>
+                  <ul class="list-unstyled">
+                    <li>
+                      <strong
+                        >{{
+                        cost_analysis.revenue_optimization.current_capture_rate
+                        }}%</strong
+                      >
+                      Current Capture Rate
+                    </li>
+                    <li>
+                      <strong
+                        >${{
+                        "{:,.0f}".format(cost_analysis.revenue_optimization.revenue_gap_monthly)
+                        }}</strong
+                      >
+                      Monthly Revenue Gap
+                    </li>
+                    <li>
+                      <strong
+                        >{{
+                        cost_analysis.revenue_optimization.potential_capture_rate
+                        }}%</strong
+                      >
+                      Target Capture Rate
+                    </li>
+                  </ul>
+                </div>
+                <div class="col-md-4">
+                  <h6 class="text-primary">Efficiency Gains</h6>
+                  <ul class="list-unstyled">
+                    <li>
+                      <strong
+                        >${{
+                        "{:,.0f}".format(cost_analysis.operational_efficiency.fuel_cost_optimization)
+                        }}</strong
+                      >
+                      Fuel Savings/Month
+                    </li>
+                    <li>
+                      <strong
+                        >${{
+                        "{:,.0f}".format(cost_analysis.operational_efficiency.maintenance_cost_optimization)
+                        }}</strong
+                      >
+                      Maintenance Savings/Month
+                    </li>
+                    <li>
+                      <strong
+                        >${{
+                        "{:,.0f}".format(cost_analysis.operational_efficiency.total_monthly_efficiency_gains)
+                        }}</strong
+                      >
+                      Total Monthly Gains
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12">
+          <div class="alert alert-success border-0 shadow-sm">
+            <div class="row align-items-center">
+              <div class="col-md-1 text-center">
+                <i class="bi bi-check-circle-fill display-4 text-success"></i>
+              </div>
+              <div class="col-md-11">
+                <h5 class="alert-heading mb-2">
+                  Immediate Value Demonstration
+                </h5>
+                <p class="mb-2">
+                  This system is already tracking
+                  <strong
+                    >${{
+                    "{:,.0f}".format(financial.daily_metrics.tracked_revenue +
+                    financial.daily_metrics.cost_savings_identified) }}</strong
+                  >
+                  in daily financial impact across your 717 assets and 92
+                  drivers.
+                </p>
+                <p class="mb-0">
+                  <strong>William:</strong> You can implement the first
+                  cost-saving measure today and see
+                  <strong>$450</strong>
+                  in immediate daily savings with just 15 minutes of setup time.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Auto-refresh financial data every 5 minutes
+      setInterval(function () {
+        fetch("/api/controller/daily-summary")
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Financial data refreshed:", data);
+            // Update key metrics if needed
+          })
+          .catch((error) => console.log("Data refresh failed:", error));
+      }, 300000); // 5 minutes
+    </script>
+  </body>
+</html>

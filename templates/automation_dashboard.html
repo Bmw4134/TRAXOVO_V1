@@ -1,207 +1,226 @@
-{% extends "unified_base.html" %}
-
-{% block title %}TRAXOVO Automation Hub{% endblock %}
-
-{% block content %}
+{% extends "unified_base.html" %} {% block title %}TRAXOVO Automation Hub{%
+endblock %} {% block content %}
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <h1>TRAXOVO Automation Hub</h1>
-            <p class="lead">Monday billing automation using Replit Object Storage, GitHub API, and Supabase</p>
-        </div>
+  <div class="row">
+    <div class="col-12">
+      <h1>TRAXOVO Automation Hub</h1>
+      <p class="lead">
+        Monday billing automation using Replit Object Storage, GitHub API, and
+        Supabase
+      </p>
     </div>
+  </div>
 
-    <!-- Integration Status Cards -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card border-primary">
-                <div class="card-body">
-                    <h5>Supabase Integration</h5>
-                    <p id="supabase-status">Checking...</p>
-                    <button class="btn btn-primary btn-sm" onclick="testSupabaseConnection()">Test Connection</button>
-                </div>
-            </div>
+  <!-- Integration Status Cards -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card border-primary">
+        <div class="card-body">
+          <h5>Supabase Integration</h5>
+          <p id="supabase-status">Checking...</p>
+          <button
+            class="btn btn-primary btn-sm"
+            onclick="testSupabaseConnection()"
+          >
+            Test Connection
+          </button>
         </div>
-        <div class="col-md-4">
-            <div class="card border-success">
-                <div class="card-body">
-                    <h5>Object Storage</h5>
-                    <p class="text-success">Active (Replit Native)</p>
-                    <button class="btn btn-success btn-sm" onclick="createBackup()">Create Backup</button>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-warning">
-                <div class="card-body">
-                    <h5>GitHub API</h5>
-                    <p id="github-status">Checking...</p>
-                    <button class="btn btn-warning btn-sm" onclick="testGitHubConnection()">Test Connection</button>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+    <div class="col-md-4">
+      <div class="card border-success">
+        <div class="card-body">
+          <h5>Object Storage</h5>
+          <p class="text-success">Active (Replit Native)</p>
+          <button class="btn btn-success btn-sm" onclick="createBackup()">
+            Create Backup
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-warning">
+        <div class="card-body">
+          <h5>GitHub API</h5>
+          <p id="github-status">Checking...</p>
+          <button
+            class="btn btn-warning btn-sm"
+            onclick="testGitHubConnection()"
+          >
+            Test Connection
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Automation Controls -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3>Monday Billing Automation</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h5>May 2025 Equipment Billing</h5>
-                            <p>Automate complete RAGLE + SELECT billing workbooks</p>
-                            <div class="form-group mb-3">
-                                <label>Month:</label>
-                                <select class="form-control" id="month-select">
-                                    <option value="May">May 2025</option>
-                                    <option value="June">June 2025</option>
-                                </select>
-                            </div>
-                            <button class="btn btn-primary btn-lg" onclick="runBillingAutomation()">
-                                Run Automation
-                            </button>
-                        </div>
-                        <div class="col-md-6">
-                            <h5>Automation Status</h5>
-                            <div id="automation-status" class="border p-3">
-                                <p>Ready to process GAUGE reports</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <!-- Automation Controls -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3>Monday Billing Automation</h3>
         </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h5>May 2025 Equipment Billing</h5>
+              <p>Automate complete RAGLE + SELECT billing workbooks</p>
+              <div class="form-group mb-3">
+                <label>Month:</label>
+                <select class="form-control" id="month-select">
+                  <option value="May">May 2025</option>
+                  <option value="June">June 2025</option>
+                </select>
+              </div>
+              <button
+                class="btn btn-primary btn-lg"
+                onclick="runBillingAutomation()"
+              >
+                Run Automation
+              </button>
+            </div>
+            <div class="col-md-6">
+              <h5>Automation Status</h5>
+              <div id="automation-status" class="border p-3">
+                <p>Ready to process GAUGE reports</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Recent Automation Runs -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Recent Automation Runs</h4>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Timestamp</th>
-                                    <th>Type</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="automation-history">
-                                {% for run in recent_runs %}
-                                <tr>
-                                    <td>{{ run.timestamp }}</td>
-                                    <td>{{ run.type }}</td>
-                                    <td><span class="badge badge-success">Completed</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary">View Details</button>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+  <!-- Recent Automation Runs -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h4>Recent Automation Runs</h4>
         </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="automation-history">
+                {% for run in recent_runs %}
+                <tr>
+                  <td>{{ run.timestamp }}</td>
+                  <td>{{ run.type }}</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary">
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
-// Test Supabase connection
-function testSupabaseConnection() {
-    fetch('/automation/api/sync-to-supabase', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({})
+  // Test Supabase connection
+  function testSupabaseConnection() {
+    fetch("/automation/api/sync-to-supabase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
     })
-    .then(response => response.json())
-    .then(data => {
-        const statusEl = document.getElementById('supabase-status');
+      .then((response) => response.json())
+      .then((data) => {
+        const statusEl = document.getElementById("supabase-status");
         if (data.success) {
-            statusEl.innerHTML = '<span class="text-success">Connected</span>';
+          statusEl.innerHTML = '<span class="text-success">Connected</span>';
         } else {
-            statusEl.innerHTML = '<span class="text-danger">Connection Failed</span>';
+          statusEl.innerHTML =
+            '<span class="text-danger">Connection Failed</span>';
         }
-    });
-}
+      });
+  }
 
-// Test GitHub API connection
-function testGitHubConnection() {
-    fetch('/automation/api/github-integration-status')
-    .then(response => response.json())
-    .then(data => {
-        const statusEl = document.getElementById('github-status');
+  // Test GitHub API connection
+  function testGitHubConnection() {
+    fetch("/automation/api/github-integration-status")
+      .then((response) => response.json())
+      .then((data) => {
+        const statusEl = document.getElementById("github-status");
         if (data.connected) {
-            statusEl.innerHTML = `<span class="text-success">Connected (${data.user})</span>`;
+          statusEl.innerHTML = `<span class="text-success">Connected (${data.user})</span>`;
         } else {
-            statusEl.innerHTML = '<span class="text-danger">Not Connected</span>';
+          statusEl.innerHTML = '<span class="text-danger">Not Connected</span>';
         }
-    });
-}
+      });
+  }
 
-// Create backup to Object Storage
-function createBackup() {
-    fetch('/automation/api/object-storage-backup', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({})
+  // Create backup to Object Storage
+  function createBackup() {
+    fetch("/automation/api/object-storage-backup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
     })
-    .then(response => response.json())
-    .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         if (data.success) {
-            alert('Backup created: ' + data.backup_file);
+          alert("Backup created: " + data.backup_file);
         } else {
-            alert('Backup failed: ' + data.error);
+          alert("Backup failed: " + data.error);
         }
-    });
-}
+      });
+  }
 
-// Run billing automation
-function runBillingAutomation() {
-    const month = document.getElementById('month-select').value;
-    const statusEl = document.getElementById('automation-status');
-    
-    statusEl.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="sr-only">Processing...</span></div><p>Running automation...</p>';
-    
-    fetch('/automation/api/run-billing-automation', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({month: month, year: 2025})
+  // Run billing automation
+  function runBillingAutomation() {
+    const month = document.getElementById("month-select").value;
+    const statusEl = document.getElementById("automation-status");
+
+    statusEl.innerHTML =
+      '<div class="spinner-border text-primary" role="status"><span class="sr-only">Processing...</span></div><p>Running automation...</p>';
+
+    fetch("/automation/api/run-billing-automation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ month: month, year: 2025 }),
     })
-    .then(response => response.json())
-    .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         if (data.success) {
-            statusEl.innerHTML = `
+          statusEl.innerHTML = `
                 <div class="alert alert-success">
                     <h5>Automation Completed!</h5>
                     <p>Total Revenue: $${data.results.total_revenue.toLocaleString()}</p>
-                    <p>Steps: ${data.results.steps_completed.join(', ')}</p>
+                    <p>Steps: ${data.results.steps_completed.join(", ")}</p>
                 </div>
             `;
         } else {
-            statusEl.innerHTML = `
+          statusEl.innerHTML = `
                 <div class="alert alert-danger">
                     <h5>Automation Failed</h5>
                     <p>${data.message}</p>
                 </div>
             `;
         }
-    });
-}
+      });
+  }
 
-// Initialize page
-document.addEventListener('DOMContentLoaded', function() {
+  // Initialize page
+  document.addEventListener("DOMContentLoaded", function () {
     testSupabaseConnection();
     testGitHubConnection();
-});
+  });
 </script>
 {% endblock %}

@@ -1,5 +1,14 @@
-<!DOCTYPE html><html><head><title>Job Security Monitoring</title></head><body><h2>Security Alerts Dashboard</h2><div>
-{% for alert in alerts %}
-<div style="color:red;">{{ alert.message }}</div>
-{% endfor %}
-</div></body></html>
+<!doctype html>
+<html>
+  <head>
+    <title>Job Security Monitoring</title>
+  </head>
+  <body>
+    <h2>Security Alerts Dashboard</h2>
+    <div>
+      {% for alert in alerts %}
+      <div style="color: red">{{ alert.message }}</div>
+      {% endfor %}
+    </div>
+  </body>
+</html>

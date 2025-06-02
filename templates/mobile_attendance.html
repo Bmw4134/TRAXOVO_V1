@@ -1,261 +1,317 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>TRAXOVO Attendance</title>
-    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #1a1a1a;
-            color: white;
-        }
-        
-        .mobile-header {
-            background: #2d3748;
-            padding: 15px;
-            text-align: center;
-            border-bottom: 2px solid #4a5568;
-        }
-        
-        .mobile-header h1 {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 600;
-        }
-        
-        .date-selector {
-            background: #374151;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .date-btn {
-            background: #4f46e5;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        .date-btn.active {
-            background: #10b981;
-        }
-        
-        .attendance-list {
-            padding: 10px;
-        }
-        
-        .driver-card {
-            background: #374151;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .driver-info {
-            flex: 1;
-        }
-        
-        .driver-name {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        
-        .driver-unit {
-            font-size: 14px;
-            color: #9ca3af;
-        }
-        
-        .status-badge {
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            min-width: 80px;
-            text-align: center;
-        }
-        
-        .status-present { background: #10b981; color: white; }
-        .status-late { background: #f59e0b; color: white; }
-        .status-absent { background: #ef4444; color: white; }
-        .status-early { background: #f97316; color: white; }
-        .status-unknown { background: #6b7280; color: white; }
-        
-        .week-navigation {
-            background: #374151;
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .week-btn {
-            background: #4f46e5;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 15px;
-            font-size: 14px;
-        }
-        
-        .week-display {
-            font-size: 16px;
-            font-weight: 600;
-        }
-        
-        .summary-stats {
-            background: #374151;
-            padding: 15px;
-            margin: 10px;
-            border-radius: 12px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            text-align: center;
-        }
-        
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .stat-number {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            color: #9ca3af;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #9ca3af;
-        }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: #1a1a1a;
+        color: white;
+      }
+
+      .mobile-header {
+        background: #2d3748;
+        padding: 15px;
+        text-align: center;
+        border-bottom: 2px solid #4a5568;
+      }
+
+      .mobile-header h1 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      .date-selector {
+        background: #374151;
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .date-btn {
+        background: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .date-btn.active {
+        background: #10b981;
+      }
+
+      .attendance-list {
+        padding: 10px;
+      }
+
+      .driver-card {
+        background: #374151;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .driver-info {
+        flex: 1;
+      }
+
+      .driver-name {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      .driver-unit {
+        font-size: 14px;
+        color: #9ca3af;
+      }
+
+      .status-badge {
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        min-width: 80px;
+        text-align: center;
+      }
+
+      .status-present {
+        background: #10b981;
+        color: white;
+      }
+      .status-late {
+        background: #f59e0b;
+        color: white;
+      }
+      .status-absent {
+        background: #ef4444;
+        color: white;
+      }
+      .status-early {
+        background: #f97316;
+        color: white;
+      }
+      .status-unknown {
+        background: #6b7280;
+        color: white;
+      }
+
+      .week-navigation {
+        background: #374151;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .week-btn {
+        background: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 14px;
+      }
+
+      .week-display {
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .summary-stats {
+        background: #374151;
+        padding: 15px;
+        margin: 10px;
+        border-radius: 12px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        text-align: center;
+      }
+
+      .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .stat-number {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: #9ca3af;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #9ca3af;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="mobile-header">
-        <h1><i class="fas fa-users me-2"></i>TRAXOVO Attendance</h1>
+      <h1><i class="fas fa-users me-2"></i>TRAXOVO Attendance</h1>
     </div>
 
     <div class="week-navigation">
-        <button class="week-btn" onclick="changeWeek(-1)">
-            <i class="fas fa-chevron-left"></i> Prev
-        </button>
-        <div class="week-display" id="currentWeek">This Week</div>
-        <button class="week-btn" onclick="changeWeek(1)">
-            Next <i class="fas fa-chevron-right"></i>
-        </button>
+      <button class="week-btn" onclick="changeWeek(-1)">
+        <i class="fas fa-chevron-left"></i> Prev
+      </button>
+      <div class="week-display" id="currentWeek">This Week</div>
+      <button class="week-btn" onclick="changeWeek(1)">
+        Next <i class="fas fa-chevron-right"></i>
+      </button>
     </div>
 
     <div class="summary-stats" id="summaryStats">
-        <div class="stat-item">
-            <div class="stat-number" style="color: #10b981;">0</div>
-            <div class="stat-label">On Time</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number" style="color: #f59e0b;">0</div>
-            <div class="stat-label">Late</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number" style="color: #f97316;">0</div>
-            <div class="stat-label">Left Early</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number" style="color: #ef4444;">0</div>
-            <div class="stat-label">Absent</div>
-        </div>
+      <div class="stat-item">
+        <div class="stat-number" style="color: #10b981">0</div>
+        <div class="stat-label">On Time</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" style="color: #f59e0b">0</div>
+        <div class="stat-label">Late</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" style="color: #f97316">0</div>
+        <div class="stat-label">Left Early</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" style="color: #ef4444">0</div>
+        <div class="stat-label">Absent</div>
+      </div>
     </div>
 
     <div class="date-selector">
-        <button class="date-btn active" data-day="monday" onclick="selectDay('monday')">Mon</button>
-        <button class="date-btn" data-day="tuesday" onclick="selectDay('tuesday')">Tue</button>
-        <button class="date-btn" data-day="wednesday" onclick="selectDay('wednesday')">Wed</button>
-        <button class="date-btn" data-day="thursday" onclick="selectDay('thursday')">Thu</button>
-        <button class="date-btn" data-day="friday" onclick="selectDay('friday')">Fri</button>
+      <button
+        class="date-btn active"
+        data-day="monday"
+        onclick="selectDay('monday')"
+      >
+        Mon
+      </button>
+      <button
+        class="date-btn"
+        data-day="tuesday"
+        onclick="selectDay('tuesday')"
+      >
+        Tue
+      </button>
+      <button
+        class="date-btn"
+        data-day="wednesday"
+        onclick="selectDay('wednesday')"
+      >
+        Wed
+      </button>
+      <button
+        class="date-btn"
+        data-day="thursday"
+        onclick="selectDay('thursday')"
+      >
+        Thu
+      </button>
+      <button class="date-btn" data-day="friday" onclick="selectDay('friday')">
+        Fri
+      </button>
     </div>
 
     <div class="attendance-list" id="attendanceList">
-        <div class="loading">
-            <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
-            <div>Loading attendance data...</div>
-        </div>
+      <div class="loading">
+        <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+        <div>Loading attendance data...</div>
+      </div>
     </div>
 
     <script>
-        let currentWeekOffset = 0;
-        let currentDay = 'monday';
-        let attendanceData = {};
+      let currentWeekOffset = 0;
+      let currentDay = "monday";
+      let attendanceData = {};
 
-        // Initialize the mobile attendance view
-        async function initMobileAttendance() {
-            await loadAttendanceData();
-            updateWeekDisplay();
-            displayAttendance();
-        }
+      // Initialize the mobile attendance view
+      async function initMobileAttendance() {
+        await loadAttendanceData();
+        updateWeekDisplay();
+        displayAttendance();
+      }
 
-        // Load attendance data from server
-        async function loadAttendanceData() {
-            try {
-                const response = await fetch('/api/mobile-attendance');
-                const data = await response.json();
-                
-                if (data.success) {
-                    attendanceData = data.attendance || {};
-                    updateSummaryStats();
-                } else {
-                    console.error('Error loading attendance:', data.error);
-                }
-            } catch (error) {
-                console.error('Network error:', error);
-                document.getElementById('attendanceList').innerHTML = `
+      // Load attendance data from server
+      async function loadAttendanceData() {
+        try {
+          const response = await fetch("/api/mobile-attendance");
+          const data = await response.json();
+
+          if (data.success) {
+            attendanceData = data.attendance || {};
+            updateSummaryStats();
+          } else {
+            console.error("Error loading attendance:", data.error);
+          }
+        } catch (error) {
+          console.error("Network error:", error);
+          document.getElementById("attendanceList").innerHTML = `
                     <div class="loading">
                         <i class="fas fa-exclamation-triangle fa-2x mb-3" style="color: #ef4444;"></i>
                         <div>Error loading data. Please check connection.</div>
                     </div>
                 `;
-            }
         }
+      }
 
-        // Display attendance for selected day
-        function displayAttendance() {
-            const listContainer = document.getElementById('attendanceList');
-            const dayData = attendanceData[currentDay] || [];
-            
-            if (dayData.length === 0) {
-                listContainer.innerHTML = `
+      // Display attendance for selected day
+      function displayAttendance() {
+        const listContainer = document.getElementById("attendanceList");
+        const dayData = attendanceData[currentDay] || [];
+
+        if (dayData.length === 0) {
+          listContainer.innerHTML = `
                     <div class="loading">
                         <i class="fas fa-calendar-times fa-2x mb-3" style="color: #6b7280;"></i>
                         <div>No attendance data for ${currentDay.charAt(0).toUpperCase() + currentDay.slice(1)}</div>
                     </div>
                 `;
-                return;
-            }
+          return;
+        }
 
-            const html = dayData.map(driver => {
-                const cleanName = cleanDriverName(driver.driver_name || driver.name);
-                const unitNumber = extractUnitNumber(driver.asset_assignment || driver.unit);
-                const status = getCleanStatus(driver.status);
-                
-                return `
+        const html = dayData
+          .map((driver) => {
+            const cleanName = cleanDriverName(
+              driver.driver_name || driver.name,
+            );
+            const unitNumber = extractUnitNumber(
+              driver.asset_assignment || driver.unit,
+            );
+            const status = getCleanStatus(driver.status);
+
+            return `
                     <div class="driver-card">
                         <div class="driver-info">
                             <div class="driver-name">${cleanName}</div>
@@ -266,126 +322,145 @@
                         </div>
                     </div>
                 `;
-            }).join('');
-            
-            listContainer.innerHTML = html;
+          })
+          .join("");
+
+        listContainer.innerHTML = html;
+      }
+
+      // Clean driver names as Chris requested
+      function cleanDriverName(rawName) {
+        if (!rawName) return "Unknown Driver";
+
+        // Remove vehicle info and clean up
+        let name = rawName.toUpperCase();
+
+        // Remove common vehicle types
+        const vehicleTypes = [
+          "JEEP WRANGLER",
+          "FORD F150",
+          "PICKUP TRUCK",
+          "PERSONAL VEHICLE",
+          "COMPANY VEHICLE",
+          "WORK TRUCK",
+          "JEEP",
+          "FORD",
+          "2024",
+        ];
+
+        vehicleTypes.forEach((type) => {
+          name = name.replace(type, "");
+        });
+
+        // Clean up and get first/last name only
+        const parts = name
+          .trim()
+          .split(/\s+/)
+          .filter(
+            (part) =>
+              part.length > 1 && !part.match(/^\d+$/) && !part.endsWith("."),
+          );
+
+        if (parts.length >= 2) {
+          return `${parts[0]} ${parts[parts.length - 1]}`
+            .toLowerCase()
+            .split(" ")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+        } else if (parts.length === 1) {
+          return (
+            parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase()
+          );
         }
 
-        // Clean driver names as Chris requested
-        function cleanDriverName(rawName) {
-            if (!rawName) return "Unknown Driver";
-            
-            // Remove vehicle info and clean up
-            let name = rawName.toUpperCase();
-            
-            // Remove common vehicle types
-            const vehicleTypes = [
-                'JEEP WRANGLER', 'FORD F150', 'PICKUP TRUCK', 'PERSONAL VEHICLE',
-                'COMPANY VEHICLE', 'WORK TRUCK', 'JEEP', 'FORD', '2024'
-            ];
-            
-            vehicleTypes.forEach(type => {
-                name = name.replace(type, '');
-            });
-            
-            // Clean up and get first/last name only
-            const parts = name.trim().split(/\s+/).filter(part => 
-                part.length > 1 && !part.match(/^\d+$/) && !part.endsWith('.')
-            );
-            
-            if (parts.length >= 2) {
-                return `${parts[0]} ${parts[parts.length - 1]}`.toLowerCase()
-                    .split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-            } else if (parts.length === 1) {
-                return parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
-            }
-            
-            return "Unknown Driver";
+        return "Unknown Driver";
+      }
+
+      // Extract unit number for clean display
+      function extractUnitNumber(rawUnit) {
+        if (!rawUnit) return "No Unit";
+
+        // Extract numbers like #210003, ET-01, PT-07S
+        const match = rawUnit.match(/#?(\d+)|([A-Z]{2}-\d+[A-Z]?)/);
+        if (match) {
+          return match[1] ? `#${match[1]}` : match[2];
         }
 
-        // Extract unit number for clean display
-        function extractUnitNumber(rawUnit) {
-            if (!rawUnit) return "No Unit";
-            
-            // Extract numbers like #210003, ET-01, PT-07S
-            const match = rawUnit.match(/#?(\d+)|([A-Z]{2}-\d+[A-Z]?)/);
-            if (match) {
-                return match[1] ? `#${match[1]}` : match[2];
-            }
-            
-            return rawUnit.substring(0, 10); // Truncate if too long
-        }
+        return rawUnit.substring(0, 10); // Truncate if too long
+      }
 
-        // Get clean status display
-        function getCleanStatus(rawStatus) {
-            const statusMap = {
-                'present': { text: 'On Time', icon: '✅', class: 'present' },
-                'late': { text: 'Late', icon: '⏰', class: 'late' },
-                'absent': { text: 'Absent', icon: '❌', class: 'absent' },
-                'early_departure': { text: 'Left Early', icon: '🏃', class: 'early' },
-                'not_on_job': { text: 'Not on Job', icon: '📍', class: 'early' }
-            };
-            
-            const status = rawStatus?.toLowerCase() || 'unknown';
-            return statusMap[status] || { text: 'Unknown', icon: '❓', class: 'unknown' };
-        }
+      // Get clean status display
+      function getCleanStatus(rawStatus) {
+        const statusMap = {
+          present: { text: "On Time", icon: "✅", class: "present" },
+          late: { text: "Late", icon: "⏰", class: "late" },
+          absent: { text: "Absent", icon: "❌", class: "absent" },
+          early_departure: { text: "Left Early", icon: "🏃", class: "early" },
+          not_on_job: { text: "Not on Job", icon: "📍", class: "early" },
+        };
 
-        // Day selection
-        function selectDay(day) {
-            currentDay = day;
-            
-            // Update button states
-            document.querySelectorAll('.date-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector(`[data-day="${day}"]`).classList.add('active');
-            
-            displayAttendance();
-        }
+        const status = rawStatus?.toLowerCase() || "unknown";
+        return (
+          statusMap[status] || { text: "Unknown", icon: "❓", class: "unknown" }
+        );
+      }
 
-        // Week navigation
-        function changeWeek(direction) {
-            currentWeekOffset += direction;
-            updateWeekDisplay();
-            loadAttendanceData();
-        }
+      // Day selection
+      function selectDay(day) {
+        currentDay = day;
 
-        function updateWeekDisplay() {
-            const weekDisplay = document.getElementById('currentWeek');
-            if (currentWeekOffset === 0) {
-                weekDisplay.textContent = 'This Week';
-            } else if (currentWeekOffset === -1) {
-                weekDisplay.textContent = 'Last Week';
-            } else if (currentWeekOffset === 1) {
-                weekDisplay.textContent = 'Next Week';
-            } else {
-                weekDisplay.textContent = `${Math.abs(currentWeekOffset)} weeks ${currentWeekOffset > 0 ? 'ahead' : 'ago'}`;
-            }
-        }
+        // Update button states
+        document.querySelectorAll(".date-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        document.querySelector(`[data-day="${day}"]`).classList.add("active");
 
-        // Update summary statistics
-        function updateSummaryStats() {
-            const stats = { present: 0, late: 0, early: 0, absent: 0 };
-            
-            Object.values(attendanceData).forEach(dayData => {
-                dayData.forEach(driver => {
-                    const status = driver.status?.toLowerCase() || 'unknown';
-                    if (status === 'present') stats.present++;
-                    else if (status === 'late') stats.late++;
-                    else if (status === 'early_departure') stats.early++;
-                    else if (status === 'absent') stats.absent++;
-                });
-            });
-            
-            const statItems = document.querySelectorAll('.stat-number');
-            statItems[0].textContent = stats.present;
-            statItems[1].textContent = stats.late;
-            statItems[2].textContent = stats.early;
-            statItems[3].textContent = stats.absent;
-        }
+        displayAttendance();
+      }
 
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', initMobileAttendance);
+      // Week navigation
+      function changeWeek(direction) {
+        currentWeekOffset += direction;
+        updateWeekDisplay();
+        loadAttendanceData();
+      }
+
+      function updateWeekDisplay() {
+        const weekDisplay = document.getElementById("currentWeek");
+        if (currentWeekOffset === 0) {
+          weekDisplay.textContent = "This Week";
+        } else if (currentWeekOffset === -1) {
+          weekDisplay.textContent = "Last Week";
+        } else if (currentWeekOffset === 1) {
+          weekDisplay.textContent = "Next Week";
+        } else {
+          weekDisplay.textContent = `${Math.abs(currentWeekOffset)} weeks ${currentWeekOffset > 0 ? "ahead" : "ago"}`;
+        }
+      }
+
+      // Update summary statistics
+      function updateSummaryStats() {
+        const stats = { present: 0, late: 0, early: 0, absent: 0 };
+
+        Object.values(attendanceData).forEach((dayData) => {
+          dayData.forEach((driver) => {
+            const status = driver.status?.toLowerCase() || "unknown";
+            if (status === "present") stats.present++;
+            else if (status === "late") stats.late++;
+            else if (status === "early_departure") stats.early++;
+            else if (status === "absent") stats.absent++;
+          });
+        });
+
+        const statItems = document.querySelectorAll(".stat-number");
+        statItems[0].textContent = stats.present;
+        statItems[1].textContent = stats.late;
+        statItems[2].textContent = stats.early;
+        statItems[3].textContent = stats.absent;
+      }
+
+      // Initialize when page loads
+      document.addEventListener("DOMContentLoaded", initMobileAttendance);
     </script>
-</body>
+  </body>
 </html>

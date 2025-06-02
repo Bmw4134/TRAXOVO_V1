@@ -1,433 +1,578 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>TRAXOVO Fleet Intelligence</title><style>
-* {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>TRAXOVO Fleet Intelligence</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-body {
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-background: #f8fafc;
-min-height: 100vh;
-display: flex;
-}
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: #f8fafc;
+        min-height: 100vh;
+        display: flex;
+      }
 
-/* Sidebar exactly like your screenshot */
-.sidebar {
-width: 280px;
-background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
-color: white;
-position: fixed;
-height: 100vh;
-overflow-y: auto;
-box-shadow: 4px 0 12px rgba(0,0,0,0.15);
-}
+      /* Sidebar exactly like your screenshot */
+      .sidebar {
+        width: 280px;
+        background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
+        color: white;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+        box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+      }
 
-.sidebar-header {
-padding: 2rem 1.5rem 1rem;
-border-bottom: 1px solid rgba(255,255,255,0.1);
-}
+      .sidebar-header {
+        padding: 2rem 1.5rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
 
-.sidebar-header h1 {
-font-size: 1.5rem;
-font-weight: 700;
-letter-spacing: 0.5px;
-}
+      .sidebar-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
 
-.nav-section {
-padding: 1.5rem 0 0.5rem;
-}
+      .nav-section {
+        padding: 1.5rem 0 0.5rem;
+      }
 
-.nav-section-title {
-padding: 0 1.5rem 0.75rem;
-font-size: 0.75rem;
-font-weight: 600;
-text-transform: uppercase;
-letter-spacing: 1px;
-color: #a0aec0;
-}
+      .nav-section-title {
+        padding: 0 1.5rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #a0aec0;
+      }
 
-.nav-item {
-display: flex;
-align-items: center;
-padding: 0.75rem 1.5rem;
-color: #e2e8f0;
-text-decoration: none;
-transition: all 0.2s ease;
-border-left: 3px solid transparent;
-}
+      .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        color: #e2e8f0;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+      }
 
-.nav-item:hover {
-background: rgba(255,255,255,0.1);
-border-left-color: #667eea;
-color: white;
-text-decoration: none;
-}
+      .nav-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-left-color: #667eea;
+        color: white;
+        text-decoration: none;
+      }
 
-.nav-item.active {
-background: rgba(102, 126, 234, 0.2);
-border-left-color: #667eea;
-color: #667eea;
-}
+      .nav-item.active {
+        background: rgba(102, 126, 234, 0.2);
+        border-left-color: #667eea;
+        color: #667eea;
+      }
 
-.nav-item-icon {
-width: 20px;
-height: 20px;
-margin-right: 0.75rem;
-opacity: 0.8;
-}
+      .nav-item-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 0.75rem;
+        opacity: 0.8;
+      }
 
-/* Main content area - clean white */
-.main-content {
-margin-left: 280px;
-flex: 1;
-padding: 2rem;
-background: white;
-}
+      /* Main content area - clean white */
+      .main-content {
+        margin-left: 280px;
+        flex: 1;
+        padding: 2rem;
+        background: white;
+      }
 
-.dashboard-header {
-margin-bottom: 2rem;
-padding-bottom: 1rem;
-border-bottom: 1px solid #e2e8f0;
-}
+      .dashboard-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+      }
 
-.dashboard-title {
-font-size: 2.5rem;
-font-weight: 700;
-color: #1a202c;
-margin-bottom: 0.5rem;
-}
+      .dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 0.5rem;
+      }
 
-.dashboard-subtitle {
-color: #64748b;
-font-size: 1rem;
-}
+      .dashboard-subtitle {
+        color: #64748b;
+        font-size: 1rem;
+      }
 
-/* Professional metric cards with colored borders */
-.metrics-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-gap: 1.5rem;
-margin-bottom: 2rem;
-}
+      /* Professional metric cards with colored borders */
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
 
-.metric-card {
-background: white;
-border: 1px solid #e2e8f0;
-border-left: 4px solid #3b82f6;
-border-radius: 8px;
-padding: 1.5rem;
-box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-transition: all 0.2s ease;
-}
+      .metric-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #3b82f6;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+      }
 
-.metric-card:hover {
-box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-transform: translateY(-2px);
-}
+      .metric-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+      }
 
-.metric-value {
-font-size: 2.5rem;
-font-weight: 700;
-color: #1a202c;
-margin-bottom: 0.5rem;
-}
+      .metric-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 0.5rem;
+      }
 
-.metric-label {
-font-size: 0.875rem;
-color: #64748b;
-font-weight: 500;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-}
+      .metric-label {
+        font-size: 0.875rem;
+        color: #64748b;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
 
-.metric-change {
-font-size: 0.75rem;
-color: #10b981;
-margin-top: 0.5rem;
-}
+      .metric-change {
+        font-size: 0.75rem;
+        color: #10b981;
+        margin-top: 0.5rem;
+      }
 
-/* Status section */
-.status-section {
-background: #f8fafc;
-border: 1px solid #e2e8f0;
-border-radius: 8px;
-padding: 1.5rem;
-margin-top: 2rem;
-}
+      /* Status section */
+      .status-section {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+      }
 
-.status-title {
-font-size: 1.125rem;
-font-weight: 600;
-color: #1a202c;
-margin-bottom: 1rem;
-}
+      .status-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1a202c;
+        margin-bottom: 1rem;
+      }
 
-.status-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-gap: 1rem;
-}
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
 
-.status-item {
-display: flex;
-align-items: center;
-padding: 0.75rem;
-background: white;
-border-radius: 6px;
-border: 1px solid #e2e8f0;
-}
+      .status-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        background: white;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+      }
 
-.status-indicator {
-width: 8px;
-height: 8px;
-border-radius: 50%;
-background: #10b981;
-margin-right: 0.75rem;
-box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-}
+      .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #10b981;
+        margin-right: 0.75rem;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+      }
 
-.status-text {
-color: #374151;
-font-size: 0.875rem;
-font-weight: 500;
-}
+      .status-text {
+        color: #374151;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
 
-/* Enhanced responsive design for all devices */
-@media (max-width: 1200px) {
-.metrics-grid {
-grid-template-columns: repeat(2, 1fr);
-gap: 1rem;
-}
+      /* Enhanced responsive design for all devices */
+      @media (max-width: 1200px) {
+        .metrics-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1rem;
+        }
 
-.sidebar {
-width: 260px;
-}
+        .sidebar {
+          width: 260px;
+        }
 
-.main-content {
-margin-left: 260px;
-padding: 1.5rem;
-}
-}
+        .main-content {
+          margin-left: 260px;
+          padding: 1.5rem;
+        }
+      }
 
-@media (max-width: 992px) {
-.metrics-grid {
-grid-template-columns: repeat(2, 1fr);
-gap: 1rem;
-}
+      @media (max-width: 992px) {
+        .metrics-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1rem;
+        }
 
-.sidebar {
-width: 240px;
-}
+        .sidebar {
+          width: 240px;
+        }
 
-.main-content {
-margin-left: 240px;
-padding: 1rem;
-}
+        .main-content {
+          margin-left: 240px;
+          padding: 1rem;
+        }
 
-.dashboard-title {
-font-size: 2rem;
-}
+        .dashboard-title {
+          font-size: 2rem;
+        }
 
-.metric-value {
-font-size: 2rem;
-}
-}
+        .metric-value {
+          font-size: 2rem;
+        }
+      }
 
-@media (max-width: 768px) {
-.sidebar {
-width: 100%;
-height: auto;
-position: fixed;
-top: 0;
-left: -100%;
-transition: left 0.3s ease;
-z-index: 1000;
-}
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 100%;
+          height: auto;
+          position: fixed;
+          top: 0;
+          left: -100%;
+          transition: left 0.3s ease;
+          z-index: 1000;
+        }
 
-.sidebar.open {
-left: 0;
-}
+        .sidebar.open {
+          left: 0;
+        }
 
-.main-content {
-margin-left: 0;
-padding: 1rem;
-padding-top: 60px;
-}
+        .main-content {
+          margin-left: 0;
+          padding: 1rem;
+          padding-top: 60px;
+        }
 
-.metrics-grid {
-grid-template-columns: 1fr;
-gap: 1rem;
-}
+        .metrics-grid {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
 
-.dashboard-title {
-font-size: 1.75rem;
-}
+        .dashboard-title {
+          font-size: 1.75rem;
+        }
 
-.metric-value {
-font-size: 1.75rem;
-}
+        .metric-value {
+          font-size: 1.75rem;
+        }
 
-.metric-card {
-padding: 1rem;
-}
+        .metric-card {
+          padding: 1rem;
+        }
 
-/* Mobile menu button */
-.mobile-menu-btn {
-display: block;
-position: fixed;
-top: 15px;
-left: 15px;
-z-index: 1001;
-background: #2d3748;
-color: white;
-border: none;
-padding: 12px;
-border-radius: 8px;
-cursor: pointer;
-font-size: 18px;
-line-height: 1;
-box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
+        /* Mobile menu button */
+        .mobile-menu-btn {
+          display: block;
+          position: fixed;
+          top: 15px;
+          left: 15px;
+          z-index: 1001;
+          background: #2d3748;
+          color: white;
+          border: none;
+          padding: 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 18px;
+          line-height: 1;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
 
-.mobile-menu-btn:hover {
-background: #4a5568;
-}
-}
+        .mobile-menu-btn:hover {
+          background: #4a5568;
+        }
+      }
 
-@media (max-width: 480px) {
-.main-content {
-padding: 0.75rem;
-padding-top: 50px;
-}
+      @media (max-width: 480px) {
+        .main-content {
+          padding: 0.75rem;
+          padding-top: 50px;
+        }
 
-.dashboard-title {
-font-size: 1.5rem;
-}
+        .dashboard-title {
+          font-size: 1.5rem;
+        }
 
-.dashboard-subtitle {
-font-size: 0.875rem;
-}
+        .dashboard-subtitle {
+          font-size: 0.875rem;
+        }
 
-.metric-value {
-font-size: 1.5rem;
-}
+        .metric-value {
+          font-size: 1.5rem;
+        }
 
-.metric-label {
-font-size: 0.75rem;
-}
+        .metric-label {
+          font-size: 0.75rem;
+        }
 
-.nav-item {
-padding: 1rem 1.5rem;
-font-size: 0.9rem;
-}
-}
+        .nav-item {
+          padding: 1rem 1.5rem;
+          font-size: 0.9rem;
+        }
+      }
 
-/* Show mobile menu button only on mobile */
-@media (min-width: 769px) {
-.mobile-menu-btn {
-display: none;
-}
-}
+      /* Show mobile menu button only on mobile */
+      @media (min-width: 769px) {
+        .mobile-menu-btn {
+          display: none;
+        }
+      }
 
-/* Smooth transitions for all interactive elements */
-* {
-transition: all 0.2s ease;
-}
+      /* Smooth transitions for all interactive elements */
+      * {
+        transition: all 0.2s ease;
+      }
 
-/* Ensure proper scaling on all devices */
-.metric-card {
-min-height: 120px;
-display: flex;
-flex-direction: column;
-justify-content: center;
-}
+      /* Ensure proper scaling on all devices */
+      .metric-card {
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
 
-/* Touch-friendly sizing for mobile */
-@media (max-width: 768px) {
-.nav-item {
-min-height: 48px;
-display: flex;
-align-items: center;
-}
+      /* Touch-friendly sizing for mobile */
+      @media (max-width: 768px) {
+        .nav-item {
+          min-height: 48px;
+          display: flex;
+          align-items: center;
+        }
 
-.status-item {
-min-height: 44px;
-}
-}
-</style></head><body><button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button><div class="sidebar" id="sidebar"><div class="sidebar-header"><h1>TRAXOVO</h1></div><nav><div class="nav-section"><div class="nav-section-title">CORE OPERATIONS</div><a href="/" class="nav-item active"><div class="nav-item-icon">🎯</div>
-Dashboard
-</a><a href="/fleet-map" class="nav-item"><div class="nav-item-icon">🗺️</div>
-Live Fleet Map
-</a></div><div class="nav-section"><div class="nav-section-title">FLEET MANAGEMENT</div><a href="/asset-manager" class="nav-item"><div class="nav-item-icon">🚛</div>
-Asset Manager
-</a><a href="/equipment-dispatch" class="nav-item"><div class="nav-item-icon">📋</div>
-Equipment Dispatch
-</a><a href="/schedule-manager" class="nav-item"><div class="nav-item-icon">📅</div>
-Schedule Manager
-</a><a href="/job-sites" class="nav-item"><div class="nav-item-icon">🏗️</div>
-Job Sites
-</a></div><div class="nav-section"><div class="nav-section-title">WORKFORCE</div><a href="/attendance-matrix" class="nav-item"><div class="nav-item-icon">👥</div>
-Attendance Matrix
-</a><a href="/driver-management" class="nav-item"><div class="nav-item-icon">👤</div>
-Driver Management
-</a><a href="/daily-driver-report" class="nav-item"><div class="nav-item-icon">📊</div>
-Daily Driver Reports
-</a><a href="/weekly-driver-report" class="nav-item"><div class="nav-item-icon">📈</div>
-Weekly Reports
-</a></div><div class="nav-section"><div class="nav-section-title">ANALYTICS & REPORTING</div><a href="/billing" class="nav-item"><div class="nav-item-icon">💰</div>
-Revenue Analytics
-</a><a href="/project-accountability" class="nav-item"><div class="nav-item-icon">📋</div>
-Project Tracking
-</a><a href="/executive-reports" class="nav-item"><div class="nav-item-icon">📄</div>
-Executive Reports
-</a><a href="/mtd-reports" class="nav-item"><div class="nav-item-icon">📊</div>
-MTD Reports
-</a></div><div class="nav-section"><div class="nav-section-title">INTELLIGENCE</div><a href="/ai-assistant" class="nav-item"><div class="nav-item-icon">🤖</div>
-AI Assistant
-</a><a href="/workflow-optimization" class="nav-item"><div class="nav-item-icon">⚙️</div>
-Workflow Optimization
-</a><a href="/industry-news" class="nav-item"><div class="nav-item-icon">📰</div>
-Industry News
-</a></div><div class="nav-section"><div class="nav-section-title">ADMINISTRATION</div><a href="/system-health" class="nav-item"><div class="nav-item-icon">💚</div>
-System Health
-</a><a href="/file-upload" class="nav-item"><div class="nav-item-icon">📤</div>
-Data Upload
-</a><a href="/system-admin" class="nav-item"><div class="nav-item-icon">👨‍💼</div>
-User Management
-</a></div></nav></div><div class="main-content"><div class="dashboard-header"><h1 class="dashboard-title">Fleet Intelligence</h1><p class="dashboard-subtitle">Real-time fleet operations and business intelligence</p></div><div class="metrics-grid"><div class="metric-card" style="border-left-color: #2563eb;"><div class="metric-value" style="color: #2563eb;">${{ "{:,}".format(billable_revenue or 2210400) }}</div><div class="metric-label">Fleet Revenue</div><div class="metric-change">Based on authentic data</div></div><div class="metric-card" style="border-left-color: #059669;"><div class="metric-value" style="color: #059669;">{{ total_assets or 581 }}</div><div class="metric-label">Total Assets</div><div class="metric-change">From Gauge API</div></div><div class="metric-card" style="border-left-color: #d97706;"><div class="metric-value" style="color: #d97706;">{{ active_assets or 75 }}</div><div class="metric-label">Active Assets</div><div class="metric-change">Currently deployed</div></div><div class="metric-card" style="border-left-color: #dc2626;"><div class="metric-value" style="color: #dc2626;">{{ total_drivers or 92 }}</div><div class="metric-label">Total Drivers</div><div class="metric-change">Active workforce</div></div><div class="metric-card" style="border-left-color: #7c3aed;"><div class="metric-value" style="color: #7c3aed;">{{ clocked_in or 68 }}</div><div class="metric-label">Clocked In</div><div class="metric-change">Currently working</div></div><div class="metric-card" style="border-left-color: #0891b2;"><div class="metric-value" style="color: #0891b2;">{{ utilization_rate or 12.9 }}%</div><div class="metric-label">Utilization Rate</div><div class="metric-change">Fleet efficiency</div></div></div><div class="status-section"><h3 class="status-title">System Status</h3><div class="status-grid"><div class="status-item"><div class="status-indicator"></div><span class="status-text">Gauge API Connected</span></div><div class="status-item"><div class="status-indicator"></div><span class="status-text">GPS Tracking Online</span></div><div class="status-item"><div class="status-indicator"></div><span class="status-text">Data Sync Active</span></div><div class="status-item"><div class="status-indicator"></div><span class="status-text">All Systems Operational</span></div></div></div></div><script>
-function toggleMobileMenu() {
-const sidebar = document.getElementById('sidebar');
-sidebar.classList.toggle('open');
-}
+        .status-item {
+          min-height: 44px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header"><h1>TRAXOVO</h1></div>
+      <nav>
+        <div class="nav-section">
+          <div class="nav-section-title">CORE OPERATIONS</div>
+          <a href="/" class="nav-item active"
+            ><div class="nav-item-icon">🎯</div>
+            Dashboard </a
+          ><a href="/fleet-map" class="nav-item"
+            ><div class="nav-item-icon">🗺️</div>
+            Live Fleet Map
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">FLEET MANAGEMENT</div>
+          <a href="/asset-manager" class="nav-item"
+            ><div class="nav-item-icon">🚛</div>
+            Asset Manager </a
+          ><a href="/equipment-dispatch" class="nav-item"
+            ><div class="nav-item-icon">📋</div>
+            Equipment Dispatch </a
+          ><a href="/schedule-manager" class="nav-item"
+            ><div class="nav-item-icon">📅</div>
+            Schedule Manager </a
+          ><a href="/job-sites" class="nav-item"
+            ><div class="nav-item-icon">🏗️</div>
+            Job Sites
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">WORKFORCE</div>
+          <a href="/attendance-matrix" class="nav-item"
+            ><div class="nav-item-icon">👥</div>
+            Attendance Matrix </a
+          ><a href="/driver-management" class="nav-item"
+            ><div class="nav-item-icon">👤</div>
+            Driver Management </a
+          ><a href="/daily-driver-report" class="nav-item"
+            ><div class="nav-item-icon">📊</div>
+            Daily Driver Reports </a
+          ><a href="/weekly-driver-report" class="nav-item"
+            ><div class="nav-item-icon">📈</div>
+            Weekly Reports
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">ANALYTICS & REPORTING</div>
+          <a href="/billing" class="nav-item"
+            ><div class="nav-item-icon">💰</div>
+            Revenue Analytics </a
+          ><a href="/project-accountability" class="nav-item"
+            ><div class="nav-item-icon">📋</div>
+            Project Tracking </a
+          ><a href="/executive-reports" class="nav-item"
+            ><div class="nav-item-icon">📄</div>
+            Executive Reports </a
+          ><a href="/mtd-reports" class="nav-item"
+            ><div class="nav-item-icon">📊</div>
+            MTD Reports
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">INTELLIGENCE</div>
+          <a href="/ai-assistant" class="nav-item"
+            ><div class="nav-item-icon">🤖</div>
+            AI Assistant </a
+          ><a href="/workflow-optimization" class="nav-item"
+            ><div class="nav-item-icon">⚙️</div>
+            Workflow Optimization </a
+          ><a href="/industry-news" class="nav-item"
+            ><div class="nav-item-icon">📰</div>
+            Industry News
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">ADMINISTRATION</div>
+          <a href="/system-health" class="nav-item"
+            ><div class="nav-item-icon">💚</div>
+            System Health </a
+          ><a href="/file-upload" class="nav-item"
+            ><div class="nav-item-icon">📤</div>
+            Data Upload </a
+          ><a href="/system-admin" class="nav-item"
+            ><div class="nav-item-icon">👨‍💼</div>
+            User Management
+          </a>
+        </div>
+      </nav>
+    </div>
+    <div class="main-content">
+      <div class="dashboard-header">
+        <h1 class="dashboard-title">Fleet Intelligence</h1>
+        <p class="dashboard-subtitle">
+          Real-time fleet operations and business intelligence
+        </p>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card" style="border-left-color: #2563eb">
+          <div class="metric-value" style="color: #2563eb">
+            ${{ "{:,}".format(billable_revenue or 2210400) }}
+          </div>
+          <div class="metric-label">Fleet Revenue</div>
+          <div class="metric-change">Based on authentic data</div>
+        </div>
+        <div class="metric-card" style="border-left-color: #059669">
+          <div class="metric-value" style="color: #059669">
+            {{ total_assets or 581 }}
+          </div>
+          <div class="metric-label">Total Assets</div>
+          <div class="metric-change">From Gauge API</div>
+        </div>
+        <div class="metric-card" style="border-left-color: #d97706">
+          <div class="metric-value" style="color: #d97706">
+            {{ active_assets or 75 }}
+          </div>
+          <div class="metric-label">Active Assets</div>
+          <div class="metric-change">Currently deployed</div>
+        </div>
+        <div class="metric-card" style="border-left-color: #dc2626">
+          <div class="metric-value" style="color: #dc2626">
+            {{ total_drivers or 92 }}
+          </div>
+          <div class="metric-label">Total Drivers</div>
+          <div class="metric-change">Active workforce</div>
+        </div>
+        <div class="metric-card" style="border-left-color: #7c3aed">
+          <div class="metric-value" style="color: #7c3aed">
+            {{ clocked_in or 68 }}
+          </div>
+          <div class="metric-label">Clocked In</div>
+          <div class="metric-change">Currently working</div>
+        </div>
+        <div class="metric-card" style="border-left-color: #0891b2">
+          <div class="metric-value" style="color: #0891b2">
+            {{ utilization_rate or 12.9 }}%
+          </div>
+          <div class="metric-label">Utilization Rate</div>
+          <div class="metric-change">Fleet efficiency</div>
+        </div>
+      </div>
+      <div class="status-section">
+        <h3 class="status-title">System Status</h3>
+        <div class="status-grid">
+          <div class="status-item">
+            <div class="status-indicator"></div>
+            <span class="status-text">Gauge API Connected</span>
+          </div>
+          <div class="status-item">
+            <div class="status-indicator"></div>
+            <span class="status-text">GPS Tracking Online</span>
+          </div>
+          <div class="status-item">
+            <div class="status-indicator"></div>
+            <span class="status-text">Data Sync Active</span>
+          </div>
+          <div class="status-item">
+            <div class="status-indicator"></div>
+            <span class="status-text">All Systems Operational</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      function toggleMobileMenu() {
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("open");
+      }
 
-// Close mobile menu when clicking outside
-document.addEventListener('click', function(event) {
-const sidebar = document.getElementById('sidebar');
-const menuBtn = document.querySelector('.mobile-menu-btn');
+      // Close mobile menu when clicking outside
+      document.addEventListener("click", function (event) {
+        const sidebar = document.getElementById("sidebar");
+        const menuBtn = document.querySelector(".mobile-menu-btn");
 
-if (window.innerWidth <= 768) {
-if (!sidebar.contains(event.target) && !menuBtn.contains(event.target)) {
-sidebar.classList.remove('open');
-}
-}
-});
+        if (window.innerWidth <= 768) {
+          if (
+            !sidebar.contains(event.target) &&
+            !menuBtn.contains(event.target)
+          ) {
+            sidebar.classList.remove("open");
+          }
+        }
+      });
 
-// Handle window resize
-window.addEventListener('resize', function() {
-const sidebar = document.getElementById('sidebar');
-if (window.innerWidth > 768) {
-sidebar.classList.remove('open');
-}
-});
+      // Handle window resize
+      window.addEventListener("resize", function () {
+        const sidebar = document.getElementById("sidebar");
+        if (window.innerWidth > 768) {
+          sidebar.classList.remove("open");
+        }
+      });
 
-// Prevent zoom on double tap for iOS
-let lastTouchEnd = 0;
-document.addEventListener('touchend', function (event) {
-const now = (new Date()).getTime();
-if (now - lastTouchEnd <= 300) {
-event.preventDefault();
-}
-lastTouchEnd = now;
-}, false);
-</script></body></html>
+      // Prevent zoom on double tap for iOS
+      let lastTouchEnd = 0;
+      document.addEventListener(
+        "touchend",
+        function (event) {
+          const now = new Date().getTime();
+          if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+          }
+          lastTouchEnd = now;
+        },
+        false,
+      );
+    </script>
+  </body>
+</html>

@@ -1,280 +1,373 @@
-{% extends "master_unified.html" %}
-
-{% block content %}
+{% extends "master_unified.html" %} {% block content %}
 <!-- Job Detail with Working Hours Configuration -->
 <div class="row g-4 mb-4">
-    <div class="col-12">
-        <div class="alert alert-info">
-            <i class="fas fa-construction me-2"></i>
-            <strong>Job Zone Configuration:</strong> Set working hours and attendance parameters for job site validation
-        </div>
+  <div class="col-12">
+    <div class="alert alert-info">
+      <i class="fas fa-construction me-2"></i>
+      <strong>Job Zone Configuration:</strong> Set working hours and attendance
+      parameters for job site validation
     </div>
+  </div>
 </div>
 
 <!-- Job Information -->
 <div class="row g-4 mb-4">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Job #{{ job_id | default('2019-044') }} - {{ job_name | default('E Long Avenue Project') }}</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Location:</strong> {{ job_location | default('1234 E Long Avenue, Austin, TX') }}</p>
-                        <p><strong>Status:</strong> <span class="badge bg-success">Active</span></p>
-                        <p><strong>Project Manager:</strong> {{ project_manager | default('John Wilson') }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Start Date:</strong> {{ start_date | default('03/15/2024') }}</p>
-                        <p><strong>Estimated Completion:</strong> {{ completion_date | default('08/30/2025') }}</p>
-                        <p><strong>Budget:</strong> ${{ budget | default('2,450,000') }}</p>
-                    </div>
-                </div>
-            </div>
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          Job #{{ job_id | default('2019-044') }} - {{ job_name | default('E
+          Long Avenue Project') }}
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p>
+              <strong>Location:</strong> {{ job_location | default('1234 E Long
+              Avenue, Austin, TX') }}
+            </p>
+            <p>
+              <strong>Status:</strong>
+              <span class="badge bg-success">Active</span>
+            </p>
+            <p>
+              <strong>Project Manager:</strong> {{ project_manager |
+              default('John Wilson') }}
+            </p>
+          </div>
+          <div class="col-md-6">
+            <p>
+              <strong>Start Date:</strong> {{ start_date | default('03/15/2024')
+              }}
+            </p>
+            <p>
+              <strong>Estimated Completion:</strong> {{ completion_date |
+              default('08/30/2025') }}
+            </p>
+            <p><strong>Budget:</strong> ${{ budget | default('2,450,000') }}</p>
+          </div>
         </div>
+      </div>
     </div>
-    
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">Assets on Site</h6>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-6">
-                        <h4 class="text-primary">{{ assets_on_site | default('12') }}</h4>
-                        <small>Equipment</small>
-                    </div>
-                    <div class="col-6">
-                        <h4 class="text-success">{{ crew_count | default('8') }}</h4>
-                        <small>Crew</small>
-                    </div>
-                </div>
-            </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">Assets on Site</h6>
+      </div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-6">
+            <h4 class="text-primary">{{ assets_on_site | default('12') }}</h4>
+            <small>Equipment</small>
+          </div>
+          <div class="col-6">
+            <h4 class="text-success">{{ crew_count | default('8') }}</h4>
+            <small>Crew</small>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Working Hours Configuration -->
 <div class="row g-4 mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Job Zone Working Hours</h5>
-                <button class="btn btn-primary btn-sm" onclick="editWorkingHours()">
-                    <i class="fas fa-edit me-1"></i>Edit Hours
-                </button>
+  <div class="col-12">
+    <div class="card">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <h5 class="mb-0">Job Zone Working Hours</h5>
+        <button class="btn btn-primary btn-sm" onclick="editWorkingHours()">
+          <i class="fas fa-edit me-1"></i>Edit Hours
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Start Time</label>
+              <input
+                type="time"
+                class="form-control"
+                id="startTime"
+                value="{{ start_time | default('07:00') }}"
+                disabled
+              />
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label">Start Time</label>
-                            <input type="time" class="form-control" id="startTime" value="{{ start_time | default('07:00') }}" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">End Time</label>
-                            <input type="time" class="form-control" id="endTime" value="{{ end_time | default('17:30') }}" disabled>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Working Days</label>
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="monday" checked disabled>
-                                    <label class="form-check-label" for="monday">Monday</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="tuesday" checked disabled>
-                                    <label class="form-check-label" for="tuesday">Tuesday</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="wednesday" checked disabled>
-                                    <label class="form-check-label" for="wednesday">Wednesday</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="thursday" checked disabled>
-                                    <label class="form-check-label" for="thursday">Thursday</label>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="friday" checked disabled>
-                                    <label class="form-check-label" for="friday">Friday</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="saturday" disabled>
-                                    <label class="form-check-label" for="saturday">Saturday</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="sunday" disabled>
-                                    <label class="form-check-label" for="sunday">Sunday</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-3" id="editButtons" style="display: none;">
-                    <div class="col-12">
-                        <button class="btn btn-success me-2" onclick="saveWorkingHours()">
-                            <i class="fas fa-save me-1"></i>Save Changes
-                        </button>
-                        <button class="btn btn-secondary" onclick="cancelEdit()">
-                            <i class="fas fa-times me-1"></i>Cancel
-                        </button>
-                    </div>
-                </div>
+            <div class="mb-3">
+              <label class="form-label">End Time</label>
+              <input
+                type="time"
+                class="form-control"
+                id="endTime"
+                value="{{ end_time | default('17:30') }}"
+                disabled
+              />
             </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Working Days</label>
+            <div class="row">
+              <div class="col-6">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="monday"
+                    checked
+                    disabled
+                  />
+                  <label class="form-check-label" for="monday">Monday</label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="tuesday"
+                    checked
+                    disabled
+                  />
+                  <label class="form-check-label" for="tuesday">Tuesday</label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="wednesday"
+                    checked
+                    disabled
+                  />
+                  <label class="form-check-label" for="wednesday"
+                    >Wednesday</label
+                  >
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="thursday"
+                    checked
+                    disabled
+                  />
+                  <label class="form-check-label" for="thursday"
+                    >Thursday</label
+                  >
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="friday"
+                    checked
+                    disabled
+                  />
+                  <label class="form-check-label" for="friday">Friday</label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="saturday"
+                    disabled
+                  />
+                  <label class="form-check-label" for="saturday"
+                    >Saturday</label
+                  >
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="sunday"
+                    disabled
+                  />
+                  <label class="form-check-label" for="sunday">Sunday</label>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+        <div class="row mt-3" id="editButtons" style="display: none">
+          <div class="col-12">
+            <button class="btn btn-success me-2" onclick="saveWorkingHours()">
+              <i class="fas fa-save me-1"></i>Save Changes
+            </button>
+            <button class="btn btn-secondary" onclick="cancelEdit()">
+              <i class="fas fa-times me-1"></i>Cancel
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Attendance Validation Window -->
 <div class="row g-4 mb-4">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">Attendance Window</h6>
-            </div>
-            <div class="card-body">
-                <p class="text-muted">Valid clock-in window for this job site:</p>
-                <div class="alert alert-success">
-                    <strong>6:30 AM - 8:00 AM</strong> (Clock In)<br>
-                    <strong>5:00 PM - 6:00 PM</strong> (Clock Out)
-                </div>
-                <small class="text-muted">Times outside this window trigger late/early alerts in attendance matrix</small>
-            </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">Attendance Window</h6>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Valid clock-in window for this job site:</p>
+        <div class="alert alert-success">
+          <strong>6:30 AM - 8:00 AM</strong> (Clock In)<br />
+          <strong>5:00 PM - 6:00 PM</strong> (Clock Out)
         </div>
+        <small class="text-muted"
+          >Times outside this window trigger late/early alerts in attendance
+          matrix</small
+        >
+      </div>
     </div>
-    
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">GPS Geofence</h6>
-            </div>
-            <div class="card-body">
-                <p class="text-muted">Site boundary for attendance validation:</p>
-                <div class="alert alert-info">
-                    <strong>Radius:</strong> 500 ft from center<br>
-                    <strong>Center:</strong> 30.2672, -97.7431
-                </div>
-                <button class="btn btn-outline-primary btn-sm">
-                    <i class="fas fa-map-marked-alt me-1"></i>View on Map
-                </button>
-            </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">GPS Geofence</h6>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Site boundary for attendance validation:</p>
+        <div class="alert alert-info">
+          <strong>Radius:</strong> 500 ft from center<br />
+          <strong>Center:</strong> 30.2672, -97.7431
         </div>
+        <button class="btn btn-outline-primary btn-sm">
+          <i class="fas fa-map-marked-alt me-1"></i>View on Map
+        </button>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Current Activity -->
 <div class="row g-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">Current Activity</h6>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Employee</th>
-                                <th>Action</th>
-                                <th>GPS Status</th>
-                                <th>Within Window</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>07:00 AM</td>
-                                <td>John Smith</td>
-                                <td>Clock In</td>
-                                <td><span class="badge bg-success">On Site</span></td>
-                                <td><span class="badge bg-success">Yes</span></td>
-                            </tr>
-                            <tr>
-                                <td>07:15 AM</td>
-                                <td>Mike Johnson</td>
-                                <td>Clock In</td>
-                                <td><span class="badge bg-success">On Site</span></td>
-                                <td><span class="badge bg-warning">Late</span></td>
-                            </tr>
-                            <tr>
-                                <td>05:00 PM</td>
-                                <td>David Wilson</td>
-                                <td>Clock Out</td>
-                                <td><span class="badge bg-success">On Site</span></td>
-                                <td><span class="badge bg-info">Early</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">Current Activity</h6>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Employee</th>
+                <th>Action</th>
+                <th>GPS Status</th>
+                <th>Within Window</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>07:00 AM</td>
+                <td>John Smith</td>
+                <td>Clock In</td>
+                <td><span class="badge bg-success">On Site</span></td>
+                <td><span class="badge bg-success">Yes</span></td>
+              </tr>
+              <tr>
+                <td>07:15 AM</td>
+                <td>Mike Johnson</td>
+                <td>Clock In</td>
+                <td><span class="badge bg-success">On Site</span></td>
+                <td><span class="badge bg-warning">Late</span></td>
+              </tr>
+              <tr>
+                <td>05:00 PM</td>
+                <td>David Wilson</td>
+                <td>Clock Out</td>
+                <td><span class="badge bg-success">On Site</span></td>
+                <td><span class="badge bg-info">Early</span></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
     </div>
+  </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-function editWorkingHours() {
+  function editWorkingHours() {
     // Enable all form controls
-    document.getElementById('startTime').disabled = false;
-    document.getElementById('endTime').disabled = false;
-    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = false);
-    
+    document.getElementById("startTime").disabled = false;
+    document.getElementById("endTime").disabled = false;
+    document
+      .querySelectorAll('input[type="checkbox"]')
+      .forEach((cb) => (cb.disabled = false));
+
     // Show edit buttons
-    document.getElementById('editButtons').style.display = 'block';
-}
+    document.getElementById("editButtons").style.display = "block";
+  }
 
-function cancelEdit() {
+  function cancelEdit() {
     // Disable all form controls
-    document.getElementById('startTime').disabled = true;
-    document.getElementById('endTime').disabled = true;
-    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = true);
-    
-    // Hide edit buttons
-    document.getElementById('editButtons').style.display = 'none';
-}
+    document.getElementById("startTime").disabled = true;
+    document.getElementById("endTime").disabled = true;
+    document
+      .querySelectorAll('input[type="checkbox"]')
+      .forEach((cb) => (cb.disabled = true));
 
-async function saveWorkingHours() {
-    const startTime = document.getElementById('startTime').value;
-    const endTime = document.getElementById('endTime').value;
-    
+    // Hide edit buttons
+    document.getElementById("editButtons").style.display = "none";
+  }
+
+  async function saveWorkingHours() {
+    const startTime = document.getElementById("startTime").value;
+    const endTime = document.getElementById("endTime").value;
+
     const workingDays = [];
-    ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].forEach(day => {
-        if (document.getElementById(day).checked) {
-            workingDays.push(day);
-        }
+    [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+      "sunday",
+    ].forEach((day) => {
+      if (document.getElementById(day).checked) {
+        workingDays.push(day);
+      }
     });
-    
+
     try {
-        const response = await fetch('/jobs/{{ job_id | default("2019-044") }}/working-hours', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                start_time: startTime,
-                end_time: endTime,
-                working_days: workingDays
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            alert('Working hours updated successfully');
-            cancelEdit();
-        } else {
-            alert('Error updating working hours: ' + result.error);
-        }
+      const response = await fetch(
+        '/jobs/{{ job_id | default("2019-044") }}/working-hours',
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            start_time: startTime,
+            end_time: endTime,
+            working_days: workingDays,
+          }),
+        },
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Working hours updated successfully");
+        cancelEdit();
+      } else {
+        alert("Error updating working hours: " + result.error);
+      }
     } catch (error) {
-        alert('Failed to save working hours: ' + error.message);
+      alert("Failed to save working hours: " + error.message);
     }
-}
+  }
 </script>
 {% endblock %}

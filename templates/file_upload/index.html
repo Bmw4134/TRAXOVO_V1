@@ -1,292 +1,383 @@
-{% extends "layout_unified.html" %}
-
-{% block title %}File Upload - TRAXOVO GENIUS CORE{% endblock %}
-
-{% block breadcrumb %}
+{% extends "layout_unified.html" %} {% block title %}File Upload - TRAXOVO
+GENIUS CORE{% endblock %} {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="/">Home</a></li>
 <li class="breadcrumb-item active" aria-current="page">File Upload</li>
-{% endblock %}
-
-{% block page_title %}File Upload{% endblock %}
-{% block page_subtitle %}Upload and process attendance and driver data files{% endblock %}
-
-{% block content %}
+{% endblock %} {% block page_title %}File Upload{% endblock %} {% block
+page_subtitle %}Upload and process attendance and driver data files{% endblock
+%} {% block content %}
 <div class="row">
-    <div class="col-lg-8">
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-dark">
-                <h5 class="card-title mb-0">Upload Attendance Data Files</h5>
-            </div>
-            <div class="card-body">
-                <p class="text-muted mb-4">
-                    Upload your attendance data files for processing. The system accepts multiple file types:
-                </p>
-                
-                <div class="mb-4">
-                    <div class="d-flex mb-3">
-                        <span class="badge bg-primary me-2">TimeOnSite</span>
-                        <span class="text-muted small">Records presence windows at job sites</span>
-                    </div>
-                    <div class="d-flex mb-3">
-                        <span class="badge bg-success me-2">DrivingHistory</span>
-                        <span class="text-muted small">Shows arrival/departure sequences</span>
-                    </div>
-                    <div class="d-flex mb-3">
-                        <span class="badge bg-info me-2">ActivityDetail</span>
-                        <span class="text-muted small">Contains movement/activity context</span>
-                    </div>
-                    <div class="d-flex mb-3">
-                        <span class="badge bg-warning me-2">Timecard</span>
-                        <span class="text-muted small">Optional timecard data for validation</span>
-                    </div>
-                </div>
-                
-                <form action="/upload" method="post" enctype="multipart/form-data" id="upload-form">
-                    <div class="dropzone" id="file-dropzone">
-                        <i class="bi bi-cloud-upload fs-1 text-primary mb-3"></i>
-                        <h5 class="mb-2">Drop files here or click to browse</h5>
-                        <p class="text-muted">Accepts CSV and Excel files (.csv, .xlsx, .xls)</p>
-                    </div>
-                    
-                    <input type="file" id="file-input" name="files[]" multiple class="d-none">
-                    
-                    <div id="selected-files" class="mt-3 mb-3">
-                        <h6 class="mb-2 d-none" id="selected-files-heading">Selected Files:</h6>
-                        <ul class="list-group" id="file-list"></ul>
-                    </div>
-                    
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary" id="upload-button" disabled>
-                            <i class="bi bi-upload me-2"></i> Upload and Process Files
-                        </button>
-                    </div>
-                </form>
-                
-                <div class="alert alert-info mt-4 d-none" id="upload-status">
-                    <div class="d-flex align-items-center">
-                        <div class="spinner-border spinner-border-sm me-2" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <span>Processing files...</span>
-                    </div>
-                </div>
-                
-                <div class="alert alert-success mt-4 d-none" id="upload-success">
-                    <i class="bi bi-check-circle-fill me-2"></i>
-                    <span>Files processed successfully!</span>
-                </div>
-                
-                <div class="alert alert-danger mt-4 d-none" id="upload-error">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <span id="error-message">An error occurred during processing.</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Results Card (shown after processing) -->
-        <div class="card shadow-sm d-none" id="results-card">
-            <div class="card-header bg-dark">
-                <h5 class="card-title mb-0">Processing Results</h5>
-            </div>
-            <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card bg-dark text-center p-3">
-                            <h6 class="text-muted mb-2">Total Records</h6>
-                            <h3 id="total-records">0</h3>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-dark text-center p-3">
-                            <h6 class="text-muted mb-2">On Time</h6>
-                            <h3 id="on-time-count" class="text-success">0</h3>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-dark text-center p-3">
-                            <h6 class="text-muted mb-2">Late</h6>
-                            <h3 id="late-count" class="text-warning">0</h3>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-dark text-center p-3">
-                            <h6 class="text-muted mb-2">Absences</h6>
-                            <h3 id="absence-count" class="text-danger">0</h3>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <a href="#" id="view-report-link" class="btn btn-primary">
-                        <i class="bi bi-eye me-2"></i> View Full Report
-                    </a>
-                    <a href="#" id="download-csv-link" class="btn btn-outline-secondary">
-                        <i class="bi bi-file-earmark-spreadsheet me-2"></i> Download CSV
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Help Card -->
-    <div class="col-lg-4">
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-dark">
-                <h5 class="card-title mb-0">Upload Guide</h5>
-            </div>
-            <div class="card-body">
-                <div class="accordion" id="uploadAccordion">
-                    <div class="accordion-item bg-dark">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                What files should I upload?
-                            </button>
-                        </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#uploadAccordion">
-                            <div class="accordion-body">
-                                <p>For the best results, upload at least two data sources:</p>
-                                <ul>
-                                    <li><strong>TimeOnSite</strong> - Required for best accuracy</li>
-                                    <li><strong>DrivingHistory</strong> - Helps verify on-site presence</li>
-                                    <li><strong>ActivityDetail</strong> - Optional, provides activity context</li>
-                                    <li><strong>Timecard</strong> - Optional, validates hours worked</li>
-                                </ul>
-                                <p class="small text-muted">GENIUS CORE will use Driver+Date as join keys to create comprehensive attendance records.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item bg-dark">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button bg-dark text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                Accepted file formats
-                            </button>
-                        </h2>
-                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#uploadAccordion">
-                            <div class="accordion-body">
-                                <p>The system accepts the following file formats:</p>
-                                <ul>
-                                    <li>CSV files (.csv)</li>
-                                    <li>Excel spreadsheets (.xlsx, .xls)</li>
-                                </ul>
-                                <p class="small text-muted">Files are automatically detected by column structure, not by filename.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item bg-dark">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button bg-dark text-white collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                What happens after upload?
-                            </button>
-                        </h2>
-                        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#uploadAccordion">
-                            <div class="accordion-body">
-                                <p>After upload, the system will:</p>
-                                <ol>
-                                    <li>Parse all uploaded files</li>
-                                    <li>Detect file types automatically</li>
-                                    <li>Join data by Driver+Date combinations</li>
-                                    <li>Classify attendance status</li>
-                                    <li>Generate weekly and daily reports</li>
-                                    <li>Export data in various formats</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mt-4">
-                    <h6>Need more help?</h6>
-                    <a href="#" class="btn btn-outline-info w-100">
-                        <i class="bi bi-question-circle me-2"></i> View Documentation
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+  <div class="col-lg-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-dark">
+        <h5 class="card-title mb-0">Upload Attendance Data Files</h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted mb-4">
+          Upload your attendance data files for processing. The system accepts
+          multiple file types:
+        </p>
 
-{% block scripts %}
+        <div class="mb-4">
+          <div class="d-flex mb-3">
+            <span class="badge bg-primary me-2">TimeOnSite</span>
+            <span class="text-muted small"
+              >Records presence windows at job sites</span
+            >
+          </div>
+          <div class="d-flex mb-3">
+            <span class="badge bg-success me-2">DrivingHistory</span>
+            <span class="text-muted small"
+              >Shows arrival/departure sequences</span
+            >
+          </div>
+          <div class="d-flex mb-3">
+            <span class="badge bg-info me-2">ActivityDetail</span>
+            <span class="text-muted small"
+              >Contains movement/activity context</span
+            >
+          </div>
+          <div class="d-flex mb-3">
+            <span class="badge bg-warning me-2">Timecard</span>
+            <span class="text-muted small"
+              >Optional timecard data for validation</span
+            >
+          </div>
+        </div>
+
+        <form
+          action="/upload"
+          method="post"
+          enctype="multipart/form-data"
+          id="upload-form"
+        >
+          <div class="dropzone" id="file-dropzone">
+            <i class="bi bi-cloud-upload fs-1 text-primary mb-3"></i>
+            <h5 class="mb-2">Drop files here or click to browse</h5>
+            <p class="text-muted">
+              Accepts CSV and Excel files (.csv, .xlsx, .xls)
+            </p>
+          </div>
+
+          <input
+            type="file"
+            id="file-input"
+            name="files[]"
+            multiple
+            class="d-none"
+          />
+
+          <div id="selected-files" class="mt-3 mb-3">
+            <h6 class="mb-2 d-none" id="selected-files-heading">
+              Selected Files:
+            </h6>
+            <ul class="list-group" id="file-list"></ul>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              id="upload-button"
+              disabled
+            >
+              <i class="bi bi-upload me-2"></i> Upload and Process Files
+            </button>
+          </div>
+        </form>
+
+        <div class="alert alert-info mt-4 d-none" id="upload-status">
+          <div class="d-flex align-items-center">
+            <div class="spinner-border spinner-border-sm me-2" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <span>Processing files...</span>
+          </div>
+        </div>
+
+        <div class="alert alert-success mt-4 d-none" id="upload-success">
+          <i class="bi bi-check-circle-fill me-2"></i>
+          <span>Files processed successfully!</span>
+        </div>
+
+        <div class="alert alert-danger mt-4 d-none" id="upload-error">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <span id="error-message">An error occurred during processing.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Card (shown after processing) -->
+    <div class="card shadow-sm d-none" id="results-card">
+      <div class="card-header bg-dark">
+        <h5 class="card-title mb-0">Processing Results</h5>
+      </div>
+      <div class="card-body">
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="card bg-dark text-center p-3">
+              <h6 class="text-muted mb-2">Total Records</h6>
+              <h3 id="total-records">0</h3>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-dark text-center p-3">
+              <h6 class="text-muted mb-2">On Time</h6>
+              <h3 id="on-time-count" class="text-success">0</h3>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-dark text-center p-3">
+              <h6 class="text-muted mb-2">Late</h6>
+              <h3 id="late-count" class="text-warning">0</h3>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-dark text-center p-3">
+              <h6 class="text-muted mb-2">Absences</h6>
+              <h3 id="absence-count" class="text-danger">0</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+          <a href="#" id="view-report-link" class="btn btn-primary">
+            <i class="bi bi-eye me-2"></i> View Full Report
+          </a>
+          <a href="#" id="download-csv-link" class="btn btn-outline-secondary">
+            <i class="bi bi-file-earmark-spreadsheet me-2"></i> Download CSV
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Card -->
+  <div class="col-lg-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-dark">
+        <h5 class="card-title mb-0">Upload Guide</h5>
+      </div>
+      <div class="card-body">
+        <div class="accordion" id="uploadAccordion">
+          <div class="accordion-item bg-dark">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button bg-dark text-white"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseOne"
+                aria-expanded="true"
+                aria-controls="collapseOne"
+              >
+                What files should I upload?
+              </button>
+            </h2>
+            <div
+              id="collapseOne"
+              class="accordion-collapse collapse show"
+              data-bs-parent="#uploadAccordion"
+            >
+              <div class="accordion-body">
+                <p>For the best results, upload at least two data sources:</p>
+                <ul>
+                  <li>
+                    <strong>TimeOnSite</strong> - Required for best accuracy
+                  </li>
+                  <li>
+                    <strong>DrivingHistory</strong> - Helps verify on-site
+                    presence
+                  </li>
+                  <li>
+                    <strong>ActivityDetail</strong> - Optional, provides
+                    activity context
+                  </li>
+                  <li>
+                    <strong>Timecard</strong> - Optional, validates hours worked
+                  </li>
+                </ul>
+                <p class="small text-muted">
+                  GENIUS CORE will use Driver+Date as join keys to create
+                  comprehensive attendance records.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item bg-dark">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button bg-dark text-white collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseTwo"
+                aria-expanded="false"
+                aria-controls="collapseTwo"
+              >
+                Accepted file formats
+              </button>
+            </h2>
+            <div
+              id="collapseTwo"
+              class="accordion-collapse collapse"
+              data-bs-parent="#uploadAccordion"
+            >
+              <div class="accordion-body">
+                <p>The system accepts the following file formats:</p>
+                <ul>
+                  <li>CSV files (.csv)</li>
+                  <li>Excel spreadsheets (.xlsx, .xls)</li>
+                </ul>
+                <p class="small text-muted">
+                  Files are automatically detected by column structure, not by
+                  filename.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item bg-dark">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button bg-dark text-white collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseThree"
+                aria-expanded="false"
+                aria-controls="collapseThree"
+              >
+                What happens after upload?
+              </button>
+            </h2>
+            <div
+              id="collapseThree"
+              class="accordion-collapse collapse"
+              data-bs-parent="#uploadAccordion"
+            >
+              <div class="accordion-body">
+                <p>After upload, the system will:</p>
+                <ol>
+                  <li>Parse all uploaded files</li>
+                  <li>Detect file types automatically</li>
+                  <li>Join data by Driver+Date combinations</li>
+                  <li>Classify attendance status</li>
+                  <li>Generate weekly and daily reports</li>
+                  <li>Export data in various formats</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <h6>Need more help?</h6>
+          <a href="#" class="btn btn-outline-info w-100">
+            <i class="bi bi-question-circle me-2"></i> View Documentation
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const dropzone = document.getElementById('file-dropzone');
-        const fileInput = document.getElementById('file-input');
-        const fileList = document.getElementById('file-list');
-        const selectedFilesHeading = document.getElementById('selected-files-heading');
-        const uploadButton = document.getElementById('upload-button');
-        const uploadForm = document.getElementById('upload-form');
-        const uploadStatus = document.getElementById('upload-status');
-        const uploadSuccess = document.getElementById('upload-success');
-        const uploadError = document.getElementById('upload-error');
-        const errorMessage = document.getElementById('error-message');
-        const resultsCard = document.getElementById('results-card');
-        
-        // File type validation
-        const allowedTypes = ['.csv', '.xlsx', '.xls'];
-        
-        // Dropzone event listeners
-        dropzone.addEventListener('click', () => fileInput.click());
-        
-        dropzone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropzone.classList.add('highlight');
-        });
-        
-        dropzone.addEventListener('dragleave', () => {
-            dropzone.classList.remove('highlight');
-        });
-        
-        dropzone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropzone.classList.remove('highlight');
-            
-            if (e.dataTransfer.files.length) {
-                fileInput.files = e.dataTransfer.files;
-                updateFileList();
-            }
-        });
-        
-        // File input change
-        fileInput.addEventListener('change', updateFileList);
-        
-        // Update file list
-        function updateFileList() {
-            fileList.innerHTML = '';
-            
-            if (fileInput.files.length > 0) {
-                selectedFilesHeading.classList.remove('d-none');
-                uploadButton.disabled = false;
-                
-                Array.from(fileInput.files).forEach((file, index) => {
-                    // Check file type
-                    const isValidType = allowedTypes.some(type => file.name.toLowerCase().endsWith(type));
-                    
-                    // Create list item
-                    const listItem = document.createElement('li');
-                    listItem.className = `list-group-item d-flex justify-content-between align-items-center ${isValidType ? 'bg-dark' : 'bg-danger bg-opacity-25'}`;
-                    
-                    // File icon based on type
-                    let fileIcon = 'bi-file-earmark';
-                    if (file.name.toLowerCase().endsWith('.csv')) {
-                        fileIcon = 'bi-filetype-csv';
-                    } else if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
-                        fileIcon = 'bi-filetype-xlsx';
-                    }
-                    
-                    // Determine file type badge
-                    let typeBadge = '';
-                    if (file.name.toLowerCase().includes('timeonsite') || file.name.toLowerCase().includes('time_on_site')) {
-                        typeBadge = '<span class="badge bg-primary ms-2">TimeOnSite</span>';
-                    } else if (file.name.toLowerCase().includes('drivinghistory') || file.name.toLowerCase().includes('driving_history')) {
-                        typeBadge = '<span class="badge bg-success ms-2">DrivingHistory</span>';
-                    } else if (file.name.toLowerCase().includes('activitydetail') || file.name.toLowerCase().includes('activity_detail')) {
-                        typeBadge = '<span class="badge bg-info ms-2">ActivityDetail</span>';
-                    } else if (file.name.toLowerCase().includes('timecard') || file.name.toLowerCase().includes('time_card')) {
-                        typeBadge = '<span class="badge bg-warning ms-2">Timecard</span>';
-                    }
-                    
-                    // File content
-                    listItem.innerHTML = `
+  document.addEventListener("DOMContentLoaded", function () {
+    const dropzone = document.getElementById("file-dropzone");
+    const fileInput = document.getElementById("file-input");
+    const fileList = document.getElementById("file-list");
+    const selectedFilesHeading = document.getElementById(
+      "selected-files-heading",
+    );
+    const uploadButton = document.getElementById("upload-button");
+    const uploadForm = document.getElementById("upload-form");
+    const uploadStatus = document.getElementById("upload-status");
+    const uploadSuccess = document.getElementById("upload-success");
+    const uploadError = document.getElementById("upload-error");
+    const errorMessage = document.getElementById("error-message");
+    const resultsCard = document.getElementById("results-card");
+
+    // File type validation
+    const allowedTypes = [".csv", ".xlsx", ".xls"];
+
+    // Dropzone event listeners
+    dropzone.addEventListener("click", () => fileInput.click());
+
+    dropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropzone.classList.add("highlight");
+    });
+
+    dropzone.addEventListener("dragleave", () => {
+      dropzone.classList.remove("highlight");
+    });
+
+    dropzone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropzone.classList.remove("highlight");
+
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        updateFileList();
+      }
+    });
+
+    // File input change
+    fileInput.addEventListener("change", updateFileList);
+
+    // Update file list
+    function updateFileList() {
+      fileList.innerHTML = "";
+
+      if (fileInput.files.length > 0) {
+        selectedFilesHeading.classList.remove("d-none");
+        uploadButton.disabled = false;
+
+        Array.from(fileInput.files).forEach((file, index) => {
+          // Check file type
+          const isValidType = allowedTypes.some((type) =>
+            file.name.toLowerCase().endsWith(type),
+          );
+
+          // Create list item
+          const listItem = document.createElement("li");
+          listItem.className = `list-group-item d-flex justify-content-between align-items-center ${isValidType ? "bg-dark" : "bg-danger bg-opacity-25"}`;
+
+          // File icon based on type
+          let fileIcon = "bi-file-earmark";
+          if (file.name.toLowerCase().endsWith(".csv")) {
+            fileIcon = "bi-filetype-csv";
+          } else if (
+            file.name.toLowerCase().endsWith(".xlsx") ||
+            file.name.toLowerCase().endsWith(".xls")
+          ) {
+            fileIcon = "bi-filetype-xlsx";
+          }
+
+          // Determine file type badge
+          let typeBadge = "";
+          if (
+            file.name.toLowerCase().includes("timeonsite") ||
+            file.name.toLowerCase().includes("time_on_site")
+          ) {
+            typeBadge = '<span class="badge bg-primary ms-2">TimeOnSite</span>';
+          } else if (
+            file.name.toLowerCase().includes("drivinghistory") ||
+            file.name.toLowerCase().includes("driving_history")
+          ) {
+            typeBadge =
+              '<span class="badge bg-success ms-2">DrivingHistory</span>';
+          } else if (
+            file.name.toLowerCase().includes("activitydetail") ||
+            file.name.toLowerCase().includes("activity_detail")
+          ) {
+            typeBadge =
+              '<span class="badge bg-info ms-2">ActivityDetail</span>';
+          } else if (
+            file.name.toLowerCase().includes("timecard") ||
+            file.name.toLowerCase().includes("time_card")
+          ) {
+            typeBadge = '<span class="badge bg-warning ms-2">Timecard</span>';
+          }
+
+          // File content
+          listItem.innerHTML = `
                         <div>
                             <i class="bi ${fileIcon} me-2"></i>
                             ${file.name} ${typeBadge}
@@ -296,121 +387,128 @@
                             <i class="bi bi-x"></i>
                         </button>
                     `;
-                    
-                    // If invalid type, show error
-                    if (!isValidType) {
-                        listItem.innerHTML += `
+
+          // If invalid type, show error
+          if (!isValidType) {
+            listItem.innerHTML += `
                             <div class="invalid-feedback d-block">
                                 Invalid file type. Only CSV and Excel files are accepted.
                             </div>
                         `;
-                        uploadButton.disabled = true;
-                    }
-                    
-                    fileList.appendChild(listItem);
-                });
-                
-                // Add event listeners to remove buttons
-                document.querySelectorAll('[data-index]').forEach(button => {
-                    button.addEventListener('click', function() {
-                        removeFile(parseInt(this.getAttribute('data-index')));
-                    });
-                });
-            } else {
-                selectedFilesHeading.classList.add('d-none');
-                uploadButton.disabled = true;
-            }
-        }
-        
-        // Remove file from list
-        function removeFile(index) {
-            const dt = new DataTransfer();
-            const files = fileInput.files;
-            
-            for (let i = 0; i < files.length; i++) {
-                if (i !== index) {
-                    dt.items.add(files[i]);
-                }
-            }
-            
-            fileInput.files = dt.files;
-            updateFileList();
-        }
-        
-        // Format file size
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-        
-        // Form submission
-        uploadForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Show status
-            uploadStatus.classList.remove('d-none');
-            uploadSuccess.classList.add('d-none');
-            uploadError.classList.add('d-none');
             uploadButton.disabled = true;
-            
-            // Create FormData
-            const formData = new FormData();
-            
-            // Add files
-            Array.from(fileInput.files).forEach(file => {
-                formData.append('files[]', file);
-            });
-            
-            // Send request
-            fetch('/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Hide status
-                uploadStatus.classList.add('d-none');
-                
-                if (data.error) {
-                    // Show error
-                    errorMessage.textContent = data.error;
-                    uploadError.classList.remove('d-none');
-                } else {
-                    // Show success
-                    uploadSuccess.classList.remove('d-none');
-                    
-                    // Show results
-                    document.getElementById('total-records').textContent = data.total_records || 0;
-                    document.getElementById('on-time-count').textContent = data.on_time_count || 0;
-                    document.getElementById('late-count').textContent = data.late_count || 0;
-                    document.getElementById('absence-count').textContent = data.absence_count || 0;
-                    
-                    // Update links
-                    document.getElementById('view-report-link').href = data.report_url || '#';
-                    document.getElementById('download-csv-link').href = data.csv_url || '#';
-                    
-                    // Show results card
-                    resultsCard.classList.remove('d-none');
-                }
-                
-                // Reset upload button
-                uploadButton.disabled = false;
-            })
-            .catch(error => {
-                // Hide status
-                uploadStatus.classList.add('d-none');
-                
-                // Show error
-                errorMessage.textContent = error.message || 'An error occurred during upload.';
-                uploadError.classList.remove('d-none');
-                
-                // Reset upload button
-                uploadButton.disabled = false;
-            });
+          }
+
+          fileList.appendChild(listItem);
+        });
+
+        // Add event listeners to remove buttons
+        document.querySelectorAll("[data-index]").forEach((button) => {
+          button.addEventListener("click", function () {
+            removeFile(parseInt(this.getAttribute("data-index")));
+          });
+        });
+      } else {
+        selectedFilesHeading.classList.add("d-none");
+        uploadButton.disabled = true;
+      }
+    }
+
+    // Remove file from list
+    function removeFile(index) {
+      const dt = new DataTransfer();
+      const files = fileInput.files;
+
+      for (let i = 0; i < files.length; i++) {
+        if (i !== index) {
+          dt.items.add(files[i]);
+        }
+      }
+
+      fileInput.files = dt.files;
+      updateFileList();
+    }
+
+    // Format file size
+    function formatFileSize(bytes) {
+      if (bytes === 0) return "0 Bytes";
+      const k = 1024;
+      const sizes = ["Bytes", "KB", "MB", "GB"];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    }
+
+    // Form submission
+    uploadForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // Show status
+      uploadStatus.classList.remove("d-none");
+      uploadSuccess.classList.add("d-none");
+      uploadError.classList.add("d-none");
+      uploadButton.disabled = true;
+
+      // Create FormData
+      const formData = new FormData();
+
+      // Add files
+      Array.from(fileInput.files).forEach((file) => {
+        formData.append("files[]", file);
+      });
+
+      // Send request
+      fetch("/upload", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // Hide status
+          uploadStatus.classList.add("d-none");
+
+          if (data.error) {
+            // Show error
+            errorMessage.textContent = data.error;
+            uploadError.classList.remove("d-none");
+          } else {
+            // Show success
+            uploadSuccess.classList.remove("d-none");
+
+            // Show results
+            document.getElementById("total-records").textContent =
+              data.total_records || 0;
+            document.getElementById("on-time-count").textContent =
+              data.on_time_count || 0;
+            document.getElementById("late-count").textContent =
+              data.late_count || 0;
+            document.getElementById("absence-count").textContent =
+              data.absence_count || 0;
+
+            // Update links
+            document.getElementById("view-report-link").href =
+              data.report_url || "#";
+            document.getElementById("download-csv-link").href =
+              data.csv_url || "#";
+
+            // Show results card
+            resultsCard.classList.remove("d-none");
+          }
+
+          // Reset upload button
+          uploadButton.disabled = false;
+        })
+        .catch((error) => {
+          // Hide status
+          uploadStatus.classList.add("d-none");
+
+          // Show error
+          errorMessage.textContent =
+            error.message || "An error occurred during upload.";
+          uploadError.classList.remove("d-none");
+
+          // Reset upload button
+          uploadButton.disabled = false;
         });
     });
+  });
 </script>
 {% endblock %}

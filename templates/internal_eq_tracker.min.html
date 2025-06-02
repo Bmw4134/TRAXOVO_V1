@@ -1,19 +1,75 @@
-{% extends "base_navigation.html" %}
-
-{% block title %}Internal Equipment Tracker - TRAXOVO{% endblock %}
-
-{% block page_title %}Internal Equipment Tracker{% endblock %}
-
-{% block content %}
-<div class="row"><div class="col-12"><div class="card"><div class="card-header"><h5 class="mb-0"><i class="fas fa-cogs me-2 text-primary"></i>
-Asset Utilization Analysis
-</h5></div><div class="card-body">
-{% if utilization_data %}
-<div class="row mb-4"><div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body text-center"><h3>{{ utilization_data.total_assets_analyzed }}</h3><p class="mb-0">Total Assets</p></div></div></div><div class="col-md-3"><div class="card bg-danger text-white"><div class="card-body text-center"><h3>{{ utilization_data.idle_assets }}</h3><p class="mb-0">Idle Assets</p></div></div></div><div class="col-md-3"><div class="card bg-warning text-white"><div class="card-body text-center"><h3>{{ utilization_data.low_utilization_assets }}</h3><p class="mb-0">Low Utilization</p></div></div></div><div class="col-md-3"><div class="card bg-success text-white"><div class="card-body text-center"><h3>${{ "{:,.0f}".format(utilization_data.total_weekly_savings_potential) }}</h3><p class="mb-0">Weekly Savings</p></div></div></div></div><div class="alert alert-info"><i class="fas fa-info-circle me-2"></i><strong>Cost Optimization:</strong> This analysis identifies underutilized internal assets that can be deployed instead of approving external rentals.
+{% extends "base_navigation.html" %} {% block title %}Internal Equipment Tracker
+- TRAXOVO{% endblock %} {% block page_title %}Internal Equipment Tracker{%
+endblock %} {% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-cogs me-2 text-primary"></i>
+          Asset Utilization Analysis
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if utilization_data %}
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="card bg-primary text-white">
+              <div class="card-body text-center">
+                <h3>{{ utilization_data.total_assets_analyzed }}</h3>
+                <p class="mb-0">Total Assets</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-danger text-white">
+              <div class="card-body text-center">
+                <h3>{{ utilization_data.idle_assets }}</h3>
+                <p class="mb-0">Idle Assets</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-warning text-white">
+              <div class="card-body text-center">
+                <h3>{{ utilization_data.low_utilization_assets }}</h3>
+                <p class="mb-0">Low Utilization</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-success text-white">
+              <div class="card-body text-center">
+                <h3>
+                  ${{
+                  "{:,.0f}".format(utilization_data.total_weekly_savings_potential)
+                  }}
+                </h3>
+                <p class="mb-0">Weekly Savings</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i
+          ><strong>Cost Optimization:</strong> This analysis identifies
+          underutilized internal assets that can be deployed instead of
+          approving external rentals.
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+          <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+          <h5>Equipment Analysis Ready</h5>
+          <p class="text-muted">
+            Upload asset time data to generate utilization analysis
+          </p>
+          <a href="/data-upload" class="btn btn-primary"
+            ><i class="fas fa-upload me-2"></i>Upload Data
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 </div>
-{% else %}
-<div class="text-center py-5"><i class="fas fa-chart-bar fa-3x text-muted mb-3"></i><h5>Equipment Analysis Ready</h5><p class="text-muted">Upload asset time data to generate utilization analysis</p><a href="/data-upload" class="btn btn-primary"><i class="fas fa-upload me-2"></i>Upload Data
-</a></div>
-{% endif %}
-</div></div></div></div>
 {% endblock %}

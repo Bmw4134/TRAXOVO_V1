@@ -1,54 +1,188 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXOVO - MTD Data Review</title><link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"><style>
-body {
-background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TRAXOVO - MTD Data Review</title>
+    <link
+      href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      body {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
 
-.data-card {
-background: rgba(255,255,255,0.05);
-border: 1px solid rgba(255,255,255,0.1);
-border-radius: 12px;
-backdrop-filter: blur(10px);
-transition: all 0.3s ease;
-margin-bottom: 20px;
-}
+      .data-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+      }
 
-.data-card:hover {
-background: rgba(255,255,255,0.08);
-transform: translateY(-2px);
-}
+      .data-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: translateY(-2px);
+      }
 
-.stat-number {
-font-size: 2.5rem;
-font-weight: 700;
-color: #0d6efd;
-}
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #0d6efd;
+      }
 
-.driver-item {
-padding: 8px 12px;
-border: 1px solid rgba(255,255,255,0.1);
-border-radius: 8px;
-margin-bottom: 8px;
-cursor: pointer;
-transition: all 0.2s ease;
-}
+      .driver-item {
+        padding: 8px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
 
-.driver-item:hover {
-background: rgba(13, 110, 253, 0.1);
-border-color: #0d6efd;
-}
-</style></head><body><nav class="navbar navbar-expand-lg navbar-dark bg-dark"><div class="container-fluid"><a class="navbar-brand" href="/"><i class="fas fa-truck me-2"></i>TRAXOVO
-</a><span class="navbar-text"><i class="fas fa-database me-2"></i>MTD Data Review
-</span></div></nav><div class="container-fluid mt-4"><div class="row mb-4"><div class="col-12"><div class="data-card"><div class="card-body text-center"><h1 class="text-light mb-3"><i class="fas fa-chart-line me-3"></i>
-Month-to-Date Fleet Data Review
-</h1><p class="text-muted">Complete analysis of your North Texas fleet operations • {{ data.date_range.start }} to {{ data.date_range.end }}</p></div></div></div></div><div class="row mb-4"><div class="col-md-3"><div class="data-card"><div class="card-body text-center"><i class="fas fa-file-alt fa-2x text-primary mb-3"></i><div class="stat-number">{{ "{:,}".format(data.total_records) }}</div><p class="text-muted mb-0">Total Records</p></div></div></div><div class="col-md-3"><div class="data-card"><div class="card-body text-center"><i class="fas fa-truck fa-2x text-success mb-3"></i><div class="stat-number">{{ data.unique_assets }}</div><p class="text-muted mb-0">Active Assets</p></div></div></div><div class="col-md-3"><div class="data-card"><div class="card-body text-center"><i class="fas fa-users fa-2x text-warning mb-3"></i><div class="stat-number">{{ data.total_drivers }}</div><p class="text-muted mb-0">Total Drivers</p></div></div></div><div class="col-md-3"><div class="data-card"><div class="card-body text-center"><i class="fas fa-clock fa-2x text-info mb-3"></i><div class="stat-number">{{ data.recent_activity }}</div><p class="text-muted mb-0">Recent Events</p></div></div></div></div><div class="row"><div class="col-lg-6"><div class="data-card"><div class="card-header"><h5><i class="fas fa-users me-2"></i>Complete Driver Directory ({{ data.total_drivers }} drivers)</h5></div><div class="card-body"><div style="max-height: 500px; overflow-y: auto;">
-{% for driver in data.drivers_list %}
-<div class="driver-item"><i class="fas fa-user me-2"></i>
-{{ driver }}
-</div>
-{% endfor %}
-</div></div></div></div><div class="col-lg-6"><div class="data-card"><div class="card-header"><h5><i class="fas fa-info-circle me-2"></i>Data Source Details</h5></div><div class="card-body"><div class="mb-3"><strong>Source File:</strong><br><code class="text-info">{{ data.data_file }}</code></div><div class="mb-3"><strong>Coverage Period:</strong><br><span class="text-success">{{ data.date_range.start }}</span> to <span class="text-success">{{ data.date_range.end }}</span></div><div class="mb-3"><strong>Last Updated:</strong><br>
-{{ data.last_updated }}
-</div><div class="mb-3"><strong>Total Records:</strong> {{ "{:,}".format(data.total_records) }}<br><strong>Active Assets:</strong> {{ data.unique_assets }}<br><strong>Driver Count:</strong> {{ data.total_drivers }}
-</div><div class="alert alert-success"><i class="fas fa-check-circle me-2"></i><strong>Authentic Data:</strong> All information sourced directly from your North Texas fleet MTD files.
-</div></div></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script></body></html>
+      .driver-item:hover {
+        background: rgba(13, 110, 253, 0.1);
+        border-color: #0d6efd;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/"
+          ><i class="fas fa-truck me-2"></i>TRAXOVO </a
+        ><span class="navbar-text"
+          ><i class="fas fa-database me-2"></i>MTD Data Review
+        </span>
+      </div>
+    </nav>
+    <div class="container-fluid mt-4">
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="data-card">
+            <div class="card-body text-center">
+              <h1 class="text-light mb-3">
+                <i class="fas fa-chart-line me-3"></i>
+                Month-to-Date Fleet Data Review
+              </h1>
+              <p class="text-muted">
+                Complete analysis of your North Texas fleet operations • {{
+                data.date_range.start }} to {{ data.date_range.end }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="data-card">
+            <div class="card-body text-center">
+              <i class="fas fa-file-alt fa-2x text-primary mb-3"></i>
+              <div class="stat-number">
+                {{ "{:,}".format(data.total_records) }}
+              </div>
+              <p class="text-muted mb-0">Total Records</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="data-card">
+            <div class="card-body text-center">
+              <i class="fas fa-truck fa-2x text-success mb-3"></i>
+              <div class="stat-number">{{ data.unique_assets }}</div>
+              <p class="text-muted mb-0">Active Assets</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="data-card">
+            <div class="card-body text-center">
+              <i class="fas fa-users fa-2x text-warning mb-3"></i>
+              <div class="stat-number">{{ data.total_drivers }}</div>
+              <p class="text-muted mb-0">Total Drivers</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="data-card">
+            <div class="card-body text-center">
+              <i class="fas fa-clock fa-2x text-info mb-3"></i>
+              <div class="stat-number">{{ data.recent_activity }}</div>
+              <p class="text-muted mb-0">Recent Events</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="data-card">
+            <div class="card-header">
+              <h5>
+                <i class="fas fa-users me-2"></i>Complete Driver Directory ({{
+                data.total_drivers }} drivers)
+              </h5>
+            </div>
+            <div class="card-body">
+              <div style="max-height: 500px; overflow-y: auto">
+                {% for driver in data.drivers_list %}
+                <div class="driver-item">
+                  <i class="fas fa-user me-2"></i>
+                  {{ driver }}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="data-card">
+            <div class="card-header">
+              <h5>
+                <i class="fas fa-info-circle me-2"></i>Data Source Details
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <strong>Source File:</strong><br /><code class="text-info"
+                  >{{ data.data_file }}</code
+                >
+              </div>
+              <div class="mb-3">
+                <strong>Coverage Period:</strong><br /><span
+                  class="text-success"
+                  >{{ data.date_range.start }}</span
+                >
+                to <span class="text-success">{{ data.date_range.end }}</span>
+              </div>
+              <div class="mb-3">
+                <strong>Last Updated:</strong><br />
+                {{ data.last_updated }}
+              </div>
+              <div class="mb-3">
+                <strong>Total Records:</strong> {{
+                "{:,}".format(data.total_records) }}<br /><strong
+                  >Active Assets:</strong
+                >
+                {{ data.unique_assets }}<br /><strong>Driver Count:</strong> {{
+                data.total_drivers }}
+              </div>
+              <div class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i
+                ><strong>Authentic Data:</strong> All information sourced
+                directly from your North Texas fleet MTD files.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

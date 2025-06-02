@@ -1,289 +1,361 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TRAXOVO - Watson Administrative Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-responsive.css') }}">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='mobile-responsive.css') }}"
+    />
     <style>
-        .watson-admin-container {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .admin-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .metric-card {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 10px 0;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-        .metric-card:hover {
-            transform: translateY(-5px);
-        }
-        .watson-header {
-            color: white;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .data-export-section {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        .performance-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-        .status-active { background-color: #28a745; }
-        .status-warning { background-color: #ffc107; }
-        .status-error { background-color: #dc3545; }
-        .watson-nav {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        .watson-nav a {
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            margin: 0 5px;
-            display: inline-block;
-            transition: background 0.3s ease;
-        }
-        .watson-nav a:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
+      .watson-admin-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+      .admin-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+      .metric-card {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 10px 0;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+      .metric-card:hover {
+        transform: translateY(-5px);
+      }
+      .watson-header {
+        color: white;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .data-export-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+      .performance-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+      .status-active {
+        background-color: #28a745;
+      }
+      .status-warning {
+        background-color: #ffc107;
+      }
+      .status-error {
+        background-color: #dc3545;
+      }
+      .watson-nav {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+      }
+      .watson-nav a {
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        margin: 0 5px;
+        display: inline-block;
+        transition: background 0.3s ease;
+      }
+      .watson-nav a:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
     </style>
-</head>
-<body class="watson-admin-container">
+  </head>
+  <body class="watson-admin-container">
     <div class="container-fluid">
-        <div class="watson-header">
-            <h1>TRAXOVO Administrative Control Center</h1>
-            <p>Watson Executive Dashboard - Fleet Intelligence Operations</p>
-        </div>
+      <div class="watson-header">
+        <h1>TRAXOVO Administrative Control Center</h1>
+        <p>Watson Executive Dashboard - Fleet Intelligence Operations</p>
+      </div>
 
-        <div class="watson-nav">
-            <a href="/dashboard">Main Dashboard</a>
-            <a href="/executive-intelligence">Executive Intelligence</a>
-            <a href="/api/watson-logs/export" target="_blank">Export Logs</a>
-            <a href="/api/simulated-testing/run" target="_blank">Run Tests</a>
-            <a href="/logout">Logout</a>
-        </div>
+      <div class="watson-nav">
+        <a href="/dashboard">Main Dashboard</a>
+        <a href="/executive-intelligence">Executive Intelligence</a>
+        <a href="/api/watson-logs/export" target="_blank">Export Logs</a>
+        <a href="/api/simulated-testing/run" target="_blank">Run Tests</a>
+        <a href="/logout">Logout</a>
+      </div>
 
-        <div class="row">
-            <!-- System Performance Overview -->
-            <div class="col-md-6">
-                <div class="admin-card">
-                    <h3>System Performance</h3>
-                    <div class="metric-card" onclick="loadPerformanceDetails()">
-                        <h5><span class="performance-indicator status-active"></span>Fleet Assets</h5>
-                        <div class="row">
-                            <div class="col-6">
-                                <strong id="total-assets">717</strong><br>
-                                <small>Total Assets</small>
-                            </div>
-                            <div class="col-6">
-                                <strong id="active-assets">614</strong><br>
-                                <small>Active</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="metric-card" onclick="loadResponseTimes()">
-                        <h5><span class="performance-indicator status-active"></span>Response Times</h5>
-                        <div class="row">
-                            <div class="col-6">
-                                <strong id="avg-response">12ms</strong><br>
-                                <small>Average</small>
-                            </div>
-                            <div class="col-6">
-                                <strong id="health-response">8ms</strong><br>
-                                <small>Health Check</small>
-                            </div>
-                        </div>
-                    </div>
+      <div class="row">
+        <!-- System Performance Overview -->
+        <div class="col-md-6">
+          <div class="admin-card">
+            <h3>System Performance</h3>
+            <div class="metric-card" onclick="loadPerformanceDetails()">
+              <h5>
+                <span class="performance-indicator status-active"></span>Fleet
+                Assets
+              </h5>
+              <div class="row">
+                <div class="col-6">
+                  <strong id="total-assets">717</strong><br />
+                  <small>Total Assets</small>
                 </div>
+                <div class="col-6">
+                  <strong id="active-assets">614</strong><br />
+                  <small>Active</small>
+                </div>
+              </div>
             </div>
 
-            <!-- User Activity Analytics -->
-            <div class="col-md-6">
-                <div class="admin-card">
-                    <h3>User Activity Analytics</h3>
-                    <div class="metric-card" onclick="loadUserMetrics()">
-                        <h5><span class="performance-indicator status-active"></span>Session Activity</h5>
-                        <div class="row">
-                            <div class="col-6">
-                                <strong id="active-sessions">3</strong><br>
-                                <small>Active Sessions</small>
-                            </div>
-                            <div class="col-6">
-                                <strong id="page-views">147</strong><br>
-                                <small>Page Views</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="metric-card" onclick="loadMobileMetrics()">
-                        <h5><span class="performance-indicator status-active"></span>Mobile Usage</h5>
-                        <div class="row">
-                            <div class="col-6">
-                                <strong id="mobile-users">68%</strong><br>
-                                <small>Mobile Traffic</small>
-                            </div>
-                            <div class="col-6">
-                                <strong id="touch-interactions">234</strong><br>
-                                <small>Touch Events</small>
-                            </div>
-                        </div>
-                    </div>
+            <div class="metric-card" onclick="loadResponseTimes()">
+              <h5>
+                <span class="performance-indicator status-active"></span
+                >Response Times
+              </h5>
+              <div class="row">
+                <div class="col-6">
+                  <strong id="avg-response">12ms</strong><br />
+                  <small>Average</small>
                 </div>
+                <div class="col-6">
+                  <strong id="health-response">8ms</strong><br />
+                  <small>Health Check</small>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
 
-        <!-- Data Export and Testing Controls -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="admin-card">
-                    <h3>Administrative Controls</h3>
-                    
-                    <div class="data-export-section">
-                        <h5>Data Export & Analysis</h5>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <button class="btn btn-primary w-100" onclick="exportWatsonLogs()">
-                                    Export Interaction Logs
-                                </button>
-                                <small class="text-muted">Export user interaction data for analysis</small>
-                            </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-success w-100" onclick="runSimulatedTests()">
-                                    Run Simulated Tests
-                                </button>
-                                <small class="text-muted">Execute automated user testing scenarios</small>
-                            </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-info w-100" onclick="generatePerformanceReport()">
-                                    Performance Report
-                                </button>
-                                <small class="text-muted">Generate comprehensive system report</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="data-export-section">
-                        <h5>Fleet Data Management</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h6>GAUGE API Integration</h6>
-                                        <p><span class="performance-indicator status-active"></span>Connected to authentic data source</p>
-                                        <p><strong>Last Update:</strong> <span id="last-update">2025-05-15 10:45 AM</span></p>
-                                        <p><strong>Data Points:</strong> <span id="data-points">717 assets</span></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h6>System Health Status</h6>
-                                        <p><span class="performance-indicator status-active"></span>All systems operational</p>
-                                        <p><strong>Uptime:</strong> <span id="uptime">99.8%</span></p>
-                                        <p><strong>Last Restart:</strong> <span id="last-restart">2 hours ago</span></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <!-- User Activity Analytics -->
+        <div class="col-md-6">
+          <div class="admin-card">
+            <h3>User Activity Analytics</h3>
+            <div class="metric-card" onclick="loadUserMetrics()">
+              <h5>
+                <span class="performance-indicator status-active"></span>Session
+                Activity
+              </h5>
+              <div class="row">
+                <div class="col-6">
+                  <strong id="active-sessions">3</strong><br />
+                  <small>Active Sessions</small>
                 </div>
-            </div>
-        </div>
-
-        <!-- Real-time Activity Feed -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="admin-card">
-                    <h3>Real-time Activity Feed</h3>
-                    <div id="activity-feed" style="height: 300px; overflow-y: auto; background: #f8f9fa; padding: 15px; border-radius: 5px;">
-                        <div class="activity-item">
-                            <strong>Mobile User</strong> accessed dashboard <small class="text-muted">2 minutes ago</small>
-                        </div>
-                        <div class="activity-item">
-                            <strong>API Call</strong> /api/fleet-assets responded in 12ms <small class="text-muted">3 minutes ago</small>
-                        </div>
-                        <div class="activity-item">
-                            <strong>Performance</strong> All metrics within acceptable range <small class="text-muted">5 minutes ago</small>
-                        </div>
-                    </div>
+                <div class="col-6">
+                  <strong id="page-views">147</strong><br />
+                  <small>Page Views</small>
                 </div>
+              </div>
             </div>
+
+            <div class="metric-card" onclick="loadMobileMetrics()">
+              <h5>
+                <span class="performance-indicator status-active"></span>Mobile
+                Usage
+              </h5>
+              <div class="row">
+                <div class="col-6">
+                  <strong id="mobile-users">68%</strong><br />
+                  <small>Mobile Traffic</small>
+                </div>
+                <div class="col-6">
+                  <strong id="touch-interactions">234</strong><br />
+                  <small>Touch Events</small>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Data Export and Testing Controls -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="admin-card">
+            <h3>Administrative Controls</h3>
+
+            <div class="data-export-section">
+              <h5>Data Export & Analysis</h5>
+              <div class="row">
+                <div class="col-md-4">
+                  <button
+                    class="btn btn-primary w-100"
+                    onclick="exportWatsonLogs()"
+                  >
+                    Export Interaction Logs
+                  </button>
+                  <small class="text-muted"
+                    >Export user interaction data for analysis</small
+                  >
+                </div>
+                <div class="col-md-4">
+                  <button
+                    class="btn btn-success w-100"
+                    onclick="runSimulatedTests()"
+                  >
+                    Run Simulated Tests
+                  </button>
+                  <small class="text-muted"
+                    >Execute automated user testing scenarios</small
+                  >
+                </div>
+                <div class="col-md-4">
+                  <button
+                    class="btn btn-info w-100"
+                    onclick="generatePerformanceReport()"
+                  >
+                    Performance Report
+                  </button>
+                  <small class="text-muted"
+                    >Generate comprehensive system report</small
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="data-export-section">
+              <h5>Fleet Data Management</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-body">
+                      <h6>GAUGE API Integration</h6>
+                      <p>
+                        <span class="performance-indicator status-active"></span
+                        >Connected to authentic data source
+                      </p>
+                      <p>
+                        <strong>Last Update:</strong>
+                        <span id="last-update">2025-05-15 10:45 AM</span>
+                      </p>
+                      <p>
+                        <strong>Data Points:</strong>
+                        <span id="data-points">717 assets</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-body">
+                      <h6>System Health Status</h6>
+                      <p>
+                        <span class="performance-indicator status-active"></span
+                        >All systems operational
+                      </p>
+                      <p>
+                        <strong>Uptime:</strong> <span id="uptime">99.8%</span>
+                      </p>
+                      <p>
+                        <strong>Last Restart:</strong>
+                        <span id="last-restart">2 hours ago</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-time Activity Feed -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="admin-card">
+            <h3>Real-time Activity Feed</h3>
+            <div
+              id="activity-feed"
+              style="
+                height: 300px;
+                overflow-y: auto;
+                background: #f8f9fa;
+                padding: 15px;
+                border-radius: 5px;
+              "
+            >
+              <div class="activity-item">
+                <strong>Mobile User</strong> accessed dashboard
+                <small class="text-muted">2 minutes ago</small>
+              </div>
+              <div class="activity-item">
+                <strong>API Call</strong> /api/fleet-assets responded in 12ms
+                <small class="text-muted">3 minutes ago</small>
+              </div>
+              <div class="activity-item">
+                <strong>Performance</strong> All metrics within acceptable range
+                <small class="text-muted">5 minutes ago</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Watson Admin Dashboard Functionality
-        function exportWatsonLogs() {
-            fetch('/api/watson-logs/export')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Logs exported successfully: ' + data.export_file);
-                    } else {
-                        alert('Export failed: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Export error:', error);
-                    alert('Export functionality available - contact administrator');
-                });
-        }
+      // Watson Admin Dashboard Functionality
+      function exportWatsonLogs() {
+        fetch("/api/watson-logs/export")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              alert("Logs exported successfully: " + data.export_file);
+            } else {
+              alert("Export failed: " + data.error);
+            }
+          })
+          .catch((error) => {
+            console.error("Export error:", error);
+            alert("Export functionality available - contact administrator");
+          });
+      }
 
-        function runSimulatedTests() {
-            fetch('/api/simulated-testing/run')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const results = data.test_results;
-                        alert(`Tests completed: ${results.scenarios_executed} scenarios, ${results.success_rate}% success rate`);
-                    } else {
-                        alert('Testing failed: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Testing error:', error);
-                    alert('Simulated testing available - initializing background tests');
-                });
-        }
+      function runSimulatedTests() {
+        fetch("/api/simulated-testing/run")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              const results = data.test_results;
+              alert(
+                `Tests completed: ${results.scenarios_executed} scenarios, ${results.success_rate}% success rate`,
+              );
+            } else {
+              alert("Testing failed: " + data.error);
+            }
+          })
+          .catch((error) => {
+            console.error("Testing error:", error);
+            alert(
+              "Simulated testing available - initializing background tests",
+            );
+          });
+      }
 
-        function generatePerformanceReport() {
-            const report = {
-                timestamp: new Date().toISOString(),
-                system_health: 'Excellent',
-                response_times: 'Optimal',
-                user_satisfaction: 'High',
-                deployment_ready: true
-            };
-            
-            const reportWindow = window.open('', '_blank');
-            reportWindow.document.write(`
+      function generatePerformanceReport() {
+        const report = {
+          timestamp: new Date().toISOString(),
+          system_health: "Excellent",
+          response_times: "Optimal",
+          user_satisfaction: "High",
+          deployment_ready: true,
+        };
+
+        const reportWindow = window.open("", "_blank");
+        reportWindow.document.write(`
                 <html>
                 <head><title>TRAXOVO Performance Report</title></head>
                 <body style="font-family: Arial, sans-serif; padding: 20px;">
@@ -296,53 +368,58 @@
                 </body>
                 </html>
             `);
-        }
+      }
 
-        function loadPerformanceDetails() {
-            // Load real-time fleet asset data
-            fetch('/api/fleet-assets')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('total-assets').textContent = data.total_count || '717';
-                    document.getElementById('active-assets').textContent = data.active_count || '614';
-                })
-                .catch(error => console.error('Asset loading error:', error));
-        }
+      function loadPerformanceDetails() {
+        // Load real-time fleet asset data
+        fetch("/api/fleet-assets")
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("total-assets").textContent =
+              data.total_count || "717";
+            document.getElementById("active-assets").textContent =
+              data.active_count || "614";
+          })
+          .catch((error) => console.error("Asset loading error:", error));
+      }
 
-        function loadResponseTimes() {
-            // Test actual response times
-            const startTime = performance.now();
-            fetch('/health')
-                .then(response => {
-                    const responseTime = Math.round(performance.now() - startTime);
-                    document.getElementById('health-response').textContent = responseTime + 'ms';
-                })
-                .catch(error => console.error('Response time test error:', error));
-        }
+      function loadResponseTimes() {
+        // Test actual response times
+        const startTime = performance.now();
+        fetch("/health")
+          .then((response) => {
+            const responseTime = Math.round(performance.now() - startTime);
+            document.getElementById("health-response").textContent =
+              responseTime + "ms";
+          })
+          .catch((error) => console.error("Response time test error:", error));
+      }
 
-        function loadUserMetrics() {
-            // Update user activity metrics
-            document.getElementById('page-views').textContent = Math.floor(Math.random() * 50) + 120;
-        }
+      function loadUserMetrics() {
+        // Update user activity metrics
+        document.getElementById("page-views").textContent =
+          Math.floor(Math.random() * 50) + 120;
+      }
 
-        function loadMobileMetrics() {
-            // Update mobile usage statistics
-            document.getElementById('touch-interactions').textContent = Math.floor(Math.random() * 100) + 200;
-        }
+      function loadMobileMetrics() {
+        // Update mobile usage statistics
+        document.getElementById("touch-interactions").textContent =
+          Math.floor(Math.random() * 100) + 200;
+      }
 
-        // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            loadPerformanceDetails();
-            loadResponseTimes();
-            
-            // Auto-refresh metrics every 30 seconds
-            setInterval(() => {
-                loadPerformanceDetails();
-                loadResponseTimes();
-                loadUserMetrics();
-                loadMobileMetrics();
-            }, 30000);
-        });
+      // Initialize dashboard
+      document.addEventListener("DOMContentLoaded", function () {
+        loadPerformanceDetails();
+        loadResponseTimes();
+
+        // Auto-refresh metrics every 30 seconds
+        setInterval(() => {
+          loadPerformanceDetails();
+          loadResponseTimes();
+          loadUserMetrics();
+          loadMobileMetrics();
+        }, 30000);
+      });
     </script>
-</body>
+  </body>
 </html>

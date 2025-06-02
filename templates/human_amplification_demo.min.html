@@ -1,136 +1,271 @@
-{% extends "dashboard.html" %}
-
-{% block title %}Human + AI Collaboration Demo{% endblock %}
-
-{% block additional_css %}
+{% extends "dashboard.html" %} {% block title %}Human + AI Collaboration Demo{%
+endblock %} {% block additional_css %}
 <style>
-.amplification-card {
-border-radius: 15px;
-box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-transition: transform 0.3s ease;
-border: none;
-overflow: hidden;
-}
+  .amplification-card {
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    border: none;
+    overflow: hidden;
+  }
 
-.amplification-card:hover {
-transform: translateY(-5px);
-}
+  .amplification-card:hover {
+    transform: translateY(-5px);
+  }
 
-.scenario-header {
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-color: white;
-padding: 1.5rem;
-margin: -1.25rem -1.25rem 1.5rem -1.25rem;
-}
+  .scenario-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    margin: -1.25rem -1.25rem 1.5rem -1.25rem;
+  }
 
-.vs-indicator {
-background: linear-gradient(135deg, #28a745, #20c997);
-color: white;
-border-radius: 50px;
-padding: 0.5rem 1.5rem;
-font-weight: 600;
-display: inline-block;
-margin: 1rem 0;
-}
+  .vs-indicator {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border-radius: 50px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    display: inline-block;
+    margin: 1rem 0;
+  }
 
-.human-section {
-background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-border-radius: 10px;
-padding: 1.5rem;
-margin-bottom: 1rem;
-}
+  .human-section {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
 
-.ai-section {
-background: linear-gradient(135deg, #d1ecf1, #b3d9ff);
-border-radius: 10px;
-padding: 1.5rem;
-margin-bottom: 1rem;
-}
+  .ai-section {
+    background: linear-gradient(135deg, #d1ecf1, #b3d9ff);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
 
-.combined-section {
-background: linear-gradient(135deg, #d4edda, #c3e6cb);
-border-radius: 10px;
-padding: 1.5rem;
-border-left: 4px solid #28a745;
-}
+  .combined-section {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    border-radius: 10px;
+    padding: 1.5rem;
+    border-left: 4px solid #28a745;
+  }
 
-.roi-metric {
-text-align: center;
-padding: 1.5rem;
-border-radius: 10px;
-background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-margin-bottom: 1rem;
-}
+  .roi-metric {
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    margin-bottom: 1rem;
+  }
 
-.roi-value {
-font-size: 2rem;
-font-weight: 700;
-color: #28a745;
-display: block;
-}
+  .roi-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #28a745;
+    display: block;
+  }
 
-.enhancement-badge {
-background: linear-gradient(135deg, #6f42c1, #5a32a3);
-color: white;
-padding: 0.5rem 1rem;
-border-radius: 25px;
-display: inline-block;
-margin: 0.25rem;
-font-size: 0.9rem;
-}
+  .enhancement-badge {
+    background: linear-gradient(135deg, #6f42c1, #5a32a3);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    display: inline-block;
+    margin: 0.25rem;
+    font-size: 0.9rem;
+  }
 </style>
-{% endblock %}
+{% endblock %} {% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card amplification-card mb-4">
+        <div class="scenario-header">
+          <h2 class="mb-0">
+            <i class="bi bi-people-fill me-3"></i>Human + AI Collaboration
+          </h2>
+          <p class="mb-0 mt-2 opacity-75">
+            Demonstrating how AI amplifies human expertise instead of replacing
+            it
+          </p>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info">
+            <h5><i class="bi bi-lightbulb me-2"></i>Core Principle</h5>
+            <p class="mb-0">{{ demo.core_principle }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-12"><h3 class="mb-4">Human Amplification ROI</h3></div>
+        {% for key, value in demo.roi_impact.items() %}
+        <div class="col-md-4">
+          <div class="roi-metric">
+            <span class="roi-value"
+              >{{ value.weekly_hours_saved if key == 'time_savings' else
+              value.accuracy_improvement if key == 'decision_quality' else
+              value.strategic_time_increase }}</span
+            ><strong>{{ value.description }}</strong>
+            <p class="text-muted mt-2">
+              {{ value.annual_value if key == 'time_savings' else
+              value.cost_avoidance if key == 'decision_quality' else
+              value.business_growth_potential }}
+            </p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
 
-{% block content %}
-<div class="container-fluid"><div class="row"><div class="col-12"><div class="card amplification-card mb-4"><div class="scenario-header"><h2 class="mb-0"><i class="bi bi-people-fill me-3"></i>Human + AI Collaboration</h2><p class="mb-0 mt-2 opacity-75">Demonstrating how AI amplifies human expertise instead of replacing it</p></div><div class="card-body"><div class="alert alert-info"><h5><i class="bi bi-lightbulb me-2"></i>Core Principle</h5><p class="mb-0">{{ demo.core_principle }}</p></div></div></div><div class="row mb-4"><div class="col-12"><h3 class="mb-4">Human Amplification ROI</h3></div>
-{% for key, value in demo.roi_impact.items() %}
-<div class="col-md-4"><div class="roi-metric"><span class="roi-value">{{ value.weekly_hours_saved if key == 'time_savings' else value.accuracy_improvement if key == 'decision_quality' else value.strategic_time_increase }}</span><strong>{{ value.description }}</strong><p class="text-muted mt-2">{{ value.annual_value if key == 'time_savings' else value.cost_avoidance if key == 'decision_quality' else value.business_growth_potential }}</p></div></div>
-{% endfor %}
+      {% for scenario_key, scenario in demo.decision_scenarios.items() %}
+      <div class="card amplification-card mb-4">
+        <div class="scenario-header">
+          <h4 class="mb-0">{{ scenario.scenario }}</h4>
+          <small class="opacity-75">Real-world collaboration example</small>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-5">
+              <div class="human-section">
+                <h5>
+                  <i class="bi bi-person-check me-2"></i>Human Expertise
+                  Required
+                </h5>
+                <ul class="list-unstyled">
+                  {% for expertise in scenario.human_expertise_required %}
+                  <li class="mb-2">
+                    <i class="bi bi-check-circle text-warning me-2"></i>{{
+                    expertise }}
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+            <div
+              class="col-md-2 text-center d-flex align-items-center justify-content-center"
+            >
+              <div class="vs-indicator">+</div>
+            </div>
+            <div class="col-md-5">
+              <div class="ai-section">
+                <h5><i class="bi bi-cpu me-2"></i>AI Enhancement</h5>
+                <ul class="list-unstyled">
+                  {% for enhancement in scenario.ai_enhancement %}
+                  <li class="mb-2">
+                    <i class="bi bi-lightning text-primary me-2"></i>{{
+                    enhancement }}
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="combined-section mt-3">
+            <h5>
+              <i class="bi bi-arrow-up-right-circle me-2"></i>Combined Outcome
+            </h5>
+            <p class="mb-2"><strong>{{ scenario.combined_outcome }}</strong></p>
+            <span class="badge bg-success">{{ scenario.value_created }}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+      <div class="card amplification-card mb-4">
+        <div class="scenario-header">
+          <h4 class="mb-0">Job Enhancement, Not Replacement</h4>
+          <small class="opacity-75">How roles evolve with AI support</small>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            {% for role, details in demo.job_enhancement.items() %}
+            <div class="col-md-4">
+              <div class="card h-100" style="border-radius: 10px">
+                <div class="card-header bg-primary text-white">
+                  <h5 class="mb-0 text-capitalize">{{ role }}</h5>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <strong class="text-danger">Before:</strong>
+                    <p class="small">{{ details.before }}</p>
+                  </div>
+                  <div class="mb-3">
+                    <strong class="text-success">After:</strong>
+                    <p class="small">{{ details.after }}</p>
+                  </div>
+                  <div>
+                    <strong>New Capabilities:</strong>
+                    <div class="mt-2">
+                      {% for capability in details.new_capabilities %}
+                      <span class="enhancement-badge">{{ capability }}</span>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="card amplification-card">
+        <div
+          class="card-body text-center"
+          style="
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+          "
+        >
+          <h3>The Result: Empowered Teams, Not Replaced Teams</h3>
+          <p class="lead mb-4">
+            AI handles the data processing so humans can focus on what they do
+            best: think, create, and lead.
+          </p>
+          <div class="row text-center">
+            <div class="col-md-3">
+              <h4>717</h4>
+              <p>Assets Optimized</p>
+            </div>
+            <div class="col-md-3">
+              <h4>92</h4>
+              <p>Drivers Supported</p>
+            </div>
+            <div class="col-md-3">
+              <h4>$605K</h4>
+              <p>Monthly Revenue Tracked</p>
+            </div>
+            <div class="col-md-3">
+              <h4>$9,244</h4>
+              <p>Monthly Savings Generated</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+<script>
+  // Add interactive elements for demonstration
+  document.addEventListener("DOMContentLoaded", function () {
+    // Animate cards on scroll
+    const cards = document.querySelectorAll(".amplification-card");
 
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = "1";
+          entry.target.style.transform = "translateY(0)";
+        }
+      });
+    });
 
-{% for scenario_key, scenario in demo.decision_scenarios.items() %}
-<div class="card amplification-card mb-4"><div class="scenario-header"><h4 class="mb-0">{{ scenario.scenario }}</h4><small class="opacity-75">Real-world collaboration example</small></div><div class="card-body"><div class="row"><div class="col-md-5"><div class="human-section"><h5><i class="bi bi-person-check me-2"></i>Human Expertise Required</h5><ul class="list-unstyled">
-{% for expertise in scenario.human_expertise_required %}
-<li class="mb-2"><i class="bi bi-check-circle text-warning me-2"></i>{{ expertise }}</li>
-{% endfor %}
-</ul></div></div><div class="col-md-2 text-center d-flex align-items-center justify-content-center"><div class="vs-indicator">+</div></div><div class="col-md-5"><div class="ai-section"><h5><i class="bi bi-cpu me-2"></i>AI Enhancement</h5><ul class="list-unstyled">
-{% for enhancement in scenario.ai_enhancement %}
-<li class="mb-2"><i class="bi bi-lightning text-primary me-2"></i>{{ enhancement }}</li>
-{% endfor %}
-</ul></div></div></div><div class="combined-section mt-3"><h5><i class="bi bi-arrow-up-right-circle me-2"></i>Combined Outcome</h5><p class="mb-2"><strong>{{ scenario.combined_outcome }}</strong></p><span class="badge bg-success">{{ scenario.value_created }}</span></div></div></div>
-{% endfor %}
-
-
-<div class="card amplification-card mb-4"><div class="scenario-header"><h4 class="mb-0">Job Enhancement, Not Replacement</h4><small class="opacity-75">How roles evolve with AI support</small></div><div class="card-body"><div class="row">
-{% for role, details in demo.job_enhancement.items() %}
-<div class="col-md-4"><div class="card h-100" style="border-radius: 10px;"><div class="card-header bg-primary text-white"><h5 class="mb-0 text-capitalize">{{ role }}</h5></div><div class="card-body"><div class="mb-3"><strong class="text-danger">Before:</strong><p class="small">{{ details.before }}</p></div><div class="mb-3"><strong class="text-success">After:</strong><p class="small">{{ details.after }}</p></div><div><strong>New Capabilities:</strong><div class="mt-2">
-{% for capability in details.new_capabilities %}
-<span class="enhancement-badge">{{ capability }}</span>
-{% endfor %}
-</div></div></div></div></div>
-{% endfor %}
-</div></div></div><div class="card amplification-card"><div class="card-body text-center" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px;"><h3>The Result: Empowered Teams, Not Replaced Teams</h3><p class="lead mb-4">AI handles the data processing so humans can focus on what they do best: think, create, and lead.</p><div class="row text-center"><div class="col-md-3"><h4>717</h4><p>Assets Optimized</p></div><div class="col-md-3"><h4>92</h4><p>Drivers Supported</p></div><div class="col-md-3"><h4>$605K</h4><p>Monthly Revenue Tracked</p></div><div class="col-md-3"><h4>$9,244</h4><p>Monthly Savings Generated</p></div></div></div></div></div></div></div><script>
-// Add interactive elements for demonstration
-document.addEventListener('DOMContentLoaded', function() {
-// Animate cards on scroll
-const cards = document.querySelectorAll('.amplification-card');
-
-const observer = new IntersectionObserver((entries) => {
-entries.forEach(entry => {
-if (entry.isIntersecting) {
-entry.target.style.opacity = '1';
-entry.target.style.transform = 'translateY(0)';
-}
-});
-});
-
-cards.forEach(card => {
-card.style.opacity = '0';
-card.style.transform = 'translateY(20px)';
-card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-observer.observe(card);
-});
-});
+    cards.forEach((card) => {
+      card.style.opacity = "0";
+      card.style.transform = "translateY(20px)";
+      card.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+      observer.observe(card);
+    });
+  });
 </script>
 {% endblock %}

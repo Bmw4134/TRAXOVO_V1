@@ -1,22 +1,19 @@
-{% extends "base.html" %}
-
-{% block title %}Unified Attendance Matrix - TRAXOVO{% endblock %}
-
-{% block head %}
+{% extends "base.html" %} {% block title %}Unified Attendance Matrix - TRAXOVO{%
+endblock %} {% block head %}
 <style>
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     background: #f5f5f5;
-}
+  }
 
-.attendance-header {
+  .attendance-header {
     background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
     color: white;
     padding: 1.5rem;
     border-bottom: 2px solid #4a5568;
-}
+  }
 
-.attendance-nav {
+  .attendance-nav {
     background: #2d3748;
     color: white;
     padding: 0.75rem 1.5rem;
@@ -25,9 +22,9 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
-}
+  }
 
-.attendance-nav a {
+  .attendance-nav a {
     color: #cbd5e0;
     text-decoration: none;
     margin-right: 2rem;
@@ -35,56 +32,57 @@ body {
     border-radius: 4px;
     border-bottom: 2px solid transparent;
     transition: all 0.2s;
-}
+  }
 
-.attendance-nav a:hover, .attendance-nav a.active {
+  .attendance-nav a:hover,
+  .attendance-nav a.active {
     color: white;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     border-bottom-color: #90cdf4;
-}
+  }
 
-.control-panel {
+  .control-panel {
     background: white;
     padding: 1.5rem;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 1.5rem;
-}
+  }
 
-.view-controls {
+  .view-controls {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     margin-bottom: 1.5rem;
-}
+  }
 
-.control-group {
+  .control-group {
     display: flex;
     flex-direction: column;
-}
+  }
 
-.control-label {
+  .control-label {
     font-weight: 600;
     color: #2d3748;
     margin-bottom: 0.5rem;
     font-size: 0.875rem;
-}
+  }
 
-.control-input {
+  .control-input {
     padding: 0.75rem;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
     font-size: 0.875rem;
     transition: border-color 0.2s;
-}
+  }
 
-.control-input:focus {
+  .control-input:focus {
     outline: none;
     border-color: #3182ce;
     box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
-}
+  }
 
-.upload-section {
+  .upload-section {
     background: #f7fafc;
     border: 2px dashed #cbd5e0;
     border-radius: 8px;
@@ -92,34 +90,34 @@ body {
     text-align: center;
     margin-bottom: 1.5rem;
     transition: all 0.2s;
-}
+  }
 
-.upload-section:hover {
+  .upload-section:hover {
     border-color: #3182ce;
     background: #edf2f7;
-}
+  }
 
-.upload-section.drag-over {
+  .upload-section.drag-over {
     border-color: #38a169;
     background: #f0fff4;
-}
+  }
 
-.upload-icon {
+  .upload-icon {
     font-size: 3rem;
     color: #718096;
     margin-bottom: 1rem;
-}
+  }
 
-.upload-text {
+  .upload-text {
     color: #4a5568;
     margin-bottom: 1rem;
-}
+  }
 
-.file-input {
+  .file-input {
     display: none;
-}
+  }
 
-.upload-btn {
+  .upload-btn {
     background: #3182ce;
     color: white;
     border: none;
@@ -127,60 +125,60 @@ body {
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.2s;
-}
+  }
 
-.upload-btn:hover {
+  .upload-btn:hover {
     background: #2c5282;
-}
+  }
 
-.working-hours-panel {
+  .working-hours-panel {
     background: white;
     border-radius: 8px;
     padding: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 1.5rem;
-}
+  }
 
-.shift-config {
+  .shift-config {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
     margin-top: 1rem;
-}
+  }
 
-.shift-card {
+  .shift-card {
     background: #f7fafc;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
     padding: 1rem;
-}
+  }
 
-.shift-header {
+  .shift-header {
     display: flex;
     justify-content: between;
     align-items: center;
     margin-bottom: 1rem;
-}
+  }
 
-.shift-title {
+  .shift-title {
     font-weight: 600;
     color: #2d3748;
-}
+  }
 
-.shift-toggle {
+  .shift-toggle {
     position: relative;
     display: inline-block;
     width: 48px;
     height: 24px;
-}
+  }
 
-.shift-toggle input {
+  .shift-toggle input {
     opacity: 0;
     width: 0;
     height: 0;
-}
+  }
 
-.slider {
+  .slider {
     position: absolute;
     cursor: pointer;
     top: 0;
@@ -188,11 +186,11 @@ body {
     right: 0;
     bottom: 0;
     background-color: #cbd5e0;
-    transition: .4s;
+    transition: 0.4s;
     border-radius: 24px;
-}
+  }
 
-.slider:before {
+  .slider:before {
     position: absolute;
     content: "";
     height: 18px;
@@ -200,623 +198,739 @@ body {
     left: 3px;
     bottom: 3px;
     background-color: white;
-    transition: .4s;
+    transition: 0.4s;
     border-radius: 50%;
-}
+  }
 
-input:checked + .slider {
+  input:checked + .slider {
     background-color: #38a169;
-}
+  }
 
-input:checked + .slider:before {
+  input:checked + .slider:before {
     transform: translateX(24px);
-}
+  }
 
-.time-inputs {
+  .time-inputs {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
-}
+  }
 
-.matrix-container {
+  .matrix-container {
     background: white;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
 
-.matrix-header {
+  .matrix-header {
     background: #2d3748;
     color: white;
     padding: 1rem 1.5rem;
     display: flex;
     justify-content: between;
     align-items: center;
-}
+  }
 
-.matrix-title {
+  .matrix-title {
     font-size: 1.25rem;
     font-weight: 600;
-}
+  }
 
-.matrix-filters {
+  .matrix-filters {
     display: flex;
     gap: 1rem;
     align-items: center;
-}
+  }
 
-.filter-btn {
-    background: rgba(255,255,255,0.1);
+  .filter-btn {
+    background: rgba(255, 255, 255, 0.1);
     color: white;
-    border: 1px solid rgba(255,255,255,0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     padding: 0.5rem 1rem;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
     font-size: 0.875rem;
-}
+  }
 
-.filter-btn:hover, .filter-btn.active {
-    background: rgba(255,255,255,0.2);
-    border-color: rgba(255,255,255,0.4);
-}
+  .filter-btn:hover,
+  .filter-btn.active {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
 
-.matrix-table {
+  .matrix-table {
     width: 100%;
     border-collapse: collapse;
-}
+  }
 
-.matrix-table th,
-.matrix-table td {
+  .matrix-table th,
+  .matrix-table td {
     padding: 0.75rem;
     text-align: left;
     border-bottom: 1px solid #e2e8f0;
     font-size: 0.875rem;
-}
+  }
 
-.matrix-table th {
+  .matrix-table th {
     background: #f7fafc;
     font-weight: 600;
     color: #2d3748;
     position: sticky;
     top: 0;
     z-index: 10;
-}
+  }
 
-.status-indicator {
+  .status-indicator {
     display: inline-block;
     width: 8px;
     height: 8px;
     border-radius: 50%;
     margin-right: 0.5rem;
-}
+  }
 
-.status-on-site { background: #38a169; }
-.status-late { background: #ed8936; }
-.status-absent { background: #e53e3e; }
-.status-partial { background: #3182ce; }
+  .status-on-site {
+    background: #38a169;
+  }
+  .status-late {
+    background: #ed8936;
+  }
+  .status-absent {
+    background: #e53e3e;
+  }
+  .status-partial {
+    background: #3182ce;
+  }
 
-.hours-cell {
+  .hours-cell {
     font-weight: 600;
     color: #2d3748;
-}
+  }
 
-.overtime-hours {
+  .overtime-hours {
     color: #ed8936;
     font-weight: 600;
-}
+  }
 
-.gps-status {
+  .gps-status {
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
     border-radius: 12px;
     font-weight: 600;
-}
+  }
 
-.gps-verified { background: #c6f6d5; color: #22543d; }
-.gps-unverified { background: #fed7d7; color: #742a2a; }
+  .gps-verified {
+    background: #c6f6d5;
+    color: #22543d;
+  }
+  .gps-unverified {
+    background: #fed7d7;
+    color: #742a2a;
+  }
 
-.analysis-panel {
+  .analysis-panel {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
     margin-top: 1.5rem;
-}
+  }
 
-.analysis-card {
+  .analysis-card {
     background: white;
     border-radius: 8px;
     padding: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
 
-.analysis-title {
+  .analysis-title {
     font-size: 1.1rem;
     font-weight: 600;
     color: #2d3748;
     margin-bottom: 1rem;
-}
+  }
 
-.metric-row {
+  .metric-row {
     display: flex;
     justify-content: between;
     align-items: center;
     padding: 0.5rem 0;
     border-bottom: 1px solid #f1f3f4;
-}
+  }
 
-.metric-row:last-child {
+  .metric-row:last-child {
     border-bottom: none;
-}
+  }
 
-.metric-label {
+  .metric-label {
     color: #4a5568;
     font-size: 0.875rem;
-}
+  }
 
-.metric-value {
+  .metric-value {
     font-weight: 600;
     color: #2d3748;
-}
+  }
 
-@media (max-width: 768px) {
+  @media (max-width: 768px) {
     .view-controls {
-        grid-template-columns: 1fr;
+      grid-template-columns: 1fr;
     }
-    
-    .shift-config {
-        grid-template-columns: 1fr;
-    }
-    
-    .analysis-panel {
-        grid-template-columns: 1fr;
-    }
-    
-    .matrix-filters {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-}
-</style>
-{% endblock %}
 
-{% block content %}
+    .shift-config {
+      grid-template-columns: 1fr;
+    }
+
+    .analysis-panel {
+      grid-template-columns: 1fr;
+    }
+
+    .matrix-filters {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
 <!-- Header -->
 <div class="attendance-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="h3 mb-0 fw-bold text-white">Unified Attendance Matrix</h1>
-            <small style="opacity: 0.7;">Comprehensive workforce tracking with GPS validation and job zone integration</small>
-        </div>
-        <div class="text-sm opacity-75">{{ total_employees or 0 }} Active Employees</div>
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h1 class="h3 mb-0 fw-bold text-white">Unified Attendance Matrix</h1>
+      <small style="opacity: 0.7"
+        >Comprehensive workforce tracking with GPS validation and job zone
+        integration</small
+      >
     </div>
+    <div class="text-sm opacity-75">
+      {{ total_employees or 0 }} Active Employees
+    </div>
+  </div>
 </div>
 
 <!-- Navigation -->
 <div class="attendance-nav">
-    <a href="#" class="active">Live Matrix</a>
-    <a href="#" onclick="switchView('daily')">Daily View</a>
-    <a href="#" onclick="switchView('weekly')">Weekly View</a>
-    <a href="#" onclick="switchView('monthly')">Monthly View</a>
-    <a href="/fleet-map">GPS Map</a>
-    <a href="/job-management">Job Zones</a>
-    <a href="/billing">Cross-Analysis</a>
+  <a href="#" class="active">Live Matrix</a>
+  <a href="#" onclick="switchView('daily')">Daily View</a>
+  <a href="#" onclick="switchView('weekly')">Weekly View</a>
+  <a href="#" onclick="switchView('monthly')">Monthly View</a>
+  <a href="/fleet-map">GPS Map</a>
+  <a href="/job-management">Job Zones</a>
+  <a href="/billing">Cross-Analysis</a>
 </div>
 
 <div class="container-fluid p-3">
-    <!-- Control Panel -->
-    <div class="control-panel">
-        <div class="view-controls">
-            <div class="control-group">
-                <label class="control-label">Date Range</label>
-                <input type="date" class="control-input" id="start-date" value="{{ current_date }}">
-            </div>
-            <div class="control-group">
-                <label class="control-label">End Date</label>
-                <input type="date" class="control-input" id="end-date" value="{{ current_date }}">
-            </div>
-            <div class="control-group">
-                <label class="control-label">Job Site Filter</label>
-                <select class="control-input" id="job-filter" onchange="filterByJob(this.value)">
-                    <option value="">All Job Sites</option>
-                    <option value="2019-044">2019-044 E Long Avenue</option>
-                    <option value="2021-017">2021-017 Plaza Drive</option>
-                    <option value="yard">Central Yard</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label class="control-label">Status Filter</label>
-                <select class="control-input" id="status-filter" onchange="filterByStatus(this.value)">
-                    <option value="">All Statuses</option>
-                    <option value="on-site">On Site</option>
-                    <option value="late">Late Start</option>
-                    <option value="absent">Absent</option>
-                    <option value="partial">Partial Day</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- File Upload Section -->
-        <div class="upload-section" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-            <div class="upload-icon">
-                <i class="fas fa-cloud-upload-alt"></i>
-            </div>
-            <div class="upload-text">
-                <strong>Upload Gauge Reports</strong><br>
-                Drag & drop or click to upload Driving History, Activity Detail, Assets Time on Site, Foundation Timecards<br>
-                <small>Supports PDF, XLSX, CSV formats</small>
-            </div>
-            <input type="file" id="file-input" class="file-input" multiple accept=".pdf,.xlsx,.csv" onchange="handleFileSelect(event)">
-            <button class="upload-btn" onclick="document.getElementById('file-input').click()">
-                <i class="fas fa-upload me-2"></i>Select Files
-            </button>
-        </div>
+  <!-- Control Panel -->
+  <div class="control-panel">
+    <div class="view-controls">
+      <div class="control-group">
+        <label class="control-label">Date Range</label>
+        <input
+          type="date"
+          class="control-input"
+          id="start-date"
+          value="{{ current_date }}"
+        />
+      </div>
+      <div class="control-group">
+        <label class="control-label">End Date</label>
+        <input
+          type="date"
+          class="control-input"
+          id="end-date"
+          value="{{ current_date }}"
+        />
+      </div>
+      <div class="control-group">
+        <label class="control-label">Job Site Filter</label>
+        <select
+          class="control-input"
+          id="job-filter"
+          onchange="filterByJob(this.value)"
+        >
+          <option value="">All Job Sites</option>
+          <option value="2019-044">2019-044 E Long Avenue</option>
+          <option value="2021-017">2021-017 Plaza Drive</option>
+          <option value="yard">Central Yard</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Status Filter</label>
+        <select
+          class="control-input"
+          id="status-filter"
+          onchange="filterByStatus(this.value)"
+        >
+          <option value="">All Statuses</option>
+          <option value="on-site">On Site</option>
+          <option value="late">Late Start</option>
+          <option value="absent">Absent</option>
+          <option value="partial">Partial Day</option>
+        </select>
+      </div>
     </div>
 
-    <!-- Working Hours Configuration -->
-    <div class="working-hours-panel">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">Job Zone Working Hours Configuration</h5>
-            <button class="btn btn-primary btn-sm" onclick="saveWorkingHours()">
-                <i class="fas fa-save me-2"></i>Save Configuration
-            </button>
-        </div>
-        
-        <div class="shift-config">
-            <div class="shift-card">
-                <div class="shift-header">
-                    <div class="shift-title">Day Shift</div>
-                    <label class="shift-toggle">
-                        <input type="checkbox" id="day-shift-enabled" checked onchange="toggleShift('day', this.checked)">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div class="time-inputs">
-                    <div>
-                        <label class="control-label">Start Time</label>
-                        <input type="time" class="control-input" id="day-start" value="07:00">
-                    </div>
-                    <div>
-                        <label class="control-label">End Time</label>
-                        <input type="time" class="control-input" id="day-end" value="17:00">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="shift-card">
-                <div class="shift-header">
-                    <div class="shift-title">Night Shift</div>
-                    <label class="shift-toggle">
-                        <input type="checkbox" id="night-shift-enabled" onchange="toggleShift('night', this.checked)">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div class="time-inputs">
-                    <div>
-                        <label class="control-label">Start Time</label>
-                        <input type="time" class="control-input" id="night-start" value="18:00">
-                    </div>
-                    <div>
-                        <label class="control-label">End Time</label>
-                        <input type="time" class="control-input" id="night-end" value="06:00">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="shift-card">
-                <div class="shift-header">
-                    <div class="shift-title">Dual Shift Mode</div>
-                    <label class="shift-toggle">
-                        <input type="checkbox" id="dual-shift-enabled" onchange="toggleDualShift(this.checked)">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div style="color: #4a5568; font-size: 0.875rem; margin-top: 0.5rem;">
-                    Enable for jobs with both day and night operations
-                </div>
-            </div>
-        </div>
+    <!-- File Upload Section -->
+    <div
+      class="upload-section"
+      ondrop="handleDrop(event)"
+      ondragover="handleDragOver(event)"
+      ondragleave="handleDragLeave(event)"
+    >
+      <div class="upload-icon">
+        <i class="fas fa-cloud-upload-alt"></i>
+      </div>
+      <div class="upload-text">
+        <strong>Upload Gauge Reports</strong><br />
+        Drag & drop or click to upload Driving History, Activity Detail, Assets
+        Time on Site, Foundation Timecards<br />
+        <small>Supports PDF, XLSX, CSV formats</small>
+      </div>
+      <input
+        type="file"
+        id="file-input"
+        class="file-input"
+        multiple
+        accept=".pdf,.xlsx,.csv"
+        onchange="handleFileSelect(event)"
+      />
+      <button
+        class="upload-btn"
+        onclick="document.getElementById('file-input').click()"
+      >
+        <i class="fas fa-upload me-2"></i>Select Files
+      </button>
+    </div>
+  </div>
+
+  <!-- Working Hours Configuration -->
+  <div class="working-hours-panel">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">Job Zone Working Hours Configuration</h5>
+      <button class="btn btn-primary btn-sm" onclick="saveWorkingHours()">
+        <i class="fas fa-save me-2"></i>Save Configuration
+      </button>
     </div>
 
-    <!-- Matrix Container -->
-    <div class="matrix-container">
-        <div class="matrix-header">
-            <div class="matrix-title">Live Attendance Matrix</div>
-            <div class="matrix-filters">
-                <button class="filter-btn active" onclick="setMatrixView('live')">Live</button>
-                <button class="filter-btn" onclick="setMatrixView('gps')">GPS Verified</button>
-                <button class="filter-btn" onclick="setMatrixView('alerts')">Alerts Only</button>
-                <button class="filter-btn" onclick="refreshMatrix()">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-            </div>
+    <div class="shift-config">
+      <div class="shift-card">
+        <div class="shift-header">
+          <div class="shift-title">Day Shift</div>
+          <label class="shift-toggle">
+            <input
+              type="checkbox"
+              id="day-shift-enabled"
+              checked
+              onchange="toggleShift('day', this.checked)"
+            />
+            <span class="slider"></span>
+          </label>
         </div>
-        
-        <div style="max-height: 600px; overflow-y: auto;">
-            <table class="matrix-table">
-                <thead>
-                    <tr>
-                        <th>Employee</th>
-                        <th>Job Site</th>
-                        <th>Status</th>
-                        <th>Hours Today</th>
-                        <th>Regular</th>
-                        <th>Overtime</th>
-                        <th>GPS Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="attendance-data">
-                    <!-- Sample data - will be populated dynamically -->
-                    <tr>
-                        <td>
-                            <span class="status-indicator status-on-site"></span>
-                            John Smith
-                        </td>
-                        <td>2019-044 E Long Avenue</td>
-                        <td>On Site</td>
-                        <td class="hours-cell">8.25</td>
-                        <td>8.00</td>
-                        <td class="overtime-hours">0.25</td>
-                        <td><span class="gps-status gps-verified">GPS Verified</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('john-smith')">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class="status-indicator status-late"></span>
-                            Mike Johnson
-                        </td>
-                        <td>2021-017 Plaza Drive</td>
-                        <td>Late Start</td>
-                        <td class="hours-cell">6.50</td>
-                        <td>6.50</td>
-                        <td>0.00</td>
-                        <td><span class="gps-status gps-verified">GPS Verified</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('mike-johnson')">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="time-inputs">
+          <div>
+            <label class="control-label">Start Time</label>
+            <input
+              type="time"
+              class="control-input"
+              id="day-start"
+              value="07:00"
+            />
+          </div>
+          <div>
+            <label class="control-label">End Time</label>
+            <input
+              type="time"
+              class="control-input"
+              id="day-end"
+              value="17:00"
+            />
+          </div>
         </div>
+      </div>
+
+      <div class="shift-card">
+        <div class="shift-header">
+          <div class="shift-title">Night Shift</div>
+          <label class="shift-toggle">
+            <input
+              type="checkbox"
+              id="night-shift-enabled"
+              onchange="toggleShift('night', this.checked)"
+            />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="time-inputs">
+          <div>
+            <label class="control-label">Start Time</label>
+            <input
+              type="time"
+              class="control-input"
+              id="night-start"
+              value="18:00"
+            />
+          </div>
+          <div>
+            <label class="control-label">End Time</label>
+            <input
+              type="time"
+              class="control-input"
+              id="night-end"
+              value="06:00"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="shift-card">
+        <div class="shift-header">
+          <div class="shift-title">Dual Shift Mode</div>
+          <label class="shift-toggle">
+            <input
+              type="checkbox"
+              id="dual-shift-enabled"
+              onchange="toggleDualShift(this.checked)"
+            />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div style="color: #4a5568; font-size: 0.875rem; margin-top: 0.5rem">
+          Enable for jobs with both day and night operations
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Matrix Container -->
+  <div class="matrix-container">
+    <div class="matrix-header">
+      <div class="matrix-title">Live Attendance Matrix</div>
+      <div class="matrix-filters">
+        <button class="filter-btn active" onclick="setMatrixView('live')">
+          Live
+        </button>
+        <button class="filter-btn" onclick="setMatrixView('gps')">
+          GPS Verified
+        </button>
+        <button class="filter-btn" onclick="setMatrixView('alerts')">
+          Alerts Only
+        </button>
+        <button class="filter-btn" onclick="refreshMatrix()">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
     </div>
 
-    <!-- Analysis Panel -->
-    <div class="analysis-panel">
-        <div class="analysis-card">
-            <div class="analysis-title">Today's Summary</div>
-            <div class="metric-row">
-                <span class="metric-label">Total Employees</span>
-                <span class="metric-value">{{ total_employees or 92 }}</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">On Site</span>
-                <span class="metric-value">{{ on_site_count or 68 }}</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Late Arrivals</span>
-                <span class="metric-value">{{ late_count or 3 }}</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Absent</span>
-                <span class="metric-value">{{ absent_count or 21 }}</span>
-            </div>
-        </div>
-        
-        <div class="analysis-card">
-            <div class="analysis-title">Hours Analysis</div>
-            <div class="metric-row">
-                <span class="metric-label">Total Hours</span>
-                <span class="metric-value">{{ total_hours or 544 }}</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Regular Hours</span>
-                <span class="metric-value">{{ regular_hours or 520 }}</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Overtime Hours</span>
-                <span class="metric-value">{{ overtime_hours or 24 }}</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Billable Hours</span>
-                <span class="metric-value">{{ billable_hours or 512 }}</span>
-            </div>
-        </div>
-        
-        <div class="analysis-card">
-            <div class="analysis-title">GPS Validation</div>
-            <div class="metric-row">
-                <span class="metric-label">GPS Verified</span>
-                <span class="metric-value">{{ gps_verified or 58 }}</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Manual Entry</span>
-                <span class="metric-value">{{ manual_entry or 10 }}</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Validation Rate</span>
-                <span class="metric-value">{{ validation_rate or 85.3 }}%</span>
-            </div>
-        </div>
+    <div style="max-height: 600px; overflow-y: auto">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Job Site</th>
+            <th>Status</th>
+            <th>Hours Today</th>
+            <th>Regular</th>
+            <th>Overtime</th>
+            <th>GPS Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="attendance-data">
+          <!-- Sample data - will be populated dynamically -->
+          <tr>
+            <td>
+              <span class="status-indicator status-on-site"></span>
+              John Smith
+            </td>
+            <td>2019-044 E Long Avenue</td>
+            <td>On Site</td>
+            <td class="hours-cell">8.25</td>
+            <td>8.00</td>
+            <td class="overtime-hours">0.25</td>
+            <td><span class="gps-status gps-verified">GPS Verified</span></td>
+            <td>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                onclick="viewDetails('john-smith')"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="status-indicator status-late"></span>
+              Mike Johnson
+            </td>
+            <td>2021-017 Plaza Drive</td>
+            <td>Late Start</td>
+            <td class="hours-cell">6.50</td>
+            <td>6.50</td>
+            <td>0.00</td>
+            <td><span class="gps-status gps-verified">GPS Verified</span></td>
+            <td>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                onclick="viewDetails('mike-johnson')"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+  </div>
+
+  <!-- Analysis Panel -->
+  <div class="analysis-panel">
+    <div class="analysis-card">
+      <div class="analysis-title">Today's Summary</div>
+      <div class="metric-row">
+        <span class="metric-label">Total Employees</span>
+        <span class="metric-value">{{ total_employees or 92 }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">On Site</span>
+        <span class="metric-value">{{ on_site_count or 68 }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Late Arrivals</span>
+        <span class="metric-value">{{ late_count or 3 }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Absent</span>
+        <span class="metric-value">{{ absent_count or 21 }}</span>
+      </div>
+    </div>
+
+    <div class="analysis-card">
+      <div class="analysis-title">Hours Analysis</div>
+      <div class="metric-row">
+        <span class="metric-label">Total Hours</span>
+        <span class="metric-value">{{ total_hours or 544 }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Regular Hours</span>
+        <span class="metric-value">{{ regular_hours or 520 }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Overtime Hours</span>
+        <span class="metric-value">{{ overtime_hours or 24 }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Billable Hours</span>
+        <span class="metric-value">{{ billable_hours or 512 }}</span>
+      </div>
+    </div>
+
+    <div class="analysis-card">
+      <div class="analysis-title">GPS Validation</div>
+      <div class="metric-row">
+        <span class="metric-label">GPS Verified</span>
+        <span class="metric-value">{{ gps_verified or 58 }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Manual Entry</span>
+        <span class="metric-value">{{ manual_entry or 10 }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Validation Rate</span>
+        <span class="metric-value">{{ validation_rate or 85.3 }}%</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-// Matrix view management
-let currentView = 'live';
-let attendanceData = [];
-let shiftConfiguration = {
-    dayShift: { enabled: true, start: '07:00', end: '17:00' },
-    nightShift: { enabled: false, start: '18:00', end: '06:00' },
-    dualShift: false
-};
+  // Matrix view management
+  let currentView = "live";
+  let attendanceData = [];
+  let shiftConfiguration = {
+    dayShift: { enabled: true, start: "07:00", end: "17:00" },
+    nightShift: { enabled: false, start: "18:00", end: "06:00" },
+    dualShift: false,
+  };
 
-// File upload handling
-function handleDragOver(e) {
+  // File upload handling
+  function handleDragOver(e) {
     e.preventDefault();
-    e.currentTarget.classList.add('drag-over');
-}
+    e.currentTarget.classList.add("drag-over");
+  }
 
-function handleDragLeave(e) {
-    e.currentTarget.classList.remove('drag-over');
-}
+  function handleDragLeave(e) {
+    e.currentTarget.classList.remove("drag-over");
+  }
 
-function handleDrop(e) {
+  function handleDrop(e) {
     e.preventDefault();
-    e.currentTarget.classList.remove('drag-over');
-    
+    e.currentTarget.classList.remove("drag-over");
+
     const files = e.dataTransfer.files;
     processFiles(files);
-}
+  }
 
-function handleFileSelect(e) {
+  function handleFileSelect(e) {
     const files = e.target.files;
     processFiles(files);
-}
+  }
 
-function processFiles(files) {
+  function processFiles(files) {
     for (let file of files) {
-        console.log('Processing file:', file.name);
-        
-        // Determine file type and process accordingly
-        if (file.name.toLowerCase().includes('driving') || file.name.toLowerCase().includes('activity')) {
-            processGaugeReport(file);
-        } else if (file.name.toLowerCase().includes('foundation') || file.name.toLowerCase().includes('timecard')) {
-            processTimecardData(file);
-        } else if (file.name.toLowerCase().includes('assets') || file.name.toLowerCase().includes('time on site')) {
-            processAssetTimeData(file);
-        }
-    }
-}
+      console.log("Processing file:", file.name);
 
-function processGaugeReport(file) {
+      // Determine file type and process accordingly
+      if (
+        file.name.toLowerCase().includes("driving") ||
+        file.name.toLowerCase().includes("activity")
+      ) {
+        processGaugeReport(file);
+      } else if (
+        file.name.toLowerCase().includes("foundation") ||
+        file.name.toLowerCase().includes("timecard")
+      ) {
+        processTimecardData(file);
+      } else if (
+        file.name.toLowerCase().includes("assets") ||
+        file.name.toLowerCase().includes("time on site")
+      ) {
+        processAssetTimeData(file);
+      }
+    }
+  }
+
+  function processGaugeReport(file) {
     // Implementation for processing Gauge reports
-    console.log('Processing Gauge report:', file.name);
-    showNotification('Processing Gauge report: ' + file.name, 'info');
-}
+    console.log("Processing Gauge report:", file.name);
+    showNotification("Processing Gauge report: " + file.name, "info");
+  }
 
-function processTimecardData(file) {
+  function processTimecardData(file) {
     // Implementation for processing timecard data
-    console.log('Processing timecard data:', file.name);
-    showNotification('Processing timecard data: ' + file.name, 'info');
-}
+    console.log("Processing timecard data:", file.name);
+    showNotification("Processing timecard data: " + file.name, "info");
+  }
 
-function processAssetTimeData(file) {
+  function processAssetTimeData(file) {
     // Implementation for processing asset time data
-    console.log('Processing asset time data:', file.name);
-    showNotification('Processing asset time data: ' + file.name, 'info');
-}
+    console.log("Processing asset time data:", file.name);
+    showNotification("Processing asset time data: " + file.name, "info");
+  }
 
-// Shift configuration
-function toggleShift(shiftType, enabled) {
-    shiftConfiguration[shiftType + 'Shift'].enabled = enabled;
-    console.log(`${shiftType} shift ${enabled ? 'enabled' : 'disabled'}`);
-    
-    if (shiftType === 'night' && enabled) {
-        // Auto-enable dual shift if night shift is enabled
-        document.getElementById('dual-shift-enabled').checked = true;
-        shiftConfiguration.dualShift = true;
+  // Shift configuration
+  function toggleShift(shiftType, enabled) {
+    shiftConfiguration[shiftType + "Shift"].enabled = enabled;
+    console.log(`${shiftType} shift ${enabled ? "enabled" : "disabled"}`);
+
+    if (shiftType === "night" && enabled) {
+      // Auto-enable dual shift if night shift is enabled
+      document.getElementById("dual-shift-enabled").checked = true;
+      shiftConfiguration.dualShift = true;
     }
-}
+  }
 
-function toggleDualShift(enabled) {
+  function toggleDualShift(enabled) {
     shiftConfiguration.dualShift = enabled;
-    console.log(`Dual shift mode ${enabled ? 'enabled' : 'disabled'}`);
-    
-    if (enabled) {
-        // Ensure both shifts are enabled for dual shift mode
-        document.getElementById('day-shift-enabled').checked = true;
-        document.getElementById('night-shift-enabled').checked = true;
-        shiftConfiguration.dayShift.enabled = true;
-        shiftConfiguration.nightShift.enabled = true;
-    }
-}
+    console.log(`Dual shift mode ${enabled ? "enabled" : "disabled"}`);
 
-function saveWorkingHours() {
+    if (enabled) {
+      // Ensure both shifts are enabled for dual shift mode
+      document.getElementById("day-shift-enabled").checked = true;
+      document.getElementById("night-shift-enabled").checked = true;
+      shiftConfiguration.dayShift.enabled = true;
+      shiftConfiguration.nightShift.enabled = true;
+    }
+  }
+
+  function saveWorkingHours() {
     // Collect all shift configuration data
     const config = {
-        dayShift: {
-            enabled: document.getElementById('day-shift-enabled').checked,
-            start: document.getElementById('day-start').value,
-            end: document.getElementById('day-end').value
-        },
-        nightShift: {
-            enabled: document.getElementById('night-shift-enabled').checked,
-            start: document.getElementById('night-start').value,
-            end: document.getElementById('night-end').value
-        },
-        dualShift: document.getElementById('dual-shift-enabled').checked
+      dayShift: {
+        enabled: document.getElementById("day-shift-enabled").checked,
+        start: document.getElementById("day-start").value,
+        end: document.getElementById("day-end").value,
+      },
+      nightShift: {
+        enabled: document.getElementById("night-shift-enabled").checked,
+        start: document.getElementById("night-start").value,
+        end: document.getElementById("night-end").value,
+      },
+      dualShift: document.getElementById("dual-shift-enabled").checked,
     };
-    
-    console.log('Saving working hours configuration:', config);
-    showNotification('Working hours configuration saved successfully', 'success');
-}
 
-// Matrix functions
-function switchView(viewType) {
+    console.log("Saving working hours configuration:", config);
+    showNotification(
+      "Working hours configuration saved successfully",
+      "success",
+    );
+  }
+
+  // Matrix functions
+  function switchView(viewType) {
     currentView = viewType;
-    console.log('Switching to', viewType, 'view');
-    
+    console.log("Switching to", viewType, "view");
+
     // Update navigation
-    document.querySelectorAll('.attendance-nav a').forEach(a => a.classList.remove('active'));
-    event.target.classList.add('active');
-    
+    document
+      .querySelectorAll(".attendance-nav a")
+      .forEach((a) => a.classList.remove("active"));
+    event.target.classList.add("active");
+
     // Update matrix title
-    document.querySelector('.matrix-title').textContent = viewType.charAt(0).toUpperCase() + viewType.slice(1) + ' Attendance Matrix';
-    
-    refreshMatrix();
-}
+    document.querySelector(".matrix-title").textContent =
+      viewType.charAt(0).toUpperCase() +
+      viewType.slice(1) +
+      " Attendance Matrix";
 
-function setMatrixView(filterType) {
+    refreshMatrix();
+  }
+
+  function setMatrixView(filterType) {
     // Update filter buttons
-    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-    
-    console.log('Setting matrix view to:', filterType);
-    refreshMatrix();
-}
+    document
+      .querySelectorAll(".filter-btn")
+      .forEach((btn) => btn.classList.remove("active"));
+    event.target.classList.add("active");
 
-function filterByJob(jobSite) {
-    console.log('Filtering by job site:', jobSite);
+    console.log("Setting matrix view to:", filterType);
     refreshMatrix();
-}
+  }
 
-function filterByStatus(status) {
-    console.log('Filtering by status:', status);
+  function filterByJob(jobSite) {
+    console.log("Filtering by job site:", jobSite);
     refreshMatrix();
-}
+  }
 
-function refreshMatrix() {
-    console.log('Refreshing attendance matrix...');
-    showNotification('Refreshing attendance data...', 'info');
-    
+  function filterByStatus(status) {
+    console.log("Filtering by status:", status);
+    refreshMatrix();
+  }
+
+  function refreshMatrix() {
+    console.log("Refreshing attendance matrix...");
+    showNotification("Refreshing attendance data...", "info");
+
     // In a real implementation, this would fetch fresh data
     setTimeout(() => {
-        showNotification('Attendance matrix updated', 'success');
+      showNotification("Attendance matrix updated", "success");
     }, 1000);
-}
+  }
 
-function viewDetails(employeeId) {
-    console.log('Viewing details for employee:', employeeId);
+  function viewDetails(employeeId) {
+    console.log("Viewing details for employee:", employeeId);
     // Implementation for detailed employee view
-}
+  }
 
-// Utility functions
-function showNotification(message, type) {
+  // Utility functions
+  function showNotification(message, type) {
     // Simple notification system
-    const notification = document.createElement('div');
+    const notification = document.createElement("div");
     notification.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
         padding: 1rem 1.5rem;
-        background: ${type === 'success' ? '#38a169' : type === 'error' ? '#e53e3e' : '#3182ce'};
+        background: ${type === "success" ? "#38a169" : type === "error" ? "#e53e3e" : "#3182ce"};
         color: white;
         border-radius: 6px;
         z-index: 1000;
@@ -824,25 +938,25 @@ function showNotification(message, type) {
         font-weight: 500;
     `;
     notification.textContent = message;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
-}
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Unified Attendance Matrix initialized');
-    
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+
+  // Initialize on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log("Unified Attendance Matrix initialized");
+
     // Set current date
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('start-date').value = today;
-    document.getElementById('end-date').value = today;
-    
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("start-date").value = today;
+    document.getElementById("end-date").value = today;
+
     // Initial matrix load
     refreshMatrix();
-});
+  });
 </script>
 {% endblock %}

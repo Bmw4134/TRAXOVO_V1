@@ -1,84 +1,87 @@
-{% extends "base.html" %}
-
-{% block title %}SafeMode Diagnostics - TRAXOVO{% endblock %}
-
-{% block extra_css %}
+{% extends "base.html" %} {% block title %}SafeMode Diagnostics - TRAXOVO{%
+endblock %} {% block extra_css %}
 <style>
-.safemode-header {
+  .safemode-header {
     background: linear-gradient(135deg, var(--warning-orange) 0%, #f59e0b 100%);
     color: white;
     padding: 2rem;
     border-radius: 12px;
     margin-bottom: 2rem;
-}
+  }
 
-.diagnostic-grid {
+  .diagnostic-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
-}
+  }
 
-.diagnostic-card {
+  .diagnostic-card {
     background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-}
+  }
 
-.card-header {
+  .card-header {
     background: var(--primary-blue);
     color: white;
     padding: 1rem;
     font-weight: 600;
-}
+  }
 
-.card-body {
+  .card-body {
     padding: 1.5rem;
-}
+  }
 
-.status-indicator {
+  .status-indicator {
     display: inline-block;
     width: 12px;
     height: 12px;
     border-radius: 50%;
     margin-right: 8px;
-}
+  }
 
-.status-connected { background: #10b981; }
-.status-warning { background: #f59e0b; }
-.status-error { background: #ef4444; }
+  .status-connected {
+    background: #10b981;
+  }
+  .status-warning {
+    background: #f59e0b;
+  }
+  .status-error {
+    background: #ef4444;
+  }
 
-.metric-row {
+  .metric-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 0;
     border-bottom: 1px solid #f1f5f9;
-}
+  }
 
-.metric-row:last-child {
+  .metric-row:last-child {
     border-bottom: none;
-}
+  }
 
-.metric-label {
+  .metric-label {
     color: var(--dark-gray);
     font-weight: 500;
-}
+  }
 
-.metric-value {
+  .metric-value {
     font-weight: 600;
     color: var(--primary-blue);
-}
+  }
 
-.system-actions {
+  .system-actions {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     margin-top: 2rem;
-}
+  }
 
-.action-card {
+  .action-card {
     background: white;
     border: 2px solid #e5e7eb;
     border-radius: 8px;
@@ -86,263 +89,262 @@
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
-}
+  }
 
-.action-card:hover {
+  .action-card:hover {
     border-color: var(--primary-blue);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(30, 64, 175, 0.15);
-}
+  }
 
-.action-icon {
+  .action-icon {
     font-size: 2rem;
     color: var(--primary-blue);
     margin-bottom: 1rem;
-}
+  }
 
-.action-title {
+  .action-title {
     font-weight: 600;
     margin-bottom: 0.5rem;
     color: var(--primary-blue);
-}
+  }
 
-.action-description {
+  .action-description {
     font-size: 0.9rem;
     color: var(--dark-gray);
-}
+  }
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <!-- SafeMode Header -->
 <div class="safemode-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h1><i class="fas fa-shield-alt me-2"></i>SafeMode Diagnostics</h1>
-            <p class="mb-0">System health monitoring and diagnostic interface</p>
-        </div>
-        <div>
-            <span class="badge bg-light text-dark fs-6">Live Monitoring</span>
-        </div>
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h1><i class="fas fa-shield-alt me-2"></i>SafeMode Diagnostics</h1>
+      <p class="mb-0">System health monitoring and diagnostic interface</p>
     </div>
+    <div>
+      <span class="badge bg-light text-dark fs-6">Live Monitoring</span>
+    </div>
+  </div>
 </div>
 
 <!-- Diagnostic Grid -->
 <div class="diagnostic-grid">
-    <!-- System Status -->
-    <div class="diagnostic-card">
-        <div class="card-header">
-            <i class="fas fa-server me-2"></i>System Status
-        </div>
-        <div class="card-body">
-            <div class="metric-row">
-                <span class="metric-label">
-                    <span class="status-indicator status-connected"></span>Database
-                </span>
-                <span class="metric-value">{{ system_status.database }}</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">
-                    <span class="status-indicator status-connected"></span>GAUGE API
-                </span>
-                <span class="metric-value">{{ system_status.gauge_api }}</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">
-                    <span class="status-indicator status-connected"></span>RAGLE Integration
-                </span>
-                <span class="metric-value">{{ system_status.ragle_integration }}</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">System Health</span>
-                <span class="metric-value">{{ system_status.system_health }}%</span>
-            </div>
-        </div>
+  <!-- System Status -->
+  <div class="diagnostic-card">
+    <div class="card-header">
+      <i class="fas fa-server me-2"></i>System Status
     </div>
+    <div class="card-body">
+      <div class="metric-row">
+        <span class="metric-label">
+          <span class="status-indicator status-connected"></span>Database
+        </span>
+        <span class="metric-value">{{ system_status.database }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">
+          <span class="status-indicator status-connected"></span>GAUGE API
+        </span>
+        <span class="metric-value">{{ system_status.gauge_api }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">
+          <span class="status-indicator status-connected"></span>RAGLE
+          Integration
+        </span>
+        <span class="metric-value">{{ system_status.ragle_integration }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">System Health</span>
+        <span class="metric-value">{{ system_status.system_health }}%</span>
+      </div>
+    </div>
+  </div>
 
-    <!-- Module Status -->
-    <div class="diagnostic-card">
-        <div class="card-header">
-            <i class="fas fa-puzzle-piece me-2"></i>Module Status
-        </div>
-        <div class="card-body">
-            <div class="metric-row">
-                <span class="metric-label">Total Modules</span>
-                <span class="metric-value">{{ system_status.total_modules }}</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Active Modules</span>
-                <span class="metric-value">{{ system_status.active_modules }}</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Attendance Matrix</span>
-                <span class="metric-value">
-                    <span class="status-indicator status-connected"></span>Operational
-                </span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Billing Intelligence</span>
-                <span class="metric-value">
-                    <span class="status-indicator status-connected"></span>Active
-                </span>
-            </div>
-        </div>
+  <!-- Module Status -->
+  <div class="diagnostic-card">
+    <div class="card-header">
+      <i class="fas fa-puzzle-piece me-2"></i>Module Status
     </div>
+    <div class="card-body">
+      <div class="metric-row">
+        <span class="metric-label">Total Modules</span>
+        <span class="metric-value">{{ system_status.total_modules }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Active Modules</span>
+        <span class="metric-value">{{ system_status.active_modules }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Attendance Matrix</span>
+        <span class="metric-value">
+          <span class="status-indicator status-connected"></span>Operational
+        </span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Billing Intelligence</span>
+        <span class="metric-value">
+          <span class="status-indicator status-connected"></span>Active
+        </span>
+      </div>
+    </div>
+  </div>
 
-    <!-- Data Integrity -->
-    <div class="diagnostic-card">
-        <div class="card-header">
-            <i class="fas fa-database me-2"></i>Data Integrity
-        </div>
-        <div class="card-body">
-            <div class="metric-row">
-                <span class="metric-label">GAUGE Assets</span>
-                <span class="metric-value">717 Total</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Active Assets</span>
-                <span class="metric-value">614 Connected</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">RAGLE Revenue</span>
-                <span class="metric-value">$1.013M YTD</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Last Sync</span>
-                <span class="metric-value">Live</span>
-            </div>
-        </div>
+  <!-- Data Integrity -->
+  <div class="diagnostic-card">
+    <div class="card-header">
+      <i class="fas fa-database me-2"></i>Data Integrity
     </div>
+    <div class="card-body">
+      <div class="metric-row">
+        <span class="metric-label">GAUGE Assets</span>
+        <span class="metric-value">717 Total</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Active Assets</span>
+        <span class="metric-value">614 Connected</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">RAGLE Revenue</span>
+        <span class="metric-value">$1.013M YTD</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Last Sync</span>
+        <span class="metric-value">Live</span>
+      </div>
+    </div>
+  </div>
 
-    <!-- Performance Metrics -->
-    <div class="diagnostic-card">
-        <div class="card-header">
-            <i class="fas fa-tachometer-alt me-2"></i>Performance
-        </div>
-        <div class="card-body">
-            <div class="metric-row">
-                <span class="metric-label">Response Time</span>
-                <span class="metric-value">< 200ms</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Uptime</span>
-                <span class="metric-value">99.9%</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">CPU Usage</span>
-                <span class="metric-value">12%</span>
-            </div>
-            <div class="metric-row">
-                <span class="metric-label">Memory Usage</span>
-                <span class="metric-value">64%</span>
-            </div>
-        </div>
+  <!-- Performance Metrics -->
+  <div class="diagnostic-card">
+    <div class="card-header">
+      <i class="fas fa-tachometer-alt me-2"></i>Performance
     </div>
+    <div class="card-body">
+      <div class="metric-row">
+        <span class="metric-label">Response Time</span>
+        <span class="metric-value">< 200ms</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Uptime</span>
+        <span class="metric-value">99.9%</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">CPU Usage</span>
+        <span class="metric-value">12%</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">Memory Usage</span>
+        <span class="metric-value">64%</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- System Actions -->
 <div class="system-actions">
-    <div class="action-card" onclick="runDiagnostic('connectivity')">
-        <div class="action-icon">
-            <i class="fas fa-wifi"></i>
-        </div>
-        <div class="action-title">Connectivity Test</div>
-        <div class="action-description">Test GAUGE API and database connections</div>
+  <div class="action-card" onclick="runDiagnostic('connectivity')">
+    <div class="action-icon">
+      <i class="fas fa-wifi"></i>
     </div>
+    <div class="action-title">Connectivity Test</div>
+    <div class="action-description">
+      Test GAUGE API and database connections
+    </div>
+  </div>
 
-    <div class="action-card" onclick="runDiagnostic('data-validation')">
-        <div class="action-icon">
-            <i class="fas fa-check-circle"></i>
-        </div>
-        <div class="action-title">Data Validation</div>
-        <div class="action-description">Verify data integrity and consistency</div>
+  <div class="action-card" onclick="runDiagnostic('data-validation')">
+    <div class="action-icon">
+      <i class="fas fa-check-circle"></i>
     </div>
+    <div class="action-title">Data Validation</div>
+    <div class="action-description">Verify data integrity and consistency</div>
+  </div>
 
-    <div class="action-card" onclick="runDiagnostic('performance')">
-        <div class="action-icon">
-            <i class="fas fa-chart-line"></i>
-        </div>
-        <div class="action-title">Performance Check</div>
-        <div class="action-description">Analyze system performance metrics</div>
+  <div class="action-card" onclick="runDiagnostic('performance')">
+    <div class="action-icon">
+      <i class="fas fa-chart-line"></i>
     </div>
+    <div class="action-title">Performance Check</div>
+    <div class="action-description">Analyze system performance metrics</div>
+  </div>
 
-    <div class="action-card" onclick="runDiagnostic('module-health')">
-        <div class="action-icon">
-            <i class="fas fa-heartbeat"></i>
-        </div>
-        <div class="action-title">Module Health</div>
-        <div class="action-description">Check all module functionality</div>
+  <div class="action-card" onclick="runDiagnostic('module-health')">
+    <div class="action-icon">
+      <i class="fas fa-heartbeat"></i>
     </div>
+    <div class="action-title">Module Health</div>
+    <div class="action-description">Check all module functionality</div>
+  </div>
 
-    <div class="action-card" onclick="exportLogs()">
-        <div class="action-icon">
-            <i class="fas fa-download"></i>
-        </div>
-        <div class="action-title">Export Logs</div>
-        <div class="action-description">Download system logs for analysis</div>
+  <div class="action-card" onclick="exportLogs()">
+    <div class="action-icon">
+      <i class="fas fa-download"></i>
     </div>
+    <div class="action-title">Export Logs</div>
+    <div class="action-description">Download system logs for analysis</div>
+  </div>
 
-    <div class="action-card" onclick="emergencyReset()">
-        <div class="action-icon">
-            <i class="fas fa-redo-alt"></i>
-        </div>
-        <div class="action-title">Emergency Reset</div>
-        <div class="action-description">Reset system to safe state</div>
+  <div class="action-card" onclick="emergencyReset()">
+    <div class="action-icon">
+      <i class="fas fa-redo-alt"></i>
     </div>
+    <div class="action-title">Emergency Reset</div>
+    <div class="action-description">Reset system to safe state</div>
+  </div>
 </div>
 
 <!-- Results Container -->
-<div id="diagnostic-results" class="mt-4" style="display: none;">
-    <div class="card">
-        <div class="card-header">
-            <h5><i class="fas fa-clipboard-check me-2"></i>Diagnostic Results</h5>
-        </div>
-        <div class="card-body">
-            <div id="results-content"></div>
-        </div>
+<div id="diagnostic-results" class="mt-4" style="display: none">
+  <div class="card">
+    <div class="card-header">
+      <h5><i class="fas fa-clipboard-check me-2"></i>Diagnostic Results</h5>
     </div>
+    <div class="card-body">
+      <div id="results-content"></div>
+    </div>
+  </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-function runDiagnostic(type) {
-    const resultsContainer = document.getElementById('diagnostic-results');
-    const resultsContent = document.getElementById('results-content');
-    
-    resultsContainer.style.display = 'block';
+  function runDiagnostic(type) {
+    const resultsContainer = document.getElementById("diagnostic-results");
+    const resultsContent = document.getElementById("results-content");
+
+    resultsContainer.style.display = "block";
     resultsContent.innerHTML = `
         <div class="text-center">
             <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
             <p>Running ${type} diagnostic...</p>
         </div>
     `;
-    
+
     // Simulate diagnostic run
     setTimeout(() => {
-        let results = '';
-        
-        switch(type) {
-            case 'connectivity':
-                results = `
+      let results = "";
+
+      switch (type) {
+        case "connectivity":
+          results = `
                     <div class="alert alert-success">
                         <strong>✓ GAUGE API:</strong> Connected (614/717 assets responding)<br>
                         <strong>✓ Database:</strong> PostgreSQL connection healthy<br>
                         <strong>✓ RAGLE Integration:</strong> Data sync operational
                     </div>
                 `;
-                break;
-            case 'data-validation':
-                results = `
+          break;
+        case "data-validation":
+          results = `
                     <div class="alert alert-success">
                         <strong>✓ Attendance Data:</strong> 92 drivers tracked, 94.6% accuracy<br>
                         <strong>✓ Billing Data:</strong> $1.013M revenue validated<br>
                         <strong>✓ Asset Data:</strong> 717 total assets, 614 active
                     </div>
                 `;
-                break;
-            case 'performance':
-                results = `
+          break;
+        case "performance":
+          results = `
                     <div class="alert alert-success">
                         <strong>✓ Response Time:</strong> Average 187ms<br>
                         <strong>✓ CPU Usage:</strong> 12% (optimal)<br>
@@ -350,9 +352,9 @@ function runDiagnostic(type) {
                         <strong>✓ Disk Usage:</strong> 45% available
                     </div>
                 `;
-                break;
-            case 'module-health':
-                results = `
+          break;
+        case "module-health":
+          results = `
                     <div class="alert alert-success">
                         <strong>✓ Attendance Matrix:</strong> Fully operational<br>
                         <strong>✓ Fleet Map:</strong> GPS tracking active<br>
@@ -360,31 +362,39 @@ function runDiagnostic(type) {
                         <strong>✓ Asset Manager:</strong> All systems operational
                     </div>
                 `;
-                break;
-        }
-        
-        resultsContent.innerHTML = results;
+          break;
+      }
+
+      resultsContent.innerHTML = results;
     }, 2000);
-}
+  }
 
-function exportLogs() {
+  function exportLogs() {
     // Simulate log export
-    const link = document.createElement('a');
-    link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent('TRAXOVO System Logs\n===================\n[2025-06-02 07:15:23] System startup successful\n[2025-06-02 07:15:24] Database connection established\n[2025-06-02 07:15:25] GAUGE API connection verified\n[2025-06-02 07:15:26] All modules loaded successfully');
-    link.download = 'traxovo-system-logs.txt';
+    const link = document.createElement("a");
+    link.href =
+      "data:text/plain;charset=utf-8," +
+      encodeURIComponent(
+        "TRAXOVO System Logs\n===================\n[2025-06-02 07:15:23] System startup successful\n[2025-06-02 07:15:24] Database connection established\n[2025-06-02 07:15:25] GAUGE API connection verified\n[2025-06-02 07:15:26] All modules loaded successfully",
+      );
+    link.download = "traxovo-system-logs.txt";
     link.click();
-}
+  }
 
-function emergencyReset() {
-    if (confirm('Are you sure you want to perform an emergency reset? This will restart all system modules.')) {
-        alert('Emergency reset initiated. System will restart in safe mode.');
-        // In a real system, this would trigger a controlled restart
+  function emergencyReset() {
+    if (
+      confirm(
+        "Are you sure you want to perform an emergency reset? This will restart all system modules.",
+      )
+    ) {
+      alert("Emergency reset initiated. System will restart in safe mode.");
+      // In a real system, this would trigger a controlled restart
     }
-}
+  }
 
-// Auto-refresh system status every 30 seconds
-setInterval(() => {
-    console.log('SafeMode: System status refreshed');
-}, 30000);
+  // Auto-refresh system status every 30 seconds
+  setInterval(() => {
+    console.log("SafeMode: System status refreshed");
+  }, 30000);
 </script>
 {% endblock %}

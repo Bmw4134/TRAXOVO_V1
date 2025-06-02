@@ -1,367 +1,671 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXOVO Fleet Management</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"><style>
-body {
-background: #f8f9fa;
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TRAXOVO Fleet Management</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #f8f9fa;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+      }
 
-.top-bar {
-background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-color: white;
-padding: 1rem 0;
-box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+      .top-bar {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 1rem 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
 
-.metric-card {
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-color: white;
-border-radius: 12px;
-box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-transition: all 0.3s ease;
-border: none;
-margin-bottom: 1.5rem;
-padding: 1.5rem;
-position: relative;
-overflow: hidden;
-}
+      .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: none;
+        margin-bottom: 1.5rem;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+      }
 
-.metric-card.revenue {
-background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-}
+      .metric-card.revenue {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      }
 
-.metric-card.fleet {
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
+      .metric-card.fleet {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
 
-.metric-card.savings {
-background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
+      .metric-card.savings {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      }
 
-.metric-card.efficiency {
-background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
+      .metric-card.efficiency {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      }
 
-.metric-card:hover {
-transform: translateY(-2px);
-box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
+      .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
 
-.metric-drill-down {
-margin-top: 0.5rem;
-}
+      .metric-drill-down {
+        margin-top: 0.5rem;
+      }
 
-.metric-drill-down select {
-background: rgba(255,255,255,0.1);
-border: 1px solid rgba(255,255,255,0.2);
-color: white;
-font-size: 0.75rem;
-}
+      .metric-drill-down select {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        font-size: 0.75rem;
+      }
 
-.metric-drill-down select:focus {
-background: rgba(255,255,255,0.2);
-border-color: rgba(255,255,255,0.4);
-}
+      .metric-drill-down select:focus {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
 
-.metric-content {
-position: relative;
-z-index: 2;
-}
+      .metric-content {
+        position: relative;
+        z-index: 2;
+      }
 
-.metric-value {
-font-size: 2rem;
-font-weight: 700;
-margin-bottom: 0.5rem;
-}
+      .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
 
-.metric-label {
-font-size: 0.875rem;
-opacity: 0.9;
-margin-bottom: 0.25rem;
-}
+      .metric-label {
+        font-size: 0.875rem;
+        opacity: 0.9;
+        margin-bottom: 0.25rem;
+      }
 
-.metric-change {
-font-size: 0.75rem;
-padding: 0.25rem 0.5rem;
-border-radius: 12px;
-background: rgba(255,255,255,0.2);
-display: inline-block;
-}
+      .metric-change {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.2);
+        display: inline-block;
+      }
 
-.operations-panel {
-background: white;
-border-radius: 12px;
-padding: 1.5rem;
-box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-height: 100%;
-}
+      .operations-panel {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        height: 100%;
+      }
 
-.panel-header {
-display: flex;
-justify-content: between;
-align-items: center;
-margin-bottom: 1.5rem;
-padding-bottom: 1rem;
-border-bottom: 1px solid #e2e8f0;
-}
+      .panel-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+      }
 
-.panel-header h5 {
-margin: 0;
-color: #2d3748;
-font-weight: 600;
-}
+      .panel-header h5 {
+        margin: 0;
+        color: #2d3748;
+        font-weight: 600;
+      }
 
-.operations-grid {
-display: flex;
-flex-direction: column;
-gap: 1rem;
-}
+      .operations-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
 
-.operation-item {
-display: flex;
-align-items: center;
-padding: 1rem;
-background: #f7fafc;
-border-radius: 8px;
-border-left: 4px solid #e2e8f0;
-transition: all 0.2s;
-}
+      .operation-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background: #f7fafc;
+        border-radius: 8px;
+        border-left: 4px solid #e2e8f0;
+        transition: all 0.2s;
+      }
 
-.operation-item:hover {
-background: #edf2f7;
-transform: translateX(2px);
-}
+      .operation-item:hover {
+        background: #edf2f7;
+        transform: translateX(2px);
+      }
 
-.operation-icon {
-width: 40px;
-height: 40px;
-border-radius: 50%;
-display: flex;
-align-items: center;
-justify-content: center;
-margin-right: 1rem;
-font-size: 1.2rem;
-}
+      .operation-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.2rem;
+      }
 
-.operation-icon.active {
-background: #c6f6d5;
-color: #22543d;
-}
+      .operation-icon.active {
+        background: #c6f6d5;
+        color: #22543d;
+      }
 
-.operation-icon.warning {
-background: #fed7d7;
-color: #742a2a;
-}
+      .operation-icon.warning {
+        background: #fed7d7;
+        color: #742a2a;
+      }
 
-.operation-icon.info {
-background: #bee3f8;
-color: #2a4365;
-}
+      .operation-icon.info {
+        background: #bee3f8;
+        color: #2a4365;
+      }
 
-.operation-details {
-flex: 1;
-}
+      .operation-details {
+        flex: 1;
+      }
 
-.operation-name {
-font-weight: 600;
-color: #2d3748;
-margin-bottom: 0.25rem;
-}
+      .operation-name {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.25rem;
+      }
 
-.operation-count {
-font-size: 1.5rem;
-font-weight: 700;
-color: #1a202c;
-}
+      .operation-count {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a202c;
+      }
 
-.operation-trend {
-font-size: 0.875rem;
-padding: 0.25rem 0.75rem;
-border-radius: 12px;
-font-weight: 600;
-}
+      .operation-trend {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-weight: 600;
+      }
 
-.operation-trend.positive {
-background: #c6f6d5;
-color: #22543d;
-}
+      .operation-trend.positive {
+        background: #c6f6d5;
+        color: #22543d;
+      }
 
-.operation-trend.negative {
-background: #fed7d7;
-color: #742a2a;
-}
+      .operation-trend.negative {
+        background: #fed7d7;
+        color: #742a2a;
+      }
 
-.operation-trend.neutral {
-background: #e2e8f0;
-color: #4a5568;
-}
+      .operation-trend.neutral {
+        background: #e2e8f0;
+        color: #4a5568;
+      }
 
-.financial-metrics {
-display: flex;
-flex-direction: column;
-gap: 1.5rem;
-}
+      .financial-metrics {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
 
-.financial-item {
-padding: 1rem;
-background: #f7fafc;
-border-radius: 8px;
-border-left: 4px solid #3182ce;
-}
+      .financial-item {
+        padding: 1rem;
+        background: #f7fafc;
+        border-radius: 8px;
+        border-left: 4px solid #3182ce;
+      }
 
-.financial-label {
-font-size: 0.875rem;
-color: #4a5568;
-margin-bottom: 0.5rem;
-font-weight: 600;
-}
+      .financial-label {
+        font-size: 0.875rem;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
 
-.financial-value {
-font-size: 1.75rem;
-font-weight: 700;
-color: #1a202c;
-margin-bottom: 0.25rem;
-}
+      .financial-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 0.25rem;
+      }
 
-.financial-value.positive {
-color: #22543d;
-}
+      .financial-value.positive {
+        color: #22543d;
+      }
 
-.financial-subtitle {
-font-size: 0.75rem;
-color: #718096;
-}
+      .financial-subtitle {
+        font-size: 0.75rem;
+        color: #718096;
+      }
 
-.metric-header {
-padding: 1.5rem;
-border-bottom: 1px solid #f1f3f4;
-cursor: pointer;
-display: flex;
-justify-content: between;
-align-items: center;
-}
+      .metric-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #f1f3f4;
+        cursor: pointer;
+        display: flex;
+        justify-content: between;
+        align-items: center;
+      }
 
-.metric-icon {
-width: 48px;
-height: 48px;
-border-radius: 12px;
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 1.5rem;
-color: white;
-margin-right: 1rem;
-}
+      .metric-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        margin-right: 1rem;
+      }
 
-.metric-value {
-font-size: 2rem;
-font-weight: 700;
-color: #2c3e50;
-margin: 0;
-}
+      .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0;
+      }
 
-.metric-label {
-color: #6c757d;
-font-size: 0.9rem;
-margin: 0;
-}
+      .metric-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin: 0;
+      }
 
-.metric-details {
-padding: 0 1.5rem 1.5rem;
-display: none;
-}
+      .metric-details {
+        padding: 0 1.5rem 1.5rem;
+        display: none;
+      }
 
-.metric-details.show {
-display: block;
-}
+      .metric-details.show {
+        display: block;
+      }
 
-.quick-actions {
-background: white;
-border-radius: 12px;
-box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-padding: 1.5rem;
-margin-bottom: 1.5rem;
-}
+      .quick-actions {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
 
-.action-btn {
-background: linear-gradient(45deg, #667eea, #764ba2);
-border: none;
-color: white;
-padding: 12px 24px;
-border-radius: 8px;
-font-weight: 500;
-transition: all 0.3s ease;
-text-decoration: none;
-display: inline-block;
-margin: 0.5rem 0.5rem 0.5rem 0;
-}
+      .action-btn {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0.5rem 0.5rem 0.5rem 0;
+      }
 
-.action-btn:hover {
-transform: scale(1.05);
-color: white;
-text-decoration: none;
-}
+      .action-btn:hover {
+        transform: scale(1.05);
+        color: white;
+        text-decoration: none;
+      }
 
-.collapse-toggle {
-background: none;
-border: none;
-color: #6c757d;
-font-size: 1.2rem;
-transition: transform 0.3s ease;
-}
+      .collapse-toggle {
+        background: none;
+        border: none;
+        color: #6c757d;
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
+      }
 
-.collapse-toggle.rotated {
-transform: rotate(180deg);
-}
+      .collapse-toggle.rotated {
+        transform: rotate(180deg);
+      }
 
-.navbar-brand {
-font-weight: 700;
-font-size: 1.5rem;
-}
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+      }
 
-.detail-row {
-display: flex;
-justify-content: between;
-padding: 0.5rem 0;
-border-bottom: 1px solid #f1f3f4;
-}
+      .detail-row {
+        display: flex;
+        justify-content: between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f1f3f4;
+      }
 
-.detail-row:last-child {
-border-bottom: none;
-}
-</style></head><body><div class="top-bar"><div class="container-fluid"><div class="d-flex justify-content-between align-items-center"><h1 class="navbar-brand mb-0"><i class="fas fa-truck me-2"></i>TRAXOVO
-</h1><div class="d-flex align-items-center"><span class="me-3">Last Update: {{ last_sync or 'Just now' }}</span><a href="/auth/logout" class="btn btn-outline-light btn-sm"><i class="fas fa-sign-out-alt me-1"></i>Logout
-</a></div></div></div></div><div class="container-fluid py-4"><div class="quick-actions"><h4 class="mb-3"><i class="fas fa-bolt me-2"></i>Quick Actions</h4><div class="row"><div class="col-12"><a href="/asset-manager" class="action-btn"><i class="fas fa-boxes me-2"></i>Asset Management
-</a><a href="/executive-reports" class="action-btn"><i class="fas fa-chart-line me-2"></i>Executive Reports
-</a><a href="/attendance-matrix" class="action-btn" style="background: linear-gradient(45deg, #28a745, #20c997);"><i class="fas fa-users me-2"></i>Attendance Matrix
-</a><a href="/fleet-map" class="action-btn"><i class="fas fa-map-marked-alt me-2"></i>Fleet Map
-</a><a href="/billing" class="action-btn"><i class="fas fa-dollar-sign me-2"></i>Revenue Analytics
-</a><a href="/cost-simulator" class="action-btn" style="background: linear-gradient(45deg, #ff6b6b, #feca57);"><i class="fas fa-calculator me-2"></i>Cost Savings Simulator
-</a><a href="/billing-consolidation" class="action-btn" style="background: linear-gradient(45deg, #2c3e50, #3498db);"><i class="fas fa-database me-2"></i>Billing Consolidation
-</a></div></div></div><div class="row"><div class="col-lg-6"><div class="metric-card"><div class="metric-header" onclick="toggleDetails('fleet-details')"><div class="d-flex align-items-center flex-grow-1"><div class="metric-icon" style="background: linear-gradient(45deg, #667eea, #764ba2);"><i class="fas fa-truck"></i></div><div><h3 class="metric-value">{{ total_assets or 581 }}</h3><p class="metric-label">Total Fleet Assets</p></div></div><button class="collapse-toggle"><i class="fas fa-chevron-down"></i></button></div><div id="fleet-details" class="metric-details" style="display: none;"><div class="detail-row"><span>Active Units:</span><strong>{{ active_assets or 610 }}</strong></div><div class="detail-row"><span>Under Maintenance:</span><strong>{{ (total_assets|default(581) - active_assets|default(610))|abs }}</strong></div><div class="detail-row"><span>GPS Enabled:</span><strong>{{ gps_enabled or 576 }}</strong></div><div class="detail-row"><span>Utilization Rate:</span><strong>{{ avg_utilization or 85.3 }}%</strong></div><div class="detail-row"><span>Data Source:</span><small class="text-muted">Equipment Detail History Report (Authentic)</small></div><div class="detail-row"><span>Last Updated:</span><small class="text-muted">{{ last_sync or 'Just now' }}</small></div></div></div></div><div class="col-lg-6"><div class="metric-card"><div class="metric-header" onclick="toggleDetails('revenue-details')"><div class="d-flex align-items-center flex-grow-1"><div class="metric-icon" style="background: linear-gradient(45deg, #52c41a, #1890ff);"><i class="fas fa-dollar-sign"></i></div><div><h3 class="metric-value">${{ "{:,}".format(monthly_revenue or 847200) }}</h3><p class="metric-label">Monthly Revenue</p></div></div><button class="collapse-toggle"><i class="fas fa-chevron-down"></i></button></div><div id="revenue-details" class="metric-details" style="display: none;"><div class="detail-row"><span>March 2025 Revenue:</span><strong>${{ "{:,}".format(march_revenue or 452800) }}</strong></div><div class="detail-row"><span>April 2025 Revenue:</span><strong>${{ "{:,}".format(april_revenue or 394400) }}</strong></div><div class="detail-row"><span>Equipment Rental:</span><strong>${{ "{:,.0f}".format(635400) }}</strong></div><div class="detail-row"><span>Service Revenue:</span><strong>${{ "{:,.0f}".format(211800) }}</strong></div><div class="detail-row"><span>Data Source:</span><small class="text-muted">RAGLE EQ BILLINGS March/April 2025 (Authentic)</small></div><div class="detail-row"><span>YTD Performance:</span><small class="text-muted">{{ ((monthly_revenue or 847200) / 800000 * 100) | round(1) }}% of annual target</small></div></div></div></div><div class="col-lg-6"><div class="metric-card"><div class="metric-header" onclick="toggleDetails('drivers-details')"><div class="d-flex align-items-center flex-grow-1"><div class="metric-icon" style="background: linear-gradient(45deg, #ff7875, #ffa940);"><i class="fas fa-users"></i></div><div><h3 class="metric-value">{{ active_drivers or 92 }}</h3><p class="metric-label">Active Drivers</p></div></div><button class="collapse-toggle"><i class="fas fa-chevron-down"></i></button></div><div id="drivers-details" class="metric-details"><div class="detail-row"><span>Active Today:</span><strong>78</strong></div><div class="detail-row"><span>GPS Correlation Rate:</span><strong>94.6%</strong></div><div class="detail-row"><span>Attendance Accuracy:</span><strong>97.2%</strong></div><div class="detail-row"><span>Data Source:</span><small class="text-muted">Timecard + GPS correlation</small></div></div></div></div><div class="col-lg-6"><div class="metric-card"><div class="metric-header" onclick="toggleDetails('billing-details')"><div class="d-flex align-items-center flex-grow-1"><div class="metric-icon" style="background: linear-gradient(45deg, #9c88ff, #ffa940);"><i class="fas fa-file-invoice-dollar"></i></div><div><h3 class="metric-value">{{ total_billing_records or 1573 }}</h3><p class="metric-label">Billing Records</p></div></div><button class="collapse-toggle"><i class="fas fa-chevron-down"></i></button></div><div id="billing-details" class="metric-details"><div class="detail-row"><span>April 2025:</span><strong>856 records</strong></div><div class="detail-row"><span>March 2025:</span><strong>717 records</strong></div><div class="detail-row"><span>Revenue Tracked:</span><strong>${{ "{:,}".format(revenue_tracked or 850000) }}</strong></div><div class="detail-row"><span>Data Source:</span><small class="text-muted">RAGLE Excel workbooks</small></div></div></div></div></div><div class="row mt-4"><div class="col-12"><div class="quick-actions"><h4 class="mb-3"><i class="fas fa-heartbeat me-2"></i>System Status</h4><div class="row"><div class="col-md-3"><div class="text-center"><i class="fas fa-database text-success fa-2x mb-2"></i><h6>Gauge API</h6><small class="text-success">Connected</small></div></div><div class="col-md-3"><div class="text-center"><i class="fas fa-envelope text-success fa-2x mb-2"></i><h6>Email Service</h6><small class="text-success">Ready</small></div></div><div class="col-md-3"><div class="text-center"><i class="fas fa-map-marker-alt text-success fa-2x mb-2"></i><h6>GPS Tracking</h6><small class="text-success">Online</small></div></div><div class="col-md-3"><div class="text-center"><i class="fas fa-clock text-warning fa-2x mb-2"></i><h6>Last Sync</h6><small class="text-muted">{{ last_sync or 'Just now' }}</small></div></div></div></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script><script>
-function toggleDetails(detailsId) {
-const details = document.getElementById(detailsId);
-const toggle = details.previousElementSibling.querySelector('.collapse-toggle i');
+      .detail-row:last-child {
+        border-bottom: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center">
+          <h1 class="navbar-brand mb-0">
+            <i class="fas fa-truck me-2"></i>TRAXOVO
+          </h1>
+          <div class="d-flex align-items-center">
+            <span class="me-3">Last Update: {{ last_sync or 'Just now' }}</span
+            ><a href="/auth/logout" class="btn btn-outline-light btn-sm"
+              ><i class="fas fa-sign-out-alt me-1"></i>Logout
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid py-4">
+      <div class="quick-actions">
+        <h4 class="mb-3"><i class="fas fa-bolt me-2"></i>Quick Actions</h4>
+        <div class="row">
+          <div class="col-12">
+            <a href="/asset-manager" class="action-btn"
+              ><i class="fas fa-boxes me-2"></i>Asset Management </a
+            ><a href="/executive-reports" class="action-btn"
+              ><i class="fas fa-chart-line me-2"></i>Executive Reports </a
+            ><a
+              href="/attendance-matrix"
+              class="action-btn"
+              style="background: linear-gradient(45deg, #28a745, #20c997)"
+              ><i class="fas fa-users me-2"></i>Attendance Matrix </a
+            ><a href="/fleet-map" class="action-btn"
+              ><i class="fas fa-map-marked-alt me-2"></i>Fleet Map </a
+            ><a href="/billing" class="action-btn"
+              ><i class="fas fa-dollar-sign me-2"></i>Revenue Analytics </a
+            ><a
+              href="/cost-simulator"
+              class="action-btn"
+              style="background: linear-gradient(45deg, #ff6b6b, #feca57)"
+              ><i class="fas fa-calculator me-2"></i>Cost Savings Simulator </a
+            ><a
+              href="/billing-consolidation"
+              class="action-btn"
+              style="background: linear-gradient(45deg, #2c3e50, #3498db)"
+              ><i class="fas fa-database me-2"></i>Billing Consolidation
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="metric-card">
+            <div class="metric-header" onclick="toggleDetails('fleet-details')">
+              <div class="d-flex align-items-center flex-grow-1">
+                <div
+                  class="metric-icon"
+                  style="background: linear-gradient(45deg, #667eea, #764ba2)"
+                >
+                  <i class="fas fa-truck"></i>
+                </div>
+                <div>
+                  <h3 class="metric-value">{{ total_assets or 581 }}</h3>
+                  <p class="metric-label">Total Fleet Assets</p>
+                </div>
+              </div>
+              <button class="collapse-toggle">
+                <i class="fas fa-chevron-down"></i>
+              </button>
+            </div>
+            <div
+              id="fleet-details"
+              class="metric-details"
+              style="display: none"
+            >
+              <div class="detail-row">
+                <span>Active Units:</span
+                ><strong>{{ active_assets or 610 }}</strong>
+              </div>
+              <div class="detail-row">
+                <span>Under Maintenance:</span
+                ><strong
+                  >{{ (total_assets|default(581) -
+                  active_assets|default(610))|abs }}</strong
+                >
+              </div>
+              <div class="detail-row">
+                <span>GPS Enabled:</span
+                ><strong>{{ gps_enabled or 576 }}</strong>
+              </div>
+              <div class="detail-row">
+                <span>Utilization Rate:</span
+                ><strong>{{ avg_utilization or 85.3 }}%</strong>
+              </div>
+              <div class="detail-row">
+                <span>Data Source:</span
+                ><small class="text-muted"
+                  >Equipment Detail History Report (Authentic)</small
+                >
+              </div>
+              <div class="detail-row">
+                <span>Last Updated:</span
+                ><small class="text-muted">{{ last_sync or 'Just now' }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="metric-card">
+            <div
+              class="metric-header"
+              onclick="toggleDetails('revenue-details')"
+            >
+              <div class="d-flex align-items-center flex-grow-1">
+                <div
+                  class="metric-icon"
+                  style="background: linear-gradient(45deg, #52c41a, #1890ff)"
+                >
+                  <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div>
+                  <h3 class="metric-value">
+                    ${{ "{:,}".format(monthly_revenue or 847200) }}
+                  </h3>
+                  <p class="metric-label">Monthly Revenue</p>
+                </div>
+              </div>
+              <button class="collapse-toggle">
+                <i class="fas fa-chevron-down"></i>
+              </button>
+            </div>
+            <div
+              id="revenue-details"
+              class="metric-details"
+              style="display: none"
+            >
+              <div class="detail-row">
+                <span>March 2025 Revenue:</span
+                ><strong>${{ "{:,}".format(march_revenue or 452800) }}</strong>
+              </div>
+              <div class="detail-row">
+                <span>April 2025 Revenue:</span
+                ><strong>${{ "{:,}".format(april_revenue or 394400) }}</strong>
+              </div>
+              <div class="detail-row">
+                <span>Equipment Rental:</span
+                ><strong>${{ "{:,.0f}".format(635400) }}</strong>
+              </div>
+              <div class="detail-row">
+                <span>Service Revenue:</span
+                ><strong>${{ "{:,.0f}".format(211800) }}</strong>
+              </div>
+              <div class="detail-row">
+                <span>Data Source:</span
+                ><small class="text-muted"
+                  >RAGLE EQ BILLINGS March/April 2025 (Authentic)</small
+                >
+              </div>
+              <div class="detail-row">
+                <span>YTD Performance:</span
+                ><small class="text-muted"
+                  >{{ ((monthly_revenue or 847200) / 800000 * 100) | round(1)
+                  }}% of annual target</small
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="metric-card">
+            <div
+              class="metric-header"
+              onclick="toggleDetails('drivers-details')"
+            >
+              <div class="d-flex align-items-center flex-grow-1">
+                <div
+                  class="metric-icon"
+                  style="background: linear-gradient(45deg, #ff7875, #ffa940)"
+                >
+                  <i class="fas fa-users"></i>
+                </div>
+                <div>
+                  <h3 class="metric-value">{{ active_drivers or 92 }}</h3>
+                  <p class="metric-label">Active Drivers</p>
+                </div>
+              </div>
+              <button class="collapse-toggle">
+                <i class="fas fa-chevron-down"></i>
+              </button>
+            </div>
+            <div id="drivers-details" class="metric-details">
+              <div class="detail-row">
+                <span>Active Today:</span><strong>78</strong>
+              </div>
+              <div class="detail-row">
+                <span>GPS Correlation Rate:</span><strong>94.6%</strong>
+              </div>
+              <div class="detail-row">
+                <span>Attendance Accuracy:</span><strong>97.2%</strong>
+              </div>
+              <div class="detail-row">
+                <span>Data Source:</span
+                ><small class="text-muted">Timecard + GPS correlation</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="metric-card">
+            <div
+              class="metric-header"
+              onclick="toggleDetails('billing-details')"
+            >
+              <div class="d-flex align-items-center flex-grow-1">
+                <div
+                  class="metric-icon"
+                  style="background: linear-gradient(45deg, #9c88ff, #ffa940)"
+                >
+                  <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div>
+                  <h3 class="metric-value">
+                    {{ total_billing_records or 1573 }}
+                  </h3>
+                  <p class="metric-label">Billing Records</p>
+                </div>
+              </div>
+              <button class="collapse-toggle">
+                <i class="fas fa-chevron-down"></i>
+              </button>
+            </div>
+            <div id="billing-details" class="metric-details">
+              <div class="detail-row">
+                <span>April 2025:</span><strong>856 records</strong>
+              </div>
+              <div class="detail-row">
+                <span>March 2025:</span><strong>717 records</strong>
+              </div>
+              <div class="detail-row">
+                <span>Revenue Tracked:</span
+                ><strong
+                  >${{ "{:,}".format(revenue_tracked or 850000) }}</strong
+                >
+              </div>
+              <div class="detail-row">
+                <span>Data Source:</span
+                ><small class="text-muted">RAGLE Excel workbooks</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="quick-actions">
+            <h4 class="mb-3">
+              <i class="fas fa-heartbeat me-2"></i>System Status
+            </h4>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="text-center">
+                  <i class="fas fa-database text-success fa-2x mb-2"></i>
+                  <h6>Gauge API</h6>
+                  <small class="text-success">Connected</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center">
+                  <i class="fas fa-envelope text-success fa-2x mb-2"></i>
+                  <h6>Email Service</h6>
+                  <small class="text-success">Ready</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center">
+                  <i class="fas fa-map-marker-alt text-success fa-2x mb-2"></i>
+                  <h6>GPS Tracking</h6>
+                  <small class="text-success">Online</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center">
+                  <i class="fas fa-clock text-warning fa-2x mb-2"></i>
+                  <h6>Last Sync</h6>
+                  <small class="text-muted"
+                    >{{ last_sync or 'Just now' }}</small
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      function toggleDetails(detailsId) {
+        const details = document.getElementById(detailsId);
+        const toggle =
+          details.previousElementSibling.querySelector(".collapse-toggle i");
 
-if (details.classList.contains('show')) {
-details.classList.remove('show');
-toggle.classList.remove('fa-chevron-up');
-toggle.classList.add('fa-chevron-down');
-} else {
-details.classList.add('show');
-toggle.classList.remove('fa-chevron-down');
-toggle.classList.add('fa-chevron-up');
-}
-}
+        if (details.classList.contains("show")) {
+          details.classList.remove("show");
+          toggle.classList.remove("fa-chevron-up");
+          toggle.classList.add("fa-chevron-down");
+        } else {
+          details.classList.add("show");
+          toggle.classList.remove("fa-chevron-down");
+          toggle.classList.add("fa-chevron-up");
+        }
+      }
 
-// Auto-refresh data every 1 minute (not page reload)
-setInterval(() => {
-fetch('/api/refresh-data', { method: 'POST' })
-.then(response => response.json())
-.then(data => {
-if (data.success) {
-console.log('Data refreshed');
-// Update specific metrics without full page reload
-}
-})
-.catch(err => console.log('Refresh skipped'));
-}, 60000); // 1 minute instead of 5 seconds
-</script></body></html>
+      // Auto-refresh data every 1 minute (not page reload)
+      setInterval(() => {
+        fetch("/api/refresh-data", { method: "POST" })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              console.log("Data refreshed");
+              // Update specific metrics without full page reload
+            }
+          })
+          .catch((err) => console.log("Refresh skipped"));
+      }, 60000); // 1 minute instead of 5 seconds
+    </script>
+  </body>
+</html>

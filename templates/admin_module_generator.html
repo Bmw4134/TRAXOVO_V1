@@ -1,259 +1,293 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TRAXOVO - Intelligent Module Generator</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
 
-        .admin-container {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            margin: 2rem auto;
-            max-width: 1200px;
-            padding: 2rem;
-        }
+      .admin-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        margin: 2rem auto;
+        max-width: 1200px;
+        padding: 2rem;
+      }
 
-        .generator-header {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: linear-gradient(135deg, #2d3748, #4a5568);
-            color: white;
-            border-radius: 15px;
-        }
+      .generator-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #2d3748, #4a5568);
+        color: white;
+        border-radius: 15px;
+      }
 
-        .idea-input {
-            background: rgba(255,255,255,0.9);
-            border: 2px solid #e2e8f0;
-            border-radius: 15px;
-            padding: 1rem;
-            min-height: 120px;
-            transition: all 0.3s ease;
-        }
+      .idea-input {
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        padding: 1rem;
+        min-height: 120px;
+        transition: all 0.3s ease;
+      }
 
-        .idea-input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
-        }
+      .idea-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+      }
 
-        .module-type-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 1rem 0;
-        }
+      .module-type-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+      }
 
-        .module-type-card {
-            background: linear-gradient(135deg, #f7fafc, #edf2f7);
-            border: 2px solid #e2e8f0;
-            border-radius: 15px;
-            padding: 1.5rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+      .module-type-card {
+        background: linear-gradient(135deg, #f7fafc, #edf2f7);
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
 
-        .module-type-card:hover {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        }
+      .module-type-card:hover {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      }
 
-        .module-type-card.selected {
-            background: linear-gradient(135deg, #48bb78, #38a169);
-            color: white;
-            border-color: #38a169;
-        }
+      .module-type-card.selected {
+        background: linear-gradient(135deg, #48bb78, #38a169);
+        color: white;
+        border-color: #38a169;
+      }
 
-        .generate-btn {
-            background: linear-gradient(135deg, #48bb78, #38a169);
-            border: none;
-            border-radius: 15px;
-            padding: 1rem 2rem;
-            color: white;
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
+      .generate-btn {
+        background: linear-gradient(135deg, #48bb78, #38a169);
+        border: none;
+        border-radius: 15px;
+        padding: 1rem 2rem;
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
 
-        .generate-btn:hover {
-            background: linear-gradient(135deg, #38a169, #2f855a);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
-        }
+      .generate-btn:hover {
+        background: linear-gradient(135deg, #38a169, #2f855a);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
+      }
 
-        .generation-status {
-            background: rgba(255,255,255,0.9);
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-            display: none;
-        }
+      .generation-status {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        display: none;
+      }
 
-        .code-preview {
-            background: #2d3748;
-            color: #e2e8f0;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            max-height: 400px;
-            overflow-y: auto;
-        }
+      .code-preview {
+        background: #2d3748;
+        color: #e2e8f0;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        max-height: 400px;
+        overflow-y: auto;
+      }
 
-        .deploy-section {
-            background: linear-gradient(135deg, #ed8936, #dd6b20);
-            color: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-top: 1rem;
-            text-align: center;
-        }
+      .deploy-section {
+        background: linear-gradient(135deg, #ed8936, #dd6b20);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        text-align: center;
+      }
 
-        .deploy-btn {
-            background: rgba(255,255,255,0.2);
-            border: 2px solid white;
-            border-radius: 10px;
-            padding: 0.8rem 1.5rem;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+      .deploy-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid white;
+        border-radius: 10px;
+        padding: 0.8rem 1.5rem;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
 
-        .deploy-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
+      .deploy-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+      }
 
-        .spinner {
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top: 3px solid white;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
+      .spinner {
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 3px solid white;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+      }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
         }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="admin-container">
-        <div class="generator-header">
-            <h1><i class="fas fa-magic"></i> Intelligent Module Generator</h1>
-            <p>Transform your fleet management ideas into working modules instantly</p>
-        </div>
+      <div class="generator-header">
+        <h1><i class="fas fa-magic"></i> Intelligent Module Generator</h1>
+        <p>
+          Transform your fleet management ideas into working modules instantly
+        </p>
+      </div>
 
-        <div class="row">
-            <div class="col-md-8">
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Describe Your Idea:</label>
-                    <textarea id="ideaInput" class="form-control idea-input" 
-                              placeholder="Example: Create a driver performance dashboard that shows late arrivals, early departures, and efficiency ratings with color-coded alerts..."></textarea>
-                </div>
+      <div class="row">
+        <div class="col-md-8">
+          <div class="mb-4">
+            <label class="form-label fw-bold">Describe Your Idea:</label>
+            <textarea
+              id="ideaInput"
+              class="form-control idea-input"
+              placeholder="Example: Create a driver performance dashboard that shows late arrivals, early departures, and efficiency ratings with color-coded alerts..."
+            ></textarea>
+          </div>
 
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Module Type:</label>
-                    <div class="module-type-selector">
-                        <div class="module-type-card" data-type="dashboard">
-                            <i class="fas fa-chart-line fa-2x mb-2"></i>
-                            <div>Dashboard</div>
-                        </div>
-                        <div class="module-type-card" data-type="report">
-                            <i class="fas fa-file-alt fa-2x mb-2"></i>
-                            <div>Report</div>
-                        </div>
-                        <div class="module-type-card" data-type="form">
-                            <i class="fas fa-edit fa-2x mb-2"></i>
-                            <div>Form/Input</div>
-                        </div>
-                        <div class="module-type-card" data-type="analytics">
-                            <i class="fas fa-chart-pie fa-2x mb-2"></i>
-                            <div>Analytics</div>
-                        </div>
-                    </div>
-                </div>
-
-                <button id="generateBtn" class="generate-btn">
-                    <i class="fas fa-cogs"></i> Generate Module
-                </button>
+          <div class="mb-4">
+            <label class="form-label fw-bold">Module Type:</label>
+            <div class="module-type-selector">
+              <div class="module-type-card" data-type="dashboard">
+                <i class="fas fa-chart-line fa-2x mb-2"></i>
+                <div>Dashboard</div>
+              </div>
+              <div class="module-type-card" data-type="report">
+                <i class="fas fa-file-alt fa-2x mb-2"></i>
+                <div>Report</div>
+              </div>
+              <div class="module-type-card" data-type="form">
+                <i class="fas fa-edit fa-2x mb-2"></i>
+                <div>Form/Input</div>
+              </div>
+              <div class="module-type-card" data-type="analytics">
+                <i class="fas fa-chart-pie fa-2x mb-2"></i>
+                <div>Analytics</div>
+              </div>
             </div>
+          </div>
 
-            <div class="col-md-4">
-                <div class="card h-100" style="background: rgba(255,255,255,0.9); border-radius: 15px;">
-                    <div class="card-header" style="background: linear-gradient(135deg, #4299e1, #3182ce); color: white; border-radius: 15px 15px 0 0;">
-                        <h5><i class="fas fa-info-circle"></i> How It Works</h5>
-                    </div>
-                    <div class="card-body">
-                        <ol>
-                            <li class="mb-2">Describe your fleet management idea in detail</li>
-                            <li class="mb-2">Select the type of module you need</li>
-                            <li class="mb-2">AI generates production-ready code</li>
-                            <li class="mb-2">Preview and customize the module</li>
-                            <li class="mb-2">Deploy directly to TRAXOVO</li>
-                        </ol>
-                        <div class="alert alert-info">
-                            <i class="fas fa-lightbulb"></i>
-                            <strong>Pro Tip:</strong> Be specific about functionality, data sources, and user interactions for best results.
-                        </div>
-                    </div>
-                </div>
+          <button id="generateBtn" class="generate-btn">
+            <i class="fas fa-cogs"></i> Generate Module
+          </button>
+        </div>
+
+        <div class="col-md-4">
+          <div
+            class="card h-100"
+            style="background: rgba(255, 255, 255, 0.9); border-radius: 15px"
+          >
+            <div
+              class="card-header"
+              style="
+                background: linear-gradient(135deg, #4299e1, #3182ce);
+                color: white;
+                border-radius: 15px 15px 0 0;
+              "
+            >
+              <h5><i class="fas fa-info-circle"></i> How It Works</h5>
             </div>
+            <div class="card-body">
+              <ol>
+                <li class="mb-2">
+                  Describe your fleet management idea in detail
+                </li>
+                <li class="mb-2">Select the type of module you need</li>
+                <li class="mb-2">AI generates production-ready code</li>
+                <li class="mb-2">Preview and customize the module</li>
+                <li class="mb-2">Deploy directly to TRAXOVO</li>
+              </ol>
+              <div class="alert alert-info">
+                <i class="fas fa-lightbulb"></i>
+                <strong>Pro Tip:</strong> Be specific about functionality, data
+                sources, and user interactions for best results.
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div id="generationStatus" class="generation-status">
-            <div id="statusContent"></div>
-        </div>
+      <div id="generationStatus" class="generation-status">
+        <div id="statusContent"></div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let selectedType = 'dashboard';
-        let generatedModule = null;
+      let selectedType = "dashboard";
+      let generatedModule = null;
 
-        // Module type selection
-        document.querySelectorAll('.module-type-card').forEach(card => {
-            card.addEventListener('click', function() {
-                document.querySelectorAll('.module-type-card').forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
-                selectedType = this.dataset.type;
-            });
+      // Module type selection
+      document.querySelectorAll(".module-type-card").forEach((card) => {
+        card.addEventListener("click", function () {
+          document
+            .querySelectorAll(".module-type-card")
+            .forEach((c) => c.classList.remove("selected"));
+          this.classList.add("selected");
+          selectedType = this.dataset.type;
         });
+      });
 
-        // Set default selection
-        document.querySelector('[data-type="dashboard"]').classList.add('selected');
+      // Set default selection
+      document
+        .querySelector('[data-type="dashboard"]')
+        .classList.add("selected");
 
-        // Generate module
-        document.getElementById('generateBtn').addEventListener('click', async function() {
-            const idea = document.getElementById('ideaInput').value.trim();
-            
-            if (!idea) {
-                alert('Please describe your idea first!');
-                return;
-            }
+      // Generate module
+      document
+        .getElementById("generateBtn")
+        .addEventListener("click", async function () {
+          const idea = document.getElementById("ideaInput").value.trim();
 
-            const statusDiv = document.getElementById('generationStatus');
-            const statusContent = document.getElementById('statusContent');
-            
-            statusDiv.style.display = 'block';
-            statusContent.innerHTML = `
+          if (!idea) {
+            alert("Please describe your idea first!");
+            return;
+          }
+
+          const statusDiv = document.getElementById("generationStatus");
+          const statusContent = document.getElementById("statusContent");
+
+          statusDiv.style.display = "block";
+          statusContent.innerHTML = `
                 <div class="text-center">
                     <div class="spinner"></div>
                     <h5 class="mt-3">Generating your module...</h5>
@@ -261,45 +295,45 @@
                 </div>
             `;
 
-            try {
-                const response = await fetch('/ideas/api/generate-module', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        idea: idea,
-                        type: selectedType
-                    })
-                });
+          try {
+            const response = await fetch("/ideas/api/generate-module", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                idea: idea,
+                type: selectedType,
+              }),
+            });
 
-                const result = await response.json();
+            const result = await response.json();
 
-                if (result.status === 'success') {
-                    generatedModule = result;
-                    displayGeneratedModule(result);
-                } else {
-                    statusContent.innerHTML = `
+            if (result.status === "success") {
+              generatedModule = result;
+              displayGeneratedModule(result);
+            } else {
+              statusContent.innerHTML = `
                         <div class="alert alert-danger">
                             <i class="fas fa-exclamation-triangle"></i>
                             Error: ${result.error}
                         </div>
                     `;
-                }
-            } catch (error) {
-                statusContent.innerHTML = `
+            }
+          } catch (error) {
+            statusContent.innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle"></i>
                         Error generating module: ${error.message}
                     </div>
                 `;
-            }
+          }
         });
 
-        function displayGeneratedModule(result) {
-            const statusContent = document.getElementById('statusContent');
-            
-            statusContent.innerHTML = `
+      function displayGeneratedModule(result) {
+        const statusContent = document.getElementById("statusContent");
+
+        statusContent.innerHTML = `
                 <div class="alert alert-success">
                     <i class="fas fa-check-circle"></i>
                     <strong>Module Generated Successfully!</strong>
@@ -325,32 +359,34 @@
                     </button>
                 </div>
             `;
+      }
+
+      async function deployModule() {
+        if (!generatedModule) return;
+
+        try {
+          const response = await fetch("/ideas/api/deploy-module", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(generatedModule),
+          });
+
+          const result = await response.json();
+
+          if (result.status === "deployed") {
+            alert(
+              `Module deployed successfully! Access it at: ${result.live_url}`,
+            );
+            window.location.href = result.live_url;
+          } else {
+            alert(`Deployment error: ${result.error}`);
+          }
+        } catch (error) {
+          alert(`Deployment error: ${error.message}`);
         }
-
-        async function deployModule() {
-            if (!generatedModule) return;
-
-            try {
-                const response = await fetch('/ideas/api/deploy-module', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(generatedModule)
-                });
-
-                const result = await response.json();
-
-                if (result.status === 'deployed') {
-                    alert(`Module deployed successfully! Access it at: ${result.live_url}`);
-                    window.location.href = result.live_url;
-                } else {
-                    alert(`Deployment error: ${result.error}`);
-                }
-            } catch (error) {
-                alert(`Deployment error: ${error.message}`);
-            }
-        }
+      }
     </script>
-</body>
+  </body>
 </html>

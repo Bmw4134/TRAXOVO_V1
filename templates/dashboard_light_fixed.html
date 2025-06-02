@@ -1,456 +1,574 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-bs-theme="light">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TRAXOVO Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        /* TRAXOVO Light Theme - NO DARK MODE OVERRIDES */
-        body {
-            background-color: #f8fafc;
-            color: #1F2937;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
+      /* TRAXOVO Light Theme - NO DARK MODE OVERRIDES */
+      body {
+        background-color: #f8fafc;
+        color: #1f2937;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
 
-        .container-fluid {
-            padding: 15px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+      .container-fluid {
+        padding: 15px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
 
-        /* Header */
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #e5e7eb;
-            margin-bottom: 20px;
-        }
+      /* Header */
+      .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #e5e7eb;
+        margin-bottom: 20px;
+      }
 
-        .traxora-logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #2563eb;
-        }
+      .traxora-logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2563eb;
+      }
 
-        /* Status Bar */
-        .genius-status {
-            background: #374151;
-            color: white;
-            border-radius: 8px;
-            padding: 12px 20px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
+      /* Status Bar */
+      .genius-status {
+        background: #374151;
+        color: white;
+        border-radius: 8px;
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
 
-        .genius-title {
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
+      .genius-title {
+        font-weight: bold;
+        margin-bottom: 4px;
+      }
 
-        .genius-subtitle {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
+      .genius-subtitle {
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
 
-        /* Metrics Grid - Proper 2x2 / 4 column layout */
+      /* Metrics Grid - Proper 2x2 / 4 column layout */
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .metric-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .metric-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      .metric-value.primary {
+        color: #2563eb;
+      }
+      .metric-value.success {
+        color: #059669;
+      }
+      .metric-value.warning {
+        color: #d97706;
+      }
+      .metric-value.info {
+        color: #0891b2;
+      }
+
+      .metric-label {
+        font-size: 0.9rem;
+        color: #6b7280;
+        font-weight: 500;
+      }
+
+      .metric-trend {
+        font-size: 0.8rem;
+        margin-top: 4px;
+      }
+
+      /* Quick Access Grid - 2x2 layout */
+      .quick-access {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+
+      .action-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 20px;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .action-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .action-card .icon {
+        font-size: 2rem;
+        margin-bottom: 12px;
+        display: block;
+      }
+
+      .action-card.blue .icon {
+        color: #2563eb;
+      }
+      .action-card.orange .icon {
+        color: #d97706;
+      }
+      .action-card.cyan .icon {
+        color: #0891b2;
+      }
+      .action-card.green .icon {
+        color: #059669;
+      }
+
+      .action-card .title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      .action-card .description {
+        font-size: 0.85rem;
+        color: #6b7280;
+        line-height: 1.4;
+      }
+
+      /* System Health */
+      .system-health {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .health-panel {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .health-panel h6 {
+        margin-bottom: 15px;
+        color: #374151;
+        font-weight: 600;
+      }
+
+      .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f3f4f6;
+      }
+
+      .status-item:last-child {
+        border-bottom: none;
+      }
+
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        color: #374151;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+
+      .status-badge {
+        background: #d1fae5;
+        color: #065f46;
+        padding: 4px 12px;
+        border-radius: 16px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      /* Mobile Responsive - grid-cols-2 then grid-cols-1 */
+      @media (max-width: 768px) {
         .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
         }
 
-        .metric-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .quick-access {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .system-health {
+          grid-template-columns: 1fr;
+          gap: 15px;
+        }
+
+        .metric-card,
+        .action-card,
+        .health-panel {
+          padding: 15px;
         }
 
         .metric-value {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .metric-value.primary { color: #2563eb; }
-        .metric-value.success { color: #059669; }
-        .metric-value.warning { color: #d97706; }
-        .metric-value.info { color: #0891b2; }
-
-        .metric-label {
-            font-size: 0.9rem;
-            color: #6b7280;
-            font-weight: 500;
-        }
-
-        .metric-trend {
-            font-size: 0.8rem;
-            margin-top: 4px;
-        }
-
-        /* Quick Access Grid - 2x2 layout */
-        .quick-access {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .action-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 20px;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.2s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .action-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            color: inherit;
-            text-decoration: none;
+          font-size: 1.5rem;
         }
 
         .action-card .icon {
-            font-size: 2rem;
-            margin-bottom: 12px;
-            display: block;
+          font-size: 1.5rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .metrics-grid {
+          grid-template-columns: 1fr;
         }
 
-        .action-card.blue .icon { color: #2563eb; }
-        .action-card.orange .icon { color: #d97706; }
-        .action-card.cyan .icon { color: #0891b2; }
-        .action-card.green .icon { color: #059669; }
-
-        .action-card .title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 8px;
+        .container-fluid {
+          padding: 10px;
         }
-
-        .action-card .description {
-            font-size: 0.85rem;
-            color: #6b7280;
-            line-height: 1.4;
-        }
-
-        /* System Health */
-        .system-health {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .health-panel {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .health-panel h6 {
-            margin-bottom: 15px;
-            color: #374151;
-            font-weight: 600;
-        }
-
-        .status-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
-        .status-item:last-child {
-            border-bottom: none;
-        }
-
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            color: #374151;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .status-badge {
-            background: #d1fae5;
-            color: #065f46;
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        /* Mobile Responsive - grid-cols-2 then grid-cols-1 */
-        @media (max-width: 768px) {
-            .metrics-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-            }
-            
-            .quick-access {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            
-            .system-health {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            
-            .metric-card, .action-card, .health-panel {
-                padding: 15px;
-            }
-            
-            .metric-value {
-                font-size: 1.5rem;
-            }
-            
-            .action-card .icon {
-                font-size: 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .metrics-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .container-fluid {
-                padding: 10px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container-fluid">
-        <!-- Dashboard Header -->
-        <div class="dashboard-header">
-            <div class="traxora-logo">TRAXOVO</div>
-            <div>
-                <a href="/job-management/" class="btn btn-outline-primary btn-sm me-2">Job Management</a>
-                <a href="/attendance-workflow/" class="btn btn-outline-success btn-sm me-2">Attendance Workflow</a>
-                <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()">Refresh</button>
-            </div>
+      <!-- Dashboard Header -->
+      <div class="dashboard-header">
+        <div class="traxora-logo">TRAXOVO</div>
+        <div>
+          <a href="/job-management/" class="btn btn-outline-primary btn-sm me-2"
+            >Job Management</a
+          >
+          <a
+            href="/attendance-workflow/"
+            class="btn btn-outline-success btn-sm me-2"
+            >Attendance Workflow</a
+          >
+          <button
+            class="btn btn-outline-secondary btn-sm"
+            onclick="location.reload()"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- GENIUS CORE Status Bar -->
+      <div class="genius-status">
+        <div class="genius-title">
+          <i class="fas fa-brain me-2"></i>
+          GENIUS CORE - CONTINUITY MODE ACTIVE
+        </div>
+        <div class="genius-subtitle">
+          Real-time monitoring • North Texas Operations
+        </div>
+      </div>
+
+      <!-- Metrics Grid - 4 columns -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value primary">{{ total_assets }}</div>
+          <div class="metric-label">Total Assets</div>
+          <div class="metric-trend text-success">+7% this week</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value success">{{ driver_count or 113 }}</div>
+          <div class="metric-label">Active Drivers</div>
+          <div class="metric-trend text-success">All tracked</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value warning">97%</div>
+          <div class="metric-label">GPS Coverage</div>
+          <div class="metric-trend text-warning">+5% this week</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value info">24</div>
+          <div class="metric-label">Job Sites</div>
+          <div class="metric-trend text-info">3 North Texas</div>
+        </div>
+      </div>
+
+      <!-- Real Driver Attendance Today -->
+      {% if driver_attendance %}
+      <div class="health-panel" style="margin-bottom: 25px">
+        <h6><i class="fas fa-users me-2"></i>Driver Attendance Today</h6>
+
+        <!-- Attendance Summary -->
+        <div
+          style="
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+          "
+        >
+          <span style="color: #059669"
+            ><strong>{{ attendance_summary.on_time or 0 }}</strong> On
+            Time</span
+          >
+          <span style="color: #d97706"
+            ><strong>{{ attendance_summary.late_start or 0 }}</strong> Late
+            Starts</span
+          >
+          <span style="color: #0ea5e9"
+            ><strong>{{ attendance_summary.early_end or 0 }}</strong> Early
+            Ends</span
+          >
         </div>
 
-        <!-- GENIUS CORE Status Bar -->
-        <div class="genius-status">
-            <div class="genius-title">
-                <i class="fas fa-brain me-2"></i>
-                GENIUS CORE - CONTINUITY MODE ACTIVE
+        <!-- Driver List -->
+        <div style="max-height: 200px; overflow-y: auto">
+          {% for driver in driver_attendance[:8] %}
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 6px 0;
+              border-bottom: 1px solid #f3f4f6;
+            "
+          >
+            <div style="font-weight: 500; color: #374151">
+              {{ driver.driver }}
             </div>
-            <div class="genius-subtitle">Real-time monitoring • North Texas Operations</div>
+            <div style="display: flex; align-items: center; gap: 8px">
+              {% if driver.status == 'On Time' %}
+              <span
+                style="
+                  background: #d1fae5;
+                  color: #065f46;
+                  padding: 2px 8px;
+                  border-radius: 12px;
+                  font-size: 0.75rem;
+                "
+                >On Time</span
+              >
+              {% elif driver.status == 'Late Start' %}
+              <span
+                style="
+                  background: #fef3c7;
+                  color: #92400e;
+                  padding: 2px 8px;
+                  border-radius: 12px;
+                  font-size: 0.75rem;
+                "
+                >Late Start</span
+              >
+              {% else %}
+              <span
+                style="
+                  background: #dbeafe;
+                  color: #1e40af;
+                  padding: 2px 8px;
+                  border-radius: 12px;
+                  font-size: 0.75rem;
+                "
+                >Early End</span
+              >
+              {% endif %}
+              <span style="color: #6b7280; font-size: 0.8rem"
+                >{{ driver.check_in }}</span
+              >
+              <span style="color: #9ca3af; font-size: 0.75rem"
+                >{{ driver.location }}</span
+              >
+            </div>
+          </div>
+          {% endfor %}
         </div>
 
-        <!-- Metrics Grid - 4 columns -->
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-value primary">{{ total_assets }}</div>
-                <div class="metric-label">Total Assets</div>
-                <div class="metric-trend text-success">+7% this week</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value success">{{ driver_count or 113 }}</div>
-                <div class="metric-label">Active Drivers</div>
-                <div class="metric-trend text-success">All tracked</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value warning">97%</div>
-                <div class="metric-label">GPS Coverage</div>
-                <div class="metric-trend text-warning">+5% this week</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value info">24</div>
-                <div class="metric-label">Job Sites</div>
-                <div class="metric-trend text-info">3 North Texas</div>
-            </div>
-        </div>
-
-        <!-- Real Driver Attendance Today -->
-        {% if driver_attendance %}
-        <div class="health-panel" style="margin-bottom: 25px;">
-            <h6><i class="fas fa-users me-2"></i>Driver Attendance Today</h6>
-            
-            <!-- Attendance Summary -->
-            <div style="display: flex; gap: 15px; margin-bottom: 15px; font-size: 0.9rem;">
-                <span style="color: #059669;"><strong>{{ attendance_summary.on_time or 0 }}</strong> On Time</span>
-                <span style="color: #d97706;"><strong>{{ attendance_summary.late_start or 0 }}</strong> Late Starts</span>
-                <span style="color: #0ea5e9;"><strong>{{ attendance_summary.early_end or 0 }}</strong> Early Ends</span>
-            </div>
-            
-            <!-- Driver List -->
-            <div style="max-height: 200px; overflow-y: auto;">
-                {% for driver in driver_attendance[:8] %}
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #f3f4f6;">
-                    <div style="font-weight: 500; color: #374151;">{{ driver.driver }}</div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        {% if driver.status == 'On Time' %}
-                            <span style="background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">On Time</span>
-                        {% elif driver.status == 'Late Start' %}
-                            <span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">Late Start</span>
-                        {% else %}
-                            <span style="background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">Early End</span>
-                        {% endif %}
-                        <span style="color: #6b7280; font-size: 0.8rem;">{{ driver.check_in }}</span>
-                        <span style="color: #9ca3af; font-size: 0.75rem;">{{ driver.location }}</span>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            
-            {% if attendance_alerts %}
-            <div style="margin-top: 15px;">
-                {% for alert in attendance_alerts %}
-                <div style="background: {% if alert.type == 'warning' %}#fef3c7{% else %}#dbeafe{% endif %}; color: {% if alert.type == 'warning' %}#92400e{% else %}#1e40af{% endif %}; padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; margin-bottom: 5px;">
-                    <i class="fas fa-{% if alert.type == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>{{ alert.message }}
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-            
-            <div style="text-align: center; margin-top: 15px;">
-                <a href="/attendance" style="color: #2563eb; text-decoration: none; font-size: 0.9rem;">View Full Attendance Report →</a>
-            </div>
+        {% if attendance_alerts %}
+        <div style="margin-top: 15px">
+          {% for alert in attendance_alerts %}
+          <div
+            style="background: {% if alert.type == 'warning' %}#fef3c7{% else %}#dbeafe{% endif %}; color: {% if alert.type == 'warning' %}#92400e{% else %}#1e40af{% endif %}; padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; margin-bottom: 5px;"
+          >
+            <i
+              class="fas fa-{% if alert.type == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"
+            ></i
+            >{{ alert.message }}
+          </div>
+          {% endfor %}
         </div>
         {% endif %}
 
-        <!-- Quick Access - 2x2 Grid -->
-        <div class="quick-access">
-            <a href="/attendance" class="action-card blue">
-                <i class="fas fa-clipboard-list icon"></i>
-                <div class="title">Daily Driver Report</div>
-                <div class="description">View attendance reports for today, last 7-30 days classifications</div>
-            </a>
-            <a href="/attendance" class="action-card orange">
-                <i class="fas fa-map-marked-alt icon"></i>
-                <div class="title">Jobsite/Zone Integration</div>
-                <div class="description">Map drivers to job sites and validate GPS vs timecard data with zone tracking</div>
-            </a>
-            <a href="/gps-tracking" class="action-card cyan">
-                <i class="fas fa-map-marked-alt icon"></i>
-                <div class="title">Asset Map</div>
-                <div class="description">Interactive map with GPS tracking data for all assets</div>
-            </a>
-            <a href="/driver-performance-heatmap" class="action-card green">
-                <i class="fas fa-fire icon"></i>
-                <div class="title">Performance Heat Map</div>
-                <div class="description">Interactive driver performance analytics with real-time heat map visualization</div>
-            </a>
+        <div style="text-align: center; margin-top: 15px">
+          <a
+            href="/attendance"
+            style="color: #2563eb; text-decoration: none; font-size: 0.9rem"
+            >View Full Attendance Report →</a
+          >
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Quick Access - 2x2 Grid -->
+      <div class="quick-access">
+        <a href="/attendance" class="action-card blue">
+          <i class="fas fa-clipboard-list icon"></i>
+          <div class="title">Daily Driver Report</div>
+          <div class="description">
+            View attendance reports for today, last 7-30 days classifications
+          </div>
+        </a>
+        <a href="/attendance" class="action-card orange">
+          <i class="fas fa-map-marked-alt icon"></i>
+          <div class="title">Jobsite/Zone Integration</div>
+          <div class="description">
+            Map drivers to job sites and validate GPS vs timecard data with zone
+            tracking
+          </div>
+        </a>
+        <a href="/gps-tracking" class="action-card cyan">
+          <i class="fas fa-map-marked-alt icon"></i>
+          <div class="title">Asset Map</div>
+          <div class="description">
+            Interactive map with GPS tracking data for all assets
+          </div>
+        </a>
+        <a href="/driver-performance-heatmap" class="action-card green">
+          <i class="fas fa-fire icon"></i>
+          <div class="title">Performance Heat Map</div>
+          <div class="description">
+            Interactive driver performance analytics with real-time heat map
+            visualization
+          </div>
+        </a>
+      </div>
+
+      <!-- System Health -->
+      <div class="system-health">
+        <div class="health-panel">
+          <h6>System Status</h6>
+          <div class="status-item">
+            <div class="status-indicator">
+              <div class="status-dot"></div>
+              <span>Database</span>
+            </div>
+            <div class="status-badge">Connected</div>
+          </div>
+          <div class="status-item">
+            <div class="status-indicator">
+              <div class="status-dot"></div>
+              <span>Gauge API</span>
+            </div>
+            <div class="status-badge">Connected</div>
+          </div>
+          <div class="status-item">
+            <div class="status-indicator">
+              <div class="status-dot"></div>
+              <span>Storage</span>
+            </div>
+            <div class="status-badge">Connected</div>
+          </div>
         </div>
 
-        <!-- System Health -->
-        <div class="system-health">
-            <div class="health-panel">
-                <h6>System Status</h6>
-                <div class="status-item">
-                    <div class="status-indicator">
-                        <div class="status-dot"></div>
-                        <span>Database</span>
-                    </div>
-                    <div class="status-badge">Connected</div>
-                </div>
-                <div class="status-item">
-                    <div class="status-indicator">
-                        <div class="status-dot"></div>
-                        <span>Gauge API</span>
-                    </div>
-                    <div class="status-badge">Connected</div>
-                </div>
-                <div class="status-item">
-                    <div class="status-indicator">
-                        <div class="status-dot"></div>
-                        <span>Storage</span>
-                    </div>
-                    <div class="status-badge">Connected</div>
-                </div>
+        <div class="health-panel">
+          <h6>
+            <i class="fas fa-brain me-2 text-primary"></i>Kaizen AI Daily Brief
+          </h6>
+          <div id="kaizen-briefing" style="font-size: 0.9rem; color: #6b7280">
+            <div class="text-center mb-2">
+              <div
+                class="spinner-border spinner-border-sm text-primary"
+                role="status"
+              >
+                <span class="visually-hidden">Loading AI insights...</span>
+              </div>
             </div>
-
-            <div class="health-panel">
-                <h6><i class="fas fa-brain me-2 text-primary"></i>Kaizen AI Daily Brief</h6>
-                <div id="kaizen-briefing" style="font-size: 0.9rem; color: #6b7280;">
-                    <div class="text-center mb-2">
-                        <div class="spinner-border spinner-border-sm text-primary" role="status">
-                            <span class="visually-hidden">Loading AI insights...</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <a href="/kaizen" class="btn btn-primary btn-sm w-100">
-                        <i class="fas fa-chart-line me-2"></i>Full Kaizen Dashboard
-                    </a>
-                </div>
-            </div>
+          </div>
+          <div class="mt-2">
+            <a href="/kaizen" class="btn btn-primary btn-sm w-100">
+              <i class="fas fa-chart-line me-2"></i>Full Kaizen Dashboard
+            </a>
+          </div>
         </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
-        // Load Kaizen AI Daily Briefing
-        document.addEventListener('DOMContentLoaded', function() {
-            loadKaizenBriefing();
-        });
-        
-        function loadKaizenBriefing() {
-            fetch('/api/kaizen/daily-briefing')
-                .then(response => response.json())
-                .then(data => {
-                    const briefingDiv = document.getElementById('kaizen-briefing');
-                    if (data.daily_summary) {
-                        briefingDiv.innerHTML = `
+      // Load Kaizen AI Daily Briefing
+      document.addEventListener("DOMContentLoaded", function () {
+        loadKaizenBriefing();
+      });
+
+      function loadKaizenBriefing() {
+        fetch("/api/kaizen/daily-briefing")
+          .then((response) => response.json())
+          .then((data) => {
+            const briefingDiv = document.getElementById("kaizen-briefing");
+            if (data.daily_summary) {
+              briefingDiv.innerHTML = `
                             <div class="mb-2">
                                 <strong>Today's Focus:</strong><br>
                                 <small>${data.daily_summary}</small>
                             </div>
                             <div class="mb-2">
                                 <strong>Efficiency Score:</strong> 
-                                <span class="badge bg-${data.efficiency_score >= 85 ? 'success' : data.efficiency_score >= 70 ? 'warning' : 'danger'}">${data.efficiency_score}%</span>
+                                <span class="badge bg-${data.efficiency_score >= 85 ? "success" : data.efficiency_score >= 70 ? "warning" : "danger"}">${data.efficiency_score}%</span>
                             </div>
                             <div class="mb-2">
                                 <strong>Top Priority:</strong><br>
-                                <small>${data.action_items && data.action_items[0] ? data.action_items[0] : 'Fleet running smoothly'}</small>
+                                <small>${data.action_items && data.action_items[0] ? data.action_items[0] : "Fleet running smoothly"}</small>
                             </div>
                         `;
-                    } else {
-                        briefingDiv.innerHTML = `
+            } else {
+              briefingDiv.innerHTML = `
                             <div class="mb-2 text-muted">
                                 <i class="fas fa-info-circle me-2"></i>
                                 AI briefing ready - click Full Dashboard for details
                             </div>
                         `;
-                    }
-                })
-                .catch(error => {
-                    const briefingDiv = document.getElementById('kaizen-briefing');
-                    briefingDiv.innerHTML = `
+            }
+          })
+          .catch((error) => {
+            const briefingDiv = document.getElementById("kaizen-briefing");
+            briefingDiv.innerHTML = `
                         <div class="mb-2 text-muted">
                             <i class="fas fa-cog me-2"></i>
                             AI insights loading - check Kaizen Dashboard
                         </div>
                     `;
-                });
-        }
+          });
+      }
     </script>
-</body>
+  </body>
 </html>

@@ -1,187 +1,191 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Asset Utilization Report - TRAXOVO</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        .header {
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-        
-        h1 {
-            color: #2c3e50;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            color: #7f8c8d;
-            font-size: 1.1rem;
-        }
-        
-        .utilization-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .utilization-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 10px;
-            padding: 20px;
-            border-left: 4px solid #007bff;
-        }
-        
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-        
-        .utilization-bar {
-            background: #e9ecef;
-            height: 10px;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-        
-        .utilization-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #28a745, #20c997);
-            transition: width 0.3s ease;
-        }
-        
-        .utilization-stats {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-        
-        .back-button {
-            display: inline-flex;
-            align-items: center;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .back-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
-        }
-        
-        .summary-section {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 25px;
-            margin-top: 30px;
-        }
-        
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-        
-        .summary-item {
-            text-align: center;
-        }
-        
-        .summary-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #007bff;
-            margin-bottom: 5px;
-        }
-        
-        .summary-label {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .header {
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+      }
+
+      h1 {
+        color: #2c3e50;
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+      }
+
+      .utilization-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .utilization-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
+        padding: 20px;
+        border-left: 4px solid #007bff;
+      }
+
+      .card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 15px;
+      }
+
+      .utilization-bar {
+        background: #e9ecef;
+        height: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-bottom: 10px;
+      }
+
+      .utilization-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        transition: width 0.3s ease;
+      }
+
+      .utilization-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        color: #6c757d;
+      }
+
+      .back-button {
+        display: inline-flex;
+        align-items: center;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .back-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+      }
+
+      .summary-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 25px;
+        margin-top: 30px;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+      }
+
+      .summary-item {
+        text-align: center;
+      }
+
+      .summary-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #007bff;
+        margin-bottom: 5px;
+      }
+
+      .summary-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <h1>🏗️ Asset Utilization Analysis</h1>
-            <p class="subtitle">Real-time equipment efficiency and deployment insights</p>
+      <div class="header">
+        <h1>🏗️ Asset Utilization Analysis</h1>
+        <p class="subtitle">
+          Real-time equipment efficiency and deployment insights
+        </p>
+      </div>
+
+      <div class="utilization-grid">
+        {% for category in data.by_category %}
+        <div class="utilization-card">
+          <div class="card-title">{{ category.name }}</div>
+          <div class="utilization-bar">
+            <div
+              class="utilization-fill"
+              style="width: {{ category.utilization }}%"
+            ></div>
+          </div>
+          <div class="utilization-stats">
+            <span>{{ category.active }}/{{ category.total }} Active</span>
+            <span>{{ category.utilization }}% Utilized</span>
+          </div>
         </div>
-        
-        <div class="utilization-grid">
-            {% for category in data.by_category %}
-            <div class="utilization-card">
-                <div class="card-title">{{ category.name }}</div>
-                <div class="utilization-bar">
-                    <div class="utilization-fill" style="width: {{ category.utilization }}%"></div>
-                </div>
-                <div class="utilization-stats">
-                    <span>{{ category.active }}/{{ category.total }} Active</span>
-                    <span>{{ category.utilization }}% Utilized</span>
-                </div>
-            </div>
-            {% endfor %}
+        {% endfor %}
+      </div>
+
+      <div class="summary-section">
+        <h2 style="color: #2c3e50; margin-bottom: 20px">Fleet Overview</h2>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-value">{{ data.total_assets }}</div>
+            <div class="summary-label">Total Assets</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value">{{ data.active_assets }}</div>
+            <div class="summary-label">Currently Active</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value">{{ data.overall_utilization }}%</div>
+            <div class="summary-label">Overall Utilization</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value">${{ data.estimated_savings }}</div>
+            <div class="summary-label">Monthly Savings</div>
+          </div>
         </div>
-        
-        <div class="summary-section">
-            <h2 style="color: #2c3e50; margin-bottom: 20px;">Fleet Overview</h2>
-            <div class="summary-grid">
-                <div class="summary-item">
-                    <div class="summary-value">{{ data.total_assets }}</div>
-                    <div class="summary-label">Total Assets</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-value">{{ data.active_assets }}</div>
-                    <div class="summary-label">Currently Active</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-value">{{ data.overall_utilization }}%</div>
-                    <div class="summary-label">Overall Utilization</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-value">${{ data.estimated_savings }}</div>
-                    <div class="summary-label">Monthly Savings</div>
-                </div>
-            </div>
-        </div>
-        
-        <div style="margin-top: 30px;">
-            <a href="/" class="back-button">
-                ← Back to Dashboard
-            </a>
-        </div>
+      </div>
+
+      <div style="margin-top: 30px">
+        <a href="/" class="back-button"> ← Back to Dashboard </a>
+      </div>
     </div>
-</body>
+  </body>
 </html>

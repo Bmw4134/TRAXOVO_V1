@@ -1,137 +1,148 @@
-{% extends "master_unified.html" %}
-
-{% block extra_css %}
+{% extends "master_unified.html" %} {% block extra_css %}
 <style>
-    .executive-kpi {
-        background: linear-gradient(135deg, #1a365d 0%, #2d5a87 100%);
-        color: white;
-        padding: 2rem;
-        border-radius: 12px;
-        margin-bottom: 2rem;
-    }
-    
-    .kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-top: 1.5rem;
-    }
-    
-    .kpi-card {
-        background: rgba(255,255,255,0.1);
-        padding: 1.5rem;
-        border-radius: 8px;
-        text-align: center;
-        backdrop-filter: blur(10px);
-    }
-    
-    .kpi-number {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-    
-    .kpi-label {
-        opacity: 0.9;
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .performance-indicator {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        margin-left: 0.5rem;
-    }
-    
-    .indicator-excellent { background: #dcfce7; color: #166534; }
-    .indicator-good { background: #fef3c7; color: #92400e; }
-    .indicator-needs-attention { background: #fee2e2; color: #991b1b; }
+  .executive-kpi {
+    background: linear-gradient(135deg, #1a365d 0%, #2d5a87 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .kpi-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+  }
+
+  .kpi-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .kpi-label {
+    opacity: 0.9;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .performance-indicator {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+  }
+
+  .indicator-excellent {
+    background: #dcfce7;
+    color: #166534;
+  }
+  .indicator-good {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  .indicator-needs-attention {
+    background: #fee2e2;
+    color: #991b1b;
+  }
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <div class="container-fluid px-4">
-    <!-- Executive KPI Dashboard -->
-    <div class="executive-kpi">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="mb-2">Executive Performance Dashboard</h1>
-                <p class="mb-0 opacity-75">Real-time fleet intelligence with authentic operational data</p>
-            </div>
-            <div class="col-md-4 text-end">
-                <span class="badge bg-success fs-6">LIVE DATA</span>
-            </div>
-        </div>
-        
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <div class="kpi-number text-success">581</div>
-                <div class="kpi-label">Fleet Assets</div>
-                <span class="performance-indicator indicator-excellent">Operational</span>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-number text-warning">92</div>
-                <div class="kpi-label">Active Drivers</div>
-                <span class="performance-indicator indicator-good">Tracking</span>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-number text-info">$2.4M</div>
-                <div class="kpi-label">Monthly Revenue</div>
-                <span class="performance-indicator indicator-excellent">March 2025</span>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-number text-light">98.2%</div>
-                <div class="kpi-label">GPS Coverage</div>
-                <span class="performance-indicator indicator-excellent">Connected</span>
-            </div>
-        </div>
+  <!-- Executive KPI Dashboard -->
+  <div class="executive-kpi">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h1 class="mb-2">Executive Performance Dashboard</h1>
+        <p class="mb-0 opacity-75">
+          Real-time fleet intelligence with authentic operational data
+        </p>
+      </div>
+      <div class="col-md-4 text-end">
+        <span class="badge bg-success fs-6">LIVE DATA</span>
+      </div>
     </div>
 
-    <!-- Quick Actions Grid -->
-    <div class="row g-4">
-        <div class="col-lg-3 col-md-6">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Driver Performance</h5>
-                    <p class="card-text">Real-time attendance and productivity metrics</p>
-                    <a href="/driver-management" class="btn btn-primary">View Reports</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Asset Intelligence</h5>
-                    <p class="card-text">Live GPS tracking and equipment status</p>
-                    <a href="/asset-manager" class="btn btn-success">View Assets</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Billing Intelligence</h5>
-                    <p class="card-text">Revenue analytics and Foundation integration</p>
-                    <a href="/billing" class="btn btn-warning">View Billing</a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Executive Reports</h5>
-                    <p class="card-text">Comprehensive analytics for leadership</p>
-                    <a href="/executive-reports" class="btn btn-info">View Reports</a>
-                </div>
-            </div>
-        </div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-number text-success">581</div>
+        <div class="kpi-label">Fleet Assets</div>
+        <span class="performance-indicator indicator-excellent"
+          >Operational</span
+        >
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-number text-warning">92</div>
+        <div class="kpi-label">Active Drivers</div>
+        <span class="performance-indicator indicator-good">Tracking</span>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-number text-info">$2.4M</div>
+        <div class="kpi-label">Monthly Revenue</div>
+        <span class="performance-indicator indicator-excellent"
+          >March 2025</span
+        >
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-number text-light">98.2%</div>
+        <div class="kpi-label">GPS Coverage</div>
+        <span class="performance-indicator indicator-excellent">Connected</span>
+      </div>
     </div>
+  </div>
+
+  <!-- Quick Actions Grid -->
+  <div class="row g-4">
+    <div class="col-lg-3 col-md-6">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">Driver Performance</h5>
+          <p class="card-text">Real-time attendance and productivity metrics</p>
+          <a href="/driver-management" class="btn btn-primary">View Reports</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">Asset Intelligence</h5>
+          <p class="card-text">Live GPS tracking and equipment status</p>
+          <a href="/asset-manager" class="btn btn-success">View Assets</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">Billing Intelligence</h5>
+          <p class="card-text">Revenue analytics and Foundation integration</p>
+          <a href="/billing" class="btn btn-warning">View Billing</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">Executive Reports</h5>
+          <p class="card-text">Comprehensive analytics for leadership</p>
+          <a href="/executive-reports" class="btn btn-info">View Reports</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

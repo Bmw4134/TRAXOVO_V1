@@ -1,289 +1,350 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXOVO Smart Equipment Lifecycle Storyteller</title><style>
-body {
-margin: 0;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-background: #1a1a1a;
-color: white;
-overflow-x: hidden;
-}
-.header {
-background: linear-gradient(135deg, #16a085, #1abc9c);
-padding: 20px;
-text-align: center;
-box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-.header h1 {
-margin: 0;
-font-size: clamp(20px, 4vw, 28px);
-font-weight: 600;
-}
-.subtitle {
-margin: 5px 0 0 0;
-opacity: 0.9;
-font-size: 16px;
-}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TRAXOVO Smart Equipment Lifecycle Storyteller</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #1a1a1a;
+        color: white;
+        overflow-x: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, #16a085, #1abc9c);
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+      .header h1 {
+        margin: 0;
+        font-size: clamp(20px, 4vw, 28px);
+        font-weight: 600;
+      }
+      .subtitle {
+        margin: 5px 0 0 0;
+        opacity: 0.9;
+        font-size: 16px;
+      }
 
-/* Equipment Search */
-.search-section {
-background: #2c3e50;
-padding: 20px;
-margin: 20px;
-border-radius: 12px;
-border-left: 4px solid #1abc9c;
-}
-.search-input {
-width: 100%;
-max-width: 600px;
-padding: 15px;
-font-size: 16px;
-border: none;
-border-radius: 8px;
-background: #34495e;
-color: white;
-margin-bottom: 15px;
-}
-.search-suggestions {
-display: flex;
-gap: 10px;
-flex-wrap: wrap;
-}
-.suggestion-btn {
-background: #1abc9c;
-color: white;
-border: none;
-padding: 8px 15px;
-border-radius: 20px;
-cursor: pointer;
-font-size: 12px;
-transition: all 0.3s;
-}
-.suggestion-btn:hover {
-background: #16a085;
-}
+      /* Equipment Search */
+      .search-section {
+        background: #2c3e50;
+        padding: 20px;
+        margin: 20px;
+        border-radius: 12px;
+        border-left: 4px solid #1abc9c;
+      }
+      .search-input {
+        width: 100%;
+        max-width: 600px;
+        padding: 15px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        background: #34495e;
+        color: white;
+        margin-bottom: 15px;
+      }
+      .search-suggestions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .suggestion-btn {
+        background: #1abc9c;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.3s;
+      }
+      .suggestion-btn:hover {
+        background: #16a085;
+      }
 
-/* Story Display */
-.story-container {
-display: none;
-margin: 20px;
-background: #2c3e50;
-border-radius: 12px;
-overflow: hidden;
-box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-.story-header {
-background: linear-gradient(135deg, #16a085, #1abc9c);
-padding: 20px;
-text-align: center;
-}
-.equipment-name {
-font-size: 24px;
-font-weight: bold;
-margin-bottom: 10px;
-}
-.equipment-basics {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-gap: 15px;
-opacity: 0.9;
-}
+      /* Story Display */
+      .story-container {
+        display: none;
+        margin: 20px;
+        background: #2c3e50;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+      .story-header {
+        background: linear-gradient(135deg, #16a085, #1abc9c);
+        padding: 20px;
+        text-align: center;
+      }
+      .equipment-name {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .equipment-basics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        opacity: 0.9;
+      }
 
-/* Story Sections */
-.story-content {
-padding: 20px;
-}
-.story-section {
-margin-bottom: 30px;
-padding: 20px;
-background: #34495e;
-border-radius: 8px;
-border-left: 4px solid #1abc9c;
-}
-.section-title {
-font-size: 18px;
-font-weight: 600;
-color: #1abc9c;
-margin-bottom: 15px;
-display: flex;
-align-items: center;
-gap: 10px;
-}
-.section-content {
-line-height: 1.6;
-color: #ecf0f1;
-}
+      /* Story Sections */
+      .story-content {
+        padding: 20px;
+      }
+      .story-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        background: #34495e;
+        border-radius: 8px;
+        border-left: 4px solid #1abc9c;
+      }
+      .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1abc9c;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .section-content {
+        line-height: 1.6;
+        color: #ecf0f1;
+      }
 
-/* Lifecycle Stage */
-.lifecycle-stage {
-display: inline-block;
-padding: 8px 15px;
-border-radius: 20px;
-font-weight: bold;
-margin: 10px 0;
-}
-.stage-new { background: #27ae60; }
-.stage-prime { background: #3498db; }
-.stage-mature { background: #f39c12; }
-.stage-aging { background: #e74c3c; }
-.stage-inactive { background: #95a5a6; }
+      /* Lifecycle Stage */
+      .lifecycle-stage {
+        display: inline-block;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        margin: 10px 0;
+      }
+      .stage-new {
+        background: #27ae60;
+      }
+      .stage-prime {
+        background: #3498db;
+      }
+      .stage-mature {
+        background: #f39c12;
+      }
+      .stage-aging {
+        background: #e74c3c;
+      }
+      .stage-inactive {
+        background: #95a5a6;
+      }
 
-/* Recommendations */
-.recommendation {
-background: #2c3e50;
-padding: 15px;
-margin: 10px 0;
-border-radius: 6px;
-border-left: 4px solid #e74c3c;
-}
-.recommendation.medium { border-left-color: #f39c12; }
-.recommendation.low { border-left-color: #27ae60; }
+      /* Recommendations */
+      .recommendation {
+        background: #2c3e50;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 6px;
+        border-left: 4px solid #e74c3c;
+      }
+      .recommendation.medium {
+        border-left-color: #f39c12;
+      }
+      .recommendation.low {
+        border-left-color: #27ae60;
+      }
 
-.rec-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 8px;
-}
-.rec-priority {
-padding: 3px 8px;
-border-radius: 3px;
-font-size: 11px;
-font-weight: bold;
-}
-.priority-high { background: #e74c3c; }
-.priority-medium { background: #f39c12; }
-.priority-low { background: #27ae60; }
+      .rec-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .rec-priority {
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: bold;
+      }
+      .priority-high {
+        background: #e74c3c;
+      }
+      .priority-medium {
+        background: #f39c12;
+      }
+      .priority-low {
+        background: #27ae60;
+      }
 
-/* Timeline */
-.timeline {
-position: relative;
-padding-left: 30px;
-}
-.timeline::before {
-content: '';
-position: absolute;
-left: 15px;
-top: 0;
-bottom: 0;
-width: 2px;
-background: #1abc9c;
-}
-.timeline-item {
-position: relative;
-margin-bottom: 20px;
-padding: 15px;
-background: #2c3e50;
-border-radius: 6px;
-margin-left: 20px;
-}
-.timeline-item::before {
-content: '';
-position: absolute;
-left: -35px;
-top: 20px;
-width: 10px;
-height: 10px;
-border-radius: 50%;
-background: #1abc9c;
-}
-.timeline-date {
-font-size: 12px;
-color: #95a5a6;
-margin-bottom: 5px;
-}
-.timeline-event {
-font-weight: bold;
-color: #1abc9c;
-margin-bottom: 5px;
-}
+      /* Timeline */
+      .timeline {
+        position: relative;
+        padding-left: 30px;
+      }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #1abc9c;
+      }
+      .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #2c3e50;
+        border-radius: 6px;
+        margin-left: 20px;
+      }
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: -35px;
+        top: 20px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #1abc9c;
+      }
+      .timeline-date {
+        font-size: 12px;
+        color: #95a5a6;
+        margin-bottom: 5px;
+      }
+      .timeline-event {
+        font-weight: bold;
+        color: #1abc9c;
+        margin-bottom: 5px;
+      }
 
-/* Financial Metrics */
-.financial-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-gap: 15px;
-margin: 15px 0;
-}
-.financial-metric {
-text-align: center;
-padding: 15px;
-background: #2c3e50;
-border-radius: 6px;
-}
-.metric-value {
-font-size: 24px;
-font-weight: bold;
-color: #27ae60;
-margin-bottom: 5px;
-}
-.metric-label {
-font-size: 12px;
-color: #95a5a6;
-}
+      /* Financial Metrics */
+      .financial-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 15px 0;
+      }
+      .financial-metric {
+        text-align: center;
+        padding: 15px;
+        background: #2c3e50;
+        border-radius: 6px;
+      }
+      .metric-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #27ae60;
+        margin-bottom: 5px;
+      }
+      .metric-label {
+        font-size: 12px;
+        color: #95a5a6;
+      }
 
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-.search-section, .story-container {
-margin: 15px;
-}
-.story-content {
-padding: 15px;
-}
-.equipment-basics {
-grid-template-columns: 1fr 1fr;
-}
-.financial-grid {
-grid-template-columns: 1fr 1fr;
-}
-}
-</style></head><body><div class="header"><h1>📖 Smart Equipment Lifecycle Storyteller</h1><p class="subtitle">Complete equipment journey analytics using your authentic fleet data</p></div><div class="search-section"><h3 style="margin-top: 0; color: #1abc9c;">🔍 Find Equipment Story</h3><input type="text" class="search-input" id="equipmentSearch"
-placeholder="Enter Asset ID (e.g., AC-22, EX-15, T-45) to get complete lifecycle story"><div class="search-suggestions"><button class="suggestion-btn" onclick="searchEquipment('AC-22')">AC-22 (Air Compressor)</button><button class="suggestion-btn" onclick="searchEquipment('EX-15')">EX-15 (Excavator)</button><button class="suggestion-btn" onclick="searchEquipment('T-45')">T-45 (Truck)</button><button class="suggestion-btn" onclick="loadRandomEquipment()">🎲 Random Equipment</button></div></div><div class="story-container" id="storyContainer"></div><script>
-// Equipment search functionality
-document.getElementById('equipmentSearch').addEventListener('keypress', function(e) {
-if (e.key === 'Enter') {
-const assetId = this.value.trim();
-if (assetId) {
-searchEquipment(assetId);
-}
-}
-});
+      /* Mobile responsiveness */
+      @media (max-width: 768px) {
+        .search-section,
+        .story-container {
+          margin: 15px;
+        }
+        .story-content {
+          padding: 15px;
+        }
+        .equipment-basics {
+          grid-template-columns: 1fr 1fr;
+        }
+        .financial-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>📖 Smart Equipment Lifecycle Storyteller</h1>
+      <p class="subtitle">
+        Complete equipment journey analytics using your authentic fleet data
+      </p>
+    </div>
+    <div class="search-section">
+      <h3 style="margin-top: 0; color: #1abc9c">🔍 Find Equipment Story</h3>
+      <input
+        type="text"
+        class="search-input"
+        id="equipmentSearch"
+        placeholder="Enter Asset ID (e.g., AC-22, EX-15, T-45) to get complete lifecycle story"
+      />
+      <div class="search-suggestions">
+        <button class="suggestion-btn" onclick="searchEquipment('AC-22')">
+          AC-22 (Air Compressor)</button
+        ><button class="suggestion-btn" onclick="searchEquipment('EX-15')">
+          EX-15 (Excavator)</button
+        ><button class="suggestion-btn" onclick="searchEquipment('T-45')">
+          T-45 (Truck)</button
+        ><button class="suggestion-btn" onclick="loadRandomEquipment()">
+          🎲 Random Equipment
+        </button>
+      </div>
+    </div>
+    <div class="story-container" id="storyContainer"></div>
+    <script>
+      // Equipment search functionality
+      document
+        .getElementById("equipmentSearch")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            const assetId = this.value.trim();
+            if (assetId) {
+              searchEquipment(assetId);
+            }
+          }
+        });
 
-function searchEquipment(assetId) {
-document.getElementById('equipmentSearch').value = assetId;
-loadEquipmentStory(assetId);
-}
+      function searchEquipment(assetId) {
+        document.getElementById("equipmentSearch").value = assetId;
+        loadEquipmentStory(assetId);
+      }
 
-function loadEquipmentStory(assetId) {
-const container = document.getElementById('storyContainer');
-container.style.display = 'block';
-container.innerHTML = '<div style="padding: 40px; text-align: center;">📖 Loading equipment story...</div>';
+      function loadEquipmentStory(assetId) {
+        const container = document.getElementById("storyContainer");
+        container.style.display = "block";
+        container.innerHTML =
+          '<div style="padding: 40px; text-align: center;">📖 Loading equipment story...</div>';
 
-fetch(`/equipment-lifecycle/api/equipment-story/${encodeURIComponent(assetId)}`)
-.then(response => response.json())
-.then(data => {
-if (data.story) {
-displayEquipmentStory(data.story);
-} else {
-container.innerHTML = `
+        fetch(
+          `/equipment-lifecycle/api/equipment-story/${encodeURIComponent(assetId)}`,
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.story) {
+              displayEquipmentStory(data.story);
+            } else {
+              container.innerHTML = `
 <div style="padding: 40px; text-align: center; color: #e74c3c;"><h3>Equipment Not Found</h3><p>Asset ID "${assetId}" was not found in your fleet database.</p><p>Please verify the Asset ID and try again.</p></div>
 `;
-}
-})
-.catch(error => {
-console.error('Error loading equipment story:', error);
-container.innerHTML = `
+            }
+          })
+          .catch((error) => {
+            console.error("Error loading equipment story:", error);
+            container.innerHTML = `
 <div style="padding: 40px; text-align: center; color: #e74c3c;"><h3>Error Loading Story</h3><p>Unable to load equipment story. Please try again.</p></div>
 `;
-});
-}
+          });
+      }
 
-function displayEquipmentStory(story) {
-const container = document.getElementById('storyContainer');
+      function displayEquipmentStory(story) {
+        const container = document.getElementById("storyContainer");
 
-// Determine lifecycle stage class
-const stageClass = getStageClass(story.lifecycle_stage.stage);
+        // Determine lifecycle stage class
+        const stageClass = getStageClass(story.lifecycle_stage.stage);
 
-container.innerHTML = `
-<div class="story-header"><div class="equipment-name">${story.basic_info.name}</div><div class="equipment-basics"><div><strong>Asset ID:</strong> ${story.asset_id}</div><div><strong>Category:</strong> ${story.basic_info.category}</div><div><strong>Make/Model:</strong> ${story.basic_info.make} ${story.basic_info.model}</div><div><strong>Year:</strong> ${story.basic_info.year}</div><div><strong>Location:</strong> ${story.basic_info.current_location}</div><div><strong>Status:</strong> ${story.basic_info.active_status ? 'Active' : 'Inactive'}</div></div></div><div class="story-content"><div class="story-section"><div class="section-title">
+        container.innerHTML = `
+<div class="story-header"><div class="equipment-name">${story.basic_info.name}</div><div class="equipment-basics"><div><strong>Asset ID:</strong> ${story.asset_id}</div><div><strong>Category:</strong> ${story.basic_info.category}</div><div><strong>Make/Model:</strong> ${story.basic_info.make} ${story.basic_info.model}</div><div><strong>Year:</strong> ${story.basic_info.year}</div><div><strong>Location:</strong> ${story.basic_info.current_location}</div><div><strong>Status:</strong> ${story.basic_info.active_status ? "Active" : "Inactive"}</div></div></div><div class="story-content"><div class="story-section"><div class="section-title">
 🔄 Current Lifecycle Stage
 </div><div class="section-content"><div class="lifecycle-stage ${stageClass}">
 ${story.lifecycle_stage.stage}
@@ -313,43 +374,64 @@ ${story.maintenance_indicators.story}
 </div></div></div>
 
 
-${story.recommendations.length > 0 ? `
+${
+  story.recommendations.length > 0
+    ? `
 <div class="story-section"><div class="section-title">
 💡 Recommendations
 </div><div class="section-content">
-${story.recommendations.map(rec => `
+${story.recommendations
+  .map(
+    (rec) => `
 <div class="recommendation ${rec.priority.toLowerCase()}"><div class="rec-header"><strong>${rec.category}: ${rec.action}</strong><span class="rec-priority priority-${rec.priority.toLowerCase()}">${rec.priority}</span></div><div style="color: #bdc3c7; font-size: 14px;">${rec.reason}</div></div>
-`).join('')}
+`,
+  )
+  .join("")}
 </div></div>
-` : ''}
+`
+    : ""
+}
 
 
-${story.story_timeline.length > 0 ? `
+${
+  story.story_timeline.length > 0
+    ? `
 <div class="story-section"><div class="section-title">
 📅 Lifecycle Timeline
 </div><div class="section-content"><div class="timeline">
-${story.story_timeline.map(event => `
-<div class="timeline-item"><div class="timeline-date">${event.date ? new Date(event.date).toLocaleDateString() : 'Unknown Date'}</div><div class="timeline-event">${event.event}</div><div style="color: #bdc3c7;">${event.details}</div></div>
-`).join('')}
+${story.story_timeline
+  .map(
+    (event) => `
+<div class="timeline-item"><div class="timeline-date">${event.date ? new Date(event.date).toLocaleDateString() : "Unknown Date"}</div><div class="timeline-event">${event.event}</div><div style="color: #bdc3c7;">${event.details}</div></div>
+`,
+  )
+  .join("")}
 </div></div></div>
-` : ''}
+`
+    : ""
+}
 </div>
 `;
-}
+      }
 
-function getStageClass(stage) {
-if (stage.includes('New') || stage.includes('Breaking')) return 'stage-new';
-if (stage.includes('Prime')) return 'stage-prime';
-if (stage.includes('Mature')) return 'stage-mature';
-if (stage.includes('Aging') || stage.includes('Replace')) return 'stage-aging';
-if (stage.includes('Inactive')) return 'stage-inactive';
-return 'stage-mature';
-}
+      function getStageClass(stage) {
+        if (stage.includes("New") || stage.includes("Breaking"))
+          return "stage-new";
+        if (stage.includes("Prime")) return "stage-prime";
+        if (stage.includes("Mature")) return "stage-mature";
+        if (stage.includes("Aging") || stage.includes("Replace"))
+          return "stage-aging";
+        if (stage.includes("Inactive")) return "stage-inactive";
+        return "stage-mature";
+      }
 
-function loadRandomEquipment() {
-// For demo, use a common asset ID - in real implementation, this would fetch a random one
-const commonIds = ['AC-22', 'EX-15', 'T-45', 'DT-12', 'PU-08'];
-const randomId = commonIds[Math.floor(Math.random() * commonIds.length)];
-searchEquipment(randomId);
-}
-</script></body></html>
+      function loadRandomEquipment() {
+        // For demo, use a common asset ID - in real implementation, this would fetch a random one
+        const commonIds = ["AC-22", "EX-15", "T-45", "DT-12", "PU-08"];
+        const randomId =
+          commonIds[Math.floor(Math.random() * commonIds.length)];
+        searchEquipment(randomId);
+      }
+    </script>
+  </body>
+</html>

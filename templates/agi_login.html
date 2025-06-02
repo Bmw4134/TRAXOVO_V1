@@ -1,219 +1,246 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TRAXOVO Login - AGI Enhanced Access</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            max-width: 450px;
-            width: 100%;
-        }
-        
-        .login-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
-        }
-        
-        .login-header h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        
-        .login-header .subtitle {
-            opacity: 0.9;
-            margin-bottom: 15px;
-        }
-        
-        .agi-badge {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            padding: 6px 15px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .login-form {
-            padding: 40px 30px;
-        }
-        
-        .form-label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
-        .form-control {
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 12px 15px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        
-        .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-        
-        .watson-auto {
-            background: #f8f9fa;
-            border: 2px dashed #dee2e6;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .watson-auto .btn {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-            border: none;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-        
-        .alert {
-            border-radius: 10px;
-            border: none;
-        }
-        
-        .back-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        .back-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .back-link a:hover {
-            text-decoration: underline;
-        }
+      body {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        min-height: 100vh;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .login-container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        max-width: 450px;
+        width: 100%;
+      }
+
+      .login-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px 30px;
+        text-align: center;
+      }
+
+      .login-header h2 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .login-header .subtitle {
+        opacity: 0.9;
+        margin-bottom: 15px;
+      }
+
+      .agi-badge {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        padding: 6px 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .login-form {
+        padding: 40px 30px;
+      }
+
+      .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+      }
+
+      .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      }
+
+      .btn-login {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        width: 100%;
+        transition: all 0.3s ease;
+      }
+
+      .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      }
+
+      .watson-auto {
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .watson-auto .btn {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        border: none;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .alert {
+        border-radius: 10px;
+        border: none;
+      }
+
+      .back-link {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .back-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .back-link a:hover {
+        text-decoration: underline;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="login-container">
-        <div class="login-header">
-            <h2>TRAXOVO</h2>
-            <p class="subtitle">AGI-Enhanced Access Portal</p>
-            <div class="agi-badge">
-                <i class="fas fa-brain"></i> Intelligent Login
-            </div>
+      <div class="login-header">
+        <h2>TRAXOVO</h2>
+        <p class="subtitle">AGI-Enhanced Access Portal</p>
+        <div class="agi-badge">
+          <i class="fas fa-brain"></i> Intelligent Login
         </div>
-        
-        <div class="login-form">
-            {% if auto_fill_watson %}
-            <div class="watson-auto">
-                <p class="mb-2"><i class="fas fa-user-cog"></i> <strong>Watson Quick Access</strong></p>
-                <p class="text-muted small mb-2">Development quick login for admin access</p>
-                <button type="button" class="btn" onclick="fillWatsonCredentials()">
-                    <i class="fas fa-magic"></i> Auto-fill Watson Login
-                </button>
-            </div>
-            {% endif %}
-            
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-            
-            <form method="POST" action="{{ url_for('agi_login.agi_process_login') }}">
-                <input type="hidden" name="redirect_target" value="{{ redirect_target }}">
-                
-                <div class="mb-3">
-                    <label for="username" class="form-label">
-                        <i class="fas fa-user"></i> Username
-                    </label>
-                    <input type="text" class="form-control" id="username" name="username" required>
-                </div>
-                
-                <div class="mb-4">
-                    <label for="password" class="form-label">
-                        <i class="fas fa-lock"></i> Password
-                    </label>
-                    <input type="password" class="form-control" id="password" name="password" required>
-                </div>
-                
-                <button type="submit" class="btn btn-login">
-                    <i class="fas fa-sign-in-alt"></i> Access TRAXOVO
-                </button>
-            </form>
-            
-            <div class="back-link">
-                <a href="{{ url_for('agi_login.agi_landing_page') }}">
-                    <i class="fas fa-arrow-left"></i> Back to Overview
-                </a>
-            </div>
+      </div>
+
+      <div class="login-form">
+        {% if auto_fill_watson %}
+        <div class="watson-auto">
+          <p class="mb-2">
+            <i class="fas fa-user-cog"></i> <strong>Watson Quick Access</strong>
+          </p>
+          <p class="text-muted small mb-2">
+            Development quick login for admin access
+          </p>
+          <button type="button" class="btn" onclick="fillWatsonCredentials()">
+            <i class="fas fa-magic"></i> Auto-fill Watson Login
+          </button>
         </div>
+        {% endif %} {% with messages =
+        get_flashed_messages(with_categories=true) %} {% if messages %} {% for
+        category, message in messages %}
+        <div
+          class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }}"
+        >
+          {{ message }}
+        </div>
+        {% endfor %} {% endif %} {% endwith %}
+
+        <form
+          method="POST"
+          action="{{ url_for('agi_login.agi_process_login') }}"
+        >
+          <input
+            type="hidden"
+            name="redirect_target"
+            value="{{ redirect_target }}"
+          />
+
+          <div class="mb-3">
+            <label for="username" class="form-label">
+              <i class="fas fa-user"></i> Username
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="username"
+              name="username"
+              required
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="password" class="form-label">
+              <i class="fas fa-lock"></i> Password
+            </label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn btn-login">
+            <i class="fas fa-sign-in-alt"></i> Access TRAXOVO
+          </button>
+        </form>
+
+        <div class="back-link">
+          <a href="{{ url_for('agi_login.agi_landing_page') }}">
+            <i class="fas fa-arrow-left"></i> Back to Overview
+          </a>
+        </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function fillWatsonCredentials() {
-            document.getElementById('username').value = 'watson';
-            document.getElementById('password').value = 'Btpp@1513';
-            
-            // Add visual feedback
-            const button = event.target;
-            const originalText = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-check"></i> Credentials Filled';
-            button.style.background = '#28a745';
-            
-            setTimeout(() => {
-                button.innerHTML = originalText;
-                button.style.background = '';
-            }, 2000);
-        }
-        
-        // Auto-focus username field
-        document.getElementById('username').focus();
+      function fillWatsonCredentials() {
+        document.getElementById("username").value = "watson";
+        document.getElementById("password").value = "Btpp@1513";
+
+        // Add visual feedback
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i> Credentials Filled';
+        button.style.background = "#28a745";
+
+        setTimeout(() => {
+          button.innerHTML = originalText;
+          button.style.background = "";
+        }, 2000);
+      }
+
+      // Auto-focus username field
+      document.getElementById("username").focus();
     </script>
-</body>
+  </body>
 </html>

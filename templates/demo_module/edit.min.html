@@ -1,32 +1,164 @@
-{% extends "layout_unified.html" %}
-
-{% block title %}{{ title }} - TRAXOVO{% endblock %}
-
-{% block breadcrumb %}
-<nav class="traxora-breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="/">Dashboard</a></li><li class="breadcrumb-item"><a href="{{ url_for('demo_module.dashboard') }}">Demo Module</a></li><li class="breadcrumb-item active">{{ title }}</li></ol></nav>
-{% endblock %}
-
-{% block content %}
-<div class="container-fluid"><div class="d-flex justify-content-between align-items-center mb-4"><h1 class="h3 mb-0">{{ title }}</h1><div><a href="{{ url_for('demo_module.dashboard') }}" class="btn btn-outline-secondary me-2"><i class="fas fa-arrow-left me-2"></i>Back to Demo Module
-</a><button type="submit" form="edit-form" class="btn btn-primary"><i class="fas fa-save me-2"></i>Save Changes
-</button></div></div><div class="row"><div class="col-lg-8"><div class="card traxora-card"><div class="card-header"><h5 class="card-title mb-0">Item Details</h5></div><div class="card-body"><form id="edit-form" action="{{ url_for('demo_module.save_item') }}" method="POST"><input type="hidden" name="item_id" value="{{ item.id }}"><div class="row"><div class="col-md-6 mb-3"><label for="name" class="form-label">Item Name</label><input type="text"
-class="form-control"
-id="name"
-name="name"
-value="{{ item.name }}"
-required></div><div class="col-md-6 mb-3"><label for="status" class="form-label">Status</label><select class="form-select" id="status" name="status" required><option value="active" {% if item.status == 'active' %}selected{% endif %}>Active</option><option value="inactive" {% if item.status == 'inactive' %}selected{% endif %}>Inactive</option><option value="pending" {% if item.status == 'pending' %}selected{% endif %}>Pending</option></select></div></div><div class="row"><div class="col-md-6 mb-3"><label for="category" class="form-label">Category</label><input type="text"
-class="form-control"
-id="category"
-name="category"
-value="{{ item.category }}"></div><div class="col-md-6 mb-3"><label for="created_date" class="form-label">Created Date</label><input type="date"
-class="form-control"
-id="created_date"
-name="created_date"
-value="{{ item.created_date }}"
-readonly></div></div><div class="mb-3"><label for="description" class="form-label">Description</label><textarea class="form-control"
-id="description"
-name="description"
-rows="4">{{ item.description }}</textarea></div></form></div></div></div><div class="col-lg-4"><div class="card traxora-card"><div class="card-header"><h5 class="card-title mb-0">Item Information</h5></div><div class="card-body"><div class="mb-3"><small class="text-muted">Item ID</small><div class="fw-bold">#{{ item.id }}</div></div><div class="mb-3"><small class="text-muted">Current Status</small><div><span class="badge bg-success">{{ item.status|title }}</span></div></div><div class="mb-3"><small class="text-muted">Created</small><div>{{ item.created_date }}</div></div><hr><div class="d-grid gap-2"><button type="button" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash me-2"></i>Delete Item
-</button><button type="button" class="btn btn-outline-secondary btn-sm"><i class="fas fa-copy me-2"></i>Duplicate Item
-</button></div></div></div></div></div></div>
+{% extends "layout_unified.html" %} {% block title %}{{ title }} - TRAXOVO{%
+endblock %} {% block breadcrumb %}
+<nav class="traxora-breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('demo_module.dashboard') }}">Demo Module</a>
+    </li>
+    <li class="breadcrumb-item active">{{ title }}</li>
+  </ol>
+</nav>
+{% endblock %} {% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">{{ title }}</h1>
+    <div>
+      <a
+        href="{{ url_for('demo_module.dashboard') }}"
+        class="btn btn-outline-secondary me-2"
+        ><i class="fas fa-arrow-left me-2"></i>Back to Demo Module </a
+      ><button type="submit" form="edit-form" class="btn btn-primary">
+        <i class="fas fa-save me-2"></i>Save Changes
+      </button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card traxora-card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Item Details</h5>
+        </div>
+        <div class="card-body">
+          <form
+            id="edit-form"
+            action="{{ url_for('demo_module.save_item') }}"
+            method="POST"
+          >
+            <input type="hidden" name="item_id" value="{{ item.id }}" />
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="name" class="form-label">Item Name</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  name="name"
+                  value="{{ item.name }}"
+                  required
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="status" class="form-label">Status</label
+                ><select class="form-select" id="status" name="status" required>
+                  <option
+                    value="active"
+                    {%
+                    if
+                    item.status=""
+                    ="active"
+                    %}selected{%
+                    endif
+                    %}
+                  >
+                    Active
+                  </option>
+                  <option
+                    value="inactive"
+                    {%
+                    if
+                    item.status=""
+                    ="inactive"
+                    %}selected{%
+                    endif
+                    %}
+                  >
+                    Inactive
+                  </option>
+                  <option
+                    value="pending"
+                    {%
+                    if
+                    item.status=""
+                    ="pending"
+                    %}selected{%
+                    endif
+                    %}
+                  >
+                    Pending
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="category" class="form-label">Category</label
+                ><input
+                  type="text"
+                  class="form-control"
+                  id="category"
+                  name="category"
+                  value="{{ item.category }}"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="created_date" class="form-label">Created Date</label
+                ><input
+                  type="date"
+                  class="form-control"
+                  id="created_date"
+                  name="created_date"
+                  value="{{ item.created_date }}"
+                  readonly
+                />
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label
+              ><textarea
+                class="form-control"
+                id="description"
+                name="description"
+                rows="4"
+              >
+{{ item.description }}</textarea
+              >
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card traxora-card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Item Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <small class="text-muted">Item ID</small>
+            <div class="fw-bold">#{{ item.id }}</div>
+          </div>
+          <div class="mb-3">
+            <small class="text-muted">Current Status</small>
+            <div>
+              <span class="badge bg-success">{{ item.status|title }}</span>
+            </div>
+          </div>
+          <div class="mb-3">
+            <small class="text-muted">Created</small>
+            <div>{{ item.created_date }}</div>
+          </div>
+          <hr />
+          <div class="d-grid gap-2">
+            <button type="button" class="btn btn-outline-danger btn-sm">
+              <i class="fas fa-trash me-2"></i>Delete Item</button
+            ><button type="button" class="btn btn-outline-secondary btn-sm">
+              <i class="fas fa-copy me-2"></i>Duplicate Item
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

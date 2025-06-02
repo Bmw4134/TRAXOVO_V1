@@ -1,108 +1,149 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXOVO Fleet Intelligence</title><style>
-body {
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-margin: 0;
-padding: 0;
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-color: white;
-min-height: 100vh;
-}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TRAXOVO Fleet Intelligence</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        min-height: 100vh;
+      }
 
-.container {
-max-width: 1200px;
-margin: 0 auto;
-padding: 2rem;
-}
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
 
-.header {
-text-align: center;
-margin-bottom: 3rem;
-}
+      .header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
 
-.header h1 {
-font-size: 3rem;
-margin: 0;
-text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-}
+      .header h1 {
+        font-size: 3rem;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
 
-.subtitle {
-font-size: 1.2rem;
-opacity: 0.9;
-margin-top: 0.5rem;
-}
+      .subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin-top: 0.5rem;
+      }
 
-.metrics-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-gap: 2rem;
-margin-bottom: 3rem;
-}
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+      }
 
-.metric-card {
-background: rgba(255, 255, 255, 0.1);
-backdrop-filter: blur(10px);
-border-radius: 15px;
-padding: 2rem;
-text-align: center;
-border: 1px solid rgba(255, 255, 255, 0.2);
-transition: transform 0.3s ease;
-}
+      .metric-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: transform 0.3s ease;
+      }
 
-.metric-card:hover {
-transform: translateY(-5px);
-}
+      .metric-card:hover {
+        transform: translateY(-5px);
+      }
 
-.metric-value {
-font-size: 3rem;
-font-weight: bold;
-margin-bottom: 0.5rem;
-color: #ffd700;
-}
+      .metric-value {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: #ffd700;
+      }
 
-.metric-label {
-font-size: 1rem;
-opacity: 0.8;
-}
+      .metric-label {
+        font-size: 1rem;
+        opacity: 0.8;
+      }
 
-.actions {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-gap: 1rem;
-margin-top: 2rem;
-}
+      .actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+      }
 
-.action-btn {
-background: rgba(255, 255, 255, 0.2);
-border: none;
-border-radius: 10px;
-padding: 1rem;
-color: white;
-text-decoration: none;
-text-align: center;
-transition: all 0.3s ease;
-font-size: 1rem;
-cursor: pointer;
-}
+      .action-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        border-radius: 10px;
+        padding: 1rem;
+        color: white;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        cursor: pointer;
+      }
 
-.action-btn:hover {
-background: rgba(255, 255, 255, 0.3);
-transform: scale(1.05);
-}
+      .action-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+      }
 
-.status {
-text-align: center;
-margin-top: 2rem;
-padding: 1rem;
-background: rgba(0, 255, 0, 0.2);
-border-radius: 10px;
-border: 1px solid rgba(0, 255, 0, 0.3);
-}
-</style></head><body><div class="container"><div class="header"><h1>TRAXOVO</h1><div class="subtitle">Fleet Intelligence with Authentic Data</div></div><div class="metrics-grid"><div class="metric-card"><div class="metric-value">{{ data.total_assets or 0 }}</div><div class="metric-label">Total Assets</div></div><div class="metric-card"><div class="metric-value">{{ data.active_assets or 0 }}</div><div class="metric-label">Active Assets</div></div><div class="metric-card"><div class="metric-value">{{ data.total_drivers or 0 }}</div><div class="metric-label">Total Drivers</div></div><div class="metric-card"><div class="metric-value">{{ data.clocked_in or 0 }}</div><div class="metric-label">Clocked In</div></div></div><div class="actions"><a href="/api/assets" class="action-btn">View Fleet Assets</a><a href="/api/attendance" class="action-btn">View Attendance</a><a href="/api/map" class="action-btn">View GPS Data</a><a href="/finance/forecast" class="action-btn">Financial Forecasting</a><a href="/static/admin_ui.html" class="action-btn">Admin Panel</a><a href="/static/assistant_ui.html" class="action-btn">AI Assistant</a></div>
+      .status {
+        text-align: center;
+        margin-top: 2rem;
+        padding: 1rem;
+        background: rgba(0, 255, 0, 0.2);
+        border-radius: 10px;
+        border: 1px solid rgba(0, 255, 0, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>TRAXOVO</h1>
+        <div class="subtitle">Fleet Intelligence with Authentic Data</div>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value">{{ data.total_assets or 0 }}</div>
+          <div class="metric-label">Total Assets</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">{{ data.active_assets or 0 }}</div>
+          <div class="metric-label">Active Assets</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">{{ data.total_drivers or 0 }}</div>
+          <div class="metric-label">Total Drivers</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">{{ data.clocked_in or 0 }}</div>
+          <div class="metric-label">Clocked In</div>
+        </div>
+      </div>
+      <div class="actions">
+        <a href="/api/assets" class="action-btn">View Fleet Assets</a
+        ><a href="/api/attendance" class="action-btn">View Attendance</a
+        ><a href="/api/map" class="action-btn">View GPS Data</a
+        ><a href="/finance/forecast" class="action-btn">Financial Forecasting</a
+        ><a href="/static/admin_ui.html" class="action-btn">Admin Panel</a
+        ><a href="/static/assistant_ui.html" class="action-btn">AI Assistant</a>
+      </div>
 
-{% if data.last_updated %}
-<div class="status">
-✓ Authentic data loaded successfully<br>
-Last updated: {{ data.last_updated }}
-</div>
-{% endif %}
-</div></body></html>
+      {% if data.last_updated %}
+      <div class="status">
+        ✓ Authentic data loaded successfully<br />
+        Last updated: {{ data.last_updated }}
+      </div>
+      {% endif %}
+    </div>
+  </body>
+</html>

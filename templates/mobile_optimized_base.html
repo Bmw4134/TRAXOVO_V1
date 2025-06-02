@@ -1,219 +1,264 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#667eea">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="theme-color" content="#667eea" />
     <title>{% block title %}TRAXOVO Fleet Management{% endblock %}</title>
     <!-- Optimized CSS Loading -->
-    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='mobile-responsive.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/kaizen_theme.min.css') }}">
+    <link
+      href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='mobile-responsive.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/kaizen_theme.min.css') }}"
+    />
     <!-- Mobile Performance Optimizations -->
     <style>
-        /* Critical CSS for mobile performance */
+      /* Critical CSS for mobile performance */
+      .mobile-optimized {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
+
+      .loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease;
+      }
+
+      .loading-screen.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Mobile-first responsive design */
+      @media (max-width: 768px) {
+        .container-fluid {
+          padding: 10px;
+        }
+
+        .card {
+          border-radius: 12px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          margin-bottom: 16px;
+        }
+
+        .btn {
+          border-radius: 8px;
+          font-weight: 500;
+        }
+
+        .table-responsive {
+          border-radius: 8px;
+          border: none;
+        }
+
+        .navbar-brand {
+          font-size: 1.2rem;
+          font-weight: 600;
+        }
+      }
+
+      /* Dark mode support */
+      @media (prefers-color-scheme: dark) {
         .mobile-optimized {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: #333;
+          background-color: #1a1a1a;
+          color: #ffffff;
         }
-
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-
-        .loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Mobile-first responsive design */
-        @media (max-width: 768px) {
-            .container-fluid {
-                padding: 10px;
-            }
-
-            .card {
-                border-radius: 12px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                margin-bottom: 16px;
-            }
-
-            .btn {
-                border-radius: 8px;
-                font-weight: 500;
-            }
-
-            .table-responsive {
-                border-radius: 8px;
-                border: none;
-            }
-
-            .navbar-brand {
-                font-size: 1.2rem;
-                font-weight: 600;
-            }
-        }
-
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            .mobile-optimized {
-                background-color: #1a1a1a;
-                color: #ffffff;
-            }
-        }
+      }
     </style>
     {% block extra_css %}{% endblock %}
-</head>
-<body class="mobile-optimized">
+  </head>
+  <body class="mobile-optimized">
     <!-- Loading Screen -->
     <div id="loadingScreen" class="loading-screen">
-        <div class="spinner"></div>
+      <div class="spinner"></div>
     </div>
 
     <!-- Mobile Navigation Toggle -->
-    <div class="d-md-none position-fixed" style="top: 15px; left: 15px; z-index: 1002;">
-        <button class="btn btn-primary btn-sm" onclick="toggleMobileSidebar()" style="border-radius: 50%; width: 45px; height: 45px; padding: 0;">
-            <i class="fas fa-bars"></i>
-        </button>
+    <div
+      class="d-md-none position-fixed"
+      style="top: 15px; left: 15px; z-index: 1002"
+    >
+      <button
+        class="btn btn-primary btn-sm"
+        onclick="toggleMobileSidebar()"
+        style="border-radius: 50%; width: 45px; height: 45px; padding: 0"
+      >
+        <i class="fas fa-bars"></i>
+      </button>
     </div>
 
     <!-- Sidebar Overlay for Mobile -->
-    <div id="sidebarOverlay" class="d-md-none position-fixed w-100 h-100" style="top: 0; left: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none;" onclick="toggleMobileSidebar()"></div>
+    <div
+      id="sidebarOverlay"
+      class="d-md-none position-fixed w-100 h-100"
+      style="
+        top: 0;
+        left: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: none;
+      "
+      onclick="toggleMobileSidebar()"
+    ></div>
 
     <!-- Main Content -->
     <div class="d-flex">
-        <!-- Sidebar -->
-        <nav id="sidebar" class="sidebar bg-dark text-white">
-            {% include 'includes/mobile_sidebar.html' %}
-        </nav>
+      <!-- Sidebar -->
+      <nav id="sidebar" class="sidebar bg-dark text-white">
+        {% include 'includes/mobile_sidebar.html' %}
+      </nav>
 
-        <!-- Main Content Area -->
-        <main class="main-content flex-grow-1">
-            <!-- Header -->
-            <header class="header bg-white shadow-sm border-bottom">
-                <div class="container-fluid">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h1 class="h4 mb-0">{% block page_title %}Dashboard{% endblock %}</h1>
-                        </div>
-                        <div class="col-auto d-flex align-items-center gap-2">
-                            {% block header_actions %}
-                            <button class="btn btn-outline-primary btn-sm" onclick="refreshData()" title="Refresh">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                            {% endblock %}
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Page Content -->
-            <div class="container-fluid py-3">
-                {% block content %}{% endblock %}
+      <!-- Main Content Area -->
+      <main class="main-content flex-grow-1">
+        <!-- Header -->
+        <header class="header bg-white shadow-sm border-bottom">
+          <div class="container-fluid">
+            <div class="row align-items-center">
+              <div class="col">
+                <h1 class="h4 mb-0">
+                  {% block page_title %}Dashboard{% endblock %}
+                </h1>
+              </div>
+              <div class="col-auto d-flex align-items-center gap-2">
+                {% block header_actions %}
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  onclick="refreshData()"
+                  title="Refresh"
+                >
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+                {% endblock %}
+              </div>
             </div>
-        </main>
+          </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="container-fluid py-3">
+          {% block content %}{% endblock %}
+        </div>
+      </main>
     </div>
 
     <!-- Mobile Bottom Navigation -->
     <nav class="mobile-nav d-md-none">
-        <div class="nav-items">
-            <a href="/" class="nav-item" data-page="dashboard">
-                <i class="fas fa-tachometer-alt"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="/working-reports" class="nav-item" data-page="reports">
-                <i class="fas fa-chart-line"></i>
-                <span>Reports</span>
-            </a>
-            <a href="/job-site-manager" class="nav-item" data-page="sites">
-                <i class="fas fa-map-marker-alt"></i>
-                <span>Sites</span>
-            </a>
-            <a href="/asset_map" class="nav-item" data-page="assets">
-                <i class="fas fa-truck"></i>
-                <span>Assets</span>
-            </a>
-        </div>
+      <div class="nav-items">
+        <a href="/" class="nav-item" data-page="dashboard">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="/working-reports" class="nav-item" data-page="reports">
+          <i class="fas fa-chart-line"></i>
+          <span>Reports</span>
+        </a>
+        <a href="/job-site-manager" class="nav-item" data-page="sites">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>Sites</span>
+        </a>
+        <a href="/asset_map" class="nav-item" data-page="assets">
+          <i class="fas fa-truck"></i>
+          <span>Assets</span>
+        </a>
+      </div>
     </nav>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='smart-ui-resizer.min.js') }}"></script>
     <script>
-        // Mobile optimization JavaScript
-        function toggleMobileSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
+      // Mobile optimization JavaScript
+      function toggleMobileSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
 
-            if (sidebar.classList.contains('show')) {
-                sidebar.classList.remove('show');
-                overlay.style.display = 'none';
-            } else {
-                sidebar.classList.add('show');
-                overlay.style.display = 'block';
-            }
+        if (sidebar.classList.contains("show")) {
+          sidebar.classList.remove("show");
+          overlay.style.display = "none";
+        } else {
+          sidebar.classList.add("show");
+          overlay.style.display = "block";
         }
+      }
 
-        // Hide loading screen when page is ready
-        window.addEventListener('load', () => {
-            const loadingScreen = document.getElementById('loadingScreen');
-            setTimeout(() => {
-                loadingScreen.classList.add('hidden');
-            }, 500);
+      // Hide loading screen when page is ready
+      window.addEventListener("load", () => {
+        const loadingScreen = document.getElementById("loadingScreen");
+        setTimeout(() => {
+          loadingScreen.classList.add("hidden");
+        }, 500);
+      });
+
+      // Refresh data function
+      function refreshData() {
+        location.reload();
+      }
+
+      // Performance optimization
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/static/sw.js").catch(() => {});
+      }
+
+      // Set active nav item
+      function setActiveNav() {
+        const currentPath = window.location.pathname;
+        document.querySelectorAll(".nav-item").forEach((item) => {
+          item.classList.remove("active");
+          const href = item.getAttribute("href");
+          if (href && currentPath.startsWith(href)) {
+            item.classList.add("active");
+          }
         });
+      }
 
-        // Refresh data function
-        function refreshData() {
-            location.reload();
-        }
-
-        // Performance optimization
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/static/sw.js').catch(() => {});
-        }
-
-        // Set active nav item
-        function setActiveNav() {
-            const currentPath = window.location.pathname;
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-                const href = item.getAttribute('href');
-                if (href && currentPath.startsWith(href)) {
-                    item.classList.add('active');
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', setActiveNav);
+      document.addEventListener("DOMContentLoaded", setActiveNav);
     </script>
     {% block extra_js %}{% endblock %}
-</body>
+  </body>
 </html>

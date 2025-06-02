@@ -1,548 +1,604 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TRAXOVO Infrastructure Dashboard</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+        color: #fff;
+        min-height: 100vh;
+      }
+
+      .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .header h1 {
+        font-size: 32px;
+        background: linear-gradient(45deg, #007aff, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        color: #8e8e93;
+        font-size: 16px;
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .metric-card {
+        background: rgba(28, 28, 30, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 15px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .metric-card h3 {
+        color: #007aff;
+        font-size: 18px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .metric-value {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .metric-label {
+        color: #8e8e93;
+        font-size: 14px;
+      }
+
+      .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+
+      .status-healthy {
+        background: #34c759;
+      }
+      .status-warning {
+        background: #ff9500;
+      }
+      .status-error {
+        background: #ff453a;
+      }
+
+      .charts-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .chart-card {
+        background: rgba(28, 28, 30, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 15px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .actions-panel {
+        background: rgba(28, 28, 30, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 15px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .action-btn {
+        background: linear-gradient(45deg, #007aff, #0056cc);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 122, 255, 0.3);
+      }
+
+      .log-viewer {
+        background: #1c1c1e;
+        border-radius: 10px;
+        padding: 20px;
+        font-family: "Monaco", "Menlo", monospace;
+        font-size: 12px;
+        max-height: 400px;
+        overflow-y: auto;
+        margin-top: 20px;
+      }
+
+      .log-entry {
+        margin-bottom: 5px;
+        padding: 5px;
+        border-radius: 3px;
+      }
+
+      .log-info {
+        color: #34c759;
+      }
+      .log-warning {
+        color: #ff9500;
+      }
+      .log-error {
+        color: #ff453a;
+      }
+
+      .back-link {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: rgba(0, 122, 255, 0.2);
+        border: 1px solid rgba(0, 122, 255, 0.3);
+        border-radius: 10px;
+        padding: 10px 15px;
+        color: #007aff;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .back-link:hover {
+        background: rgba(0, 122, 255, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .refresh-indicator {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #007aff;
+        border-top: 2px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-left: 10px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
-            color: #fff;
-            min-height: 100vh;
+        100% {
+          transform: rotate(360deg);
         }
+      }
 
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+      .hidden {
+        display: none;
+      }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        margin-top: 10px;
+        overflow: hidden;
+      }
 
-        .header h1 {
-            font-size: 32px;
-            background: linear-gradient(45deg, #007AFF, #00D4FF);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            color: #8E8E93;
-            font-size: 16px;
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .metric-card {
-            background: rgba(28, 28, 30, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 15px;
-            padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .metric-card h3 {
-            color: #007AFF;
-            font-size: 18px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .metric-value {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .metric-label {
-            color: #8E8E93;
-            font-size: 14px;
-        }
-
-        .status-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-
-        .status-healthy { background: #34C759; }
-        .status-warning { background: #FF9500; }
-        .status-error { background: #FF453A; }
-
-        .charts-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .chart-card {
-            background: rgba(28, 28, 30, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 15px;
-            padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .actions-panel {
-            background: rgba(28, 28, 30, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 15px;
-            padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .action-btn {
-            background: linear-gradient(45deg, #007AFF, #0056CC);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 122, 255, 0.3);
-        }
-
-        .log-viewer {
-            background: #1C1C1E;
-            border-radius: 10px;
-            padding: 20px;
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 12px;
-            max-height: 400px;
-            overflow-y: auto;
-            margin-top: 20px;
-        }
-
-        .log-entry {
-            margin-bottom: 5px;
-            padding: 5px;
-            border-radius: 3px;
-        }
-
-        .log-info { color: #34C759; }
-        .log-warning { color: #FF9500; }
-        .log-error { color: #FF453A; }
-
-        .back-link {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 122, 255, 0.2);
-            border: 1px solid rgba(0, 122, 255, 0.3);
-            border-radius: 10px;
-            padding: 10px 15px;
-            color: #007AFF;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .back-link:hover {
-            background: rgba(0, 122, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .refresh-indicator {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #007AFF;
-            border-top: 2px solid transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(45deg, #007AFF, #00D4FF);
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(45deg, #007aff, #00d4ff);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <a href="/watson_admin" class="back-link">← Back to Watson Admin</a>
 
     <div class="dashboard-container">
-        <div class="header">
-            <h1>Infrastructure Optimization Dashboard</h1>
-            <p>Real-time system monitoring and performance optimization for TRAXOVO</p>
+      <div class="header">
+        <h1>Infrastructure Optimization Dashboard</h1>
+        <p>
+          Real-time system monitoring and performance optimization for TRAXOVO
+        </p>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <h3>
+            <span class="status-indicator status-healthy"></span>
+            Background Tasks
+          </h3>
+          <div class="metric-value" id="background-status">Loading...</div>
+          <div class="metric-label">
+            Active: <span id="active-tasks">0</span> | Pending:
+            <span id="pending-tasks">0</span>
+          </div>
         </div>
 
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <h3>
-                    <span class="status-indicator status-healthy"></span>
-                    Background Tasks
-                </h3>
-                <div class="metric-value" id="background-status">Loading...</div>
-                <div class="metric-label">Active: <span id="active-tasks">0</span> | Pending: <span id="pending-tasks">0</span></div>
-            </div>
-
-            <div class="metric-card">
-                <h3>
-                    <span class="status-indicator status-healthy"></span>
-                    Memory Usage
-                </h3>
-                <div class="metric-value" id="memory-usage">0%</div>
-                <div class="metric-label">System Memory</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="memory-progress" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <div class="metric-card">
-                <h3>
-                    <span class="status-indicator status-healthy"></span>
-                    CPU Usage
-                </h3>
-                <div class="metric-value" id="cpu-usage">0%</div>
-                <div class="metric-label">System CPU</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="cpu-progress" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <div class="metric-card">
-                <h3>
-                    <span class="status-indicator status-healthy"></span>
-                    Cache Performance
-                </h3>
-                <div class="metric-value" id="cache-size">0 MB</div>
-                <div class="metric-label">GAUGE Cache: <span id="gauge-cache-items">0</span> items</div>
-            </div>
+        <div class="metric-card">
+          <h3>
+            <span class="status-indicator status-healthy"></span>
+            Memory Usage
+          </h3>
+          <div class="metric-value" id="memory-usage">0%</div>
+          <div class="metric-label">System Memory</div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="memory-progress"
+              style="width: 0%"
+            ></div>
+          </div>
         </div>
 
-        <div class="charts-container">
-            <div class="chart-card">
-                <h3>System Performance Trends</h3>
-                <canvas id="performance-chart" width="400" height="200"></canvas>
-            </div>
-
-            <div class="chart-card">
-                <h3>Background Task Activity</h3>
-                <canvas id="tasks-chart" width="400" height="200"></canvas>
-            </div>
+        <div class="metric-card">
+          <h3>
+            <span class="status-indicator status-healthy"></span>
+            CPU Usage
+          </h3>
+          <div class="metric-value" id="cpu-usage">0%</div>
+          <div class="metric-label">System CPU</div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="cpu-progress"
+              style="width: 0%"
+            ></div>
+          </div>
         </div>
 
-        <div class="actions-panel">
-            <h3>Infrastructure Actions</h3>
-            <button class="action-btn" onclick="optimizeMemory()">Optimize Memory</button>
-            <button class="action-btn" onclick="clearCaches()">Clear Caches</button>
-            <button class="action-btn" onclick="refreshData()">Refresh Data</button>
-            <button class="action-btn" onclick="downloadLogs()">Download Logs</button>
-
-            <div class="log-viewer" id="log-viewer">
-                <div class="log-entry log-info">Infrastructure dashboard initialized</div>
-                <div class="log-entry log-info">Real-time monitoring active</div>
-            </div>
+        <div class="metric-card">
+          <h3>
+            <span class="status-indicator status-healthy"></span>
+            Cache Performance
+          </h3>
+          <div class="metric-value" id="cache-size">0 MB</div>
+          <div class="metric-label">
+            GAUGE Cache: <span id="gauge-cache-items">0</span> items
+          </div>
         </div>
+      </div>
+
+      <div class="charts-container">
+        <div class="chart-card">
+          <h3>System Performance Trends</h3>
+          <canvas id="performance-chart" width="400" height="200"></canvas>
+        </div>
+
+        <div class="chart-card">
+          <h3>Background Task Activity</h3>
+          <canvas id="tasks-chart" width="400" height="200"></canvas>
+        </div>
+      </div>
+
+      <div class="actions-panel">
+        <h3>Infrastructure Actions</h3>
+        <button class="action-btn" onclick="optimizeMemory()">
+          Optimize Memory
+        </button>
+        <button class="action-btn" onclick="clearCaches()">Clear Caches</button>
+        <button class="action-btn" onclick="refreshData()">Refresh Data</button>
+        <button class="action-btn" onclick="downloadLogs()">
+          Download Logs
+        </button>
+
+        <div class="log-viewer" id="log-viewer">
+          <div class="log-entry log-info">
+            Infrastructure dashboard initialized
+          </div>
+          <div class="log-entry log-info">Real-time monitoring active</div>
+        </div>
+      </div>
     </div>
 
     <script>
-        let refreshInterval;
-        let performanceData = [];
-        let taskData = [];
+      let refreshInterval;
+      let performanceData = [];
+      let taskData = [];
 
-        function initDashboard() {
-            refreshData();
-            refreshInterval = setInterval(refreshData, 30000); // Refresh every 30 seconds
+      function initDashboard() {
+        refreshData();
+        refreshInterval = setInterval(refreshData, 30000); // Refresh every 30 seconds
+      }
+
+      async function refreshData() {
+        try {
+          const response = await fetch("/api/infrastructure/status");
+          const data = await response.json();
+
+          if (data.success) {
+            updateMetrics(data);
+            updateCharts(data);
+            addLogEntry("info", "Data refreshed successfully");
+          } else {
+            addLogEntry("error", "Failed to refresh data: " + data.error);
+          }
+        } catch (error) {
+          addLogEntry("error", "Connection error: " + error.message);
         }
+      }
 
-        async function refreshData() {
-            try {
-                const response = await fetch('/api/infrastructure/status');
-                const data = await response.json();
+      function updateMetrics(data) {
+        const bgTasks = data.background_tasks;
+        const memory = data.memory_management;
 
-                if (data.success) {
-                    updateMetrics(data);
-                    updateCharts(data);
-                    addLogEntry('info', 'Data refreshed successfully');
-                } else {
-                    addLogEntry('error', 'Failed to refresh data: ' + data.error);
-                }
-            } catch (error) {
-                addLogEntry('error', 'Connection error: ' + error.message);
-            }
-        }
+        // Background tasks
+        document.getElementById("background-status").textContent =
+          bgTasks.background_worker === "running" ? "Running" : "Stopped";
+        document.getElementById("active-tasks").textContent =
+          bgTasks.active_tasks || 0;
+        document.getElementById("pending-tasks").textContent =
+          bgTasks.pending_tasks || 0;
 
-        function updateMetrics(data) {
-            const bgTasks = data.background_tasks;
-            const memory = data.memory_management;
+        // Memory usage
+        const memoryPercent = memory.system?.memory?.percent_used || 0;
+        document.getElementById("memory-usage").textContent =
+          memoryPercent.toFixed(1) + "%";
+        document.getElementById("memory-progress").style.width =
+          memoryPercent + "%";
 
-            // Background tasks
-            document.getElementById('background-status').textContent = 
-                bgTasks.background_worker === 'running' ? 'Running' : 'Stopped';
-            document.getElementById('active-tasks').textContent = bgTasks.active_tasks || 0;
-            document.getElementById('pending-tasks').textContent = bgTasks.pending_tasks || 0;
+        // CPU usage
+        const cpuPercent = memory.system?.cpu?.percent_used || 0;
+        document.getElementById("cpu-usage").textContent =
+          cpuPercent.toFixed(1) + "%";
+        document.getElementById("cpu-progress").style.width = cpuPercent + "%";
 
-            // Memory usage
-            const memoryPercent = memory.system?.memory?.percent_used || 0;
-            document.getElementById('memory-usage').textContent = memoryPercent.toFixed(1) + '%';
-            document.getElementById('memory-progress').style.width = memoryPercent + '%';
+        // Cache performance
+        const gaugeCacheSize = memory.gauge_cache?.size_mb || 0;
+        const gaugeCacheItems = memory.gauge_cache?.item_count || 0;
+        document.getElementById("cache-size").textContent =
+          gaugeCacheSize.toFixed(1) + " MB";
+        document.getElementById("gauge-cache-items").textContent =
+          gaugeCacheItems;
 
-            // CPU usage
-            const cpuPercent = memory.system?.cpu?.percent_used || 0;
-            document.getElementById('cpu-usage').textContent = cpuPercent.toFixed(1) + '%';
-            document.getElementById('cpu-progress').style.width = cpuPercent + '%';
+        // Update status indicators
+        updateStatusIndicators(memoryPercent, cpuPercent);
+      }
 
-            // Cache performance
-            const gaugeCacheSize = memory.gauge_cache?.size_mb || 0;
-            const gaugeCacheItems = memory.gauge_cache?.item_count || 0;
-            document.getElementById('cache-size').textContent = gaugeCacheSize.toFixed(1) + ' MB';
-            document.getElementById('gauge-cache-items').textContent = gaugeCacheItems;
+      function updateStatusIndicators(memoryPercent, cpuPercent) {
+        const indicators = document.querySelectorAll(".status-indicator");
 
-            // Update status indicators
-            updateStatusIndicators(memoryPercent, cpuPercent);
-        }
+        indicators.forEach((indicator, index) => {
+          indicator.className = "status-indicator ";
 
-        function updateStatusIndicators(memoryPercent, cpuPercent) {
-            const indicators = document.querySelectorAll('.status-indicator');
-            
-            indicators.forEach((indicator, index) => {
-                indicator.className = 'status-indicator ';
-                
-                switch(index) {
-                    case 0: // Background tasks
-                        indicator.className += 'status-healthy';
-                        break;
-                    case 1: // Memory
-                        indicator.className += memoryPercent > 80 ? 'status-warning' : 'status-healthy';
-                        break;
-                    case 2: // CPU
-                        indicator.className += cpuPercent > 80 ? 'status-warning' : 'status-healthy';
-                        break;
-                    case 3: // Cache
-                        indicator.className += 'status-healthy';
-                        break;
-                }
-            });
-        }
-
-        function updateCharts(data) {
-            // Store data for charts
-            const timestamp = new Date();
-            const memory = data.memory_management;
-            
-            performanceData.push({
-                time: timestamp,
-                memory: memory.system?.memory?.percent_used || 0,
-                cpu: memory.system?.cpu?.percent_used || 0
-            });
-
-            taskData.push({
-                time: timestamp,
-                active: data.background_tasks.active_tasks || 0,
-                pending: data.background_tasks.pending_tasks || 0
-            });
-
-            // Keep only last 20 data points
-            if (performanceData.length > 20) performanceData.shift();
-            if (taskData.length > 20) taskData.shift();
-
-            drawCharts();
-        }
-
-        function drawCharts() {
-            drawPerformanceChart();
-            drawTasksChart();
-        }
-
-        function drawPerformanceChart() {
-            const canvas = document.getElementById('performance-chart');
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width;
-            const height = canvas.height;
-
-            ctx.clearRect(0, 0, width, height);
-
-            if (performanceData.length < 2) return;
-
-            // Draw grid
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.lineWidth = 1;
-            for (let i = 0; i <= 4; i++) {
-                const y = (height / 4) * i;
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(width, y);
-                ctx.stroke();
-            }
-
-            // Draw memory line
-            ctx.strokeStyle = '#007AFF';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            performanceData.forEach((point, index) => {
-                const x = (width / (performanceData.length - 1)) * index;
-                const y = height - (point.memory / 100) * height;
-                if (index === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            });
-            ctx.stroke();
-
-            // Draw CPU line
-            ctx.strokeStyle = '#00D4FF';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            performanceData.forEach((point, index) => {
-                const x = (width / (performanceData.length - 1)) * index;
-                const y = height - (point.cpu / 100) * height;
-                if (index === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            });
-            ctx.stroke();
-        }
-
-        function drawTasksChart() {
-            const canvas = document.getElementById('tasks-chart');
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width;
-            const height = canvas.height;
-
-            ctx.clearRect(0, 0, width, height);
-
-            if (taskData.length < 2) return;
-
-            const maxTasks = Math.max(...taskData.map(d => Math.max(d.active, d.pending)), 1);
-
-            // Draw grid
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.lineWidth = 1;
-            for (let i = 0; i <= 4; i++) {
-                const y = (height / 4) * i;
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(width, y);
-                ctx.stroke();
-            }
-
-            // Draw active tasks line
-            ctx.strokeStyle = '#34C759';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            taskData.forEach((point, index) => {
-                const x = (width / (taskData.length - 1)) * index;
-                const y = height - (point.active / maxTasks) * height;
-                if (index === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            });
-            ctx.stroke();
-
-            // Draw pending tasks line
-            ctx.strokeStyle = '#FF9500';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            taskData.forEach((point, index) => {
-                const x = (width / (taskData.length - 1)) * index;
-                const y = height - (point.pending / maxTasks) * height;
-                if (index === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            });
-            ctx.stroke();
-        }
-
-        async function optimizeMemory() {
-            addLogEntry('info', 'Starting memory optimization...');
-            try {
-                const response = await fetch('/api/infrastructure/optimize', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                const result = await response.json();
-                
-                if (result.success) {
-                    addLogEntry('info', 'Memory optimization completed successfully');
-                    refreshData();
-                } else {
-                    addLogEntry('error', 'Memory optimization failed: ' + result.error);
-                }
-            } catch (error) {
-                addLogEntry('error', 'Optimization error: ' + error.message);
-            }
-        }
-
-        function clearCaches() {
-            addLogEntry('info', 'Cache clearing functionality would be implemented here');
-        }
-
-        function downloadLogs() {
-            addLogEntry('info', 'Log download functionality would be implemented here');
-        }
-
-        function addLogEntry(type, message) {
-            const logViewer = document.getElementById('log-viewer');
-            const entry = document.createElement('div');
-            entry.className = `log-entry log-${type}`;
-            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            logViewer.appendChild(entry);
-            logViewer.scrollTop = logViewer.scrollHeight;
-
-            // Keep only last 50 log entries
-            const entries = logViewer.querySelectorAll('.log-entry');
-            if (entries.length > 50) {
-                logViewer.removeChild(entries[0]);
-            }
-        }
-
-        // Initialize dashboard when page loads
-        document.addEventListener('DOMContentLoaded', initDashboard);
-
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            if (refreshInterval) clearInterval(refreshInterval);
+          switch (index) {
+            case 0: // Background tasks
+              indicator.className += "status-healthy";
+              break;
+            case 1: // Memory
+              indicator.className +=
+                memoryPercent > 80 ? "status-warning" : "status-healthy";
+              break;
+            case 2: // CPU
+              indicator.className +=
+                cpuPercent > 80 ? "status-warning" : "status-healthy";
+              break;
+            case 3: // Cache
+              indicator.className += "status-healthy";
+              break;
+          }
         });
+      }
+
+      function updateCharts(data) {
+        // Store data for charts
+        const timestamp = new Date();
+        const memory = data.memory_management;
+
+        performanceData.push({
+          time: timestamp,
+          memory: memory.system?.memory?.percent_used || 0,
+          cpu: memory.system?.cpu?.percent_used || 0,
+        });
+
+        taskData.push({
+          time: timestamp,
+          active: data.background_tasks.active_tasks || 0,
+          pending: data.background_tasks.pending_tasks || 0,
+        });
+
+        // Keep only last 20 data points
+        if (performanceData.length > 20) performanceData.shift();
+        if (taskData.length > 20) taskData.shift();
+
+        drawCharts();
+      }
+
+      function drawCharts() {
+        drawPerformanceChart();
+        drawTasksChart();
+      }
+
+      function drawPerformanceChart() {
+        const canvas = document.getElementById("performance-chart");
+        const ctx = canvas.getContext("2d");
+        const width = canvas.width;
+        const height = canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+
+        if (performanceData.length < 2) return;
+
+        // Draw grid
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 4; i++) {
+          const y = (height / 4) * i;
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+          ctx.stroke();
+        }
+
+        // Draw memory line
+        ctx.strokeStyle = "#007AFF";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        performanceData.forEach((point, index) => {
+          const x = (width / (performanceData.length - 1)) * index;
+          const y = height - (point.memory / 100) * height;
+          if (index === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        // Draw CPU line
+        ctx.strokeStyle = "#00D4FF";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        performanceData.forEach((point, index) => {
+          const x = (width / (performanceData.length - 1)) * index;
+          const y = height - (point.cpu / 100) * height;
+          if (index === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+
+      function drawTasksChart() {
+        const canvas = document.getElementById("tasks-chart");
+        const ctx = canvas.getContext("2d");
+        const width = canvas.width;
+        const height = canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+
+        if (taskData.length < 2) return;
+
+        const maxTasks = Math.max(
+          ...taskData.map((d) => Math.max(d.active, d.pending)),
+          1,
+        );
+
+        // Draw grid
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 4; i++) {
+          const y = (height / 4) * i;
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+          ctx.stroke();
+        }
+
+        // Draw active tasks line
+        ctx.strokeStyle = "#34C759";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        taskData.forEach((point, index) => {
+          const x = (width / (taskData.length - 1)) * index;
+          const y = height - (point.active / maxTasks) * height;
+          if (index === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        // Draw pending tasks line
+        ctx.strokeStyle = "#FF9500";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        taskData.forEach((point, index) => {
+          const x = (width / (taskData.length - 1)) * index;
+          const y = height - (point.pending / maxTasks) * height;
+          if (index === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+
+      async function optimizeMemory() {
+        addLogEntry("info", "Starting memory optimization...");
+        try {
+          const response = await fetch("/api/infrastructure/optimize", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          });
+          const result = await response.json();
+
+          if (result.success) {
+            addLogEntry("info", "Memory optimization completed successfully");
+            refreshData();
+          } else {
+            addLogEntry("error", "Memory optimization failed: " + result.error);
+          }
+        } catch (error) {
+          addLogEntry("error", "Optimization error: " + error.message);
+        }
+      }
+
+      function clearCaches() {
+        addLogEntry(
+          "info",
+          "Cache clearing functionality would be implemented here",
+        );
+      }
+
+      function downloadLogs() {
+        addLogEntry(
+          "info",
+          "Log download functionality would be implemented here",
+        );
+      }
+
+      function addLogEntry(type, message) {
+        const logViewer = document.getElementById("log-viewer");
+        const entry = document.createElement("div");
+        entry.className = `log-entry log-${type}`;
+        entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logViewer.appendChild(entry);
+        logViewer.scrollTop = logViewer.scrollHeight;
+
+        // Keep only last 50 log entries
+        const entries = logViewer.querySelectorAll(".log-entry");
+        if (entries.length > 50) {
+          logViewer.removeChild(entries[0]);
+        }
+      }
+
+      // Initialize dashboard when page loads
+      document.addEventListener("DOMContentLoaded", initDashboard);
+
+      // Cleanup on page unload
+      window.addEventListener("beforeunload", () => {
+        if (refreshInterval) clearInterval(refreshInterval);
+      });
     </script>
-</body>
+  </body>
 </html>

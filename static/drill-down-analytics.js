@@ -1,46 +1,48 @@
 // TRAXOVO Drill-Down Analytics - Enterprise Intelligence
 class DrillDownAnalytics {
-    constructor() {
-        this.currentLevel = 0;
-        this.breadcrumbs = [];
-        this.init();
-    }
-    
-    init() {
-        this.setupInteractiveElements();
-        this.bindEvents();
-    }
-    
-    setupInteractiveElements() {
-        const metrics = document.querySelectorAll('.metric-card, .analytics-widget');
-        metrics.forEach(metric => {
-            metric.style.cursor = 'pointer';
-            metric.addEventListener('click', (e) => {
-                const dataType = e.target.dataset.drillType || 'general';
-                this.drillDown(dataType, e.target);
-            });
-        });
-    }
-    
-    drillDown(type, element) {
-        this.currentLevel++;
-        this.breadcrumbs.push(type);
-        
-        // Show detailed view
-        const detailPanel = this.createDetailPanel(type);
-        document.body.appendChild(detailPanel);
-        
-        // Animate the transition
-        element.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            element.style.transform = 'scale(1)';
-        }, 200);
-    }
-    
-    createDetailPanel(type) {
-        const panel = document.createElement('div');
-        panel.className = 'drill-down-panel';
-        panel.innerHTML = `
+  constructor() {
+    this.currentLevel = 0;
+    this.breadcrumbs = [];
+    this.init();
+  }
+
+  init() {
+    this.setupInteractiveElements();
+    this.bindEvents();
+  }
+
+  setupInteractiveElements() {
+    const metrics = document.querySelectorAll(
+      ".metric-card, .analytics-widget",
+    );
+    metrics.forEach((metric) => {
+      metric.style.cursor = "pointer";
+      metric.addEventListener("click", (e) => {
+        const dataType = e.target.dataset.drillType || "general";
+        this.drillDown(dataType, e.target);
+      });
+    });
+  }
+
+  drillDown(type, element) {
+    this.currentLevel++;
+    this.breadcrumbs.push(type);
+
+    // Show detailed view
+    const detailPanel = this.createDetailPanel(type);
+    document.body.appendChild(detailPanel);
+
+    // Animate the transition
+    element.style.transform = "scale(0.95)";
+    setTimeout(() => {
+      element.style.transform = "scale(1)";
+    }, 200);
+  }
+
+  createDetailPanel(type) {
+    const panel = document.createElement("div");
+    panel.className = "drill-down-panel";
+    panel.innerHTML = `
             <div class="panel-header">
                 <h4>${type.charAt(0).toUpperCase() + type.slice(1)} Analytics</h4>
                 <button class="btn btn-sm btn-outline-secondary" onclick="drillDownAnalytics.goBack()">
@@ -60,8 +62,8 @@ class DrillDownAnalytics {
                 </div>
             </div>
         `;
-        
-        panel.style.cssText = `
+
+    panel.style.cssText = `
             position: fixed;
             top: 50%;
             left: 50%;
@@ -74,26 +76,26 @@ class DrillDownAnalytics {
             min-width: 400px;
             max-width: 600px;
         `;
-        
-        return panel;
+
+    return panel;
+  }
+
+  goBack() {
+    const panel = document.querySelector(".drill-down-panel");
+    if (panel) {
+      panel.remove();
     }
-    
-    goBack() {
-        const panel = document.querySelector('.drill-down-panel');
-        if (panel) {
-            panel.remove();
-        }
-        this.currentLevel = Math.max(0, this.currentLevel - 1);
-        this.breadcrumbs.pop();
-    }
-    
-    bindEvents() {
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.goBack();
-            }
-        });
-    }
+    this.currentLevel = Math.max(0, this.currentLevel - 1);
+    this.breadcrumbs.pop();
+  }
+
+  bindEvents() {
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        this.goBack();
+      }
+    });
+  }
 }
 
 const drillDownAnalytics = new DrillDownAnalytics();

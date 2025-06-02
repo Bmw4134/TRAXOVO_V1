@@ -1,169 +1,170 @@
-{% extends "master_unified.html" %}
-
-{% block content %}
+{% extends "master_unified.html" %} {% block content %}
 <!-- Complete Attendance System -->
 <div class="row g-4 mb-4">
-    <div class="col-12">
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle me-2"></i>
-            <strong>Authentic Data Active:</strong> Processing real attendance.json and timecard data from your uploaded files.
-        </div>
+  <div class="col-12">
+    <div class="alert alert-success">
+      <i class="fas fa-check-circle me-2"></i>
+      <strong>Authentic Data Active:</strong> Processing real attendance.json
+      and timecard data from your uploaded files.
     </div>
+  </div>
 </div>
 
 <div class="row g-4 mb-4">
-    <!-- Attendance Summary Cards -->
-    <div class="col-xl-3 col-md-6">
-        <div class="card border-start border-primary border-4">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h4 class="mb-0">92</h4>
-                        <p class="text-muted mb-0">Total Drivers</p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-users fa-2x text-primary"></i>
-                    </div>
-                </div>
-            </div>
+  <!-- Attendance Summary Cards -->
+  <div class="col-xl-3 col-md-6">
+    <div class="card border-start border-primary border-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <h4 class="mb-0">92</h4>
+            <p class="text-muted mb-0">Total Drivers</p>
+          </div>
+          <div class="flex-shrink-0">
+            <i class="fas fa-users fa-2x text-primary"></i>
+          </div>
         </div>
+      </div>
     </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="card border-start border-success border-4">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h4 class="mb-0">87</h4>
-                        <p class="text-muted mb-0">Present Today</p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-user-check fa-2x text-success"></i>
-                    </div>
-                </div>
-            </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="card border-start border-success border-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <h4 class="mb-0">87</h4>
+            <p class="text-muted mb-0">Present Today</p>
+          </div>
+          <div class="flex-shrink-0">
+            <i class="fas fa-user-check fa-2x text-success"></i>
+          </div>
         </div>
+      </div>
     </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="card border-start border-warning border-4">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h4 class="mb-0">3</h4>
-                        <p class="text-muted mb-0">Late Arrivals</p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-clock fa-2x text-warning"></i>
-                    </div>
-                </div>
-            </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="card border-start border-warning border-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <h4 class="mb-0">3</h4>
+            <p class="text-muted mb-0">Late Arrivals</p>
+          </div>
+          <div class="flex-shrink-0">
+            <i class="fas fa-clock fa-2x text-warning"></i>
+          </div>
         </div>
+      </div>
     </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="card border-start border-danger border-4">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h4 class="mb-0">2</h4>
-                        <p class="text-muted mb-0">Absent</p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-user-times fa-2x text-danger"></i>
-                    </div>
-                </div>
-            </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="card border-start border-danger border-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <h4 class="mb-0">2</h4>
+            <p class="text-muted mb-0">Absent</p>
+          </div>
+          <div class="flex-shrink-0">
+            <i class="fas fa-user-times fa-2x text-danger"></i>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Attendance Actions -->
 <div class="row g-4 mb-4">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body text-center">
-                <i class="fas fa-calendar-check fa-3x text-primary mb-3"></i>
-                <h5>Daily Attendance</h5>
-                <p class="text-muted">View and manage daily attendance records</p>
-                <a href="/daily-driver-report" class="btn btn-primary">View Daily Reports</a>
-            </div>
-        </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body text-center">
+        <i class="fas fa-calendar-check fa-3x text-primary mb-3"></i>
+        <h5>Daily Attendance</h5>
+        <p class="text-muted">View and manage daily attendance records</p>
+        <a href="/daily-driver-report" class="btn btn-primary"
+          >View Daily Reports</a
+        >
+      </div>
     </div>
-    
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body text-center">
-                <i class="fas fa-table fa-3x text-success mb-3"></i>
-                <h5>Attendance Matrix</h5>
-                <p class="text-muted">Comprehensive attendance tracking matrix</p>
-                <a href="/attendance-matrix" class="btn btn-success">Open Matrix</a>
-            </div>
-        </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body text-center">
+        <i class="fas fa-table fa-3x text-success mb-3"></i>
+        <h5>Attendance Matrix</h5>
+        <p class="text-muted">Comprehensive attendance tracking matrix</p>
+        <a href="/attendance-matrix" class="btn btn-success">Open Matrix</a>
+      </div>
     </div>
-    
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body text-center">
-                <i class="fas fa-download fa-3x text-warning mb-3"></i>
-                <h5>Export Data</h5>
-                <p class="text-muted">Export attendance data for payroll</p>
-                <a href="/api/attendance" class="btn btn-warning">Export CSV</a>
-            </div>
-        </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body text-center">
+        <i class="fas fa-download fa-3x text-warning mb-3"></i>
+        <h5>Export Data</h5>
+        <p class="text-muted">Export attendance data for payroll</p>
+        <a href="/api/attendance" class="btn btn-warning">Export CSV</a>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Recent Attendance Activity -->
 <div class="row g-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Recent Attendance Activity</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Driver</th>
-                                <th>Date</th>
-                                <th>Clock In</th>
-                                <th>Clock Out</th>
-                                <th>Total Hours</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>John Smith</td>
-                                <td>{{ datetime.now().strftime('%m/%d/%Y') }}</td>
-                                <td>07:00 AM</td>
-                                <td>05:30 PM</td>
-                                <td>10.5</td>
-                                <td><span class="badge bg-success">Present</span></td>
-                            </tr>
-                            <tr>
-                                <td>Mike Johnson</td>
-                                <td>05/30/2025</td>
-                                <td>07:15 AM</td>
-                                <td>05:30 PM</td>
-                                <td>10.25</td>
-                                <td><span class="badge bg-warning">Late</span></td>
-                            </tr>
-                            <tr>
-                                <td>David Wilson</td>
-                                <td>05/30/2025</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>0</td>
-                                <td><span class="badge bg-danger">Absent</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Recent Attendance Activity</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Driver</th>
+                <th>Date</th>
+                <th>Clock In</th>
+                <th>Clock Out</th>
+                <th>Total Hours</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>John Smith</td>
+                <td>{{ datetime.now().strftime('%m/%d/%Y') }}</td>
+                <td>07:00 AM</td>
+                <td>05:30 PM</td>
+                <td>10.5</td>
+                <td><span class="badge bg-success">Present</span></td>
+              </tr>
+              <tr>
+                <td>Mike Johnson</td>
+                <td>05/30/2025</td>
+                <td>07:15 AM</td>
+                <td>05:30 PM</td>
+                <td>10.25</td>
+                <td><span class="badge bg-warning">Late</span></td>
+              </tr>
+              <tr>
+                <td>David Wilson</td>
+                <td>05/30/2025</td>
+                <td>-</td>
+                <td>-</td>
+                <td>0</td>
+                <td><span class="badge bg-danger">Absent</span></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

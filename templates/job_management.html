@@ -1,418 +1,423 @@
-{% extends "base.html" %}
-
-{% block title %}Job Management - TRAXOVO{% endblock %}
-
-{% block head %}
+{% extends "base.html" %} {% block title %}Job Management - TRAXOVO{% endblock
+%} {% block head %}
 <style>
-body { 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f5f5f5;
-}
+  body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+  }
 
-.job-header {
-    background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
-    color: white;
-    padding: 1rem 1.5rem;
-    border-bottom: 2px solid #4a5568;
-}
+  .job-header {
+      background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-bottom: 2px solid #4a5568;
+  }
 
-.job-nav {
-    background: #2d3748;
-    color: white;
-    padding: 0.5rem 1.5rem;
-    border-bottom: 1px solid #4a5568;
-    font-size: 0.9rem;
-}
+  .job-nav {
+      background: #2d3748;
+      color: white;
+      padding: 0.5rem 1.5rem;
+      border-bottom: 1px solid #4a5568;
+      font-size: 0.9rem;
+  }
 
-.job-nav a {
-    color: #cbd5e0;
-    text-decoration: none;
-    margin-right: 2rem;
-    padding: 0.25rem 0;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
-}
+  .job-nav a {
+      color: #cbd5e0;
+      text-decoration: none;
+      margin-right: 2rem;
+      padding: 0.25rem 0;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+  }
 
-.job-nav a:hover, .job-nav a.active {
-    color: white;
-    border-bottom-color: #90cdf4;
-}
+  .job-nav a:hover, .job-nav a.active {
+      color: white;
+      border-bottom-color: #90cdf4;
+  }
 
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1.5rem;
-    padding: 1.5rem;
-}
+  .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.5rem;
+      padding: 1.5rem;
+  }
 
-.dashboard-card {
-    background: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border-left: 4px solid #3182ce;
-}
+  .dashboard-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-left: 4px solid #3182ce;
+  }
 
-.card-header {
-    display: flex;
-    justify-content-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid #e2e8f0;
-}
+  .card-header {
+      display: flex;
+      justify-content-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #e2e8f0;
+  }
 
-.card-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #2d3748;
-}
+  .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2d3748;
+  }
 
-.card-action {
-    background: #3182ce;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: background 0.2s;
-}
+  .card-action {
+      background: #3182ce;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.2s;
+  }
 
-.card-action:hover {
-    background: #2c5282;
-}
+  .card-action:hover {
+      background: #2c5282;
+  }
 
-.job-list {
-    max-height: 400px;
-    overflow-y: auto;
-}
+  .job-list {
+      max-height: 400px;
+      overflow-y: auto;
+  }
 
-.job-item {
-    padding: 0.75rem;
-    border-bottom: 1px solid #e2e8f0;
-    cursor: pointer;
-    transition: background 0.2s;
-}
+  .job-item {
+      padding: 0.75rem;
+      border-bottom: 1px solid #e2e8f0;
+      cursor: pointer;
+      transition: background 0.2s;
+  }
 
-.job-item:hover {
-    background: #f7fafc;
-}
+  .job-item:hover {
+      background: #f7fafc;
+  }
 
-.job-item:last-child {
-    border-bottom: none;
-}
+  .job-item:last-child {
+      border-bottom: none;
+  }
 
-.job-name {
-    font-weight: 600;
-    color: #2d3748;
-    margin-bottom: 0.25rem;
-}
+  .job-name {
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.25rem;
+  }
 
-.job-details {
-    font-size: 0.875rem;
-    color: #718096;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-}
+  .job-details {
+      font-size: 0.875rem;
+      color: #718096;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+  }
 
-.status-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
+  .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+  }
 
-.status-active { background: #c6f6d5; color: #22543d; }
-.status-pending { background: #fed7d7; color: #742a2a; }
-.status-completed { background: #bee3f8; color: #2a4365; }
+  .status-active { background: #c6f6d5; color: #22543d; }
+  .status-pending { background: #fed7d7; color: #742a2a; }
+  .status-completed { background: #bee3f8; color: #2a4365; }
 
-.attendance-summary {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
+  .attendance-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+  }
 
-.attendance-stat {
-    text-align: center;
-    padding: 1rem;
-    background: #f7fafc;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
-}
+  .attendance-stat {
+      text-align: center;
+      padding: 1rem;
+      background: #f7fafc;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+  }
 
-.stat-number {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #2d3748;
-}
+  .stat-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2d3748;
+  }
 
-.stat-label {
-    font-size: 0.875rem;
-    color: #718096;
-    margin-top: 0.25rem;
-}
+  .stat-label {
+      font-size: 0.875rem;
+      color: #718096;
+      margin-top: 0.25rem;
+  }
 
-.hours-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-}
+  .hours-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+  }
 
-.hours-item {
-    padding: 0.75rem;
-    background: #f7fafc;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
-}
+  .hours-item {
+      padding: 0.75rem;
+      background: #f7fafc;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+  }
 
-.hours-title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #4a5568;
-    margin-bottom: 0.25rem;
-}
+  .hours-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 0.25rem;
+  }
 
-.hours-value {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #2d3748;
-}
+  .hours-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #2d3748;
+  }
 
-.asset-assignment {
-    display: flex;
-    justify-content-between;
-    align-items: center;
-    padding: 0.5rem;
-    background: #f7fafc;
-    border-radius: 4px;
-    margin-bottom: 0.5rem;
-    border: 1px solid #e2e8f0;
-}
+  .asset-assignment {
+      display: flex;
+      justify-content-between;
+      align-items: center;
+      padding: 0.5rem;
+      background: #f7fafc;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      border: 1px solid #e2e8f0;
+  }
 
-.asset-info {
-    flex: 1;
-}
+  .asset-info {
+      flex: 1;
+  }
 
-.asset-name {
-    font-weight: 600;
-    color: #2d3748;
-    font-size: 0.875rem;
-}
+  .asset-name {
+      font-weight: 600;
+      color: #2d3748;
+      font-size: 0.875rem;
+  }
 
-.asset-status {
-    font-size: 0.75rem;
-    color: #718096;
-}
+  .asset-status {
+      font-size: 0.75rem;
+      color: #718096;
+  }
 
-.assignment-status {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-}
+  .assignment-status {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+  }
 
-.assigned { background: #c6f6d5; color: #22543d; }
-.available { background: #faf089; color: #744210; }
-.maintenance { background: #fed7d7; color: #742a2a; }
+  .assigned { background: #c6f6d5; color: #22543d; }
+  .available { background: #faf089; color: #744210; }
+  .maintenance { background: #fed7d7; color: #742a2a; }
 
-@media (max-width: 1200px) {
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-}
+  @media (max-width: 1200px) {
+      .dashboard-grid {
+          grid-template-columns: 1fr;
+      }
+  }
 
-@media (max-width: 768px) {
-    .dashboard-grid {
-        padding: 1rem;
-        gap: 1rem;
-    }
-}
+  @media (max-width: 768px) {
+      .dashboard-grid {
+          padding: 1rem;
+          gap: 1rem;
+      }
+  }
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <!-- Header -->
 <div class="job-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="h3 mb-0 fw-bold text-white">Job Management</h1>
-            <small style="opacity: 0.7;">Project tracking & resource allocation</small>
-        </div>
-        <div class="text-sm opacity-75">{{ total_jobs or 0 }} Active Projects</div>
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h1 class="h3 mb-0 fw-bold text-white">Job Management</h1>
+      <small style="opacity: 0.7">Project tracking & resource allocation</small>
     </div>
+    <div class="text-sm opacity-75">{{ total_jobs or 0 }} Active Projects</div>
+  </div>
 </div>
 
 <!-- Navigation -->
 <div class="job-nav">
-    <a href="#" class="active">Dashboard</a>
-    <a href="/fleet-map">Map View</a>
-    <a href="/attendance-matrix">Attendance</a>
-    <a href="/project-accountability">Projects</a>
-    <a href="/billing">Billing</a>
+  <a href="#" class="active">Dashboard</a>
+  <a href="/fleet-map">Map View</a>
+  <a href="/attendance-matrix">Attendance</a>
+  <a href="/project-accountability">Projects</a>
+  <a href="/billing">Billing</a>
 </div>
 
 <!-- Dashboard Grid -->
 <div class="dashboard-grid">
-    <!-- Active Jobs Card -->
-    <div class="dashboard-card">
-        <div class="card-header">
-            <div class="card-title">Active Jobs</div>
-            <button class="card-action" onclick="refreshJobs()">
-                <i class="fas fa-sync-alt me-1"></i>Refresh
-            </button>
-        </div>
-        <div class="job-list" id="active-jobs">
-            <!-- Sample job data from your Excel files -->
-            <div class="job-item" onclick="selectJob('2019-044')">
-                <div class="job-name">2019-044 E Long Avenue</div>
-                <div class="job-details">
-                    <span>Status: <span class="status-badge status-active">Active</span></span>
-                    <span>Assets: 8 assigned</span>
-                    <span>Start: 01/15/2019</span>
-                    <span>Completion: 85%</span>
-                </div>
-            </div>
-            <div class="job-item" onclick="selectJob('2021-017')">
-                <div class="job-name">2021-017 Plaza Drive</div>
-                <div class="job-details">
-                    <span>Status: <span class="status-badge status-active">Active</span></span>
-                    <span>Assets: 12 assigned</span>
-                    <span>Start: 03/10/2021</span>
-                    <span>Completion: 92%</span>
-                </div>
-            </div>
-            <div class="job-item" onclick="selectJob('2023-089')">
-                <div class="job-name">2023-089 Highway Expansion</div>
-                <div class="job-details">
-                    <span>Status: <span class="status-badge status-pending">Pending</span></span>
-                    <span>Assets: 6 assigned</span>
-                    <span>Start: 06/01/2023</span>
-                    <span>Completion: 45%</span>
-                </div>
-            </div>
-        </div>
+  <!-- Active Jobs Card -->
+  <div class="dashboard-card">
+    <div class="card-header">
+      <div class="card-title">Active Jobs</div>
+      <button class="card-action" onclick="refreshJobs()">
+        <i class="fas fa-sync-alt me-1"></i>Refresh
+      </button>
     </div>
+    <div class="job-list" id="active-jobs">
+      <!-- Sample job data from your Excel files -->
+      <div class="job-item" onclick="selectJob('2019-044')">
+        <div class="job-name">2019-044 E Long Avenue</div>
+        <div class="job-details">
+          <span
+            >Status:
+            <span class="status-badge status-active">Active</span></span
+          >
+          <span>Assets: 8 assigned</span>
+          <span>Start: 01/15/2019</span>
+          <span>Completion: 85%</span>
+        </div>
+      </div>
+      <div class="job-item" onclick="selectJob('2021-017')">
+        <div class="job-name">2021-017 Plaza Drive</div>
+        <div class="job-details">
+          <span
+            >Status:
+            <span class="status-badge status-active">Active</span></span
+          >
+          <span>Assets: 12 assigned</span>
+          <span>Start: 03/10/2021</span>
+          <span>Completion: 92%</span>
+        </div>
+      </div>
+      <div class="job-item" onclick="selectJob('2023-089')">
+        <div class="job-name">2023-089 Highway Expansion</div>
+        <div class="job-details">
+          <span
+            >Status:
+            <span class="status-badge status-pending">Pending</span></span
+          >
+          <span>Assets: 6 assigned</span>
+          <span>Start: 06/01/2023</span>
+          <span>Completion: 45%</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Attendance & Hours Card -->
-    <div class="dashboard-card">
-        <div class="card-header">
-            <div class="card-title">Today's Attendance</div>
-            <button class="card-action" onclick="viewAttendanceDetails()">
-                <i class="fas fa-users me-1"></i>Details
-            </button>
-        </div>
-        <div class="attendance-summary">
-            <div class="attendance-stat">
-                <div class="stat-number">{{ active_drivers or 42 }}</div>
-                <div class="stat-label">On Site</div>
-            </div>
-            <div class="attendance-stat">
-                <div class="stat-number">{{ late_arrivals or 3 }}</div>
-                <div class="stat-label">Late</div>
-            </div>
-            <div class="attendance-stat">
-                <div class="stat-number">{{ early_departures or 1 }}</div>
-                <div class="stat-label">Left Early</div>
-            </div>
-        </div>
-        <div class="hours-grid">
-            <div class="hours-item">
-                <div class="hours-title">Total Hours Today</div>
-                <div class="hours-value">{{ total_hours_today or 336 }}</div>
-            </div>
-            <div class="hours-item">
-                <div class="hours-title">Billable Hours</div>
-                <div class="hours-value">{{ billable_hours or 312 }}</div>
-            </div>
-            <div class="hours-item">
-                <div class="hours-title">Overtime Hours</div>
-                <div class="hours-value">{{ overtime_hours or 24 }}</div>
-            </div>
-            <div class="hours-item">
-                <div class="hours-title">Equipment Hours</div>
-                <div class="hours-value">{{ equipment_hours or 2847 }}</div>
-            </div>
-        </div>
+  <!-- Attendance & Hours Card -->
+  <div class="dashboard-card">
+    <div class="card-header">
+      <div class="card-title">Today's Attendance</div>
+      <button class="card-action" onclick="viewAttendanceDetails()">
+        <i class="fas fa-users me-1"></i>Details
+      </button>
     </div>
+    <div class="attendance-summary">
+      <div class="attendance-stat">
+        <div class="stat-number">{{ active_drivers or 42 }}</div>
+        <div class="stat-label">On Site</div>
+      </div>
+      <div class="attendance-stat">
+        <div class="stat-number">{{ late_arrivals or 3 }}</div>
+        <div class="stat-label">Late</div>
+      </div>
+      <div class="attendance-stat">
+        <div class="stat-number">{{ early_departures or 1 }}</div>
+        <div class="stat-label">Left Early</div>
+      </div>
+    </div>
+    <div class="hours-grid">
+      <div class="hours-item">
+        <div class="hours-title">Total Hours Today</div>
+        <div class="hours-value">{{ total_hours_today or 336 }}</div>
+      </div>
+      <div class="hours-item">
+        <div class="hours-title">Billable Hours</div>
+        <div class="hours-value">{{ billable_hours or 312 }}</div>
+      </div>
+      <div class="hours-item">
+        <div class="hours-title">Overtime Hours</div>
+        <div class="hours-value">{{ overtime_hours or 24 }}</div>
+      </div>
+      <div class="hours-item">
+        <div class="hours-title">Equipment Hours</div>
+        <div class="hours-value">{{ equipment_hours or 2847 }}</div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Asset Assignments Card -->
-    <div class="dashboard-card">
-        <div class="card-header">
-            <div class="card-title">Equipment Assignments</div>
-            <button class="card-action" onclick="manageAssignments()">
-                <i class="fas fa-cogs me-1"></i>Manage
-            </button>
-        </div>
-        <div class="job-list">
-            <div class="asset-assignment">
-                <div class="asset-info">
-                    <div class="asset-name">JOHN DEERE 750 EX 36</div>
-                    <div class="asset-status">Excavator • 6823h</div>
-                </div>
-                <div class="assignment-status assigned">Assigned</div>
-            </div>
-            <div class="asset-assignment">
-                <div class="asset-info">
-                    <div class="asset-name">BRUCE ALDUG BR0145</div>
-                    <div class="asset-status">Heavy Truck • 4951h</div>
-                </div>
-                <div class="assignment-status assigned">Assigned</div>
-            </div>
-            <div class="asset-assignment">
-                <div class="asset-info">
-                    <div class="asset-name">GENIE 956X ML 323</div>
-                    <div class="asset-status">Wheel Loader • 5168h</div>
-                </div>
-                <div class="assignment-status available">Available</div>
-            </div>
-            <div class="asset-assignment">
-                <div class="asset-info">
-                    <div class="asset-name">MACK DUBO R419 5RJK 12H</div>
-                    <div class="asset-status">Heavy Truck • 1847h</div>
-                </div>
-                <div class="assignment-status maintenance">Maintenance</div>
-            </div>
-        </div>
+  <!-- Asset Assignments Card -->
+  <div class="dashboard-card">
+    <div class="card-header">
+      <div class="card-title">Equipment Assignments</div>
+      <button class="card-action" onclick="manageAssignments()">
+        <i class="fas fa-cogs me-1"></i>Manage
+      </button>
     </div>
+    <div class="job-list">
+      <div class="asset-assignment">
+        <div class="asset-info">
+          <div class="asset-name">JOHN DEERE 750 EX 36</div>
+          <div class="asset-status">Excavator • 6823h</div>
+        </div>
+        <div class="assignment-status assigned">Assigned</div>
+      </div>
+      <div class="asset-assignment">
+        <div class="asset-info">
+          <div class="asset-name">BRUCE ALDUG BR0145</div>
+          <div class="asset-status">Heavy Truck • 4951h</div>
+        </div>
+        <div class="assignment-status assigned">Assigned</div>
+      </div>
+      <div class="asset-assignment">
+        <div class="asset-info">
+          <div class="asset-name">GENIE 956X ML 323</div>
+          <div class="asset-status">Wheel Loader • 5168h</div>
+        </div>
+        <div class="assignment-status available">Available</div>
+      </div>
+      <div class="asset-assignment">
+        <div class="asset-info">
+          <div class="asset-name">MACK DUBO R419 5RJK 12H</div>
+          <div class="asset-status">Heavy Truck • 1847h</div>
+        </div>
+        <div class="assignment-status maintenance">Maintenance</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-function selectJob(jobId) {
-    console.log('Selected job:', jobId);
+  function selectJob(jobId) {
+    console.log("Selected job:", jobId);
     // In a real implementation, this would load job details
     alert(`Loading details for job ${jobId}...`);
-}
+  }
 
-function refreshJobs() {
-    console.log('Refreshing job data...');
+  function refreshJobs() {
+    console.log("Refreshing job data...");
     // Simulate refresh
     const refreshBtn = event.target;
-    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
-    
+    refreshBtn.innerHTML =
+      '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
+
     setTimeout(() => {
-        refreshBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Refresh';
-        console.log('Job data refreshed');
+      refreshBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Refresh';
+      console.log("Job data refreshed");
     }, 1500);
-}
+  }
 
-function viewAttendanceDetails() {
-    window.location.href = '/attendance-matrix';
-}
+  function viewAttendanceDetails() {
+    window.location.href = "/attendance-matrix";
+  }
 
-function manageAssignments() {
-    console.log('Opening assignment manager...');
+  function manageAssignments() {
+    console.log("Opening assignment manager...");
     // This would open a modal or navigate to assignment page
-    alert('Assignment management feature coming soon...');
-}
+    alert("Assignment management feature coming soon...");
+  }
 
-// Initialize dashboard
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Job Management dashboard loaded');
-});
+  // Initialize dashboard
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log("Job Management dashboard loaded");
+  });
 </script>
 {% endblock %}

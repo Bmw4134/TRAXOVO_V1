@@ -1,297 +1,525 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Performance Metrics - TRAXOVO</title><style>
-body {
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
-color: #fff;
-margin: 0;
-padding: 20px;
-overflow-x: hidden;
-}
-.container { max-width: 1400px; margin: 0 auto; }
-.header {
-text-align: center;
-margin-bottom: 40px;
-opacity: 0;
-animation: fadeInUp 0.8s ease forwards;
-}
-.nav-back {
-background: rgba(0, 122, 255, 0.1);
-border: 1px solid rgba(0, 122, 255, 0.3);
-color: #007AFF;
-padding: 8px 16px;
-border-radius: 8px;
-text-decoration: none;
-display: inline-block;
-margin-bottom: 20px;
-transition: all 0.3s ease;
-}
-.nav-back:hover {
-background: rgba(0, 122, 255, 0.2);
-transform: translateX(-5px);
-}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Performance Metrics - TRAXOVO</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+        color: #fff;
+        margin: 0;
+        padding: 20px;
+        overflow-x: hidden;
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        opacity: 0;
+        animation: fadeInUp 0.8s ease forwards;
+      }
+      .nav-back {
+        background: rgba(0, 122, 255, 0.1);
+        border: 1px solid rgba(0, 122, 255, 0.3);
+        color: #007aff;
+        padding: 8px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+      }
+      .nav-back:hover {
+        background: rgba(0, 122, 255, 0.2);
+        transform: translateX(-5px);
+      }
 
-/* Animated Performance Cards */
-.metrics-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-gap: 24px;
-margin-bottom: 40px;
-}
-.metric-card {
-background: rgba(255, 255, 255, 0.05);
-border: 1px solid rgba(255, 255, 255, 0.1);
-border-radius: 20px;
-padding: 24px;
-position: relative;
-overflow: hidden;
-opacity: 0;
-transform: translateY(30px);
-animation: slideInUp 0.6s ease forwards;
-}
-.metric-card:nth-child(1) { animation-delay: 0.1s; }
-.metric-card:nth-child(2) { animation-delay: 0.2s; }
-.metric-card:nth-child(3) { animation-delay: 0.3s; }
-.metric-card:nth-child(4) { animation-delay: 0.4s; }
-.metric-card:nth-child(5) { animation-delay: 0.5s; }
-.metric-card:nth-child(6) { animation-delay: 0.6s; }
+      /* Animated Performance Cards */
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+      }
+      .metric-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 24px;
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: slideInUp 0.6s ease forwards;
+      }
+      .metric-card:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .metric-card:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .metric-card:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .metric-card:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+      .metric-card:nth-child(5) {
+        animation-delay: 0.5s;
+      }
+      .metric-card:nth-child(6) {
+        animation-delay: 0.6s;
+      }
 
-.metric-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 16px;
-}
-.metric-title {
-font-size: 14px;
-font-weight: 600;
-color: rgba(255, 255, 255, 0.7);
-text-transform: uppercase;
-letter-spacing: 0.5px;
-}
-.metric-trend {
-font-size: 12px;
-padding: 4px 8px;
-border-radius: 12px;
-font-weight: 600;
-}
-.trend-up { background: rgba(52, 199, 89, 0.2); color: #34C759; }
-.trend-down { background: rgba(255, 59, 48, 0.2); color: #FF3B30; }
-.trend-stable { background: rgba(255, 149, 0, 0.2); color: #FF9500; }
+      .metric-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .metric-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .metric-trend {
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-weight: 600;
+      }
+      .trend-up {
+        background: rgba(52, 199, 89, 0.2);
+        color: #34c759;
+      }
+      .trend-down {
+        background: rgba(255, 59, 48, 0.2);
+        color: #ff3b30;
+      }
+      .trend-stable {
+        background: rgba(255, 149, 0, 0.2);
+        color: #ff9500;
+      }
 
-.metric-value {
-font-size: 32px;
-font-weight: 700;
-color: #fff;
-margin-bottom: 8px;
-counter-reset: number;
-}
-.metric-value.animated-number {
-animation: countUp 2s ease-out forwards;
-}
-.metric-label {
-font-size: 14px;
-color: rgba(255, 255, 255, 0.6);
-}
+      .metric-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 8px;
+        counter-reset: number;
+      }
+      .metric-value.animated-number {
+        animation: countUp 2s ease-out forwards;
+      }
+      .metric-label {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+      }
 
-/* Progress Bars */
-.progress-container {
-margin-top: 16px;
-background: rgba(255, 255, 255, 0.1);
-border-radius: 10px;
-height: 8px;
-overflow: hidden;
-}
-.progress-bar {
-height: 100%;
-border-radius: 10px;
-background: linear-gradient(90deg, #007AFF, #00D2FF);
-width: 0%;
-animation: progressFill 1.5s ease-out forwards;
-}
-.progress-bar.efficiency { animation-delay: 0.5s; }
-.progress-bar.utilization { animation-delay: 0.7s; }
-.progress-bar.performance { animation-delay: 0.9s; }
+      /* Progress Bars */
+      .progress-container {
+        margin-top: 16px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        height: 8px;
+        overflow: hidden;
+      }
+      .progress-bar {
+        height: 100%;
+        border-radius: 10px;
+        background: linear-gradient(90deg, #007aff, #00d2ff);
+        width: 0%;
+        animation: progressFill 1.5s ease-out forwards;
+      }
+      .progress-bar.efficiency {
+        animation-delay: 0.5s;
+      }
+      .progress-bar.utilization {
+        animation-delay: 0.7s;
+      }
+      .progress-bar.performance {
+        animation-delay: 0.9s;
+      }
 
-/* Real-time Chart Container */
-.chart-section {
-background: rgba(255, 255, 255, 0.05);
-border: 1px solid rgba(255, 255, 255, 0.1);
-border-radius: 20px;
-padding: 30px;
-margin-bottom: 30px;
-opacity: 0;
-animation: fadeInUp 0.8s ease 0.7s forwards;
-}
-.chart-header {
-text-align: center;
-margin-bottom: 30px;
-}
-.chart-title {
-font-size: 24px;
-font-weight: 700;
-margin-bottom: 8px;
-}
-.chart-subtitle {
-color: rgba(255, 255, 255, 0.7);
-font-size: 16px;
-}
+      /* Real-time Chart Container */
+      .chart-section {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        opacity: 0;
+        animation: fadeInUp 0.8s ease 0.7s forwards;
+      }
+      .chart-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .chart-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .chart-subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 16px;
+      }
 
-/* Live Data Indicators */
-.live-indicator {
-display: inline-flex;
-align-items: center;
-gap: 8px;
-background: rgba(52, 199, 89, 0.1);
-color: #34C759;
-padding: 6px 12px;
-border-radius: 20px;
-font-size: 12px;
-font-weight: 600;
-margin-left: 16px;
-}
-.live-dot {
-width: 8px;
-height: 8px;
-background: #34C759;
-border-radius: 50%;
-animation: pulse 2s infinite;
-}
+      /* Live Data Indicators */
+      .live-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(52, 199, 89, 0.1);
+        color: #34c759;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 16px;
+      }
+      .live-dot {
+        width: 8px;
+        height: 8px;
+        background: #34c759;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
 
-/* Fleet Status Grid */
-.fleet-status {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-gap: 16px;
-margin-top: 30px;
-}
-.status-item {
-background: rgba(255, 255, 255, 0.08);
-padding: 20px;
-border-radius: 16px;
-text-align: center;
-border: 1px solid rgba(255, 255, 255, 0.1);
-transition: all 0.3s ease;
-}
-.status-item:hover {
-background: rgba(255, 255, 255, 0.12);
-transform: translateY(-4px);
-}
-.status-number {
-font-size: 28px;
-font-weight: 700;
-margin-bottom: 8px;
-}
-.status-active .status-number { color: #34C759; }
-.status-maintenance .status-number { color: #FF9500; }
-.status-idle .status-number { color: #8E8E93; }
-.status-alert .status-number { color: #FF3B30; }
+      /* Fleet Status Grid */
+      .fleet-status {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 30px;
+      }
+      .status-item {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 20px;
+        border-radius: 16px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+      }
+      .status-item:hover {
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateY(-4px);
+      }
+      .status-number {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .status-active .status-number {
+        color: #34c759;
+      }
+      .status-maintenance .status-number {
+        color: #ff9500;
+      }
+      .status-idle .status-number {
+        color: #8e8e93;
+      }
+      .status-alert .status-number {
+        color: #ff3b30;
+      }
 
-/* Animations */
-@keyframes fadeInUp {
-from { opacity: 0; transform: translateY(30px); }
-to { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideInUp {
-from { opacity: 0; transform: translateY(30px); }
-to { opacity: 1; transform: translateY(0); }
-}
-@keyframes progressFill {
-from { width: 0%; }
-to { width: var(--progress-width); }
-}
-@keyframes pulse {
-0%, 100% { opacity: 1; }
-50% { opacity: 0.5; }
-}
-@keyframes countUp {
-from { transform: translateY(20px); opacity: 0; }
-to { transform: translateY(0); opacity: 1; }
-}
+      /* Animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes progressFill {
+        from {
+          width: 0%;
+        }
+        to {
+          width: var(--progress-width);
+        }
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+      @keyframes countUp {
+        from {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
-.metrics-grid {
-grid-template-columns: 1fr;
-gap: 16px;
-}
-.metric-value { font-size: 28px; }
-.chart-section { padding: 20px; }
-.fleet-status {
-grid-template-columns: repeat(2, 1fr);
-gap: 12px;
-}
-}
-</style></head><body><div class="container"><a href="/dashboard" class="nav-back">← Back to Dashboard</a><div class="header"><h1>Performance Metrics Dashboard</h1><p>Real-time fleet performance analytics and insights
-<span class="live-indicator"><div class="live-dot"></div>
-LIVE DATA
-</span></p></div><div class="metrics-grid"><div class="metric-card"><div class="metric-header"><div class="metric-title">Fleet Efficiency</div><div class="metric-trend trend-up">+12%</div></div><div class="metric-value animated-number" data-target="{{ performance.efficiency }}">{{ performance.efficiency }}%</div><div class="metric-label">Overall operational efficiency</div><div class="progress-container"><div class="progress-bar efficiency" style="--progress-width: {{ performance.efficiency }}%;"></div></div></div><div class="metric-card"><div class="metric-header"><div class="metric-title">Asset Utilization</div><div class="metric-trend trend-up">+8%</div></div><div class="metric-value animated-number" data-target="{{ performance.utilization }}">{{ performance.utilization }}%</div><div class="metric-label">Equipment time on active jobs</div><div class="progress-container"><div class="progress-bar utilization" style="--progress-width: {{ performance.utilization }}%;"></div></div></div><div class="metric-card"><div class="metric-header"><div class="metric-title">Driver Performance</div><div class="metric-trend trend-stable">±0%</div></div><div class="metric-value animated-number" data-target="{{ performance.driver_score }}">{{ performance.driver_score }}%</div><div class="metric-label">Attendance & productivity score</div><div class="progress-container"><div class="progress-bar performance" style="--progress-width: {{ performance.driver_score }}%;"></div></div></div><div class="metric-card"><div class="metric-header"><div class="metric-title">Revenue Per Hour</div><div class="metric-trend trend-up">+15%</div></div><div class="metric-value animated-number">${{ performance.revenue_per_hour }}</div><div class="metric-label">Average hourly revenue generation</div></div><div class="metric-card"><div class="metric-header"><div class="metric-title">Maintenance Cost</div><div class="metric-trend trend-down">-5%</div></div><div class="metric-value animated-number">${{ performance.maintenance_cost }}</div><div class="metric-label">Monthly maintenance expenses</div></div><div class="metric-card"><div class="metric-header"><div class="metric-title">Project Completion</div><div class="metric-trend trend-up">+3%</div></div><div class="metric-value animated-number" data-target="{{ performance.completion_rate }}">{{ performance.completion_rate }}%</div><div class="metric-label">On-time project delivery rate</div></div></div><div class="chart-section"><div class="chart-header"><h3 class="chart-title">Live Fleet Status Overview</h3><p class="chart-subtitle">Real-time equipment status across all job sites</p></div><div class="fleet-status"><div class="status-item status-active"><div class="status-number" data-target="{{ fleet_status.active }}">{{ fleet_status.active }}</div><div>Active Assets</div></div><div class="status-item status-maintenance"><div class="status-number" data-target="{{ fleet_status.maintenance }}">{{ fleet_status.maintenance }}</div><div>In Maintenance</div></div><div class="status-item status-idle"><div class="status-number" data-target="{{ fleet_status.idle }}">{{ fleet_status.idle }}</div><div>Idle Equipment</div></div><div class="status-item status-alert"><div class="status-number" data-target="{{ fleet_status.alerts }}">{{ fleet_status.alerts }}</div><div>Active Alerts</div></div></div></div></div><script>
-// Animated number counter
-function animateNumbers() {
-const numbers = document.querySelectorAll('.animated-number, .status-number');
+      /* Mobile Responsive */
+      @media (max-width: 768px) {
+        .metrics-grid {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+        .metric-value {
+          font-size: 28px;
+        }
+        .chart-section {
+          padding: 20px;
+        }
+        .fleet-status {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/dashboard" class="nav-back">← Back to Dashboard</a>
+      <div class="header">
+        <h1>Performance Metrics Dashboard</h1>
+        <p>
+          Real-time fleet performance analytics and insights
+          <span class="live-indicator"
+            ><div class="live-dot"></div>
+            LIVE DATA
+          </span>
+        </p>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-header">
+            <div class="metric-title">Fleet Efficiency</div>
+            <div class="metric-trend trend-up">+12%</div>
+          </div>
+          <div
+            class="metric-value animated-number"
+            data-target="{{ performance.efficiency }}"
+          >
+            {{ performance.efficiency }}%
+          </div>
+          <div class="metric-label">Overall operational efficiency</div>
+          <div class="progress-container">
+            <div
+              class="progress-bar efficiency"
+              style="--progress-width: {{ performance.efficiency }}%;"
+            ></div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-header">
+            <div class="metric-title">Asset Utilization</div>
+            <div class="metric-trend trend-up">+8%</div>
+          </div>
+          <div
+            class="metric-value animated-number"
+            data-target="{{ performance.utilization }}"
+          >
+            {{ performance.utilization }}%
+          </div>
+          <div class="metric-label">Equipment time on active jobs</div>
+          <div class="progress-container">
+            <div
+              class="progress-bar utilization"
+              style="--progress-width: {{ performance.utilization }}%;"
+            ></div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-header">
+            <div class="metric-title">Driver Performance</div>
+            <div class="metric-trend trend-stable">±0%</div>
+          </div>
+          <div
+            class="metric-value animated-number"
+            data-target="{{ performance.driver_score }}"
+          >
+            {{ performance.driver_score }}%
+          </div>
+          <div class="metric-label">Attendance & productivity score</div>
+          <div class="progress-container">
+            <div
+              class="progress-bar performance"
+              style="--progress-width: {{ performance.driver_score }}%;"
+            ></div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-header">
+            <div class="metric-title">Revenue Per Hour</div>
+            <div class="metric-trend trend-up">+15%</div>
+          </div>
+          <div class="metric-value animated-number">
+            ${{ performance.revenue_per_hour }}
+          </div>
+          <div class="metric-label">Average hourly revenue generation</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-header">
+            <div class="metric-title">Maintenance Cost</div>
+            <div class="metric-trend trend-down">-5%</div>
+          </div>
+          <div class="metric-value animated-number">
+            ${{ performance.maintenance_cost }}
+          </div>
+          <div class="metric-label">Monthly maintenance expenses</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-header">
+            <div class="metric-title">Project Completion</div>
+            <div class="metric-trend trend-up">+3%</div>
+          </div>
+          <div
+            class="metric-value animated-number"
+            data-target="{{ performance.completion_rate }}"
+          >
+            {{ performance.completion_rate }}%
+          </div>
+          <div class="metric-label">On-time project delivery rate</div>
+        </div>
+      </div>
+      <div class="chart-section">
+        <div class="chart-header">
+          <h3 class="chart-title">Live Fleet Status Overview</h3>
+          <p class="chart-subtitle">
+            Real-time equipment status across all job sites
+          </p>
+        </div>
+        <div class="fleet-status">
+          <div class="status-item status-active">
+            <div class="status-number" data-target="{{ fleet_status.active }}">
+              {{ fleet_status.active }}
+            </div>
+            <div>Active Assets</div>
+          </div>
+          <div class="status-item status-maintenance">
+            <div
+              class="status-number"
+              data-target="{{ fleet_status.maintenance }}"
+            >
+              {{ fleet_status.maintenance }}
+            </div>
+            <div>In Maintenance</div>
+          </div>
+          <div class="status-item status-idle">
+            <div class="status-number" data-target="{{ fleet_status.idle }}">
+              {{ fleet_status.idle }}
+            </div>
+            <div>Idle Equipment</div>
+          </div>
+          <div class="status-item status-alert">
+            <div class="status-number" data-target="{{ fleet_status.alerts }}">
+              {{ fleet_status.alerts }}
+            </div>
+            <div>Active Alerts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Animated number counter
+      function animateNumbers() {
+        const numbers = document.querySelectorAll(
+          ".animated-number, .status-number",
+        );
 
-numbers.forEach(number => {
-const target = parseInt(number.getAttribute('data-target') || number.textContent);
-const duration = 2000;
-const step = target / (duration / 16);
-let current = 0;
+        numbers.forEach((number) => {
+          const target = parseInt(
+            number.getAttribute("data-target") || number.textContent,
+          );
+          const duration = 2000;
+          const step = target / (duration / 16);
+          let current = 0;
 
-const timer = setInterval(() => {
-current += step;
-if (current >= target) {
-current = target;
-clearInterval(timer);
-}
+          const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+              current = target;
+              clearInterval(timer);
+            }
 
-if (number.textContent.includes('%')) {
-number.textContent = Math.floor(current) + '%';
-} else if (number.textContent.includes('$')) {
-number.textContent = '$' + Math.floor(current).toLocaleString();
-} else {
-number.textContent = Math.floor(current);
-}
-}, 16);
-});
-}
+            if (number.textContent.includes("%")) {
+              number.textContent = Math.floor(current) + "%";
+            } else if (number.textContent.includes("$")) {
+              number.textContent = "$" + Math.floor(current).toLocaleString();
+            } else {
+              number.textContent = Math.floor(current);
+            }
+          }, 16);
+        });
+      }
 
-// Auto-refresh data every 30 seconds
-function refreshMetrics() {
-fetch('/api/performance-metrics')
-.then(response => response.json())
-.then(data => {
-// Update metrics with fresh data
-updateMetricValues(data);
-})
-.catch(error => console.log('Metrics refresh scheduled for next interval'));
-}
+      // Auto-refresh data every 30 seconds
+      function refreshMetrics() {
+        fetch("/api/performance-metrics")
+          .then((response) => response.json())
+          .then((data) => {
+            // Update metrics with fresh data
+            updateMetricValues(data);
+          })
+          .catch((error) =>
+            console.log("Metrics refresh scheduled for next interval"),
+          );
+      }
 
-function updateMetricValues(data) {
-// Update progress bars with new values
-document.querySelectorAll('.progress-bar').forEach(bar => {
-bar.style.animation = 'none';
-setTimeout(() => {
-bar.style.animation = 'progressFill 1s ease-out forwards';
-}, 100);
-});
-}
+      function updateMetricValues(data) {
+        // Update progress bars with new values
+        document.querySelectorAll(".progress-bar").forEach((bar) => {
+          bar.style.animation = "none";
+          setTimeout(() => {
+            bar.style.animation = "progressFill 1s ease-out forwards";
+          }, 100);
+        });
+      }
 
-// Initialize animations
-document.addEventListener('DOMContentLoaded', () => {
-setTimeout(animateNumbers, 500);
+      // Initialize animations
+      document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(animateNumbers, 500);
 
-// Set up auto-refresh
-setInterval(refreshMetrics, 30000);
-});
+        // Set up auto-refresh
+        setInterval(refreshMetrics, 30000);
+      });
 
-// Add hover effects for interactive elements
-document.querySelectorAll('.metric-card, .status-item').forEach(card => {
-card.addEventListener('mouseenter', () => {
-card.style.transform = 'translateY(-8px) scale(1.02)';
-card.style.boxShadow = '0 20px 40px rgba(0, 122, 255, 0.1)';
-});
+      // Add hover effects for interactive elements
+      document
+        .querySelectorAll(".metric-card, .status-item")
+        .forEach((card) => {
+          card.addEventListener("mouseenter", () => {
+            card.style.transform = "translateY(-8px) scale(1.02)";
+            card.style.boxShadow = "0 20px 40px rgba(0, 122, 255, 0.1)";
+          });
 
-card.addEventListener('mouseleave', () => {
-card.style.transform = 'translateY(0) scale(1)';
-card.style.boxShadow = 'none';
-});
-});
-</script></body></html>
+          card.addEventListener("mouseleave", () => {
+            card.style.transform = "translateY(0) scale(1)";
+            card.style.boxShadow = "none";
+          });
+        });
+    </script>
+  </body>
+</html>

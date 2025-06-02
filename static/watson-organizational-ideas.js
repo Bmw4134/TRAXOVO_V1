@@ -4,29 +4,29 @@
  */
 
 class WatsonIdeasManager {
-    constructor() {
-        this.apiBase = '';
-        this.currentIdeas = [];
-        this.initializeInterface();
-        this.loadRecentIdeas();
-    }
+  constructor() {
+    this.apiBase = "";
+    this.currentIdeas = [];
+    this.initializeInterface();
+    this.loadRecentIdeas();
+  }
 
-    initializeInterface() {
-        // Create the organizational ideas interface
-        this.createIdeasInterface();
-        
-        // Set up event listeners
-        this.setupEventListeners();
-        
-        // Load ASI goals if available
-        this.loadASIGoals();
-    }
+  initializeInterface() {
+    // Create the organizational ideas interface
+    this.createIdeasInterface();
 
-    createIdeasInterface() {
-        const watsonSection = document.getElementById('watson-ideas-section');
-        if (!watsonSection) return;
+    // Set up event listeners
+    this.setupEventListeners();
 
-        watsonSection.innerHTML = `
+    // Load ASI goals if available
+    this.loadASIGoals();
+  }
+
+  createIdeasInterface() {
+    const watsonSection = document.getElementById("watson-ideas-section");
+    if (!watsonSection) return;
+
+    watsonSection.innerHTML = `
             <div class="card border-success mb-4">
                 <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
@@ -95,49 +95,51 @@ Examples:
                 </div>
             </div>
         `;
+  }
+
+  setupEventListeners() {
+    // Auto-save drafts
+    const textArea = document.getElementById("orgIdeasInput");
+    if (textArea) {
+      textArea.addEventListener("input", () => {
+        localStorage.setItem("watson_idea_draft", textArea.value);
+      });
+
+      // Load saved draft
+      const draft = localStorage.getItem("watson_idea_draft");
+      if (draft) {
+        textArea.value = draft;
+      }
     }
 
-    setupEventListeners() {
-        // Auto-save drafts
-        const textArea = document.getElementById('orgIdeasInput');
-        if (textArea) {
-            textArea.addEventListener('input', () => {
-                localStorage.setItem('watson_idea_draft', textArea.value);
-            });
-            
-            // Load saved draft
-            const draft = localStorage.getItem('watson_idea_draft');
-            if (draft) {
-                textArea.value = draft;
-            }
-        }
-        
-        // Enter key shortcut
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'Enter') {
-                this.submitIdea();
-            }
-        });
+    // Enter key shortcut
+    document.addEventListener("keydown", (e) => {
+      if (e.ctrlKey && e.key === "Enter") {
+        this.submitIdea();
+      }
+    });
+  }
+
+  async loadASIGoals() {
+    try {
+      const response = await fetch("/api/daily_goals");
+      const data = await response.json();
+
+      if (data.goals) {
+        this.displayGoalsOverview(data.goals);
+      }
+    } catch (error) {
+      console.error("Error loading ASI goals:", error);
     }
+  }
 
-    async loadASIGoals() {
-        try {
-            const response = await fetch('/api/daily_goals');
-            const data = await response.json();
-            
-            if (data.goals) {
-                this.displayGoalsOverview(data.goals);
-            }
-        } catch (error) {
-            console.error('Error loading ASI goals:', error);
-        }
-    }
+  displayGoalsOverview(goals) {
+    const container = document.getElementById("goals-status-grid");
+    if (!container) return;
 
-    displayGoalsOverview(goals) {
-        const container = document.getElementById('goals-status-grid');
-        if (!container) return;
-
-        container.innerHTML = goals.map(goal => `
+    container.innerHTML = goals
+      .map(
+        (goal) => `
             <div class="col-md-4 mb-2">
                 <div class="goal-status-card p-2 border rounded">
                     <div class="d-flex justify-content-between align-items-center">
@@ -152,95 +154,113 @@ Examples:
                     </div>
                 </div>
             </div>
-        `).join('');
+        `,
+      )
+      .join("");
+  }
+
+  getPriorityColor(priority) {
+    switch (priority.toLowerCase()) {
+      case "high":
+        return "danger";
+      case "medium":
+        return "warning";
+      case "low":
+        return "success";
+      default:
+        return "info";
+    }
+  }
+
+  async submitIdea() {
+    const textarea = document.getElementById("orgIdeasInput");
+    const category = document.getElementById("ideaCategory");
+
+    if (!textarea || !textarea.value.trim()) {
+      this.showNotification(
+        "Please enter an idea before submitting",
+        "warning",
+      );
+      return;
     }
 
-    getPriorityColor(priority) {
-        switch (priority.toLowerCase()) {
-            case 'high': return 'danger';
-            case 'medium': return 'warning';
-            case 'low': return 'success';
-            default: return 'info';
+    const ideaData = {
+      title: this.extractTitle(textarea.value),
+      description: textarea.value.trim(),
+      category: category ? category.value : "General",
+    };
+
+    try {
+      const response = await fetch("/api/submit_organizational_idea", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(ideaData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        this.showNotification(
+          "Idea submitted successfully to Watson module!",
+          "success",
+        );
+        textarea.value = "";
+        localStorage.removeItem("watson_idea_draft");
+        this.loadRecentIdeas();
+
+        // Show ASI analysis if available
+        if (result.asi_analysis) {
+          this.displayASIAnalysis(result.asi_analysis);
         }
+      } else {
+        this.showNotification(
+          "Error submitting idea: " + result.error,
+          "error",
+        );
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      this.showNotification("Network error submitting idea", "error");
+    }
+  }
+
+  extractTitle(description) {
+    // Extract first sentence or first 50 characters as title
+    const firstSentence = description.split(".")[0];
+    return firstSentence.length > 50
+      ? firstSentence.substring(0, 47) + "..."
+      : firstSentence;
+  }
+
+  async loadRecentIdeas() {
+    try {
+      const response = await fetch("/api/get_organizational_ideas");
+      const data = await response.json();
+
+      if (data.ideas) {
+        this.currentIdeas = data.ideas;
+        this.displayRecentIdeas(data.ideas);
+      }
+    } catch (error) {
+      console.error("Error loading recent ideas:", error);
+    }
+  }
+
+  displayRecentIdeas(ideas) {
+    const container = document.getElementById("recentIdeasContainer");
+    if (!container) return;
+
+    if (ideas.length === 0) {
+      container.innerHTML = '<p class="text-muted">No ideas submitted yet.</p>';
+      return;
     }
 
-    async submitIdea() {
-        const textarea = document.getElementById('orgIdeasInput');
-        const category = document.getElementById('ideaCategory');
-        
-        if (!textarea || !textarea.value.trim()) {
-            this.showNotification('Please enter an idea before submitting', 'warning');
-            return;
-        }
-
-        const ideaData = {
-            title: this.extractTitle(textarea.value),
-            description: textarea.value.trim(),
-            category: category ? category.value : 'General'
-        };
-
-        try {
-            const response = await fetch('/api/submit_organizational_idea', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(ideaData)
-            });
-
-            const result = await response.json();
-            
-            if (result.success) {
-                this.showNotification('Idea submitted successfully to Watson module!', 'success');
-                textarea.value = '';
-                localStorage.removeItem('watson_idea_draft');
-                this.loadRecentIdeas();
-                
-                // Show ASI analysis if available
-                if (result.asi_analysis) {
-                    this.displayASIAnalysis(result.asi_analysis);
-                }
-            } else {
-                this.showNotification('Error submitting idea: ' + result.error, 'error');
-            }
-        } catch (error) {
-            console.error('Submission error:', error);
-            this.showNotification('Network error submitting idea', 'error');
-        }
-    }
-
-    extractTitle(description) {
-        // Extract first sentence or first 50 characters as title
-        const firstSentence = description.split('.')[0];
-        return firstSentence.length > 50 ? 
-               firstSentence.substring(0, 47) + '...' : 
-               firstSentence;
-    }
-
-    async loadRecentIdeas() {
-        try {
-            const response = await fetch('/api/get_organizational_ideas');
-            const data = await response.json();
-            
-            if (data.ideas) {
-                this.currentIdeas = data.ideas;
-                this.displayRecentIdeas(data.ideas);
-            }
-        } catch (error) {
-            console.error('Error loading recent ideas:', error);
-        }
-    }
-
-    displayRecentIdeas(ideas) {
-        const container = document.getElementById('recentIdeasContainer');
-        if (!container) return;
-
-        if (ideas.length === 0) {
-            container.innerHTML = '<p class="text-muted">No ideas submitted yet.</p>';
-            return;
-        }
-
-        container.innerHTML = ideas.slice(0, 5).map(idea => `
+    container.innerHTML = ideas
+      .slice(0, 5)
+      .map(
+        (idea) => `
             <div class="idea-card border rounded p-3 mb-2">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <h6 class="mb-0">${idea.title}</h6>
@@ -249,7 +269,7 @@ Examples:
                         <span class="badge bg-secondary ms-1">${idea.category}</span>
                     </div>
                 </div>
-                <p class="mb-2 small">${idea.description.substring(0, 150)}${idea.description.length > 150 ? '...' : ''}</p>
+                <p class="mb-2 small">${idea.description.substring(0, 150)}${idea.description.length > 150 ? "..." : ""}</p>
                 <div class="d-flex justify-content-between align-items-center">
                     <small class="text-muted">
                         Submitted: ${new Date(idea.timestamp).toLocaleString()}
@@ -258,19 +278,25 @@ Examples:
                         <button class="btn btn-sm btn-outline-primary" onclick="watsonIdeas.viewIdeaDetails('${idea.id}')">
                             View Details
                         </button>
-                        ${idea.status === 'submitted' ? `
+                        ${
+                          idea.status === "submitted"
+                            ? `
                         <button class="btn btn-sm btn-outline-success ms-1" onclick="watsonIdeas.approveIdea('${idea.id}')">
                             Approve
                         </button>
-                        ` : ''}
+                        `
+                            : ""
+                        }
                     </div>
                 </div>
             </div>
-        `).join('');
-    }
+        `,
+      )
+      .join("");
+  }
 
-    displayASIAnalysis(analysis) {
-        const analysisHtml = `
+  displayASIAnalysis(analysis) {
+    const analysisHtml = `
             <div class="asi-analysis-popup" style="position: fixed; top: 20px; right: 20px; 
                  background: white; border: 2px solid #28a745; border-radius: 8px; 
                  padding: 20px; max-width: 400px; z-index: 9999; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
@@ -286,44 +312,44 @@ Examples:
                 </button>
             </div>
         `;
-        
-        document.body.insertAdjacentHTML('beforeend', analysisHtml);
-        
-        // Auto-remove after 10 seconds
-        setTimeout(() => {
-            const popup = document.querySelector('.asi-analysis-popup');
-            if (popup) popup.remove();
-        }, 10000);
+
+    document.body.insertAdjacentHTML("beforeend", analysisHtml);
+
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+      const popup = document.querySelector(".asi-analysis-popup");
+      if (popup) popup.remove();
+    }, 10000);
+  }
+
+  async approveIdea(ideaId) {
+    try {
+      const response = await fetch("/api/update_idea_status", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          idea_id: ideaId,
+          status: "approved",
+          notes: "Approved by Watson",
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        this.showNotification("Idea approved successfully", "success");
+        this.loadRecentIdeas();
+      }
+    } catch (error) {
+      console.error("Error approving idea:", error);
     }
+  }
 
-    async approveIdea(ideaId) {
-        try {
-            const response = await fetch('/api/update_idea_status', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    idea_id: ideaId,
-                    status: 'approved',
-                    notes: 'Approved by Watson'
-                })
-            });
-
-            const result = await response.json();
-            
-            if (result.success) {
-                this.showNotification('Idea approved successfully', 'success');
-                this.loadRecentIdeas();
-            }
-        } catch (error) {
-            console.error('Error approving idea:', error);
-        }
-    }
-
-    openASIEditor() {
-        // Create modal for ASI goal editing
-        const modal = `
+  openASIEditor() {
+    // Create modal for ASI goal editing
+    const modal = `
             <div class="modal fade" id="asiEditorModal" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -347,54 +373,57 @@ Examples:
                 </div>
             </div>
         `;
-        
-        document.body.insertAdjacentHTML('beforeend', modal);
-        new bootstrap.Modal(document.getElementById('asiEditorModal')).show();
-    }
 
-    async triggerASIDebug() {
-        try {
-            this.showNotification('Triggering ASI debug cycle...', 'info');
-            
-            const response = await fetch('/api/trigger_debug_cycle');
-            const result = await response.json();
-            
-            if (result.status === 'debug_cycle_completed') {
-                this.showNotification('ASI debug cycle completed successfully', 'success');
-                this.loadASIGoals(); // Refresh goals
-            }
-        } catch (error) {
-            console.error('Error triggering ASI debug:', error);
-            this.showNotification('Error running ASI debug cycle', 'error');
-        }
-    }
+    document.body.insertAdjacentHTML("beforeend", modal);
+    new bootstrap.Modal(document.getElementById("asiEditorModal")).show();
+  }
 
-    showNotification(message, type) {
-        const toast = document.createElement('div');
-        toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : type} border-0`;
-        toast.setAttribute('role', 'alert');
-        toast.innerHTML = `
+  async triggerASIDebug() {
+    try {
+      this.showNotification("Triggering ASI debug cycle...", "info");
+
+      const response = await fetch("/api/trigger_debug_cycle");
+      const result = await response.json();
+
+      if (result.status === "debug_cycle_completed") {
+        this.showNotification(
+          "ASI debug cycle completed successfully",
+          "success",
+        );
+        this.loadASIGoals(); // Refresh goals
+      }
+    } catch (error) {
+      console.error("Error triggering ASI debug:", error);
+      this.showNotification("Error running ASI debug cycle", "error");
+    }
+  }
+
+  showNotification(message, type) {
+    const toast = document.createElement("div");
+    toast.className = `toast align-items-center text-white bg-${type === "error" ? "danger" : type} border-0`;
+    toast.setAttribute("role", "alert");
+    toast.innerHTML = `
             <div class="d-flex">
                 <div class="toast-body">${message}</div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
             </div>
         `;
-        
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            if (toast.parentElement) {
-                toast.remove();
-            }
-        }, 5000);
-    }
 
-    viewIdeaDetails(ideaId) {
-        const idea = this.currentIdeas.find(i => i.id === ideaId);
-        if (!idea) return;
-        
-        // Create detailed view modal
-        const modal = `
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      if (toast.parentElement) {
+        toast.remove();
+      }
+    }, 5000);
+  }
+
+  viewIdeaDetails(ideaId) {
+    const idea = this.currentIdeas.find((i) => i.id === ideaId);
+    if (!idea) return;
+
+    // Create detailed view modal
+    const modal = `
             <div class="modal fade" id="ideaDetailsModal" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -429,16 +458,16 @@ Examples:
                 </div>
             </div>
         `;
-        
-        document.body.insertAdjacentHTML('beforeend', modal);
-        new bootstrap.Modal(document.getElementById('ideaDetailsModal')).show();
-    }
+
+    document.body.insertAdjacentHTML("beforeend", modal);
+    new bootstrap.Modal(document.getElementById("ideaDetailsModal")).show();
+  }
 }
 
 // Initialize Watson Ideas Manager
 let watsonIdeas;
-document.addEventListener('DOMContentLoaded', function() {
-    watsonIdeas = new WatsonIdeasManager();
+document.addEventListener("DOMContentLoaded", function () {
+  watsonIdeas = new WatsonIdeasManager();
 });
 
 // Global function for easy access

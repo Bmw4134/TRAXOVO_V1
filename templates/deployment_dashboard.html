@@ -1,323 +1,393 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TRAXOVO Deployment Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-            color: #f9fafb;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            min-height: 100vh;
-        }
-        .deployment-card {
-            background: rgba(31, 41, 55, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-        }
-        .deployment-card:hover {
-            border-color: rgba(16, 185, 129, 0.4);
-            transform: translateY(-2px);
-        }
-        .status-ready {
-            color: #10b981;
-            background: rgba(16, 185, 129, 0.1);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        .status-warning {
-            color: #f59e0b;
-            background: rgba(245, 158, 11, 0.1);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        .readiness-score {
-            font-size: 3rem;
-            font-weight: 700;
-            background: linear-gradient(45deg, #10b981, #059669);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .ai-feedback-section {
-            background: rgba(16, 185, 129, 0.05);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            border-radius: 12px;
-            padding: 1.5rem;
-        }
-        .feedback-input {
-            background: rgba(31, 41, 55, 0.8);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #f9fafb;
-            border-radius: 8px;
-        }
-        .feedback-input:focus {
-            border-color: #10b981;
-            box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
-            background: rgba(31, 41, 55, 0.9);
-            color: #f9fafb;
-        }
-        .deploy-ready-banner {
-            background: linear-gradient(45deg, #10b981, #059669);
-            color: white;
-            padding: 1rem;
-            border-radius: 12px;
-            text-align: center;
-            font-weight: 600;
-            margin-bottom: 2rem;
-        }
+      body {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        color: #f9fafb;
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        min-height: 100vh;
+      }
+      .deployment-card {
+        background: rgba(31, 41, 55, 0.8);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+      }
+      .deployment-card:hover {
+        border-color: rgba(16, 185, 129, 0.4);
+        transform: translateY(-2px);
+      }
+      .status-ready {
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+      }
+      .status-warning {
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+      }
+      .readiness-score {
+        font-size: 3rem;
+        font-weight: 700;
+        background: linear-gradient(45deg, #10b981, #059669);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .ai-feedback-section {
+        background: rgba(16, 185, 129, 0.05);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+      }
+      .feedback-input {
+        background: rgba(31, 41, 55, 0.8);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: #f9fafb;
+        border-radius: 8px;
+      }
+      .feedback-input:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+        background: rgba(31, 41, 55, 0.9);
+        color: #f9fafb;
+      }
+      .deploy-ready-banner {
+        background: linear-gradient(45deg, #10b981, #059669);
+        color: white;
+        padding: 1rem;
+        border-radius: 12px;
+        text-align: center;
+        font-weight: 600;
+        margin-bottom: 2rem;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Mobile Menu Toggle -->
     <button class="mobile-nav-toggle d-md-none" onclick="toggleMobileNav()">
-        <i class="fas fa-bars"></i>
+      <i class="fas fa-bars"></i>
     </button>
 
     <!-- Unified Navigation -->
     {% include 'components/unified_navigation.html' %}
 
     <div class="main-content">
-        <div class="container-fluid p-4">
-            <!-- Deployment Ready Banner -->
-            <div class="deploy-ready-banner">
-                <h3><i class="fas fa-rocket me-2"></i>TRAXOVO IS DEPLOYMENT READY</h3>
-                <p class="mb-0">All modules consolidated • Authentic data verified • AI assistant integrated • Ready for stakeholder testing</p>
-            </div>
-
-            <!-- Deployment Status Overview -->
-            <div class="row mb-4">
-                <div class="col-md-8">
-                    <div class="deployment-card">
-                        <h4><i class="fas fa-chart-line me-2"></i>Deployment Readiness Status</h4>
-                        <div class="row mt-3">
-                            <div class="col-md-4 text-center">
-                                <div class="readiness-score" id="readinessScore">100%</div>
-                                <small class="text-muted">Overall Readiness</small>
-                            </div>
-                            <div class="col-md-8">
-                                <div id="statusChecks">
-                                    <!-- Populated by JavaScript -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="deployment-card">
-                        <h5><i class="fas fa-cogs me-2"></i>Consolidated Modules</h5>
-                        <div id="moduleRegistry">
-                            <!-- Populated by JavaScript -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- AI-Powered Stakeholder Feedback System -->
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="deployment-card">
-                        <h4><i class="fas fa-robot me-2"></i>AI-Powered Stakeholder Feedback System</h4>
-                        <p class="text-muted">Intelligent feedback intake for testing stakeholders - automatically categorizes and prioritizes input</p>
-                        
-                        <div class="ai-feedback-section mt-3">
-                            <div class="mb-3">
-                                <label class="form-label">Stakeholder Role</label>
-                                <select class="form-select feedback-input" id="stakeholderRole">
-                                    <option value="executive">Executive/VP</option>
-                                    <option value="operations_manager">Operations Manager</option>
-                                    <option value="field_supervisor">Field Supervisor</option>
-                                    <option value="end_user">End User</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Feedback/Ideas</label>
-                                <textarea class="form-control feedback-input" id="feedbackText" rows="4" 
-                                    placeholder="Enter feedback, suggestions, or ideas. Our AI will automatically categorize and prioritize your input..."></textarea>
-                            </div>
-                            <button class="btn btn-success" onclick="processFeedback()">
-                                <i class="fas fa-brain me-2"></i>Process with AI
-                            </button>
-                        </div>
-                        
-                        <div id="processedFeedback" class="mt-3" style="display: none;">
-                            <!-- AI-processed feedback results -->
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="deployment-card">
-                        <h5><i class="fas fa-share-alt me-2"></i>Deployment Actions</h5>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-success btn-lg" onclick="deploySystem()">
-                                <i class="fas fa-rocket me-2"></i>Deploy to Production
-                            </button>
-                            <button class="btn btn-outline-light" onclick="shareTestingLink()">
-                                <i class="fas fa-link me-2"></i>Share Testing Link
-                            </button>
-                            <button class="btn btn-outline-light" onclick="generateDeploymentReport()">
-                                <i class="fas fa-file-pdf me-2"></i>Generate Report
-                            </button>
-                        </div>
-                        
-                        <div class="mt-3">
-                            <h6>Quick Stats</h6>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-check text-success me-2"></i>5 Core modules consolidated</li>
-                                <li><i class="fas fa-check text-success me-2"></i>100% authentic data verified</li>
-                                <li><i class="fas fa-check text-success me-2"></i>AEMP compliance achieved</li>
-                                <li><i class="fas fa-check text-success me-2"></i>AI assistant integrated</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Performance optimized</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="container-fluid p-4">
+        <!-- Deployment Ready Banner -->
+        <div class="deploy-ready-banner">
+          <h3><i class="fas fa-rocket me-2"></i>TRAXOVO IS DEPLOYMENT READY</h3>
+          <p class="mb-0">
+            All modules consolidated • Authentic data verified • AI assistant
+            integrated • Ready for stakeholder testing
+          </p>
         </div>
+
+        <!-- Deployment Status Overview -->
+        <div class="row mb-4">
+          <div class="col-md-8">
+            <div class="deployment-card">
+              <h4>
+                <i class="fas fa-chart-line me-2"></i>Deployment Readiness
+                Status
+              </h4>
+              <div class="row mt-3">
+                <div class="col-md-4 text-center">
+                  <div class="readiness-score" id="readinessScore">100%</div>
+                  <small class="text-muted">Overall Readiness</small>
+                </div>
+                <div class="col-md-8">
+                  <div id="statusChecks">
+                    <!-- Populated by JavaScript -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="deployment-card">
+              <h5><i class="fas fa-cogs me-2"></i>Consolidated Modules</h5>
+              <div id="moduleRegistry">
+                <!-- Populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI-Powered Stakeholder Feedback System -->
+        <div class="row">
+          <div class="col-md-8">
+            <div class="deployment-card">
+              <h4>
+                <i class="fas fa-robot me-2"></i>AI-Powered Stakeholder Feedback
+                System
+              </h4>
+              <p class="text-muted">
+                Intelligent feedback intake for testing stakeholders -
+                automatically categorizes and prioritizes input
+              </p>
+
+              <div class="ai-feedback-section mt-3">
+                <div class="mb-3">
+                  <label class="form-label">Stakeholder Role</label>
+                  <select
+                    class="form-select feedback-input"
+                    id="stakeholderRole"
+                  >
+                    <option value="executive">Executive/VP</option>
+                    <option value="operations_manager">
+                      Operations Manager
+                    </option>
+                    <option value="field_supervisor">Field Supervisor</option>
+                    <option value="end_user">End User</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Feedback/Ideas</label>
+                  <textarea
+                    class="form-control feedback-input"
+                    id="feedbackText"
+                    rows="4"
+                    placeholder="Enter feedback, suggestions, or ideas. Our AI will automatically categorize and prioritize your input..."
+                  ></textarea>
+                </div>
+                <button class="btn btn-success" onclick="processFeedback()">
+                  <i class="fas fa-brain me-2"></i>Process with AI
+                </button>
+              </div>
+
+              <div id="processedFeedback" class="mt-3" style="display: none">
+                <!-- AI-processed feedback results -->
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="deployment-card">
+              <h5><i class="fas fa-share-alt me-2"></i>Deployment Actions</h5>
+              <div class="d-grid gap-2">
+                <button class="btn btn-success btn-lg" onclick="deploySystem()">
+                  <i class="fas fa-rocket me-2"></i>Deploy to Production
+                </button>
+                <button
+                  class="btn btn-outline-light"
+                  onclick="shareTestingLink()"
+                >
+                  <i class="fas fa-link me-2"></i>Share Testing Link
+                </button>
+                <button
+                  class="btn btn-outline-light"
+                  onclick="generateDeploymentReport()"
+                >
+                  <i class="fas fa-file-pdf me-2"></i>Generate Report
+                </button>
+              </div>
+
+              <div class="mt-3">
+                <h6>Quick Stats</h6>
+                <ul class="list-unstyled">
+                  <li>
+                    <i class="fas fa-check text-success me-2"></i>5 Core modules
+                    consolidated
+                  </li>
+                  <li>
+                    <i class="fas fa-check text-success me-2"></i>100% authentic
+                    data verified
+                  </li>
+                  <li>
+                    <i class="fas fa-check text-success me-2"></i>AEMP
+                    compliance achieved
+                  </li>
+                  <li>
+                    <i class="fas fa-check text-success me-2"></i>AI assistant
+                    integrated
+                  </li>
+                  <li>
+                    <i class="fas fa-check text-success me-2"></i>Performance
+                    optimized
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Load deployment status on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadDeploymentStatus();
-            loadModuleRegistry();
-        });
+      // Load deployment status on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        loadDeploymentStatus();
+        loadModuleRegistry();
+      });
 
-        async function loadDeploymentStatus() {
-            try {
-                const response = await fetch('/deployment-status');
-                const status = await response.json();
-                
-                // Update readiness score
-                document.getElementById('readinessScore').textContent = Math.round(status.readiness_score) + '%';
-                
-                // Update status checks
-                const checksContainer = document.getElementById('statusChecks');
-                checksContainer.innerHTML = '';
-                
-                for (const [checkName, checkResult] of Object.entries(status.checks)) {
-                    const statusClass = checkResult.status === 'ready' ? 'status-ready' : 'status-warning';
-                    const icon = checkResult.status === 'ready' ? 'fas fa-check' : 'fas fa-exclamation-triangle';
-                    
-                    checksContainer.innerHTML += `
+      async function loadDeploymentStatus() {
+        try {
+          const response = await fetch("/deployment-status");
+          const status = await response.json();
+
+          // Update readiness score
+          document.getElementById("readinessScore").textContent =
+            Math.round(status.readiness_score) + "%";
+
+          // Update status checks
+          const checksContainer = document.getElementById("statusChecks");
+          checksContainer.innerHTML = "";
+
+          for (const [checkName, checkResult] of Object.entries(
+            status.checks,
+          )) {
+            const statusClass =
+              checkResult.status === "ready"
+                ? "status-ready"
+                : "status-warning";
+            const icon =
+              checkResult.status === "ready"
+                ? "fas fa-check"
+                : "fas fa-exclamation-triangle";
+
+            checksContainer.innerHTML += `
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span>${checkName.replace('_', ' ').toUpperCase()}</span>
+                            <span>${checkName.replace("_", " ").toUpperCase()}</span>
                             <span class="${statusClass}">
                                 <i class="${icon} me-1"></i>${checkResult.status.toUpperCase()}
                             </span>
                         </div>
                     `;
-                }
-            } catch (error) {
-                console.error('Error loading deployment status:', error);
-            }
+          }
+        } catch (error) {
+          console.error("Error loading deployment status:", error);
         }
+      }
 
-        async function loadModuleRegistry() {
-            try {
-                const response = await fetch('/module-registry');
-                const registry = await response.json();
-                
-                const moduleContainer = document.getElementById('moduleRegistry');
-                moduleContainer.innerHTML = '';
-                
-                for (const [moduleName, moduleInfo] of Object.entries(registry.modules)) {
-                    moduleContainer.innerHTML += `
+      async function loadModuleRegistry() {
+        try {
+          const response = await fetch("/module-registry");
+          const registry = await response.json();
+
+          const moduleContainer = document.getElementById("moduleRegistry");
+          moduleContainer.innerHTML = "";
+
+          for (const [moduleName, moduleInfo] of Object.entries(
+            registry.modules,
+          )) {
+            moduleContainer.innerHTML += `
                         <div class="mb-2">
-                            <strong>${moduleName.replace('_', ' ').toUpperCase()}</strong>
+                            <strong>${moduleName.replace("_", " ").toUpperCase()}</strong>
                             <br><small class="text-muted">${moduleInfo.features.length} features ready</small>
                         </div>
                     `;
-                }
-            } catch (error) {
-                console.error('Error loading module registry:', error);
-            }
+          }
+        } catch (error) {
+          console.error("Error loading module registry:", error);
+        }
+      }
+
+      async function processFeedback() {
+        const feedbackText = document.getElementById("feedbackText").value;
+        const stakeholderRole =
+          document.getElementById("stakeholderRole").value;
+
+        if (!feedbackText.trim()) {
+          alert("Please enter feedback text");
+          return;
         }
 
-        async function processFeedback() {
-            const feedbackText = document.getElementById('feedbackText').value;
-            const stakeholderRole = document.getElementById('stakeholderRole').value;
-            
-            if (!feedbackText.trim()) {
-                alert('Please enter feedback text');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/ai-feedback', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        feedback: feedbackText,
-                        role: stakeholderRole
-                    })
-                });
-                
-                const processed = await response.json();
-                
-                // Display processed feedback
-                const resultContainer = document.getElementById('processedFeedback');
-                resultContainer.style.display = 'block';
-                resultContainer.innerHTML = `
+        try {
+          const response = await fetch("/ai-feedback", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              feedback: feedbackText,
+              role: stakeholderRole,
+            }),
+          });
+
+          const processed = await response.json();
+
+          // Display processed feedback
+          const resultContainer = document.getElementById("processedFeedback");
+          resultContainer.style.display = "block";
+          resultContainer.innerHTML = `
                     <div class="ai-feedback-section">
                         <h6><i class="fas fa-brain me-2"></i>AI Analysis Results</h6>
                         <div class="row">
                             <div class="col-md-6">
-                                <strong>Category:</strong> ${processed.category.replace('_', ' ').toUpperCase()}<br>
+                                <strong>Category:</strong> ${processed.category.replace("_", " ").toUpperCase()}<br>
                                 <strong>Priority:</strong> ${processed.priority}/5<br>
                                 <strong>Effort:</strong> ${processed.estimated_effort}
                             </div>
                             <div class="col-md-6">
                                 <strong>Actionable Items:</strong>
                                 <ul>
-                                    ${processed.actionable_items.map(item => `<li>${item}</li>`).join('')}
+                                    ${processed.actionable_items.map((item) => `<li>${item}</li>`).join("")}
                                 </ul>
                             </div>
                         </div>
                     </div>
                 `;
-                
-                // Clear form
-                document.getElementById('feedbackText').value = '';
-            } catch (error) {
-                console.error('Error processing feedback:', error);
-                alert('Error processing feedback. Please try again.');
-            }
-        }
 
-        function deploySystem() {
-            if (confirm('Deploy TRAXOVO to production? This will make the system live for all stakeholders.')) {
-                alert('Deployment initiated! The system is now live and ready for stakeholder access.');
-            }
+          // Clear form
+          document.getElementById("feedbackText").value = "";
+        } catch (error) {
+          console.error("Error processing feedback:", error);
+          alert("Error processing feedback. Please try again.");
         }
+      }
 
-        function shareTestingLink() {
-            const testingUrl = window.location.origin;
-            navigator.clipboard.writeText(testingUrl).then(() => {
-                alert('Testing link copied to clipboard: ' + testingUrl);
-            });
+      function deploySystem() {
+        if (
+          confirm(
+            "Deploy TRAXOVO to production? This will make the system live for all stakeholders.",
+          )
+        ) {
+          alert(
+            "Deployment initiated! The system is now live and ready for stakeholder access.",
+          );
         }
+      }
 
-        function generateDeploymentReport() {
-            window.open('/lifecycle-report/export/pdf', '_blank');
-        }
+      function shareTestingLink() {
+        const testingUrl = window.location.origin;
+        navigator.clipboard.writeText(testingUrl).then(() => {
+          alert("Testing link copied to clipboard: " + testingUrl);
+        });
+      }
 
-        function toggleMobileNav() {
-            const nav = document.querySelector('.traxovo-unified-nav');
-            nav.classList.toggle('mobile-open');
-        }
+      function generateDeploymentReport() {
+        window.open("/lifecycle-report/export/pdf", "_blank");
+      }
+
+      function toggleMobileNav() {
+        const nav = document.querySelector(".traxovo-unified-nav");
+        nav.classList.toggle("mobile-open");
+      }
     </script>
-</body>
+  </body>
 </html>

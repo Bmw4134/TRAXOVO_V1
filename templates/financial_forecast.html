@@ -1,733 +1,761 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TRAXOVO Financial Forecasting</title>
     <style>
-        :root {
-            --primary-blue: #2563eb;
-            --success-green: #059669;
-            --warning-orange: #d97706;
-            --danger-red: #dc2626;
-            --background: #f8fafc;
-            --card-bg: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border: #e2e8f0;
-        }
+      :root {
+        --primary-blue: #2563eb;
+        --success-green: #059669;
+        --warning-orange: #d97706;
+        --danger-red: #dc2626;
+        --background: #f8fafc;
+        --card-bg: #ffffff;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --border: #e2e8f0;
+      }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: var(--background);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
+      body {
+        font-family:
+          "Inter",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: var(--background);
+        color: var(--text-primary);
+        line-height: 1.6;
+      }
 
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--border);
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+      }
+
+      .performance-snapshot {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 1rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        border: 2px solid var(--primary-blue);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .performance-snapshot:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+      }
+
+      .snapshot-btn {
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .snapshot-btn:hover {
+        background: #1d4ed8;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        border: 1px solid var(--border);
+        position: relative;
+        transition: all 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .tooltip {
+        position: relative;
+        display: inline-block;
+        cursor: help;
+      }
+
+      .tooltip .tooltip-text {
+        visibility: hidden;
+        width: 280px;
+        background: var(--text-primary);
+        color: white;
+        text-align: left;
+        border-radius: 8px;
+        padding: 1rem;
+        position: absolute;
+        z-index: 1000;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -140px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .tooltip .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: var(--text-primary) transparent transparent transparent;
+      }
+
+      .tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .help-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--primary-blue);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .metric-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .metric-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .trend-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .trend-rising {
+        background: rgba(5, 150, 105, 0.1);
+        color: var(--success-green);
+      }
+
+      .trend-stable {
+        background: rgba(217, 119, 6, 0.1);
+        color: var(--warning-orange);
+      }
+
+      .trend-declining {
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--danger-red);
+      }
+
+      .loading-container {
+        position: relative;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid var(--border);
+        border-top: 4px solid var(--primary-blue);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 1rem 0;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--primary-blue),
+          var(--success-green)
+        );
+        border-radius: 4px;
+        transition: width 0.3s ease;
+        animation: pulse 2s infinite;
+      }
+
+      .forecast-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
+
+      .forecast-table th,
+      .forecast-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .forecast-table th {
+        background: var(--background);
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .forecast-table tr:hover {
+        background: rgba(37, 99, 235, 0.05);
+      }
+
+      .sync-indicator {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--card-bg);
+        padding: 1rem 1.5rem;
+        border-radius: 30px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        border: 2px solid var(--success-green);
+        transition: all 0.3s ease;
+      }
+
+      .sync-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--success-green);
+        animation: pulse 2s infinite;
+      }
+
+      .recommendations {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-top: 2rem;
+      }
+
+      .recommendations h3 {
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+      }
+
+      .recommendations ul {
+        list-style: none;
+      }
+
+      .recommendations li {
+        padding: 0.75rem 0;
+        padding-left: 2rem;
+        position: relative;
+      }
+
+      .recommendations li::before {
+        content: "→";
+        position: absolute;
+        left: 0;
+        font-weight: bold;
+        color: #ffd700;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .slide-in {
+        animation: slideIn 0.6s ease-out forwards;
+      }
+
+      .chart-container {
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(45deg, #f0f9ff, #e0f2fe);
+        border-radius: 12px;
+        margin: 1rem 0;
+        position: relative;
+      }
+
+      .chart-placeholder {
+        color: var(--text-secondary);
+        font-style: italic;
+      }
+
+      @media (max-width: 768px) {
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid var(--border);
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-blue);
-        }
-
-        .performance-snapshot {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 1rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            z-index: 1000;
-            border: 2px solid var(--primary-blue);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .performance-snapshot:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        }
-
-        .snapshot-btn {
-            background: var(--primary-blue);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .snapshot-btn:hover {
-            background: #1d4ed8;
+          padding: 1rem;
         }
 
         .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
+          grid-template-columns: 1fr;
         }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
-            border: 1px solid var(--border);
-            position: relative;
-            transition: all 0.3s ease;
+        .performance-snapshot {
+          position: relative;
+          top: auto;
+          right: auto;
+          margin-bottom: 1rem;
         }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: help;
-        }
-
-        .tooltip .tooltip-text {
-            visibility: hidden;
-            width: 280px;
-            background: var(--text-primary);
-            color: white;
-            text-align: left;
-            border-radius: 8px;
-            padding: 1rem;
-            position: absolute;
-            z-index: 1000;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -140px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        .tooltip .tooltip-text::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: var(--text-primary) transparent transparent transparent;
-        }
-
-        .tooltip:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .help-icon {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--primary-blue);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        .metric-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .metric-label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .trend-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .trend-rising {
-            background: rgba(5, 150, 105, 0.1);
-            color: var(--success-green);
-        }
-
-        .trend-stable {
-            background: rgba(217, 119, 6, 0.1);
-            color: var(--warning-orange);
-        }
-
-        .trend-declining {
-            background: rgba(220, 38, 38, 0.1);
-            color: var(--danger-red);
-        }
-
-        .loading-container {
-            position: relative;
-            min-height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid var(--border);
-            border-top: 4px solid var(--primary-blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: var(--border);
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 1rem 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-blue), var(--success-green));
-            border-radius: 4px;
-            transition: width 0.3s ease;
-            animation: pulse 2s infinite;
-        }
-
-        .forecast-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
-        .forecast-table th,
-        .forecast-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .forecast-table th {
-            background: var(--background);
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .forecast-table tr:hover {
-            background: rgba(37, 99, 235, 0.05);
-        }
-
-        .sync-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            background: var(--card-bg);
-            padding: 1rem 1.5rem;
-            border-radius: 30px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            border: 2px solid var(--success-green);
-            transition: all 0.3s ease;
-        }
-
-        .sync-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--success-green);
-            animation: pulse 2s infinite;
-        }
-
-        .recommendations {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 16px;
-            padding: 2rem;
-            margin-top: 2rem;
-        }
-
-        .recommendations h3 {
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-        }
-
-        .recommendations ul {
-            list-style: none;
-        }
-
-        .recommendations li {
-            padding: 0.75rem 0;
-            padding-left: 2rem;
-            position: relative;
-        }
-
-        .recommendations li::before {
-            content: "→";
-            position: absolute;
-            left: 0;
-            font-weight: bold;
-            color: #ffd700;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .slide-in {
-            animation: slideIn 0.6s ease-out forwards;
-        }
-
-        .chart-container {
-            height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(45deg, #f0f9ff, #e0f2fe);
-            border-radius: 12px;
-            margin: 1rem 0;
-            position: relative;
-        }
-
-        .chart-placeholder {
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            
-            .grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .performance-snapshot {
-                position: relative;
-                top: auto;
-                right: auto;
-                margin-bottom: 1rem;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <div>
-                <h1>Financial Forecasting</h1>
-                <p style="color: var(--text-secondary); margin-top: 0.5rem;">
-                    Predictive analytics using your authentic Foundation accounting data
-                </p>
+      <div class="header">
+        <div>
+          <h1>Financial Forecasting</h1>
+          <p style="color: var(--text-secondary); margin-top: 0.5rem">
+            Predictive analytics using your authentic Foundation accounting data
+          </p>
+        </div>
+      </div>
+
+      <div class="performance-snapshot">
+        <button class="snapshot-btn" onclick="generateSnapshot()">
+          📊 Performance Snapshot
+        </button>
+      </div>
+
+      <div class="grid">
+        <div class="card slide-in">
+          <div class="card-header">
+            <h3 class="card-title">Revenue Forecast</h3>
+            <div class="tooltip">
+              <div class="help-icon">?</div>
+              <span class="tooltip-text">
+                6-month revenue projection based on your Foundation accounting
+                data, seasonal construction patterns, and growth trends.
+                Confidence decreases over time as external factors become more
+                influential.
+              </span>
             </div>
+          </div>
+          <div id="revenue-forecast">
+            <div class="loading-container">
+              <div class="loading-spinner"></div>
+            </div>
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                style="width: 0%"
+                id="revenue-progress"
+              ></div>
+            </div>
+          </div>
         </div>
 
-        <div class="performance-snapshot">
-            <button class="snapshot-btn" onclick="generateSnapshot()">
-                📊 Performance Snapshot
-            </button>
+        <div class="card slide-in">
+          <div class="card-header">
+            <h3 class="card-title">Profit Trends</h3>
+            <div class="tooltip">
+              <div class="help-icon">?</div>
+              <span class="tooltip-text">
+                Profit margin analysis considering equipment costs, fuel
+                expenses, maintenance schedules, and operational efficiency
+                metrics from your authentic fleet data.
+              </span>
+            </div>
+          </div>
+          <div id="profit-trends">
+            <div class="chart-container">
+              <div class="chart-placeholder">
+                Loading profit trend analysis...
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="grid">
-            <div class="card slide-in">
-                <div class="card-header">
-                    <h3 class="card-title">Revenue Forecast</h3>
-                    <div class="tooltip">
-                        <div class="help-icon">?</div>
-                        <span class="tooltip-text">
-                            6-month revenue projection based on your Foundation accounting data, 
-                            seasonal construction patterns, and growth trends. Confidence decreases 
-                            over time as external factors become more influential.
-                        </span>
-                    </div>
-                </div>
-                <div id="revenue-forecast">
-                    <div class="loading-container">
-                        <div class="loading-spinner"></div>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 0%" id="revenue-progress"></div>
-                    </div>
-                </div>
+        <div class="card slide-in">
+          <div class="card-header">
+            <h3 class="card-title">Cash Flow Projection</h3>
+            <div class="tooltip">
+              <div class="help-icon">?</div>
+              <span class="tooltip-text">
+                Monthly cash flow projections based on your current revenue
+                patterns, equipment operational costs, and seasonal construction
+                variations. Helps optimize working capital management.
+              </span>
             </div>
-
-            <div class="card slide-in">
-                <div class="card-header">
-                    <h3 class="card-title">Profit Trends</h3>
-                    <div class="tooltip">
-                        <div class="help-icon">?</div>
-                        <span class="tooltip-text">
-                            Profit margin analysis considering equipment costs, fuel expenses, 
-                            maintenance schedules, and operational efficiency metrics from 
-                            your authentic fleet data.
-                        </span>
-                    </div>
-                </div>
-                <div id="profit-trends">
-                    <div class="chart-container">
-                        <div class="chart-placeholder">Loading profit trend analysis...</div>
-                    </div>
-                </div>
+          </div>
+          <div id="cash-flow">
+            <div class="metric-value" id="net-cash-flow">$0</div>
+            <div class="metric-label">Net Monthly Cash Flow</div>
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                style="width: 0%"
+                id="cash-progress"
+              ></div>
             </div>
-
-            <div class="card slide-in">
-                <div class="card-header">
-                    <h3 class="card-title">Cash Flow Projection</h3>
-                    <div class="tooltip">
-                        <div class="help-icon">?</div>
-                        <span class="tooltip-text">
-                            Monthly cash flow projections based on your current revenue patterns, 
-                            equipment operational costs, and seasonal construction variations. 
-                            Helps optimize working capital management.
-                        </span>
-                    </div>
-                </div>
-                <div id="cash-flow">
-                    <div class="metric-value" id="net-cash-flow">$0</div>
-                    <div class="metric-label">Net Monthly Cash Flow</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 0%" id="cash-progress"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card slide-in">
-                <div class="card-header">
-                    <h3 class="card-title">Trend Analysis</h3>
-                    <div class="tooltip">
-                        <div class="help-icon">?</div>
-                        <span class="tooltip-text">
-                            Real-time trend detection using machine learning algorithms 
-                            applied to your Foundation accounting data. Identifies patterns 
-                            in revenue, costs, and operational efficiency.
-                        </span>
-                    </div>
-                </div>
-                <div id="trend-analysis">
-                    <div class="trend-indicator trend-rising" id="main-trend">
-                        <span>📈</span>
-                        <span>Loading trends...</span>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
 
-        <div class="card">
-            <h3 class="card-title">6-Month Financial Forecast</h3>
-            <div id="forecast-table-container">
-                <div class="loading-container">
-                    <div class="loading-spinner"></div>
-                </div>
+        <div class="card slide-in">
+          <div class="card-header">
+            <h3 class="card-title">Trend Analysis</h3>
+            <div class="tooltip">
+              <div class="help-icon">?</div>
+              <span class="tooltip-text">
+                Real-time trend detection using machine learning algorithms
+                applied to your Foundation accounting data. Identifies patterns
+                in revenue, costs, and operational efficiency.
+              </span>
             </div>
+          </div>
+          <div id="trend-analysis">
+            <div class="trend-indicator trend-rising" id="main-trend">
+              <span>📈</span>
+              <span>Loading trends...</span>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div class="recommendations" id="recommendations" style="display: none;">
-            <h3>Strategic Recommendations</h3>
-            <ul id="recommendations-list">
-                <!-- Recommendations will be populated by JavaScript -->
-            </ul>
+      <div class="card">
+        <h3 class="card-title">6-Month Financial Forecast</h3>
+        <div id="forecast-table-container">
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+          </div>
         </div>
+      </div>
+
+      <div class="recommendations" id="recommendations" style="display: none">
+        <h3>Strategic Recommendations</h3>
+        <ul id="recommendations-list">
+          <!-- Recommendations will be populated by JavaScript -->
+        </ul>
+      </div>
     </div>
 
     <div class="sync-indicator">
-        <div class="sync-dot"></div>
-        <span>Real-time sync active</span>
+      <div class="sync-dot"></div>
+      <span>Real-time sync active</span>
     </div>
 
     <script>
-        let forecastData = null;
-        let loadingProgress = 0;
+      let forecastData = null;
+      let loadingProgress = 0;
 
-        function animateProgress(elementId, targetWidth, duration = 2000) {
-            const element = document.getElementById(elementId);
-            let currentWidth = 0;
-            const increment = targetWidth / (duration / 50);
-            
-            const timer = setInterval(setInterval(() => {
-                currentWidth += increment;
-                if (currentWidth >= targetWidth) {
-                    currentWidth = targetWidth;
-                    clearInterval(timer);
-                }
-                element.style.width = currentWidth + '%';
-            }, 60000);
-        }
+      function animateProgress(elementId, targetWidth, duration = 2000) {
+          const element = document.getElementById(elementId);
+          let currentWidth = 0;
+          const increment = targetWidth / (duration / 50);
 
-        function loadFinancialData() {
-            // Simulate data loading with progress tracking
-            animateProgress('revenue-progress', 85);
-            animateProgress('cash-progress', 92);
-            
-            setTimeout(() => {
-                fetch('/finance/api/forecast/6')
-                    .then(response => response.json())
-                    .then(data => {
-                        forecastData = data;
-                        updateDashboard(data);
-                    })
-                    .catch(error => {
-                        console.error('Error loading forecast data:', error);
-                        showFallbackData();
-                    });
-            }, 1500);
-        }
+          const timer = setInterval(setInterval(() => {
+              currentWidth += increment;
+              if (currentWidth >= targetWidth) {
+                  currentWidth = targetWidth;
+                  clearInterval(timer);
+              }
+              element.style.width = currentWidth + '%';
+          }, 60000);
+      }
 
-        function updateDashboard(data) {
-            if (data.error) {
-                showFallbackData();
-                return;
-            }
+      function loadFinancialData() {
+          // Simulate data loading with progress tracking
+          animateProgress('revenue-progress', 85);
+          animateProgress('cash-progress', 92);
 
-            // Update revenue forecast
-            const revenueContainer = document.getElementById('revenue-forecast');
-            const totalRevenue = data.summary?.total_projected_revenue || 0;
-            revenueContainer.innerHTML = `
-                <div class="metric-value">$${(totalRevenue).toLocaleString()}</div>
-                <div class="metric-label">6-Month Projection</div>
-                <div class="trend-indicator trend-rising">
-                    <span>📈</span>
-                    <span>Strong Growth Expected</span>
-                </div>
-            `;
+          setTimeout(() => {
+              fetch('/finance/api/forecast/6')
+                  .then(response => response.json())
+                  .then(data => {
+                      forecastData = data;
+                      updateDashboard(data);
+                  })
+                  .catch(error => {
+                      console.error('Error loading forecast data:', error);
+                      showFallbackData();
+                  });
+          }, 1500);
+      }
 
-            // Update cash flow
-            loadCashFlowData();
-            
-            // Update trend analysis
-            loadTrendAnalysis();
-            
-            // Create forecast table
-            createForecastTable(data.forecast || []);
-            
-            // Show recommendations
-            showRecommendations(data.summary || {});
-        }
+      function updateDashboard(data) {
+          if (data.error) {
+              showFallbackData();
+              return;
+          }
 
-        function loadCashFlowData() {
-            fetch('/finance/api/cash-flow')
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.error) {
-                        document.getElementById('net-cash-flow').textContent = 
-                            `$${data.net_cash_flow?.toLocaleString() || '0'}`;
-                    }
-                })
-                .catch(error => console.error('Cash flow error:', error));
-        }
+          // Update revenue forecast
+          const revenueContainer = document.getElementById('revenue-forecast');
+          const totalRevenue = data.summary?.total_projected_revenue || 0;
+          revenueContainer.innerHTML = `
+              <div class="metric-value">$${(totalRevenue).toLocaleString()}</div>
+              <div class="metric-label">6-Month Projection</div>
+              <div class="trend-indicator trend-rising">
+                  <span>📈</span>
+                  <span>Strong Growth Expected</span>
+              </div>
+          `;
 
-        function loadTrendAnalysis() {
-            fetch('/finance/api/trends')
-                .then(response => response.json())
-                .then(data => {
-                    const trendElement = document.getElementById('main-trend');
-                    const direction = data.revenue_trend?.direction || 'stable';
-                    
-                    trendElement.className = `trend-indicator trend-${direction}`;
-                    trendElement.innerHTML = `
-                        <span>${direction === 'rising' ? '📈' : direction === 'declining' ? '📉' : '➡️'}</span>
-                        <span>${direction.toUpperCase()} Trend Detected</span>
-                    `;
-                })
-                .catch(error => console.error('Trend analysis error:', error));
-        }
+          // Update cash flow
+          loadCashFlowData();
 
-        function createForecastTable(forecast) {
-            const container = document.getElementById('forecast-table-container');
-            
-            if (!forecast.length) {
-                container.innerHTML = '<p>Forecast data not available</p>';
-                return;
-            }
+          // Update trend analysis
+          loadTrendAnalysis();
 
-            const table = `
-                <table class="forecast-table">
-                    <thead>
-                        <tr>
-                            <th>Month</th>
-                            <th>Projected Revenue</th>
-                            <th>Net Profit</th>
-                            <th>Margin</th>
-                            <th>Confidence</th>
-                            <th>Trend</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${forecast.map(item => `
-                            <tr>
-                                <td>${item.month}</td>
-                                <td>$${item.projected_revenue?.toLocaleString() || '0'}</td>
-                                <td>$${item.net_profit?.toLocaleString() || '0'}</td>
-                                <td>${item.profit_margin || 0}%</td>
-                                <td>${item.confidence || 0}%</td>
-                                <td>
-                                    <span class="trend-indicator trend-${item.trend_indicator || 'stable'}">
-                                        ${item.trend_indicator || 'stable'}
-                                    </span>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
-            
-            container.innerHTML = table;
-        }
+          // Create forecast table
+          createForecastTable(data.forecast || []);
 
-        function showRecommendations(summary) {
-            const recommendationsDiv = document.getElementById('recommendations');
-            const recommendationsList = document.getElementById('recommendations-list');
-            
-            const recommendations = [
-                "Capitalize on seasonal construction demand in Q2-Q3",
-                "Monitor fuel cost inflation impact on profit margins",
-                "Consider equipment financing for expansion opportunities",
-                "Implement predictive maintenance to reduce unexpected costs"
-            ];
-            
-            recommendationsList.innerHTML = recommendations
-                .map(rec => `<li>${rec}</li>`)
-                .join('');
-            
-            recommendationsDiv.style.display = 'block';
-        }
+          // Show recommendations
+          showRecommendations(data.summary || {});
+      }
 
-        function showFallbackData() {
-            // Show basic data when API is unavailable
-            document.getElementById('revenue-forecast').innerHTML = `
-                <div class="metric-value">$1,880,000</div>
-                <div class="metric-label">6-Month Projection (Based on Foundation Data)</div>
-                <div class="trend-indicator trend-rising">
-                    <span>📈</span>
-                    <span>Steady Growth</span>
-                </div>
-            `;
-            
-            document.getElementById('net-cash-flow').textContent = '$36,667';
-            
-            const fallbackForecast = [
-                { month: 'Jun 2025', projected_revenue: 163333, net_profit: 36667, profit_margin: 22.4, confidence: 95, trend_indicator: 'rising' },
-                { month: 'Jul 2025', projected_revenue: 168000, net_profit: 41000, profit_margin: 24.4, confidence: 90, trend_indicator: 'rising' }
-            ];
-            
-            createForecastTable(fallbackForecast);
-            showRecommendations({});
-        }
+      function loadCashFlowData() {
+          fetch('/finance/api/cash-flow')
+              .then(response => response.json())
+              .then(data => {
+                  if (!data.error) {
+                      document.getElementById('net-cash-flow').textContent =
+                          `$${data.net_cash_flow?.toLocaleString() || '0'}`;
+                  }
+              })
+              .catch(error => console.error('Cash flow error:', error));
+      }
 
-        function generateSnapshot() {
-            const snapshot = {
-                timestamp: new Date().toISOString(),
-                revenue_forecast: forecastData?.summary?.total_projected_revenue || 1880000,
-                active_assets: 4,
-                profit_margin: 22.4,
-                trend: 'rising'
-            };
-            
-            // Create downloadable snapshot
-            const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `traxovo-snapshot-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            
-            // Visual feedback
-            const btn = document.querySelector('.snapshot-btn');
-            const originalText = btn.textContent;
-            btn.textContent = '✓ Snapshot Generated';
-            btn.style.background = 'var(--success-green)';
-            
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.background = 'var(--primary-blue)';
-            }, 2000);
-        }
+      function loadTrendAnalysis() {
+          fetch('/finance/api/trends')
+              .then(response => response.json())
+              .then(data => {
+                  const trendElement = document.getElementById('main-trend');
+                  const direction = data.revenue_trend?.direction || 'stable';
 
-        // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            loadFinancialData();
-            
-            // Auto-refresh data every 5 minutes
-            setInterval(loadFinancialData, 300000);
-            
-            // Add smooth transitions to cards
-            const cards = document.querySelectorAll('.card');
-            cards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                }, index * 200);
-            });
-        });
+                  trendElement.className = `trend-indicator trend-${direction}`;
+                  trendElement.innerHTML = `
+                      <span>${direction === 'rising' ? '📈' : direction === 'declining' ? '📉' : '➡️'}</span>
+                      <span>${direction.toUpperCase()} Trend Detected</span>
+                  `;
+              })
+              .catch(error => console.error('Trend analysis error:', error));
+      }
+
+      function createForecastTable(forecast) {
+          const container = document.getElementById('forecast-table-container');
+
+          if (!forecast.length) {
+              container.innerHTML = '<p>Forecast data not available</p>';
+              return;
+          }
+
+          const table = `
+              <table class="forecast-table">
+                  <thead>
+                      <tr>
+                          <th>Month</th>
+                          <th>Projected Revenue</th>
+                          <th>Net Profit</th>
+                          <th>Margin</th>
+                          <th>Confidence</th>
+                          <th>Trend</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      ${forecast.map(item => `
+                          <tr>
+                              <td>${item.month}</td>
+                              <td>$${item.projected_revenue?.toLocaleString() || '0'}</td>
+                              <td>$${item.net_profit?.toLocaleString() || '0'}</td>
+                              <td>${item.profit_margin || 0}%</td>
+                              <td>${item.confidence || 0}%</td>
+                              <td>
+                                  <span class="trend-indicator trend-${item.trend_indicator || 'stable'}">
+                                      ${item.trend_indicator || 'stable'}
+                                  </span>
+                              </td>
+                          </tr>
+                      `).join('')}
+                  </tbody>
+              </table>
+          `;
+
+          container.innerHTML = table;
+      }
+
+      function showRecommendations(summary) {
+          const recommendationsDiv = document.getElementById('recommendations');
+          const recommendationsList = document.getElementById('recommendations-list');
+
+          const recommendations = [
+              "Capitalize on seasonal construction demand in Q2-Q3",
+              "Monitor fuel cost inflation impact on profit margins",
+              "Consider equipment financing for expansion opportunities",
+              "Implement predictive maintenance to reduce unexpected costs"
+          ];
+
+          recommendationsList.innerHTML = recommendations
+              .map(rec => `<li>${rec}</li>`)
+              .join('');
+
+          recommendationsDiv.style.display = 'block';
+      }
+
+      function showFallbackData() {
+          // Show basic data when API is unavailable
+          document.getElementById('revenue-forecast').innerHTML = `
+              <div class="metric-value">$1,880,000</div>
+              <div class="metric-label">6-Month Projection (Based on Foundation Data)</div>
+              <div class="trend-indicator trend-rising">
+                  <span>📈</span>
+                  <span>Steady Growth</span>
+              </div>
+          `;
+
+          document.getElementById('net-cash-flow').textContent = '$36,667';
+
+          const fallbackForecast = [
+              { month: 'Jun 2025', projected_revenue: 163333, net_profit: 36667, profit_margin: 22.4, confidence: 95, trend_indicator: 'rising' },
+              { month: 'Jul 2025', projected_revenue: 168000, net_profit: 41000, profit_margin: 24.4, confidence: 90, trend_indicator: 'rising' }
+          ];
+
+          createForecastTable(fallbackForecast);
+          showRecommendations({});
+      }
+
+      function generateSnapshot() {
+          const snapshot = {
+              timestamp: new Date().toISOString(),
+              revenue_forecast: forecastData?.summary?.total_projected_revenue || 1880000,
+              active_assets: 4,
+              profit_margin: 22.4,
+              trend: 'rising'
+          };
+
+          // Create downloadable snapshot
+          const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `traxovo-snapshot-${new Date().toISOString().split('T')[0]}.json`;
+          a.click();
+
+          // Visual feedback
+          const btn = document.querySelector('.snapshot-btn');
+          const originalText = btn.textContent;
+          btn.textContent = '✓ Snapshot Generated';
+          btn.style.background = 'var(--success-green)';
+
+          setTimeout(() => {
+              btn.textContent = originalText;
+              btn.style.background = 'var(--primary-blue)';
+          }, 2000);
+      }
+
+      // Initialize dashboard
+      document.addEventListener('DOMContentLoaded', function() {
+          loadFinancialData();
+
+          // Auto-refresh data every 5 minutes
+          setInterval(loadFinancialData, 300000);
+
+          // Add smooth transitions to cards
+          const cards = document.querySelectorAll('.card');
+          cards.forEach((card, index) => {
+              setTimeout(() => {
+                  card.style.opacity = '1';
+              }, index * 200);
+          });
+      });
     </script>
-</body>
+  </body>
 </html>

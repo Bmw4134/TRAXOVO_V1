@@ -1,319 +1,372 @@
-{% extends "base.html" %}
-
-{% block title %}System Health - TRAXOVO{% endblock %}
-
+{% extends "base.html" %} {% block title %}System Health - TRAXOVO{% endblock %}
 {% block content %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>System Health</h1>
-        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Back to Dashboard
-        </a>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>System Health</h1>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+  </div>
+
+  <div class="alert alert-info">
+    <h4 class="alert-heading">
+      <i class="bi bi-info-circle"></i> System Health Monitor
+    </h4>
+    <p>This page shows the current status of all TRAXOVO system components.</p>
+    <hr />
+    <p class="mb-0">
+      Last checked: <span id="timestamp">{{ timestamp }}</span>
+    </p>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4 mb-4">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-database"></i> Database</h5>
+        </div>
+        <div class="card-body">
+          <div id="database-status">
+            <div class="d-flex align-items-center">
+              <div
+                class="spinner-border spinner-border-sm text-primary me-2"
+                role="status"
+              >
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <span>Checking connection...</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    
-    <div class="alert alert-info">
-        <h4 class="alert-heading"><i class="bi bi-info-circle"></i> System Health Monitor</h4>
-        <p>This page shows the current status of all TRAXOVO system components.</p>
-        <hr>
-        <p class="mb-0">Last checked: <span id="timestamp">{{ timestamp }}</span></p>
+
+    <div class="col-md-4 mb-4">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-cloud"></i> Gauge API</h5>
+        </div>
+        <div class="card-body">
+          <div id="gauge-api-status">
+            <div class="d-flex align-items-center">
+              <div
+                class="spinner-border spinner-border-sm text-primary me-2"
+                role="status"
+              >
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <span>Checking connection...</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-database"></i> Database</h5>
-                </div>
-                <div class="card-body">
-                    <div id="database-status">
-                        <div class="d-flex align-items-center">
-                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            <span>Checking connection...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+    <div class="col-md-4 mb-4">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-folder"></i> File Storage</h5>
         </div>
-        
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-cloud"></i> Gauge API</h5>
-                </div>
-                <div class="card-body">
-                    <div id="gauge-api-status">
-                        <div class="d-flex align-items-center">
-                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            <span>Checking connection...</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="card-body">
+          <div id="storage-status">
+            <div class="d-flex align-items-center">
+              <div
+                class="spinner-border spinner-border-sm text-primary me-2"
+                role="status"
+              >
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <span>Checking access...</span>
             </div>
+          </div>
         </div>
-        
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-folder"></i> File Storage</h5>
-                </div>
-                <div class="card-body">
-                    <div id="storage-status">
-                        <div class="d-flex align-items-center">
-                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            <span>Checking access...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
-    
-    <div class="row">
-        <div class="col-12 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-activity"></i> System Resources</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <h5>Memory Usage</h5>
-                            <div class="progress mb-2" style="height: 20px;">
-                                <div id="memory-usage" class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <h5>CPU Usage</h5>
-                            <div class="progress mb-2" style="height: 20px;">
-                                <div id="cpu-usage" class="progress-bar bg-success" role="progressbar" style="width: 10%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">10%</div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <h5>Disk Usage</h5>
-                            <div class="progress mb-2" style="height: 20px;">
-                                <div id="disk-usage" class="progress-bar bg-info" role="progressbar" style="width: 40%;" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">40%</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer bg-light">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">System resources are updated every 60 seconds</small>
-                        <button id="refresh-status" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-arrow-repeat"></i> Refresh Now
-                        </button>
-                    </div>
-                </div>
-            </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 mb-4">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-activity"></i> System Resources</h5>
         </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4">
+              <h5>Memory Usage</h5>
+              <div class="progress mb-2" style="height: 20px">
+                <div
+                  id="memory-usage"
+                  class="progress-bar"
+                  role="progressbar"
+                  style="width: 25%"
+                  aria-valuenow="25"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+                  25%
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <h5>CPU Usage</h5>
+              <div class="progress mb-2" style="height: 20px">
+                <div
+                  id="cpu-usage"
+                  class="progress-bar bg-success"
+                  role="progressbar"
+                  style="width: 10%"
+                  aria-valuenow="10"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+                  10%
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <h5>Disk Usage</h5>
+              <div class="progress mb-2" style="height: 20px">
+                <div
+                  id="disk-usage"
+                  class="progress-bar bg-info"
+                  role="progressbar"
+                  style="width: 40%"
+                  aria-valuenow="40"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+                  40%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted"
+              >System resources are updated every 60 seconds</small
+            >
+            <button id="refresh-status" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-arrow-repeat"></i> Refresh Now
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-    
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-tools"></i> Admin Tools</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{{ url_for('system_admin.index') }}" class="btn btn-primary">
-                            <i class="bi bi-gear"></i> System Admin
-                        </a>
-                        <a href="{{ url_for('kaizen_admin.index') }}" class="btn btn-success">
-                            <i class="bi bi-shield-check"></i> Kaizen Admin
-                        </a>
-                    </div>
-                </div>
-            </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-tools"></i> Admin Tools</h5>
         </div>
-        
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-bell"></i> System Notifications</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group" id="notification-list">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>System Health Check</strong>
-                                <p class="mb-0 small text-muted">System status checked</p>
-                            </div>
-                            <span class="badge bg-primary rounded-pill">{{ timestamp }}</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <a
+              href="{{ url_for('system_admin.index') }}"
+              class="btn btn-primary"
+            >
+              <i class="bi bi-gear"></i> System Admin
+            </a>
+            <a
+              href="{{ url_for('kaizen_admin.index') }}"
+              class="btn btn-success"
+            >
+              <i class="bi bi-shield-check"></i> Kaizen Admin
+            </a>
+          </div>
         </div>
+      </div>
     </div>
+
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-bell"></i> System Notifications</h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-group" id="notification-list">
+            <li
+              class="list-group-item d-flex justify-content-between align-items-center"
+            >
+              <div>
+                <strong>System Health Check</strong>
+                <p class="mb-0 small text-muted">System status checked</p>
+              </div>
+              <span class="badge bg-primary rounded-pill">{{ timestamp }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Fetch status on page load
-        fetchSystemStatus();
-        
-        // Set up refresh button
-        document.getElementById('refresh-status').addEventListener('click', fetchSystemStatus);
-    });
-    
-    function fetchSystemStatus() {
-        // Update timestamp
-        document.getElementById('timestamp').textContent = new Date().toLocaleString();
-        
-        // Fetch status from API
-        fetch('/system-health/api/status')
-            .then(response => response.json())
-            .then(data => {
-                updateStatusDisplay(data);
-                addNotification('System status updated');
-            })
-            .catch(error => {
-                console.error('Error fetching system status:', error);
-                updateStatusError();
-            });
-            
-        // Simulate resource usage update (in a real app, this would come from the API)
-        simulateResourceUsage();
-    }
-    
-    function updateStatusDisplay(data) {
-        // Update database status
-        const dbStatus = document.getElementById('database-status');
-        if (data.database === 'connected') {
-            dbStatus.innerHTML = `
+  document.addEventListener("DOMContentLoaded", function () {
+    // Fetch status on page load
+    fetchSystemStatus();
+
+    // Set up refresh button
+    document
+      .getElementById("refresh-status")
+      .addEventListener("click", fetchSystemStatus);
+  });
+
+  function fetchSystemStatus() {
+    // Update timestamp
+    document.getElementById("timestamp").textContent =
+      new Date().toLocaleString();
+
+    // Fetch status from API
+    fetch("/system-health/api/status")
+      .then((response) => response.json())
+      .then((data) => {
+        updateStatusDisplay(data);
+        addNotification("System status updated");
+      })
+      .catch((error) => {
+        console.error("Error fetching system status:", error);
+        updateStatusError();
+      });
+
+    // Simulate resource usage update (in a real app, this would come from the API)
+    simulateResourceUsage();
+  }
+
+  function updateStatusDisplay(data) {
+    // Update database status
+    const dbStatus = document.getElementById("database-status");
+    if (data.database === "connected") {
+      dbStatus.innerHTML = `
                 <div class="d-flex align-items-center">
                     <span class="badge bg-success me-2">Connected</span>
                     <span>Database connection is active</span>
                 </div>
             `;
-        } else {
-            dbStatus.innerHTML = `
+    } else {
+      dbStatus.innerHTML = `
                 <div class="d-flex align-items-center">
                     <span class="badge bg-danger me-2">Disconnected</span>
                     <span>Database connection failed</span>
                 </div>
             `;
-        }
-        
-        // Update Gauge API status
-        const gaugeStatus = document.getElementById('gauge-api-status');
-        if (data.gauge_api === 'connected') {
-            gaugeStatus.innerHTML = `
+    }
+
+    // Update Gauge API status
+    const gaugeStatus = document.getElementById("gauge-api-status");
+    if (data.gauge_api === "connected") {
+      gaugeStatus.innerHTML = `
                 <div class="d-flex align-items-center">
                     <span class="badge bg-success me-2">Connected</span>
                     <span>Gauge API connection is active</span>
                 </div>
             `;
-        } else if (data.gauge_api === 'not_configured') {
-            gaugeStatus.innerHTML = `
+    } else if (data.gauge_api === "not_configured") {
+      gaugeStatus.innerHTML = `
                 <div class="d-flex align-items-center">
                     <span class="badge bg-warning me-2">Not Configured</span>
                     <span>Gauge API is not configured</span>
                 </div>
             `;
-        } else {
-            gaugeStatus.innerHTML = `
+    } else {
+      gaugeStatus.innerHTML = `
                 <div class="d-flex align-items-center">
                     <span class="badge bg-danger me-2">Error</span>
                     <span>Gauge API connection failed</span>
                 </div>
             `;
-        }
-        
-        // Update storage status
-        const storageStatus = document.getElementById('storage-status');
-        if (data.storage === 'connected') {
-            storageStatus.innerHTML = `
+    }
+
+    // Update storage status
+    const storageStatus = document.getElementById("storage-status");
+    if (data.storage === "connected") {
+      storageStatus.innerHTML = `
                 <div class="d-flex align-items-center">
                     <span class="badge bg-success me-2">Available</span>
                     <span>File storage is accessible</span>
                 </div>
             `;
-        } else {
-            storageStatus.innerHTML = `
+    } else {
+      storageStatus.innerHTML = `
                 <div class="d-flex align-items-center">
                     <span class="badge bg-danger me-2">Error</span>
                     <span>File storage access failed</span>
                 </div>
             `;
-        }
     }
-    
-    function updateStatusError() {
-        // Update all status displays to show error
-        document.getElementById('database-status').innerHTML = `
+  }
+
+  function updateStatusError() {
+    // Update all status displays to show error
+    document.getElementById("database-status").innerHTML = `
             <div class="d-flex align-items-center">
                 <span class="badge bg-danger me-2">Error</span>
                 <span>Could not check database status</span>
             </div>
         `;
-        
-        document.getElementById('gauge-api-status').innerHTML = `
+
+    document.getElementById("gauge-api-status").innerHTML = `
             <div class="d-flex align-items-center">
                 <span class="badge bg-danger me-2">Error</span>
                 <span>Could not check API status</span>
             </div>
         `;
-        
-        document.getElementById('storage-status').innerHTML = `
+
+    document.getElementById("storage-status").innerHTML = `
             <div class="d-flex align-items-center">
                 <span class="badge bg-danger me-2">Error</span>
                 <span>Could not check storage status</span>
             </div>
         `;
-    }
-    
-    function simulateResourceUsage() {
-        // Simulate memory usage (random between 20-60%)
-        const memoryUsage = Math.floor(Math.random() * 40) + 20;
-        const memoryBar = document.getElementById('memory-usage');
-        memoryBar.style.width = `${memoryUsage}%`;
-        memoryBar.textContent = `${memoryUsage}%`;
-        memoryBar.setAttribute('aria-valuenow', memoryUsage);
-        
-        // Simulate CPU usage (random between 5-30%)
-        const cpuUsage = Math.floor(Math.random() * 25) + 5;
-        const cpuBar = document.getElementById('cpu-usage');
-        cpuBar.style.width = `${cpuUsage}%`;
-        cpuBar.textContent = `${cpuUsage}%`;
-        cpuBar.setAttribute('aria-valuenow', cpuUsage);
-        
-        // Simulate disk usage (random between 30-70%)
-        const diskUsage = Math.floor(Math.random() * 40) + 30;
-        const diskBar = document.getElementById('disk-usage');
-        diskBar.style.width = `${diskUsage}%`;
-        diskBar.textContent = `${diskUsage}%`;
-        diskBar.setAttribute('aria-valuenow', diskUsage);
-    }
-    
-    function addNotification(message) {
-        const notificationList = document.getElementById('notification-list');
-        const newNotification = document.createElement('li');
-        newNotification.className = 'list-group-item d-flex justify-content-between align-items-center';
-        newNotification.innerHTML = `
+  }
+
+  function simulateResourceUsage() {
+    // Simulate memory usage (random between 20-60%)
+    const memoryUsage = Math.floor(Math.random() * 40) + 20;
+    const memoryBar = document.getElementById("memory-usage");
+    memoryBar.style.width = `${memoryUsage}%`;
+    memoryBar.textContent = `${memoryUsage}%`;
+    memoryBar.setAttribute("aria-valuenow", memoryUsage);
+
+    // Simulate CPU usage (random between 5-30%)
+    const cpuUsage = Math.floor(Math.random() * 25) + 5;
+    const cpuBar = document.getElementById("cpu-usage");
+    cpuBar.style.width = `${cpuUsage}%`;
+    cpuBar.textContent = `${cpuUsage}%`;
+    cpuBar.setAttribute("aria-valuenow", cpuUsage);
+
+    // Simulate disk usage (random between 30-70%)
+    const diskUsage = Math.floor(Math.random() * 40) + 30;
+    const diskBar = document.getElementById("disk-usage");
+    diskBar.style.width = `${diskUsage}%`;
+    diskBar.textContent = `${diskUsage}%`;
+    diskBar.setAttribute("aria-valuenow", diskUsage);
+  }
+
+  function addNotification(message) {
+    const notificationList = document.getElementById("notification-list");
+    const newNotification = document.createElement("li");
+    newNotification.className =
+      "list-group-item d-flex justify-content-between align-items-center";
+    newNotification.innerHTML = `
             <div>
                 <strong>System Update</strong>
                 <p class="mb-0 small text-muted">${message}</p>
             </div>
             <span class="badge bg-info rounded-pill">${new Date().toLocaleTimeString()}</span>
         `;
-        
-        // Add to top of list
-        notificationList.insertBefore(newNotification, notificationList.firstChild);
-        
-        // Limit to 5 notifications
-        if (notificationList.children.length > 5) {
-            notificationList.removeChild(notificationList.lastChild);
-        }
+
+    // Add to top of list
+    notificationList.insertBefore(newNotification, notificationList.firstChild);
+
+    // Limit to 5 notifications
+    if (notificationList.children.length > 5) {
+      notificationList.removeChild(notificationList.lastChild);
     }
+  }
 </script>
-{% endblock %}
-{% endblock %}
+{% endblock %} {% endblock %}

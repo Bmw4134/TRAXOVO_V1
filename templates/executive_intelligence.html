@@ -1,97 +1,111 @@
-
-{% extends "base.html" %}
-
-{% block title %}Executive Intelligence - TRAXOVO{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Executive Intelligence - TRAXOVO{%
+endblock %} {% block content %}
 <div class="container-fluid">
-    <!-- Executive KPI Overview -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-gradient-primary text-white">
-                <div class="card-body">
-                    <h2>Executive Fleet Intelligence</h2>
-                    <p class="mb-0">Real-time operational insights and predictive analytics</p>
-                </div>
-            </div>
+  <!-- Executive KPI Overview -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card bg-gradient-primary text-white">
+        <div class="card-body">
+          <h2>Executive Fleet Intelligence</h2>
+          <p class="mb-0">
+            Real-time operational insights and predictive analytics
+          </p>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Key Performance Indicators -->
-    <div class="row g-4 mb-4">
-        <div class="col-lg-3 col-md-6">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h3 class="text-primary">$2.1M</h3>
-                    <p class="text-muted">YTD Revenue</p>
-                    <small class="text-success">↗ 12% vs last year</small>
-                </div>
-            </div>
+  <!-- Key Performance Indicators -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-3 col-md-6">
+      <div class="card">
+        <div class="card-body text-center">
+          <h3 class="text-primary">$2.1M</h3>
+          <p class="text-muted">YTD Revenue</p>
+          <small class="text-success">↗ 12% vs last year</small>
         </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h3 class="text-success">91.7%</h3>
-                    <p class="text-muted">Fleet Efficiency</p>
-                    <small class="text-info">Above industry average</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h3 class="text-warning">717</h3>
-                    <p class="text-muted">Total Assets</p>
-                    <small class="text-muted">614 Active</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h3 class="text-info">$28.5K</h3>
-                    <p class="text-muted">Monthly Optimization</p>
-                    <small class="text-success">Cost savings identified</small>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+    <div class="col-lg-3 col-md-6">
+      <div class="card">
+        <div class="card-body text-center">
+          <h3 class="text-success">91.7%</h3>
+          <p class="text-muted">Fleet Efficiency</p>
+          <small class="text-info">Above industry average</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+      <div class="card">
+        <div class="card-body text-center">
+          <h3 class="text-warning">717</h3>
+          <p class="text-muted">Total Assets</p>
+          <small class="text-muted">614 Active</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+      <div class="card">
+        <div class="card-body text-center">
+          <h3 class="text-info">$28.5K</h3>
+          <p class="text-muted">Monthly Optimization</p>
+          <small class="text-success">Cost savings identified</small>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Intelligence Insights -->
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="fas fa-brain text-info me-2"></i>Fleet Intelligence Insights</h5>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <strong>Optimization Opportunity:</strong> Relocating 3 CAT excavators to high-demand zones could increase utilization by 15% and generate $4,200 additional monthly revenue.
-                    </div>
-                    <div class="alert alert-success">
-                        <strong>Performance Excellence:</strong> Your fleet efficiency of 91.7% exceeds industry benchmark by 8.3 percentage points.
-                    </div>
-                    <div class="alert alert-warning">
-                        <strong>Maintenance Alert:</strong> Predictive analytics suggest scheduling maintenance for 12 units this month to prevent 94% probability of breakdowns.
-                    </div>
-                </div>
-            </div>
+  <!-- Intelligence Insights -->
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header">
+          <h5>
+            <i class="fas fa-brain text-info me-2"></i>Fleet Intelligence
+            Insights
+          </h5>
         </div>
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="fas fa-chart-line text-success me-2"></i>Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="/fleet-optimization" class="btn btn-primary">Fleet Optimization</a>
-                        <a href="/revenue-analytics" class="btn btn-success">Revenue Analytics</a>
-                        <a href="/predictive-maintenance" class="btn btn-warning">Predictive Maintenance</a>
-                        <a href="/cost-analysis" class="btn btn-info">Cost Analysis</a>
-                    </div>
-                </div>
-            </div>
+        <div class="card-body">
+          <div class="alert alert-info">
+            <strong>Optimization Opportunity:</strong> Relocating 3 CAT
+            excavators to high-demand zones could increase utilization by 15%
+            and generate $4,200 additional monthly revenue.
+          </div>
+          <div class="alert alert-success">
+            <strong>Performance Excellence:</strong> Your fleet efficiency of
+            91.7% exceeds industry benchmark by 8.3 percentage points.
+          </div>
+          <div class="alert alert-warning">
+            <strong>Maintenance Alert:</strong> Predictive analytics suggest
+            scheduling maintenance for 12 units this month to prevent 94%
+            probability of breakdowns.
+          </div>
         </div>
+      </div>
     </div>
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header">
+          <h5>
+            <i class="fas fa-chart-line text-success me-2"></i>Quick Actions
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <a href="/fleet-optimization" class="btn btn-primary"
+              >Fleet Optimization</a
+            >
+            <a href="/revenue-analytics" class="btn btn-success"
+              >Revenue Analytics</a
+            >
+            <a href="/predictive-maintenance" class="btn btn-warning"
+              >Predictive Maintenance</a
+            >
+            <a href="/cost-analysis" class="btn btn-info">Cost Analysis</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

@@ -1,248 +1,337 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Automated Attendance Verification - TRAXOVO</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-        
-        .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
-        
-        .header {
-            background: rgba(255,255,255,0.95);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        
-        .header h1 {
-            font-size: 2.2rem;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-        
-        .stat-card {
-            background: rgba(255,255,255,0.95);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        
-        .stat-value.good { color: #28a745; }
-        .stat-value.warning { color: #ffc107; }
-        .stat-value.critical { color: #dc3545; }
-        
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: #333;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 15px;
+      }
+
+      .header {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .header h1 {
+        font-size: 2.2rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 8px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 25px;
+      }
+
+      .stat-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .stat-value.good {
+        color: #28a745;
+      }
+      .stat-value.warning {
+        color: #ffc107;
+      }
+      .stat-value.critical {
+        color: #dc3545;
+      }
+
+      .employee-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+      }
+
+      .employee-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .employee-card:hover {
+        transform: translateY(-3px);
+      }
+
+      .employee-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+      }
+
+      .employee-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #333;
+      }
+
+      .employee-id {
+        color: #666;
+        font-size: 0.85rem;
+        margin-top: 2px;
+      }
+
+      .risk-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .risk-low {
+        background: #d4edda;
+        color: #155724;
+      }
+      .risk-medium {
+        background: #fff3cd;
+        color: #856404;
+      }
+      .risk-high {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      .risk-critical {
+        background: #f5c6cb;
+        color: #721c24;
+      }
+
+      .verification-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .detail-item {
+        text-align: center;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+      }
+
+      .detail-value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #28a745;
+      }
+
+      .detail-label {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 2px;
+      }
+
+      .discrepancy-bar {
+        background: #e9ecef;
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 10px;
+      }
+
+      .discrepancy-fill {
+        height: 100%;
+        transition: width 0.3s ease;
+      }
+
+      .discrepancy-low {
+        background: #28a745;
+      }
+      .discrepancy-medium {
+        background: #ffc107;
+      }
+      .discrepancy-high {
+        background: #dc3545;
+      }
+
+      .back-nav {
+        margin-bottom: 15px;
+      }
+      .back-nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      @media (max-width: 768px) {
         .employee-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
+          grid-template-columns: 1fr;
+          gap: 15px;
         }
-        
-        .employee-card {
-            background: rgba(255,255,255,0.95);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        
-        .employee-card:hover { transform: translateY(-3px); }
-        
-        .employee-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-        
-        .employee-name {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: #333;
-        }
-        
-        .employee-id {
-            color: #666;
-            font-size: 0.85rem;
-            margin-top: 2px;
-        }
-        
-        .risk-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .risk-low { background: #d4edda; color: #155724; }
-        .risk-medium { background: #fff3cd; color: #856404; }
-        .risk-high { background: #f8d7da; color: #721c24; }
-        .risk-critical { background: #f5c6cb; color: #721c24; }
-        
         .verification-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
+          grid-template-columns: 1fr;
+          gap: 10px;
         }
-        
-        .detail-item {
-            text-align: center;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
+        .header h1 {
+          font-size: 1.8rem;
         }
-        
-        .detail-value {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #28a745;
-        }
-        
-        .detail-label {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 2px;
-        }
-        
-        .discrepancy-bar {
-            background: #e9ecef;
-            height: 8px;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-        
-        .discrepancy-fill {
-            height: 100%;
-            transition: width 0.3s ease;
-        }
-        
-        .discrepancy-low { background: #28a745; }
-        .discrepancy-medium { background: #ffc107; }
-        .discrepancy-high { background: #dc3545; }
-        
-        .back-nav { margin-bottom: 15px; }
-        .back-nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        @media (max-width: 768px) {
-            .employee-grid { grid-template-columns: 1fr; gap: 15px; }
-            .verification-details { grid-template-columns: 1fr; gap: 10px; }
-            .header h1 { font-size: 1.8rem; }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="back-nav">
-            <a href="/">← Back to Dashboard</a>
+      <div class="back-nav">
+        <a href="/">← Back to Dashboard</a>
+      </div>
+
+      <div class="header">
+        <h1>Automated Attendance Verification</h1>
+        <p>
+          Ground Works timecard verification using authentic vehicle GPS
+          tracking
+        </p>
+      </div>
+
+      {% if report and report.summary %}
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">
+            {{ report.summary.total_employees_analyzed }}
+          </div>
+          <div class="stat-label">Employees Analyzed</div>
         </div>
-        
-        <div class="header">
-            <h1>Automated Attendance Verification</h1>
-            <p>Ground Works timecard verification using authentic vehicle GPS tracking</p>
+        <div class="stat-card">
+          <div class="stat-value critical">
+            {{ report.summary.high_risk_employees }}
+          </div>
+          <div class="stat-label">High Risk Employees</div>
         </div>
-        
-        {% if report and report.summary %}
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value">{{ report.summary.total_employees_analyzed }}</div>
-                <div class="stat-label">Employees Analyzed</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value critical">{{ report.summary.high_risk_employees }}</div>
-                <div class="stat-label">High Risk Employees</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value warning">{{ report.summary.total_hour_discrepancy }}</div>
-                <div class="stat-label">Total Hour Discrepancy</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value good">{{ report.summary.average_gps_confidence }}%</div>
-                <div class="stat-label">GPS Confidence</div>
-            </div>
+        <div class="stat-card">
+          <div class="stat-value warning">
+            {{ report.summary.total_hour_discrepancy }}
+          </div>
+          <div class="stat-label">Total Hour Discrepancy</div>
         </div>
-        
-        <div class="employee-grid">
-            {% for emp in report.verification_data[:20] %}
-            <div class="employee-card">
-                <div class="employee-header">
-                    <div>
-                        <div class="employee-name">{{ emp.employee_name }}</div>
-                        <div class="employee-id">ID: {{ emp.employee_id }}</div>
-                        <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">{{ emp.assigned_vehicle }}</div>
-                    </div>
-                    <span class="risk-badge risk-{{ emp.risk_level.lower() }}">{{ emp.risk_level }}</span>
-                </div>
-                
-                <div class="verification-details">
-                    <div class="detail-item">
-                        <div class="detail-value">{{ "{:.1f}".format(emp.timecard_hours) }}</div>
-                        <div class="detail-label">Timecard Hours</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-value">{{ "{:.1f}".format(emp.gps_verified_hours) }}</div>
-                        <div class="detail-label">GPS Verified</div>
-                    </div>
-                </div>
-                
-                <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                        <span style="font-size: 0.8rem; color: #666;">Discrepancy</span>
-                        <span style="font-size: 0.8rem; font-weight: 600;">{{ "{:.1f}".format(emp.discrepancy_percentage) }}%</span>
-                    </div>
-                    <div class="discrepancy-bar">
-                        <div class="discrepancy-fill discrepancy-{% if emp.discrepancy_percentage <= 10 %}low{% elif emp.discrepancy_percentage <= 25 %}medium{% else %}high{% endif %}" 
-                             style="width: {{ min(100, emp.discrepancy_percentage) }}%"></div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 15px; font-size: 0.8rem; color: #666;">
-                    GPS Status: {% if emp.vehicle_gps_status %}✅ Enabled{% else %}❌ Disabled{% endif %}
-                </div>
+        <div class="stat-card">
+          <div class="stat-value good">
+            {{ report.summary.average_gps_confidence }}%
+          </div>
+          <div class="stat-label">GPS Confidence</div>
+        </div>
+      </div>
+
+      <div class="employee-grid">
+        {% for emp in report.verification_data[:20] %}
+        <div class="employee-card">
+          <div class="employee-header">
+            <div>
+              <div class="employee-name">{{ emp.employee_name }}</div>
+              <div class="employee-id">ID: {{ emp.employee_id }}</div>
+              <div style="font-size: 0.8rem; color: #666; margin-top: 5px">
+                {{ emp.assigned_vehicle }}
+              </div>
             </div>
-            {% endfor %}
+            <span class="risk-badge risk-{{ emp.risk_level.lower() }}"
+              >{{ emp.risk_level }}</span
+            >
+          </div>
+
+          <div class="verification-details">
+            <div class="detail-item">
+              <div class="detail-value">
+                {{ "{:.1f}".format(emp.timecard_hours) }}
+              </div>
+              <div class="detail-label">Timecard Hours</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-value">
+                {{ "{:.1f}".format(emp.gps_verified_hours) }}
+              </div>
+              <div class="detail-label">GPS Verified</div>
+            </div>
+          </div>
+
+          <div>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 5px;
+              "
+            >
+              <span style="font-size: 0.8rem; color: #666">Discrepancy</span>
+              <span style="font-size: 0.8rem; font-weight: 600"
+                >{{ "{:.1f}".format(emp.discrepancy_percentage) }}%</span
+              >
+            </div>
+            <div class="discrepancy-bar">
+              <div
+                class="discrepancy-fill discrepancy-{% if emp.discrepancy_percentage <= 10 %}low{% elif emp.discrepancy_percentage <= 25 %}medium{% else %}high{% endif %}"
+                style="width: {{ min(100, emp.discrepancy_percentage) }}%"
+              ></div>
+            </div>
+          </div>
+
+          <div style="margin-top: 15px; font-size: 0.8rem; color: #666">
+            GPS Status: {% if emp.vehicle_gps_status %}✅ Enabled{% else %}❌
+            Disabled{% endif %}
+          </div>
         </div>
-        
-        {% else %}
-        <div style="background: rgba(255,255,255,0.95); border-radius: 15px; padding: 40px; text-align: center;">
-            <h2 style="color: #333; margin-bottom: 15px;">Loading Attendance Verification...</h2>
-            <p style="color: #666;">Processing Ground Works timecards and vehicle GPS data</p>
-            {% if error %}<p style="color: #dc3545; margin-top: 15px;">Error: {{ error }}</p>{% endif %}
-        </div>
+        {% endfor %}
+      </div>
+
+      {% else %}
+      <div
+        style="
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 15px;
+          padding: 40px;
+          text-align: center;
+        "
+      >
+        <h2 style="color: #333; margin-bottom: 15px">
+          Loading Attendance Verification...
+        </h2>
+        <p style="color: #666">
+          Processing Ground Works timecards and vehicle GPS data
+        </p>
+        {% if error %}
+        <p style="color: #dc3545; margin-top: 15px">Error: {{ error }}</p>
         {% endif %}
+      </div>
+      {% endif %}
     </div>
-</body>
+  </body>
 </html>

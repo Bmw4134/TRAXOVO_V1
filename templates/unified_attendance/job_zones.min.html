@@ -1,40 +1,230 @@
-{% extends "layout_unified.html" %}
-
-{% block title %}Job Zone Configuration - TRAXOVO{% endblock %}
-
-{% block breadcrumb %}
-<nav class="traxora-breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="/">Dashboard</a></li><li class="breadcrumb-item"><a href="{{ url_for('unified_attendance.dashboard') }}">Unified Attendance</a></li><li class="breadcrumb-item active">Job Zone Configuration</li></ol></nav>
-{% endblock %}
-
-{% block content %}
-<div class="container-fluid"><div class="d-flex justify-content-between align-items-center mb-4"><h1 class="h3 mb-0">Job Zone Configuration / PM Assignment</h1><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#jobModal"><i class="fas fa-plus me-2"></i>Add Job Zone
-</button></div><div class="card traxora-card"><div class="card-header"><h5 class="card-title mb-0">Active Job Zones</h5></div><div class="card-body">
-{% if jobs %}
-<div class="table-responsive"><table class="table table-hover"><thead><tr><th>Job Name</th><th>PM</th><th>Start Date</th><th>End Date</th><th>Geofence</th><th>Schedule</th><th>Actions</th></tr></thead><tbody>
-{% for job in jobs %}
-<tr><td><strong>{{ job.name }}</strong></td><td>{{ job.pm }}</td><td>{{ job.start_date }}</td><td>{{ job.end_date }}</td><td><small class="text-muted">
-{{ job.geofence.latitude }}, {{ job.geofence.longitude }}
-<br>Radius: {{ job.geofence.radius }}m
-</small></td><td>
-{% if job.night_work %}
-<span class="badge bg-dark me-1">Night</span>
-{% endif %}
-{% if job.weekend_work %}
-<span class="badge bg-warning">Weekend</span>
-{% endif %}
-{% if not job.night_work and not job.weekend_work %}
-<span class="badge bg-light text-dark">Standard</span>
-{% endif %}
-</td><td><button class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button></td></tr>
-{% endfor %}
-</tbody></table></div>
-{% else %}
-<div class="text-center py-4"><i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i><h5>No Job Zones Configured</h5><p class="text-muted">Create job zones to map GPS data and timecards</p><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#jobModal"><i class="fas fa-plus me-2"></i>Add First Job Zone
-</button></div>
-{% endif %}
-</div></div></div><div class="modal fade" id="jobModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Add Job Zone</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><form action="{{ url_for('unified_attendance.save_job_zone') }}" method="POST"><div class="modal-body"><div class="row"><div class="col-md-6 mb-3"><label for="name" class="form-label">Job Name *</label><input type="text" class="form-control" id="name" name="name" required></div><div class="col-md-6 mb-3"><label for="pm" class="form-label">Project Manager *</label><input type="text" class="form-control" id="pm" name="pm" required></div></div><div class="row"><div class="col-md-6 mb-3"><label for="start_date" class="form-label">Start Date</label><input type="date" class="form-control" id="start_date" name="start_date"></div><div class="col-md-6 mb-3"><label for="end_date" class="form-label">End Date</label><input type="date" class="form-control" id="end_date" name="end_date"></div></div><div class="row"><div class="col-md-4 mb-3"><label for="latitude" class="form-label">Latitude</label><input type="number" step="any" class="form-control" id="latitude" name="latitude" placeholder="32.7767"></div><div class="col-md-4 mb-3"><label for="longitude" class="form-label">Longitude</label><input type="number" step="any" class="form-control" id="longitude" name="longitude" placeholder="-96.7970"></div><div class="col-md-4 mb-3"><label for="radius" class="form-label">Radius (meters)</label><input type="number" class="form-control" id="radius" name="radius" value="100"></div></div><div class="row"><div class="col-md-6 mb-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="night_work" name="night_work"><label class="form-check-label" for="night_work">
-Night Work (After 6 PM)
-</label></div></div><div class="col-md-6 mb-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="weekend_work" name="weekend_work"><label class="form-check-label" for="weekend_work">
-Weekend Work
-</label></div></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save Job Zone</button></div></form></div></div></div>
+{% extends "layout_unified.html" %} {% block title %}Job Zone Configuration -
+TRAXOVO{% endblock %} {% block breadcrumb %}
+<nav class="traxora-breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('unified_attendance.dashboard') }}"
+        >Unified Attendance</a
+      >
+    </li>
+    <li class="breadcrumb-item active">Job Zone Configuration</li>
+  </ol>
+</nav>
+{% endblock %} {% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Job Zone Configuration / PM Assignment</h1>
+    <button
+      type="button"
+      class="btn btn-primary"
+      data-bs-toggle="modal"
+      data-bs-target="#jobModal"
+    >
+      <i class="fas fa-plus me-2"></i>Add Job Zone
+    </button>
+  </div>
+  <div class="card traxora-card">
+    <div class="card-header">
+      <h5 class="card-title mb-0">Active Job Zones</h5>
+    </div>
+    <div class="card-body">
+      {% if jobs %}
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Job Name</th>
+              <th>PM</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Geofence</th>
+              <th>Schedule</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in jobs %}
+            <tr>
+              <td><strong>{{ job.name }}</strong></td>
+              <td>{{ job.pm }}</td>
+              <td>{{ job.start_date }}</td>
+              <td>{{ job.end_date }}</td>
+              <td>
+                <small class="text-muted">
+                  {{ job.geofence.latitude }}, {{ job.geofence.longitude }}
+                  <br />Radius: {{ job.geofence.radius }}m
+                </small>
+              </td>
+              <td>
+                {% if job.night_work %}
+                <span class="badge bg-dark me-1">Night</span>
+                {% endif %} {% if job.weekend_work %}
+                <span class="badge bg-warning">Weekend</span>
+                {% endif %} {% if not job.night_work and not job.weekend_work %}
+                <span class="badge bg-light text-dark">Standard</span>
+                {% endif %}
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary me-1">
+                  <i class="fas fa-edit"></i></button
+                ><button class="btn btn-sm btn-outline-danger">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-4">
+        <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+        <h5>No Job Zones Configured</h5>
+        <p class="text-muted">Create job zones to map GPS data and timecards</p>
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#jobModal"
+        >
+          <i class="fas fa-plus me-2"></i>Add First Job Zone
+        </button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="jobModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Job Zone</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <form
+        action="{{ url_for('unified_attendance.save_job_zone') }}"
+        method="POST"
+      >
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="name" class="form-label">Job Name *</label
+              ><input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                required
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="pm" class="form-label">Project Manager *</label
+              ><input
+                type="text"
+                class="form-control"
+                id="pm"
+                name="pm"
+                required
+              />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="start_date" class="form-label">Start Date</label
+              ><input
+                type="date"
+                class="form-control"
+                id="start_date"
+                name="start_date"
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="end_date" class="form-label">End Date</label
+              ><input
+                type="date"
+                class="form-control"
+                id="end_date"
+                name="end_date"
+              />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="latitude" class="form-label">Latitude</label
+              ><input
+                type="number"
+                step="any"
+                class="form-control"
+                id="latitude"
+                name="latitude"
+                placeholder="32.7767"
+              />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="longitude" class="form-label">Longitude</label
+              ><input
+                type="number"
+                step="any"
+                class="form-control"
+                id="longitude"
+                name="longitude"
+                placeholder="-96.7970"
+              />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="radius" class="form-label">Radius (meters)</label
+              ><input
+                type="number"
+                class="form-control"
+                id="radius"
+                name="radius"
+                value="100"
+              />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="night_work"
+                  name="night_work"
+                /><label class="form-check-label" for="night_work">
+                  Night Work (After 6 PM)
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="weekend_work"
+                  name="weekend_work"
+                /><label class="form-check-label" for="weekend_work">
+                  Weekend Work
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel</button
+          ><button type="submit" class="btn btn-primary">Save Job Zone</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}

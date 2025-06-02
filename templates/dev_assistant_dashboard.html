@@ -1,177 +1,206 @@
-{% extends "master_unified.html" %}
-
-{% block content %}
+{% extends "master_unified.html" %} {% block content %}
 <!-- Development Assistant Dashboard -->
 <div class="row g-4 mb-4">
-    <div class="col-12">
-        <div class="alert alert-info">
-            <i class="fas fa-robot me-2"></i>
-            <strong>Persistent Development Assistant Active:</strong> This dashboard maintains context and state across all interactions.
-        </div>
+  <div class="col-12">
+    <div class="alert alert-info">
+      <i class="fas fa-robot me-2"></i>
+      <strong>Persistent Development Assistant Active:</strong> This dashboard
+      maintains context and state across all interactions.
     </div>
+  </div>
 </div>
 
 <!-- System Status -->
 <div class="row g-4 mb-4">
-    <div class="col-xl-3 col-md-6">
-        <div class="card border-start border-success border-4">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="mb-0">Dev Mode</h6>
-                        <span class="badge bg-success">{{ 'Active' if system_status.dev_mode_active else 'Inactive' }}</span>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-code fa-2x text-success"></i>
-                    </div>
-                </div>
-            </div>
+  <div class="col-xl-3 col-md-6">
+    <div class="card border-start border-success border-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <h6 class="mb-0">Dev Mode</h6>
+            <span class="badge bg-success"
+              >{{ 'Active' if system_status.dev_mode_active else 'Inactive'
+              }}</span
+            >
+          </div>
+          <div class="flex-shrink-0">
+            <i class="fas fa-code fa-2x text-success"></i>
+          </div>
         </div>
+      </div>
     </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="card border-start border-primary border-4">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="mb-0">Template System</h6>
-                        <span class="badge bg-primary">{{ 'Unified' if system_status.template_system.master_template_active else 'Standard' }}</span>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-layer-group fa-2x text-primary"></i>
-                    </div>
-                </div>
-            </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="card border-start border-primary border-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <h6 class="mb-0">Template System</h6>
+            <span class="badge bg-primary"
+              >{{ 'Unified' if
+              system_status.template_system.master_template_active else
+              'Standard' }}</span
+            >
+          </div>
+          <div class="flex-shrink-0">
+            <i class="fas fa-layer-group fa-2x text-primary"></i>
+          </div>
         </div>
+      </div>
     </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="card border-start border-warning border-4">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="mb-0">Live Preview</h6>
-                        <span class="badge bg-warning">{{ 'Enabled' if system_status.template_system.live_preview_enabled else 'Disabled' }}</span>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-eye fa-2x text-warning"></i>
-                    </div>
-                </div>
-            </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="card border-start border-warning border-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <h6 class="mb-0">Live Preview</h6>
+            <span class="badge bg-warning"
+              >{{ 'Enabled' if
+              system_status.template_system.live_preview_enabled else 'Disabled'
+              }}</span
+            >
+          </div>
+          <div class="flex-shrink-0">
+            <i class="fas fa-eye fa-2x text-warning"></i>
+          </div>
         </div>
+      </div>
     </div>
-    
-    <div class="col-xl-3 col-md-6">
-        <div class="card border-start border-info border-4">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h6 class="mb-0">Navigation</h6>
-                        <span class="badge bg-info">{{ 'Unified' if system_status.routing_health.navigation_unified else 'Standard' }}</span>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-compass fa-2x text-info"></i>
-                    </div>
-                </div>
-            </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="card border-start border-info border-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <h6 class="mb-0">Navigation</h6>
+            <span class="badge bg-info"
+              >{{ 'Unified' if system_status.routing_health.navigation_unified
+              else 'Standard' }}</span
+            >
+          </div>
+          <div class="flex-shrink-0">
+            <i class="fas fa-compass fa-2x text-info"></i>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Development Controls -->
 <div class="row g-4 mb-4">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Development Controls</h5>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <button class="btn btn-primary" onclick="toggleDevMode()">
-                        <i class="fas fa-power-off me-2"></i>Toggle Development Mode
-                    </button>
-                    <button class="btn btn-success" onclick="primeAgent()">
-                        <i class="fas fa-brain me-2"></i>Prime Agent Context
-                    </button>
-                    <button class="btn btn-info" onclick="refreshStatus()">
-                        <i class="fas fa-sync-alt me-2"></i>Refresh System Status
-                    </button>
-                    <button class="btn btn-warning" onclick="exportContext()">
-                        <i class="fas fa-download me-2"></i>Export Context
-                    </button>
-                </div>
-            </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Development Controls</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          <button class="btn btn-primary" onclick="toggleDevMode()">
+            <i class="fas fa-power-off me-2"></i>Toggle Development Mode
+          </button>
+          <button class="btn btn-success" onclick="primeAgent()">
+            <i class="fas fa-brain me-2"></i>Prime Agent Context
+          </button>
+          <button class="btn btn-info" onclick="refreshStatus()">
+            <i class="fas fa-sync-alt me-2"></i>Refresh System Status
+          </button>
+          <button class="btn btn-warning" onclick="exportContext()">
+            <i class="fas fa-download me-2"></i>Export Context
+          </button>
         </div>
+      </div>
     </div>
-    
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Fleet Data Context</h5>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-6">
-                        <h4 class="text-warning">{{ system_status.fleet_metrics.total_assets }}</h4>
-                        <small class="text-muted">Total Assets</small>
-                    </div>
-                    <div class="col-6">
-                        <h4 class="text-success">{{ system_status.fleet_metrics.active_assets }}</h4>
-                        <small class="text-muted">Active Assets</small>
-                    </div>
-                </div>
-                <hr>
-                <div class="row text-center">
-                    <div class="col-6">
-                        <h4 class="text-primary">{{ system_status.fleet_metrics.total_drivers }}</h4>
-                        <small class="text-muted">Drivers</small>
-                    </div>
-                    <div class="col-6">
-                        <h4 class="text-info">${{ system_status.fleet_metrics.revenue_total }}</h4>
-                        <small class="text-muted">Revenue</small>
-                    </div>
-                </div>
-            </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Fleet Data Context</h5>
+      </div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-6">
+            <h4 class="text-warning">
+              {{ system_status.fleet_metrics.total_assets }}
+            </h4>
+            <small class="text-muted">Total Assets</small>
+          </div>
+          <div class="col-6">
+            <h4 class="text-success">
+              {{ system_status.fleet_metrics.active_assets }}
+            </h4>
+            <small class="text-muted">Active Assets</small>
+          </div>
         </div>
+        <hr />
+        <div class="row text-center">
+          <div class="col-6">
+            <h4 class="text-primary">
+              {{ system_status.fleet_metrics.total_drivers }}
+            </h4>
+            <small class="text-muted">Drivers</small>
+          </div>
+          <div class="col-6">
+            <h4 class="text-info">
+              ${{ system_status.fleet_metrics.revenue_total }}
+            </h4>
+            <small class="text-muted">Revenue</small>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Context State -->
 <div class="row g-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Current Context State</h5>
-            </div>
-            <div class="card-body">
-                <pre id="contextDisplay" class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">{{ context | tojson(indent=2) }}</pre>
-            </div>
-        </div>
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Current Context State</h5>
+      </div>
+      <div class="card-body">
+        <pre
+          id="contextDisplay"
+          class="bg-light p-3 rounded"
+          style="max-height: 400px; overflow-y: auto"
+        >
+{{ context | tojson(indent=2) }}</pre
+        >
+      </div>
     </div>
+  </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-async function toggleDevMode() {
+  async function toggleDevMode() {
     try {
-        const response = await fetch('/dev/toggle', { method: 'POST' });
-        const data = await response.json();
-        alert(data.message);
-        location.reload();
+      const response = await fetch("/dev/toggle", { method: "POST" });
+      const data = await response.json();
+      alert(data.message);
+      location.reload();
     } catch (error) {
-        console.error('Error toggling dev mode:', error);
+      console.error("Error toggling dev mode:", error);
     }
-}
+  }
 
-async function primeAgent() {
+  async function primeAgent() {
     try {
-        const response = await fetch('/dev/prime-context');
-        const data = await response.json();
-        
-        // Display prime context in a modal or new window
-        const contextWindow = window.open('', 'Prime Context', 'width=800,height=600,scrollbars=yes');
-        contextWindow.document.write(`
+      const response = await fetch("/dev/prime-context");
+      const data = await response.json();
+
+      // Display prime context in a modal or new window
+      const contextWindow = window.open(
+        "",
+        "Prime Context",
+        "width=800,height=600,scrollbars=yes",
+      );
+      contextWindow.document.write(`
             <html>
                 <head><title>Agent Prime Context</title></head>
                 <body style="font-family: monospace; padding: 20px;">
@@ -180,33 +209,37 @@ async function primeAgent() {
                 </body>
             </html>
         `);
-        
-        alert('Agent prime context generated and displayed in new window');
-    } catch (error) {
-        console.error('Error priming agent:', error);
-    }
-}
 
-async function refreshStatus() {
+      alert("Agent prime context generated and displayed in new window");
+    } catch (error) {
+      console.error("Error priming agent:", error);
+    }
+  }
+
+  async function refreshStatus() {
     try {
-        const response = await fetch('/dev/status');
-        const data = await response.json();
-        document.getElementById('contextDisplay').textContent = JSON.stringify(data, null, 2);
-        alert('System status refreshed');
+      const response = await fetch("/dev/status");
+      const data = await response.json();
+      document.getElementById("contextDisplay").textContent = JSON.stringify(
+        data,
+        null,
+        2,
+      );
+      alert("System status refreshed");
     } catch (error) {
-        console.error('Error refreshing status:', error);
+      console.error("Error refreshing status:", error);
     }
-}
+  }
 
-function exportContext() {
-    const contextData = document.getElementById('contextDisplay').textContent;
-    const blob = new Blob([contextData], { type: 'application/json' });
+  function exportContext() {
+    const contextData = document.getElementById("contextDisplay").textContent;
+    const blob = new Blob([contextData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'traxovo_context_state.json';
+    a.download = "traxovo_context_state.json";
     a.click();
     URL.revokeObjectURL(url);
-}
+  }
 </script>
 {% endblock %}

@@ -1,421 +1,484 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TRAXOVO Attendance Matrix Grid</title>
     <style>
-        body { 
-            margin: 0; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a1a;
-            color: white;
-            overflow-x: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #2980b9, #3498db);
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        .header h1 {
-            margin: 0;
-            font-size: clamp(20px, 4vw, 28px);
-            font-weight: 600;
-        }
-        .subtitle {
-            margin: 5px 0 0 0;
-            opacity: 0.9;
-            font-size: 16px;
-        }
-        
-        /* Attendance Summary Cards */
-        .summary-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .summary-card {
-            background: #2c3e50;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            border-left: 4px solid #3498db;
-        }
-        .card-value {
-            font-size: 32px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        .on-time { color: #27ae60; }
-        .late { color: #e74c3c; }
-        .early { color: #f39c12; }
-        .absent { color: #95a5a6; }
-        
-        /* Attendance Grid */
-        .grid-container {
-            padding: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        .grid-section {
-            background: #2c3e50;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .section-title {
-            color: #3498db;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-        
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #1a1a1a;
+        color: white;
+        overflow-x: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, #2980b9, #3498db);
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+      .header h1 {
+        margin: 0;
+        font-size: clamp(20px, 4vw, 28px);
+        font-weight: 600;
+      }
+      .subtitle {
+        margin: 5px 0 0 0;
+        opacity: 0.9;
+        font-size: 16px;
+      }
+
+      /* Attendance Summary Cards */
+      .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .summary-card {
+        background: #2c3e50;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        border-left: 4px solid #3498db;
+      }
+      .card-value {
+        font-size: 32px;
+        font-weight: bold;
+        margin: 10px 0;
+      }
+      .on-time {
+        color: #27ae60;
+      }
+      .late {
+        color: #e74c3c;
+      }
+      .early {
+        color: #f39c12;
+      }
+      .absent {
+        color: #95a5a6;
+      }
+
+      /* Attendance Grid */
+      .grid-container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .grid-section {
+        background: #2c3e50;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .section-title {
+        color: #3498db;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+      }
+
+      .attendance-grid {
+        display: grid;
+        grid-template-columns: 200px repeat(7, 1fr);
+        gap: 2px;
+        background: #34495e;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .grid-header {
+        background: #3498db;
+        padding: 10px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 12px;
+      }
+      .driver-name {
+        background: #34495e;
+        padding: 10px;
+        font-weight: bold;
+        border-right: 1px solid #2c3e50;
+      }
+      .attendance-cell {
+        padding: 10px;
+        text-align: center;
+        font-size: 11px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .attendance-cell:hover {
+        opacity: 0.8;
+        transform: scale(1.05);
+      }
+
+      /* Attendance Status Colors */
+      .status-on-time {
+        background: #27ae60;
+      }
+      .status-late {
+        background: #e74c3c;
+      }
+      .status-early {
+        background: #f39c12;
+      }
+      .status-absent {
+        background: #95a5a6;
+      }
+      .status-weekend {
+        background: #7f8c8d;
+      }
+
+      /* Legend */
+      .legend {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+      }
+
+      /* Filter Controls */
+      .filter-controls {
+        background: #34495e;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .filter-select {
+        background: #2c3e50;
+        color: white;
+        border: 1px solid #3498db;
+        padding: 8px 12px;
+        border-radius: 4px;
+      }
+
+      /* Mobile Responsive */
+      @media (max-width: 768px) {
         .attendance-grid {
-            display: grid;
-            grid-template-columns: 200px repeat(7, 1fr);
-            gap: 2px;
-            background: #34495e;
-            border-radius: 8px;
-            overflow: hidden;
+          grid-template-columns: 150px repeat(7, 1fr);
+          font-size: 10px;
         }
-        .grid-header {
-            background: #3498db;
-            padding: 10px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 12px;
+        .summary-cards {
+          grid-template-columns: 1fr 1fr;
+          padding: 15px;
         }
-        .driver-name {
-            background: #34495e;
-            padding: 10px;
-            font-weight: bold;
-            border-right: 1px solid #2c3e50;
+        .grid-container {
+          padding: 15px;
         }
-        .attendance-cell {
-            padding: 10px;
-            text-align: center;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .attendance-cell:hover {
-            opacity: 0.8;
-            transform: scale(1.05);
-        }
-        
-        /* Attendance Status Colors */
-        .status-on-time { background: #27ae60; }
-        .status-late { background: #e74c3c; }
-        .status-early { background: #f39c12; }
-        .status-absent { background: #95a5a6; }
-        .status-weekend { background: #7f8c8d; }
-        
-        /* Legend */
-        .legend {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-        }
-        
-        /* Filter Controls */
-        .filter-controls {
-            background: #34495e;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .filter-select {
-            background: #2c3e50;
-            color: white;
-            border: 1px solid #3498db;
-            padding: 8px 12px;
-            border-radius: 4px;
-        }
-        
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .attendance-grid {
-                grid-template-columns: 150px repeat(7, 1fr);
-                font-size: 10px;
-            }
-            .summary-cards {
-                grid-template-columns: 1fr 1fr;
-                padding: 15px;
-            }
-            .grid-container {
-                padding: 15px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="header">
-        <h1>📊 TRAXOVO Attendance Matrix Grid</h1>
-        <p class="subtitle">Weekly driver attendance tracking with on-time/late/early analytics</p>
+      <h1>📊 TRAXOVO Attendance Matrix Grid</h1>
+      <p class="subtitle">
+        Weekly driver attendance tracking with on-time/late/early analytics
+      </p>
     </div>
 
     <!-- Summary Cards -->
     <div class="summary-cards">
-        <div class="summary-card">
-            <div class="card-value on-time" id="onTimeCount">--</div>
-            <div>On Time</div>
-        </div>
-        <div class="summary-card">
-            <div class="card-value late" id="lateCount">--</div>
-            <div>Late Arrivals</div>
-        </div>
-        <div class="summary-card">
-            <div class="card-value early" id="earlyCount">--</div>
-            <div>Early Departures</div>
-        </div>
-        <div class="summary-card">
-            <div class="card-value absent" id="absentCount">--</div>
-            <div>Absent</div>
-        </div>
+      <div class="summary-card">
+        <div class="card-value on-time" id="onTimeCount">--</div>
+        <div>On Time</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-value late" id="lateCount">--</div>
+        <div>Late Arrivals</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-value early" id="earlyCount">--</div>
+        <div>Early Departures</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-value absent" id="absentCount">--</div>
+        <div>Absent</div>
+      </div>
     </div>
 
     <div class="grid-container">
-        <!-- Filter Controls -->
-        <div class="filter-controls">
-            <label>Week:</label>
-            <select class="filter-select" id="weekSelect">
-                <option value="current">Current Week</option>
-                <option value="last">Last Week</option>
-                <option value="2weeks">2 Weeks Ago</option>
-            </select>
-            
-            <label>Division:</label>
-            <select class="filter-select" id="divisionSelect">
-                <option value="all">All Divisions</option>
-                <option value="construction">Construction</option>
-                <option value="maintenance">Maintenance</option>
-                <option value="transport">Transport</option>
-            </select>
-            
-            <button class="filter-select" onclick="refreshGrid()" style="background: #3498db; cursor: pointer;">
-                🔄 Refresh Data
-            </button>
-        </div>
+      <!-- Filter Controls -->
+      <div class="filter-controls">
+        <label>Week:</label>
+        <select class="filter-select" id="weekSelect">
+          <option value="current">Current Week</option>
+          <option value="last">Last Week</option>
+          <option value="2weeks">2 Weeks Ago</option>
+        </select>
 
-        <!-- Legend -->
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color status-on-time"></div>
-                <span>On Time</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color status-late"></div>
-                <span>Late Arrival</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color status-early"></div>
-                <span>Early Departure</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color status-absent"></div>
-                <span>Absent</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color status-weekend"></div>
-                <span>Weekend</span>
-            </div>
-        </div>
+        <label>Division:</label>
+        <select class="filter-select" id="divisionSelect">
+          <option value="all">All Divisions</option>
+          <option value="construction">Construction</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="transport">Transport</option>
+        </select>
 
-        <!-- Attendance Grid -->
-        <div class="grid-section">
-            <div class="section-title">📅 Weekly Attendance Matrix</div>
-            <div class="attendance-grid" id="attendanceGrid">
-                <!-- Grid will be populated here -->
-            </div>
+        <button
+          class="filter-select"
+          onclick="refreshGrid()"
+          style="background: #3498db; cursor: pointer"
+        >
+          🔄 Refresh Data
+        </button>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color status-on-time"></div>
+          <span>On Time</span>
         </div>
+        <div class="legend-item">
+          <div class="legend-color status-late"></div>
+          <span>Late Arrival</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color status-early"></div>
+          <span>Early Departure</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color status-absent"></div>
+          <span>Absent</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color status-weekend"></div>
+          <span>Weekend</span>
+        </div>
+      </div>
+
+      <!-- Attendance Grid -->
+      <div class="grid-section">
+        <div class="section-title">📅 Weekly Attendance Matrix</div>
+        <div class="attendance-grid" id="attendanceGrid">
+          <!-- Grid will be populated here -->
+        </div>
+      </div>
     </div>
 
     <script>
-        // Load authentic driver data from your actual fleet records
-        function getAuthenticDriverData() {
-            // Using real Asset Identifiers from your Gauge API data
-            return [
-                {employeeId: 'LOAD_REAL', name: 'Garcia-Andrade, Uriel', assetId: 'EX-19'},
-                {employeeId: 'LOAD_REAL', name: 'Martinez, Jorge L', assetId: 'BRO-05'},
-                {employeeId: 'LOAD_REAL', name: 'Castro, Juan J', assetId: 'ML-03'},
-                {employeeId: 'LOAD_REAL', name: 'Rodriguez, Miguel', assetId: 'LOAD_FROM_DATA'},
-                {employeeId: 'LOAD_REAL', name: 'Johnson, Mark', assetId: 'LOAD_FROM_DATA'},
-                {employeeId: 'LOAD_REAL', name: 'Williams, David', assetId: 'LOAD_FROM_DATA'},
-                {employeeId: 'LOAD_REAL', name: 'Brown, James', assetId: 'LOAD_FROM_DATA'},
-                {employeeId: 'LOAD_REAL', name: 'Davis, Robert', assetId: 'LOAD_FROM_DATA'}
-            ];
-        }
-        
-        // Function to load real employee IDs and asset assignments from your data
-        async function loadRealEmployeeData() {
-            try {
-                // Fetch authentic employee data from your system
-                const response = await fetch('/api/authentic-driver-data');
-                if (response.ok) {
-                    const realData = await response.json();
-                    return realData;
-                }
-            } catch (error) {
-                console.log('Loading from authentic data sources...');
-            }
-            
-            // Return indication that real data needs to be loaded
-            return getAuthenticDriverData();
+      // Load authentic driver data from your actual fleet records
+      function getAuthenticDriverData() {
+        // Using real Asset Identifiers from your Gauge API data
+        return [
+          {
+            employeeId: "LOAD_REAL",
+            name: "Garcia-Andrade, Uriel",
+            assetId: "EX-19",
+          },
+          {
+            employeeId: "LOAD_REAL",
+            name: "Martinez, Jorge L",
+            assetId: "BRO-05",
+          },
+          { employeeId: "LOAD_REAL", name: "Castro, Juan J", assetId: "ML-03" },
+          {
+            employeeId: "LOAD_REAL",
+            name: "Rodriguez, Miguel",
+            assetId: "LOAD_FROM_DATA",
+          },
+          {
+            employeeId: "LOAD_REAL",
+            name: "Johnson, Mark",
+            assetId: "LOAD_FROM_DATA",
+          },
+          {
+            employeeId: "LOAD_REAL",
+            name: "Williams, David",
+            assetId: "LOAD_FROM_DATA",
+          },
+          {
+            employeeId: "LOAD_REAL",
+            name: "Brown, James",
+            assetId: "LOAD_FROM_DATA",
+          },
+          {
+            employeeId: "LOAD_REAL",
+            name: "Davis, Robert",
+            assetId: "LOAD_FROM_DATA",
+          },
+        ];
+      }
+
+      // Function to load real employee IDs and asset assignments from your data
+      async function loadRealEmployeeData() {
+        try {
+          // Fetch authentic employee data from your system
+          const response = await fetch("/api/authentic-driver-data");
+          if (response.ok) {
+            const realData = await response.json();
+            return realData;
+          }
+        } catch (error) {
+          console.log("Loading from authentic data sources...");
         }
 
-        function generateAttendanceGrid() {
-            const grid = document.getElementById('attendanceGrid');
-            
-            // Generate dynamic dates for the current week
-            const currentDate = new Date();
-            const currentWeek = [];
-            const startOfWeek = new Date(currentDate);
-            startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Monday
-            
-            for (let i = 0; i < 7; i++) {
-                const date = new Date(startOfWeek);
-                date.setDate(startOfWeek.getDate() + i);
-                const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                currentWeek.push({
-                    day: dayNames[i],
-                    date: date.getDate(),
-                    month: date.getMonth() + 1
-                });
-            }
-            
-            const headers = ['Employee ID', 'Employee Name', 'Asset ID', ...currentWeek.map(d => `${d.day}<br>${d.month}/${d.date}`)];
-            
-            // Clear grid and update CSS for new column structure
-            grid.innerHTML = '';
-            grid.style.gridTemplateColumns = '100px 200px 100px repeat(7, 80px)';
-            
-            // Add headers
-            headers.forEach(header => {
-                const headerEl = document.createElement('div');
-                headerEl.className = 'grid-header';
-                headerEl.innerHTML = header;
-                grid.appendChild(headerEl);
-            });
-            
-            // Get authentic driver data with employee IDs and asset assignments
-            const displayDrivers = getAuthenticDriverData().slice(0, 15);
-            
-            displayDrivers.forEach(driver => {
-                // Employee ID cell
-                const idCell = document.createElement('div');
-                idCell.className = 'driver-name';
-                idCell.textContent = driver.employeeId;
-                idCell.style.fontSize = '12px';
-                idCell.style.textAlign = 'center';
-                grid.appendChild(idCell);
-                
-                // Employee Name cell
-                const nameCell = document.createElement('div');
-                nameCell.className = 'driver-name';
-                nameCell.textContent = driver.name;
-                nameCell.style.fontSize = '13px';
-                grid.appendChild(nameCell);
-                
-                // Asset ID cell
-                const assetCell = document.createElement('div');
-                assetCell.className = 'driver-name';
-                assetCell.textContent = driver.assetId;
-                assetCell.style.fontSize = '12px';
-                assetCell.style.textAlign = 'center';
-                assetCell.style.fontWeight = 'bold';
-                assetCell.style.color = '#3498db';
-                grid.appendChild(assetCell);
-                
-                // Attendance cells for each day
-                for (let day = 0; day < 7; day++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'attendance-cell';
-                    
-                    // Generate realistic attendance patterns
-                    const attendanceStatus = generateAttendanceStatus(day);
-                    cell.classList.add(`status-${attendanceStatus.status}`);
-                    cell.textContent = attendanceStatus.text;
-                    cell.title = `${driver.name} (${driver.employeeId}) - ${driver.assetId} - ${currentWeek[day].day} ${currentWeek[day].month}/${currentWeek[day].date}: ${attendanceStatus.detail}`;
-                    
-                    cell.onclick = () => showAttendanceDetail(driver, currentWeek[day], attendanceStatus);
-                    grid.appendChild(cell);
-                }
-            });
-            
-            updateSummaryCards(displayDrivers.length * 7);
+        // Return indication that real data needs to be loaded
+        return getAuthenticDriverData();
+      }
+
+      function generateAttendanceGrid() {
+        const grid = document.getElementById("attendanceGrid");
+
+        // Generate dynamic dates for the current week
+        const currentDate = new Date();
+        const currentWeek = [];
+        const startOfWeek = new Date(currentDate);
+        startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Monday
+
+        for (let i = 0; i < 7; i++) {
+          const date = new Date(startOfWeek);
+          date.setDate(startOfWeek.getDate() + i);
+          const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+          currentWeek.push({
+            day: dayNames[i],
+            date: date.getDate(),
+            month: date.getMonth() + 1,
+          });
         }
-        
-        function generateAttendanceStatus(dayIndex) {
-            // Weekend handling
-            if (dayIndex >= 5) { // Saturday, Sunday
-                return Math.random() > 0.8 ? 
-                    { status: 'on-time', text: '8:00', detail: 'Weekend work - On time' } :
-                    { status: 'weekend', text: 'OFF', detail: 'Weekend off' };
-            }
-            
-            // Weekday attendance patterns
-            const rand = Math.random();
-            if (rand < 0.75) {
-                return { status: 'on-time', text: '7:00', detail: 'On time arrival' };
-            } else if (rand < 0.85) {
-                return { status: 'late', text: '7:30', detail: 'Late arrival' };
-            } else if (rand < 0.95) {
-                return { status: 'early', text: '3:30', detail: 'Early departure' };
-            } else {
-                return { status: 'absent', text: 'ABS', detail: 'Absent' };
-            }
-        }
-        
-        function updateSummaryCards(totalCells) {
-            // Calculate approximate counts based on realistic patterns
-            const onTime = Math.floor(totalCells * 0.75);
-            const late = Math.floor(totalCells * 0.10);
-            const early = Math.floor(totalCells * 0.10);
-            const absent = Math.floor(totalCells * 0.05);
-            
-            document.getElementById('onTimeCount').textContent = onTime;
-            document.getElementById('lateCount').textContent = late;
-            document.getElementById('earlyCount').textContent = early;
-            document.getElementById('absentCount').textContent = absent;
-        }
-        
-        function showAttendanceDetail(driver, day, status) {
-            alert(`${driver}\n${day}: ${status.detail}\nTime: ${status.text}`);
-        }
-        
-        function refreshGrid() {
-            generateAttendanceGrid();
-        }
-        
-        // Initialize grid on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            generateAttendanceGrid();
-            
-            // Add event listeners for filters
-            document.getElementById('weekSelect').onchange = refreshGrid;
-            document.getElementById('divisionSelect').onchange = refreshGrid;
+
+        const headers = [
+          "Employee ID",
+          "Employee Name",
+          "Asset ID",
+          ...currentWeek.map((d) => `${d.day}<br>${d.month}/${d.date}`),
+        ];
+
+        // Clear grid and update CSS for new column structure
+        grid.innerHTML = "";
+        grid.style.gridTemplateColumns = "100px 200px 100px repeat(7, 80px)";
+
+        // Add headers
+        headers.forEach((header) => {
+          const headerEl = document.createElement("div");
+          headerEl.className = "grid-header";
+          headerEl.innerHTML = header;
+          grid.appendChild(headerEl);
         });
+
+        // Get authentic driver data with employee IDs and asset assignments
+        const displayDrivers = getAuthenticDriverData().slice(0, 15);
+
+        displayDrivers.forEach((driver) => {
+          // Employee ID cell
+          const idCell = document.createElement("div");
+          idCell.className = "driver-name";
+          idCell.textContent = driver.employeeId;
+          idCell.style.fontSize = "12px";
+          idCell.style.textAlign = "center";
+          grid.appendChild(idCell);
+
+          // Employee Name cell
+          const nameCell = document.createElement("div");
+          nameCell.className = "driver-name";
+          nameCell.textContent = driver.name;
+          nameCell.style.fontSize = "13px";
+          grid.appendChild(nameCell);
+
+          // Asset ID cell
+          const assetCell = document.createElement("div");
+          assetCell.className = "driver-name";
+          assetCell.textContent = driver.assetId;
+          assetCell.style.fontSize = "12px";
+          assetCell.style.textAlign = "center";
+          assetCell.style.fontWeight = "bold";
+          assetCell.style.color = "#3498db";
+          grid.appendChild(assetCell);
+
+          // Attendance cells for each day
+          for (let day = 0; day < 7; day++) {
+            const cell = document.createElement("div");
+            cell.className = "attendance-cell";
+
+            // Generate realistic attendance patterns
+            const attendanceStatus = generateAttendanceStatus(day);
+            cell.classList.add(`status-${attendanceStatus.status}`);
+            cell.textContent = attendanceStatus.text;
+            cell.title = `${driver.name} (${driver.employeeId}) - ${driver.assetId} - ${currentWeek[day].day} ${currentWeek[day].month}/${currentWeek[day].date}: ${attendanceStatus.detail}`;
+
+            cell.onclick = () =>
+              showAttendanceDetail(driver, currentWeek[day], attendanceStatus);
+            grid.appendChild(cell);
+          }
+        });
+
+        updateSummaryCards(displayDrivers.length * 7);
+      }
+
+      function generateAttendanceStatus(dayIndex) {
+        // Weekend handling
+        if (dayIndex >= 5) {
+          // Saturday, Sunday
+          return Math.random() > 0.8
+            ? {
+                status: "on-time",
+                text: "8:00",
+                detail: "Weekend work - On time",
+              }
+            : { status: "weekend", text: "OFF", detail: "Weekend off" };
+        }
+
+        // Weekday attendance patterns
+        const rand = Math.random();
+        if (rand < 0.75) {
+          return { status: "on-time", text: "7:00", detail: "On time arrival" };
+        } else if (rand < 0.85) {
+          return { status: "late", text: "7:30", detail: "Late arrival" };
+        } else if (rand < 0.95) {
+          return { status: "early", text: "3:30", detail: "Early departure" };
+        } else {
+          return { status: "absent", text: "ABS", detail: "Absent" };
+        }
+      }
+
+      function updateSummaryCards(totalCells) {
+        // Calculate approximate counts based on realistic patterns
+        const onTime = Math.floor(totalCells * 0.75);
+        const late = Math.floor(totalCells * 0.1);
+        const early = Math.floor(totalCells * 0.1);
+        const absent = Math.floor(totalCells * 0.05);
+
+        document.getElementById("onTimeCount").textContent = onTime;
+        document.getElementById("lateCount").textContent = late;
+        document.getElementById("earlyCount").textContent = early;
+        document.getElementById("absentCount").textContent = absent;
+      }
+
+      function showAttendanceDetail(driver, day, status) {
+        alert(`${driver}\n${day}: ${status.detail}\nTime: ${status.text}`);
+      }
+
+      function refreshGrid() {
+        generateAttendanceGrid();
+      }
+
+      // Initialize grid on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        generateAttendanceGrid();
+
+        // Add event listeners for filters
+        document.getElementById("weekSelect").onchange = refreshGrid;
+        document.getElementById("divisionSelect").onchange = refreshGrid;
+      });
     </script>
-</body>
+  </body>
 </html>

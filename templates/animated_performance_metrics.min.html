@@ -1,617 +1,856 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Animated Performance Metrics - TRAXOVO</title><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script><style>
-* {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-}
-
-body {
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
-color: #fff;
-min-height: 100vh;
-}
-
-.header {
-background: rgba(28, 28, 30, 0.95);
-backdrop-filter: blur(20px);
-padding: 20px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-position: sticky;
-top: 0;
-z-index: 1000;
-border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.logo {
-font-size: 24px;
-font-weight: 700;
-color: #007AFF;
-}
-
-.nav-back {
-background: rgba(0, 122, 255, 0.1);
-border: 1px solid rgba(0, 122, 255, 0.3);
-color: #007AFF;
-padding: 8px 16px;
-border-radius: 8px;
-text-decoration: none;
-font-size: 14px;
-transition: all 0.3s ease;
-}
-
-.nav-back:hover {
-background: rgba(0, 122, 255, 0.2);
-transform: translateY(-2px);
-}
-
-.container {
-padding: 30px 20px;
-max-width: 1400px;
-margin: 0 auto;
-}
-
-.page-title {
-text-align: center;
-margin-bottom: 40px;
-}
-
-.page-title h1 {
-font-size: 36px;
-font-weight: 700;
-background: linear-gradient(45deg, #007AFF, #00D4FF);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-background-clip: text;
-margin-bottom: 10px;
-}
-
-.page-title p {
-color: #8E8E93;
-font-size: 18px;
-}
-
-.live-metrics-header {
-background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(90, 200, 250, 0.05) 100%);
-border: 1px solid rgba(0, 122, 255, 0.2);
-border-radius: 16px;
-padding: 20px;
-margin-bottom: 30px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-flex-wrap: wrap;
-gap: 20px;
-}
-
-.live-indicator {
-display: flex;
-align-items: center;
-gap: 10px;
-}
-
-.pulse-dot {
-width: 12px;
-height: 12px;
-background: #30D158;
-border-radius: 50%;
-animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-0% { opacity: 1; transform: scale(1); }
-50% { opacity: 0.6; transform: scale(1.2); }
-100% { opacity: 1; transform: scale(1); }
-}
-
-.refresh-controls {
-display: flex;
-gap: 10px;
-}
-
-.refresh-btn {
-background: rgba(0, 122, 255, 0.1);
-border: 1px solid rgba(0, 122, 255, 0.3);
-color: #007AFF;
-padding: 8px 16px;
-border-radius: 8px;
-cursor: pointer;
-font-size: 14px;
-transition: all 0.3s ease;
-}
-
-.refresh-btn:hover {
-background: rgba(0, 122, 255, 0.2);
-}
-
-.metrics-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-gap: 25px;
-margin-bottom: 40px;
-}
-
-.metric-card {
-background: rgba(28, 28, 30, 0.95);
-backdrop-filter: blur(20px);
-border-radius: 16px;
-padding: 25px;
-border: 1px solid rgba(255, 255, 255, 0.1);
-transition: all 0.3s ease;
-position: relative;
-overflow: hidden;
-}
-
-.metric-card:hover {
-transform: translateY(-4px);
-box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-border-color: rgba(0, 122, 255, 0.3);
-}
-
-.metric-header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-margin-bottom: 20px;
-}
-
-.metric-title {
-font-size: 16px;
-font-weight: 600;
-color: #fff;
-}
-
-.metric-icon {
-font-size: 24px;
-opacity: 0.8;
-}
-
-.metric-value {
-font-size: 32px;
-font-weight: 700;
-color: #fff;
-margin-bottom: 8px;
-transition: all 0.5s ease;
-}
-
-.metric-change {
-font-size: 14px;
-display: flex;
-align-items: center;
-gap: 5px;
-margin-bottom: 15px;
-}
-
-.metric-change.positive {
-color: #30D158;
-}
-
-.metric-change.negative {
-color: #FF453A;
-}
-
-.metric-chart {
-height: 80px;
-position: relative;
-}
-
-.chart-container {
-background: rgba(28, 28, 30, 0.95);
-backdrop-filter: blur(20px);
-border-radius: 16px;
-padding: 25px;
-border: 1px solid rgba(255, 255, 255, 0.1);
-margin-bottom: 25px;
-}
-
-.chart-header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-margin-bottom: 20px;
-}
-
-.chart-title {
-font-size: 18px;
-font-weight: 600;
-color: #fff;
-}
-
-.chart-filters {
-display: flex;
-gap: 10px;
-}
-
-.filter-btn {
-background: rgba(255, 255, 255, 0.05);
-border: 1px solid rgba(255, 255, 255, 0.1);
-color: #8E8E93;
-padding: 6px 12px;
-border-radius: 6px;
-cursor: pointer;
-font-size: 12px;
-transition: all 0.3s ease;
-}
-
-.filter-btn.active {
-background: rgba(0, 122, 255, 0.2);
-border-color: rgba(0, 122, 255, 0.4);
-color: #007AFF;
-}
-
-.chart-canvas {
-height: 300px;
-}
-
-.real-time-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-gap: 20px;
-}
-
-.real-time-card {
-background: rgba(28, 28, 30, 0.95);
-backdrop-filter: blur(20px);
-border-radius: 12px;
-padding: 20px;
-border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.real-time-title {
-font-size: 14px;
-font-weight: 600;
-color: #8E8E93;
-margin-bottom: 15px;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-}
-
-.progress-bar {
-background: rgba(255, 255, 255, 0.1);
-border-radius: 8px;
-height: 8px;
-margin-bottom: 10px;
-overflow: hidden;
-}
-
-.progress-fill {
-height: 100%;
-background: linear-gradient(90deg, #007AFF, #00D4FF);
-border-radius: 8px;
-transition: width 1s ease;
-}
-
-.progress-label {
-display: flex;
-justify-content: space-between;
-font-size: 12px;
-color: #8E8E93;
-}
-
-.loading-spinner {
-display: inline-block;
-width: 16px;
-height: 16px;
-border: 2px solid rgba(255, 255, 255, 0.3);
-border-radius: 50%;
-border-top-color: #007AFF;
-animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-to { transform: rotate(360deg); }
-}
-
-@media (max-width: 768px) {
-.container {
-padding: 20px 15px;
-}
-
-.metrics-grid {
-grid-template-columns: 1fr;
-gap: 20px;
-}
-
-.live-metrics-header {
-flex-direction: column;
-align-items: stretch;
-text-align: center;
-}
-
-.page-title h1 {
-font-size: 28px;
-}
-
-.chart-canvas {
-height: 250px;
-}
-}
-</style></head><body><div class="header"><div class="logo">TRAXOVO</div><a href="/dashboard" class="nav-back">← Dashboard</a></div><div class="container"><div class="page-title"><h1>Animated Performance Metrics</h1><p>Real-time fleet analytics with live GAUGE data visualization</p></div><div class="live-metrics-header"><div class="live-indicator"><div class="pulse-dot"></div><span>Live Data Stream Active</span><span id="lastUpdate" style="color: #8E8E93; font-size: 14px;"></span></div><div class="refresh-controls"><button class="refresh-btn" onclick="refreshMetrics()"><span id="refreshIcon">🔄</span> Refresh
-</button><button class="refresh-btn" onclick="toggleAutoRefresh()" id="autoRefreshBtn">
-Auto: ON
-</button></div></div><div class="metrics-grid"><div class="metric-card"><div class="metric-header"><div class="metric-title">Active Assets</div><div class="metric-icon">🚛</div></div><div class="metric-value" id="activeAssets">614</div><div class="metric-change positive" id="activeAssetsChange"><span>↗</span> Real-time from GAUGE
-</div><div class="metric-chart"><canvas id="activeAssetsChart"></canvas></div></div><div class="metric-card"><div class="metric-header"><div class="metric-title">Fleet Utilization</div><div class="metric-icon">⚡</div></div><div class="metric-value" id="utilization">85.6%</div><div class="metric-change positive" id="utilizationChange"><span>↗</span> +2.3% today
-</div><div class="metric-chart"><canvas id="utilizationChart"></canvas></div></div><div class="metric-card"><div class="metric-header"><div class="metric-title">Equipment Categories</div><div class="metric-icon">🏗️</div></div><div class="metric-value" id="categories">56</div><div class="metric-change positive" id="categoriesChange"><span>→</span> Types deployed
-</div><div class="metric-chart"><canvas id="categoriesChart"></canvas></div></div><div class="metric-card"><div class="metric-header"><div class="metric-title">Revenue Rate</div><div class="metric-icon">💰</div></div><div class="metric-value" id="revenueRate">$3,500/hr</div><div class="metric-change positive" id="revenueChange"><span>↗</span> +8.2% vs target
-</div><div class="metric-chart"><canvas id="revenueChart"></canvas></div></div></div><div class="chart-container"><div class="chart-header"><div class="chart-title">Fleet Performance Timeline</div><div class="chart-filters"><button class="filter-btn active" onclick="setTimeframe('1h')">1H</button><button class="filter-btn" onclick="setTimeframe('6h')">6H</button><button class="filter-btn" onclick="setTimeframe('24h')">24H</button><button class="filter-btn" onclick="setTimeframe('7d')">7D</button></div></div><div class="chart-canvas"><canvas id="performanceTimeline"></canvas></div></div><div class="real-time-grid"><div class="real-time-card"><div class="real-time-title">Asset Distribution</div><div class="progress-bar"><div class="progress-fill" id="activeProgress" style="width: 85.6%"></div></div><div class="progress-label"><span>Active</span><span id="activePercentage">85.6%</span></div><div class="progress-bar" style="margin-top: 10px;"><div class="progress-fill" id="inactiveProgress" style="width: 14.4%; background: linear-gradient(90deg, #FF453A, #FF6B35);"></div></div><div class="progress-label"><span>Inactive</span><span id="inactivePercentage">14.4%</span></div></div><div class="real-time-card"><div class="real-time-title">Top Categories</div><div id="topCategories"></div></div><div class="real-time-card"><div class="real-time-title">System Health</div><div class="progress-bar"><div class="progress-fill" style="width: 98%; background: linear-gradient(90deg, #30D158, #32D74B);"></div></div><div class="progress-label"><span>GAUGE API Status</span><span>98%</span></div><div class="progress-bar" style="margin-top: 10px;"><div class="progress-fill" style="width: 94%; background: linear-gradient(90deg, #007AFF, #00D4FF);"></div></div><div class="progress-label"><span>Data Sync</span><span>94%</span></div></div><div class="real-time-card"><div class="real-time-title">Performance Score</div><div style="text-align: center;"><div style="font-size: 48px; font-weight: 700; color: #30D158; margin: 20px 0;">94</div><div style="color: #8E8E93;">Excellent Performance</div></div></div></div></div><script>
-let autoRefresh = true;
-let refreshInterval;
-let charts = {};
-
-// Initialize charts
-document.addEventListener('DOMContentLoaded', function() {
-initializeCharts();
-loadMetricsData();
-startAutoRefresh();
-});
-
-function initializeCharts() {
-// Active Assets Mini Chart
-const activeCtx = document.getElementById('activeAssetsChart').getContext('2d');
-charts.activeAssets = new Chart(activeCtx, {
-type: 'line',
-data: {
-labels: [],
-datasets: [{
-data: [],
-borderColor: '#007AFF',
-backgroundColor: 'rgba(0, 122, 255, 0.1)',
-borderWidth: 2,
-fill: true,
-tension: 0.4
-}]
-},
-options: {
-responsive: true,
-maintainAspectRatio: false,
-plugins: { legend: { display: false } },
-scales: {
-x: { display: false },
-y: { display: false }
-},
-elements: { point: { radius: 0 } }
-}
-});
-
-// Utilization Mini Chart
-const utilizationCtx = document.getElementById('utilizationChart').getContext('2d');
-charts.utilization = new Chart(utilizationCtx, {
-type: 'line',
-data: {
-labels: [],
-datasets: [{
-data: [],
-borderColor: '#30D158',
-backgroundColor: 'rgba(48, 209, 88, 0.1)',
-borderWidth: 2,
-fill: true,
-tension: 0.4
-}]
-},
-options: {
-responsive: true,
-maintainAspectRatio: false,
-plugins: { legend: { display: false } },
-scales: {
-x: { display: false },
-y: { display: false }
-},
-elements: { point: { radius: 0 } }
-}
-});
-
-// Performance Timeline
-const timelineCtx = document.getElementById('performanceTimeline').getContext('2d');
-charts.timeline = new Chart(timelineCtx, {
-type: 'line',
-data: {
-labels: [],
-datasets: [
-{
-label: 'Active Assets',
-data: [],
-borderColor: '#007AFF',
-backgroundColor: 'rgba(0, 122, 255, 0.1)',
-borderWidth: 3,
-fill: false,
-tension: 0.4
-},
-{
-label: 'Utilization %',
-data: [],
-borderColor: '#30D158',
-backgroundColor: 'rgba(48, 209, 88, 0.1)',
-borderWidth: 3,
-fill: false,
-tension: 0.4
-}
-]
-},
-options: {
-responsive: true,
-maintainAspectRatio: false,
-plugins: {
-legend: {
-display: true,
-labels: { color: '#fff' }
-}
-},
-scales: {
-x: {
-type: 'time',
-time: { unit: 'minute' },
-ticks: { color: '#8E8E93' },
-grid: { color: 'rgba(255, 255, 255, 0.1)' }
-},
-y: {
-ticks: { color: '#8E8E93' },
-grid: { color: 'rgba(255, 255, 255, 0.1)' }
-}
-}
-}
-});
-}
-
-async function loadMetricsData() {
-try {
-const response = await fetch('/api/fleet/assets');
-const data = await response.json();
-
-if (data.success) {
-updateMetrics(data);
-updateCharts(data);
-updateTopCategories(data);
-}
-
-document.getElementById('lastUpdate').textContent =
-`Last updated: ${new Date().toLocaleTimeString()}`;
-} catch (error) {
-console.error('Failed to load metrics:', error);
-}
-}
-
-function updateMetrics(data) {
-// Animate metric values
-animateValue('activeAssets', parseInt(document.getElementById('activeAssets').textContent), data.active_assets);
-
-const utilization = ((data.active_assets / data.total_assets) * 100).toFixed(1);
-animateValue('utilization', parseFloat(document.getElementById('utilization').textContent), parseFloat(utilization), '%');
-
-animateValue('categories', parseInt(document.getElementById('categories').textContent), data.categories);
-
-// Update progress bars
-document.getElementById('activeProgress').style.width = utilization + '%';
-document.getElementById('activePercentage').textContent = utilization + '%';
-
-const inactivePercentage = (100 - parseFloat(utilization)).toFixed(1);
-document.getElementById('inactiveProgress').style.width = inactivePercentage + '%';
-document.getElementById('inactivePercentage').textContent = inactivePercentage + '%';
-}
-
-function animateValue(elementId, start, end, suffix = '') {
-const element = document.getElementById(elementId);
-const duration = 1000;
-const startTime = performance.now();
-
-function update(currentTime) {
-const elapsed = currentTime - startTime;
-const progress = Math.min(elapsed / duration, 1);
-
-const current = start + (end - start) * easeOutCubic(progress);
-element.textContent = Math.round(current) + suffix;
-
-if (progress < 1) {
-requestAnimationFrame(update);
-}
-}
-
-requestAnimationFrame(update);
-}
-
-function easeOutCubic(t) {
-return 1 - Math.pow(1 - t, 3);
-}
-
-function updateCharts(data) {
-const now = new Date();
-
-// Update mini charts with historical simulation
-const times = [];
-const activeData = [];
-const utilizationData = [];
-
-for (let i = 9; i >= 0; i--) {
-const time = new Date(now.getTime() - i * 60000);
-times.push(time.toLocaleTimeString());
-
-// Simulate slight variations
-const baseActive = data.active_assets;
-const variation = Math.sin(i * 0.5) * 10;
-activeData.push(Math.max(0, baseActive + variation));
-
-const baseUtil = (data.active_assets / data.total_assets) * 100;
-utilizationData.push(Math.max(0, Math.min(100, baseUtil + variation * 0.1)));
-}
-
-// Update active assets chart
-charts.activeAssets.data.labels = times;
-charts.activeAssets.data.datasets[0].data = activeData;
-charts.activeAssets.update('none');
-
-// Update utilization chart
-charts.utilization.data.labels = times;
-charts.utilization.data.datasets[0].data = utilizationData;
-charts.utilization.update('none');
-
-// Update timeline chart
-charts.timeline.data.labels = times.map((_, i) => new Date(now.getTime() - (9 - i) * 60000));
-charts.timeline.data.datasets[0].data = activeData;
-charts.timeline.data.datasets[1].data = utilizationData;
-charts.timeline.update('none');
-}
-
-function updateTopCategories(data) {
-// Simulate top categories from authentic data
-const topCategories = document.getElementById('topCategories');
-const categories = [
-{ name: 'Excavator', count: Math.floor(data.active_assets * 0.18) },
-{ name: 'Wheel Loader', count: Math.floor(data.active_assets * 0.15) },
-{ name: 'Compactor', count: Math.floor(data.active_assets * 0.12) },
-{ name: 'Dozer', count: Math.floor(data.active_assets * 0.10) }
-];
-
-topCategories.innerHTML = categories.map(cat => `
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Animated Performance Metrics - TRAXOVO</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+        color: #fff;
+        min-height: 100vh;
+      }
+
+      .header {
+        background: rgba(28, 28, 30, 0.95);
+        backdrop-filter: blur(20px);
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: 700;
+        color: #007aff;
+      }
+
+      .nav-back {
+        background: rgba(0, 122, 255, 0.1);
+        border: 1px solid rgba(0, 122, 255, 0.3);
+        color: #007aff;
+        padding: 8px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+
+      .nav-back:hover {
+        background: rgba(0, 122, 255, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .container {
+        padding: 30px 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .page-title {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .page-title h1 {
+        font-size: 36px;
+        font-weight: 700;
+        background: linear-gradient(45deg, #007aff, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+      }
+
+      .page-title p {
+        color: #8e8e93;
+        font-size: 18px;
+      }
+
+      .live-metrics-header {
+        background: linear-gradient(
+          135deg,
+          rgba(0, 122, 255, 0.1) 0%,
+          rgba(90, 200, 250, 0.05) 100%
+        );
+        border: 1px solid rgba(0, 122, 255, 0.2);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .live-indicator {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .pulse-dot {
+        width: 12px;
+        height: 12px;
+        background: #30d158;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.6;
+          transform: scale(1.2);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .refresh-controls {
+        display: flex;
+        gap: 10px;
+      }
+
+      .refresh-btn {
+        background: rgba(0, 122, 255, 0.1);
+        border: 1px solid rgba(0, 122, 255, 0.3);
+        color: #007aff;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+
+      .refresh-btn:hover {
+        background: rgba(0, 122, 255, 0.2);
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+      }
+
+      .metric-card {
+        background: rgba(28, 28, 30, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .metric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        border-color: rgba(0, 122, 255, 0.3);
+      }
+
+      .metric-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      .metric-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .metric-icon {
+        font-size: 24px;
+        opacity: 0.8;
+      }
+
+      .metric-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 8px;
+        transition: all 0.5s ease;
+      }
+
+      .metric-change {
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 15px;
+      }
+
+      .metric-change.positive {
+        color: #30d158;
+      }
+
+      .metric-change.negative {
+        color: #ff453a;
+      }
+
+      .metric-chart {
+        height: 80px;
+        position: relative;
+      }
+
+      .chart-container {
+        background: rgba(28, 28, 30, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 25px;
+      }
+
+      .chart-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      .chart-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .chart-filters {
+        display: flex;
+        gap: 10px;
+      }
+
+      .filter-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #8e8e93;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.3s ease;
+      }
+
+      .filter-btn.active {
+        background: rgba(0, 122, 255, 0.2);
+        border-color: rgba(0, 122, 255, 0.4);
+        color: #007aff;
+      }
+
+      .chart-canvas {
+        height: 300px;
+      }
+
+      .real-time-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+      }
+
+      .real-time-card {
+        background: rgba(28, 28, 30, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .real-time-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #8e8e93;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .progress-bar {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        height: 8px;
+        margin-bottom: 10px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #007aff, #00d4ff);
+        border-radius: 8px;
+        transition: width 1s ease;
+      }
+
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #8e8e93;
+      }
+
+      .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #007aff;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 20px 15px;
+        }
+
+        .metrics-grid {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .live-metrics-header {
+          flex-direction: column;
+          align-items: stretch;
+          text-align: center;
+        }
+
+        .page-title h1 {
+          font-size: 28px;
+        }
+
+        .chart-canvas {
+          height: 250px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="logo">TRAXOVO</div>
+      <a href="/dashboard" class="nav-back">← Dashboard</a>
+    </div>
+    <div class="container">
+      <div class="page-title">
+        <h1>Animated Performance Metrics</h1>
+        <p>Real-time fleet analytics with live GAUGE data visualization</p>
+      </div>
+      <div class="live-metrics-header">
+        <div class="live-indicator">
+          <div class="pulse-dot"></div>
+          <span>Live Data Stream Active</span
+          ><span id="lastUpdate" style="color: #8e8e93; font-size: 14px"></span>
+        </div>
+        <div class="refresh-controls">
+          <button class="refresh-btn" onclick="refreshMetrics()">
+            <span id="refreshIcon">🔄</span> Refresh</button
+          ><button
+            class="refresh-btn"
+            onclick="toggleAutoRefresh()"
+            id="autoRefreshBtn"
+          >
+            Auto: ON
+          </button>
+        </div>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-header">
+            <div class="metric-title">Active Assets</div>
+            <div class="metric-icon">🚛</div>
+          </div>
+          <div class="metric-value" id="activeAssets">614</div>
+          <div class="metric-change positive" id="activeAssetsChange">
+            <span>↗</span> Real-time from GAUGE
+          </div>
+          <div class="metric-chart">
+            <canvas id="activeAssetsChart"></canvas>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-header">
+            <div class="metric-title">Fleet Utilization</div>
+            <div class="metric-icon">⚡</div>
+          </div>
+          <div class="metric-value" id="utilization">85.6%</div>
+          <div class="metric-change positive" id="utilizationChange">
+            <span>↗</span> +2.3% today
+          </div>
+          <div class="metric-chart">
+            <canvas id="utilizationChart"></canvas>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-header">
+            <div class="metric-title">Equipment Categories</div>
+            <div class="metric-icon">🏗️</div>
+          </div>
+          <div class="metric-value" id="categories">56</div>
+          <div class="metric-change positive" id="categoriesChange">
+            <span>→</span> Types deployed
+          </div>
+          <div class="metric-chart"><canvas id="categoriesChart"></canvas></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-header">
+            <div class="metric-title">Revenue Rate</div>
+            <div class="metric-icon">💰</div>
+          </div>
+          <div class="metric-value" id="revenueRate">$3,500/hr</div>
+          <div class="metric-change positive" id="revenueChange">
+            <span>↗</span> +8.2% vs target
+          </div>
+          <div class="metric-chart"><canvas id="revenueChart"></canvas></div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-header">
+          <div class="chart-title">Fleet Performance Timeline</div>
+          <div class="chart-filters">
+            <button class="filter-btn active" onclick="setTimeframe('1h')">
+              1H</button
+            ><button class="filter-btn" onclick="setTimeframe('6h')">6H</button
+            ><button class="filter-btn" onclick="setTimeframe('24h')">
+              24H</button
+            ><button class="filter-btn" onclick="setTimeframe('7d')">7D</button>
+          </div>
+        </div>
+        <div class="chart-canvas">
+          <canvas id="performanceTimeline"></canvas>
+        </div>
+      </div>
+      <div class="real-time-grid">
+        <div class="real-time-card">
+          <div class="real-time-title">Asset Distribution</div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="activeProgress"
+              style="width: 85.6%"
+            ></div>
+          </div>
+          <div class="progress-label">
+            <span>Active</span><span id="activePercentage">85.6%</span>
+          </div>
+          <div class="progress-bar" style="margin-top: 10px">
+            <div
+              class="progress-fill"
+              id="inactiveProgress"
+              style="
+                width: 14.4%;
+                background: linear-gradient(90deg, #ff453a, #ff6b35);
+              "
+            ></div>
+          </div>
+          <div class="progress-label">
+            <span>Inactive</span><span id="inactivePercentage">14.4%</span>
+          </div>
+        </div>
+        <div class="real-time-card">
+          <div class="real-time-title">Top Categories</div>
+          <div id="topCategories"></div>
+        </div>
+        <div class="real-time-card">
+          <div class="real-time-title">System Health</div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              style="
+                width: 98%;
+                background: linear-gradient(90deg, #30d158, #32d74b);
+              "
+            ></div>
+          </div>
+          <div class="progress-label">
+            <span>GAUGE API Status</span><span>98%</span>
+          </div>
+          <div class="progress-bar" style="margin-top: 10px">
+            <div
+              class="progress-fill"
+              style="
+                width: 94%;
+                background: linear-gradient(90deg, #007aff, #00d4ff);
+              "
+            ></div>
+          </div>
+          <div class="progress-label">
+            <span>Data Sync</span><span>94%</span>
+          </div>
+        </div>
+        <div class="real-time-card">
+          <div class="real-time-title">Performance Score</div>
+          <div style="text-align: center">
+            <div
+              style="
+                font-size: 48px;
+                font-weight: 700;
+                color: #30d158;
+                margin: 20px 0;
+              "
+            >
+              94
+            </div>
+            <div style="color: #8e8e93">Excellent Performance</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      let autoRefresh = true;
+      let refreshInterval;
+      let charts = {};
+
+      // Initialize charts
+      document.addEventListener("DOMContentLoaded", function () {
+        initializeCharts();
+        loadMetricsData();
+        startAutoRefresh();
+      });
+
+      function initializeCharts() {
+        // Active Assets Mini Chart
+        const activeCtx = document
+          .getElementById("activeAssetsChart")
+          .getContext("2d");
+        charts.activeAssets = new Chart(activeCtx, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                data: [],
+                borderColor: "#007AFF",
+                backgroundColor: "rgba(0, 122, 255, 0.1)",
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { display: false },
+              y: { display: false },
+            },
+            elements: { point: { radius: 0 } },
+          },
+        });
+
+        // Utilization Mini Chart
+        const utilizationCtx = document
+          .getElementById("utilizationChart")
+          .getContext("2d");
+        charts.utilization = new Chart(utilizationCtx, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                data: [],
+                borderColor: "#30D158",
+                backgroundColor: "rgba(48, 209, 88, 0.1)",
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { display: false },
+              y: { display: false },
+            },
+            elements: { point: { radius: 0 } },
+          },
+        });
+
+        // Performance Timeline
+        const timelineCtx = document
+          .getElementById("performanceTimeline")
+          .getContext("2d");
+        charts.timeline = new Chart(timelineCtx, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Active Assets",
+                data: [],
+                borderColor: "#007AFF",
+                backgroundColor: "rgba(0, 122, 255, 0.1)",
+                borderWidth: 3,
+                fill: false,
+                tension: 0.4,
+              },
+              {
+                label: "Utilization %",
+                data: [],
+                borderColor: "#30D158",
+                backgroundColor: "rgba(48, 209, 88, 0.1)",
+                borderWidth: 3,
+                fill: false,
+                tension: 0.4,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: true,
+                labels: { color: "#fff" },
+              },
+            },
+            scales: {
+              x: {
+                type: "time",
+                time: { unit: "minute" },
+                ticks: { color: "#8E8E93" },
+                grid: { color: "rgba(255, 255, 255, 0.1)" },
+              },
+              y: {
+                ticks: { color: "#8E8E93" },
+                grid: { color: "rgba(255, 255, 255, 0.1)" },
+              },
+            },
+          },
+        });
+      }
+
+      async function loadMetricsData() {
+        try {
+          const response = await fetch("/api/fleet/assets");
+          const data = await response.json();
+
+          if (data.success) {
+            updateMetrics(data);
+            updateCharts(data);
+            updateTopCategories(data);
+          }
+
+          document.getElementById("lastUpdate").textContent =
+            `Last updated: ${new Date().toLocaleTimeString()}`;
+        } catch (error) {
+          console.error("Failed to load metrics:", error);
+        }
+      }
+
+      function updateMetrics(data) {
+        // Animate metric values
+        animateValue(
+          "activeAssets",
+          parseInt(document.getElementById("activeAssets").textContent),
+          data.active_assets,
+        );
+
+        const utilization = (
+          (data.active_assets / data.total_assets) *
+          100
+        ).toFixed(1);
+        animateValue(
+          "utilization",
+          parseFloat(document.getElementById("utilization").textContent),
+          parseFloat(utilization),
+          "%",
+        );
+
+        animateValue(
+          "categories",
+          parseInt(document.getElementById("categories").textContent),
+          data.categories,
+        );
+
+        // Update progress bars
+        document.getElementById("activeProgress").style.width =
+          utilization + "%";
+        document.getElementById("activePercentage").textContent =
+          utilization + "%";
+
+        const inactivePercentage = (100 - parseFloat(utilization)).toFixed(1);
+        document.getElementById("inactiveProgress").style.width =
+          inactivePercentage + "%";
+        document.getElementById("inactivePercentage").textContent =
+          inactivePercentage + "%";
+      }
+
+      function animateValue(elementId, start, end, suffix = "") {
+        const element = document.getElementById(elementId);
+        const duration = 1000;
+        const startTime = performance.now();
+
+        function update(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+
+          const current = start + (end - start) * easeOutCubic(progress);
+          element.textContent = Math.round(current) + suffix;
+
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          }
+        }
+
+        requestAnimationFrame(update);
+      }
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      function updateCharts(data) {
+        const now = new Date();
+
+        // Update mini charts with historical simulation
+        const times = [];
+        const activeData = [];
+        const utilizationData = [];
+
+        for (let i = 9; i >= 0; i--) {
+          const time = new Date(now.getTime() - i * 60000);
+          times.push(time.toLocaleTimeString());
+
+          // Simulate slight variations
+          const baseActive = data.active_assets;
+          const variation = Math.sin(i * 0.5) * 10;
+          activeData.push(Math.max(0, baseActive + variation));
+
+          const baseUtil = (data.active_assets / data.total_assets) * 100;
+          utilizationData.push(
+            Math.max(0, Math.min(100, baseUtil + variation * 0.1)),
+          );
+        }
+
+        // Update active assets chart
+        charts.activeAssets.data.labels = times;
+        charts.activeAssets.data.datasets[0].data = activeData;
+        charts.activeAssets.update("none");
+
+        // Update utilization chart
+        charts.utilization.data.labels = times;
+        charts.utilization.data.datasets[0].data = utilizationData;
+        charts.utilization.update("none");
+
+        // Update timeline chart
+        charts.timeline.data.labels = times.map(
+          (_, i) => new Date(now.getTime() - (9 - i) * 60000),
+        );
+        charts.timeline.data.datasets[0].data = activeData;
+        charts.timeline.data.datasets[1].data = utilizationData;
+        charts.timeline.update("none");
+      }
+
+      function updateTopCategories(data) {
+        // Simulate top categories from authentic data
+        const topCategories = document.getElementById("topCategories");
+        const categories = [
+          { name: "Excavator", count: Math.floor(data.active_assets * 0.18) },
+          {
+            name: "Wheel Loader",
+            count: Math.floor(data.active_assets * 0.15),
+          },
+          { name: "Compactor", count: Math.floor(data.active_assets * 0.12) },
+          { name: "Dozer", count: Math.floor(data.active_assets * 0.1) },
+        ];
+
+        topCategories.innerHTML = categories
+          .map(
+            (cat) => `
 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="color: #8E8E93; font-size: 12px;">${cat.name}</span><span style="color: #fff; font-weight: 600; font-size: 12px;">${cat.count}</span></div>
-`).join('');
-}
+`,
+          )
+          .join("");
+      }
 
-function refreshMetrics() {
-const refreshIcon = document.getElementById('refreshIcon');
-refreshIcon.innerHTML = '<div class="loading-spinner"></div>';
+      function refreshMetrics() {
+        const refreshIcon = document.getElementById("refreshIcon");
+        refreshIcon.innerHTML = '<div class="loading-spinner"></div>';
 
-loadMetricsData().then(() => {
-setTimeout(() => {
-refreshIcon.textContent = '🔄';
-}, 1000);
-});
-}
+        loadMetricsData().then(() => {
+          setTimeout(() => {
+            refreshIcon.textContent = "🔄";
+          }, 1000);
+        });
+      }
 
-function toggleAutoRefresh() {
-autoRefresh = !autoRefresh;
-const btn = document.getElementById('autoRefreshBtn');
-btn.textContent = autoRefresh ? 'Auto: ON' : 'Auto: OFF';
-btn.style.background = autoRefresh ? 'rgba(48, 209, 88, 0.1)' : 'rgba(255, 69, 58, 0.1)';
-btn.style.borderColor = autoRefresh ? 'rgba(48, 209, 88, 0.3)' : 'rgba(255, 69, 58, 0.3)';
-btn.style.color = autoRefresh ? '#30D158' : '#FF453A';
+      function toggleAutoRefresh() {
+        autoRefresh = !autoRefresh;
+        const btn = document.getElementById("autoRefreshBtn");
+        btn.textContent = autoRefresh ? "Auto: ON" : "Auto: OFF";
+        btn.style.background = autoRefresh
+          ? "rgba(48, 209, 88, 0.1)"
+          : "rgba(255, 69, 58, 0.1)";
+        btn.style.borderColor = autoRefresh
+          ? "rgba(48, 209, 88, 0.3)"
+          : "rgba(255, 69, 58, 0.3)";
+        btn.style.color = autoRefresh ? "#30D158" : "#FF453A";
 
-if (autoRefresh) {
-startAutoRefresh();
-} else {
-clearInterval(refreshInterval);
-}
-}
+        if (autoRefresh) {
+          startAutoRefresh();
+        } else {
+          clearInterval(refreshInterval);
+        }
+      }
 
-function startAutoRefresh() {
-if (refreshInterval) clearInterval(refreshInterval);
-refreshInterval = setInterval(loadMetricsData, 30000); // 30 seconds
-}
+      function startAutoRefresh() {
+        if (refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(loadMetricsData, 30000); // 30 seconds
+      }
 
-function setTimeframe(period) {
-// Update active filter button
-document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-event.target.classList.add('active');
+      function setTimeframe(period) {
+        // Update active filter button
+        document
+          .querySelectorAll(".filter-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        event.target.classList.add("active");
 
-// Simulate different timeframe data
-loadMetricsData();
-}
+        // Simulate different timeframe data
+        loadMetricsData();
+      }
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-setTimeout(() => {
-document.getElementById('lastUpdate').textContent =
-`Last updated: ${new Date().toLocaleTimeString()}`;
-}, 1000);
-});
-</script><script src="/static/tour-guide.js"></script></body></html>
+      // Initialize on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(() => {
+          document.getElementById("lastUpdate").textContent =
+            `Last updated: ${new Date().toLocaleTimeString()}`;
+        }, 1000);
+      });
+    </script>
+    <script src="/static/tour-guide.js"></script>
+  </body>
+</html>

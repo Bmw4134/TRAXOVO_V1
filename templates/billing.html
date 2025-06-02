@@ -1,430 +1,535 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AGI Billing Intelligence Center - TRAXOVO</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .agi-header {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            position: relative;
-            overflow: hidden;
+      .agi-header {
+        background: linear-gradient(
+          135deg,
+          #1a1a2e 0%,
+          #16213e 50%,
+          #0f3460 100%
+        );
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .agi-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          45deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.1) 50%,
+          transparent 70%
+        );
+        animation: shimmer 3s infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
         }
-        
-        .agi-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
-            animation: shimmer 3s infinite;
+        100% {
+          transform: translateX(100%);
         }
-        
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+      }
+
+      .agi-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 15px;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .agi-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+      }
+
+      .intelligence-panel {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        border-left: 5px solid #007bff;
+        margin-bottom: 1rem;
+      }
+
+      .prediction-chip {
+        background: linear-gradient(45deg, #ff6b6b, #feca57);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        margin: 0.25rem;
+        display: inline-block;
+      }
+
+      .agi-insight {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 10px;
+        margin: 0.5rem 0;
+      }
+
+      .real-time-indicator {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
         }
-        
-        .agi-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 15px;
-            color: white;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        50% {
+          opacity: 0.5;
         }
-        
-        .agi-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+        100% {
+          opacity: 1;
         }
-        
-        .intelligence-panel {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 1.5rem;
-            border-left: 5px solid #007bff;
-            margin-bottom: 1rem;
-        }
-        
-        .prediction-chip {
-            background: linear-gradient(45deg, #ff6b6b, #feca57);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            margin: 0.25rem;
-            display: inline-block;
-        }
-        
-        .agi-insight {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1rem;
-            border-radius: 10px;
-            margin: 0.5rem 0;
-        }
-        
-        .real-time-indicator {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        
-        .neural-pattern {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .neural-pattern::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 10px,
-                rgba(255,255,255,0.05) 10px,
-                rgba(255,255,255,0.05) 20px
-            );
-        }
+      }
+
+      .neural-pattern {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .neural-pattern::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 10px,
+          rgba(255, 255, 255, 0.05) 10px,
+          rgba(255, 255, 255, 0.05) 20px
+        );
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            {% include 'includes/sidebar.html' %}
-            
-            <!-- Main Content -->
-            <div class="col-lg-10 offset-lg-2 p-4">
-                <div class="agi-header mb-4" data-tour="billing-automation">
-                    <div style="position: relative; z-index: 1;">
-                        <h1><i class="fas fa-brain me-2"></i>AGI Billing Intelligence Center</h1>
-                        <p class="mb-2">Autonomous revenue intelligence powered by authentic RAGLE billing data</p>
-                        <div class="d-flex align-items-center">
-                            <span class="real-time-indicator me-2">
-                                <i class="fas fa-circle text-success"></i>
-                            </span>
-                            <small>Real-time AGI analysis of $2.1M+ revenue streams</small>
-                        </div>
-                    </div>
-                </div>
+      <div class="row">
+        <!-- Sidebar -->
+        {% include 'includes/sidebar.html' %}
 
-                <!-- AGI Revenue Intelligence Cards -->
-                <div class="row mb-4">
-                    <div class="col-lg-3 mb-3">
-                        <div class="card agi-card neural-pattern h-100">
-                            <div class="card-body text-center">
-                                <i class="fas fa-chart-line fa-2x mb-2"></i>
-                                <h3>$2,147,892</h3>
-                                <p class="mb-0">AGI Revenue Forecast</p>
-                                <small>March-April RAGLE analysis</small>
-                                <div class="mt-2">
-                                    <span class="prediction-chip">+14.2% Growth</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 mb-3">
-                        <div class="card agi-card neural-pattern h-100">
-                            <div class="card-body text-center">
-                                <i class="fas fa-robot fa-2x mb-2"></i>
-                                <h3>96.8%</h3>
-                                <p class="mb-0">AGI Accuracy Score</p>
-                                <small>Billing prediction confidence</small>
-                                <div class="mt-2">
-                                    <span class="prediction-chip">Self-Learning</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 mb-3">
-                        <div class="card agi-card neural-pattern h-100">
-                            <div class="card-body text-center">
-                                <i class="fas fa-eye fa-2x mb-2"></i>
-                                <h3>147</h3>
-                                <p class="mb-0">Anomalies Detected</p>
-                                <small>AGI pattern recognition</small>
-                                <div class="mt-2">
-                                    <span class="prediction-chip">Auto-Fix</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 mb-3">
-                        <div class="card agi-card neural-pattern h-100">
-                            <div class="card-body text-center">
-                                <i class="fas fa-lightning-bolt fa-2x mb-2"></i>
-                                <h3>$84,237</h3>
-                                <p class="mb-0">AGI Optimization</p>
-                                <small>Revenue recovery identified</small>
-                                <div class="mt-2">
-                                    <span class="prediction-chip">Actionable</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Real-time AGI Insights Panel -->
-                <div class="intelligence-panel">
-                    <h5><i class="fas fa-lightbulb me-2"></i>Live AGI Insights from Authentic RAGLE Data</h5>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="agi-insight">
-                                <strong>Revenue Pattern Discovery:</strong> AGI detected 23% higher billing efficiency during Q2 periods across authentic equipment data
-                            </div>
-                            <div class="agi-insight">
-                                <strong>Predictive Maintenance Alert:</strong> AGI forecasts $156,000 in preventable costs based on RAGLE billing patterns
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="agi-insight">
-                                <strong>Autonomous Optimization:</strong> AGI recommends restructuring 12 asset allocations for 18% revenue increase
-                            </div>
-                            <div class="agi-insight">
-                                <strong>Market Intelligence:</strong> AGI analysis suggests expanding Division 3 operations for optimal ROI
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Interactive Revenue Analytics -->
-                <div class="row mb-4">
-                    <div class="col-lg-8">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5><i class="fas fa-chart-area me-2"></i>AGI Revenue Intelligence Dashboard</h5>
-                                <div>
-                                    <span class="badge bg-success">Live Data</span>
-                                    <span class="badge bg-primary">RAGLE Integrated</span>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="revenueChart" height="100"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h5><i class="fas fa-microchip me-2"></i>AGI Processing Status</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label>Revenue Analysis</label>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-success" style="width: 98%">98%</div>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label>Pattern Recognition</label>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-info" style="width: 94%">94%</div>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label>Predictive Modeling</label>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-warning" style="width: 89%">89%</div>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label>Autonomous Optimization</label>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-primary" style="width: 92%">92%</div>
-                                    </div>
-                                </div>
-                                <div class="alert alert-success mt-3">
-                                    <small><i class="fas fa-check-circle me-1"></i>AGI system operating at peak efficiency</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Advanced Analytics Table -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-table me-2"></i>AGI-Enhanced Revenue Analysis</h5>
-                        <p class="mb-0 text-muted">Authentic RAGLE billing data with autonomous intelligence overlay</p>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>Equipment Category</th>
-                                        <th>Revenue (Actual)</th>
-                                        <th>AGI Prediction</th>
-                                        <th>Optimization Potential</th>
-                                        <th>Risk Score</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><i class="fas fa-truck text-primary me-2"></i>Heavy Equipment</td>
-                                        <td><strong>$1,105,200</strong></td>
-                                        <td><span class="text-success">$1,243,000</span></td>
-                                        <td><span class="prediction-chip">+12.5%</span></td>
-                                        <td><span class="badge bg-success">Low</span></td>
-                                        <td><button class="btn btn-sm btn-outline-primary">Optimize</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td><i class="fas fa-tools text-warning me-2"></i>Excavators</td>
-                                        <td><strong>$663,120</strong></td>
-                                        <td><span class="text-success">$728,450</span></td>
-                                        <td><span class="prediction-chip">+9.8%</span></td>
-                                        <td><span class="badge bg-warning">Medium</span></td>
-                                        <td><button class="btn btn-sm btn-outline-warning">Review</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td><i class="fas fa-cog text-info me-2"></i>Small Equipment</td>
-                                        <td><strong>$442,080</strong></td>
-                                        <td><span class="text-success">$516,920</span></td>
-                                        <td><span class="prediction-chip">+16.9%</span></td>
-                                        <td><span class="badge bg-success">Low</span></td>
-                                        <td><button class="btn btn-sm btn-outline-success">Execute</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+        <!-- Main Content -->
+        <div class="col-lg-10 offset-lg-2 p-4">
+          <div class="agi-header mb-4" data-tour="billing-automation">
+            <div style="position: relative; z-index: 1">
+              <h1>
+                <i class="fas fa-brain me-2"></i>AGI Billing Intelligence Center
+              </h1>
+              <p class="mb-2">
+                Autonomous revenue intelligence powered by authentic RAGLE
+                billing data
+              </p>
+              <div class="d-flex align-items-center">
+                <span class="real-time-indicator me-2">
+                  <i class="fas fa-circle text-success"></i>
+                </span>
+                <small>Real-time AGI analysis of $2.1M+ revenue streams</small>
+              </div>
             </div>
+          </div>
+
+          <!-- AGI Revenue Intelligence Cards -->
+          <div class="row mb-4">
+            <div class="col-lg-3 mb-3">
+              <div class="card agi-card neural-pattern h-100">
+                <div class="card-body text-center">
+                  <i class="fas fa-chart-line fa-2x mb-2"></i>
+                  <h3>$2,147,892</h3>
+                  <p class="mb-0">AGI Revenue Forecast</p>
+                  <small>March-April RAGLE analysis</small>
+                  <div class="mt-2">
+                    <span class="prediction-chip">+14.2% Growth</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 mb-3">
+              <div class="card agi-card neural-pattern h-100">
+                <div class="card-body text-center">
+                  <i class="fas fa-robot fa-2x mb-2"></i>
+                  <h3>96.8%</h3>
+                  <p class="mb-0">AGI Accuracy Score</p>
+                  <small>Billing prediction confidence</small>
+                  <div class="mt-2">
+                    <span class="prediction-chip">Self-Learning</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 mb-3">
+              <div class="card agi-card neural-pattern h-100">
+                <div class="card-body text-center">
+                  <i class="fas fa-eye fa-2x mb-2"></i>
+                  <h3>147</h3>
+                  <p class="mb-0">Anomalies Detected</p>
+                  <small>AGI pattern recognition</small>
+                  <div class="mt-2">
+                    <span class="prediction-chip">Auto-Fix</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 mb-3">
+              <div class="card agi-card neural-pattern h-100">
+                <div class="card-body text-center">
+                  <i class="fas fa-lightning-bolt fa-2x mb-2"></i>
+                  <h3>$84,237</h3>
+                  <p class="mb-0">AGI Optimization</p>
+                  <small>Revenue recovery identified</small>
+                  <div class="mt-2">
+                    <span class="prediction-chip">Actionable</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Real-time AGI Insights Panel -->
+          <div class="intelligence-panel">
+            <h5>
+              <i class="fas fa-lightbulb me-2"></i>Live AGI Insights from
+              Authentic RAGLE Data
+            </h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="agi-insight">
+                  <strong>Revenue Pattern Discovery:</strong> AGI detected 23%
+                  higher billing efficiency during Q2 periods across authentic
+                  equipment data
+                </div>
+                <div class="agi-insight">
+                  <strong>Predictive Maintenance Alert:</strong> AGI forecasts
+                  $156,000 in preventable costs based on RAGLE billing patterns
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="agi-insight">
+                  <strong>Autonomous Optimization:</strong> AGI recommends
+                  restructuring 12 asset allocations for 18% revenue increase
+                </div>
+                <div class="agi-insight">
+                  <strong>Market Intelligence:</strong> AGI analysis suggests
+                  expanding Division 3 operations for optimal ROI
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Revenue Analytics -->
+          <div class="row mb-4">
+            <div class="col-lg-8">
+              <div class="card">
+                <div
+                  class="card-header d-flex justify-content-between align-items-center"
+                >
+                  <h5>
+                    <i class="fas fa-chart-area me-2"></i>AGI Revenue
+                    Intelligence Dashboard
+                  </h5>
+                  <div>
+                    <span class="badge bg-success">Live Data</span>
+                    <span class="badge bg-primary">RAGLE Integrated</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <canvas id="revenueChart" height="100"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5>
+                    <i class="fas fa-microchip me-2"></i>AGI Processing Status
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label>Revenue Analysis</label>
+                    <div class="progress">
+                      <div class="progress-bar bg-success" style="width: 98%">
+                        98%
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label>Pattern Recognition</label>
+                    <div class="progress">
+                      <div class="progress-bar bg-info" style="width: 94%">
+                        94%
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label>Predictive Modeling</label>
+                    <div class="progress">
+                      <div class="progress-bar bg-warning" style="width: 89%">
+                        89%
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label>Autonomous Optimization</label>
+                    <div class="progress">
+                      <div class="progress-bar bg-primary" style="width: 92%">
+                        92%
+                      </div>
+                    </div>
+                  </div>
+                  <div class="alert alert-success mt-3">
+                    <small
+                      ><i class="fas fa-check-circle me-1"></i>AGI system
+                      operating at peak efficiency</small
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Advanced Analytics Table -->
+          <div class="card">
+            <div class="card-header">
+              <h5>
+                <i class="fas fa-table me-2"></i>AGI-Enhanced Revenue Analysis
+              </h5>
+              <p class="mb-0 text-muted">
+                Authentic RAGLE billing data with autonomous intelligence
+                overlay
+              </p>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead class="table-dark">
+                    <tr>
+                      <th>Equipment Category</th>
+                      <th>Revenue (Actual)</th>
+                      <th>AGI Prediction</th>
+                      <th>Optimization Potential</th>
+                      <th>Risk Score</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <i class="fas fa-truck text-primary me-2"></i>Heavy
+                        Equipment
+                      </td>
+                      <td><strong>$1,105,200</strong></td>
+                      <td><span class="text-success">$1,243,000</span></td>
+                      <td><span class="prediction-chip">+12.5%</span></td>
+                      <td><span class="badge bg-success">Low</span></td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-primary">
+                          Optimize
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <i class="fas fa-tools text-warning me-2"></i>Excavators
+                      </td>
+                      <td><strong>$663,120</strong></td>
+                      <td><span class="text-success">$728,450</span></td>
+                      <td><span class="prediction-chip">+9.8%</span></td>
+                      <td><span class="badge bg-warning">Medium</span></td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-warning">
+                          Review
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <i class="fas fa-cog text-info me-2"></i>Small Equipment
+                      </td>
+                      <td><strong>$442,080</strong></td>
+                      <td><span class="text-success">$516,920</span></td>
+                      <td><span class="prediction-chip">+16.9%</span></td>
+                      <td><span class="badge bg-success">Low</span></td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-success">
+                          Execute
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // AGI Revenue Intelligence Chart with authentic RAGLE data
-        const ctx = document.getElementById('revenueChart').getContext('2d');
-        const revenueChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['March Week 1', 'March Week 2', 'March Week 3', 'March Week 4', 'April Week 1', 'April Week 2', 'April Week 3', 'April Week 4'],
-                datasets: [{
-                    label: 'Actual Revenue (RAGLE)',
-                    data: [115250, 127890, 142100, 175760, 138420, 149850, 162900, 201580],
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4
-                }, {
-                    label: 'AGI Predicted Revenue',
-                    data: [118900, 132400, 146200, 180300, 142100, 155200, 168900, 208400],
-                    borderColor: '#ff6b6b',
-                    backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                    borderWidth: 2,
-                    borderDash: [5, 5],
-                    fill: false,
-                    tension: 0.4
-                }]
+      // AGI Revenue Intelligence Chart with authentic RAGLE data
+      const ctx = document.getElementById("revenueChart").getContext("2d");
+      const revenueChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: [
+            "March Week 1",
+            "March Week 2",
+            "March Week 3",
+            "March Week 4",
+            "April Week 1",
+            "April Week 2",
+            "April Week 3",
+            "April Week 4",
+          ],
+          datasets: [
+            {
+              label: "Actual Revenue (RAGLE)",
+              data: [
+                115250, 127890, 142100, 175760, 138420, 149850, 162900, 201580,
+              ],
+              borderColor: "#667eea",
+              backgroundColor: "rgba(102, 126, 234, 0.1)",
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4,
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'AGI Revenue Intelligence: Actual vs Predicted (Authentic RAGLE Data)'
-                    },
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
+            {
+              label: "AGI Predicted Revenue",
+              data: [
+                118900, 132400, 146200, 180300, 142100, 155200, 168900, 208400,
+              ],
+              borderColor: "#ff6b6b",
+              backgroundColor: "rgba(255, 107, 107, 0.1)",
+              borderWidth: 2,
+              borderDash: [5, 5],
+              fill: false,
+              tension: 0.4,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: "AGI Revenue Intelligence: Actual vs Predicted (Authentic RAGLE Data)",
+            },
+            legend: {
+              display: true,
+              position: "top",
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              ticks: {
+                callback: function (value) {
+                  return "$" + value.toLocaleString();
                 },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toLocaleString();
-                            }
-                        }
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                animation: {
-                    duration: 2000,
-                    easing: 'easeOutQuart'
-                }
-            }
+              },
+            },
+          },
+          interaction: {
+            intersect: false,
+            mode: "index",
+          },
+          animation: {
+            duration: 2000,
+            easing: "easeOutQuart",
+          },
+        },
+      });
+
+      // Real-time AGI processing simulation
+      function updateAGIMetrics() {
+        const metrics = document.querySelectorAll(".prediction-chip");
+        metrics.forEach((metric) => {
+          metric.style.animation = "pulse 0.5s ease-in-out";
+          setTimeout(() => {
+            metric.style.animation = "";
+          }, 500);
         });
+      }
 
-        // Real-time AGI processing simulation
-        function updateAGIMetrics() {
-            const metrics = document.querySelectorAll('.prediction-chip');
-            metrics.forEach(metric => {
-                metric.style.animation = 'pulse 0.5s ease-in-out';
-                setTimeout(() => {
-                    metric.style.animation = '';
-                }, 500);
-            });
+      // Update AGI metrics every 5 seconds to show live processing
+      setInterval(updateAGIMetrics, 5000);
+
+      // AGI insight rotation
+      const insights = [
+        "AGI detected 23% higher billing efficiency during Q2 periods across authentic equipment data",
+        "Revenue optimization identified: $84,237 potential increase through asset reallocation",
+        "Predictive maintenance alert: AGI forecasts $156,000 in preventable costs",
+        "Market intelligence: AGI suggests expanding Division 3 operations for optimal ROI",
+        "Pattern discovery: 18% efficiency gain possible with current fleet configuration",
+      ];
+
+      let currentInsight = 0;
+      function rotateInsights() {
+        const insightElements = document.querySelectorAll(
+          ".agi-insight strong",
+        );
+        if (insightElements.length > 0) {
+          insightElements[0].nextSibling.textContent =
+            " " + insights[currentInsight];
+          currentInsight = (currentInsight + 1) % insights.length;
         }
+      }
 
-        // Update AGI metrics every 5 seconds to show live processing
-        setInterval(updateAGIMetrics, 5000);
+      // Rotate insights every 8 seconds
+      setInterval(rotateInsights, 8000);
 
-        // AGI insight rotation
-        const insights = [
-            "AGI detected 23% higher billing efficiency during Q2 periods across authentic equipment data",
-            "Revenue optimization identified: $84,237 potential increase through asset reallocation",
-            "Predictive maintenance alert: AGI forecasts $156,000 in preventable costs",
-            "Market intelligence: AGI suggests expanding Division 3 operations for optimal ROI",
-            "Pattern discovery: 18% efficiency gain possible with current fleet configuration"
-        ];
+      // AGI processing progress animation
+      function animateProgress() {
+        const progressBars = document.querySelectorAll(".progress-bar");
+        progressBars.forEach((bar) => {
+          const currentWidth = parseInt(bar.style.width);
+          const variation = Math.random() * 4 - 2; // ±2%
+          const newWidth = Math.max(
+            85,
+            Math.min(100, currentWidth + variation),
+          );
+          bar.style.width = newWidth + "%";
+          bar.textContent = Math.round(newWidth) + "%";
+        });
+      }
 
-        let currentInsight = 0;
-        function rotateInsights() {
-            const insightElements = document.querySelectorAll('.agi-insight strong');
-            if (insightElements.length > 0) {
-                insightElements[0].nextSibling.textContent = ' ' + insights[currentInsight];
-                currentInsight = (currentInsight + 1) % insights.length;
-            }
-        }
+      // Update progress every 3 seconds
+      setInterval(animateProgress, 3000);
 
-        // Rotate insights every 8 seconds
-        setInterval(rotateInsights, 8000);
-
-        // AGI processing progress animation
-        function animateProgress() {
-            const progressBars = document.querySelectorAll('.progress-bar');
-            progressBars.forEach(bar => {
-                const currentWidth = parseInt(bar.style.width);
-                const variation = Math.random() * 4 - 2; // ±2%
-                const newWidth = Math.max(85, Math.min(100, currentWidth + variation));
-                bar.style.width = newWidth + '%';
-                bar.textContent = Math.round(newWidth) + '%';
-            });
-        }
-
-        // Update progress every 3 seconds
-        setInterval(animateProgress, 3000);
-
-        console.log('TRAXOVO AGI Billing Intelligence Center: Loaded with authentic RAGLE data integration');
+      console.log(
+        "TRAXOVO AGI Billing Intelligence Center: Loaded with authentic RAGLE data integration",
+      );
     </script>
-</body>
+  </body>
 </html>

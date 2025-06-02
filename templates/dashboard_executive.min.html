@@ -1,260 +1,439 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXOVO Fleet Intelligence</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"><style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TRAXOVO Fleet Intelligence</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-body {
-font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-background: linear-gradient(135deg, #2c5aa0 0%, #1a365d 100%);
-min-height: 100vh;
-color: #1a202c;
-}
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background: linear-gradient(135deg, #2c5aa0 0%, #1a365d 100%);
+        min-height: 100vh;
+        color: #1a202c;
+      }
 
-.dashboard-container {
-max-width: 1400px;
-margin: 0 auto;
-padding: 2rem;
-}
+      .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
 
-/* Header */
-.header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 2rem;
-}
+      /* Header */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
 
-.logo-section h1 {
-font-size: 2.5rem;
-font-weight: 700;
-color: white;
-text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+      .logo-section h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
 
-.logo-section p {
-color: rgba(255,255,255,0.8);
-font-size: 1.1rem;
-margin-top: 0.5rem;
-}
+      .logo-section p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+      }
 
-.system-status {
-background: rgba(255,255,255,0.15);
-backdrop-filter: blur(10px);
-border-radius: 12px;
-padding: 1rem 1.5rem;
-color: white;
-text-align: right;
-}
+      .system-status {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        color: white;
+        text-align: right;
+      }
 
-.status-indicator {
-display: flex;
-align-items: center;
-gap: 0.5rem;
-justify-content: flex-end;
-}
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: flex-end;
+      }
 
-.status-dot {
-width: 8px;
-height: 8px;
-background: #10b981;
-border-radius: 50%;
-animation: pulse 2s infinite;
-}
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
 
-@keyframes pulse {
-0%, 100% { opacity: 1; }
-50% { opacity: 0.5; }
-}
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
 
-/* Main metrics cards */
-.metrics-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-gap: 1.5rem;
-margin-bottom: 2rem;
-}
+      /* Main metrics cards */
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
 
-.metric-card {
-background: rgba(255,255,255,0.98);
-backdrop-filter: blur(20px);
-border-radius: 20px;
-padding: 2rem;
-box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-border: 1px solid rgba(255,255,255,0.2);
-text-decoration: none;
-color: inherit;
-}
+      .metric-card {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow:
+          0 8px 32px rgba(0, 0, 0, 0.12),
+          0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-decoration: none;
+        color: inherit;
+      }
 
-.metric-card.clickable:hover {
-transform: translateY(-6px) scale(1.02);
-box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 8px 16px rgba(0,0,0,0.1);
-text-decoration: none;
-color: inherit;
-cursor: pointer;
-}
+      .metric-card.clickable:hover {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow:
+          0 20px 40px rgba(0, 0, 0, 0.15),
+          0 8px 16px rgba(0, 0, 0, 0.1);
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer;
+      }
 
-.metric-drill {
-font-size: 0.8rem;
-color: #3182ce;
-font-weight: 500;
-margin-top: 0.5rem;
-opacity: 0;
-transition: opacity 0.3s ease;
-}
+      .metric-drill {
+        font-size: 0.8rem;
+        color: #3182ce;
+        font-weight: 500;
+        margin-top: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
 
-.metric-card:hover .metric-drill {
-opacity: 1;
-}
+      .metric-card:hover .metric-drill {
+        opacity: 1;
+      }
 
-.metric-header {
-display: flex;
-justify-content: space-between;
-align-items: flex-start;
-margin-bottom: 1rem;
-}
+      .metric-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+      }
 
-.metric-icon {
-width: 56px;
-height: 56px;
-border-radius: 16px;
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 1.75rem;
-color: white;
-box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-transition: all 0.3s ease;
-}
+      .metric-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+      }
 
-.icon-blue { background: linear-gradient(135deg, #3182ce, #2c5aa0); }
-.icon-green { background: linear-gradient(135deg, #48bb78, #38a169); }
-.icon-orange { background: linear-gradient(135deg, #ed8936, #dd6b20); }
-.icon-gray { background: linear-gradient(135deg, #4a5568, #2d3748); }
+      .icon-blue {
+        background: linear-gradient(135deg, #3182ce, #2c5aa0);
+      }
+      .icon-green {
+        background: linear-gradient(135deg, #48bb78, #38a169);
+      }
+      .icon-orange {
+        background: linear-gradient(135deg, #ed8936, #dd6b20);
+      }
+      .icon-gray {
+        background: linear-gradient(135deg, #4a5568, #2d3748);
+      }
 
-.metric-value {
-font-size: 3rem;
-font-weight: 700;
-line-height: 1;
-margin-bottom: 0.5rem;
-}
+      .metric-value {
+        font-size: 3rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+      }
 
-.metric-label {
-font-size: 1.1rem;
-color: #4a5568;
-font-weight: 500;
-}
+      .metric-label {
+        font-size: 1.1rem;
+        color: #4a5568;
+        font-weight: 500;
+      }
 
-.metric-trend {
-font-size: 0.9rem;
-color: #10b981;
-font-weight: 500;
-margin-top: 0.5rem;
-}
+      .metric-trend {
+        font-size: 0.9rem;
+        color: #10b981;
+        font-weight: 500;
+        margin-top: 0.5rem;
+      }
 
-/* Quick actions */
-.actions-section {
-margin-bottom: 2rem;
-}
+      /* Quick actions */
+      .actions-section {
+        margin-bottom: 2rem;
+      }
 
-.section-title {
-color: white;
-font-size: 1.5rem;
-font-weight: 600;
-margin-bottom: 1rem;
-text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+      .section-title {
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
 
-.actions-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-gap: 1rem;
-}
+      .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+      }
 
-.action-card {
-background: rgba(255,255,255,0.95);
-border-radius: 16px;
-padding: 1.75rem;
-text-decoration: none;
-color: inherit;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-border: 1px solid rgba(255,255,255,0.3);
-box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-}
+      .action-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        padding: 1.75rem;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      }
 
-.action-card:hover {
-background: white;
-transform: translateY(-4px) scale(1.02);
-box-shadow: 0 16px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.08);
-text-decoration: none;
-color: inherit;
-border: 1px solid rgba(255,255,255,0.5);
-}
+      .action-card:hover {
+        background: white;
+        transform: translateY(-4px) scale(1.02);
+        box-shadow:
+          0 16px 40px rgba(0, 0, 0, 0.12),
+          0 4px 12px rgba(0, 0, 0, 0.08);
+        text-decoration: none;
+        color: inherit;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+      }
 
-.action-title {
-font-size: 1.1rem;
-font-weight: 600;
-margin-bottom: 0.5rem;
-color: #2d3748;
-}
+      .action-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #2d3748;
+      }
 
-.action-description {
-font-size: 0.9rem;
-color: #718096;
-line-height: 1.4;
-}
+      .action-description {
+        font-size: 0.9rem;
+        color: #718096;
+        line-height: 1.4;
+      }
 
-/* Navigation bar */
-.nav-bar {
-background: rgba(255,255,255,0.1);
-backdrop-filter: blur(10px);
-border-radius: 12px;
-padding: 1rem;
-display: flex;
-gap: 1rem;
-flex-wrap: wrap;
-margin-bottom: 2rem;
-}
+      /* Navigation bar */
+      .nav-bar {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 1rem;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+      }
 
-.nav-button {
-background: rgba(255,255,255,0.2);
-color: white;
-border: none;
-padding: 0.75rem 1.5rem;
-border-radius: 8px;
-text-decoration: none;
-font-weight: 500;
-transition: all 0.2s ease;
-}
+      .nav-button {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
 
-.nav-button:hover {
-background: rgba(255,255,255,0.3);
-color: white;
-text-decoration: none;
-}
+      .nav-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+      }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-.metrics-grid { grid-template-columns: repeat(2, 1fr); }
-.actions-grid { grid-template-columns: repeat(2, 1fr); }
-}
+      /* Responsive Design */
+      @media (max-width: 1024px) {
+        .metrics-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .actions-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
 
-@media (max-width: 768px) {
-.dashboard-container { padding: 1rem; }
-.header { flex-direction: column; gap: 1rem; text-align: center; }
-.logo-section h1 { font-size: 2rem; }
-.metrics-grid { grid-template-columns: 1fr; gap: 1rem; }
-.actions-grid { grid-template-columns: 1fr; }
-.nav-bar { justify-content: center; }
-.nav-button { padding: 1rem 1.5rem; min-height: 48px; }
-.action-card { padding: 1.5rem; min-height: 80px; }
-.metric-card { padding: 1.5rem; }
-}
+      @media (max-width: 768px) {
+        .dashboard-container {
+          padding: 1rem;
+        }
+        .header {
+          flex-direction: column;
+          gap: 1rem;
+          text-align: center;
+        }
+        .logo-section h1 {
+          font-size: 2rem;
+        }
+        .metrics-grid {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+        .actions-grid {
+          grid-template-columns: 1fr;
+        }
+        .nav-bar {
+          justify-content: center;
+        }
+        .nav-button {
+          padding: 1rem 1.5rem;
+          min-height: 48px;
+        }
+        .action-card {
+          padding: 1.5rem;
+          min-height: 80px;
+        }
+        .metric-card {
+          padding: 1.5rem;
+        }
+      }
 
-@media (max-width: 480px) {
-.dashboard-container { padding: 0.75rem; }
-.logo-section h1 { font-size: 1.75rem; }
-.metric-value { font-size: 2.5rem; }
-.nav-button { font-size: 0.9rem; }
-}
-</style></head><body><div class="dashboard-container"><div class="header"><div class="logo-section"><h1>TRAXOVO</h1><p>Fleet Intelligence Platform</p></div><div class="system-status"><div class="status-indicator"><span class="status-dot"></span><span>Live Operations</span></div><div style="font-size: 0.9rem; opacity: 0.8; margin-top: 0.25rem;">
-North Texas Fleet
-</div></div></div><div class="nav-bar"><a href="/job-management/" class="nav-button">Job Management</a><a href="/attendance-workflow/" class="nav-button">Attendance Workflow</a><a href="/equipment" class="nav-button">Equipment</a><a href="/kaizen" class="nav-button">AI Insights</a><button class="nav-button" onclick="location.reload()">Refresh</button></div><div class="metrics-grid"><a href="/reports/asset-utilization" class="metric-card clickable"><div class="metric-header"><div><div class="metric-value">{{ total_assets }}</div><div class="metric-label">Fleet Assets</div><div class="metric-trend">89% Utilization Rate</div><div class="metric-drill">↗ View Asset Details</div></div><div class="metric-icon icon-blue">🚛</div></div></a><a href="/reports/driver-performance" class="metric-card clickable"><div class="metric-header"><div><div class="metric-value">{{ performance_issues }}</div><div class="metric-label">Performance Issues</div><div class="metric-trend">3 Late Starts Today</div><div class="metric-drill">↗ View Driver Reports</div></div><div class="metric-icon icon-orange">⚠️</div></div></a><a href="/reports/efficiency-analysis" class="metric-card clickable"><div class="metric-header"><div><div class="metric-value">${{ "${:,.0f}".format(monthly_savings) }}</div><div class="metric-label">Cost Savings</div><div class="metric-trend">vs External Rentals</div><div class="metric-drill">↗ View Savings Report</div></div><div class="metric-icon icon-green">💰</div></div></a><a href="/reports/maintenance-alerts" class="metric-card clickable"><div class="metric-header"><div><div class="metric-value">{{ maintenance_due }}</div><div class="metric-label">Maintenance Due</div><div class="metric-trend">{{ coverage }}% GPS Coverage</div><div class="metric-drill">↗ View Service Schedule</div></div><div class="metric-icon icon-gray">🔧</div></div></a></div><div class="actions-section"><h2 class="section-title">Smart Fleet Intelligence</h2><div class="actions-grid"><a href="/assets" class="action-card"><div class="action-title">Asset Management</div><div class="action-description">Complete lifecycle with Ragle depreciation data</div></a><a href="/billing" class="action-card"><div class="action-title">Comprehensive Billing</div><div class="action-description">Gauge API + Ragle + Foundation integration</div></a><a href="/gps-efficiency" class="action-card"><div class="action-title">GPS Work Zone Efficiency</div><div class="action-description">Verify timecard compliance with GPS data</div></a><a href="/automated-attendance" class="action-card"><div class="action-title">Automated Attendance</div><div class="action-description">Ground Works vs vehicle GPS verification</div></a><a href="/smart-backend" class="action-card"><div class="action-title">Smart Learning Backend</div><div class="action-description">AI insights from cost codes and job patterns</div></a><a href="/job-management" class="action-card"><div class="action-title">Job Management</div><div class="action-description">Active project tracking with 570 assets</div></a></div></div></div></body></html>
+      @media (max-width: 480px) {
+        .dashboard-container {
+          padding: 0.75rem;
+        }
+        .logo-section h1 {
+          font-size: 1.75rem;
+        }
+        .metric-value {
+          font-size: 2.5rem;
+        }
+        .nav-button {
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <div class="header">
+        <div class="logo-section">
+          <h1>TRAXOVO</h1>
+          <p>Fleet Intelligence Platform</p>
+        </div>
+        <div class="system-status">
+          <div class="status-indicator">
+            <span class="status-dot"></span><span>Live Operations</span>
+          </div>
+          <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 0.25rem">
+            North Texas Fleet
+          </div>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <a href="/job-management/" class="nav-button">Job Management</a
+        ><a href="/attendance-workflow/" class="nav-button"
+          >Attendance Workflow</a
+        ><a href="/equipment" class="nav-button">Equipment</a
+        ><a href="/kaizen" class="nav-button">AI Insights</a
+        ><button class="nav-button" onclick="location.reload()">Refresh</button>
+      </div>
+      <div class="metrics-grid">
+        <a href="/reports/asset-utilization" class="metric-card clickable"
+          ><div class="metric-header">
+            <div>
+              <div class="metric-value">{{ total_assets }}</div>
+              <div class="metric-label">Fleet Assets</div>
+              <div class="metric-trend">89% Utilization Rate</div>
+              <div class="metric-drill">↗ View Asset Details</div>
+            </div>
+            <div class="metric-icon icon-blue">🚛</div>
+          </div></a
+        ><a href="/reports/driver-performance" class="metric-card clickable"
+          ><div class="metric-header">
+            <div>
+              <div class="metric-value">{{ performance_issues }}</div>
+              <div class="metric-label">Performance Issues</div>
+              <div class="metric-trend">3 Late Starts Today</div>
+              <div class="metric-drill">↗ View Driver Reports</div>
+            </div>
+            <div class="metric-icon icon-orange">⚠️</div>
+          </div></a
+        ><a href="/reports/efficiency-analysis" class="metric-card clickable"
+          ><div class="metric-header">
+            <div>
+              <div class="metric-value">
+                ${{ "${:,.0f}".format(monthly_savings) }}
+              </div>
+              <div class="metric-label">Cost Savings</div>
+              <div class="metric-trend">vs External Rentals</div>
+              <div class="metric-drill">↗ View Savings Report</div>
+            </div>
+            <div class="metric-icon icon-green">💰</div>
+          </div></a
+        ><a href="/reports/maintenance-alerts" class="metric-card clickable"
+          ><div class="metric-header">
+            <div>
+              <div class="metric-value">{{ maintenance_due }}</div>
+              <div class="metric-label">Maintenance Due</div>
+              <div class="metric-trend">{{ coverage }}% GPS Coverage</div>
+              <div class="metric-drill">↗ View Service Schedule</div>
+            </div>
+            <div class="metric-icon icon-gray">🔧</div>
+          </div></a
+        >
+      </div>
+      <div class="actions-section">
+        <h2 class="section-title">Smart Fleet Intelligence</h2>
+        <div class="actions-grid">
+          <a href="/assets" class="action-card"
+            ><div class="action-title">Asset Management</div>
+            <div class="action-description">
+              Complete lifecycle with Ragle depreciation data
+            </div></a
+          ><a href="/billing" class="action-card"
+            ><div class="action-title">Comprehensive Billing</div>
+            <div class="action-description">
+              Gauge API + Ragle + Foundation integration
+            </div></a
+          ><a href="/gps-efficiency" class="action-card"
+            ><div class="action-title">GPS Work Zone Efficiency</div>
+            <div class="action-description">
+              Verify timecard compliance with GPS data
+            </div></a
+          ><a href="/automated-attendance" class="action-card"
+            ><div class="action-title">Automated Attendance</div>
+            <div class="action-description">
+              Ground Works vs vehicle GPS verification
+            </div></a
+          ><a href="/smart-backend" class="action-card"
+            ><div class="action-title">Smart Learning Backend</div>
+            <div class="action-description">
+              AI insights from cost codes and job patterns
+            </div></a
+          ><a href="/job-management" class="action-card"
+            ><div class="action-title">Job Management</div>
+            <div class="action-description">
+              Active project tracking with 570 assets
+            </div></a
+          >
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,410 +1,487 @@
-{% extends "base.html" %}
-
-{% block title %}Dashboard - TRAXOVO{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/custom-light.css') }}">
-{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Dashboard - TRAXOVO{% endblock %} {%
+block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/custom-light.css') }}"
+/>
+{% endblock %} {% block content %}
 <div class="container-fluid py-4">
-    <!-- Quick Actions Navigation -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-2">
-                        <div class="col-md-3">
-                            <a href="/attendance-matrix" class="btn btn-primary w-100">
-                                <i class="bi bi-calendar-check me-2"></i> Attendance Matrix
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="/fleet-management" class="btn btn-success w-100">
-                                <i class="bi bi-geo-alt me-2"></i> Fleet Management
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="/executive-reports" class="btn btn-info w-100">
-                                <i class="bi bi-graph-up me-2"></i> Executive Reports
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="/billing" class="btn btn-warning w-100">
-                                <i class="bi bi-currency-dollar me-2"></i> Billing Intelligence
-                            </a>
-                        </div>
-                    </div>
-                    <div class="row g-2 mt-2">
-                        <div class="col-md-3">
-                            <a href="/equipment-lifecycle" class="btn btn-success w-100">
-                                <i class="bi bi-gear me-2"></i> Equipment Lifecycle
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="/predictive-maintenance" class="btn btn-danger w-100">
-                                <i class="bi bi-wrench me-2"></i> Predictive Maintenance
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="/timecard-import" class="btn btn-info w-100">
-                                <i class="bi bi-upload me-2"></i> Timecard Import
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="/idea-box" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-lightbulb me-2"></i> Idea Box
-                            </a>
-                        </div>
-                    </div>
-                    <div class="row g-2 mt-2">
-                        <div class="col-md-3">
-                            <a href="/backup-system" class="btn btn-outline-secondary w-100">
-                                <i class="bi bi-archive me-2"></i> Backup System
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="/health" class="btn btn-outline-success w-100">
-                                <i class="bi bi-heart-pulse me-2"></i> System Health
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="/database-explorer" class="btn btn-outline-info w-100">
-                                <i class="bi bi-database me-2"></i> Database Explorer
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="/asset-management" class="btn btn-outline-warning w-100">
-                                <i class="bi bi-truck me-2"></i> Asset Management
-                            </a>
-                        </div>
-                    </div>
-                </div>
+  <!-- Quick Actions Navigation -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-lightning me-2"></i>Quick Actions
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-md-3">
+              <a href="/attendance-matrix" class="btn btn-primary w-100">
+                <i class="bi bi-calendar-check me-2"></i> Attendance Matrix
+              </a>
             </div>
-        </div>
-    </div>
-
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="dashboard-title">Fleet Dashboard</h1>
-            <p class="dashboard-subtitle">Welcome to TRAXOVO Fleet Management</p>
-        </div>
-        <div class="col-md-4 text-end">
-            <button class="btn btn-info ms-2" onclick="window.open('/database-explorer', '_blank')">
+            <div class="col-md-3">
+              <a href="/fleet-management" class="btn btn-success w-100">
+                <i class="bi bi-geo-alt me-2"></i> Fleet Management
+              </a>
+            </div>
+            <div class="col-md-3">
+              <a href="/executive-reports" class="btn btn-info w-100">
+                <i class="bi bi-graph-up me-2"></i> Executive Reports
+              </a>
+            </div>
+            <div class="col-md-3">
+              <a href="/billing" class="btn btn-warning w-100">
+                <i class="bi bi-currency-dollar me-2"></i> Billing Intelligence
+              </a>
+            </div>
+          </div>
+          <div class="row g-2 mt-2">
+            <div class="col-md-3">
+              <a href="/equipment-lifecycle" class="btn btn-success w-100">
+                <i class="bi bi-gear me-2"></i> Equipment Lifecycle
+              </a>
+            </div>
+            <div class="col-md-3">
+              <a href="/predictive-maintenance" class="btn btn-danger w-100">
+                <i class="bi bi-wrench me-2"></i> Predictive Maintenance
+              </a>
+            </div>
+            <div class="col-md-3">
+              <a href="/timecard-import" class="btn btn-info w-100">
+                <i class="bi bi-upload me-2"></i> Timecard Import
+              </a>
+            </div>
+            <div class="col-md-3">
+              <a href="/idea-box" class="btn btn-outline-primary w-100">
+                <i class="bi bi-lightbulb me-2"></i> Idea Box
+              </a>
+            </div>
+          </div>
+          <div class="row g-2 mt-2">
+            <div class="col-md-3">
+              <a href="/backup-system" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-archive me-2"></i> Backup System
+              </a>
+            </div>
+            <div class="col-md-3">
+              <a href="/health" class="btn btn-outline-success w-100">
+                <i class="bi bi-heart-pulse me-2"></i> System Health
+              </a>
+            </div>
+            <div class="col-md-3">
+              <a href="/database-explorer" class="btn btn-outline-info w-100">
                 <i class="bi bi-database me-2"></i> Database Explorer
-            </button>
-            <button class="btn btn-warning ms-2" onclick="alert('API Management: Your Gauge API is connected successfully! Status: Active')">
-                <i class="bi bi-shield-lock me-2"></i> API Status
-            </button>
-            <a href="{{ url_for('assets') }}" class="btn btn-outline-secondary ms-2">
-                <i class="bi bi-truck me-2"></i> View All Assets
-            </a>
+              </a>
+            </div>
+            <div class="col-md-3">
+              <a href="/asset-management" class="btn btn-outline-warning w-100">
+                <i class="bi bi-truck me-2"></i> Asset Management
+              </a>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-    
-    <div class="row mb-4">
-        <div class="col-md-4 mb-3">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="bi bi-truck me-2"></i>Active Assets</h5>
-                        <span class="badge bg-light text-primary rounded-pill">{{ asset_count }}</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h2 class="display-4 fw-bold mb-0">{{ asset_count }}</h2>
-                        <div class="text-muted">
-                            <div>Total assets</div>
-                            <div>currently being tracked</div>
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <a href="{{ url_for('main.assets') }}" class="btn btn-sm btn-primary">
-                            <i class="bi bi-search me-1"></i> Browse Assets
-                        </a>
-                        <a href="{{ url_for('geo_tracking_basic.map_view') }}" class="btn btn-sm btn-outline-secondary ms-2">
-                            <i class="bi bi-geo-alt me-1"></i> Asset Map
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4 mb-3">
-            <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Driver Reports</h5>
-                        <span class="badge bg-light text-success rounded-pill">Today</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <h5 class="fw-bold mb-3">Attendance Metrics</h5>
-                    <div class="d-flex flex-column">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-danger"><i class="bi bi-circle-fill me-2"></i> Late Starts</span>
-                            <span class="badge bg-danger rounded-pill">{{ late_starts_count }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-warning"><i class="bi bi-circle-fill me-2"></i> Early Ends</span>
-                            <span class="badge bg-warning rounded-pill">{{ early_ends_count }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-secondary"><i class="bi bi-circle-fill me-2"></i> Not On Job</span>
-                            <span class="badge bg-secondary rounded-pill">{{ not_on_job_count }}</span>
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <a href="{{ url_for('driver_module.daily_report') }}" class="btn btn-sm btn-success">
-                            <i class="bi bi-eye me-1"></i> View Reports
-                        </a>
-                        <a href="{{ url_for('driver_module.daily_report') }}" class="btn btn-sm btn-outline-secondary ms-2">
-                            <i class="bi bi-plus-circle me-1"></i> Generate Report
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4 mb-3">
-            <div class="card shadow">
-                <div class="card-header bg-info text-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="bi bi-speedometer me-2"></i>System Status</h5>
-                        <span class="badge bg-light text-info rounded-pill">Live</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <h5 class="fw-bold mb-3">
-                        <i class="bi bi-clock me-1"></i> Last API Sync: 
-                        <span class="text-info">Today at {{ last_sync_time }}</span>
-                    </h5>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span><i class="bi bi-database me-1"></i> Database Connection</span>
-                        <span class="badge bg-{{ 'success' if db_connected else 'danger' }}">{{ 'Connected' if db_connected else 'Disconnected' }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span><i class="bi bi-cloud me-1"></i> API Status</span>
-                        <span class="badge bg-{{ 'success' if api_online else 'danger' }}">{{ 'Online' if api_online else 'Offline' }}</span>
-                    </div>
-                    <div class="mt-3">
-                        <a href="{{ url_for('pm_allocation_processor') }}" class="btn btn-sm btn-info">
-                            <i class="bi bi-calculator me-1"></i> PM Allocation
-                        </a>
-                        <a href="{{ url_for('ocr_tool') }}" class="btn btn-sm btn-outline-secondary ms-2">
-                            <i class="bi bi-file-text me-1"></i> OCR Tool
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div class="col-md-8 mb-3">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="bi bi-activity me-2"></i>Recent Activity</h5>
-                        <a href="#" class="btn btn-sm btn-light">View All</a>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Timestamp</th>
-                                    <th>User</th>
-                                    <th>Activity</th>
-                                    <th>Description</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% if activities %}
-                                    {% for activity in activities[:5] %}
-                                        <tr>
-                                            <td>{{ activity.timestamp|string }}</td>
-                                            <td>
-                                                {% if activity.username %}
-                                                    {{ activity.username }}
-                                                {% elif activity.user_id %}
-                                                    User #{{ activity.user_id }}
-                                                {% else %}
-                                                    System
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if activity.activity_type == 'login' %}
-                                                    <i class="bi bi-box-arrow-in-right text-success me-1"></i> Login
-                                                {% elif activity.activity_type == 'logout' %}
-                                                    <i class="bi bi-box-arrow-left text-danger me-1"></i> Logout
-                                                {% elif activity.activity_type == 'asset_update' %}
-                                                    <i class="bi bi-truck text-info me-1"></i> Asset
-                                                {% elif activity.activity_type == 'report_export' %}
-                                                    <i class="bi bi-file-earmark-text text-primary me-1"></i> Report
-                                                {% elif activity.activity_type == 'pm_allocation_process' %}
-                                                    <i class="bi bi-calculator text-warning me-1"></i> PM Allocation
-                                                {% elif activity.activity_type == 'navigation' %}
-                                                    <i class="bi bi-signpost text-secondary me-1"></i> Navigation
-                                                {% elif activity.activity_type == 'document_upload' %}
-                                                    <i class="bi bi-upload text-info me-1"></i> Upload
-                                                {% else %}
-                                                    <i class="bi bi-activity text-dark me-1"></i> {{ activity.activity_type }}
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ activity.description }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="4" class="text-center py-3">No recent activities found</td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4 mb-3">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <!-- Dashboard Quick Navigation -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold"><i class="bi bi-speedometer2 me-1"></i> Jump to Dashboard:</label>
-                        <div class="d-flex gap-2 mb-3">
-                            <a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-primary flex-grow-1">
-                                <i class="bi bi-house-door me-1"></i> Main
-                            </a>
-                            <a href="{{ url_for('driver_module.daily_report') }}" class="btn btn-sm btn-outline-success flex-grow-1">
-                                <i class="bi bi-person-badge me-1"></i> Driver
-                            </a>
-                            <a href="#" class="btn btn-sm btn-outline-info flex-grow-1">
-                                <i class="bi bi-tools me-1"></i> Maintenance
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <!-- Organization Selection -->
-                    <div class="mb-3">
-                        <label for="organization-select" class="form-label fw-bold"><i class="bi bi-building me-1"></i> Organization:</label>
-                        <select id="organization-select" class="form-select form-select-sm">
-                            <option value="all">All Organizations</option>
-                            <option value="1">Texas District</option>
-                            <option value="2">Ragle Construction</option>
-                            <option value="3">West TX</option>
-                            <option value="4">ESCO</option>
-                        </select>
-                    </div>
-                    
-                    <!-- TRAXOVO Field Operations - Updated -->
-                    <label class="form-label fw-bold"><i class="bi bi-list-task me-1"></i> TRAXOVO Field Operations:</label>
-                    <div class="d-grid gap-2">
-                        <a href="/fleet-map" class="btn btn-success">
-                            <i class="bi bi-map me-2"></i> Fleet Map (95 Assets in Job Zones)
-                        </a>
-                        <a href="/fleet-manager-dashboard" class="btn btn-primary">
-                            <i class="bi bi-truck me-2"></i> Fleet Manager Portal (Chris Robertson - PT-107)
-                        </a>
-                        <a href="/financial-forecasting" class="btn btn-outline-info">
-                            <i class="bi bi-graph-up me-2"></i> Financial Forecasting ($1.7M Revenue)
-                        </a>
-                        <a href="/intake-form" class="btn btn-outline-warning">
-                            <i class="bi bi-clipboard-plus me-2"></i> Equipment Report (Photo Upload)
-                        </a>
-                        <a href="/idea-box" class="btn btn-outline-info">
-                            <i class="bi bi-lightbulb me-2"></i> Idea Box (Feature Requests)
-                        </a>
-                        <a href="/backup-system" class="btn btn-outline-secondary">
-                            <i class="bi bi-shield-check me-2"></i> Backup & Activity History
-                        </a>
-                        <a href="/time-logger" class="btn btn-outline-success">
-                            <i class="bi bi-clock me-2"></i> Time Logger (Job Zone Tracking)
-                        </a>
-                        <a href="{{ url_for('driver_module.daily_report') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-calendar-date me-2"></i> Daily Driver Report
-                        </a>
-                        <a href="{{ url_for('pm_allocation_processor') }}" class="btn btn-outline-success">
-                            <i class="bi bi-calculator me-2"></i> PM Allocation
-                        </a>
-                        <a href="{{ url_for('pm_master.index') }}" class="btn btn-outline-warning">
-                            <i class="bi bi-bank me-2"></i> PM Master Billing
-                        </a>
-                        <a href="{{ url_for('ocr_tool') }}" class="btn btn-outline-info">
-                            <i class="bi bi-file-text me-2"></i> OCR Processing
-                        </a>
-                        <a href="{{ url_for('report_generator.report_generator') }}" class="btn btn-outline-danger">
-                            <i class="bi bi-file-earmark-arrow-down me-2"></i> Report Generator
-                        </a>
-                        <a href="{{ url_for('assets') }}" class="btn btn-outline-secondary">
-                            <i class="bi bi-truck me-2"></i> Asset Management
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+  </div>
 
-{% block scripts %}
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1 class="dashboard-title">Fleet Dashboard</h1>
+      <p class="dashboard-subtitle">Welcome to TRAXOVO Fleet Management</p>
+    </div>
+    <div class="col-md-4 text-end">
+      <button
+        class="btn btn-info ms-2"
+        onclick="window.open('/database-explorer', '_blank')"
+      >
+        <i class="bi bi-database me-2"></i> Database Explorer
+      </button>
+      <button
+        class="btn btn-warning ms-2"
+        onclick="alert('API Management: Your Gauge API is connected successfully! Status: Active')"
+      >
+        <i class="bi bi-shield-lock me-2"></i> API Status
+      </button>
+      <a href="{{ url_for('assets') }}" class="btn btn-outline-secondary ms-2">
+        <i class="bi bi-truck me-2"></i> View All Assets
+      </a>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-4 mb-3">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-truck me-2"></i>Active Assets</h5>
+            <span class="badge bg-light text-primary rounded-pill"
+              >{{ asset_count }}</span
+            >
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <h2 class="display-4 fw-bold mb-0">{{ asset_count }}</h2>
+            <div class="text-muted">
+              <div>Total assets</div>
+              <div>currently being tracked</div>
+            </div>
+          </div>
+          <div class="mt-3">
+            <a
+              href="{{ url_for('main.assets') }}"
+              class="btn btn-sm btn-primary"
+            >
+              <i class="bi bi-search me-1"></i> Browse Assets
+            </a>
+            <a
+              href="{{ url_for('geo_tracking_basic.map_view') }}"
+              class="btn btn-sm btn-outline-secondary ms-2"
+            >
+              <i class="bi bi-geo-alt me-1"></i> Asset Map
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-person-badge me-2"></i>Driver Reports
+            </h5>
+            <span class="badge bg-light text-success rounded-pill">Today</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <h5 class="fw-bold mb-3">Attendance Metrics</h5>
+          <div class="d-flex flex-column">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-danger"
+                ><i class="bi bi-circle-fill me-2"></i> Late Starts</span
+              >
+              <span class="badge bg-danger rounded-pill"
+                >{{ late_starts_count }}</span
+              >
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-warning"
+                ><i class="bi bi-circle-fill me-2"></i> Early Ends</span
+              >
+              <span class="badge bg-warning rounded-pill"
+                >{{ early_ends_count }}</span
+              >
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-secondary"
+                ><i class="bi bi-circle-fill me-2"></i> Not On Job</span
+              >
+              <span class="badge bg-secondary rounded-pill"
+                >{{ not_on_job_count }}</span
+              >
+            </div>
+          </div>
+          <div class="mt-3">
+            <a
+              href="{{ url_for('driver_module.daily_report') }}"
+              class="btn btn-sm btn-success"
+            >
+              <i class="bi bi-eye me-1"></i> View Reports
+            </a>
+            <a
+              href="{{ url_for('driver_module.daily_report') }}"
+              class="btn btn-sm btn-outline-secondary ms-2"
+            >
+              <i class="bi bi-plus-circle me-1"></i> Generate Report
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <div class="card shadow">
+        <div class="card-header bg-info text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-speedometer me-2"></i>System Status
+            </h5>
+            <span class="badge bg-light text-info rounded-pill">Live</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <h5 class="fw-bold mb-3">
+            <i class="bi bi-clock me-1"></i> Last API Sync:
+            <span class="text-info">Today at {{ last_sync_time }}</span>
+          </h5>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span><i class="bi bi-database me-1"></i> Database Connection</span>
+            <span class="badge bg-{{ 'success' if db_connected else 'danger' }}"
+              >{{ 'Connected' if db_connected else 'Disconnected' }}</span
+            >
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-cloud me-1"></i> API Status</span>
+            <span class="badge bg-{{ 'success' if api_online else 'danger' }}"
+              >{{ 'Online' if api_online else 'Offline' }}</span
+            >
+          </div>
+          <div class="mt-3">
+            <a
+              href="{{ url_for('pm_allocation_processor') }}"
+              class="btn btn-sm btn-info"
+            >
+              <i class="bi bi-calculator me-1"></i> PM Allocation
+            </a>
+            <a
+              href="{{ url_for('ocr_tool') }}"
+              class="btn btn-sm btn-outline-secondary ms-2"
+            >
+              <i class="bi bi-file-text me-1"></i> OCR Tool
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8 mb-3">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-activity me-2"></i>Recent Activity
+            </h5>
+            <a href="#" class="btn btn-sm btn-light">View All</a>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>User</th>
+                  <th>Activity</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if activities %} {% for activity in activities[:5] %}
+                <tr>
+                  <td>{{ activity.timestamp|string }}</td>
+                  <td>
+                    {% if activity.username %} {{ activity.username }} {% elif
+                    activity.user_id %} User #{{ activity.user_id }} {% else %}
+                    System {% endif %}
+                  </td>
+                  <td>
+                    {% if activity.activity_type == 'login' %}
+                    <i class="bi bi-box-arrow-in-right text-success me-1"></i>
+                    Login {% elif activity.activity_type == 'logout' %}
+                    <i class="bi bi-box-arrow-left text-danger me-1"></i> Logout
+                    {% elif activity.activity_type == 'asset_update' %}
+                    <i class="bi bi-truck text-info me-1"></i> Asset {% elif
+                    activity.activity_type == 'report_export' %}
+                    <i class="bi bi-file-earmark-text text-primary me-1"></i>
+                    Report {% elif activity.activity_type ==
+                    'pm_allocation_process' %}
+                    <i class="bi bi-calculator text-warning me-1"></i> PM
+                    Allocation {% elif activity.activity_type == 'navigation' %}
+                    <i class="bi bi-signpost text-secondary me-1"></i>
+                    Navigation {% elif activity.activity_type ==
+                    'document_upload' %}
+                    <i class="bi bi-upload text-info me-1"></i> Upload {% else
+                    %} <i class="bi bi-activity text-dark me-1"></i> {{
+                    activity.activity_type }} {% endif %}
+                  </td>
+                  <td>{{ activity.description }}</td>
+                </tr>
+                {% endfor %} {% else %}
+                <tr>
+                  <td colspan="4" class="text-center py-3">
+                    No recent activities found
+                  </td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-lightning me-2"></i>Quick Actions
+          </h5>
+        </div>
+        <div class="card-body">
+          <!-- Dashboard Quick Navigation -->
+          <div class="mb-3">
+            <label class="form-label fw-bold"
+              ><i class="bi bi-speedometer2 me-1"></i> Jump to Dashboard:</label
+            >
+            <div class="d-flex gap-2 mb-3">
+              <a
+                href="{{ url_for('index') }}"
+                class="btn btn-sm btn-outline-primary flex-grow-1"
+              >
+                <i class="bi bi-house-door me-1"></i> Main
+              </a>
+              <a
+                href="{{ url_for('driver_module.daily_report') }}"
+                class="btn btn-sm btn-outline-success flex-grow-1"
+              >
+                <i class="bi bi-person-badge me-1"></i> Driver
+              </a>
+              <a href="#" class="btn btn-sm btn-outline-info flex-grow-1">
+                <i class="bi bi-tools me-1"></i> Maintenance
+              </a>
+            </div>
+          </div>
+
+          <!-- Organization Selection -->
+          <div class="mb-3">
+            <label for="organization-select" class="form-label fw-bold"
+              ><i class="bi bi-building me-1"></i> Organization:</label
+            >
+            <select id="organization-select" class="form-select form-select-sm">
+              <option value="all">All Organizations</option>
+              <option value="1">Texas District</option>
+              <option value="2">Ragle Construction</option>
+              <option value="3">West TX</option>
+              <option value="4">ESCO</option>
+            </select>
+          </div>
+
+          <!-- TRAXOVO Field Operations - Updated -->
+          <label class="form-label fw-bold"
+            ><i class="bi bi-list-task me-1"></i> TRAXOVO Field
+            Operations:</label
+          >
+          <div class="d-grid gap-2">
+            <a href="/fleet-map" class="btn btn-success">
+              <i class="bi bi-map me-2"></i> Fleet Map (95 Assets in Job Zones)
+            </a>
+            <a href="/fleet-manager-dashboard" class="btn btn-primary">
+              <i class="bi bi-truck me-2"></i> Fleet Manager Portal (Chris
+              Robertson - PT-107)
+            </a>
+            <a href="/financial-forecasting" class="btn btn-outline-info">
+              <i class="bi bi-graph-up me-2"></i> Financial Forecasting ($1.7M
+              Revenue)
+            </a>
+            <a href="/intake-form" class="btn btn-outline-warning">
+              <i class="bi bi-clipboard-plus me-2"></i> Equipment Report (Photo
+              Upload)
+            </a>
+            <a href="/idea-box" class="btn btn-outline-info">
+              <i class="bi bi-lightbulb me-2"></i> Idea Box (Feature Requests)
+            </a>
+            <a href="/backup-system" class="btn btn-outline-secondary">
+              <i class="bi bi-shield-check me-2"></i> Backup & Activity History
+            </a>
+            <a href="/time-logger" class="btn btn-outline-success">
+              <i class="bi bi-clock me-2"></i> Time Logger (Job Zone Tracking)
+            </a>
+            <a
+              href="{{ url_for('driver_module.daily_report') }}"
+              class="btn btn-outline-primary"
+            >
+              <i class="bi bi-calendar-date me-2"></i> Daily Driver Report
+            </a>
+            <a
+              href="{{ url_for('pm_allocation_processor') }}"
+              class="btn btn-outline-success"
+            >
+              <i class="bi bi-calculator me-2"></i> PM Allocation
+            </a>
+            <a
+              href="{{ url_for('pm_master.index') }}"
+              class="btn btn-outline-warning"
+            >
+              <i class="bi bi-bank me-2"></i> PM Master Billing
+            </a>
+            <a href="{{ url_for('ocr_tool') }}" class="btn btn-outline-info">
+              <i class="bi bi-file-text me-2"></i> OCR Processing
+            </a>
+            <a
+              href="{{ url_for('report_generator.report_generator') }}"
+              class="btn btn-outline-danger"
+            >
+              <i class="bi bi-file-earmark-arrow-down me-2"></i> Report
+              Generator
+            </a>
+            <a href="{{ url_for('assets') }}" class="btn btn-outline-secondary">
+              <i class="bi bi-truck me-2"></i> Asset Management
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Highlight the current navigation item
-        const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
-        navLinks.forEach(link => {
-            if (link.getAttribute('href') === '/') {
-                link.classList.add('active');
+  document.addEventListener("DOMContentLoaded", function () {
+    // Highlight the current navigation item
+    const navLinks = document.querySelectorAll(".navbar-nav .nav-link");
+    navLinks.forEach((link) => {
+      if (link.getAttribute("href") === "/") {
+        link.classList.add("active");
+      }
+    });
+
+    // Organization selector consistent across the application
+    const organizationSelect = document.getElementById("organization-select");
+    if (organizationSelect) {
+      // Load organization selection from localStorage if available
+      const savedOrg = localStorage.getItem("selectedOrganization");
+      if (savedOrg) {
+        organizationSelect.value = savedOrg;
+      }
+
+      // Save organization selection to localStorage when changed
+      organizationSelect.addEventListener("change", function () {
+        const selectedOrg = this.value;
+        localStorage.setItem("selectedOrganization", selectedOrg);
+
+        // Update any other organization selectors on the page
+        document
+          .querySelectorAll("select[data-org-selector]")
+          .forEach((selector) => {
+            if (selector !== organizationSelect) {
+              selector.value = selectedOrg;
             }
-        });
-        
-        // Organization selector consistent across the application
-        const organizationSelect = document.getElementById('organization-select');
-        if (organizationSelect) {
-            // Load organization selection from localStorage if available
-            const savedOrg = localStorage.getItem('selectedOrganization');
-            if (savedOrg) {
-                organizationSelect.value = savedOrg;
-            }
-            
-            // Save organization selection to localStorage when changed
-            organizationSelect.addEventListener('change', function() {
-                const selectedOrg = this.value;
-                localStorage.setItem('selectedOrganization', selectedOrg);
-                
-                // Update any other organization selectors on the page
-                document.querySelectorAll('select[data-org-selector]').forEach(selector => {
-                    if (selector !== organizationSelect) {
-                        selector.value = selectedOrg;
-                    }
-                });
-                
-                // Optional: Refresh data based on new organization
-                // This can be extended to make an AJAX call to refresh data
-                const orgName = this.options[this.selectedIndex].text;
-                const dashboardTitle = document.querySelector('.dashboard-title');
-                if (dashboardTitle && selectedOrg !== 'all') {
-                    dashboardTitle.innerHTML = `Fleet Dashboard <span class="text-muted">- ${orgName}</span>`;
-                } else if (dashboardTitle) {
-                    dashboardTitle.textContent = 'Fleet Dashboard';
-                }
-                
-                // Inform user of the change
-                const toast = document.createElement('div');
-                toast.className = 'toast align-items-center position-fixed bottom-0 end-0 m-3 bg-primary text-white';
-                toast.setAttribute('role', 'alert');
-                toast.setAttribute('aria-live', 'assertive');
-                toast.setAttribute('aria-atomic', 'true');
-                toast.innerHTML = `
+          });
+
+        // Optional: Refresh data based on new organization
+        // This can be extended to make an AJAX call to refresh data
+        const orgName = this.options[this.selectedIndex].text;
+        const dashboardTitle = document.querySelector(".dashboard-title");
+        if (dashboardTitle && selectedOrg !== "all") {
+          dashboardTitle.innerHTML = `Fleet Dashboard <span class="text-muted">- ${orgName}</span>`;
+        } else if (dashboardTitle) {
+          dashboardTitle.textContent = "Fleet Dashboard";
+        }
+
+        // Inform user of the change
+        const toast = document.createElement("div");
+        toast.className =
+          "toast align-items-center position-fixed bottom-0 end-0 m-3 bg-primary text-white";
+        toast.setAttribute("role", "alert");
+        toast.setAttribute("aria-live", "assertive");
+        toast.setAttribute("aria-atomic", "true");
+        toast.innerHTML = `
                     <div class="d-flex">
                         <div class="toast-body">
                             <i class="bi bi-building"></i> Organization changed to ${orgName}
@@ -412,29 +489,29 @@
                         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
                 `;
-                document.body.appendChild(toast);
-                
-                // Use Bootstrap's toast JavaScript API to show the toast
-                const bsToast = new bootstrap.Toast(toast, {
-                    delay: 3000
-                });
-                bsToast.show();
-                
-                // Optional: Add URL parameter for server-side filtering
-                // window.location.href = updateUrlParameter(window.location.href, 'org', selectedOrg);
-            });
-        }
-    });
-    
-    // Helper function to update URL parameters
-    function updateUrlParameter(url, key, value) {
-        const re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
-        const separator = url.indexOf('?') !== -1 ? "&" : "?";
-        if (url.match(re)) {
-            return url.replace(re, '$1' + key + "=" + value + '$2');
-        } else {
-            return url + separator + key + "=" + value;
-        }
+        document.body.appendChild(toast);
+
+        // Use Bootstrap's toast JavaScript API to show the toast
+        const bsToast = new bootstrap.Toast(toast, {
+          delay: 3000,
+        });
+        bsToast.show();
+
+        // Optional: Add URL parameter for server-side filtering
+        // window.location.href = updateUrlParameter(window.location.href, 'org', selectedOrg);
+      });
     }
+  });
+
+  // Helper function to update URL parameters
+  function updateUrlParameter(url, key, value) {
+    const re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+    const separator = url.indexOf("?") !== -1 ? "&" : "?";
+    if (url.match(re)) {
+      return url.replace(re, "$1" + key + "=" + value + "$2");
+    } else {
+      return url + separator + key + "=" + value;
+    }
+  }
 </script>
 {% endblock %}

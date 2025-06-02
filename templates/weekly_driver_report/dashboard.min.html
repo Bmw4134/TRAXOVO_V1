@@ -1,69 +1,221 @@
-{% extends "layout_unified.html" %}
-
-{% block title %}Weekly Driver Reports - TRAXOVO GENIUS CORE{% endblock %}
-
-{% block breadcrumb %}
-<li class="breadcrumb-item"><a href="/">Home</a></li><li class="breadcrumb-item active" aria-current="page">Weekly Driver Reports</li>
-{% endblock %}
-
-{% block page_title %}Weekly Driver Reports{% endblock %}
-{% block page_subtitle %}Comprehensive weekly attendance analysis and classification{% endblock %}
-
-{% block page_actions %}
-<a href="{{ url_for('weekly_driver_report.upload_files') }}" class="btn btn-primary"><i class="bi bi-upload me-2"></i> Upload Files
-</a><a href="{{ url_for('weekly_driver_report.generate_report') }}" class="btn btn-outline-primary ms-2"><i class="bi bi-file-earmark-plus me-2"></i> Generate Report
+{% extends "layout_unified.html" %} {% block title %}Weekly Driver Reports -
+TRAXOVO GENIUS CORE{% endblock %} {% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/">Home</a></li>
+<li class="breadcrumb-item active" aria-current="page">
+  Weekly Driver Reports
+</li>
+{% endblock %} {% block page_title %}Weekly Driver Reports{% endblock %} {%
+block page_subtitle %}Comprehensive weekly attendance analysis and
+classification{% endblock %} {% block page_actions %}
+<a
+  href="{{ url_for('weekly_driver_report.upload_files') }}"
+  class="btn btn-primary"
+  ><i class="bi bi-upload me-2"></i> Upload Files </a
+><a
+  href="{{ url_for('weekly_driver_report.generate_report') }}"
+  class="btn btn-outline-primary ms-2"
+  ><i class="bi bi-file-earmark-plus me-2"></i> Generate Report
 </a>
-{% endblock %}
+{% endblock %} {% block content %}
 
-{% block content %}
-
-<div class="row mb-4"><div class="col-12"><div class="card traxovo-card"><div class="card-header d-flex justify-content-between align-items-center"><h5 class="card-title mb-0">Current Week: {{ start_formatted }} - {{ end_formatted }}</h5>
-{% if report_exists %}
-<a href="{{ url_for('weekly_driver_report.view_report', start_date=start_date, end_date=end_date) }}" class="btn btn-sm btn-success"><i class="bi bi-eye me-1"></i> View Report
-</a>
-{% else %}
-<span class="badge bg-warning">Report Not Generated</span>
-{% endif %}
-</div><div class="card-body">
-{% if report_exists %}
-<p class="text-muted">
-The weekly driver report for this week has been generated. Click the button above to view the report,
-or generate a new report to refresh the data.
-</p>
-{% else %}
-<p class="text-muted">
-No driver report has been generated for the current week. Upload your data files and generate a report
-to begin analyzing driver attendance.
-</p><div class="alert alert-info"><h6 class="alert-heading mb-2"><i class="bi bi-info-circle me-2"></i> Files Needed:</h6><ul class="mb-0"><li><strong>DrivingHistory CSVs:</strong> Driver GPS tracking data</li><li><strong>AssetsTimeOnSite CSVs:</strong> Asset location data</li><li><strong>ActivityDetail CSVs (Optional):</strong> Enhanced location data</li><li><strong>Timecard Files (Optional):</strong> For payroll validation</li></ul></div><div class="mt-4"><a href="{{ url_for('weekly_driver_report.upload_files') }}" class="btn btn-primary"><i class="bi bi-upload me-2"></i> Upload Files
-</a><a href="{{ url_for('weekly_driver_report.generate_report') }}" class="btn btn-outline-primary ms-2"><i class="bi bi-file-earmark-plus me-2"></i> Generate Report
-</a></div>
-{% endif %}
-</div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card traxovo-card"><div class="card-header"><h5 class="card-title mb-0">Available Weekly Reports</h5></div><div class="card-body p-0">
-{% if available_weeks %}
-<div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th>Week</th><th>Date Range</th><th class="text-end">Actions</th></tr></thead><tbody>
-{% for week in available_weeks %}
-<tr><td>Week of {{ week.start_formatted }}</td><td>{{ week.start_formatted }} - {{ week.end_formatted }}</td><td class="text-end"><a href="{{ url_for('weekly_driver_report.view_report', start_date=week.start_date, end_date=week.end_date) }}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i> View
-</a><a href="{{ url_for('weekly_driver_report.download_report', start_date=week.start_date, end_date=week.end_date, format='csv') }}" class="btn btn-sm btn-outline-success ms-1"><i class="bi bi-download"></i> CSV
-</a><a href="{{ url_for('weekly_driver_report.download_report', start_date=week.start_date, end_date=week.end_date, format='json') }}" class="btn btn-sm btn-outline-primary ms-1"><i class="bi bi-download"></i> JSON
-</a></td></tr>
-{% endfor %}
-</tbody></table></div>
-{% else %}
-<div class="text-center py-5"><i class="bi bi-calendar-x text-muted fs-1 mb-3"></i><p class="text-muted mb-0">No weekly reports have been generated yet.</p></div>
-{% endif %}
-</div></div></div></div><div class="row mb-4"><div class="col-lg-6 mb-4"><div class="card bg-dark border-0 shadow-sm h-100"><div class="card-header bg-dark"><h5 class="card-title mb-0"><i class="bi bi-1-circle me-2"></i> Step 1: Upload Files</h5></div><div class="card-body"><p class="text-muted">
-Upload the necessary files to generate a weekly driver report:
-</p><ul class="list-group list-group-flush bg-dark mb-3"><li class="list-group-item bg-dark ps-0"><i class="bi bi-check-circle-fill text-success me-2"></i> DrivingHistory CSV (required)
-</li><li class="list-group-item bg-dark ps-0"><i class="bi bi-check-circle-fill text-success me-2"></i> AssetsTimeOnSite CSV (required)
-</li><li class="list-group-item bg-dark ps-0"><i class="bi bi-info-circle-fill text-info me-2"></i> ActivityDetail CSV (optional)
-</li><li class="list-group-item bg-dark ps-0"><i class="bi bi-info-circle-fill text-info me-2"></i> Timecard/Payroll files (optional)
-</li></ul><div class="d-grid"><a href="{{ url_for('weekly_driver_report.upload_files') }}" class="btn btn-primary"><i class="bi bi-upload me-2"></i> Upload Files
-</a></div></div></div></div><div class="col-lg-6 mb-4"><div class="card bg-dark border-0 shadow-sm h-100"><div class="card-header bg-dark"><h5 class="card-title mb-0"><i class="bi bi-2-circle me-2"></i> Step 2: Generate Report</h5></div><div class="card-body"><p class="text-muted">
-After uploading files, generate a comprehensive weekly driver report that includes:
-</p><ul class="list-group list-group-flush bg-dark mb-3"><li class="list-group-item bg-dark ps-0"><i class="bi bi-calendar-check text-primary me-2"></i> Daily attendance summaries
-</li><li class="list-group-item bg-dark ps-0"><i class="bi bi-clock text-primary me-2"></i> Driver classifications (On Time, Late, Early End, No Show)
-</li><li class="list-group-item bg-dark ps-0"><i class="bi bi-graph-up text-primary me-2"></i> Weekly attendance trends
-</li><li class="list-group-item bg-dark ps-0"><i class="bi bi-people text-primary me-2"></i> Job site attendance analysis
-</li></ul><div class="d-grid"><a href="{{ url_for('weekly_driver_report.generate_report') }}" class="btn btn-outline-primary"><i class="bi bi-file-earmark-plus me-2"></i> Generate Report
-</a></div></div></div></div></div>
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card traxovo-card">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <h5 class="card-title mb-0">
+          Current Week: {{ start_formatted }} - {{ end_formatted }}
+        </h5>
+        {% if report_exists %}
+        <a
+          href="{{ url_for('weekly_driver_report.view_report', start_date=start_date, end_date=end_date) }}"
+          class="btn btn-sm btn-success"
+          ><i class="bi bi-eye me-1"></i> View Report
+        </a>
+        {% else %}
+        <span class="badge bg-warning">Report Not Generated</span>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        {% if report_exists %}
+        <p class="text-muted">
+          The weekly driver report for this week has been generated. Click the
+          button above to view the report, or generate a new report to refresh
+          the data.
+        </p>
+        {% else %}
+        <p class="text-muted">
+          No driver report has been generated for the current week. Upload your
+          data files and generate a report to begin analyzing driver attendance.
+        </p>
+        <div class="alert alert-info">
+          <h6 class="alert-heading mb-2">
+            <i class="bi bi-info-circle me-2"></i> Files Needed:
+          </h6>
+          <ul class="mb-0">
+            <li>
+              <strong>DrivingHistory CSVs:</strong> Driver GPS tracking data
+            </li>
+            <li><strong>AssetsTimeOnSite CSVs:</strong> Asset location data</li>
+            <li>
+              <strong>ActivityDetail CSVs (Optional):</strong> Enhanced location
+              data
+            </li>
+            <li>
+              <strong>Timecard Files (Optional):</strong> For payroll validation
+            </li>
+          </ul>
+        </div>
+        <div class="mt-4">
+          <a
+            href="{{ url_for('weekly_driver_report.upload_files') }}"
+            class="btn btn-primary"
+            ><i class="bi bi-upload me-2"></i> Upload Files </a
+          ><a
+            href="{{ url_for('weekly_driver_report.generate_report') }}"
+            class="btn btn-outline-primary ms-2"
+            ><i class="bi bi-file-earmark-plus me-2"></i> Generate Report
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card traxovo-card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Available Weekly Reports</h5>
+      </div>
+      <div class="card-body p-0">
+        {% if available_weeks %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Week</th>
+                <th>Date Range</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for week in available_weeks %}
+              <tr>
+                <td>Week of {{ week.start_formatted }}</td>
+                <td>{{ week.start_formatted }} - {{ week.end_formatted }}</td>
+                <td class="text-end">
+                  <a
+                    href="{{ url_for('weekly_driver_report.view_report', start_date=week.start_date, end_date=week.end_date) }}"
+                    class="btn btn-sm btn-outline-info"
+                    ><i class="bi bi-eye"></i> View </a
+                  ><a
+                    href="{{ url_for('weekly_driver_report.download_report', start_date=week.start_date, end_date=week.end_date, format='csv') }}"
+                    class="btn btn-sm btn-outline-success ms-1"
+                    ><i class="bi bi-download"></i> CSV </a
+                  ><a
+                    href="{{ url_for('weekly_driver_report.download_report', start_date=week.start_date, end_date=week.end_date, format='json') }}"
+                    class="btn btn-sm btn-outline-primary ms-1"
+                    ><i class="bi bi-download"></i> JSON
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+          <i class="bi bi-calendar-x text-muted fs-1 mb-3"></i>
+          <p class="text-muted mb-0">
+            No weekly reports have been generated yet.
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row mb-4">
+  <div class="col-lg-6 mb-4">
+    <div class="card bg-dark border-0 shadow-sm h-100">
+      <div class="card-header bg-dark">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-1-circle me-2"></i> Step 1: Upload Files
+        </h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">
+          Upload the necessary files to generate a weekly driver report:
+        </p>
+        <ul class="list-group list-group-flush bg-dark mb-3">
+          <li class="list-group-item bg-dark ps-0">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            DrivingHistory CSV (required)
+          </li>
+          <li class="list-group-item bg-dark ps-0">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            AssetsTimeOnSite CSV (required)
+          </li>
+          <li class="list-group-item bg-dark ps-0">
+            <i class="bi bi-info-circle-fill text-info me-2"></i> ActivityDetail
+            CSV (optional)
+          </li>
+          <li class="list-group-item bg-dark ps-0">
+            <i class="bi bi-info-circle-fill text-info me-2"></i>
+            Timecard/Payroll files (optional)
+          </li>
+        </ul>
+        <div class="d-grid">
+          <a
+            href="{{ url_for('weekly_driver_report.upload_files') }}"
+            class="btn btn-primary"
+            ><i class="bi bi-upload me-2"></i> Upload Files
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6 mb-4">
+    <div class="card bg-dark border-0 shadow-sm h-100">
+      <div class="card-header bg-dark">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-2-circle me-2"></i> Step 2: Generate Report
+        </h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">
+          After uploading files, generate a comprehensive weekly driver report
+          that includes:
+        </p>
+        <ul class="list-group list-group-flush bg-dark mb-3">
+          <li class="list-group-item bg-dark ps-0">
+            <i class="bi bi-calendar-check text-primary me-2"></i> Daily
+            attendance summaries
+          </li>
+          <li class="list-group-item bg-dark ps-0">
+            <i class="bi bi-clock text-primary me-2"></i> Driver classifications
+            (On Time, Late, Early End, No Show)
+          </li>
+          <li class="list-group-item bg-dark ps-0">
+            <i class="bi bi-graph-up text-primary me-2"></i> Weekly attendance
+            trends
+          </li>
+          <li class="list-group-item bg-dark ps-0">
+            <i class="bi bi-people text-primary me-2"></i> Job site attendance
+            analysis
+          </li>
+        </ul>
+        <div class="d-grid">
+          <a
+            href="{{ url_for('weekly_driver_report.generate_report') }}"
+            class="btn btn-outline-primary"
+            ><i class="bi bi-file-earmark-plus me-2"></i> Generate Report
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

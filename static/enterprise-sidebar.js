@@ -4,28 +4,28 @@
  */
 
 class EnterpriseSidebar {
-    constructor() {
-        this.isOpen = false;
-        this.isMobile = window.innerWidth <= 768;
-        this.init();
-    }
+  constructor() {
+    this.isOpen = false;
+    this.isMobile = window.innerWidth <= 768;
+    this.init();
+  }
 
-    init() {
-        this.createSidebar();
-        this.createToggleButton();
-        this.setupEventListeners();
-    }
+  init() {
+    this.createSidebar();
+    this.createToggleButton();
+    this.setupEventListeners();
+  }
 
-    createSidebar() {
-        // Remove existing sidebar if present
-        const existingSidebar = document.getElementById('enterprise-sidebar');
-        if (existingSidebar) existingSidebar.remove();
+  createSidebar() {
+    // Remove existing sidebar if present
+    const existingSidebar = document.getElementById("enterprise-sidebar");
+    if (existingSidebar) existingSidebar.remove();
 
-        const sidebar = document.createElement('div');
-        sidebar.id = 'enterprise-sidebar';
-        sidebar.className = 'enterprise-sidebar';
-        
-        sidebar.innerHTML = `
+    const sidebar = document.createElement("div");
+    sidebar.id = "enterprise-sidebar";
+    sidebar.className = "enterprise-sidebar";
+
+    sidebar.innerHTML = `
             <div class="sidebar-header">
                 <h3>TRAXOVO</h3>
                 <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 5px 0 0 0;">Fleet Intelligence</p>
@@ -59,9 +59,9 @@ class EnterpriseSidebar {
             </nav>
         `;
 
-        // Add additional styles
-        const style = document.createElement('style');
-        style.textContent = `
+    // Add additional styles
+    const style = document.createElement("style");
+    style.textContent = `
             .sidebar-divider {
                 height: 1px;
                 background: rgba(255,255,255,0.1);
@@ -102,121 +102,124 @@ class EnterpriseSidebar {
                 color: rgba(255, 100, 100, 0.8);
             }
         `;
-        document.head.appendChild(style);
+    document.head.appendChild(style);
 
-        document.body.appendChild(sidebar);
-        this.sidebar = sidebar;
-    }
+    document.body.appendChild(sidebar);
+    this.sidebar = sidebar;
+  }
 
-    createToggleButton() {
-        // Remove existing toggle if present
-        const existingToggle = document.getElementById('sidebar-toggle');
-        if (existingToggle) existingToggle.remove();
+  createToggleButton() {
+    // Remove existing toggle if present
+    const existingToggle = document.getElementById("sidebar-toggle");
+    if (existingToggle) existingToggle.remove();
 
-        const toggle = document.createElement('button');
-        toggle.id = 'sidebar-toggle';
-        toggle.className = 'mobile-toggle';
-        toggle.innerHTML = '☰';
-        toggle.setAttribute('aria-label', 'Toggle navigation menu');
-        
-        document.body.appendChild(toggle);
-        this.toggle = toggle;
-    }
+    const toggle = document.createElement("button");
+    toggle.id = "sidebar-toggle";
+    toggle.className = "mobile-toggle";
+    toggle.innerHTML = "☰";
+    toggle.setAttribute("aria-label", "Toggle navigation menu");
 
-    setupEventListeners() {
-        // Toggle button click
-        this.toggle.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.toggleSidebar();
-        });
+    document.body.appendChild(toggle);
+    this.toggle = toggle;
+  }
 
-        // Close sidebar when clicking outside (mobile)
-        document.addEventListener('click', (e) => {
-            if (this.isMobile && this.isOpen && 
-                !this.sidebar.contains(e.target) && 
-                !this.toggle.contains(e.target)) {
-                this.closeSidebar();
-            }
-        });
+  setupEventListeners() {
+    // Toggle button click
+    this.toggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      this.toggleSidebar();
+    });
 
-        // Close sidebar when navigating (mobile)
-        this.sidebar.querySelectorAll('.sidebar-link').forEach(link => {
-            link.addEventListener('click', () => {
-                if (this.isMobile) {
-                    this.closeSidebar();
-                }
-            });
-        });
+    // Close sidebar when clicking outside (mobile)
+    document.addEventListener("click", (e) => {
+      if (
+        this.isMobile &&
+        this.isOpen &&
+        !this.sidebar.contains(e.target) &&
+        !this.toggle.contains(e.target)
+      ) {
+        this.closeSidebar();
+      }
+    });
 
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            const wasMobile = this.isMobile;
-            this.isMobile = window.innerWidth <= 768;
-            
-            if (wasMobile !== this.isMobile) {
-                if (!this.isMobile && this.isOpen) {
-                    // Desktop view - keep sidebar open
-                    this.sidebar.style.transform = 'translateX(0)';
-                } else if (this.isMobile) {
-                    // Mobile view - close sidebar
-                    this.closeSidebar();
-                }
-            }
-        });
-
-        // Handle escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.isOpen) {
-                this.closeSidebar();
-            }
-        });
-
-        // Set active link based on current page
-        this.setActiveLink();
-    }
-
-    toggleSidebar() {
-        if (this.isOpen) {
-            this.closeSidebar();
-        } else {
-            this.openSidebar();
-        }
-    }
-
-    openSidebar() {
-        this.sidebar.classList.add('show');
-        this.sidebar.style.transform = 'translateX(0)';
-        this.isOpen = true;
-        
-        // Add overlay for mobile
+    // Close sidebar when navigating (mobile)
+    this.sidebar.querySelectorAll(".sidebar-link").forEach((link) => {
+      link.addEventListener("click", () => {
         if (this.isMobile) {
-            this.createOverlay();
+          this.closeSidebar();
         }
-        
-        // Update toggle button
-        this.toggle.innerHTML = '✕';
-        this.toggle.setAttribute('aria-expanded', 'true');
+      });
+    });
+
+    // Handle window resize
+    window.addEventListener("resize", () => {
+      const wasMobile = this.isMobile;
+      this.isMobile = window.innerWidth <= 768;
+
+      if (wasMobile !== this.isMobile) {
+        if (!this.isMobile && this.isOpen) {
+          // Desktop view - keep sidebar open
+          this.sidebar.style.transform = "translateX(0)";
+        } else if (this.isMobile) {
+          // Mobile view - close sidebar
+          this.closeSidebar();
+        }
+      }
+    });
+
+    // Handle escape key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && this.isOpen) {
+        this.closeSidebar();
+      }
+    });
+
+    // Set active link based on current page
+    this.setActiveLink();
+  }
+
+  toggleSidebar() {
+    if (this.isOpen) {
+      this.closeSidebar();
+    } else {
+      this.openSidebar();
+    }
+  }
+
+  openSidebar() {
+    this.sidebar.classList.add("show");
+    this.sidebar.style.transform = "translateX(0)";
+    this.isOpen = true;
+
+    // Add overlay for mobile
+    if (this.isMobile) {
+      this.createOverlay();
     }
 
-    closeSidebar() {
-        this.sidebar.classList.remove('show');
-        this.sidebar.style.transform = 'translateX(-100%)';
-        this.isOpen = false;
-        
-        // Remove overlay
-        this.removeOverlay();
-        
-        // Update toggle button
-        this.toggle.innerHTML = '☰';
-        this.toggle.setAttribute('aria-expanded', 'false');
-    }
+    // Update toggle button
+    this.toggle.innerHTML = "✕";
+    this.toggle.setAttribute("aria-expanded", "true");
+  }
 
-    createOverlay() {
-        if (document.getElementById('sidebar-overlay')) return;
-        
-        const overlay = document.createElement('div');
-        overlay.id = 'sidebar-overlay';
-        overlay.style.cssText = `
+  closeSidebar() {
+    this.sidebar.classList.remove("show");
+    this.sidebar.style.transform = "translateX(-100%)";
+    this.isOpen = false;
+
+    // Remove overlay
+    this.removeOverlay();
+
+    // Update toggle button
+    this.toggle.innerHTML = "☰";
+    this.toggle.setAttribute("aria-expanded", "false");
+  }
+
+  createOverlay() {
+    if (document.getElementById("sidebar-overlay")) return;
+
+    const overlay = document.createElement("div");
+    overlay.id = "sidebar-overlay";
+    overlay.style.cssText = `
             position: fixed;
             top: 0;
             left: 0;
@@ -226,32 +229,32 @@ class EnterpriseSidebar {
             z-index: 999;
             transition: opacity 0.3s ease;
         `;
-        
-        overlay.addEventListener('click', () => this.closeSidebar());
-        document.body.appendChild(overlay);
-    }
 
-    removeOverlay() {
-        const overlay = document.getElementById('sidebar-overlay');
-        if (overlay) overlay.remove();
-    }
+    overlay.addEventListener("click", () => this.closeSidebar());
+    document.body.appendChild(overlay);
+  }
 
-    setActiveLink() {
-        const currentPath = window.location.pathname;
-        const links = this.sidebar.querySelectorAll('.sidebar-link');
-        
-        links.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === currentPath) {
-                link.classList.add('active');
-            }
-        });
-    }
+  removeOverlay() {
+    const overlay = document.getElementById("sidebar-overlay");
+    if (overlay) overlay.remove();
+  }
+
+  setActiveLink() {
+    const currentPath = window.location.pathname;
+    const links = this.sidebar.querySelectorAll(".sidebar-link");
+
+    links.forEach((link) => {
+      link.classList.remove("active");
+      if (link.getAttribute("href") === currentPath) {
+        link.classList.add("active");
+      }
+    });
+  }
 }
 
 // Initialize sidebar when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    window.enterpriseSidebar = new EnterpriseSidebar();
+document.addEventListener("DOMContentLoaded", function () {
+  window.enterpriseSidebar = new EnterpriseSidebar();
 });
 
 // Export for global use

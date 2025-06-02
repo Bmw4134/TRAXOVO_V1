@@ -1,437 +1,463 @@
 <style>
-.smart-tooltip {
-position: relative;
-cursor: help;
-}
+  .smart-tooltip {
+    position: relative;
+    cursor: help;
+  }
 
-.smart-tooltip:hover .tooltip-content {
-opacity: 1;
-visibility: visible;
-transform: translateY(-10px);
-}
+  .smart-tooltip:hover .tooltip-content {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-10px);
+  }
 
-.tooltip-content {
-position: absolute;
-bottom: 100%;
-left: 50%;
-transform: translateX(-50%);
-background: linear-gradient(135deg, #1e293b, #334155);
-color: white;
-padding: 1rem;
-border-radius: 12px;
-box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-opacity: 0;
-visibility: hidden;
-transition: all 0.3s ease;
-z-index: 1000;
-min-width: 300px;
-max-width: 400px;
-font-size: 0.9rem;
-line-height: 1.4;
-}
+  .tooltip-content {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #1e293b, #334155);
+    color: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    min-width: 300px;
+    max-width: 400px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
 
-.tooltip-content::after {
-content: '';
-position: absolute;
-top: 100%;
-left: 50%;
-transform: translateX(-50%);
-border: 8px solid transparent;
-border-top-color: #1e293b;
-}
+  .tooltip-content::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: #1e293b;
+  }
 
-.benchmark-comparison {
-background: rgba(255,255,255,0.1);
-border-radius: 8px;
-padding: 0.75rem;
-margin: 0.5rem 0;
-}
+  .benchmark-comparison {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+  }
 
-.performance-tier {
-display: inline-block;
-padding: 0.25rem 0.75rem;
-border-radius: 20px;
-font-size: 0.75rem;
-font-weight: 600;
-text-transform: uppercase;
-margin-bottom: 0.5rem;
-}
+  .performance-tier {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
 
-.tier-best-in-class {
-background: linear-gradient(45deg, #10b981, #059669);
-color: white;
-}
+  .tier-best-in-class {
+    background: linear-gradient(45deg, #10b981, #059669);
+    color: white;
+  }
 
-.tier-top-quartile {
-background: linear-gradient(45deg, #3b82f6, #1d4ed8);
-color: white;
-}
+  .tier-top-quartile {
+    background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+    color: white;
+  }
 
-.tier-above-average {
-background: linear-gradient(45deg, #f59e0b, #d97706);
-color: white;
-}
+  .tier-above-average {
+    background: linear-gradient(45deg, #f59e0b, #d97706);
+    color: white;
+  }
 
-.tier-below-average {
-background: linear-gradient(45deg, #ef4444, #dc2626);
-color: white;
-}
+  .tier-below-average {
+    background: linear-gradient(45deg, #ef4444, #dc2626);
+    color: white;
+  }
 
-.insights-list {
-margin-top: 0.5rem;
-}
+  .insights-list {
+    margin-top: 0.5rem;
+  }
 
-.insights-list li {
-margin-bottom: 0.25rem;
-padding-left: 1rem;
-position: relative;
-}
+  .insights-list li {
+    margin-bottom: 0.25rem;
+    padding-left: 1rem;
+    position: relative;
+  }
 
-.insights-list li::before {
-content: '→';
-position: absolute;
-left: 0;
-color: #3b82f6;
-font-weight: bold;
-}
+  .insights-list li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #3b82f6;
+    font-weight: bold;
+  }
 
-.one-click-insights {
-background: linear-gradient(135deg, #6366f1, #4f46e5);
-border: none;
-border-radius: 12px;
-padding: 0.75rem 1.5rem;
-color: white;
-font-weight: 600;
-cursor: pointer;
-transition: all 0.3s ease;
-box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-}
+  .one-click-insights {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  }
 
-.one-click-insights:hover {
-background: linear-gradient(135deg, #4f46e5, #4338ca);
-transform: translateY(-2px);
-box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-}
+  .one-click-insights:hover {
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  }
 
-.performance-modal {
-display: none;
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0,0,0,0.8);
-z-index: 2000;
-backdrop-filter: blur(10px);
-}
+  .performance-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 2000;
+    backdrop-filter: blur(10px);
+  }
 
-.performance-modal.show {
-display: flex;
-align-items: center;
-justify-content: center;
-}
+  .performance-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.modal-content {
-background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-border-radius: 20px;
-padding: 2rem;
-max-width: 90%;
-max-height: 80%;
-overflow-y: auto;
-box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-position: relative;
-}
+  .modal-content {
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 90%;
+    max-height: 80%;
+    overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    position: relative;
+  }
 
-.modal-close {
-position: absolute;
-top: 1rem;
-right: 1rem;
-background: none;
-border: none;
-font-size: 1.5rem;
-cursor: pointer;
-color: #64748b;
-}
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #64748b;
+  }
 
-.performance-score {
-text-align: center;
-margin-bottom: 2rem;
-}
+  .performance-score {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
 
-.score-circle {
-width: 120px;
-height: 120px;
-border-radius: 50%;
-margin: 0 auto 1rem;
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 2rem;
-font-weight: 800;
-color: white;
-}
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 800;
+    color: white;
+  }
 
-.score-excellent {
-background: linear-gradient(135deg, #10b981, #059669);
-}
+  .score-excellent {
+    background: linear-gradient(135deg, #10b981, #059669);
+  }
 
-.score-good {
-background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-}
+  .score-good {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  }
 
-.score-fair {
-background: linear-gradient(135deg, #f59e0b, #d97706);
-}
+  .score-fair {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+  }
 
-.score-poor {
-background: linear-gradient(135deg, #ef4444, #dc2626);
-}
+  .score-poor {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+  }
 
-.adaptive-refresh-indicator {
-position: fixed;
-bottom: 2rem;
-right: 2rem;
-background: rgba(0,0,0,0.8);
-color: white;
-padding: 0.75rem 1rem;
-border-radius: 10px;
-font-size: 0.875rem;
-z-index: 1500;
-display: none;
-}
+  .adaptive-refresh-indicator {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    z-index: 1500;
+    display: none;
+  }
 
-.adaptive-refresh-indicator.show {
-display: block;
-animation: slideInUp 0.3s ease;
-}
+  .adaptive-refresh-indicator.show {
+    display: block;
+    animation: slideInUp 0.3s ease;
+  }
 
-@keyframes slideInUp {
-from {
-transform: translateY(100%);
-opacity: 0;
-}
-to {
-transform: translateY(0);
-opacity: 1;
-}
-}
-</style><script>
-// Smart Performance Tooltips System
-class SmartPerformanceTooltips {
-constructor() {
-this.tooltipCache = new Map();
-this.adaptiveRefreshConfig = null;
-this.initializeSystem();
-}
+  @keyframes slideInUp {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+</style>
+<script>
+  // Smart Performance Tooltips System
+  class SmartPerformanceTooltips {
+    constructor() {
+      this.tooltipCache = new Map();
+      this.adaptiveRefreshConfig = null;
+      this.initializeSystem();
+    }
 
-initializeSystem() {
-this.loadAdaptiveRefreshConfig();
-this.attachTooltipHandlers();
-this.initializeOneClickInsights();
-}
+    initializeSystem() {
+      this.loadAdaptiveRefreshConfig();
+      this.attachTooltipHandlers();
+      this.initializeOneClickInsights();
+    }
 
-async loadAdaptiveRefreshConfig() {
-try {
-const response = await fetch('/adaptive/api/optimize?dashboard_type=executive');
-const data = await response.json();
-this.adaptiveRefreshConfig = data.optimization;
-this.showAdaptiveRefreshIndicator(data.optimization);
-} catch (error) {
-console.error('Adaptive refresh config error:', error);
-}
-}
+    async loadAdaptiveRefreshConfig() {
+      try {
+        const response = await fetch(
+          "/adaptive/api/optimize?dashboard_type=executive",
+        );
+        const data = await response.json();
+        this.adaptiveRefreshConfig = data.optimization;
+        this.showAdaptiveRefreshIndicator(data.optimization);
+      } catch (error) {
+        console.error("Adaptive refresh config error:", error);
+      }
+    }
 
-showAdaptiveRefreshIndicator(config) {
-const indicator = document.getElementById('adaptiveRefreshIndicator');
-if (indicator && config) {
-indicator.innerHTML = `
+    showAdaptiveRefreshIndicator(config) {
+      const indicator = document.getElementById("adaptiveRefreshIndicator");
+      if (indicator && config) {
+        indicator.innerHTML = `
 <i class="fas fa-brain me-2"></i>
 Smart Refresh: ${config.refresh_strategy}
 (${config.recommended_refresh_seconds}s)
 `;
-indicator.classList.add('show');
+        indicator.classList.add("show");
 
-// Hide after 5 seconds
-setTimeout(() => {
-indicator.classList.remove('show');
-}, 5000);
-}
-}
+        // Hide after 5 seconds
+        setTimeout(() => {
+          indicator.classList.remove("show");
+        }, 5000);
+      }
+    }
 
-attachTooltipHandlers() {
-document.addEventListener('mouseover', (event) => {
-const tooltipElement = event.target.closest('.smart-tooltip');
-if (tooltipElement) {
-this.loadSmartTooltip(tooltipElement);
-}
-});
-}
+    attachTooltipHandlers() {
+      document.addEventListener("mouseover", (event) => {
+        const tooltipElement = event.target.closest(".smart-tooltip");
+        if (tooltipElement) {
+          this.loadSmartTooltip(tooltipElement);
+        }
+      });
+    }
 
-async loadSmartTooltip(element) {
-const metricName = element.dataset.metric;
-const metricValue = element.dataset.value;
-const dataSource = element.dataset.source || 'unavailable';
+    async loadSmartTooltip(element) {
+      const metricName = element.dataset.metric;
+      const metricValue = element.dataset.value;
+      const dataSource = element.dataset.source || "unavailable";
 
-if (this.tooltipCache.has(metricName)) {
-this.renderTooltip(element, this.tooltipCache.get(metricName));
-return;
-}
+      if (this.tooltipCache.has(metricName)) {
+        this.renderTooltip(element, this.tooltipCache.get(metricName));
+        return;
+      }
 
-try {
-const response = await fetch(
-`/performance/api/tooltip/${metricName}?value=${metricValue}&source=${dataSource}`
-);
-const data = await response.json();
+      try {
+        const response = await fetch(
+          `/performance/api/tooltip/${metricName}?value=${metricValue}&source=${dataSource}`,
+        );
+        const data = await response.json();
 
-if (data.status === 'success') {
-this.tooltipCache.set(metricName, data.tooltip);
-this.renderTooltip(element, data.tooltip);
-}
-} catch (error) {
-console.error('Smart tooltip error:', error);
-this.renderFallbackTooltip(element, metricName);
-}
-}
+        if (data.status === "success") {
+          this.tooltipCache.set(metricName, data.tooltip);
+          this.renderTooltip(element, data.tooltip);
+        }
+      } catch (error) {
+        console.error("Smart tooltip error:", error);
+        this.renderFallbackTooltip(element, metricName);
+      }
+    }
 
-renderTooltip(element, tooltipData) {
-const existingTooltip = element.querySelector('.tooltip-content');
-if (existingTooltip) return; // Already rendered
+    renderTooltip(element, tooltipData) {
+      const existingTooltip = element.querySelector(".tooltip-content");
+      if (existingTooltip) return; // Already rendered
 
-const benchmark = tooltipData.benchmark_comparison;
-const performanceTier = benchmark.performance_tier || 'unknown';
+      const benchmark = tooltipData.benchmark_comparison;
+      const performanceTier = benchmark.performance_tier || "unknown";
 
-const tooltipHTML = `
-<div class="tooltip-content"><div class="d-flex justify-content-between align-items-center mb-2"><strong>${tooltipData.metric_name}</strong><span class="performance-tier tier-${performanceTier.replace('_', '-')}">
-${performanceTier.replace('_', ' ')}
-</span></div><div class="benchmark-comparison"><div class="mb-2"><strong>Performance Analysis:</strong></div><div class="small">${benchmark.message || 'Analysis pending'}</div></div><div class="mb-2"><strong>Data Source:</strong><div class="small">${tooltipData.data_source_explanation}</div></div>
+      const tooltipHTML = `
+<div class="tooltip-content"><div class="d-flex justify-content-between align-items-center mb-2"><strong>${tooltipData.metric_name}</strong><span class="performance-tier tier-${performanceTier.replace("_", "-")}">
+${performanceTier.replace("_", " ")}
+</span></div><div class="benchmark-comparison"><div class="mb-2"><strong>Performance Analysis:</strong></div><div class="small">${benchmark.message || "Analysis pending"}</div></div><div class="mb-2"><strong>Data Source:</strong><div class="small">${tooltipData.data_source_explanation}</div></div>
 
-${tooltipData.actionable_insights.length > 0 ? `
+${
+  tooltipData.actionable_insights.length > 0
+    ? `
 <div class="mb-2"><strong>Insights:</strong><ul class="insights-list small">
-${tooltipData.actionable_insights.map(insight => `<li>${insight}</li>`).join('')}
+${tooltipData.actionable_insights.map((insight) => `<li>${insight}</li>`).join("")}
 </ul></div>
-` : ''}
+`
+    : ""
+}
 
 <div class="small text-muted">
 ${tooltipData.industry_context}
 </div></div>
 `;
 
-element.insertAdjacentHTML('beforeend', tooltipHTML);
-}
+      element.insertAdjacentHTML("beforeend", tooltipHTML);
+    }
 
-renderFallbackTooltip(element, metricName) {
-const tooltipHTML = `
+    renderFallbackTooltip(element, metricName) {
+      const tooltipHTML = `
 <div class="tooltip-content"><strong>${metricName}</strong><div class="small mt-2">
 Connect to authentic data sources for detailed performance insights and industry benchmarks.
 </div></div>
 `;
 
-element.insertAdjacentHTML('beforeend', tooltipHTML);
-}
+      element.insertAdjacentHTML("beforeend", tooltipHTML);
+    }
 
-initializeOneClickInsights() {
-const insightsButton = document.getElementById('oneClickInsights');
-if (insightsButton) {
-insightsButton.addEventListener('click', () => {
-this.generateOneClickInsights();
-});
-}
-}
+    initializeOneClickInsights() {
+      const insightsButton = document.getElementById("oneClickInsights");
+      if (insightsButton) {
+        insightsButton.addEventListener("click", () => {
+          this.generateOneClickInsights();
+        });
+      }
+    }
 
-async generateOneClickInsights() {
-const button = document.getElementById('oneClickInsights');
-if (button) {
-button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating Insights...';
-button.disabled = true;
-}
+    async generateOneClickInsights() {
+      const button = document.getElementById("oneClickInsights");
+      if (button) {
+        button.innerHTML =
+          '<i class="fas fa-spinner fa-spin me-2"></i>Generating Insights...';
+        button.disabled = true;
+      }
 
-try {
-// Collect all metric data from the dashboard
-const metrics = this.collectDashboardMetrics();
+      try {
+        // Collect all metric data from the dashboard
+        const metrics = this.collectDashboardMetrics();
 
-const response = await fetch('/performance/api/one-click-insights', {
-method: 'POST',
-headers: {
-'Content-Type': 'application/json',
-},
-body: JSON.stringify({ metrics })
-});
+        const response = await fetch("/performance/api/one-click-insights", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ metrics }),
+        });
 
-const data = await response.json();
+        const data = await response.json();
 
-if (data.status === 'success') {
-this.showInsightsModal(data.insights);
-} else {
-alert('Error generating insights: ' + data.error);
-}
-} catch (error) {
-console.error('One-click insights error:', error);
-alert('Error generating insights');
-} finally {
-if (button) {
-button.innerHTML = '<i class="fas fa-chart-line me-2"></i>Generate Insights';
-button.disabled = false;
-}
-}
-}
+        if (data.status === "success") {
+          this.showInsightsModal(data.insights);
+        } else {
+          alert("Error generating insights: " + data.error);
+        }
+      } catch (error) {
+        console.error("One-click insights error:", error);
+        alert("Error generating insights");
+      } finally {
+        if (button) {
+          button.innerHTML =
+            '<i class="fas fa-chart-line me-2"></i>Generate Insights';
+          button.disabled = false;
+        }
+      }
+    }
 
-collectDashboardMetrics() {
-const metrics = {};
-const metricElements = document.querySelectorAll('.smart-tooltip');
+    collectDashboardMetrics() {
+      const metrics = {};
+      const metricElements = document.querySelectorAll(".smart-tooltip");
 
-metricElements.forEach(element => {
-const metricName = element.dataset.metric;
-const metricValue = element.dataset.value;
-const dataSource = element.dataset.source || 'unavailable';
+      metricElements.forEach((element) => {
+        const metricName = element.dataset.metric;
+        const metricValue = element.dataset.value;
+        const dataSource = element.dataset.source || "unavailable";
 
-metrics[metricName] = {
-value: metricValue,
-data_source: dataSource
-};
-});
+        metrics[metricName] = {
+          value: metricValue,
+          data_source: dataSource,
+        };
+      });
 
-return metrics;
-}
+      return metrics;
+    }
 
-showInsightsModal(insights) {
-const modal = document.getElementById('performanceModal');
-const modalContent = document.getElementById('modalInsightsContent');
+    showInsightsModal(insights) {
+      const modal = document.getElementById("performanceModal");
+      const modalContent = document.getElementById("modalInsightsContent");
 
-const scoreClass = this.getScoreClass(insights.overall_performance_score);
+      const scoreClass = this.getScoreClass(insights.overall_performance_score);
 
-const modalHTML = `
+      const modalHTML = `
 <div class="performance-score"><div class="score-circle ${scoreClass}">
 ${insights.overall_performance_score.toFixed(0)}
 </div><h4>Overall Performance Score</h4><p class="text-muted">Based on industry benchmarks and authentic data analysis</p></div><div class="row"><div class="col-md-6"><h5><i class="fas fa-chart-bar me-2"></i>Metric Analysis</h5>
-${insights.metric_insights.map(insight => `
-<div class="card mb-2"><div class="card-body p-3"><h6>${insight.metric_name}</h6><div class="small">${insight.benchmark_comparison.message || 'Analysis pending'}</div></div></div>
-`).join('')}
+${insights.metric_insights
+  .map(
+    (insight) => `
+<div class="card mb-2"><div class="card-body p-3"><h6>${insight.metric_name}</h6><div class="small">${insight.benchmark_comparison.message || "Analysis pending"}</div></div></div>
+`,
+  )
+  .join("")}
 </div><div class="col-md-6"><h5><i class="fas fa-lightbulb me-2"></i>Recommendations</h5><ul class="list-group">
-${insights.recommendations.map(rec => `
+${insights.recommendations
+  .map(
+    (rec) => `
 <li class="list-group-item">${rec}</li>
-`).join('')}
+`,
+  )
+  .join("")}
 </ul></div></div>
 `;
 
-modalContent.innerHTML = modalHTML;
-modal.classList.add('show');
-}
+      modalContent.innerHTML = modalHTML;
+      modal.classList.add("show");
+    }
 
-getScoreClass(score) {
-if (score >= 90) return 'score-excellent';
-if (score >= 80) return 'score-good';
-if (score >= 70) return 'score-fair';
-return 'score-poor';
-}
-}
+    getScoreClass(score) {
+      if (score >= 90) return "score-excellent";
+      if (score >= 80) return "score-good";
+      if (score >= 70) return "score-fair";
+      return "score-poor";
+    }
+  }
 
-// Initialize system when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-window.smartPerformanceTooltips = new SmartPerformanceTooltips();
-});
+  // Initialize system when DOM is ready
+  document.addEventListener("DOMContentLoaded", function () {
+    window.smartPerformanceTooltips = new SmartPerformanceTooltips();
+  });
 
-// Close modal functionality
-function closePerformanceModal() {
-document.getElementById('performanceModal').classList.remove('show');
-}
-</script><div id="performanceModal" class="performance-modal"><div class="modal-content"><button class="modal-close" onclick="closePerformanceModal()"><i class="fas fa-times"></i></button><div id="modalInsightsContent"></div></div></div><div id="adaptiveRefreshIndicator" class="adaptive-refresh-indicator"></div>
+  // Close modal functionality
+  function closePerformanceModal() {
+    document.getElementById("performanceModal").classList.remove("show");
+  }
+</script>
+<div id="performanceModal" class="performance-modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closePerformanceModal()">
+      <i class="fas fa-times"></i>
+    </button>
+    <div id="modalInsightsContent"></div>
+  </div>
+</div>
+<div id="adaptiveRefreshIndicator" class="adaptive-refresh-indicator"></div>

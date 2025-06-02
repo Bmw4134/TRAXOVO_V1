@@ -1,273 +1,363 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Onboarding Analytics - TRAXOVO</title><style>
-* {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Onboarding Analytics - TRAXOVO</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-body {
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-background: #f8fafc;
-color: #1e293b;
-}
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: #f8fafc;
+        color: #1e293b;
+      }
 
-.analytics-container {
-max-width: 1200px;
-margin: 20px auto;
-padding: 20px;
-}
+      .analytics-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+      }
 
-.analytics-header {
-text-align: center;
-margin-bottom: 30px;
-}
+      .analytics-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
 
-.analytics-title {
-font-size: 32px;
-font-weight: 700;
-color: #1e293b;
-margin-bottom: 10px;
-}
+      .analytics-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 10px;
+      }
 
-.analytics-subtitle {
-font-size: 16px;
-color: #64748b;
-}
+      .analytics-subtitle {
+        font-size: 16px;
+        color: #64748b;
+      }
 
-.metrics-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-gap: 20px;
-margin-bottom: 30px;
-}
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
 
-.metric-card {
-background: #fff;
-border-radius: 12px;
-padding: 24px;
-box-shadow: 0 4px 25px rgba(0,0,0,0.06);
-border: 1px solid #e2e8f0;
-text-align: center;
-}
+      .metric-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e2e8f0;
+        text-align: center;
+      }
 
-.metric-value {
-font-size: 36px;
-font-weight: 700;
-color: #3b82f6;
-margin-bottom: 8px;
-}
+      .metric-value {
+        font-size: 36px;
+        font-weight: 700;
+        color: #3b82f6;
+        margin-bottom: 8px;
+      }
 
-.metric-label {
-font-size: 14px;
-color: #64748b;
-font-weight: 500;
-}
+      .metric-label {
+        font-size: 14px;
+        color: #64748b;
+        font-weight: 500;
+      }
 
-.completion-rate {
-color: #10b981;
-}
+      .completion-rate {
+        color: #10b981;
+      }
 
-.completion-rate.low {
-color: #ef4444;
-}
+      .completion-rate.low {
+        color: #ef4444;
+      }
 
-.completion-rate.medium {
-color: #f59e0b;
-}
+      .completion-rate.medium {
+        color: #f59e0b;
+      }
 
-.chart-section {
-background: #fff;
-border-radius: 12px;
-padding: 24px;
-box-shadow: 0 4px 25px rgba(0,0,0,0.06);
-border: 1px solid #e2e8f0;
-margin-bottom: 30px;
-}
+      .chart-section {
+        background: #fff;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e2e8f0;
+        margin-bottom: 30px;
+      }
 
-.chart-title {
-font-size: 18px;
-font-weight: 600;
-color: #1e293b;
-margin-bottom: 20px;
-}
+      .chart-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 20px;
+      }
 
-.step-analysis {
-display: grid;
-gap: 15px;
-}
+      .step-analysis {
+        display: grid;
+        gap: 15px;
+      }
 
-.step-item {
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding: 12px 0;
-border-bottom: 1px solid #f1f5f9;
-}
+      .step-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+      }
 
-.step-item:last-child {
-border-bottom: none;
-}
+      .step-item:last-child {
+        border-bottom: none;
+      }
 
-.step-name {
-font-size: 14px;
-color: #374151;
-font-weight: 500;
-}
+      .step-name {
+        font-size: 14px;
+        color: #374151;
+        font-weight: 500;
+      }
 
-.step-stats {
-display: flex;
-gap: 15px;
-align-items: center;
-}
+      .step-stats {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
 
-.step-count {
-background: #3b82f6;
-color: white;
-padding: 4px 8px;
-border-radius: 12px;
-font-size: 12px;
-font-weight: 600;
-}
+      .step-count {
+        background: #3b82f6;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+      }
 
-.step-percentage {
-color: #64748b;
-font-size: 12px;
-}
+      .step-percentage {
+        color: #64748b;
+        font-size: 12px;
+      }
 
-.controls {
-display: flex;
-gap: 15px;
-justify-content: center;
-margin-top: 30px;
-}
+      .controls {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+      }
 
-.control-btn {
-background: #64748b;
-color: white;
-border: none;
-border-radius: 8px;
-padding: 10px 20px;
-font-size: 14px;
-font-weight: 600;
-cursor: pointer;
-text-decoration: none;
-display: inline-block;
-}
+      .control-btn {
+        background: #64748b;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+      }
 
-.refresh-btn {
-background: #3b82f6;
-}
+      .refresh-btn {
+        background: #3b82f6;
+      }
 
-.insights-section {
-background: #fff;
-border-radius: 12px;
-padding: 24px;
-box-shadow: 0 4px 25px rgba(0,0,0,0.06);
-border: 1px solid #e2e8f0;
-}
+      .insights-section {
+        background: #fff;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e2e8f0;
+      }
 
-.insight-item {
-display: flex;
-align-items: flex-start;
-gap: 12px;
-padding: 12px 0;
-border-bottom: 1px solid #f1f5f9;
-}
+      .insight-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+      }
 
-.insight-item:last-child {
-border-bottom: none;
-}
+      .insight-item:last-child {
+        border-bottom: none;
+      }
 
-.insight-icon {
-background: #eff6ff;
-color: #3b82f6;
-width: 32px;
-height: 32px;
-border-radius: 50%;
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 14px;
-}
+      .insight-icon {
+        background: #eff6ff;
+        color: #3b82f6;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
 
-.insight-content {
-flex: 1;
-}
+      .insight-content {
+        flex: 1;
+      }
 
-.insight-title {
-font-size: 14px;
-font-weight: 600;
-color: #1e293b;
-margin-bottom: 4px;
-}
+      .insight-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 4px;
+      }
 
-.insight-text {
-font-size: 13px;
-color: #64748b;
-line-height: 1.4;
-}
+      .insight-text {
+        font-size: 13px;
+        color: #64748b;
+        line-height: 1.4;
+      }
 
-@media (max-width: 768px) {
-.analytics-container {
-padding: 15px;
-}
+      @media (max-width: 768px) {
+        .analytics-container {
+          padding: 15px;
+        }
 
-.metrics-grid {
-grid-template-columns: repeat(2, 1fr);
-}
+        .metrics-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
 
-.controls {
-flex-direction: column;
-align-items: center;
-}
-}
-</style></head><body><div class="analytics-container"><div class="analytics-header"><h1 class="analytics-title">Onboarding Analytics</h1><p class="analytics-subtitle">Track user onboarding completion and optimize the experience</p></div><div class="metrics-grid"><div class="metric-card"><div class="metric-value">{{ analytics.total_users }}</div><div class="metric-label">Total Users</div></div><div class="metric-card"><div class="metric-value">{{ analytics.completed_users }}</div><div class="metric-label">Completed Onboarding</div></div><div class="metric-card"><div class="metric-value completion-rate
-{% if analytics.completion_rate >= 80 %}{% elif analytics.completion_rate >= 50 %}medium{% else %}low{% endif %}">
-{{ analytics.completion_rate }}%
-</div><div class="metric-label">Completion Rate</div></div><div class="metric-card"><div class="metric-value">{{ analytics.average_steps }}</div><div class="metric-label">Average Steps Completed</div></div></div><div class="chart-section"><h3 class="chart-title">Step-by-Step Analysis</h3><div class="step-analysis">
-{% set step_names = {
-'welcome': 'Welcome Screen',
-'dashboard_overview': 'Dashboard Overview',
-'asset_management': 'Asset Management',
-'cost_savings': 'Cost Intelligence',
-'customization': 'Personalization',
-'feedback': 'Feedback System',
-'completion': 'Tour Completed'
-} %}
+        .controls {
+          flex-direction: column;
+          align-items: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="analytics-container">
+      <div class="analytics-header">
+        <h1 class="analytics-title">Onboarding Analytics</h1>
+        <p class="analytics-subtitle">
+          Track user onboarding completion and optimize the experience
+        </p>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value">{{ analytics.total_users }}</div>
+          <div class="metric-label">Total Users</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">{{ analytics.completed_users }}</div>
+          <div class="metric-label">Completed Onboarding</div>
+        </div>
+        <div class="metric-card">
+          <div
+            class="metric-value completion-rate {% if analytics.completion_rate >= 80 %}{% elif analytics.completion_rate >= 50 %}medium{% else %}low{% endif %}"
+          >
+            {{ analytics.completion_rate }}%
+          </div>
+          <div class="metric-label">Completion Rate</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">{{ analytics.average_steps }}</div>
+          <div class="metric-label">Average Steps Completed</div>
+        </div>
+      </div>
+      <div class="chart-section">
+        <h3 class="chart-title">Step-by-Step Analysis</h3>
+        <div class="step-analysis">
+          {% set step_names = { 'welcome': 'Welcome Screen',
+          'dashboard_overview': 'Dashboard Overview', 'asset_management': 'Asset
+          Management', 'cost_savings': 'Cost Intelligence', 'customization':
+          'Personalization', 'feedback': 'Feedback System', 'completion': 'Tour
+          Completed' } %} {% for step_key, step_name in step_names.items() %}
+          <div class="step-item">
+            <span class="step-name">{{ step_name }}</span>
+            <div class="step-stats">
+              <span class="step-count"
+                >{{ analytics.step_completion.get(step_key, 0) or 0 }}</span
+              ><span class="step-percentage">
+                {{ "%.1f"|format((analytics.step_completion.get(step_key, 0) /
+                analytics.total_users * 100) if analytics.total_users > 0 else
+                0) }}%
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="insights-section">
+        <h3 class="chart-title">Insights & Recommendations</h3>
+        <div class="insight-item">
+          <div class="insight-icon">📊</div>
+          <div class="insight-content">
+            <div class="insight-title">Most Common Exit Point</div>
+            <div class="insight-text">
+              Users most commonly exit at: {{
+              analytics.most_common_exit|replace('_', ' ')|title }}. Consider
+              improving this step's clarity or reducing complexity.
+            </div>
+          </div>
+        </div>
 
-{% for step_key, step_name in step_names.items() %}
-<div class="step-item"><span class="step-name">{{ step_name }}</span><div class="step-stats"><span class="step-count">{{ analytics.step_completion.get(step_key, 0) or 0 }}</span><span class="step-percentage">
-{{ "%.1f"|format((analytics.step_completion.get(step_key, 0) / analytics.total_users * 100) if analytics.total_users > 0 else 0) }}%
-</span></div></div>
-{% endfor %}
-</div></div><div class="insights-section"><h3 class="chart-title">Insights & Recommendations</h3><div class="insight-item"><div class="insight-icon">📊</div><div class="insight-content"><div class="insight-title">Most Common Exit Point</div><div class="insight-text">
-Users most commonly exit at: {{ analytics.most_common_exit|replace('_', ' ')|title }}.
-Consider improving this step's clarity or reducing complexity.
-</div></div></div>
+        {% if analytics.completion_rate < 50 %}
+        <div class="insight-item">
+          <div class="insight-icon">⚠️</div>
+          <div class="insight-content">
+            <div class="insight-title">Low Completion Rate</div>
+            <div class="insight-text">
+              Completion rate is below 50%. Consider shortening the onboarding
+              flow or adding more interactive elements.
+            </div>
+          </div>
+        </div>
+        {% endif %} {% if analytics.average_steps < 3 %}
+        <div class="insight-item">
+          <div class="insight-icon">🎯</div>
+          <div class="insight-content">
+            <div class="insight-title">Early Drop-off</div>
+            <div class="insight-text">
+              Users are completing fewer than 3 steps on average. The initial
+              steps may need more engaging content.
+            </div>
+          </div>
+        </div>
+        {% endif %} {% if analytics.completion_rate >= 80 %}
+        <div class="insight-item">
+          <div class="insight-icon">✅</div>
+          <div class="insight-content">
+            <div class="insight-title">Excellent Performance</div>
+            <div class="insight-text">
+              Your onboarding flow is performing well with high completion
+              rates. Consider using this as a template for other features.
+            </div>
+          </div>
+        </div>
+        {% endif %}
 
-{% if analytics.completion_rate < 50 %}
-<div class="insight-item"><div class="insight-icon">⚠️</div><div class="insight-content"><div class="insight-title">Low Completion Rate</div><div class="insight-text">
-Completion rate is below 50%. Consider shortening the onboarding flow or adding more interactive elements.
-</div></div></div>
-{% endif %}
-
-{% if analytics.average_steps < 3 %}
-<div class="insight-item"><div class="insight-icon">🎯</div><div class="insight-content"><div class="insight-title">Early Drop-off</div><div class="insight-text">
-Users are completing fewer than 3 steps on average. The initial steps may need more engaging content.
-</div></div></div>
-{% endif %}
-
-{% if analytics.completion_rate >= 80 %}
-<div class="insight-item"><div class="insight-icon">✅</div><div class="insight-content"><div class="insight-title">Excellent Performance</div><div class="insight-text">
-Your onboarding flow is performing well with high completion rates. Consider using this as a template for other features.
-</div></div></div>
-{% endif %}
-
-<div class="insight-item"><div class="insight-icon">💡</div><div class="insight-content"><div class="insight-title">Optimization Opportunity</div><div class="insight-text">
-Track user behavior after onboarding completion to measure long-term engagement and feature adoption.
-</div></div></div></div><div class="controls"><a href="/dashboard" class="control-btn">← Back to Dashboard</a><button class="control-btn refresh-btn" onclick="window.location.reload()">Refresh Data</button></div></div><script>
-// Auto-refresh every 60 seconds
-setInterval(() => {
-window.location.reload();
-}, 60000);
-</script></body></html>
+        <div class="insight-item">
+          <div class="insight-icon">💡</div>
+          <div class="insight-content">
+            <div class="insight-title">Optimization Opportunity</div>
+            <div class="insight-text">
+              Track user behavior after onboarding completion to measure
+              long-term engagement and feature adoption.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="controls">
+        <a href="/dashboard" class="control-btn">← Back to Dashboard</a
+        ><button
+          class="control-btn refresh-btn"
+          onclick="window.location.reload()"
+        >
+          Refresh Data
+        </button>
+      </div>
+    </div>
+    <script>
+      // Auto-refresh every 60 seconds
+      setInterval(() => {
+        window.location.reload();
+      }, 60000);
+    </script>
+  </body>
+</html>

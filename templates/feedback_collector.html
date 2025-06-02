@@ -1,597 +1,632 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Feedback - TRAXOVO</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8fafc;
-            color: #1e293b;
-            line-height: 1.6;
-        }
-        
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: #f8fafc;
+        color: #1e293b;
+        line-height: 1.6;
+      }
+
+      .feedback-container {
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+      }
+
+      .feedback-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e2e8f0;
+      }
+
+      .feedback-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .feedback-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 10px;
+      }
+
+      .feedback-subtitle {
+        font-size: 16px;
+        color: #64748b;
+      }
+
+      .feedback-form {
+        display: grid;
+        gap: 20px;
+      }
+
+      .form-group {
+        display: grid;
+        gap: 8px;
+      }
+
+      .form-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+      }
+
+      .rating-container {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin: 15px 0;
+      }
+
+      .rating-star {
+        font-size: 32px;
+        color: #d1d5db;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .rating-star:hover,
+      .rating-star.active {
+        color: #fbbf24;
+        transform: scale(1.1);
+      }
+
+      .feedback-type-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+        margin: 15px 0;
+      }
+
+      .feedback-type-btn {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px 16px;
+        cursor: pointer;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .feedback-type-btn:hover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+      }
+
+      .feedback-type-btn.active {
+        border-color: #3b82f6;
+        background: #3b82f6;
+        color: white;
+      }
+
+      .form-textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: 12px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+        transition: border-color 0.3s ease;
+      }
+
+      .form-textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border-color 0.3s ease;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+
+      .submit-btn {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 14px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+      }
+
+      .submit-btn:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+      }
+
+      .submit-btn:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .feedback-floating {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+      }
+
+      .feedback-toggle {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 15px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .feedback-toggle:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(59, 130, 246, 0.4);
+      }
+
+      .quick-feedback-popup {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        border: 1px solid #e2e8f0;
+        min-width: 300px;
+        z-index: 1001;
+        display: none;
+      }
+
+      .popup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .popup-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      .popup-close {
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #64748b;
+        cursor: pointer;
+        padding: 4px;
+      }
+
+      .quick-rating {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin: 10px 0;
+      }
+
+      .quick-star {
+        font-size: 24px;
+        color: #d1d5db;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .quick-star:hover,
+      .quick-star.active {
+        color: #fbbf24;
+      }
+
+      .quick-textarea {
+        width: 100%;
+        min-height: 80px;
+        padding: 10px;
+        border: 2px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 13px;
+        resize: none;
+        margin: 10px 0;
+      }
+
+      .quick-submit {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        width: 100%;
+      }
+
+      .success-message {
+        background: #10b981;
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .error-message {
+        background: #ef4444;
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      @media (max-width: 768px) {
         .feedback-container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
+          margin: 20px auto;
+          padding: 15px;
         }
-        
+
         .feedback-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.06);
-            border: 1px solid #e2e8f0;
+          padding: 20px;
         }
-        
-        .feedback-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .feedback-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 10px;
-        }
-        
-        .feedback-subtitle {
-            font-size: 16px;
-            color: #64748b;
-        }
-        
-        .feedback-form {
-            display: grid;
-            gap: 20px;
-        }
-        
-        .form-group {
-            display: grid;
-            gap: 8px;
-        }
-        
-        .form-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #374151;
-        }
-        
-        .rating-container {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 15px 0;
-        }
-        
+
         .rating-star {
-            font-size: 32px;
-            color: #d1d5db;
-            cursor: pointer;
-            transition: all 0.2s ease;
+          font-size: 28px;
         }
-        
-        .rating-star:hover,
-        .rating-star.active {
-            color: #fbbf24;
-            transform: scale(1.1);
-        }
-        
-        .feedback-type-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin: 15px 0;
-        }
-        
-        .feedback-type-btn {
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 12px 16px;
-            cursor: pointer;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .feedback-type-btn:hover {
-            border-color: #3b82f6;
-            background: #eff6ff;
-        }
-        
-        .feedback-type-btn.active {
-            border-color: #3b82f6;
-            background: #3b82f6;
-            color: white;
-        }
-        
-        .form-textarea {
-            width: 100%;
-            min-height: 120px;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            resize: vertical;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-        
-        .submit-btn {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 14px 24px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-        
-        .submit-btn:hover {
-            background: #2563eb;
-            transform: translateY(-1px);
-        }
-        
-        .submit-btn:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .feedback-floating {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-        
-        .feedback-toggle {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 15px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .feedback-toggle:hover {
-            background: #2563eb;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(59, 130, 246, 0.4);
-        }
-        
+
         .quick-feedback-popup {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            border: 1px solid #e2e8f0;
-            min-width: 300px;
-            z-index: 1001;
-            display: none;
+          right: 10px;
+          left: 10px;
+          bottom: 80px;
+          min-width: auto;
         }
-        
-        .popup-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
+
+        .feedback-toggle {
+          padding: 12px 16px;
+          font-size: 13px;
         }
-        
-        .popup-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1e293b;
-        }
-        
-        .popup-close {
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: #64748b;
-            cursor: pointer;
-            padding: 4px;
-        }
-        
-        .quick-rating {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin: 10px 0;
-        }
-        
-        .quick-star {
-            font-size: 24px;
-            color: #d1d5db;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .quick-star:hover,
-        .quick-star.active {
-            color: #fbbf24;
-        }
-        
-        .quick-textarea {
-            width: 100%;
-            min-height: 80px;
-            padding: 10px;
-            border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 13px;
-            resize: none;
-            margin: 10px 0;
-        }
-        
-        .quick-submit {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 16px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            width: 100%;
-        }
-        
-        .success-message {
-            background: #10b981;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 20px;
-            display: none;
-        }
-        
-        .error-message {
-            background: #ef4444;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 20px;
-            display: none;
-        }
-        
-        @media (max-width: 768px) {
-            .feedback-container {
-                margin: 20px auto;
-                padding: 15px;
-            }
-            
-            .feedback-card {
-                padding: 20px;
-            }
-            
-            .rating-star {
-                font-size: 28px;
-            }
-            
-            .quick-feedback-popup {
-                right: 10px;
-                left: 10px;
-                bottom: 80px;
-                min-width: auto;
-            }
-            
-            .feedback-toggle {
-                padding: 12px 16px;
-                font-size: 13px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="feedback-container">
-        <div class="feedback-card">
-            <div class="success-message" id="successMessage"></div>
-            <div class="error-message" id="errorMessage"></div>
-            
-            <div class="feedback-header">
-                <h1 class="feedback-title">Share Your Feedback</h1>
-                <p class="feedback-subtitle">Help us improve TRAXOVO with your valuable insights</p>
-            </div>
-            
-            <form class="feedback-form" id="feedbackForm">
-                <div class="form-group">
-                    <label class="form-label">How would you rate your experience?</label>
-                    <div class="rating-container">
-                        <span class="rating-star" data-rating="1">★</span>
-                        <span class="rating-star" data-rating="2">★</span>
-                        <span class="rating-star" data-rating="3">★</span>
-                        <span class="rating-star" data-rating="4">★</span>
-                        <span class="rating-star" data-rating="5">★</span>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">What type of feedback is this?</label>
-                    <div class="feedback-type-selector">
-                        <div class="feedback-type-btn" data-type="bug">🐛 Bug Report</div>
-                        <div class="feedback-type-btn" data-type="feature">💡 Feature Request</div>
-                        <div class="feedback-type-btn" data-type="ui">🎨 UI/UX Feedback</div>
-                        <div class="feedback-type-btn active" data-type="general">💬 General</div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Tell us more about your experience</label>
-                    <textarea class="form-textarea" id="feedbackMessage" 
-                              placeholder="Your feedback helps us improve TRAXOVO. Please share any thoughts, suggestions, or issues you've encountered..."></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Which feature were you using? (Optional)</label>
-                    <input type="text" class="form-input" id="featureUsed" 
-                           placeholder="e.g., Asset Management, GPS Tracking, Billing Dashboard...">
-                </div>
-                
-                <button type="submit" class="submit-btn" id="submitBtn">Submit Feedback</button>
-            </form>
+      <div class="feedback-card">
+        <div class="success-message" id="successMessage"></div>
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="feedback-header">
+          <h1 class="feedback-title">Share Your Feedback</h1>
+          <p class="feedback-subtitle">
+            Help us improve TRAXOVO with your valuable insights
+          </p>
         </div>
+
+        <form class="feedback-form" id="feedbackForm">
+          <div class="form-group">
+            <label class="form-label"
+              >How would you rate your experience?</label
+            >
+            <div class="rating-container">
+              <span class="rating-star" data-rating="1">★</span>
+              <span class="rating-star" data-rating="2">★</span>
+              <span class="rating-star" data-rating="3">★</span>
+              <span class="rating-star" data-rating="4">★</span>
+              <span class="rating-star" data-rating="5">★</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">What type of feedback is this?</label>
+            <div class="feedback-type-selector">
+              <div class="feedback-type-btn" data-type="bug">🐛 Bug Report</div>
+              <div class="feedback-type-btn" data-type="feature">
+                💡 Feature Request
+              </div>
+              <div class="feedback-type-btn" data-type="ui">
+                🎨 UI/UX Feedback
+              </div>
+              <div class="feedback-type-btn active" data-type="general">
+                💬 General
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tell us more about your experience</label>
+            <textarea
+              class="form-textarea"
+              id="feedbackMessage"
+              placeholder="Your feedback helps us improve TRAXOVO. Please share any thoughts, suggestions, or issues you've encountered..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"
+              >Which feature were you using? (Optional)</label
+            >
+            <input
+              type="text"
+              class="form-input"
+              id="featureUsed"
+              placeholder="e.g., Asset Management, GPS Tracking, Billing Dashboard..."
+            />
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            Submit Feedback
+          </button>
+        </form>
+      </div>
     </div>
-    
+
     <!-- Floating Feedback Button -->
     <div class="feedback-floating">
-        <button class="feedback-toggle" onclick="toggleQuickFeedback()">💬 Quick Feedback</button>
-        
-        <div class="quick-feedback-popup" id="quickFeedbackPopup">
-            <div class="popup-header">
-                <span class="popup-title">Quick Feedback</span>
-                <button class="popup-close" onclick="closeQuickFeedback()">×</button>
-            </div>
-            
-            <div class="quick-rating" id="quickRating">
-                <span class="quick-star" data-rating="1">★</span>
-                <span class="quick-star" data-rating="2">★</span>
-                <span class="quick-star" data-rating="3">★</span>
-                <span class="quick-star" data-rating="4">★</span>
-                <span class="quick-star" data-rating="5">★</span>
-            </div>
-            
-            <textarea class="quick-textarea" id="quickMessage" placeholder="Quick thoughts..."></textarea>
-            <button class="quick-submit" onclick="submitQuickFeedback()">Send Feedback</button>
+      <button class="feedback-toggle" onclick="toggleQuickFeedback()">
+        💬 Quick Feedback
+      </button>
+
+      <div class="quick-feedback-popup" id="quickFeedbackPopup">
+        <div class="popup-header">
+          <span class="popup-title">Quick Feedback</span>
+          <button class="popup-close" onclick="closeQuickFeedback()">×</button>
         </div>
+
+        <div class="quick-rating" id="quickRating">
+          <span class="quick-star" data-rating="1">★</span>
+          <span class="quick-star" data-rating="2">★</span>
+          <span class="quick-star" data-rating="3">★</span>
+          <span class="quick-star" data-rating="4">★</span>
+          <span class="quick-star" data-rating="5">★</span>
+        </div>
+
+        <textarea
+          class="quick-textarea"
+          id="quickMessage"
+          placeholder="Quick thoughts..."
+        ></textarea>
+        <button class="quick-submit" onclick="submitQuickFeedback()">
+          Send Feedback
+        </button>
+      </div>
     </div>
-    
+
     <script>
-        let selectedRating = 0;
-        let selectedType = 'general';
-        let quickRating = 0;
-        
-        // Main form rating system
-        document.querySelectorAll('.rating-star').forEach(star => {
-            star.addEventListener('click', function() {
-                selectedRating = parseInt(this.dataset.rating);
-                updateRatingDisplay('.rating-star', selectedRating);
-            });
+      let selectedRating = 0;
+      let selectedType = "general";
+      let quickRating = 0;
+
+      // Main form rating system
+      document.querySelectorAll(".rating-star").forEach((star) => {
+        star.addEventListener("click", function () {
+          selectedRating = parseInt(this.dataset.rating);
+          updateRatingDisplay(".rating-star", selectedRating);
         });
-        
-        // Quick feedback rating system
-        document.querySelectorAll('.quick-star').forEach(star => {
-            star.addEventListener('click', function() {
-                quickRating = parseInt(this.dataset.rating);
-                updateRatingDisplay('.quick-star', quickRating);
-            });
+      });
+
+      // Quick feedback rating system
+      document.querySelectorAll(".quick-star").forEach((star) => {
+        star.addEventListener("click", function () {
+          quickRating = parseInt(this.dataset.rating);
+          updateRatingDisplay(".quick-star", quickRating);
         });
-        
-        // Feedback type selection
-        document.querySelectorAll('.feedback-type-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.feedback-type-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                selectedType = this.dataset.type;
-            });
+      });
+
+      // Feedback type selection
+      document.querySelectorAll(".feedback-type-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          document
+            .querySelectorAll(".feedback-type-btn")
+            .forEach((b) => b.classList.remove("active"));
+          this.classList.add("active");
+          selectedType = this.dataset.type;
         });
-        
-        function updateRatingDisplay(selector, rating) {
-            document.querySelectorAll(selector).forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.add('active');
-                } else {
-                    star.classList.remove('active');
-                }
-            });
-        }
-        
-        // Main form submission
-        document.getElementById('feedbackForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const message = document.getElementById('feedbackMessage').value;
-            const featureUsed = document.getElementById('featureUsed').value;
-            
-            if (selectedRating === 0) {
-                showError('Please select a rating');
-                return;
+      });
+
+      function updateRatingDisplay(selector, rating) {
+        document.querySelectorAll(selector).forEach((star, index) => {
+          if (index < rating) {
+            star.classList.add("active");
+          } else {
+            star.classList.remove("active");
+          }
+        });
+      }
+
+      // Main form submission
+      document
+        .getElementById("feedbackForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const message = document.getElementById("feedbackMessage").value;
+          const featureUsed = document.getElementById("featureUsed").value;
+
+          if (selectedRating === 0) {
+            showError("Please select a rating");
+            return;
+          }
+
+          if (!message.trim()) {
+            showError("Please provide feedback message");
+            return;
+          }
+
+          const feedbackData = {
+            rating: selectedRating,
+            type: selectedType,
+            message: message,
+            feature_used: featureUsed,
+            page_url: window.location.href,
+            browser_info: navigator.userAgent,
+          };
+
+          submitFeedback(feedbackData);
+        });
+
+      function submitFeedback(data) {
+        const submitBtn = document.getElementById("submitBtn");
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Submitting...";
+
+        fetch("/submit-feedback", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            if (result.success) {
+              showSuccess(result.message);
+              resetForm();
+            } else {
+              showError(result.message);
             }
-            
-            if (!message.trim()) {
-                showError('Please provide feedback message');
-                return;
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            showError("Failed to submit feedback. Please try again.");
+          })
+          .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Submit Feedback";
+          });
+      }
+
+      function toggleQuickFeedback() {
+        const popup = document.getElementById("quickFeedbackPopup");
+        popup.style.display =
+          popup.style.display === "block" ? "none" : "block";
+      }
+
+      function closeQuickFeedback() {
+        document.getElementById("quickFeedbackPopup").style.display = "none";
+      }
+
+      function submitQuickFeedback() {
+        if (quickRating === 0) {
+          alert("Please select a rating");
+          return;
+        }
+
+        const message = document.getElementById("quickMessage").value;
+
+        const feedbackData = {
+          rating: quickRating,
+          type: "quick",
+          message: message,
+          page_url: window.location.href,
+        };
+
+        fetch("/quick-feedback", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(feedbackData),
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            if (result.success) {
+              alert("Thank you for your feedback!");
+              closeQuickFeedback();
+              document.getElementById("quickMessage").value = "";
+              updateRatingDisplay(".quick-star", 0);
+              quickRating = 0;
+            } else {
+              alert("Failed to submit feedback");
             }
-            
-            const feedbackData = {
-                rating: selectedRating,
-                type: selectedType,
-                message: message,
-                feature_used: featureUsed,
-                page_url: window.location.href,
-                browser_info: navigator.userAgent
-            };
-            
-            submitFeedback(feedbackData);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Failed to submit feedback");
+          });
+      }
+
+      function resetForm() {
+        selectedRating = 0;
+        selectedType = "general";
+        document.getElementById("feedbackMessage").value = "";
+        document.getElementById("featureUsed").value = "";
+        updateRatingDisplay(".rating-star", 0);
+
+        // Reset type selection
+        document.querySelectorAll(".feedback-type-btn").forEach((btn) => {
+          btn.classList.remove("active");
+          if (btn.dataset.type === "general") {
+            btn.classList.add("active");
+          }
         });
-        
-        function submitFeedback(data) {
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
-            
-            fetch('/submit-feedback', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    showSuccess(result.message);
-                    resetForm();
-                } else {
-                    showError(result.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showError('Failed to submit feedback. Please try again.');
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Submit Feedback';
-            });
+      }
+
+      function showSuccess(message) {
+        const successDiv = document.getElementById("successMessage");
+        successDiv.textContent = message;
+        successDiv.style.display = "block";
+        document.getElementById("errorMessage").style.display = "none";
+
+        setTimeout(() => {
+          successDiv.style.display = "none";
+        }, 5000);
+      }
+
+      function showError(message) {
+        const errorDiv = document.getElementById("errorMessage");
+        errorDiv.textContent = message;
+        errorDiv.style.display = "block";
+        document.getElementById("successMessage").style.display = "none";
+
+        setTimeout(() => {
+          errorDiv.style.display = "none";
+        }, 5000);
+      }
+
+      // Close quick feedback when clicking outside
+      document.addEventListener("click", function (e) {
+        const popup = document.getElementById("quickFeedbackPopup");
+        const toggle = document.querySelector(".feedback-toggle");
+
+        if (!popup.contains(e.target) && !toggle.contains(e.target)) {
+          popup.style.display = "none";
         }
-        
-        function toggleQuickFeedback() {
-            const popup = document.getElementById('quickFeedbackPopup');
-            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
-        }
-        
-        function closeQuickFeedback() {
-            document.getElementById('quickFeedbackPopup').style.display = 'none';
-        }
-        
-        function submitQuickFeedback() {
-            if (quickRating === 0) {
-                alert('Please select a rating');
-                return;
-            }
-            
-            const message = document.getElementById('quickMessage').value;
-            
-            const feedbackData = {
-                rating: quickRating,
-                type: 'quick',
-                message: message,
-                page_url: window.location.href
-            };
-            
-            fetch('/quick-feedback', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(feedbackData)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    alert('Thank you for your feedback!');
-                    closeQuickFeedback();
-                    document.getElementById('quickMessage').value = '';
-                    updateRatingDisplay('.quick-star', 0);
-                    quickRating = 0;
-                } else {
-                    alert('Failed to submit feedback');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to submit feedback');
-            });
-        }
-        
-        function resetForm() {
-            selectedRating = 0;
-            selectedType = 'general';
-            document.getElementById('feedbackMessage').value = '';
-            document.getElementById('featureUsed').value = '';
-            updateRatingDisplay('.rating-star', 0);
-            
-            // Reset type selection
-            document.querySelectorAll('.feedback-type-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.type === 'general') {
-                    btn.classList.add('active');
-                }
-            });
-        }
-        
-        function showSuccess(message) {
-            const successDiv = document.getElementById('successMessage');
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
-            document.getElementById('errorMessage').style.display = 'none';
-            
-            setTimeout(() => {
-                successDiv.style.display = 'none';
-            }, 5000);
-        }
-        
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            document.getElementById('successMessage').style.display = 'none';
-            
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-            }, 5000);
-        }
-        
-        // Close quick feedback when clicking outside
-        document.addEventListener('click', function(e) {
-            const popup = document.getElementById('quickFeedbackPopup');
-            const toggle = document.querySelector('.feedback-toggle');
-            
-            if (!popup.contains(e.target) && !toggle.contains(e.target)) {
-                popup.style.display = 'none';
-            }
-        });
+      });
     </script>
-</body>
+  </body>
 </html>

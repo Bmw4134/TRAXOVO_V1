@@ -1,19 +1,19 @@
 /** TRAXOVO Employee Ideas Widget
-* Floating idea submission available on every page
-*/
+ * Floating idea submission available on every page
+ */
 class TRAXOVOIdeasWidget {
-constructor() {
-this.isVisible = false;
-this.init();
-}
-init() {
-this.createWidget();
-this.attachEventListeners();
-}
-createWidget() {
-const widget = document.createElement('div');
-widget.id = 'traxovo-ideas-widget';
-widget.innerHTML = `
+  constructor() {
+    this.isVisible = false;
+    this.init();
+  }
+  init() {
+    this.createWidget();
+    this.attachEventListeners();
+  }
+  createWidget() {
+    const widget = document.createElement("div");
+    widget.id = "traxovo-ideas-widget";
+    widget.innerHTML = `
 <div class="ideas-fab" title="Submit an idea">
 <i class="fas fa-lightbulb"></i>
 </div>
@@ -49,8 +49,8 @@ widget.innerHTML = `
 </div>
 </div>
 `;
-const style = document.createElement('style');
-style.textContent = `
+    const style = document.createElement("style");
+    style.textContent = `
 #traxovo-ideas-widget {
 position: fixed;
 bottom: 20px;
@@ -178,117 +178,119 @@ right: -10px;
 }
 }
 `;
-document.head.appendChild(style);
-document.body.appendChild(widget);
+    document.head.appendChild(style);
+    document.body.appendChild(widget);
+  }
+  attachEventListeners() {
+    const fab = document.querySelector(".ideas-fab");
+    const panel = document.querySelector(".ideas-panel");
+    const closeBtn = document.querySelector(".close-ideas");
+    const submitBtn = document.querySelector(".submit-quick-idea");
+    fab.addEventListener("click", () => this.togglePanel());
+    closeBtn.addEventListener("click", () => this.hidePanel());
+    submitBtn.addEventListener("click", () => this.submitIdea());
+    document.addEventListener("click", (e) => {
+      if (!document.getElementById("traxovo-ideas-widget").contains(e.target)) {
+        this.hidePanel();
+      }
+    });
+  }
+  togglePanel() {
+    const panel = document.querySelector(".ideas-panel");
+    if (this.isVisible) {
+      this.hidePanel();
+    } else {
+      this.showPanel();
+    }
+  }
+  showPanel() {
+    const panel = document.querySelector(".ideas-panel");
+    panel.style.display = "block";
+    setTimeout(() => {
+      panel.classList.add("visible");
+    }, 10);
+    this.isVisible = true;
+  }
+  hidePanel() {
+    const panel = document.querySelector(".ideas-panel");
+    panel.classList.remove("visible");
+    setTimeout(() => {
+      panel.style.display = "none";
+    }, 300);
+    this.isVisible = false;
+  }
+  async submitIdea() {
+    const title = document.getElementById("quick-idea-title").value.trim();
+    const description = document
+      .getElementById("quick-idea-description")
+      .value.trim();
+    const category = document.getElementById("quick-idea-category").value;
+    const name = document.getElementById("quick-idea-name").value.trim();
+    const priority = document.getElementById("quick-idea-priority").value;
+    if (!title || !description) {
+      alert("Please fill in the title and description");
+      return;
+    }
+    const ideaData = {
+      title,
+      description,
+      category,
+      priority,
+      employee_name: name || "Anonymous",
+      module: this.getCurrentModule(),
+      page_url: window.location.pathname,
+    };
+    try {
+      const response = await fetch("/api/submit-idea", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(ideaData),
+      });
+      if (response.ok) {
+        this.showSuccess();
+        this.clearForm();
+      } else {
+        alert("Failed to submit idea. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting idea:", error);
+      alert("Error submitting idea. Please try again.");
+    }
+  }
+  getCurrentModule() {
+    const path = window.location.pathname;
+    const moduleMap = {
+      "/enhanced-dashboard": "Executive Dashboard",
+      "/fleet-map": "Fleet Map & GPS Tracking",
+      "/billing-consolidation": "Billing & Financial Analysis",
+      "/attendance-matrix": "Attendance & Workforce",
+      "/asset-manager": "Asset Management",
+      "/predictive-dashboard": "Predictive Analytics",
+      "/project-accountability": "Project Accountability",
+      "/cost-simulator": "Cost Savings Tools",
+    };
+    return moduleMap[path] || "General";
+  }
+  showSuccess() {
+    const form = document.querySelector(".ideas-form");
+    const success = document.querySelector(".ideas-success");
+    form.style.display = "none";
+    success.style.display = "block";
+    setTimeout(() => {
+      form.style.display = "block";
+      success.style.display = "none";
+      this.hidePanel();
+    }, 2000);
+  }
+  clearForm() {
+    document.getElementById("quick-idea-title").value = "";
+    document.getElementById("quick-idea-description").value = "";
+    document.getElementById("quick-idea-category").value = "ui_ux";
+    document.getElementById("quick-idea-priority").value = "medium";
+  }
 }
-attachEventListeners() {
-const fab = document.querySelector('.ideas-fab');
-const panel = document.querySelector('.ideas-panel');
-const closeBtn = document.querySelector('.close-ideas');
-const submitBtn = document.querySelector('.submit-quick-idea');
-fab.addEventListener('click', () => this.togglePanel());
-closeBtn.addEventListener('click', () => this.hidePanel());
-submitBtn.addEventListener('click', () => this.submitIdea());
-document.addEventListener('click', (e) => {
-if (!document.getElementById('traxovo-ideas-widget').contains(e.target)) {
-this.hidePanel();
-}
-});
-}
-togglePanel() {
-const panel = document.querySelector('.ideas-panel');
-if (this.isVisible) {
-this.hidePanel();
-} else {
-this.showPanel();
-}
-}
-showPanel() {
-const panel = document.querySelector('.ideas-panel');
-panel.style.display = 'block';
-setTimeout(() => {
-panel.classList.add('visible');
-}, 10);
-this.isVisible = true;
-}
-hidePanel() {
-const panel = document.querySelector('.ideas-panel');
-panel.classList.remove('visible');
-setTimeout(() => {
-panel.style.display = 'none';
-}, 300);
-this.isVisible = false;
-}
-async submitIdea() {
-const title = document.getElementById('quick-idea-title').value.trim();
-const description = document.getElementById('quick-idea-description').value.trim();
-const category = document.getElementById('quick-idea-category').value;
-const name = document.getElementById('quick-idea-name').value.trim();
-const priority = document.getElementById('quick-idea-priority').value;
-if (!title || !description) {
-alert('Please fill in the title and description');
-return;
-}
-const ideaData = {
-title,
-description,
-category,
-priority,
-employee_name: name || 'Anonymous',
-module: this.getCurrentModule(),
-page_url: window.location.pathname
-};
-try {
-const response = await fetch('/api/submit-idea', {
-method: 'POST',
-headers: {
-'Content-Type': 'application/json',
-},
-body: JSON.stringify(ideaData)
-});
-if (response.ok) {
-this.showSuccess();
-this.clearForm();
-} else {
-alert('Failed to submit idea. Please try again.');
-}
-} catch (error) {
-console.error('Error submitting idea:', error);
-alert('Error submitting idea. Please try again.');
-}
-}
-getCurrentModule() {
-const path = window.location.pathname;
-const moduleMap = {
-'/enhanced-dashboard': 'Executive Dashboard',
-'/fleet-map': 'Fleet Map & GPS Tracking',
-'/billing-consolidation': 'Billing & Financial Analysis',
-'/attendance-matrix': 'Attendance & Workforce',
-'/asset-manager': 'Asset Management',
-'/predictive-dashboard': 'Predictive Analytics',
-'/project-accountability': 'Project Accountability',
-'/cost-simulator': 'Cost Savings Tools'
-};
-return moduleMap[path] || 'General';
-}
-showSuccess() {
-const form = document.querySelector('.ideas-form');
-const success = document.querySelector('.ideas-success');
-form.style.display = 'none';
-success.style.display = 'block';
-setTimeout(() => {
-form.style.display = 'block';
-success.style.display = 'none';
-this.hidePanel();
-}, 2000);
-}
-clearForm() {
-document.getElementById('quick-idea-title').value = '';
-document.getElementById('quick-idea-description').value = '';
-document.getElementById('quick-idea-category').value = 'ui_ux';
-document.getElementById('quick-idea-priority').value = 'medium';
-}
-}
-document.addEventListener('DOMContentLoaded', () => {
-new TRAXOVOIdeasWidget();
+document.addEventListener("DOMContentLoaded", () => {
+  new TRAXOVOIdeasWidget();
 });

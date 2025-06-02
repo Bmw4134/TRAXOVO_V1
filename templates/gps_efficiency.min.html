@@ -1,46 +1,297 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>GPS Efficiency - TRAXOVO</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"><style>
-.gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.gps-card { border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-.efficiency-value { font-size: 2.5rem; font-weight: bold; }
-</style></head><body class="bg-light"><nav class="navbar navbar-expand-lg navbar-dark gradient-bg"><div class="container"><a class="navbar-brand fw-bold" href="{{ url_for('dashboard') }}"><i class="fas fa-truck me-2"></i>TRAXOVO
-</a><span class="navbar-text text-white">GPS Efficiency Analytics</span></div></nav><div class="container mt-4"><div class="row mb-4"><div class="col"><h2 class="mb-3"><i class="fas fa-map-marker-alt text-primary me-2"></i>
-GPS Efficiency Dashboard
-</h2><p class="text-muted">Real-time tracking of {{ gps_enabled_assets or '566' }} GPS-enabled assets across all job sites</p></div></div><div class="row mb-4"><div class="col-md-3 mb-3"><div class="card gps-card h-100 border-success"><div class="card-body text-center"><i class="fas fa-satellite text-success mb-2" style="font-size: 2rem;"></i><h5 class="card-title">GPS Active</h5><div class="efficiency-value text-success">{{ gps_active or '566' }}</div><small class="text-muted">of 570 total assets</small></div></div></div><div class="col-md-3 mb-3"><div class="card gps-card h-100 border-info"><div class="card-body text-center"><i class="fas fa-route text-info mb-2" style="font-size: 2rem;"></i><h5 class="card-title">Route Efficiency</h5><div class="efficiency-value text-info">{{ route_efficiency or '94%' }}</div><small class="text-muted">Optimal routing</small></div></div></div><div class="col-md-3 mb-3"><div class="card gps-card h-100 border-warning"><div class="card-body text-center"><i class="fas fa-gas-pump text-warning mb-2" style="font-size: 2rem;"></i><h5 class="card-title">Fuel Savings</h5><div class="efficiency-value text-warning">${{ fuel_savings or '18,400' }}</div><small class="text-muted">Monthly savings</small></div></div></div><div class="col-md-3 mb-3"><div class="card gps-card h-100 border-danger"><div class="card-body text-center"><i class="fas fa-clock text-danger mb-2" style="font-size: 2rem;"></i><h5 class="card-title">Idle Time</h5><div class="efficiency-value text-danger">{{ idle_percentage or '12%' }}</div><small class="text-muted">Fleet-wide average</small></div></div></div></div><div class="row mb-4"><div class="col-md-8 mb-3"><div class="card"><div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fas fa-building me-2"></i>Division GPS Performance</h5></div><div class="card-body"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Division</th><th>GPS Active</th><th>Route Efficiency</th><th>Idle Time</th><th>Fuel Usage</th></tr></thead><tbody>
-{% for division in division_gps or [
-{'name': 'DFW', 'active': '212/215', 'efficiency': '96%', 'idle': '8%', 'fuel': 'Excellent'},
-{'name': 'Houston', 'active': '163/165', 'efficiency': '92%', 'idle': '14%', 'fuel': 'Good'},
-{'name': 'Austin', 'active': '96/98', 'efficiency': '94%', 'idle': '11%', 'fuel': 'Good'},
-{'name': 'San Antonio', 'active': '67/69', 'efficiency': '89%', 'idle': '18%', 'fuel': 'Fair'}
-] %}
-<tr><td><strong>{{ division.name }}</strong></td><td>{{ division.active }}</td><td><span class="badge bg-{% if division.efficiency|replace('%', '')|int > 94 %}success{% elif division.efficiency|replace('%', '')|int > 90 %}warning{% else %}danger{% endif %}">
-{{ division.efficiency }}
-</span></td><td>{{ division.idle }}</td><td><span class="badge bg-{% if division.fuel == 'Excellent' %}success{% elif division.fuel == 'Good' %}warning{% else %}danger{% endif %}">
-{{ division.fuel }}
-</span></td></tr>
-{% endfor %}
-</tbody></table></div></div></div></div><div class="col-md-4 mb-3"><div class="card"><div class="card-header bg-warning text-dark"><h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>GPS Alerts</h5></div><div class="card-body">
-{% for alert in gps_alerts or [
-{'type': 'High Idle Time', 'asset': 'EX-045', 'location': 'DFW Job Site', 'duration': '2.5 hrs'},
-{'type': 'GPS Offline', 'asset': 'PU-178', 'location': 'Houston Yard', 'duration': '45 min'},
-{'type': 'Route Deviation', 'asset': 'DO-023', 'location': 'Austin Site', 'duration': '1.2 hrs'},
-{'type': 'Geofence Alert', 'asset': 'CM-012', 'location': 'San Antonio', 'duration': '30 min'}
-] %}
-<div class="alert alert-warning py-2 mb-2"><div class="d-flex justify-content-between align-items-center"><div><strong>{{ alert.type }}:</strong><small class="d-block">{{ alert.asset }} - {{ alert.location }}</small></div><small class="text-muted">{{ alert.duration }}</small></div></div>
-{% endfor %}
-</div></div></div></div><div class="row mb-4"><div class="col"><div class="card"><div class="card-header"><h5 class="mb-0"><i class="fas fa-map me-2"></i>Real-time Asset Locations</h5></div><div class="card-body"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Asset ID</th><th>Type</th><th>Current Location</th><th>Status</th><th>Last Update</th><th>Speed</th></tr></thead><tbody>
-{% for asset in asset_locations or [
-{'id': '920C-001', 'type': 'Excavator', 'location': 'Job Site 2019-044', 'status': 'Active', 'update': '2 min ago', 'speed': '0 mph'},
-{'id': 'PU-145', 'type': 'Pickup Truck', 'location': 'En route to DFW Yard', 'status': 'Moving', 'update': '1 min ago', 'speed': '45 mph'},
-{'id': 'CM-087', 'type': 'Compactor', 'location': 'Houston Site B', 'status': 'Active', 'update': '3 min ago', 'speed': '0 mph'},
-{'id': 'DO-034', 'type': 'Dozer', 'location': 'Austin Project 2021-017', 'status': 'Idle', 'update': '15 min ago', 'speed': '0 mph'},
-{'id': 'AC-009', 'type': 'Air Compressor', 'location': 'San Antonio Site', 'status': 'Active', 'update': '1 min ago', 'speed': '0 mph'}
-] %}
-<tr><td><strong>{{ asset.id }}</strong></td><td>{{ asset.type }}</td><td>{{ asset.location }}</td><td><span class="badge bg-{% if asset.status == 'Active' %}success{% elif asset.status == 'Moving' %}primary{% elif asset.status == 'Idle' %}warning{% else %}danger{% endif %}">
-{{ asset.status }}
-</span></td><td><small class="text-muted">{{ asset.update }}</small></td><td>{{ asset.speed }}</td></tr>
-{% endfor %}
-</tbody></table></div></div></div></div></div><div class="row mb-4"><div class="col"><div class="card"><div class="card-header"><h5 class="mb-0"><i class="fas fa-cog me-2"></i>GPS Management Tools</h5></div><div class="card-body"><div class="row"><div class="col-md-3 mb-2"><button class="btn btn-primary w-100"><i class="fas fa-map me-2"></i>Live Map View
-</button></div><div class="col-md-3 mb-2"><button class="btn btn-success w-100"><i class="fas fa-download me-2"></i>Export GPS Data
-</button></div><div class="col-md-3 mb-2"><button class="btn btn-warning w-100"><i class="fas fa-sync me-2"></i>Refresh Tracking
-</button></div><div class="col-md-3 mb-2"><a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary w-100"><i class="fas fa-home me-2"></i>Return to Dashboard
-</a></div></div></div></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GPS Efficiency - TRAXOVO</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .gradient-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      .gps-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .efficiency-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark gradient-bg">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="{{ url_for('dashboard') }}"
+          ><i class="fas fa-truck me-2"></i>TRAXOVO </a
+        ><span class="navbar-text text-white">GPS Efficiency Analytics</span>
+      </div>
+    </nav>
+    <div class="container mt-4">
+      <div class="row mb-4">
+        <div class="col">
+          <h2 class="mb-3">
+            <i class="fas fa-map-marker-alt text-primary me-2"></i>
+            GPS Efficiency Dashboard
+          </h2>
+          <p class="text-muted">
+            Real-time tracking of {{ gps_enabled_assets or '566' }} GPS-enabled
+            assets across all job sites
+          </p>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+          <div class="card gps-card h-100 border-success">
+            <div class="card-body text-center">
+              <i
+                class="fas fa-satellite text-success mb-2"
+                style="font-size: 2rem"
+              ></i>
+              <h5 class="card-title">GPS Active</h5>
+              <div class="efficiency-value text-success">
+                {{ gps_active or '566' }}
+              </div>
+              <small class="text-muted">of 570 total assets</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card gps-card h-100 border-info">
+            <div class="card-body text-center">
+              <i
+                class="fas fa-route text-info mb-2"
+                style="font-size: 2rem"
+              ></i>
+              <h5 class="card-title">Route Efficiency</h5>
+              <div class="efficiency-value text-info">
+                {{ route_efficiency or '94%' }}
+              </div>
+              <small class="text-muted">Optimal routing</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card gps-card h-100 border-warning">
+            <div class="card-body text-center">
+              <i
+                class="fas fa-gas-pump text-warning mb-2"
+                style="font-size: 2rem"
+              ></i>
+              <h5 class="card-title">Fuel Savings</h5>
+              <div class="efficiency-value text-warning">
+                ${{ fuel_savings or '18,400' }}
+              </div>
+              <small class="text-muted">Monthly savings</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card gps-card h-100 border-danger">
+            <div class="card-body text-center">
+              <i
+                class="fas fa-clock text-danger mb-2"
+                style="font-size: 2rem"
+              ></i>
+              <h5 class="card-title">Idle Time</h5>
+              <div class="efficiency-value text-danger">
+                {{ idle_percentage or '12%' }}
+              </div>
+              <small class="text-muted">Fleet-wide average</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-8 mb-3">
+          <div class="card">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">
+                <i class="fas fa-building me-2"></i>Division GPS Performance
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Division</th>
+                      <th>GPS Active</th>
+                      <th>Route Efficiency</th>
+                      <th>Idle Time</th>
+                      <th>Fuel Usage</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for division in division_gps or [ {'name': 'DFW',
+                    'active': '212/215', 'efficiency': '96%', 'idle': '8%',
+                    'fuel': 'Excellent'}, {'name': 'Houston', 'active':
+                    '163/165', 'efficiency': '92%', 'idle': '14%', 'fuel':
+                    'Good'}, {'name': 'Austin', 'active': '96/98', 'efficiency':
+                    '94%', 'idle': '11%', 'fuel': 'Good'}, {'name': 'San
+                    Antonio', 'active': '67/69', 'efficiency': '89%', 'idle':
+                    '18%', 'fuel': 'Fair'} ] %}
+                    <tr>
+                      <td><strong>{{ division.name }}</strong></td>
+                      <td>{{ division.active }}</td>
+                      <td>
+                        <span
+                          class="badge bg-{% if division.efficiency|replace('%', '')|int > 94 %}success{% elif division.efficiency|replace('%', '')|int > 90 %}warning{% else %}danger{% endif %}"
+                        >
+                          {{ division.efficiency }}
+                        </span>
+                      </td>
+                      <td>{{ division.idle }}</td>
+                      <td>
+                        <span
+                          class="badge bg-{% if division.fuel == 'Excellent' %}success{% elif division.fuel == 'Good' %}warning{% else %}danger{% endif %}"
+                        >
+                          {{ division.fuel }}
+                        </span>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card">
+            <div class="card-header bg-warning text-dark">
+              <h5 class="mb-0">
+                <i class="fas fa-exclamation-triangle me-2"></i>GPS Alerts
+              </h5>
+            </div>
+            <div class="card-body">
+              {% for alert in gps_alerts or [ {'type': 'High Idle Time',
+              'asset': 'EX-045', 'location': 'DFW Job Site', 'duration': '2.5
+              hrs'}, {'type': 'GPS Offline', 'asset': 'PU-178', 'location':
+              'Houston Yard', 'duration': '45 min'}, {'type': 'Route Deviation',
+              'asset': 'DO-023', 'location': 'Austin Site', 'duration': '1.2
+              hrs'}, {'type': 'Geofence Alert', 'asset': 'CM-012', 'location':
+              'San Antonio', 'duration': '30 min'} ] %}
+              <div class="alert alert-warning py-2 mb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>{{ alert.type }}:</strong
+                    ><small class="d-block"
+                      >{{ alert.asset }} - {{ alert.location }}</small
+                    >
+                  </div>
+                  <small class="text-muted">{{ alert.duration }}</small>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">
+                <i class="fas fa-map me-2"></i>Real-time Asset Locations
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Asset ID</th>
+                      <th>Type</th>
+                      <th>Current Location</th>
+                      <th>Status</th>
+                      <th>Last Update</th>
+                      <th>Speed</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for asset in asset_locations or [ {'id': '920C-001',
+                    'type': 'Excavator', 'location': 'Job Site 2019-044',
+                    'status': 'Active', 'update': '2 min ago', 'speed': '0
+                    mph'}, {'id': 'PU-145', 'type': 'Pickup Truck', 'location':
+                    'En route to DFW Yard', 'status': 'Moving', 'update': '1 min
+                    ago', 'speed': '45 mph'}, {'id': 'CM-087', 'type':
+                    'Compactor', 'location': 'Houston Site B', 'status':
+                    'Active', 'update': '3 min ago', 'speed': '0 mph'}, {'id':
+                    'DO-034', 'type': 'Dozer', 'location': 'Austin Project
+                    2021-017', 'status': 'Idle', 'update': '15 min ago',
+                    'speed': '0 mph'}, {'id': 'AC-009', 'type': 'Air
+                    Compressor', 'location': 'San Antonio Site', 'status':
+                    'Active', 'update': '1 min ago', 'speed': '0 mph'} ] %}
+                    <tr>
+                      <td><strong>{{ asset.id }}</strong></td>
+                      <td>{{ asset.type }}</td>
+                      <td>{{ asset.location }}</td>
+                      <td>
+                        <span
+                          class="badge bg-{% if asset.status == 'Active' %}success{% elif asset.status == 'Moving' %}primary{% elif asset.status == 'Idle' %}warning{% else %}danger{% endif %}"
+                        >
+                          {{ asset.status }}
+                        </span>
+                      </td>
+                      <td>
+                        <small class="text-muted">{{ asset.update }}</small>
+                      </td>
+                      <td>{{ asset.speed }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">
+                <i class="fas fa-cog me-2"></i>GPS Management Tools
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3 mb-2">
+                  <button class="btn btn-primary w-100">
+                    <i class="fas fa-map me-2"></i>Live Map View
+                  </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                  <button class="btn btn-success w-100">
+                    <i class="fas fa-download me-2"></i>Export GPS Data
+                  </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                  <button class="btn btn-warning w-100">
+                    <i class="fas fa-sync me-2"></i>Refresh Tracking
+                  </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                  <a
+                    href="{{ url_for('dashboard') }}"
+                    class="btn btn-outline-secondary w-100"
+                    ><i class="fas fa-home me-2"></i>Return to Dashboard
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

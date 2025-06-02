@@ -1,115 +1,294 @@
-{% extends 'base.html' %}
-
-{% block title %}{{ title }}{% endblock %}
-
-{% block content %}
-<div class="container-fluid p-4"><div class="row mb-4"><div class="col-12"><h1 class="h3">Attendance Reporting Dashboard</h1><p class="text-muted">Manage and generate daily driver attendance reports</p></div></div><div class="row mb-4"><div class="col-12 col-lg-6 mb-3"><div class="card"><div class="card-header d-flex justify-content-between align-items-center"><h5 class="card-title mb-0">Daily Reports</h5><div><a href="#" id="generate-all-reports" class="btn btn-sm btn-primary">Generate All</a></div></div><div class="card-body"><div class="row"><div class="col-md-6 mb-3"><div class="card h-100"><div class="card-body text-center p-4"><div class="mb-3"><i class="bi bi-calendar-check fs-1 text-primary"></i></div><h5>Prior Day Report</h5><p class="text-muted small">Late Start, Early End, Not On Job</p><div class="mt-3"><a href="{{ url_for('attendance.prior_day') }}" class="btn btn-outline-primary btn-sm me-2">View</a><a href="#" id="generate-prior-day" class="btn btn-primary btn-sm">Generate</a></div></div></div></div><div class="col-md-6 mb-3"><div class="card h-100"><div class="card-body text-center p-4"><div class="mb-3"><i class="bi bi-calendar-day fs-1 text-success"></i></div><h5>Current Day Report</h5><p class="text-muted small">Late Start, Not On Job (as of 8:30 AM)</p><div class="mt-3"><a href="{{ url_for('attendance.current_day') }}" class="btn btn-outline-primary btn-sm me-2">View</a><a href="#" id="generate-current-day" class="btn btn-primary btn-sm">Generate</a></div></div></div></div></div></div></div></div><div class="col-12 col-lg-6 mb-3"><div class="card"><div class="card-header"><h5 class="card-title mb-0">Daily Reporting Process</h5></div><div class="card-body"><div class="row"><div class="col-md-3 text-center mb-3 mb-md-0"><div class="process-step d-inline-block p-3 rounded-circle bg-primary bg-opacity-25 mb-2"><i class="bi bi-file-earmark-spreadsheet fs-3"></i></div><h5 class="mt-2">Data Input</h5><p class="text-muted small">Activity Detail + Driving History</p></div><div class="col-md-3 text-center mb-3 mb-md-0"><div class="process-step d-inline-block p-3 rounded-circle bg-primary bg-opacity-25 mb-2"><i class="bi bi-clock-history fs-3"></i></div><h5 class="mt-2">Schedule</h5><p class="text-muted small">8:30 AM & 9:30 AM Daily</p></div><div class="col-md-3 text-center mb-3 mb-md-0"><div class="process-step d-inline-block p-3 rounded-circle bg-primary bg-opacity-25 mb-2"><i class="bi bi-check-circle fs-3"></i></div><h5 class="mt-2">Validation</h5><p class="text-muted small">Geofence & Time Validation</p></div><div class="col-md-3 text-center"><div class="process-step d-inline-block p-3 rounded-circle bg-primary bg-opacity-25 mb-2"><i class="bi bi-file-earmark-arrow-down fs-3"></i></div><h5 class="mt-2">Reports</h5><p class="text-muted small">Excel Reports Generated</p></div></div></div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card"><div class="card-header d-flex justify-content-between align-items-center"><h5 class="card-title mb-0">Recent Reports</h5><a href="{{ url_for('attendance.history') }}" class="btn btn-sm btn-outline-primary">View All</a></div><div class="card-body">
-{% if report_history %}
-<div class="table-responsive"><table class="table table-hover"><thead><tr><th>Date</th><th>Report Type</th><th>Created</th><th>Size</th><th>Actions</th></tr></thead><tbody>
-{% for date_item in report_history %}
-{% for report in date_item.files %}
-<tr><td>{{ date_item.date }}</td><td>{{ report.type }}</td><td>{{ report.created.strftime('%H:%M:%S') }}</td><td>{{ (report.size / 1024)|round|int }} KB</td><td><a href="{{ url_for('attendance.download_report', filename=date_item.date + '/' + report.filename) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-download me-1"></i>Download
-</a></td></tr>
-{% endfor %}
-{% endfor %}
-</tbody></table></div>
-{% else %}
-<div class="alert alert-info">
-No reports have been generated yet. Use the buttons above to generate reports.
+{% extends 'base.html' %} {% block title %}{{ title }}{% endblock %} {% block
+content %}
+<div class="container-fluid p-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="h3">Attendance Reporting Dashboard</h1>
+      <p class="text-muted">
+        Manage and generate daily driver attendance reports
+      </p>
+    </div>
+  </div>
+  <div class="row mb-4">
+    <div class="col-12 col-lg-6 mb-3">
+      <div class="card">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <h5 class="card-title mb-0">Daily Reports</h5>
+          <div>
+            <a href="#" id="generate-all-reports" class="btn btn-sm btn-primary"
+              >Generate All</a
+            >
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body text-center p-4">
+                  <div class="mb-3">
+                    <i class="bi bi-calendar-check fs-1 text-primary"></i>
+                  </div>
+                  <h5>Prior Day Report</h5>
+                  <p class="text-muted small">
+                    Late Start, Early End, Not On Job
+                  </p>
+                  <div class="mt-3">
+                    <a
+                      href="{{ url_for('attendance.prior_day') }}"
+                      class="btn btn-outline-primary btn-sm me-2"
+                      >View</a
+                    ><a
+                      href="#"
+                      id="generate-prior-day"
+                      class="btn btn-primary btn-sm"
+                      >Generate</a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body text-center p-4">
+                  <div class="mb-3">
+                    <i class="bi bi-calendar-day fs-1 text-success"></i>
+                  </div>
+                  <h5>Current Day Report</h5>
+                  <p class="text-muted small">
+                    Late Start, Not On Job (as of 8:30 AM)
+                  </p>
+                  <div class="mt-3">
+                    <a
+                      href="{{ url_for('attendance.current_day') }}"
+                      class="btn btn-outline-primary btn-sm me-2"
+                      >View</a
+                    ><a
+                      href="#"
+                      id="generate-current-day"
+                      class="btn btn-primary btn-sm"
+                      >Generate</a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6 mb-3">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Daily Reporting Process</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 text-center mb-3 mb-md-0">
+              <div
+                class="process-step d-inline-block p-3 rounded-circle bg-primary bg-opacity-25 mb-2"
+              >
+                <i class="bi bi-file-earmark-spreadsheet fs-3"></i>
+              </div>
+              <h5 class="mt-2">Data Input</h5>
+              <p class="text-muted small">Activity Detail + Driving History</p>
+            </div>
+            <div class="col-md-3 text-center mb-3 mb-md-0">
+              <div
+                class="process-step d-inline-block p-3 rounded-circle bg-primary bg-opacity-25 mb-2"
+              >
+                <i class="bi bi-clock-history fs-3"></i>
+              </div>
+              <h5 class="mt-2">Schedule</h5>
+              <p class="text-muted small">8:30 AM & 9:30 AM Daily</p>
+            </div>
+            <div class="col-md-3 text-center mb-3 mb-md-0">
+              <div
+                class="process-step d-inline-block p-3 rounded-circle bg-primary bg-opacity-25 mb-2"
+              >
+                <i class="bi bi-check-circle fs-3"></i>
+              </div>
+              <h5 class="mt-2">Validation</h5>
+              <p class="text-muted small">Geofence & Time Validation</p>
+            </div>
+            <div class="col-md-3 text-center">
+              <div
+                class="process-step d-inline-block p-3 rounded-circle bg-primary bg-opacity-25 mb-2"
+              >
+                <i class="bi bi-file-earmark-arrow-down fs-3"></i>
+              </div>
+              <h5 class="mt-2">Reports</h5>
+              <p class="text-muted small">Excel Reports Generated</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <h5 class="card-title mb-0">Recent Reports</h5>
+          <a
+            href="{{ url_for('attendance.history') }}"
+            class="btn btn-sm btn-outline-primary"
+            >View All</a
+          >
+        </div>
+        <div class="card-body">
+          {% if report_history %}
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Report Type</th>
+                  <th>Created</th>
+                  <th>Size</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for date_item in report_history %} {% for report in
+                date_item.files %}
+                <tr>
+                  <td>{{ date_item.date }}</td>
+                  <td>{{ report.type }}</td>
+                  <td>{{ report.created.strftime('%H:%M:%S') }}</td>
+                  <td>{{ (report.size / 1024)|round|int }} KB</td>
+                  <td>
+                    <a
+                      href="{{ url_for('attendance.download_report', filename=date_item.date + '/' + report.filename) }}"
+                      class="btn btn-sm btn-outline-primary"
+                      ><i class="bi bi-download me-1"></i>Download
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %} {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="alert alert-info">
+            No reports have been generated yet. Use the buttons above to
+            generate reports.
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-{% endif %}
-</div></div></div></div></div>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-// Generate prior day report
-document.getElementById('generate-prior-day').addEventListener('click', function(e) {
-e.preventDefault();
-// Show loading indicator
-this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...';
-this.disabled = true;
+  document.addEventListener("DOMContentLoaded", function () {
+    // Generate prior day report
+    document
+      .getElementById("generate-prior-day")
+      .addEventListener("click", function (e) {
+        e.preventDefault();
+        // Show loading indicator
+        this.innerHTML =
+          '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...';
+        this.disabled = true;
 
-// Make API request
-fetch('/attendance/api/generate-prior-day')
-.then(response => response.json())
-.then(data => {
-if (data.status === 'success') {
-// Reload the page to show the new report
-window.location.reload();
-} else {
-alert('Error generating report: ' + (data.message || 'Unknown error'));
-this.innerHTML = 'Generate';
-this.disabled = false;
-}
-})
-.catch(error => {
-console.error('Error:', error);
-alert('Error generating report: ' + error);
-this.innerHTML = 'Generate';
-this.disabled = false;
-});
-});
+        // Make API request
+        fetch("/attendance/api/generate-prior-day")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              // Reload the page to show the new report
+              window.location.reload();
+            } else {
+              alert(
+                "Error generating report: " + (data.message || "Unknown error"),
+              );
+              this.innerHTML = "Generate";
+              this.disabled = false;
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Error generating report: " + error);
+            this.innerHTML = "Generate";
+            this.disabled = false;
+          });
+      });
 
-// Generate current day report
-document.getElementById('generate-current-day').addEventListener('click', function(e) {
-e.preventDefault();
-// Show loading indicator
-this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...';
-this.disabled = true;
+    // Generate current day report
+    document
+      .getElementById("generate-current-day")
+      .addEventListener("click", function (e) {
+        e.preventDefault();
+        // Show loading indicator
+        this.innerHTML =
+          '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...';
+        this.disabled = true;
 
-// Make API request
-fetch('/attendance/api/generate-current-day')
-.then(response => response.json())
-.then(data => {
-if (data.status === 'success') {
-// Reload the page to show the new report
-window.location.reload();
-} else {
-alert('Error generating report: ' + (data.message || 'Unknown error'));
-this.innerHTML = 'Generate';
-this.disabled = false;
-}
-})
-.catch(error => {
-console.error('Error:', error);
-alert('Error generating report: ' + error);
-this.innerHTML = 'Generate';
-this.disabled = false;
-});
-});
+        // Make API request
+        fetch("/attendance/api/generate-current-day")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              // Reload the page to show the new report
+              window.location.reload();
+            } else {
+              alert(
+                "Error generating report: " + (data.message || "Unknown error"),
+              );
+              this.innerHTML = "Generate";
+              this.disabled = false;
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Error generating report: " + error);
+            this.innerHTML = "Generate";
+            this.disabled = false;
+          });
+      });
 
-// Generate all reports
-document.getElementById('generate-all-reports').addEventListener('click', function(e) {
-e.preventDefault();
-// Show loading indicator
-this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...';
-this.disabled = true;
+    // Generate all reports
+    document
+      .getElementById("generate-all-reports")
+      .addEventListener("click", function (e) {
+        e.preventDefault();
+        // Show loading indicator
+        this.innerHTML =
+          '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...';
+        this.disabled = true;
 
-// Make API request
-fetch('/attendance/api/run-daily-reports')
-.then(response => response.json())
-.then(data => {
-// Check if all reports were successful
-const allSuccessful = Object.values(data).every(report => report.status === 'success');
+        // Make API request
+        fetch("/attendance/api/run-daily-reports")
+          .then((response) => response.json())
+          .then((data) => {
+            // Check if all reports were successful
+            const allSuccessful = Object.values(data).every(
+              (report) => report.status === "success",
+            );
 
-if (allSuccessful) {
-// Reload the page to show the new reports
-window.location.reload();
-} else {
-alert('Some reports failed to generate. Please check the server logs.');
-this.innerHTML = 'Generate All';
-this.disabled = false;
-}
-})
-.catch(error => {
-console.error('Error:', error);
-alert('Error generating reports: ' + error);
-this.innerHTML = 'Generate All';
-this.disabled = false;
-});
-});
-});
+            if (allSuccessful) {
+              // Reload the page to show the new reports
+              window.location.reload();
+            } else {
+              alert(
+                "Some reports failed to generate. Please check the server logs.",
+              );
+              this.innerHTML = "Generate All";
+              this.disabled = false;
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Error generating reports: " + error);
+            this.innerHTML = "Generate All";
+            this.disabled = false;
+          });
+      });
+  });
 </script>
 {% endblock %}

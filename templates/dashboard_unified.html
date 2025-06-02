@@ -1,146 +1,170 @@
-{% extends "base.html" %}
-
-{% block title %}TRAXOVO Fleet Operations{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='mobile-responsive.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='smooth-transitions.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='asset-tooltips.css') }}">
+{% extends "base.html" %} {% block title %}TRAXOVO Fleet Operations{% endblock
+%} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='mobile-responsive.css') }}"
+/>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='smooth-transitions.css') }}"
+/>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='asset-tooltips.css') }}"
+/>
 <style>
-/* Clean Professional UI - Based on JDD Design */
-body {
+  /* Clean Professional UI - Based on JDD Design */
+  body {
     background: #f5f6fa;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family:
+      "Segoe UI",
+      system-ui,
+      -apple-system,
+      sans-serif;
     color: #2c3e50;
-}
+  }
 
-.main-header {
+  .main-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 2rem 0;
     margin-bottom: 2rem;
-}
+  }
 
-.header-content {
+  .header-content {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
-}
+  }
 
-.header-title {
+  .header-title {
     font-size: 2.5rem;
     font-weight: 700;
     margin: 0 0 0.5rem 0;
-}
+  }
 
-.header-subtitle {
+  .header-subtitle {
     font-size: 1.1rem;
     opacity: 0.9;
     margin: 0;
-}
+  }
 
-.dashboard-container {
+  .dashboard-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem 4rem 2rem;
-}
+  }
 
-/* Quick Stats Grid */
-.stats-grid {
+  /* Quick Stats Grid */
+  .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
     margin-bottom: 3rem;
-}
+  }
 
-.stat-card {
+  .stat-card {
     background: white;
     border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
     border-left: 4px solid #3498db;
     transition: all 0.3s ease;
-}
+  }
 
-.stat-card:hover {
+  .stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-}
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
 
-.stat-card.success { border-left-color: #27ae60; }
-.stat-card.warning { border-left-color: #f39c12; }
-.stat-card.danger { border-left-color: #e74c3c; }
+  .stat-card.success {
+    border-left-color: #27ae60;
+  }
+  .stat-card.warning {
+    border-left-color: #f39c12;
+  }
+  .stat-card.danger {
+    border-left-color: #e74c3c;
+  }
 
-.stat-value {
+  .stat-value {
     font-size: 2.2rem;
     font-weight: 700;
     color: #2c3e50;
     margin-bottom: 0.5rem;
-}
+  }
 
-.stat-label {
+  .stat-label {
     color: #7f8c8d;
     font-size: 0.9rem;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-}
+  }
 
-/* Module Grid */
-.modules-grid {
+  /* Module Grid */
+  .modules-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
-}
+  }
 
-.module-card {
+  .module-card {
     background: white;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
     transition: all 0.3s ease;
-}
+  }
 
-.module-card:hover {
+  .module-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
-}
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  }
 
-.module-header {
+  .module-header {
     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     color: white;
     padding: 1.5rem;
     position: relative;
-}
+  }
 
-.module-header.fleet { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.module-header.billing { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-.module-header.automation { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-.module-header.analytics { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+  .module-header.fleet {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  .module-header.billing {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+  .module-header.automation {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  }
+  .module-header.analytics {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  }
 
-.module-title {
+  .module-title {
     font-size: 1.3rem;
     font-weight: 600;
     margin: 0 0 0.5rem 0;
-}
+  }
 
-.module-subtitle {
+  .module-subtitle {
     opacity: 0.9;
     font-size: 0.9rem;
     margin: 0;
-}
+  }
 
-.module-content {
+  .module-content {
     padding: 1.5rem;
-}
+  }
 
-.module-actions {
+  .module-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-}
+  }
 
-.btn-module {
+  .btn-module {
     padding: 0.6rem 1.2rem;
     border-radius: 6px;
     text-decoration: none;
@@ -149,43 +173,43 @@ body {
     border: none;
     cursor: pointer;
     font-size: 0.9rem;
-}
+  }
 
-.btn-primary {
+  .btn-primary {
     background: #3498db;
     color: white;
-}
+  }
 
-.btn-primary:hover {
+  .btn-primary:hover {
     background: #2980b9;
     color: white;
     text-decoration: none;
-}
+  }
 
-.btn-success {
+  .btn-success {
     background: #27ae60;
     color: white;
-}
+  }
 
-.btn-success:hover {
+  .btn-success:hover {
     background: #229954;
     color: white;
     text-decoration: none;
-}
+  }
 
-.btn-info {
+  .btn-info {
     background: #17a2b8;
     color: white;
-}
+  }
 
-.btn-info:hover {
+  .btn-info:hover {
     background: #138496;
     color: white;
     text-decoration: none;
-}
+  }
 
-/* Status Indicators */
-.status-badge {
+  /* Status Indicators */
+  .status-badge {
     display: inline-flex;
     align-items: center;
     padding: 0.25rem 0.75rem;
@@ -193,171 +217,226 @@ body {
     font-size: 0.8rem;
     font-weight: 600;
     margin-left: 0.5rem;
-}
+  }
 
-.status-online { background: #d4edda; color: #155724; }
-.status-warning { background: #fff3cd; color: #856404; }
-.status-error { background: #f8d7da; color: #721c24; }
+  .status-online {
+    background: #d4edda;
+    color: #155724;
+  }
+  .status-warning {
+    background: #fff3cd;
+    color: #856404;
+  }
+  .status-error {
+    background: #f8d7da;
+    color: #721c24;
+  }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
-    .header-title { font-size: 2rem; }
-    .stats-grid { grid-template-columns: 1fr; gap: 1rem; }
-    .modules-grid { grid-template-columns: 1fr; gap: 1.5rem; }
-    .dashboard-container { padding: 0 1rem 2rem 1rem; }
-    .module-actions { flex-direction: column; }
-}
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .header-title {
+      font-size: 2rem;
+    }
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .modules-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .dashboard-container {
+      padding: 0 1rem 2rem 1rem;
+    }
+    .module-actions {
+      flex-direction: column;
+    }
+  }
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <div class="main-header">
-    <div class="header-content">
-        <h1 class="header-title">TRAXOVO Fleet Operations</h1>
-        <p class="header-subtitle">Enterprise Fleet Management with Real-Time Intelligence</p>
-    </div>
+  <div class="header-content">
+    <h1 class="header-title">TRAXOVO Fleet Operations</h1>
+    <p class="header-subtitle">
+      Enterprise Fleet Management with Real-Time Intelligence
+    </p>
+  </div>
 </div>
 
 <div class="dashboard-container">
-    <!-- Quick Stats -->
-    <div class="stats-grid">
-        <div class="stat-card success">
-            <div class="stat-value" id="total-assets">{{ metrics.total_assets or 717 }}</div>
-            <div class="stat-label">Total Fleet Assets</div>
+  <!-- Quick Stats -->
+  <div class="stats-grid">
+    <div class="stat-card success">
+      <div class="stat-value" id="total-assets">
+        {{ metrics.total_assets or 717 }}
+      </div>
+      <div class="stat-label">Total Fleet Assets</div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-value" id="active-assets">
+        {{ metrics.active_assets or 614 }}
+      </div>
+      <div class="stat-label">Active Equipment</div>
+    </div>
+    <div class="stat-card warning">
+      <div class="stat-value" id="gps-enabled">
+        {{ metrics.gps_enabled or 156 }}
+      </div>
+      <div class="stat-label">GPS Tracking</div>
+    </div>
+    <div class="stat-card info">
+      <div class="stat-value" id="categories">
+        {{ metrics.equipment_categories or 56 }}
+      </div>
+      <div class="stat-label">Equipment Types</div>
+    </div>
+  </div>
+
+  <!-- Core Modules -->
+  <div class="modules-grid">
+    <!-- Fleet Operations -->
+    <div class="module-card">
+      <div class="module-header fleet">
+        <h3 class="module-title">Fleet Operations</h3>
+        <p class="module-subtitle">Real-time asset tracking & management</p>
+      </div>
+      <div class="module-content">
+        <div class="module-actions">
+          <a href="/fleet-map" class="btn-module btn-primary">Asset Map</a>
+          <a href="/asset-manager" class="btn-module btn-success"
+            >Asset Manager</a
+          >
+          <a href="/attendance-matrix" class="btn-module btn-info"
+            >Driver Attendance</a
+          >
         </div>
-        <div class="stat-card success">
-            <div class="stat-value" id="active-assets">{{ metrics.active_assets or 614 }}</div>
-            <div class="stat-label">Active Equipment</div>
-        </div>
-        <div class="stat-card warning">
-            <div class="stat-value" id="gps-enabled">{{ metrics.gps_enabled or 156 }}</div>
-            <div class="stat-label">GPS Tracking</div>
-        </div>
-        <div class="stat-card info">
-            <div class="stat-value" id="categories">{{ metrics.equipment_categories or 56 }}</div>
-            <div class="stat-label">Equipment Types</div>
-        </div>
+      </div>
     </div>
 
-    <!-- Core Modules -->
-    <div class="modules-grid">
-        <!-- Fleet Operations -->
-        <div class="module-card">
-            <div class="module-header fleet">
-                <h3 class="module-title">Fleet Operations</h3>
-                <p class="module-subtitle">Real-time asset tracking & management</p>
-            </div>
-            <div class="module-content">
-                <div class="module-actions">
-                    <a href="/fleet-map" class="btn-module btn-primary">Asset Map</a>
-                    <a href="/asset-manager" class="btn-module btn-success">Asset Manager</a>
-                    <a href="/attendance-matrix" class="btn-module btn-info">Driver Attendance</a>
-                </div>
-            </div>
+    <!-- Billing Intelligence -->
+    <div class="module-card">
+      <div class="module-header billing">
+        <h3 class="module-title">Billing Intelligence</h3>
+        <p class="module-subtitle">Automated billing & revenue tracking</p>
+      </div>
+      <div class="module-content">
+        <div class="module-actions">
+          <a href="/billing" class="btn-module btn-primary"
+            >Billing Dashboard</a
+          >
+          <a href="/equipment-billing" class="btn-module btn-success"
+            >Equipment Billing</a
+          >
+          <a href="/executive-reports" class="btn-module btn-info"
+            >Executive Reports</a
+          >
         </div>
-
-        <!-- Billing Intelligence -->
-        <div class="module-card">
-            <div class="module-header billing">
-                <h3 class="module-title">Billing Intelligence</h3>
-                <p class="module-subtitle">Automated billing & revenue tracking</p>
-            </div>
-            <div class="module-content">
-                <div class="module-actions">
-                    <a href="/billing" class="btn-module btn-primary">Billing Dashboard</a>
-                    <a href="/equipment-billing" class="btn-module btn-success">Equipment Billing</a>
-                    <a href="/executive-reports" class="btn-module btn-info">Executive Reports</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Automation Workflows -->
-        <div class="module-card">
-            <div class="module-header automation">
-                <h3 class="module-title">Automation Workflows</h3>
-                <p class="module-subtitle">Intelligent process automation</p>
-            </div>
-            <div class="module-content">
-                <div class="module-actions">
-                    <a href="/automated-workflows" class="btn-module btn-primary">Workflow Manager</a>
-                    <a href="/ai-assistant" class="btn-module btn-success">AI Assistant</a>
-                    <a href="/workflow-optimization" class="btn-module btn-info">Optimization</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Analytics & Intelligence -->
-        <div class="module-card">
-            <div class="module-header analytics">
-                <h3 class="module-title">Analytics & Intelligence</h3>
-                <p class="module-subtitle">Advanced fleet analytics & insights</p>
-            </div>
-            <div class="module-content">
-                <div class="module-actions">
-                    <a href="/fleet-analytics" class="btn-module btn-primary">Fleet Analytics</a>
-                    <a href="/performance-metrics" class="btn-module btn-success">Performance Metrics</a>
-                    <a href="/project-accountability" class="btn-module btn-info">Project Tracking</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- System Administration -->
-        <div class="module-card">
-            <div class="module-header">
-                <h3 class="module-title">System Administration</h3>
-                <p class="module-subtitle">System health & configuration</p>
-                <span class="status-badge status-online">All Systems Online</span>
-            </div>
-            <div class="module-content">
-                <div class="module-actions">
-                    <a href="/system-admin" class="btn-module btn-primary">Admin Console</a>
-                    <a href="/system-health" class="btn-module btn-info">System Health</a>
-                    <a href="/kaizen" class="btn-module btn-success">Kaizen Optimization</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Innovation Hub -->
-        <div class="module-card">
-            <div class="module-header">
-                <h3 class="module-title">Innovation Hub</h3>
-                <p class="module-subtitle">AI training & development tools</p>
-            </div>
-            <div class="module-content">
-                <div class="module-actions">
-                    <a href="/ai-training" class="btn-module btn-primary">AI Training</a>
-                    <a href="/idea-box" class="btn-module btn-success">Idea Box</a>
-                    <a href="/industry-news" class="btn-module btn-info">Industry News</a>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+
+    <!-- Automation Workflows -->
+    <div class="module-card">
+      <div class="module-header automation">
+        <h3 class="module-title">Automation Workflows</h3>
+        <p class="module-subtitle">Intelligent process automation</p>
+      </div>
+      <div class="module-content">
+        <div class="module-actions">
+          <a href="/automated-workflows" class="btn-module btn-primary"
+            >Workflow Manager</a
+          >
+          <a href="/ai-assistant" class="btn-module btn-success"
+            >AI Assistant</a
+          >
+          <a href="/workflow-optimization" class="btn-module btn-info"
+            >Optimization</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics & Intelligence -->
+    <div class="module-card">
+      <div class="module-header analytics">
+        <h3 class="module-title">Analytics & Intelligence</h3>
+        <p class="module-subtitle">Advanced fleet analytics & insights</p>
+      </div>
+      <div class="module-content">
+        <div class="module-actions">
+          <a href="/fleet-analytics" class="btn-module btn-primary"
+            >Fleet Analytics</a
+          >
+          <a href="/performance-metrics" class="btn-module btn-success"
+            >Performance Metrics</a
+          >
+          <a href="/project-accountability" class="btn-module btn-info"
+            >Project Tracking</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- System Administration -->
+    <div class="module-card">
+      <div class="module-header">
+        <h3 class="module-title">System Administration</h3>
+        <p class="module-subtitle">System health & configuration</p>
+        <span class="status-badge status-online">All Systems Online</span>
+      </div>
+      <div class="module-content">
+        <div class="module-actions">
+          <a href="/system-admin" class="btn-module btn-primary"
+            >Admin Console</a
+          >
+          <a href="/system-health" class="btn-module btn-info">System Health</a>
+          <a href="/kaizen" class="btn-module btn-success"
+            >Kaizen Optimization</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Innovation Hub -->
+    <div class="module-card">
+      <div class="module-header">
+        <h3 class="module-title">Innovation Hub</h3>
+        <p class="module-subtitle">AI training & development tools</p>
+      </div>
+      <div class="module-content">
+        <div class="module-actions">
+          <a href="/ai-training" class="btn-module btn-primary">AI Training</a>
+          <a href="/idea-box" class="btn-module btn-success">Idea Box</a>
+          <a href="/industry-news" class="btn-module btn-info">Industry News</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script src="{{ url_for('static', filename='dashboard-metrics.js') }}"></script>
 <script src="{{ url_for('static', filename='asset-tooltips.js') }}"></script>
 <script src="{{ url_for('static', filename='mobile-optimization.js') }}"></script>
 <script>
-// Auto-refresh metrics every 30 seconds
-setInterval(function() {
-    if (typeof updateDashboardMetrics === 'function') {
-        updateDashboardMetrics();
+  // Auto-refresh metrics every 30 seconds
+  setInterval(function () {
+    if (typeof updateDashboardMetrics === "function") {
+      updateDashboardMetrics();
     }
-}, 30000);
+  }, 30000);
 
-// Module status checks
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('TRAXOVO Unified Dashboard loaded with authentic GAUGE data');
-    
+  // Module status checks
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log("TRAXOVO Unified Dashboard loaded with authentic GAUGE data");
+
     // Initialize performance monitoring
     if (window.performance && window.performance.timing) {
-        const loadTime = window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
-        if (loadTime > 0) {
-            console.log('Dashboard load time: ' + loadTime + 'ms');
-        }
+      const loadTime =
+        window.performance.timing.loadEventEnd -
+        window.performance.timing.navigationStart;
+      if (loadTime > 0) {
+        console.log("Dashboard load time: " + loadTime + "ms");
+      }
     }
-});
+  });
 </script>
 {% endblock %}

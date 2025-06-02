@@ -1,190 +1,502 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Workflow Optimization Wizard - TRAXOVO</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet"><style>
-.wizard-container {
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-min-height: 100vh;
-padding: 2rem 0;
-}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Workflow Optimization Wizard - TRAXOVO</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      .wizard-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+      }
 
-.wizard-card {
-background: rgba(255, 255, 255, 0.95);
-border-radius: 20px;
-box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-overflow: hidden;
-}
+      .wizard-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
 
-.wizard-header {
-background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-color: white;
-padding: 2rem;
-text-align: center;
-}
+      .wizard-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+      }
 
-.pattern-card {
-border: none;
-border-radius: 15px;
-box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-transition: transform 0.3s ease, box-shadow 0.3s ease;
-margin-bottom: 1.5rem;
-}
+      .pattern-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+        margin-bottom: 1.5rem;
+      }
 
-.pattern-card:hover {
-transform: translateY(-5px);
-box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-}
+      .pattern-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+      }
 
-.pattern-header {
-background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-color: white;
-padding: 1rem;
-border-radius: 15px 15px 0 0;
-}
+      .pattern-header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 15px 15px 0 0;
+      }
 
-.workflow-timeline {
-background: #f8f9fa;
-border-radius: 15px;
-padding: 1.5rem;
-margin: 1rem 0;
-}
+      .workflow-timeline {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+      }
 
-.timeline-item {
-border-left: 3px solid #007bff;
-padding-left: 1rem;
-margin-bottom: 1rem;
-position: relative;
-}
+      .timeline-item {
+        border-left: 3px solid #007bff;
+        padding-left: 1rem;
+        margin-bottom: 1rem;
+        position: relative;
+      }
 
-.timeline-item::before {
-content: '';
-position: absolute;
-left: -8px;
-top: 5px;
-width: 12px;
-height: 12px;
-border-radius: 50%;
-background: #007bff;
-}
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: -8px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #007bff;
+      }
 
-.recommendation-badge {
-padding: 0.5rem 1rem;
-border-radius: 20px;
-font-size: 0.9rem;
-font-weight: 600;
-margin: 0.25rem;
-display: inline-block;
-}
+      .recommendation-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 0.25rem;
+        display: inline-block;
+      }
 
-.priority-high { background: #ffebee; color: #c62828; }
-.priority-medium { background: #fff3e0; color: #ef6c00; }
-.priority-low { background: #e8f5e8; color: #2e7d32; }
+      .priority-high {
+        background: #ffebee;
+        color: #c62828;
+      }
+      .priority-medium {
+        background: #fff3e0;
+        color: #ef6c00;
+      }
+      .priority-low {
+        background: #e8f5e8;
+        color: #2e7d32;
+      }
 
-.metric-display {
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-color: white;
-padding: 1.5rem;
-border-radius: 15px;
-text-align: center;
-margin: 1rem 0;
-}
+      .metric-display {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        text-align: center;
+        margin: 1rem 0;
+      }
 
-.tab-content {
-padding: 2rem;
-}
+      .tab-content {
+        padding: 2rem;
+      }
 
-.nav-pills .nav-link {
-border-radius: 20px;
-margin: 0 0.25rem;
-}
+      .nav-pills .nav-link {
+        border-radius: 20px;
+        margin: 0 0.25rem;
+      }
 
-.nav-pills .nav-link.active {
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-</style></head><body><div class="wizard-container"><div class="container"><div class="row justify-content-center"><div class="col-lg-10"><div class="wizard-card"><div class="wizard-header"><h1><i class="bi bi-gear-fill me-3"></i>Workflow Optimization Wizard</h1><p class="mb-0">Personalized optimization based on your Foundation operational data</p></div><div class="p-3 border-bottom"><ul class="nav nav-pills justify-content-center" id="wizardTabs" role="tablist"><li class="nav-item" role="presentation"><button class="nav-link active" id="analysis-tab" data-bs-toggle="pill" data-bs-target="#analysis" type="button"><i class="bi bi-graph-up me-2"></i>Analysis
-</button></li><li class="nav-item" role="presentation"><button class="nav-link" id="workflows-tab" data-bs-toggle="pill" data-bs-target="#workflows" type="button"><i class="bi bi-calendar-check me-2"></i>Workflows
-</button></li><li class="nav-item" role="presentation"><button class="nav-link" id="recommendations-tab" data-bs-toggle="pill" data-bs-target="#recommendations" type="button"><i class="bi bi-lightbulb me-2"></i>Recommendations
-</button></li></ul></div><div class="tab-content" id="wizardTabContent"><div class="tab-pane fade show active" id="analysis" role="tabpanel"><h3 class="text-center mb-4">Operational Pattern Analysis</h3><div class="row"><div class="col-md-6"><div class="pattern-card card"><div class="pattern-header"><h5><i class="bi bi-truck me-2"></i>Equipment Utilization</h5></div><div class="card-body">
-{% if patterns.equipment_utilization.high_utilization_assets %}
-<h6 class="text-success">High Utilization Assets ({{ patterns.equipment_utilization.high_utilization_assets|length }})</h6><ul class="list-unstyled">
-{% for asset in patterns.equipment_utilization.high_utilization_assets[:3] %}
-<li><i class="bi bi-check-circle text-success me-2"></i>{{ asset.equipment_id }} ({{ "%.1f"|format(asset.utilization) }}%)</li>
-{% endfor %}
-</ul>
-{% endif %}
-
-{% if patterns.equipment_utilization.underutilized_assets %}
-<h6 class="text-warning">Underutilized Assets ({{ patterns.equipment_utilization.underutilized_assets|length }})</h6><ul class="list-unstyled">
-{% for asset in patterns.equipment_utilization.underutilized_assets[:3] %}
-<li><i class="bi bi-exclamation-triangle text-warning me-2"></i>{{ asset.equipment_id }} ({{ "%.1f"|format(asset.utilization) }}%)</li>
-{% endfor %}
-</ul>
-{% endif %}
-</div></div></div><div class="col-md-6"><div class="pattern-card card"><div class="pattern-header"><h5><i class="bi bi-people me-2"></i>Driver Efficiency</h5></div><div class="card-body">
-{% if patterns.driver_efficiency.driver_workload %}
-<h6>Driver Assignments</h6>
-{% for driver, count in patterns.driver_efficiency.driver_workload.items() %}
-{% if loop.index <= 5 %}
-<div class="d-flex justify-content-between align-items-center mb-2"><span>{{ driver }}</span><span class="badge bg-primary">{{ count }} assets</span></div>
-{% endif %}
-{% endfor %}
-{% endif %}
-</div></div></div></div><div class="row mt-4"><div class="col-md-6"><div class="pattern-card card"><div class="pattern-header"><h5><i class="bi bi-tools me-2"></i>Maintenance Patterns</h5></div><div class="card-body">
-{% if patterns.maintenance_optimization.high_maintenance_equipment %}
-<h6>High Maintenance Equipment</h6>
-{% for eq in patterns.maintenance_optimization.high_maintenance_equipment[:3] %}
-<div class="mb-2"><strong>{{ eq.equipment_id }}</strong><br><small class="text-muted">{{ eq.frequency }} work orders | ${{ "{:,.0f}"|format(eq.total_cost) }} total cost</small></div>
-{% endfor %}
-{% endif %}
-</div></div></div><div class="col-md-6"><div class="pattern-card card"><div class="pattern-header"><h5><i class="bi bi-graph-up me-2"></i>Revenue Analysis</h5></div><div class="card-body">
-{% if patterns.revenue_optimization.revenue_trends %}
-{% for company, trend in patterns.revenue_optimization.revenue_trends.items() %}
-<div class="mb-3"><h6 class="text-capitalize">{{ company }}</h6><div class="metric-display"><h4>${{ "{:,.0f}"|format(trend.average_monthly) }}</h4><small>Average Monthly Revenue</small></div></div>
-{% endfor %}
-{% endif %}
-</div></div></div></div></div><div class="tab-pane fade" id="workflows" role="tabpanel"><h3 class="text-center mb-4">Personalized Workflows</h3><div class="row"><div class="col-lg-6 mb-4"><div class="card"><div class="card-header bg-primary text-white"><h5><i class="bi bi-sun me-2"></i>{{ workflows.daily_optimization.name }}</h5><small>{{ workflows.daily_optimization.estimated_time }}</small></div><div class="card-body"><p>{{ workflows.daily_optimization.description }}</p><div class="workflow-timeline">
-{% for task in workflows.daily_optimization.tasks %}
-<div class="timeline-item"><strong>{{ task.time }}</strong> - {{ task.task }}<br><small class="text-muted">{{ task.action }}</small><span class="recommendation-badge priority-{{ task.priority.lower() }}">{{ task.priority }}</span></div>
-{% endfor %}
-</div></div></div></div><div class="col-lg-6 mb-4"><div class="card"><div class="card-header bg-success text-white"><h5><i class="bi bi-calendar-week me-2"></i>{{ workflows.weekly_planning.name }}</h5></div><div class="card-body"><p>{{ workflows.weekly_planning.description }}</p><div class="workflow-timeline">
-{% for task in workflows.weekly_planning.tasks %}
-<div class="timeline-item"><strong>{{ task.day }}</strong> - {{ task.task }}<br><small class="text-muted">{{ task.action }}</small><br><small class="badge bg-info">{{ task.data_source }}</small></div>
-{% endfor %}
-</div></div></div></div></div><div class="row"><div class="col-lg-6 mb-4"><div class="card"><div class="card-header bg-warning text-white"><h5><i class="bi bi-calendar-month me-2"></i>{{ workflows.monthly_review.name }}</h5></div><div class="card-body"><p>{{ workflows.monthly_review.description }}</p>
-{% for task in workflows.monthly_review.tasks %}
-<div class="mb-3 p-3 bg-light rounded"><h6>{{ task.week }} - {{ task.task }}</h6><p class="mb-2">{{ task.action }}</p><div>
-{% for metric in task.metrics %}
-<span class="badge bg-secondary me-1">{{ metric }}</span>
-{% endfor %}
-</div></div>
-{% endfor %}
-</div></div></div><div class="col-lg-6 mb-4"><div class="card"><div class="card-header bg-dark text-white"><h5><i class="bi bi-calendar4-range me-2"></i>{{ workflows.quarterly_strategy.name }}</h5></div><div class="card-body"><p>{{ workflows.quarterly_strategy.description }}</p>
-{% for objective in workflows.quarterly_strategy.objectives %}
-<div class="mb-3 p-3 border rounded"><h6 class="text-primary">{{ objective.category }}</h6><p><strong>{{ objective.objective }}</strong></p><ul class="list-unstyled">
-{% for action in objective.actions %}
-<li><i class="bi bi-arrow-right me-2"></i>{{ action }}</li>
-{% endfor %}
-</ul></div>
-{% endfor %}
-</div></div></div></div></div><div class="tab-pane fade" id="recommendations" role="tabpanel"><h3 class="text-center mb-4">Optimization Recommendations</h3><div class="row">
-{% set all_recommendations = [] %}
-{% for category, data in patterns.items() %}
-{% if data.recommendations %}
-{% for rec in data.recommendations %}
-{% set _ = all_recommendations.append(rec) %}
-{% endfor %}
-{% endif %}
-{% endfor %}
-
-{% for rec in all_recommendations %}
-<div class="col-lg-6 mb-4"><div class="card h-100"><div class="card-header d-flex justify-content-between align-items-center"><h6 class="mb-0">{{ rec.category }}</h6><span class="recommendation-badge priority-{{ rec.priority.lower() }}">{{ rec.priority }}</span></div><div class="card-body"><h6>{{ rec.action }}</h6>
-{% if rec.potential_savings %}
-<div class="metric-display"><h5>{{ rec.potential_savings }}</h5><small>Potential Savings</small></div>
-{% elif rec.potential_increase %}
-<div class="metric-display"><h5>{{ rec.potential_increase }}</h5><small>Potential Increase</small></div>
-{% elif rec.potential_benefit %}
-<div class="alert alert-info"><i class="bi bi-info-circle me-2"></i>{{ rec.potential_benefit }}
-</div>
-{% elif rec.target_improvement %}
-<div class="metric-display"><h6>{{ rec.target_improvement }}</h6><small>Target Improvement</small></div>
-{% endif %}
-</div></div></div>
-{% endfor %}
-</div></div></div></div></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script></body></html>
+      .nav-pills .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wizard-container">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <div class="wizard-card">
+              <div class="wizard-header">
+                <h1>
+                  <i class="bi bi-gear-fill me-3"></i>Workflow Optimization
+                  Wizard
+                </h1>
+                <p class="mb-0">
+                  Personalized optimization based on your Foundation operational
+                  data
+                </p>
+              </div>
+              <div class="p-3 border-bottom">
+                <ul
+                  class="nav nav-pills justify-content-center"
+                  id="wizardTabs"
+                  role="tablist"
+                >
+                  <li class="nav-item" role="presentation">
+                    <button
+                      class="nav-link active"
+                      id="analysis-tab"
+                      data-bs-toggle="pill"
+                      data-bs-target="#analysis"
+                      type="button"
+                    >
+                      <i class="bi bi-graph-up me-2"></i>Analysis
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button
+                      class="nav-link"
+                      id="workflows-tab"
+                      data-bs-toggle="pill"
+                      data-bs-target="#workflows"
+                      type="button"
+                    >
+                      <i class="bi bi-calendar-check me-2"></i>Workflows
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button
+                      class="nav-link"
+                      id="recommendations-tab"
+                      data-bs-toggle="pill"
+                      data-bs-target="#recommendations"
+                      type="button"
+                    >
+                      <i class="bi bi-lightbulb me-2"></i>Recommendations
+                    </button>
+                  </li>
+                </ul>
+              </div>
+              <div class="tab-content" id="wizardTabContent">
+                <div
+                  class="tab-pane fade show active"
+                  id="analysis"
+                  role="tabpanel"
+                >
+                  <h3 class="text-center mb-4">Operational Pattern Analysis</h3>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="pattern-card card">
+                        <div class="pattern-header">
+                          <h5>
+                            <i class="bi bi-truck me-2"></i>Equipment
+                            Utilization
+                          </h5>
+                        </div>
+                        <div class="card-body">
+                          {% if
+                          patterns.equipment_utilization.high_utilization_assets
+                          %}
+                          <h6 class="text-success">
+                            High Utilization Assets ({{
+                            patterns.equipment_utilization.high_utilization_assets|length
+                            }})
+                          </h6>
+                          <ul class="list-unstyled">
+                            {% for asset in
+                            patterns.equipment_utilization.high_utilization_assets[:3]
+                            %}
+                            <li>
+                              <i
+                                class="bi bi-check-circle text-success me-2"
+                              ></i
+                              >{{ asset.equipment_id }} ({{
+                              "%.1f"|format(asset.utilization) }}%)
+                            </li>
+                            {% endfor %}
+                          </ul>
+                          {% endif %} {% if
+                          patterns.equipment_utilization.underutilized_assets %}
+                          <h6 class="text-warning">
+                            Underutilized Assets ({{
+                            patterns.equipment_utilization.underutilized_assets|length
+                            }})
+                          </h6>
+                          <ul class="list-unstyled">
+                            {% for asset in
+                            patterns.equipment_utilization.underutilized_assets[:3]
+                            %}
+                            <li>
+                              <i
+                                class="bi bi-exclamation-triangle text-warning me-2"
+                              ></i
+                              >{{ asset.equipment_id }} ({{
+                              "%.1f"|format(asset.utilization) }}%)
+                            </li>
+                            {% endfor %}
+                          </ul>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="pattern-card card">
+                        <div class="pattern-header">
+                          <h5>
+                            <i class="bi bi-people me-2"></i>Driver Efficiency
+                          </h5>
+                        </div>
+                        <div class="card-body">
+                          {% if patterns.driver_efficiency.driver_workload %}
+                          <h6>Driver Assignments</h6>
+                          {% for driver, count in
+                          patterns.driver_efficiency.driver_workload.items() %}
+                          {% if loop.index <= 5 %}
+                          <div
+                            class="d-flex justify-content-between align-items-center mb-2"
+                          >
+                            <span>{{ driver }}</span
+                            ><span class="badge bg-primary"
+                              >{{ count }} assets</span
+                            >
+                          </div>
+                          {% endif %} {% endfor %} {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row mt-4">
+                    <div class="col-md-6">
+                      <div class="pattern-card card">
+                        <div class="pattern-header">
+                          <h5>
+                            <i class="bi bi-tools me-2"></i>Maintenance Patterns
+                          </h5>
+                        </div>
+                        <div class="card-body">
+                          {% if
+                          patterns.maintenance_optimization.high_maintenance_equipment
+                          %}
+                          <h6>High Maintenance Equipment</h6>
+                          {% for eq in
+                          patterns.maintenance_optimization.high_maintenance_equipment[:3]
+                          %}
+                          <div class="mb-2">
+                            <strong>{{ eq.equipment_id }}</strong><br /><small
+                              class="text-muted"
+                              >{{ eq.frequency }} work orders | ${{
+                              "{:,.0f}"|format(eq.total_cost) }} total
+                              cost</small
+                            >
+                          </div>
+                          {% endfor %} {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="pattern-card card">
+                        <div class="pattern-header">
+                          <h5>
+                            <i class="bi bi-graph-up me-2"></i>Revenue Analysis
+                          </h5>
+                        </div>
+                        <div class="card-body">
+                          {% if patterns.revenue_optimization.revenue_trends %}
+                          {% for company, trend in
+                          patterns.revenue_optimization.revenue_trends.items()
+                          %}
+                          <div class="mb-3">
+                            <h6 class="text-capitalize">{{ company }}</h6>
+                            <div class="metric-display">
+                              <h4>
+                                ${{ "{:,.0f}"|format(trend.average_monthly) }}
+                              </h4>
+                              <small>Average Monthly Revenue</small>
+                            </div>
+                          </div>
+                          {% endfor %} {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="workflows" role="tabpanel">
+                  <h3 class="text-center mb-4">Personalized Workflows</h3>
+                  <div class="row">
+                    <div class="col-lg-6 mb-4">
+                      <div class="card">
+                        <div class="card-header bg-primary text-white">
+                          <h5>
+                            <i class="bi bi-sun me-2"></i>{{
+                            workflows.daily_optimization.name }}
+                          </h5>
+                          <small
+                            >{{ workflows.daily_optimization.estimated_time
+                            }}</small
+                          >
+                        </div>
+                        <div class="card-body">
+                          <p>{{ workflows.daily_optimization.description }}</p>
+                          <div class="workflow-timeline">
+                            {% for task in workflows.daily_optimization.tasks %}
+                            <div class="timeline-item">
+                              <strong>{{ task.time }}</strong> - {{ task.task
+                              }}<br /><small class="text-muted"
+                                >{{ task.action }}</small
+                              ><span
+                                class="recommendation-badge priority-{{ task.priority.lower() }}"
+                                >{{ task.priority }}</span
+                              >
+                            </div>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-6 mb-4">
+                      <div class="card">
+                        <div class="card-header bg-success text-white">
+                          <h5>
+                            <i class="bi bi-calendar-week me-2"></i>{{
+                            workflows.weekly_planning.name }}
+                          </h5>
+                        </div>
+                        <div class="card-body">
+                          <p>{{ workflows.weekly_planning.description }}</p>
+                          <div class="workflow-timeline">
+                            {% for task in workflows.weekly_planning.tasks %}
+                            <div class="timeline-item">
+                              <strong>{{ task.day }}</strong> - {{ task.task
+                              }}<br /><small class="text-muted"
+                                >{{ task.action }}</small
+                              ><br /><small class="badge bg-info"
+                                >{{ task.data_source }}</small
+                              >
+                            </div>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-6 mb-4">
+                      <div class="card">
+                        <div class="card-header bg-warning text-white">
+                          <h5>
+                            <i class="bi bi-calendar-month me-2"></i>{{
+                            workflows.monthly_review.name }}
+                          </h5>
+                        </div>
+                        <div class="card-body">
+                          <p>{{ workflows.monthly_review.description }}</p>
+                          {% for task in workflows.monthly_review.tasks %}
+                          <div class="mb-3 p-3 bg-light rounded">
+                            <h6>{{ task.week }} - {{ task.task }}</h6>
+                            <p class="mb-2">{{ task.action }}</p>
+                            <div>
+                              {% for metric in task.metrics %}
+                              <span class="badge bg-secondary me-1"
+                                >{{ metric }}</span
+                              >
+                              {% endfor %}
+                            </div>
+                          </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-6 mb-4">
+                      <div class="card">
+                        <div class="card-header bg-dark text-white">
+                          <h5>
+                            <i class="bi bi-calendar4-range me-2"></i>{{
+                            workflows.quarterly_strategy.name }}
+                          </h5>
+                        </div>
+                        <div class="card-body">
+                          <p>{{ workflows.quarterly_strategy.description }}</p>
+                          {% for objective in
+                          workflows.quarterly_strategy.objectives %}
+                          <div class="mb-3 p-3 border rounded">
+                            <h6 class="text-primary">
+                              {{ objective.category }}
+                            </h6>
+                            <p><strong>{{ objective.objective }}</strong></p>
+                            <ul class="list-unstyled">
+                              {% for action in objective.actions %}
+                              <li>
+                                <i class="bi bi-arrow-right me-2"></i>{{ action
+                                }}
+                              </li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="recommendations" role="tabpanel">
+                  <h3 class="text-center mb-4">Optimization Recommendations</h3>
+                  <div class="row">
+                    {% set all_recommendations = [] %} {% for category, data in
+                    patterns.items() %} {% if data.recommendations %} {% for rec
+                    in data.recommendations %} {% set _ =
+                    all_recommendations.append(rec) %} {% endfor %} {% endif %}
+                    {% endfor %} {% for rec in all_recommendations %}
+                    <div class="col-lg-6 mb-4">
+                      <div class="card h-100">
+                        <div
+                          class="card-header d-flex justify-content-between align-items-center"
+                        >
+                          <h6 class="mb-0">{{ rec.category }}</h6>
+                          <span
+                            class="recommendation-badge priority-{{ rec.priority.lower() }}"
+                            >{{ rec.priority }}</span
+                          >
+                        </div>
+                        <div class="card-body">
+                          <h6>{{ rec.action }}</h6>
+                          {% if rec.potential_savings %}
+                          <div class="metric-display">
+                            <h5>{{ rec.potential_savings }}</h5>
+                            <small>Potential Savings</small>
+                          </div>
+                          {% elif rec.potential_increase %}
+                          <div class="metric-display">
+                            <h5>{{ rec.potential_increase }}</h5>
+                            <small>Potential Increase</small>
+                          </div>
+                          {% elif rec.potential_benefit %}
+                          <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>{{
+                            rec.potential_benefit }}
+                          </div>
+                          {% elif rec.target_improvement %}
+                          <div class="metric-display">
+                            <h6>{{ rec.target_improvement }}</h6>
+                            <small>Target Improvement</small>
+                          </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

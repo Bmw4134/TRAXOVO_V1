@@ -1,445 +1,561 @@
-{% extends "layout_unified.html" %}
-
-{% block title %}Daily Driver Report | TRAXOVO{% endblock %}
-
-{% block head_content %}
+{% extends "layout_unified.html" %} {% block title %}Daily Driver Report |
+TRAXOVO{% endblock %} {% block head_content %}
 <style>
-    .classification-badge {
-        font-size: 0.85rem;
-        padding: 0.35em 0.65em;
-        font-weight: 600;
-    }
-    .badge-on_time, .badge-ON_TIME {
-        background-color: var(--bs-success);
-        color: white;
-    }
-    .badge-late_start, .badge-LATE_START {
-        background-color: var(--bs-warning);
-        color: var(--bs-dark);
-    }
-    .badge-early_end, .badge-EARLY_END {
-        background-color: var(--bs-info);
-        color: white;
-    }
-    .badge-not_on_job, .badge-NOT_ON_JOB {
-        background-color: var(--bs-danger);
-        color: white;
-    }
-    
-    .metric-card {
-        transition: transform 0.3s;
-    }
-    
-    .metric-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .metric-card-success {
-        border-left: 4px solid var(--bs-success) !important;
-    }
-    
-    .metric-card-warning {
-        border-left: 4px solid var(--bs-warning) !important;
-    }
-    
-    .metric-card-info {
-        border-left: 4px solid var(--bs-info) !important;
-    }
-    
-    .metric-card-danger {
-        border-left: 4px solid var(--bs-danger) !important;
-    }
-    
-    .driver-card {
-        transition: all 0.3s;
-    }
-    
-    .driver-card:hover {
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-    }
-    
-    .time-display {
-        font-family: monospace;
-        padding: 0.2rem 0.5rem;
-        border-radius: 0.25rem;
-        background-color: rgba(0, 0, 0, 0.05);
-    }
-    
-    .map-container {
-        height: 300px;
-        border-radius: 0.5rem;
-        overflow: hidden;
-    }
-    
+  .classification-badge {
+    font-size: 0.85rem;
+    padding: 0.35em 0.65em;
+    font-weight: 600;
+  }
+  .badge-on_time,
+  .badge-ON_TIME {
+    background-color: var(--bs-success);
+    color: white;
+  }
+  .badge-late_start,
+  .badge-LATE_START {
+    background-color: var(--bs-warning);
+    color: var(--bs-dark);
+  }
+  .badge-early_end,
+  .badge-EARLY_END {
+    background-color: var(--bs-info);
+    color: white;
+  }
+  .badge-not_on_job,
+  .badge-NOT_ON_JOB {
+    background-color: var(--bs-danger);
+    color: white;
+  }
+
+  .metric-card {
+    transition: transform 0.3s;
+  }
+
+  .metric-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .metric-card-success {
+    border-left: 4px solid var(--bs-success) !important;
+  }
+
+  .metric-card-warning {
+    border-left: 4px solid var(--bs-warning) !important;
+  }
+
+  .metric-card-info {
+    border-left: 4px solid var(--bs-info) !important;
+  }
+
+  .metric-card-danger {
+    border-left: 4px solid var(--bs-danger) !important;
+  }
+
+  .driver-card {
+    transition: all 0.3s;
+  }
+
+  .driver-card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .time-display {
+    font-family: monospace;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .map-container {
+    height: 300px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .timeline-container {
+    position: relative;
+    padding-left: 30px;
+  }
+
+  .timeline-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 15px;
+    width: 2px;
+    background-color: var(--bs-gray-300);
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+
+  .timeline-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: -30px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: var(--bs-primary);
+    top: 0;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.75rem;
+  }
+
+  .filter-buttons .btn {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Mobile Optimization */
+  @media (max-width: 768px) {
     .timeline-container {
-        position: relative;
-        padding-left: 30px;
+      padding-left: 25px;
     }
-    
+
     .timeline-line {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 15px;
-        width: 2px;
-        background-color: var(--bs-gray-300);
+      left: 12px;
     }
-    
-    .timeline-item {
-        position: relative;
-        margin-bottom: 1.5rem;
-    }
-    
-    .timeline-item:last-child {
-        margin-bottom: 0;
-    }
-    
+
     .timeline-dot {
-        position: absolute;
-        left: -30px;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background-color: var(--bs-primary);
-        top: 0;
-        margin-top: 0.25rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 0.75rem;
+      left: -25px;
+      width: 16px;
+      height: 16px;
+      font-size: 0.6rem;
     }
-    
-    .filter-buttons .btn {
-        margin-right: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    /* Mobile Optimization */
-    @media (max-width: 768px) {
-        .timeline-container {
-            padding-left: 25px;
-        }
-        
-        .timeline-line {
-            left: 12px;
-        }
-        
-        .timeline-dot {
-            left: -25px;
-            width: 16px;
-            height: 16px;
-            font-size: 0.6rem;
-        }
-    }
+  }
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">Daily Driver Report</h1>
-        <div class="d-flex align-items-center">
-            {% if available_dates %}
-            <div class="input-group me-3" style="width: 200px;">
-                <select class="form-select" id="dateSelect">
-                    {% for date in available_dates %}
-                    <option value="{{ date }}" {% if date == selected_date %}selected{% endif %}>{{ date }}</option>
-                    {% endfor %}
-                </select>
-                <button class="btn btn-outline-secondary" type="button" id="viewDateBtn">
-                    <i class="fas fa-search"></i> <span class="d-none d-md-inline">View</span>
-                </button>
-            </div>
-            <div class="d-flex">
-                <a href="{{ url_for('daily_attendance.upload_files') }}" class="btn btn-primary me-2">
-                    <i class="fas fa-upload"></i> <span class="d-none d-md-inline">Upload Files</span>
-                </a>
-                {% if report_data %}
-                <div class="dropdown">
-                    <button class="btn btn-outline-primary dropdown-toggle" type="button" id="downloadDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-download"></i> <span class="d-none d-md-inline">Download</span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="downloadDropdown">
-                        <li><a class="dropdown-item" href="{{ url_for('daily_attendance.download_excel', date_str=selected_date) }}"><i class="fas fa-file-excel me-2"></i> Excel Report</a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('daily_attendance.download_json', date_str=selected_date) }}"><i class="fas fa-file-code me-2"></i> JSON Data</a></li>
-                    </ul>
-                </div>
-                {% endif %}
-            </div>
-            {% else %}
-            <a href="{{ url_for('daily_attendance.upload_files') }}" class="btn btn-primary">
-                <i class="fas fa-upload"></i> Upload Files
-            </a>
-            {% endif %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Daily Driver Report</h1>
+    <div class="d-flex align-items-center">
+      {% if available_dates %}
+      <div class="input-group me-3" style="width: 200px">
+        <select class="form-select" id="dateSelect">
+          {% for date in available_dates %}
+          <option
+            value="{{ date }}"
+            {%
+            if
+            date=""
+            ="selected_date"
+            %}selected{%
+            endif
+            %}
+          >
+            {{ date }}
+          </option>
+          {% endfor %}
+        </select>
+        <button
+          class="btn btn-outline-secondary"
+          type="button"
+          id="viewDateBtn"
+        >
+          <i class="fas fa-search"></i>
+          <span class="d-none d-md-inline">View</span>
+        </button>
+      </div>
+      <div class="d-flex">
+        <a
+          href="{{ url_for('daily_attendance.upload_files') }}"
+          class="btn btn-primary me-2"
+        >
+          <i class="fas fa-upload"></i>
+          <span class="d-none d-md-inline">Upload Files</span>
+        </a>
+        {% if report_data %}
+        <div class="dropdown">
+          <button
+            class="btn btn-outline-primary dropdown-toggle"
+            type="button"
+            id="downloadDropdown"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <i class="fas fa-download"></i>
+            <span class="d-none d-md-inline">Download</span>
+          </button>
+          <ul
+            class="dropdown-menu dropdown-menu-end"
+            aria-labelledby="downloadDropdown"
+          >
+            <li>
+              <a
+                class="dropdown-item"
+                href="{{ url_for('daily_attendance.download_excel', date_str=selected_date) }}"
+                ><i class="fas fa-file-excel me-2"></i> Excel Report</a
+              >
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="{{ url_for('daily_attendance.download_json', date_str=selected_date) }}"
+                ><i class="fas fa-file-code me-2"></i> JSON Data</a
+              >
+            </li>
+          </ul>
         </div>
+        {% endif %}
+      </div>
+      {% else %}
+      <a
+        href="{{ url_for('daily_attendance.upload_files') }}"
+        class="btn btn-primary"
+      >
+        <i class="fas fa-upload"></i> Upload Files
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %} {% for category, message in messages %}
+  <div
+    class="alert alert-{{ category }} alert-dismissible fade show"
+    role="alert"
+  >
+    {{ message }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+  {% endfor %} {% endif %} {% endwith %} {% if report_data %}
+  <!-- Summary Metrics -->
+  <div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-0 shadow h-100 metric-card metric-card-success">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-uppercase mb-1">
+                On Time
+              </div>
+              <div class="h2 mb-0 font-weight-bold">
+                {{ report_data.summary.on_time }}
+              </div>
+              <div class="mt-2 text-muted small">
+                {{ (report_data.summary.on_time /
+                report_data.summary.total_drivers * 100)|round|int if
+                report_data.summary.total_drivers > 0 else 0 }}% of drivers
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-check-circle fa-2x text-success"></i>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-0 shadow h-100 metric-card metric-card-warning">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-uppercase mb-1">
+                Late Start
+              </div>
+              <div class="h2 mb-0 font-weight-bold">
+                {{ report_data.summary.late_start }}
+              </div>
+              <div class="mt-2 text-muted small">
+                {{ (report_data.summary.late_start /
+                report_data.summary.total_drivers * 100)|round|int if
+                report_data.summary.total_drivers > 0 else 0 }}% of drivers
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-clock fa-2x text-warning"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-0 shadow h-100 metric-card metric-card-info">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-uppercase mb-1">
+                Early End
+              </div>
+              <div class="h2 mb-0 font-weight-bold">
+                {{ report_data.summary.early_end }}
+              </div>
+              <div class="mt-2 text-muted small">
+                {{ (report_data.summary.early_end /
+                report_data.summary.total_drivers * 100)|round|int if
+                report_data.summary.total_drivers > 0 else 0 }}% of drivers
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-sign-out-alt fa-2x text-info"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-0 shadow h-100 metric-card metric-card-danger">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-uppercase mb-1">
+                Not On Job
+              </div>
+              <div class="h2 mb-0 font-weight-bold">
+                {{ report_data.summary.not_on_job }}
+              </div>
+              <div class="mt-2 text-muted small">
+                {{ (report_data.summary.not_on_job /
+                report_data.summary.total_drivers * 100)|round|int if
+                report_data.summary.total_drivers > 0 else 0 }}% of drivers
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Driver Content -->
+  <div class="card border-0 shadow mb-4">
+    <div
+      class="card-header py-3 d-flex justify-content-between align-items-center"
+    >
+      <h6 class="m-0 font-weight-bold">
+        Driver Attendance Report ({{ selected_date }})
+      </h6>
+      <div class="filter-buttons">
+        <button
+          class="btn btn-sm btn-outline-secondary filter-btn active"
+          data-filter="all"
+        >
+          All
+          <span class="badge bg-secondary"
+            >{{ report_data.summary.total_drivers }}</span
+          >
+        </button>
+        <button
+          class="btn btn-sm btn-outline-success filter-btn"
+          data-filter="ON_TIME"
+        >
+          On Time
+          <span class="badge bg-success"
+            >{{ report_data.summary.on_time }}</span
+          >
+        </button>
+        <button
+          class="btn btn-sm btn-outline-warning filter-btn"
+          data-filter="LATE_START"
+        >
+          Late
+          <span class="badge bg-warning text-dark"
+            >{{ report_data.summary.late_start }}</span
+          >
+        </button>
+        <button
+          class="btn btn-sm btn-outline-info filter-btn"
+          data-filter="EARLY_END"
+        >
+          Early End
+          <span class="badge bg-info">{{ report_data.summary.early_end }}</span>
+        </button>
+        <button
+          class="btn btn-sm btn-outline-danger filter-btn"
+          data-filter="NOT_ON_JOB"
+        >
+          Not On Job
+          <span class="badge bg-danger"
+            >{{ report_data.summary.not_on_job }}</span
+          >
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped" id="driversTable">
+          <thead>
+            <tr>
+              <th>Driver</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th>Job Site</th>
+              <th>Status</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for driver in report_data.drivers %}
+            <tr data-classification="{{ driver.classification }}">
+              <td>{{ driver.name }}</td>
+              <td>{{ driver.start_time }}</td>
+              <td>{{ driver.end_time }}</td>
+              <td>{{ driver.job_site }}</td>
+              <td>
+                <span
+                  class="classification-badge badge-{{ driver.classification|lower }}"
+                >
+                  {{ driver.classification|replace('_', ' ')|title }}
+                </span>
+              </td>
+              <td>{{ driver.notes }}</td>
+            </tr>
             {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-    {% if report_data %}
-    <!-- Summary Metrics -->
-    <div class="row">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow h-100 metric-card metric-card-success">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1">On Time</div>
-                            <div class="h2 mb-0 font-weight-bold">{{ report_data.summary.on_time }}</div>
-                            <div class="mt-2 text-muted small">{{ (report_data.summary.on_time / report_data.summary.total_drivers * 100)|round|int if report_data.summary.total_drivers > 0 else 0 }}% of drivers</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-success"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow h-100 metric-card metric-card-warning">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1">Late Start</div>
-                            <div class="h2 mb-0 font-weight-bold">{{ report_data.summary.late_start }}</div>
-                            <div class="mt-2 text-muted small">{{ (report_data.summary.late_start / report_data.summary.total_drivers * 100)|round|int if report_data.summary.total_drivers > 0 else 0 }}% of drivers</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clock fa-2x text-warning"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow h-100 metric-card metric-card-info">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1">Early End</div>
-                            <div class="h2 mb-0 font-weight-bold">{{ report_data.summary.early_end }}</div>
-                            <div class="mt-2 text-muted small">{{ (report_data.summary.early_end / report_data.summary.total_drivers * 100)|round|int if report_data.summary.total_drivers > 0 else 0 }}% of drivers</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-sign-out-alt fa-2x text-info"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow h-100 metric-card metric-card-danger">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1">Not On Job</div>
-                            <div class="h2 mb-0 font-weight-bold">{{ report_data.summary.not_on_job }}</div>
-                            <div class="mt-2 text-muted small">{{ (report_data.summary.not_on_job / report_data.summary.total_drivers * 100)|round|int if report_data.summary.total_drivers > 0 else 0 }}% of drivers</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+          </tbody>
+        </table>
+      </div>
     </div>
+  </div>
 
-    <!-- Driver Content -->
-    <div class="card border-0 shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold">Driver Attendance Report ({{ selected_date }})</h6>
-            <div class="filter-buttons">
-                <button class="btn btn-sm btn-outline-secondary filter-btn active" data-filter="all">
-                    All <span class="badge bg-secondary">{{ report_data.summary.total_drivers }}</span>
-                </button>
-                <button class="btn btn-sm btn-outline-success filter-btn" data-filter="ON_TIME">
-                    On Time <span class="badge bg-success">{{ report_data.summary.on_time }}</span>
-                </button>
-                <button class="btn btn-sm btn-outline-warning filter-btn" data-filter="LATE_START">
-                    Late <span class="badge bg-warning text-dark">{{ report_data.summary.late_start }}</span>
-                </button>
-                <button class="btn btn-sm btn-outline-info filter-btn" data-filter="EARLY_END">
-                    Early End <span class="badge bg-info">{{ report_data.summary.early_end }}</span>
-                </button>
-                <button class="btn btn-sm btn-outline-danger filter-btn" data-filter="NOT_ON_JOB">
-                    Not On Job <span class="badge bg-danger">{{ report_data.summary.not_on_job }}</span>
-                </button>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-striped" id="driversTable">
-                    <thead>
-                        <tr>
-                            <th>Driver</th>
-                            <th>Start Time</th>
-                            <th>End Time</th>
-                            <th>Job Site</th>
-                            <th>Status</th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for driver in report_data.drivers %}
-                        <tr data-classification="{{ driver.classification }}">
-                            <td>{{ driver.name }}</td>
-                            <td>{{ driver.start_time }}</td>
-                            <td>{{ driver.end_time }}</td>
-                            <td>{{ driver.job_site }}</td>
-                            <td>
-                                <span class="classification-badge badge-{{ driver.classification|lower }}">
-                                    {{ driver.classification|replace('_', ' ')|title }}
-                                </span>
-                            </td>
-                            <td>{{ driver.notes }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+  <!-- Map View -->
+  {% if report_data.job_sites %}
+  <div class="card border-0 shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold">Job Site Map</h6>
     </div>
-
-    <!-- Map View -->
-    {% if report_data.job_sites %}
-    <div class="card border-0 shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold">Job Site Map</h6>
-        </div>
-        <div class="card-body">
-            <div id="driverMap" class="map-container"></div>
-        </div>
+    <div class="card-body">
+      <div id="driverMap" class="map-container"></div>
     </div>
-    {% endif %}
-    
-    {% else %}
-    <div class="alert alert-info" role="alert">
-        <h4 class="alert-heading">No Report Available</h4>
-        <p>There is no report available for the selected date. Please upload data files to generate a report.</p>
-        <hr>
-        <p class="mb-0">
-            <a href="{{ url_for('daily_attendance.upload_files') }}" class="btn btn-primary">
-                <i class="fas fa-upload"></i> Upload Files
-            </a>
-        </p>
-    </div>
-    {% endif %}
+  </div>
+  {% endif %} {% else %}
+  <div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">No Report Available</h4>
+    <p>
+      There is no report available for the selected date. Please upload data
+      files to generate a report.
+    </p>
+    <hr />
+    <p class="mb-0">
+      <a
+        href="{{ url_for('daily_attendance.upload_files') }}"
+        class="btn btn-primary"
+      >
+        <i class="fas fa-upload"></i> Upload Files
+      </a>
+    </p>
+  </div>
+  {% endif %}
 </div>
-{% endblock %}
-
-{% block scripts %}
-{% if report_data %}
+{% endblock %} {% block scripts %} {% if report_data %}
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+/>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize DataTable
-        const driversTable = $('#driversTable').DataTable({
-            order: [[4, 'desc']], // Sort by status by default
-            responsive: true,
-            pageLength: 10,
-            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
-        });
-        
-        // Date selector functionality
-        const dateSelect = document.getElementById('dateSelect');
-        const viewDateBtn = document.getElementById('viewDateBtn');
-        
-        viewDateBtn.addEventListener('click', function() {
-            window.location.href = "{{ url_for('daily_attendance.index') }}?date=" + dateSelect.value;
-        });
-        
-        // Filter buttons functionality
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        
-        filterButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                // Update active state
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Apply filter
-                const filterValue = this.dataset.filter;
-                if (filterValue === 'all') {
-                    driversTable.search('').draw();
-                } else {
-                    driversTable.search(filterValue).draw();
-                }
-            });
-        });
-        
-        {% if report_data.job_sites %}
-        // Initialize Map
-        const jobSites = {{ report_data.job_sites|tojson }};
-        const drivers = {{ report_data.drivers|tojson }};
-        
-        // Find center of map
-        let latSum = 0;
-        let lngSum = 0;
-        let count = 0;
-        
-        for (const site in jobSites) {
-            latSum += jobSites[site].latitude;
-            lngSum += jobSites[site].longitude;
-            count++;
-        }
-        
-        const centerLat = count > 0 ? latSum / count : 32.7767;
-        const centerLng = count > 0 ? lngSum / count : -96.7970;
-        
-        // Create map
-        const map = L.map('driverMap').setView([centerLat, centerLng], 12);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-        
-        // Add markers for job sites
-        for (const site in jobSites) {
-            const siteDrivers = drivers.filter(driver => driver.job_site === site);
-            const onTimeCount = siteDrivers.filter(driver => driver.classification === 'ON_TIME').length;
-            const lateStartCount = siteDrivers.filter(driver => driver.classification === 'LATE_START').length;
-            const earlyEndCount = siteDrivers.filter(driver => driver.classification === 'EARLY_END').length;
-            const notOnJobCount = siteDrivers.filter(driver => driver.classification === 'NOT_ON_JOB').length;
-            
-            let markerColor = 'green';
-            if (notOnJobCount > 0) {
-                markerColor = 'red';
-            } else if (lateStartCount > 0 || earlyEndCount > 0) {
-                markerColor = 'orange';
-            }
-            
-            const marker = L.marker([jobSites[site].latitude, jobSites[site].longitude], {
-                title: site
-            }).addTo(map);
-            
-            const popupContent = `
-                <strong>${site}</strong><br>
-                Total Drivers: ${siteDrivers.length}<br>
-                <span class="text-success">On Time: ${onTimeCount}</span><br>
-                <span class="text-warning">Late Start: ${lateStartCount}</span><br>
-                <span class="text-info">Early End: ${earlyEndCount}</span><br>
-                <span class="text-danger">Not On Job: ${notOnJobCount}</span>
-            `;
-            
-            marker.bindPopup(popupContent);
-        }
-        {% endif %}
-    });
+  document.addEventListener('DOMContentLoaded', function() {
+      // Initialize DataTable
+      const driversTable = $('#driversTable').DataTable({
+          order: [[4, 'desc']], // Sort by status by default
+          responsive: true,
+          pageLength: 10,
+          lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
+      });
+
+      // Date selector functionality
+      const dateSelect = document.getElementById('dateSelect');
+      const viewDateBtn = document.getElementById('viewDateBtn');
+
+      viewDateBtn.addEventListener('click', function() {
+          window.location.href = "{{ url_for('daily_attendance.index') }}?date=" + dateSelect.value;
+      });
+
+      // Filter buttons functionality
+      const filterButtons = document.querySelectorAll('.filter-btn');
+
+      filterButtons.forEach(button => {
+          button.addEventListener('click', function() {
+              // Update active state
+              filterButtons.forEach(btn => btn.classList.remove('active'));
+              this.classList.add('active');
+
+              // Apply filter
+              const filterValue = this.dataset.filter;
+              if (filterValue === 'all') {
+                  driversTable.search('').draw();
+              } else {
+                  driversTable.search(filterValue).draw();
+              }
+          });
+      });
+
+      {% if report_data.job_sites %}
+      // Initialize Map
+      const jobSites = {{ report_data.job_sites|tojson }};
+      const drivers = {{ report_data.drivers|tojson }};
+
+      // Find center of map
+      let latSum = 0;
+      let lngSum = 0;
+      let count = 0;
+
+      for (const site in jobSites) {
+          latSum += jobSites[site].latitude;
+          lngSum += jobSites[site].longitude;
+          count++;
+      }
+
+      const centerLat = count > 0 ? latSum / count : 32.7767;
+      const centerLng = count > 0 ? lngSum / count : -96.7970;
+
+      // Create map
+      const map = L.map('driverMap').setView([centerLat, centerLng], 12);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      // Add markers for job sites
+      for (const site in jobSites) {
+          const siteDrivers = drivers.filter(driver => driver.job_site === site);
+          const onTimeCount = siteDrivers.filter(driver => driver.classification === 'ON_TIME').length;
+          const lateStartCount = siteDrivers.filter(driver => driver.classification === 'LATE_START').length;
+          const earlyEndCount = siteDrivers.filter(driver => driver.classification === 'EARLY_END').length;
+          const notOnJobCount = siteDrivers.filter(driver => driver.classification === 'NOT_ON_JOB').length;
+
+          let markerColor = 'green';
+          if (notOnJobCount > 0) {
+              markerColor = 'red';
+          } else if (lateStartCount > 0 || earlyEndCount > 0) {
+              markerColor = 'orange';
+          }
+
+          const marker = L.marker([jobSites[site].latitude, jobSites[site].longitude], {
+              title: site
+          }).addTo(map);
+
+          const popupContent = `
+              <strong>${site}</strong><br>
+              Total Drivers: ${siteDrivers.length}<br>
+              <span class="text-success">On Time: ${onTimeCount}</span><br>
+              <span class="text-warning">Late Start: ${lateStartCount}</span><br>
+              <span class="text-info">Early End: ${earlyEndCount}</span><br>
+              <span class="text-danger">Not On Job: ${notOnJobCount}</span>
+          `;
+
+          marker.bindPopup(popupContent);
+      }
+      {% endif %}
+  });
 </script>
-{% endif %}
-{% endblock %}
+{% endif %} {% endblock %}

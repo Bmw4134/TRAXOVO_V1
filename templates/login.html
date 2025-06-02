@@ -1,151 +1,199 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - TRAXOVO Fleet Intelligence</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
     <style>
-        body {
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .login-container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            padding: 3rem;
-            width: 100%;
-            max-width: 400px;
-        }
-        
-        .logo {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        .logo h1 {
-            color: #1e40af;
-            font-weight: 700;
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .logo p {
-            color: #64748b;
-            font-size: 0.9rem;
-            margin: 0;
-        }
-        
-        .form-floating {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-control {
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 0.75rem;
-            font-size: 1rem;
-        }
-        
-        .form-control:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        .btn-login {
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-            border: none;
-            border-radius: 8px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 600;
-            font-size: 1rem;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(30, 64, 175, 0.3);
-        }
-        
-        .credentials-hint {
-            background: #f1f5f9;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1.5rem;
-            font-size: 0.875rem;
-            color: #64748b;
-        }
-        
-        .credentials-hint h6 {
-            color: #1e40af;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-        
-        .alert {
-            border-radius: 8px;
-            border: none;
-            margin-bottom: 1.5rem;
-        }
+      body {
+        background: linear-gradient(
+          135deg,
+          #1e40af 0%,
+          #3b82f6 50%,
+          #60a5fa 100%
+        );
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .login-container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        padding: 3rem;
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .logo {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .logo h1 {
+        color: #1e40af;
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .logo p {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin: 0;
+      }
+
+      .form-floating {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-control {
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-size: 1rem;
+      }
+
+      .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .btn-login {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        width: 100%;
+        transition: all 0.3s ease;
+      }
+
+      .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(30, 64, 175, 0.3);
+      }
+
+      .credentials-hint {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        font-size: 0.875rem;
+        color: #64748b;
+      }
+
+      .credentials-hint h6 {
+        color: #1e40af;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      .alert {
+        border-radius: 8px;
+        border: none;
+        margin-bottom: 1.5rem;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="login-container">
-        <div class="logo">
-            <h1><i class="fas fa-chart-line"></i> TRAXOVO</h1>
-            <p>Fleet Intelligence Platform</p>
+      <div class="logo">
+        <h1><i class="fas fa-chart-line"></i> TRAXOVO</h1>
+        <p>Fleet Intelligence Platform</p>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <form method="POST">
+        <div class="form-floating">
+          <input
+            type="text"
+            class="form-control"
+            id="username"
+            name="username"
+            placeholder="Username"
+            required
+            {%
+            if
+            auto_fill_watson
+            %}value="watson"
+            {%
+            endif
+            %}
+          />
+          <label for="username"><i class="fas fa-user me-2"></i>Username</label>
         </div>
-        
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        <form method="POST">
-            <div class="form-floating">
-                <input type="text" class="form-control" id="username" name="username" 
-                       placeholder="Username" required 
-                       {% if auto_fill_watson %}value="watson"{% endif %}>
-                <label for="username"><i class="fas fa-user me-2"></i>Username</label>
-            </div>
-            
-            <div class="form-floating">
-                <input type="password" class="form-control" id="password" name="password" 
-                       placeholder="Password" required 
-                       {% if auto_fill_watson %}value="password"{% endif %}>
-                <label for="password"><i class="fas fa-lock me-2"></i>Password</label>
-            </div>
-            
-            <button type="submit" class="btn btn-primary btn-login">
-                <i class="fas fa-{% if asi_powered %}brain{% else %}sign-in-alt{% endif %} me-2"></i>
-                {% if asi_powered %}ASI Access Portal{% else %}Access Fleet Dashboard{% endif %}
-            </button>
-        </form>
-        
-        <div class="credentials-hint">
-            <h6><i class="fas fa-shield-alt me-1"></i>Secure Access Required</h6>
-            <p>Please contact your system administrator for authorized access credentials.</p>
-            <small>This system contains sensitive fleet operations data and requires proper authorization.</small>
+
+        <div class="form-floating">
+          <input
+            type="password"
+            class="form-control"
+            id="password"
+            name="password"
+            placeholder="Password"
+            required
+            {%
+            if
+            auto_fill_watson
+            %}value="password"
+            {%
+            endif
+            %}
+          />
+          <label for="password"><i class="fas fa-lock me-2"></i>Password</label>
         </div>
+
+        <button type="submit" class="btn btn-primary btn-login">
+          <i
+            class="fas fa-{% if asi_powered %}brain{% else %}sign-in-alt{% endif %} me-2"
+          ></i>
+          {% if asi_powered %}ASI Access Portal{% else %}Access Fleet
+          Dashboard{% endif %}
+        </button>
+      </form>
+
+      <div class="credentials-hint">
+        <h6><i class="fas fa-shield-alt me-1"></i>Secure Access Required</h6>
+        <p>
+          Please contact your system administrator for authorized access
+          credentials.
+        </p>
+        <small
+          >This system contains sensitive fleet operations data and requires
+          proper authorization.</small
+        >
+      </div>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+  </body>
 </html>

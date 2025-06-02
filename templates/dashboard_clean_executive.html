@@ -1,524 +1,569 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fleet Intelligence Dashboard - TRAXOVO</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .container-fluid {
-            padding: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        /* Executive KPI Banner - Based on successful pattern */
-        .executive-kpi {
-            background: linear-gradient(135deg, #1a365d 0%, #2d5a87 100%);
-            color: white;
-            padding: 2rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 25px rgba(26, 54, 93, 0.3);
-        }
-        
+      body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container-fluid {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      /* Executive KPI Banner - Based on successful pattern */
+      .executive-kpi {
+        background: linear-gradient(135deg, #1a365d 0%, #2d5a87 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px rgba(26, 54, 93, 0.3);
+      }
+
+      .executive-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .executive-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+
+      .executive-header p {
+        margin: 5px 0 0 0;
+        opacity: 0.9;
+        font-size: 1.1rem;
+      }
+
+      .status-badge {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      /* KPI Grid - From successful pattern */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .kpi-card {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .kpi-card:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .kpi-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: white;
+      }
+
+      .kpi-label {
+        opacity: 0.9;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+      }
+
+      .kpi-source {
+        font-size: 0.75rem;
+        opacity: 0.7;
+      }
+
+      .performance-indicator {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+      }
+
+      .indicator-excellent {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .indicator-good {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .indicator-active {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      /* Module Cards Grid */
+      .modules-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .module-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .module-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+
+      .module-header {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        padding: 1.25rem;
+        display: flex;
+        justify-content: between;
+        align-items: center;
+      }
+
+      .module-icon {
+        font-size: 1.5rem;
+        margin-right: 0.75rem;
+      }
+
+      .module-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+        flex-grow: 1;
+      }
+
+      .module-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+      }
+
+      .module-body {
+        padding: 1.25rem;
+      }
+
+      .module-description {
+        color: #64748b;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        margin-bottom: 1rem;
+      }
+
+      .module-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 0.75rem;
+        background: #f8fafc;
+        border-radius: 6px;
+      }
+
+      .stat-number {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e40af;
+        display: block;
+      }
+
+      .stat-label {
+        font-size: 0.7rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .module-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .action-btn {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+        color: white;
+        text-decoration: none;
+      }
+
+      .action-btn.secondary {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      }
+
+      .action-btn.warning {
+        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+      }
+
+      /* Mobile Responsiveness */
+      @media (max-width: 768px) {
         .executive-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
+          flex-direction: column;
+          gap: 1rem;
+          text-align: center;
         }
-        
-        .executive-header h1 {
-            margin: 0;
-            font-size: 2.5rem;
-            font-weight: 700;
-        }
-        
-        .executive-header p {
-            margin: 5px 0 0 0;
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }
-        
-        .status-badge {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-        
-        /* KPI Grid - From successful pattern */
+
         .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         }
-        
-        .kpi-card {
-            background: rgba(255,255,255,0.1);
-            padding: 1.5rem;
-            border-radius: 8px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .kpi-card:hover {
-            background: rgba(255,255,255,0.15);
-            transform: translateY(-2px);
-        }
-        
-        .kpi-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: white;
-        }
-        
-        .kpi-label {
-            opacity: 0.9;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.5rem;
-        }
-        
-        .kpi-source {
-            font-size: 0.75rem;
-            opacity: 0.7;
-        }
-        
-        .performance-indicator {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-top: 0.5rem;
-        }
-        
-        .indicator-excellent { background: #dcfce7; color: #166534; }
-        .indicator-good { background: #fef3c7; color: #92400e; }
-        .indicator-active { background: #dbeafe; color: #1e40af; }
-        
-        /* Module Cards Grid */
+
         .modules-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
+          grid-template-columns: 1fr;
         }
-        
-        .module-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            transition: all 0.3s ease;
+
+        .executive-header h1 {
+          font-size: 2rem;
         }
-        
-        .module-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-        
-        .module-header {
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-            color: white;
-            padding: 1.25rem;
-            display: flex;
-            justify-content: between;
-            align-items: center;
-        }
-        
-        .module-icon {
-            font-size: 1.5rem;
-            margin-right: 0.75rem;
-        }
-        
-        .module-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin: 0;
-            flex-grow: 1;
-        }
-        
-        .module-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-        }
-        
-        .module-body {
-            padding: 1.25rem;
-        }
-        
-        .module-description {
-            color: #64748b;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            margin-bottom: 1rem;
-        }
-        
-        .module-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 0.75rem;
-            margin-bottom: 1.25rem;
-        }
-        
-        .stat-item {
-            text-align: center;
-            padding: 0.75rem;
-            background: #f8fafc;
-            border-radius: 6px;
-        }
-        
-        .stat-number {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #1e40af;
-            display: block;
-        }
-        
-        .stat-label {
-            font-size: 0.7rem;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .module-actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        
-        .action-btn {
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .action-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
-            color: white;
-            text-decoration: none;
-        }
-        
-        .action-btn.secondary {
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-        }
-        
-        .action-btn.warning {
-            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-        }
-        
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .executive-header {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-            
-            .kpi-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            }
-            
-            .modules-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .executive-header h1 {
-                font-size: 2rem;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container-fluid">
-        <!-- Executive KPI Banner -->
-        <div class="executive-kpi">
-            <div class="executive-header">
-                <div>
-                    <h1>Executive Performance Dashboard</h1>
-                    <p>Real-time fleet intelligence with authentic operational data</p>
-                </div>
-                <div>
-                    <span class="status-badge">LIVE DATA</span>
-                </div>
-            </div>
-            
-            <div class="kpi-grid">
-                <div class="kpi-card" onclick="drillDown('assets')">
-                    <div class="kpi-number">717</div>
-                    <div class="kpi-label">Fleet Assets</div>
-                    <div class="kpi-source">GAUGE API Live</div>
-                    <span class="performance-indicator indicator-excellent">Operational</span>
-                </div>
-                
-                <div class="kpi-card" onclick="drillDown('active-assets')">
-                    <div class="kpi-number">614</div>
-                    <div class="kpi-label">Active Assets</div>
-                    <div class="kpi-source">85.6% Utilization</div>
-                    <span class="performance-indicator indicator-excellent">Connected</span>
-                </div>
-                
-                <div class="kpi-card" onclick="drillDown('revenue')">
-                    <div class="kpi-number">$2.1M</div>
-                    <div class="kpi-label">YTD Revenue</div>
-                    <div class="kpi-source">RAGLE Billing Data</div>
-                    <span class="performance-indicator indicator-good">March + April</span>
-                </div>
-                
-                <div class="kpi-card" onclick="drillDown('drivers')">
-                    <div class="kpi-number">92</div>
-                    <div class="kpi-label">Active Drivers</div>
-                    <div class="kpi-source">Real-time Performance</div>
-                    <span class="performance-indicator indicator-active">Tracking</span>
-                </div>
-                
-                <div class="kpi-card" onclick="drillDown('efficiency')">
-                    <div class="kpi-number">91.7%</div>
-                    <div class="kpi-label">Fleet Efficiency</div>
-                    <div class="kpi-source">Analytics Engine</div>
-                    <span class="performance-indicator indicator-excellent">Optimized</span>
-                </div>
-            </div>
+      <!-- Executive KPI Banner -->
+      <div class="executive-kpi">
+        <div class="executive-header">
+          <div>
+            <h1>Executive Performance Dashboard</h1>
+            <p>Real-time fleet intelligence with authentic operational data</p>
+          </div>
+          <div>
+            <span class="status-badge">LIVE DATA</span>
+          </div>
         </div>
 
-        <!-- Modules Grid -->
-        <div class="modules-grid">
-            <!-- Driver Attendance Module -->
-            <div class="module-card">
-                <div class="module-header">
-                    <i class="fas fa-users module-icon"></i>
-                    <h3 class="module-title">Driver Attendance</h3>
-                    <span class="module-badge">Real-time</span>
-                </div>
-                <div class="module-body">
-                    <p class="module-description">Monitor driver attendance, weekly calendar views, and process attendance data uploads from GAUGE reports and payroll systems.</p>
-                    <div class="module-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">92</span>
-                            <span class="stat-label">Drivers</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">95%</span>
-                            <span class="stat-label">On Time</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">23</span>
-                            <span class="stat-label">Late Starts</span>
-                        </div>
-                    </div>
-                    <div class="module-actions">
-                        <a href="/attendance-upload" class="action-btn secondary">Upload Data</a>
-                        <a href="/attendance-matrix" class="action-btn">View Matrix</a>
-                    </div>
-                </div>
-            </div>
+        <div class="kpi-grid">
+          <div class="kpi-card" onclick="drillDown('assets')">
+            <div class="kpi-number">717</div>
+            <div class="kpi-label">Fleet Assets</div>
+            <div class="kpi-source">GAUGE API Live</div>
+            <span class="performance-indicator indicator-excellent"
+              >Operational</span
+            >
+          </div>
 
-            <!-- Fleet Map Module -->
-            <div class="module-card">
-                <div class="module-header">
-                    <i class="fas fa-map-marked-alt module-icon"></i>
-                    <h3 class="module-title">Fleet Map</h3>
-                    <span class="module-badge">GPS Live</span>
-                </div>
-                <div class="module-body">
-                    <p class="module-description">View all your equipment on an interactive map with real-time locations and status updates from your GAUGE system.</p>
-                    <div class="module-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">614</span>
-                            <span class="stat-label">Tracked</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">98.2%</span>
-                            <span class="stat-label">GPS Coverage</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">12</span>
-                            <span class="stat-label">Geofences</span>
-                        </div>
-                    </div>
-                    <div class="module-actions">
-                        <a href="/fleet-map" class="action-btn">View Fleet Map</a>
-                    </div>
-                </div>
-            </div>
+          <div class="kpi-card" onclick="drillDown('active-assets')">
+            <div class="kpi-number">614</div>
+            <div class="kpi-label">Active Assets</div>
+            <div class="kpi-source">85.6% Utilization</div>
+            <span class="performance-indicator indicator-excellent"
+              >Connected</span
+            >
+          </div>
 
-            <!-- Asset Manager Module -->
-            <div class="module-card">
-                <div class="module-header">
-                    <i class="fas fa-tools module-icon"></i>
-                    <h3 class="module-title">Asset Manager</h3>
-                    <span class="module-badge">717 Units</span>
-                </div>
-                <div class="module-body">
-                    <p class="module-description">Complete asset lifecycle costing, depreciation schedules, and maintenance tracking for all GAUGE-connected equipment units.</p>
-                    <div class="module-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">614</span>
-                            <span class="stat-label">Active</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">103</span>
-                            <span class="stat-label">Inactive</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">$4.2M</span>
-                            <span class="stat-label">Total Value</span>
-                        </div>
-                    </div>
-                    <div class="module-actions">
-                        <a href="/asset-manager" class="action-btn">Lifecycle Costing</a>
-                    </div>
-                </div>
-            </div>
+          <div class="kpi-card" onclick="drillDown('revenue')">
+            <div class="kpi-number">$2.1M</div>
+            <div class="kpi-label">YTD Revenue</div>
+            <div class="kpi-source">RAGLE Billing Data</div>
+            <span class="performance-indicator indicator-good"
+              >March + April</span
+            >
+          </div>
 
-            <!-- Billing Intelligence Module -->
-            <div class="module-card">
-                <div class="module-header">
-                    <i class="fas fa-chart-line module-icon"></i>
-                    <h3 class="module-title">Billing Intelligence</h3>
-                    <span class="module-badge">RAGLE Integration</span>
-                </div>
-                <div class="module-body">
-                    <p class="module-description">Revenue analytics and RAGLE integration with authentic billing data processing for Divisions 2, 3, and 4.</p>
-                    <div class="module-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">$552K</span>
-                            <span class="stat-label">April</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">$461K</span>
-                            <span class="stat-label">March</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">3</span>
-                            <span class="stat-label">Divisions</span>
-                        </div>
-                    </div>
-                    <div class="module-actions">
-                        <a href="/billing-upload" class="action-btn warning">Upload RAGLE</a>
-                        <a href="/billing" class="action-btn">View Reports</a>
-                    </div>
-                </div>
-            </div>
+          <div class="kpi-card" onclick="drillDown('drivers')">
+            <div class="kpi-number">92</div>
+            <div class="kpi-label">Active Drivers</div>
+            <div class="kpi-source">Real-time Performance</div>
+            <span class="performance-indicator indicator-active">Tracking</span>
+          </div>
 
-            <!-- Executive Reports Module -->
-            <div class="module-card">
-                <div class="module-header">
-                    <i class="fas fa-file-chart-column module-icon"></i>
-                    <h3 class="module-title">Executive Reports</h3>
-                    <span class="module-badge">May Ready</span>
-                </div>
-                <div class="module-body">
-                    <p class="module-description">Comprehensive analytics for leadership with May 1-31 automation ready for monthly reporting and business processes.</p>
-                    <div class="module-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">May</span>
-                            <span class="stat-label">Month</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">31</span>
-                            <span class="stat-label">Days</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">Auto</span>
-                            <span class="stat-label">Ready</span>
-                        </div>
-                    </div>
-                    <div class="module-actions">
-                        <a href="/executive-reports" class="action-btn">View Reports</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Watson Admin Module -->
-            <div class="module-card">
-                <div class="module-header">
-                    <i class="fas fa-user-cog module-icon"></i>
-                    <h3 class="module-title">Watson Admin</h3>
-                    <span class="module-badge">Admin Only</span>
-                </div>
-                <div class="module-body">
-                    <p class="module-description">Administrative dashboard with system health monitoring, user management, and deployment controls.</p>
-                    <div class="module-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">12</span>
-                            <span class="stat-label">Users</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">3</span>
-                            <span class="stat-label">Active</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">99%</span>
-                            <span class="stat-label">Uptime</span>
-                        </div>
-                    </div>
-                    <div class="module-actions">
-                        <a href="/watson-admin" class="action-btn">Admin Panel</a>
-                    </div>
-                </div>
-            </div>
+          <div class="kpi-card" onclick="drillDown('efficiency')">
+            <div class="kpi-number">91.7%</div>
+            <div class="kpi-label">Fleet Efficiency</div>
+            <div class="kpi-source">Analytics Engine</div>
+            <span class="performance-indicator indicator-excellent"
+              >Optimized</span
+            >
+          </div>
         </div>
+      </div>
+
+      <!-- Modules Grid -->
+      <div class="modules-grid">
+        <!-- Driver Attendance Module -->
+        <div class="module-card">
+          <div class="module-header">
+            <i class="fas fa-users module-icon"></i>
+            <h3 class="module-title">Driver Attendance</h3>
+            <span class="module-badge">Real-time</span>
+          </div>
+          <div class="module-body">
+            <p class="module-description">
+              Monitor driver attendance, weekly calendar views, and process
+              attendance data uploads from GAUGE reports and payroll systems.
+            </p>
+            <div class="module-stats">
+              <div class="stat-item">
+                <span class="stat-number">92</span>
+                <span class="stat-label">Drivers</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">95%</span>
+                <span class="stat-label">On Time</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">23</span>
+                <span class="stat-label">Late Starts</span>
+              </div>
+            </div>
+            <div class="module-actions">
+              <a href="/attendance-upload" class="action-btn secondary"
+                >Upload Data</a
+              >
+              <a href="/attendance-matrix" class="action-btn">View Matrix</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fleet Map Module -->
+        <div class="module-card">
+          <div class="module-header">
+            <i class="fas fa-map-marked-alt module-icon"></i>
+            <h3 class="module-title">Fleet Map</h3>
+            <span class="module-badge">GPS Live</span>
+          </div>
+          <div class="module-body">
+            <p class="module-description">
+              View all your equipment on an interactive map with real-time
+              locations and status updates from your GAUGE system.
+            </p>
+            <div class="module-stats">
+              <div class="stat-item">
+                <span class="stat-number">614</span>
+                <span class="stat-label">Tracked</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">98.2%</span>
+                <span class="stat-label">GPS Coverage</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">12</span>
+                <span class="stat-label">Geofences</span>
+              </div>
+            </div>
+            <div class="module-actions">
+              <a href="/fleet-map" class="action-btn">View Fleet Map</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Asset Manager Module -->
+        <div class="module-card">
+          <div class="module-header">
+            <i class="fas fa-tools module-icon"></i>
+            <h3 class="module-title">Asset Manager</h3>
+            <span class="module-badge">717 Units</span>
+          </div>
+          <div class="module-body">
+            <p class="module-description">
+              Complete asset lifecycle costing, depreciation schedules, and
+              maintenance tracking for all GAUGE-connected equipment units.
+            </p>
+            <div class="module-stats">
+              <div class="stat-item">
+                <span class="stat-number">614</span>
+                <span class="stat-label">Active</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">103</span>
+                <span class="stat-label">Inactive</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">$4.2M</span>
+                <span class="stat-label">Total Value</span>
+              </div>
+            </div>
+            <div class="module-actions">
+              <a href="/asset-manager" class="action-btn">Lifecycle Costing</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Billing Intelligence Module -->
+        <div class="module-card">
+          <div class="module-header">
+            <i class="fas fa-chart-line module-icon"></i>
+            <h3 class="module-title">Billing Intelligence</h3>
+            <span class="module-badge">RAGLE Integration</span>
+          </div>
+          <div class="module-body">
+            <p class="module-description">
+              Revenue analytics and RAGLE integration with authentic billing
+              data processing for Divisions 2, 3, and 4.
+            </p>
+            <div class="module-stats">
+              <div class="stat-item">
+                <span class="stat-number">$552K</span>
+                <span class="stat-label">April</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">$461K</span>
+                <span class="stat-label">March</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">3</span>
+                <span class="stat-label">Divisions</span>
+              </div>
+            </div>
+            <div class="module-actions">
+              <a href="/billing-upload" class="action-btn warning"
+                >Upload RAGLE</a
+              >
+              <a href="/billing" class="action-btn">View Reports</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Executive Reports Module -->
+        <div class="module-card">
+          <div class="module-header">
+            <i class="fas fa-file-chart-column module-icon"></i>
+            <h3 class="module-title">Executive Reports</h3>
+            <span class="module-badge">May Ready</span>
+          </div>
+          <div class="module-body">
+            <p class="module-description">
+              Comprehensive analytics for leadership with May 1-31 automation
+              ready for monthly reporting and business processes.
+            </p>
+            <div class="module-stats">
+              <div class="stat-item">
+                <span class="stat-number">May</span>
+                <span class="stat-label">Month</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">31</span>
+                <span class="stat-label">Days</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">Auto</span>
+                <span class="stat-label">Ready</span>
+              </div>
+            </div>
+            <div class="module-actions">
+              <a href="/executive-reports" class="action-btn">View Reports</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Watson Admin Module -->
+        <div class="module-card">
+          <div class="module-header">
+            <i class="fas fa-user-cog module-icon"></i>
+            <h3 class="module-title">Watson Admin</h3>
+            <span class="module-badge">Admin Only</span>
+          </div>
+          <div class="module-body">
+            <p class="module-description">
+              Administrative dashboard with system health monitoring, user
+              management, and deployment controls.
+            </p>
+            <div class="module-stats">
+              <div class="stat-item">
+                <span class="stat-number">12</span>
+                <span class="stat-label">Users</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">3</span>
+                <span class="stat-label">Active</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">99%</span>
+                <span class="stat-label">Uptime</span>
+              </div>
+            </div>
+            <div class="module-actions">
+              <a href="/watson-admin" class="action-btn">Admin Panel</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function drillDown(metric) {
-            switch(metric) {
-                case 'assets':
-                    window.location.href = '/asset-manager';
-                    break;
-                case 'active-assets':
-                    window.location.href = '/fleet-map';
-                    break;
-                case 'revenue':
-                    window.location.href = '/billing';
-                    break;
-                case 'drivers':
-                    window.location.href = '/attendance-matrix';
-                    break;
-                case 'efficiency':
-                    window.location.href = '/executive-reports';
-                    break;
-                default:
-                    console.log('Drill down for:', metric);
-            }
+      function drillDown(metric) {
+        switch (metric) {
+          case "assets":
+            window.location.href = "/asset-manager";
+            break;
+          case "active-assets":
+            window.location.href = "/fleet-map";
+            break;
+          case "revenue":
+            window.location.href = "/billing";
+            break;
+          case "drivers":
+            window.location.href = "/attendance-matrix";
+            break;
+          case "efficiency":
+            window.location.href = "/executive-reports";
+            break;
+          default:
+            console.log("Drill down for:", metric);
         }
-        
-        // Live data updates simulation
-        setInterval(() => {
-            console.log('TRAXOVO: Dashboard metrics updated successfully');
-        }, 30000);
+      }
+
+      // Live data updates simulation
+      setInterval(() => {
+        console.log("TRAXOVO: Dashboard metrics updated successfully");
+      }, 30000);
     </script>
-</body>
+  </body>
 </html>

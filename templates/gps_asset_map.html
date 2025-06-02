@@ -1,599 +1,637 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TRAXOVO GPS Asset Map</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        :root {
-            --primary-bg: #0f1419;
-            --secondary-bg: #1a1a1b;
-            --card-bg: #272729;
-            --border-color: #343536;
-            --text-primary: #d7dadc;
-            --text-secondary: #818384;
-            --accent-blue: #0079d3;
-            --accent-orange: #ff4500;
-            --success-green: #46d160;
-            --warning-orange: #ff8700;
-            --danger-red: #ea0027;
-        }
+      :root {
+        --primary-bg: #0f1419;
+        --secondary-bg: #1a1a1b;
+        --card-bg: #272729;
+        --border-color: #343536;
+        --text-primary: #d7dadc;
+        --text-secondary: #818384;
+        --accent-blue: #0079d3;
+        --accent-orange: #ff4500;
+        --success-green: #46d160;
+        --warning-orange: #ff8700;
+        --danger-red: #ea0027;
+      }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--primary-bg);
-            color: var(--text-primary);
-            overflow: hidden;
-        }
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--primary-bg);
+        color: var(--text-primary);
+        overflow: hidden;
+      }
 
-        .map-container {
-            display: flex;
-            height: 100vh;
-            background: var(--primary-bg);
-        }
+      .map-container {
+        display: flex;
+        height: 100vh;
+        background: var(--primary-bg);
+      }
 
-        /* Sidebar */
+      /* Sidebar */
+      .sidebar {
+        width: 380px;
+        background: var(--secondary-bg);
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--card-bg);
+      }
+
+      .sidebar-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+      }
+
+      .sidebar-subtitle {
+        font-size: 14px;
+        color: var(--text-secondary);
+      }
+
+      .stats-bar {
+        display: flex;
+        padding: 16px 20px;
+        gap: 20px;
+        background: var(--card-bg);
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .stat-item {
+        text-align: center;
+        flex: 1;
+      }
+
+      .stat-value {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: block;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-top: 4px;
+      }
+
+      .filters {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .filter-group {
+        margin-bottom: 16px;
+      }
+
+      .filter-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .filter-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .filter-btn {
+        padding: 6px 12px;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        font-size: 12px;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .filter-btn.active {
+        background: var(--accent-blue);
+        border-color: var(--accent-blue);
+        color: white;
+      }
+
+      .filter-btn:hover {
+        background: var(--border-color);
+      }
+
+      /* Asset List */
+      .asset-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+      }
+
+      .asset-item {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+      }
+
+      .asset-item:hover {
+        border-color: var(--accent-blue);
+        transform: translateY(-1px);
+      }
+
+      .asset-item.selected {
+        border-color: var(--accent-blue);
+        background: rgba(0, 121, 211, 0.1);
+      }
+
+      .asset-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .asset-id {
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--text-primary);
+      }
+
+      .asset-status {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-left: auto;
+      }
+
+      .asset-status.active {
+        background: var(--success-green);
+      }
+      .asset-status.inactive {
+        background: var(--danger-red);
+      }
+      .asset-status.maintenance {
+        background: var(--warning-orange);
+      }
+
+      .asset-details {
+        font-size: 12px;
+        color: var(--text-secondary);
+        line-height: 1.4;
+      }
+
+      .asset-location {
+        margin-top: 4px;
+        font-size: 11px;
+        color: var(--text-secondary);
+      }
+
+      /* Map Area */
+      .map-area {
+        flex: 1;
+        position: relative;
+      }
+
+      #map {
+        width: 100%;
+        height: 100%;
+        background: var(--primary-bg);
+      }
+
+      /* Custom Map Controls */
+      .map-controls {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        z-index: 1000;
+      }
+
+      .map-control {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 8px;
+        cursor: pointer;
+        color: var(--text-primary);
+        font-size: 14px;
+        transition: all 0.2s ease;
+      }
+
+      .map-control:hover {
+        background: var(--border-color);
+      }
+
+      /* Asset Detail Modal */
+      .asset-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+      }
+
+      .modal-content {
+        background: var(--secondary-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      .modal-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: between;
+        align-items: center;
+      }
+
+      .modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 24px;
+        cursor: pointer;
+        padding: 4px;
+      }
+
+      .close-btn:hover {
+        color: var(--text-primary);
+      }
+
+      .modal-body {
+        padding: 20px;
+      }
+
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .kpi-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .kpi-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .kpi-title {
+        font-size: 14px;
+        color: var(--text-secondary);
+      }
+
+      .kpi-status {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+
+      .kpi-status.good {
+        background: var(--success-green);
+      }
+      .kpi-status.fair {
+        background: var(--warning-orange);
+      }
+      .kpi-status.poor {
+        background: var(--danger-red);
+      }
+
+      .kpi-value {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+      }
+
+      .kpi-description {
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+
+      .tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 20px;
+      }
+
+      .tab {
+        padding: 12px 16px;
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s ease;
+      }
+
+      .tab.active {
+        color: var(--accent-blue);
+        border-bottom-color: var(--accent-blue);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
         .sidebar {
-            width: 380px;
-            background: var(--secondary-bg);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+          width: 100%;
+          position: absolute;
+          left: -100%;
+          transition: left 0.3s ease;
+          z-index: 1500;
         }
 
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-            background: var(--card-bg);
+        .sidebar.open {
+          left: 0;
         }
 
-        .sidebar-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-        }
-
-        .sidebar-subtitle {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .stats-bar {
-            display: flex;
-            padding: 16px 20px;
-            gap: 20px;
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .stat-item {
-            text-align: center;
-            flex: 1;
-        }
-
-        .stat-value {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: block;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-
-        .filters {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .filter-group {
-            margin-bottom: 16px;
-        }
-
-        .filter-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .filter-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 6px 12px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            font-size: 12px;
-            color: var(--text-primary);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .filter-btn.active {
-            background: var(--accent-blue);
-            border-color: var(--accent-blue);
-            color: white;
-        }
-
-        .filter-btn:hover {
-            background: var(--border-color);
-        }
-
-        /* Asset List */
-        .asset-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 12px;
-        }
-
-        .asset-item {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .asset-item:hover {
-            border-color: var(--accent-blue);
-            transform: translateY(-1px);
-        }
-
-        .asset-item.selected {
-            border-color: var(--accent-blue);
-            background: rgba(0, 121, 211, 0.1);
-        }
-
-        .asset-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .asset-id {
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--text-primary);
-        }
-
-        .asset-status {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-left: auto;
-        }
-
-        .asset-status.active { background: var(--success-green); }
-        .asset-status.inactive { background: var(--danger-red); }
-        .asset-status.maintenance { background: var(--warning-orange); }
-
-        .asset-details {
-            font-size: 12px;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-
-        .asset-location {
-            margin-top: 4px;
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        /* Map Area */
         .map-area {
-            flex: 1;
-            position: relative;
+          width: 100%;
         }
 
-        #map {
-            width: 100%;
-            height: 100%;
-            background: var(--primary-bg);
+        .mobile-toggle {
+          position: absolute;
+          top: 20px;
+          left: 20px;
+          background: var(--card-bg);
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          padding: 8px;
+          color: var(--text-primary);
+          cursor: pointer;
+          z-index: 1000;
         }
+      }
 
-        /* Custom Map Controls */
-        .map-controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 1000;
+      /* Loading States */
+      .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+        color: var(--text-secondary);
+      }
+
+      .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--border-color);
+        border-top: 2px solid var(--accent-blue);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 8px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
         }
-
-        .map-control {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px;
-            cursor: pointer;
-            color: var(--text-primary);
-            font-size: 14px;
-            transition: all 0.2s ease;
+        100% {
+          transform: rotate(360deg);
         }
-
-        .map-control:hover {
-            background: var(--border-color);
-        }
-
-        /* Asset Detail Modal */
-        .asset-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .modal-content {
-            background: var(--secondary-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 24px;
-            cursor: pointer;
-            padding: 4px;
-        }
-
-        .close-btn:hover {
-            color: var(--text-primary);
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .kpi-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 16px;
-        }
-
-        .kpi-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .kpi-title {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .kpi-status {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .kpi-status.good { background: var(--success-green); }
-        .kpi-status.fair { background: var(--warning-orange); }
-        .kpi-status.poor { background: var(--danger-red); }
-
-        .kpi-value {
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        .kpi-description {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-
-        .tab {
-            padding: 12px 16px;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s ease;
-        }
-
-        .tab.active {
-            color: var(--accent-blue);
-            border-bottom-color: var(--accent-blue);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                position: absolute;
-                left: -100%;
-                transition: left 0.3s ease;
-                z-index: 1500;
-            }
-
-            .sidebar.open {
-                left: 0;
-            }
-
-            .map-area {
-                width: 100%;
-            }
-
-            .mobile-toggle {
-                position: absolute;
-                top: 20px;
-                left: 20px;
-                background: var(--card-bg);
-                border: 1px solid var(--border-color);
-                border-radius: 8px;
-                padding: 8px;
-                color: var(--text-primary);
-                cursor: pointer;
-                z-index: 1000;
-            }
-        }
-
-        /* Loading States */
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            color: var(--text-secondary);
-        }
-
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border-color);
-            border-top: 2px solid var(--accent-blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="map-container">
-        <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-title">Live Asset Tracking</div>
-                <div class="sidebar-subtitle">701 assets • Real-time GPS</div>
-            </div>
-
-            <div class="stats-bar">
-                <div class="stat-item">
-                    <span class="stat-value" id="active-count">-</span>
-                    <div class="stat-label">Active</div>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-value" id="total-count">-</span>
-                    <div class="stat-label">Total</div>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-value" id="coverage-percent">-</span>
-                    <div class="stat-label">Coverage</div>
-                </div>
-            </div>
-
-            <div class="filters">
-                <div class="filter-group">
-                    <div class="filter-label">Status</div>
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="all">All</button>
-                        <button class="filter-btn" data-filter="active">Active</button>
-                        <button class="filter-btn" data-filter="inactive">Inactive</button>
-                    </div>
-                </div>
-                <div class="filter-group">
-                    <div class="filter-label">Category</div>
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-category="all">All</button>
-                        <button class="filter-btn" data-category="Excavator">Excavators</button>
-                        <button class="filter-btn" data-category="Dozer">Dozers</button>
-                        <button class="filter-btn" data-category="Loader">Loaders</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="asset-list" id="asset-list">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    Loading assets...
-                </div>
-            </div>
+      <!-- Sidebar -->
+      <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-title">Live Asset Tracking</div>
+          <div class="sidebar-subtitle">701 assets • Real-time GPS</div>
         </div>
 
-        <!-- Map Area -->
-        <div class="map-area">
-            <div class="mobile-toggle" onclick="toggleSidebar()">☰</div>
-            <div id="map"></div>
-            <div class="map-controls">
-                <div class="map-control" onclick="refreshData()">🔄</div>
-                <div class="map-control" onclick="centerMap()">🎯</div>
-                <div class="map-control" onclick="toggleHeatmap()">🗺️</div>
-            </div>
+        <div class="stats-bar">
+          <div class="stat-item">
+            <span class="stat-value" id="active-count">-</span>
+            <div class="stat-label">Active</div>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="total-count">-</span>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="coverage-percent">-</span>
+            <div class="stat-label">Coverage</div>
+          </div>
         </div>
+
+        <div class="filters">
+          <div class="filter-group">
+            <div class="filter-label">Status</div>
+            <div class="filter-buttons">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="active">Active</button>
+              <button class="filter-btn" data-filter="inactive">
+                Inactive
+              </button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <div class="filter-label">Category</div>
+            <div class="filter-buttons">
+              <button class="filter-btn active" data-category="all">All</button>
+              <button class="filter-btn" data-category="Excavator">
+                Excavators
+              </button>
+              <button class="filter-btn" data-category="Dozer">Dozers</button>
+              <button class="filter-btn" data-category="Loader">Loaders</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="asset-list" id="asset-list">
+          <div class="loading">
+            <div class="spinner"></div>
+            Loading assets...
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Area -->
+      <div class="map-area">
+        <div class="mobile-toggle" onclick="toggleSidebar()">☰</div>
+        <div id="map"></div>
+        <div class="map-controls">
+          <div class="map-control" onclick="refreshData()">🔄</div>
+          <div class="map-control" onclick="centerMap()">🎯</div>
+          <div class="map-control" onclick="toggleHeatmap()">🗺️</div>
+        </div>
+      </div>
     </div>
 
     <!-- Asset Detail Modal -->
     <div class="asset-modal" id="asset-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title" id="modal-title">Asset Details</div>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="tabs">
-                    <button class="tab active" onclick="showTab('overview')">Overview</button>
-                    <button class="tab" onclick="showTab('diagnostics')">Diagnostics</button>
-                    <button class="tab" onclick="showTab('maintenance')">Maintenance</button>
-                    <button class="tab" onclick="showTab('kpis')">KPIs</button>
-                </div>
-
-                <div class="tab-content active" id="overview-tab">
-                    <div id="asset-overview"></div>
-                </div>
-
-                <div class="tab-content" id="diagnostics-tab">
-                    <div id="asset-diagnostics"></div>
-                </div>
-
-                <div class="tab-content" id="maintenance-tab">
-                    <div id="asset-maintenance"></div>
-                </div>
-
-                <div class="tab-content" id="kpis-tab">
-                    <div class="kpi-grid" id="asset-kpis"></div>
-                </div>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title" id="modal-title">Asset Details</div>
+          <button class="close-btn" onclick="closeModal()">&times;</button>
         </div>
+        <div class="modal-body">
+          <div class="tabs">
+            <button class="tab active" onclick="showTab('overview')">
+              Overview
+            </button>
+            <button class="tab" onclick="showTab('diagnostics')">
+              Diagnostics
+            </button>
+            <button class="tab" onclick="showTab('maintenance')">
+              Maintenance
+            </button>
+            <button class="tab" onclick="showTab('kpis')">KPIs</button>
+          </div>
+
+          <div class="tab-content active" id="overview-tab">
+            <div id="asset-overview"></div>
+          </div>
+
+          <div class="tab-content" id="diagnostics-tab">
+            <div id="asset-diagnostics"></div>
+          </div>
+
+          <div class="tab-content" id="maintenance-tab">
+            <div id="asset-maintenance"></div>
+          </div>
+
+          <div class="tab-content" id="kpis-tab">
+            <div class="kpi-grid" id="asset-kpis"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Global variables
-        let map;
-        let allAssets = [];
-        let assetMarkers = [];
-        let selectedAsset = null;
-        let currentFilter = 'all';
-        let currentCategory = 'all';
+      // Global variables
+      let map;
+      let allAssets = [];
+      let assetMarkers = [];
+      let selectedAsset = null;
+      let currentFilter = "all";
+      let currentCategory = "all";
 
-        // Initialize map
-        function initMap() {
-            map = L.map('map', {
-                zoomControl: false
-            }).setView([32.7767, -96.7970], 10); // Dallas area
+      // Initialize map
+      function initMap() {
+        map = L.map("map", {
+          zoomControl: false,
+        }).setView([32.7767, -96.797], 10); // Dallas area
 
-            // Dark theme tile layer
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                subdomains: 'abcd',
-                maxZoom: 20
-            }).addTo(map);
+        // Dark theme tile layer
+        L.tileLayer(
+          "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+          {
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: "abcd",
+            maxZoom: 20,
+          },
+        ).addTo(map);
 
-            // Add zoom control to bottom right
-            L.control.zoom({
-                position: 'bottomright'
-            }).addTo(map);
+        // Add zoom control to bottom right
+        L.control
+          .zoom({
+            position: "bottomright",
+          })
+          .addTo(map);
+      }
+
+      // Load and display assets
+      async function loadAssets() {
+        try {
+          const response = await fetch("/api/live-assets");
+          const assets = await response.json();
+          allAssets = assets;
+          displayAssets(assets);
+          updateStats(assets);
+          updateAssetList(assets);
+        } catch (error) {
+          console.error("Error loading assets:", error);
+          document.getElementById("asset-list").innerHTML =
+            '<div class="loading">Error loading assets</div>';
         }
+      }
 
-        // Load and display assets
-        async function loadAssets() {
-            try {
-                const response = await fetch('/api/live-assets');
-                const assets = await response.json();
-                allAssets = assets;
-                displayAssets(assets);
-                updateStats(assets);
-                updateAssetList(assets);
-            } catch (error) {
-                console.error('Error loading assets:', error);
-                document.getElementById('asset-list').innerHTML = 
-                    '<div class="loading">Error loading assets</div>';
-            }
-        }
+      // Display assets on map
+      function displayAssets(assets) {
+        // Clear existing markers
+        assetMarkers.forEach((marker) => map.removeLayer(marker));
+        assetMarkers = [];
 
-        // Display assets on map
-        function displayAssets(assets) {
-            // Clear existing markers
-            assetMarkers.forEach(marker => map.removeLayer(marker));
-            assetMarkers = [];
+        assets.forEach((asset) => {
+          if (asset.lat && asset.lng) {
+            const marker = createAssetMarker(asset);
+            assetMarkers.push(marker);
+            marker.addTo(map);
+          }
+        });
+      }
 
-            assets.forEach(asset => {
-                if (asset.lat && asset.lng) {
-                    const marker = createAssetMarker(asset);
-                    assetMarkers.push(marker);
-                    marker.addTo(map);
-                }
-            });
-        }
-
-        // Create custom marker for asset
-        function createAssetMarker(asset) {
-            const color = asset.active ? '#46d160' : '#ea0027';
-            const icon = L.divIcon({
-                className: 'custom-marker',
-                html: `
+      // Create custom marker for asset
+      function createAssetMarker(asset) {
+        const color = asset.active ? "#46d160" : "#ea0027";
+        const icon = L.divIcon({
+          className: "custom-marker",
+          html: `
                     <div style="
                         background: ${color};
                         width: 12px;
@@ -603,13 +641,13 @@
                         box-shadow: 0 2px 4px rgba(0,0,0,0.3);
                     "></div>
                 `,
-                iconSize: [16, 16],
-                iconAnchor: [8, 8]
-            });
+          iconSize: [16, 16],
+          iconAnchor: [8, 8],
+        });
 
-            const marker = L.marker([asset.lat, asset.lng], { icon });
-            
-            marker.bindPopup(`
+        const marker = L.marker([asset.lat, asset.lng], { icon });
+
+        marker.bindPopup(`
                 <div style="color: #333; font-family: Inter, sans-serif;">
                     <strong>${asset.id}</strong><br>
                     ${asset.label}<br>
@@ -621,93 +659,105 @@
                 </div>
             `);
 
-            marker.on('click', () => {
-                selectAsset(asset.id);
-            });
+        marker.on("click", () => {
+          selectAsset(asset.id);
+        });
 
-            return marker;
+        return marker;
+      }
+
+      // Update asset list in sidebar
+      function updateAssetList(assets) {
+        const filteredAssets = filterAssets(assets);
+        const listContainer = document.getElementById("asset-list");
+
+        if (filteredAssets.length === 0) {
+          listContainer.innerHTML =
+            '<div class="loading">No assets match filters</div>';
+          return;
         }
 
-        // Update asset list in sidebar
-        function updateAssetList(assets) {
-            const filteredAssets = filterAssets(assets);
-            const listContainer = document.getElementById('asset-list');
-            
-            if (filteredAssets.length === 0) {
-                listContainer.innerHTML = '<div class="loading">No assets match filters</div>';
-                return;
-            }
-
-            listContainer.innerHTML = filteredAssets.map(asset => `
+        listContainer.innerHTML = filteredAssets
+          .map(
+            (asset) => `
                 <div class="asset-item" onclick="selectAsset('${asset.id}')">
                     <div class="asset-header">
                         <div class="asset-id">${asset.id}</div>
-                        <div class="asset-status ${asset.active ? 'active' : 'inactive'}"></div>
+                        <div class="asset-status ${asset.active ? "active" : "inactive"}"></div>
                     </div>
                     <div class="asset-details">
                         ${asset.category} • ${asset.hours} hours
                     </div>
                     <div class="asset-location">${asset.location}</div>
                 </div>
-            `).join('');
+            `,
+          )
+          .join("");
+      }
+
+      // Filter assets based on current filters
+      function filterAssets(assets) {
+        return assets.filter((asset) => {
+          const statusMatch =
+            currentFilter === "all" ||
+            (currentFilter === "active" && asset.active) ||
+            (currentFilter === "inactive" && !asset.active);
+
+          const categoryMatch =
+            currentCategory === "all" || asset.category === currentCategory;
+
+          return statusMatch && categoryMatch;
+        });
+      }
+
+      // Update statistics
+      function updateStats(assets) {
+        const activeAssets = assets.filter((a) => a.active).length;
+        const totalAssets = assets.length;
+        const coverage = Math.round(
+          (assets.filter((a) => a.lat && a.lng).length / totalAssets) * 100,
+        );
+
+        document.getElementById("active-count").textContent = activeAssets;
+        document.getElementById("total-count").textContent = totalAssets;
+        document.getElementById("coverage-percent").textContent =
+          coverage + "%";
+      }
+
+      // Select asset
+      function selectAsset(assetId) {
+        selectedAsset = assetId;
+
+        // Update UI
+        document.querySelectorAll(".asset-item").forEach((item) => {
+          item.classList.remove("selected");
+        });
+
+        const selectedItem = document.querySelector(
+          `[onclick="selectAsset('${assetId}')"]`,
+        );
+        if (selectedItem) {
+          selectedItem.classList.add("selected");
         }
 
-        // Filter assets based on current filters
-        function filterAssets(assets) {
-            return assets.filter(asset => {
-                const statusMatch = currentFilter === 'all' || 
-                    (currentFilter === 'active' && asset.active) ||
-                    (currentFilter === 'inactive' && !asset.active);
-                
-                const categoryMatch = currentCategory === 'all' || 
-                    asset.category === currentCategory;
-                
-                return statusMatch && categoryMatch;
-            });
+        // Center map on asset
+        const asset = allAssets.find((a) => a.id === assetId);
+        if (asset && asset.lat && asset.lng) {
+          map.setView([asset.lat, asset.lng], 15);
         }
+      }
 
-        // Update statistics
-        function updateStats(assets) {
-            const activeAssets = assets.filter(a => a.active).length;
-            const totalAssets = assets.length;
-            const coverage = Math.round((assets.filter(a => a.lat && a.lng).length / totalAssets) * 100);
+      // Show asset details modal
+      async function showAssetDetails(assetId) {
+        try {
+          const response = await fetch(`/api/asset-details/${assetId}`);
+          const details = await response.json();
 
-            document.getElementById('active-count').textContent = activeAssets;
-            document.getElementById('total-count').textContent = totalAssets;
-            document.getElementById('coverage-percent').textContent = coverage + '%';
-        }
+          document.getElementById("modal-title").textContent =
+            `${assetId} Details`;
 
-        // Select asset
-        function selectAsset(assetId) {
-            selectedAsset = assetId;
-            
-            // Update UI
-            document.querySelectorAll('.asset-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-            
-            const selectedItem = document.querySelector(`[onclick="selectAsset('${assetId}')"]`);
-            if (selectedItem) {
-                selectedItem.classList.add('selected');
-            }
-
-            // Center map on asset
-            const asset = allAssets.find(a => a.id === assetId);
-            if (asset && asset.lat && asset.lng) {
-                map.setView([asset.lat, asset.lng], 15);
-            }
-        }
-
-        // Show asset details modal
-        async function showAssetDetails(assetId) {
-            try {
-                const response = await fetch(`/api/asset-details/${assetId}`);
-                const details = await response.json();
-                
-                document.getElementById('modal-title').textContent = `${assetId} Details`;
-                
-                // Overview tab
-                document.getElementById('asset-overview').innerHTML = `
+          // Overview tab
+          document.getElementById("asset-overview").innerHTML = `
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
                         <div class="kpi-card">
                             <div class="kpi-title">Make & Model</div>
@@ -728,8 +778,8 @@
                     </div>
                 `;
 
-                // Diagnostics tab
-                document.getElementById('asset-diagnostics').innerHTML = `
+          // Diagnostics tab
+          document.getElementById("asset-diagnostics").innerHTML = `
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
                         <div class="kpi-card">
                             <div class="kpi-header">
@@ -755,8 +805,8 @@
                     </div>
                 `;
 
-                // Maintenance tab
-                document.getElementById('asset-maintenance').innerHTML = `
+          // Maintenance tab
+          document.getElementById("asset-maintenance").innerHTML = `
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
                         <div class="kpi-card">
                             <div class="kpi-title">Next Service</div>
@@ -776,8 +826,10 @@
                     </div>
                 `;
 
-                // KPIs tab
-                document.getElementById('asset-kpis').innerHTML = details.kpi_metrics.map(kpi => `
+          // KPIs tab
+          document.getElementById("asset-kpis").innerHTML = details.kpi_metrics
+            .map(
+              (kpi) => `
                     <div class="kpi-card">
                         <div class="kpi-header">
                             <div class="kpi-title">${kpi.title}</div>
@@ -786,85 +838,97 @@
                         <div class="kpi-value">${kpi.value}</div>
                         <div class="kpi-description">${kpi.description}</div>
                     </div>
-                `).join('');
+                `,
+            )
+            .join("");
 
-                document.getElementById('asset-modal').style.display = 'flex';
-            } catch (error) {
-                console.error('Error loading asset details:', error);
-            }
+          document.getElementById("asset-modal").style.display = "flex";
+        } catch (error) {
+          console.error("Error loading asset details:", error);
         }
+      }
 
-        // Modal and tab functions
-        function closeModal() {
-            document.getElementById('asset-modal').style.display = 'none';
-        }
+      // Modal and tab functions
+      function closeModal() {
+        document.getElementById("asset-modal").style.display = "none";
+      }
 
-        function showTab(tabName) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tabName + '-tab').classList.add('active');
-        }
+      function showTab(tabName) {
+        document
+          .querySelectorAll(".tab")
+          .forEach((tab) => tab.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((content) => content.classList.remove("active"));
 
-        // Filter functions
-        document.addEventListener('DOMContentLoaded', function() {
-            // Status filters
-            document.querySelectorAll('[data-filter]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    currentFilter = this.dataset.filter;
-                    updateAssetList(allAssets);
-                    displayAssets(filterAssets(allAssets));
-                });
-            });
+        event.target.classList.add("active");
+        document.getElementById(tabName + "-tab").classList.add("active");
+      }
 
-            // Category filters
-            document.querySelectorAll('[data-category]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('[data-category]').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    currentCategory = this.dataset.category;
-                    updateAssetList(allAssets);
-                    displayAssets(filterAssets(allAssets));
-                });
-            });
+      // Filter functions
+      document.addEventListener("DOMContentLoaded", function () {
+        // Status filters
+        document.querySelectorAll("[data-filter]").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            document
+              .querySelectorAll("[data-filter]")
+              .forEach((b) => b.classList.remove("active"));
+            this.classList.add("active");
+            currentFilter = this.dataset.filter;
+            updateAssetList(allAssets);
+            displayAssets(filterAssets(allAssets));
+          });
         });
 
-        // Utility functions
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
-
-        function refreshData() {
-            loadAssets();
-        }
-
-        function centerMap() {
-            if (allAssets.length > 0) {
-                const group = new L.featureGroup(assetMarkers);
-                map.fitBounds(group.getBounds());
-            }
-        }
-
-        function toggleHeatmap() {
-            // Implement heatmap toggle
-            console.log('Heatmap toggle - feature coming soon');
-        }
-
-        // Initialize everything
-        document.addEventListener('DOMContentLoaded', function() {
-            initMap();
-            loadAssets();
+        // Category filters
+        document.querySelectorAll("[data-category]").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            document
+              .querySelectorAll("[data-category]")
+              .forEach((b) => b.classList.remove("active"));
+            this.classList.add("active");
+            currentCategory = this.dataset.category;
+            updateAssetList(allAssets);
+            displayAssets(filterAssets(allAssets));
+          });
         });
+      });
 
-        // Close modal when clicking outside
-        document.getElementById('asset-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
+      // Utility functions
+      function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("open");
+      }
+
+      function refreshData() {
+        loadAssets();
+      }
+
+      function centerMap() {
+        if (allAssets.length > 0) {
+          const group = new L.featureGroup(assetMarkers);
+          map.fitBounds(group.getBounds());
+        }
+      }
+
+      function toggleHeatmap() {
+        // Implement heatmap toggle
+        console.log("Heatmap toggle - feature coming soon");
+      }
+
+      // Initialize everything
+      document.addEventListener("DOMContentLoaded", function () {
+        initMap();
+        loadAssets();
+      });
+
+      // Close modal when clicking outside
+      document
+        .getElementById("asset-modal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            closeModal();
+          }
         });
     </script>
-</body>
+  </body>
 </html>

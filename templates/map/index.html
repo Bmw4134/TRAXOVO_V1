@@ -1,839 +1,952 @@
-{% extends "base.html" %}
-
-{% block title %}Map & Geofence{% endblock %}
-
-{% block styles %}
-{{ super() }}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+{% extends "base.html" %} {% block title %}Map & Geofence{% endblock %} {% block
+styles %} {{ super() }}
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin=""
+/>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
+/>
 <style>
-    #map-container {
-        height: calc(100vh - 200px);
-        min-height: 500px;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
+  #map-container {
+    height: calc(100vh - 200px);
+    min-height: 500px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
 
-    #map {
-        height: 100%;
-    }
+  #map {
+    height: 100%;
+  }
 
-    .map-controls {
-        position: relative;
-        z-index: 1000;
-    }
+  .map-controls {
+    position: relative;
+    z-index: 1000;
+  }
 
-    .map-legend {
-        background: rgba(26, 26, 37, 0.9);
-        padding: 10px;
-        border-radius: 4px;
-        border: 1px solid var(--bs-border-color);
-    }
+  .map-legend {
+    background: rgba(26, 26, 37, 0.9);
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--bs-border-color);
+  }
 
-    .map-legend .legend-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 5px;
-    }
+  .map-legend .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+  }
 
-    .map-legend .legend-color {
-        width: 16px;
-        height: 16px;
-        margin-right: 8px;
-        border-radius: 50%;
-        display: inline-block;
-    }
+  .map-legend .legend-color {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
 
-    .status-active {
-        color: var(--bs-success);
-    }
+  .status-active {
+    color: var(--bs-success);
+  }
 
-    .status-idle {
-        color: var(--bs-warning);
-    }
+  .status-idle {
+    color: var(--bs-warning);
+  }
 
-    .status-inactive {
-        color: var(--bs-danger);
-    }
+  .status-inactive {
+    color: var(--bs-danger);
+  }
 
-    .geofence {
-        fill-opacity: 0.2;
-        stroke-width: 2;
-    }
+  .geofence {
+    fill-opacity: 0.2;
+    stroke-width: 2;
+  }
 
-    .leaflet-popup-content-wrapper {
-        background-color: var(--bs-dark);
-        color: var(--bs-light);
-    }
+  .leaflet-popup-content-wrapper {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+  }
 
-    .leaflet-popup-tip {
-        background-color: var(--bs-dark);
-    }
+  .leaflet-popup-tip {
+    background-color: var(--bs-dark);
+  }
 
-    .asset-detail-panel {
-        display: none;
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        z-index: 1000;
-        background: rgba(26, 26, 37, 0.9);
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        max-width: 350px;
-        max-height: 80vh;
-        overflow-y: auto;
-    }
+  .asset-detail-panel {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background: rgba(26, 26, 37, 0.9);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    max-width: 350px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
 
-    .asset-detail-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
+  .asset-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
 
-    .asset-detail-close {
-        cursor: pointer;
-    }
+  .asset-detail-close {
+    cursor: pointer;
+  }
 
-    .filter-panel {
-        margin-bottom: 15px;
-    }
+  .filter-panel {
+    margin-bottom: 15px;
+  }
 
-    .marker-active {
-        background-color: #28a745;
-        border-radius: 50%;
-        border: 2px solid white;
-    }
+  .marker-active {
+    background-color: #28a745;
+    border-radius: 50%;
+    border: 2px solid white;
+  }
 
-    .marker-idle {
-        background-color: #ffc107;
-        border-radius: 50%;
-        border: 2px solid white;
-    }
+  .marker-idle {
+    background-color: #ffc107;
+    border-radius: 50%;
+    border: 2px solid white;
+  }
 
-    .marker-inactive {
-        background-color: #dc3545;
-        border-radius: 50%;
-        border: 2px solid white;
-    }
-    
-    .marker-retired {
-        background-color: #212529;
-        border-radius: 50%;
-        border: 2px solid white;
-    }
+  .marker-inactive {
+    background-color: #dc3545;
+    border-radius: 50%;
+    border: 2px solid white;
+  }
 
-    .marker-unknown {
-        background-color: #6c757d;
-        border-radius: 50%;
-        border: 2px solid white;
-    }
-    
-    .status-retired {
-        color: #212529;
-    }
+  .marker-retired {
+    background-color: #212529;
+    border-radius: 50%;
+    border: 2px solid white;
+  }
 
-    .stat-card {
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        transition: all 0.3s ease;
-    }
+  .marker-unknown {
+    background-color: #6c757d;
+    border-radius: 50%;
+    border: 2px solid white;
+  }
 
-    .stat-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
+  .status-retired {
+    color: #212529;
+  }
 
-    .stat-value {
-        font-size: 2rem;
-        font-weight: bold;
-    }
+  .stat-card {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+  }
 
-    .stat-label {
-        font-size: 0.9rem;
-        color: var(--bs-secondary-color);
-    }
+  .stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
 
-    .asset-class-chart, .location-chart {
-        height: 200px;
-    }
+  .stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+
+  .stat-label {
+    font-size: 0.9rem;
+    color: var(--bs-secondary-color);
+  }
+
+  .asset-class-chart,
+  .location-chart {
+    height: 200px;
+  }
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3">Asset Map & Geofence</h1>
-            <p class="text-muted">Live location tracking and job site boundaries</p>
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="h3">Asset Map & Geofence</h1>
+      <p class="text-muted">Live location tracking and job site boundaries</p>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-12 col-md-6 col-lg-3 mb-3">
+      <div class="card stat-card bg-primary bg-opacity-25">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col-8">
+              <div class="stat-value" id="total-assets">--</div>
+              <div class="stat-label">Total Assets</div>
+            </div>
+            <div class="col-4 text-end">
+              <i class="bi bi-tools fs-1 opacity-75"></i>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-12 col-md-6 col-lg-3 mb-3">
-            <div class="card stat-card bg-primary bg-opacity-25">
-                <div class="card-body p-3">
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="stat-value" id="total-assets">--</div>
-                            <div class="stat-label">Total Assets</div>
-                        </div>
-                        <div class="col-4 text-end">
-                            <i class="bi bi-tools fs-1 opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
+    <div class="col-12 col-md-6 col-lg-3 mb-3">
+      <div class="card stat-card bg-success bg-opacity-25">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col-8">
+              <div class="stat-value" id="active-assets">--</div>
+              <div class="stat-label">Active Assets</div>
             </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-lg-3 mb-3">
-            <div class="card stat-card bg-success bg-opacity-25">
-                <div class="card-body p-3">
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="stat-value" id="active-assets">--</div>
-                            <div class="stat-label">Active Assets</div>
-                        </div>
-                        <div class="col-4 text-end">
-                            <i class="bi bi-check-circle fs-1 opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-4 text-end">
+              <i class="bi bi-check-circle fs-1 opacity-75"></i>
             </div>
+          </div>
         </div>
-
-        <div class="col-12 col-md-6 col-lg-3 mb-3">
-            <div class="card stat-card bg-warning bg-opacity-25">
-                <div class="card-body p-3">
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="stat-value" id="ignition-on">--</div>
-                            <div class="stat-label">Running Now</div>
-                        </div>
-                        <div class="col-4 text-end">
-                            <i class="bi bi-lightning-charge fs-1 opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-lg-3 mb-3">
-            <div class="card stat-card bg-danger bg-opacity-25">
-                <div class="card-body p-3">
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="stat-value" id="inactive-assets">--</div>
-                            <div class="stat-label">Inactive Assets</div>
-                        </div>
-                        <div class="col-4 text-end">
-                            <i class="bi bi-exclamation-triangle fs-1 opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-12 col-md-6 col-lg-3 mb-3">
-            <div class="card stat-card bg-dark bg-opacity-25">
-                <div class="card-body p-3">
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="stat-value" id="retired-assets">--</div>
-                            <div class="stat-label">Retired/Sold Assets</div>
-                        </div>
-                        <div class="col-4 text-end">
-                            <i class="bi bi-archive fs-1 opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
+    <div class="col-12 col-md-6 col-lg-3 mb-3">
+      <div class="card stat-card bg-warning bg-opacity-25">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col-8">
+              <div class="stat-value" id="ignition-on">--</div>
+              <div class="stat-label">Running Now</div>
             </div>
+            <div class="col-4 text-end">
+              <i class="bi bi-lightning-charge fs-1 opacity-75"></i>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="row">
-                        <div class="col-12 col-md-6">
-                            <h5 class="card-title mb-0">Live Asset Map</h5>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <div class="filter-panel d-flex gap-2 justify-content-md-end">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="toggle-geofences" checked>
-                                    <label class="form-check-label" for="toggle-geofences">Geofences</label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="toggle-clusters" checked>
-                                    <label class="form-check-label" for="toggle-clusters">Clusters</label>
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Filter
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
-                                        <li><a class="dropdown-item filter-status" data-status="all" href="#">All Status</a></li>
-                                        <li><a class="dropdown-item filter-status" data-status="active" href="#">Active</a></li>
-                                        <li><a class="dropdown-item filter-status" data-status="idle" href="#">Idle</a></li>
-                                        <li><a class="dropdown-item filter-status" data-status="inactive" href="#">Inactive</a></li>
-                                        <li><a class="dropdown-item filter-status" data-status="retired" href="#">Retired/Sold</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><h6 class="dropdown-header">Job Sites</h6></li>
-                                        <li><a class="dropdown-item filter-site" data-site="all" href="#">All Sites</a></li>
-                                        <div id="site-filters"></div>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div id="map-container">
-                        <div id="map"></div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <div class="map-legend d-flex flex-wrap gap-4">
-                        <div class="legend-item">
-                            <span class="legend-color bg-success"></span>
-                            <span>Active</span>
-                        </div>
-                        <div class="legend-item">
-                            <span class="legend-color bg-warning"></span>
-                            <span>Idle</span>
-                        </div>
-                        <div class="legend-item">
-                            <span class="legend-color bg-danger"></span>
-                            <span>Inactive</span>
-                        </div>
-                        <div class="legend-item">
-                            <span class="legend-color bg-dark"></span>
-                            <span>Retired/Sold</span>
-                        </div>
-                        <div class="legend-item">
-                            <span class="legend-color bg-secondary"></span>
-                            <span>Unknown</span>
-                        </div>
-                        <div class="legend-item">
-                            <span class="legend-color" style="background: rgba(0, 0, 255, 0.5); border-radius: 0;"></span>
-                            <span>Geofence</span>
-                        </div>
-                    </div>
-                </div>
+    <div class="col-12 col-md-6 col-lg-3 mb-3">
+      <div class="card stat-card bg-danger bg-opacity-25">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col-8">
+              <div class="stat-value" id="inactive-assets">--</div>
+              <div class="stat-label">Inactive Assets</div>
             </div>
+            <div class="col-4 text-end">
+              <i class="bi bi-exclamation-triangle fs-1 opacity-75"></i>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <div class="row">
-        <div class="col-12 col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Assets by Class</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="assetClassChart" class="asset-class-chart"></canvas>
-                </div>
+  <div class="row mb-4">
+    <div class="col-12 col-md-6 col-lg-3 mb-3">
+      <div class="card stat-card bg-dark bg-opacity-25">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col-8">
+              <div class="stat-value" id="retired-assets">--</div>
+              <div class="stat-label">Retired/Sold Assets</div>
             </div>
-        </div>
-        <div class="col-12 col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Assets by Location</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="locationChart" class="location-chart"></canvas>
-                </div>
+            <div class="col-4 text-end">
+              <i class="bi bi-archive fs-1 opacity-75"></i>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-12 col-md-6">
+              <h5 class="card-title mb-0">Live Asset Map</h5>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="filter-panel d-flex gap-2 justify-content-md-end">
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="toggle-geofences"
+                    checked
+                  />
+                  <label class="form-check-label" for="toggle-geofences"
+                    >Geofences</label
+                  >
+                </div>
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="toggle-clusters"
+                    checked
+                  />
+                  <label class="form-check-label" for="toggle-clusters"
+                    >Clusters</label
+                  >
+                </div>
+                <div class="dropdown">
+                  <button
+                    class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                    type="button"
+                    id="filterDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    Filter
+                  </button>
+                  <ul
+                    class="dropdown-menu dropdown-menu-end"
+                    aria-labelledby="filterDropdown"
+                  >
+                    <li>
+                      <a
+                        class="dropdown-item filter-status"
+                        data-status="all"
+                        href="#"
+                        >All Status</a
+                      >
+                    </li>
+                    <li>
+                      <a
+                        class="dropdown-item filter-status"
+                        data-status="active"
+                        href="#"
+                        >Active</a
+                      >
+                    </li>
+                    <li>
+                      <a
+                        class="dropdown-item filter-status"
+                        data-status="idle"
+                        href="#"
+                        >Idle</a
+                      >
+                    </li>
+                    <li>
+                      <a
+                        class="dropdown-item filter-status"
+                        data-status="inactive"
+                        href="#"
+                        >Inactive</a
+                      >
+                    </li>
+                    <li>
+                      <a
+                        class="dropdown-item filter-status"
+                        data-status="retired"
+                        href="#"
+                        >Retired/Sold</a
+                      >
+                    </li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li><h6 class="dropdown-header">Job Sites</h6></li>
+                    <li>
+                      <a
+                        class="dropdown-item filter-site"
+                        data-site="all"
+                        href="#"
+                        >All Sites</a
+                      >
+                    </li>
+                    <div id="site-filters"></div>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div id="map-container">
+            <div id="map"></div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="map-legend d-flex flex-wrap gap-4">
+            <div class="legend-item">
+              <span class="legend-color bg-success"></span>
+              <span>Active</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color bg-warning"></span>
+              <span>Idle</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color bg-danger"></span>
+              <span>Inactive</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color bg-dark"></span>
+              <span>Retired/Sold</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color bg-secondary"></span>
+              <span>Unknown</span>
+            </div>
+            <div class="legend-item">
+              <span
+                class="legend-color"
+                style="background: rgba(0, 0, 255, 0.5); border-radius: 0"
+              ></span>
+              <span>Geofence</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Assets by Class</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="assetClassChart" class="asset-class-chart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Assets by Location</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="locationChart" class="location-chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Asset Detail Panel -->
 <div id="asset-detail-panel" class="asset-detail-panel">
-    <div class="asset-detail-header">
-        <h5 id="asset-detail-title" class="m-0">Asset Details</h5>
-        <span class="asset-detail-close" id="close-asset-detail"><i class="bi bi-x-lg"></i></span>
-    </div>
-    <div id="asset-detail-content">
-        <!-- Content will be loaded dynamically -->
-    </div>
+  <div class="asset-detail-header">
+    <h5 id="asset-detail-title" class="m-0">Asset Details</h5>
+    <span class="asset-detail-close" id="close-asset-detail"
+      ><i class="bi bi-x-lg"></i
+    ></span>
+  </div>
+  <div id="asset-detail-content">
+    <!-- Content will be loaded dynamically -->
+  </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-{{ super() }}
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+{% endblock %} {% block scripts %} {{ super() }}
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin=""
+></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Initialize map and variables
-    let map, markers, geofenceLayer, markerClusterGroup;
-    let currentFilter = { status: 'all', site: 'all' };
-    let assetClassChart, locationChart;
-    let useMarkerClusters = true;
-    let showGeofences = true;
-    
-    // Define colors for different statuses
-    const statusColors = {
-        active: '#28a745',
-        idle: '#ffc107',
-        inactive: '#dc3545',
-        unknown: '#6c757d'
-    };
-    
-    // Define chart colors
-    const chartColors = [
-        '#4f86f7', '#ffbf00', '#ff2800', '#56a556', 
-        '#9370db', '#ff69b4', '#00ced1', '#ff7f50', 
-        '#8a2be2', '#00fa9a', '#d2691e', '#00bfff',
-        '#ff1493', '#9400d3', '#32cd32', '#fa8072'
-    ];
-    
-    // Initialize map when DOM is ready
-    document.addEventListener('DOMContentLoaded', function() {
-        initMap();
-        loadAssetStatus();
-        loadSites();
-        setupFilterListeners();
-        setupToggleListeners();
-        setupAssetDetailPanel();
-        
-        // Refresh data every 60 seconds
-        setInterval(function() {
-            loadAssets();
-            loadAssetStatus();
-        }, 60000);
+  // Initialize map and variables
+  let map, markers, geofenceLayer, markerClusterGroup;
+  let currentFilter = { status: "all", site: "all" };
+  let assetClassChart, locationChart;
+  let useMarkerClusters = true;
+  let showGeofences = true;
+
+  // Define colors for different statuses
+  const statusColors = {
+    active: "#28a745",
+    idle: "#ffc107",
+    inactive: "#dc3545",
+    unknown: "#6c757d",
+  };
+
+  // Define chart colors
+  const chartColors = [
+    "#4f86f7",
+    "#ffbf00",
+    "#ff2800",
+    "#56a556",
+    "#9370db",
+    "#ff69b4",
+    "#00ced1",
+    "#ff7f50",
+    "#8a2be2",
+    "#00fa9a",
+    "#d2691e",
+    "#00bfff",
+    "#ff1493",
+    "#9400d3",
+    "#32cd32",
+    "#fa8072",
+  ];
+
+  // Initialize map when DOM is ready
+  document.addEventListener("DOMContentLoaded", function () {
+    initMap();
+    loadAssetStatus();
+    loadSites();
+    setupFilterListeners();
+    setupToggleListeners();
+    setupAssetDetailPanel();
+
+    // Refresh data every 60 seconds
+    setInterval(function () {
+      loadAssets();
+      loadAssetStatus();
+    }, 60000);
+  });
+
+  // Initialize the map
+  function initMap() {
+    // Create map
+    map = L.map("map", {
+      center: [32.7767, -96.797], // Dallas area
+      zoom: 10,
+      zoomControl: false,
     });
-    
-    // Initialize the map
-    function initMap() {
-        // Create map
-        map = L.map('map', {
-            center: [32.7767, -96.7970], // Dallas area
-            zoom: 10,
-            zoomControl: false
-        });
-        
-        // Add zoom control to top right
-        L.control.zoom({
-            position: 'topright'
-        }).addTo(map);
-        
-        // Add dark tile layer
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            subdomains: 'abcd',
-            maxZoom: 19
-        }).addTo(map);
-        
-        // Initialize marker cluster group
-        markerClusterGroup = L.markerClusterGroup({
-            disableClusteringAtZoom: 16,
-            spiderfyOnMaxZoom: true,
-            showCoverageOnHover: false,
-            zoomToBoundsOnClick: true,
-            maxClusterRadius: 50
-        });
-        
-        // Initialize geofence layer
-        geofenceLayer = L.geoJSON(null, {
-            style: function(feature) {
-                return {
-                    color: '#4f86f7',
-                    weight: 2,
-                    opacity: 0.8,
-                    fillColor: '#4f86f7',
-                    fillOpacity: 0.2
-                };
-            },
-            onEachFeature: function(feature, layer) {
-                if (feature.properties && feature.properties.name) {
-                    layer.bindTooltip(feature.properties.name, {
-                        permanent: false,
-                        direction: 'auto',
-                        className: 'geofence-tooltip'
-                    });
-                }
-            }
-        }).addTo(map);
-        
-        // Add empty marker layer group
-        markers = L.layerGroup();
-        
-        // Load initial assets and geofences
-        loadAssets();
-        loadGeofences();
-    }
-    
-    // Load asset data
-    function loadAssets() {
-        fetch('/map/assets.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                updateAssets(data);
-            })
-            .catch(error => {
-                console.error('Error loading assets:', error);
-            });
-    }
-    
-    // Load geofence data
-    function loadGeofences() {
-        fetch('/map/geofences.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                geofenceLayer.clearLayers();
-                geofenceLayer.addData(data);
-                
-                // Apply visibility based on toggle
-                if (!showGeofences) {
-                    geofenceLayer.remove();
-                }
-            })
-            .catch(error => {
-                console.error('Error loading geofences:', error);
-            });
-    }
-    
-    // Load asset status for dashboard
-    function loadAssetStatus() {
-        fetch('/map/asset-status')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                updateStatusDashboard(data);
-            })
-            .catch(error => {
-                console.error('Error loading asset status:', error);
-            });
-    }
-    
-    // Load job sites for filter
-    function loadSites() {
-        fetch('/map/job-sites')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                updateSiteFilters(data.sites);
-            })
-            .catch(error => {
-                console.error('Error loading job sites:', error);
-            });
-    }
-    
-    // Update assets on the map
-    function updateAssets(geojson) {
-        // Clear existing markers
-        if (useMarkerClusters) {
-            markerClusterGroup.clearLayers();
-        } else {
-            markers.clearLayers();
+
+    // Add zoom control to top right
+    L.control
+      .zoom({
+        position: "topright",
+      })
+      .addTo(map);
+
+    // Add dark tile layer
+    L.tileLayer(
+      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: "abcd",
+        maxZoom: 19,
+      },
+    ).addTo(map);
+
+    // Initialize marker cluster group
+    markerClusterGroup = L.markerClusterGroup({
+      disableClusteringAtZoom: 16,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      zoomToBoundsOnClick: true,
+      maxClusterRadius: 50,
+    });
+
+    // Initialize geofence layer
+    geofenceLayer = L.geoJSON(null, {
+      style: function (feature) {
+        return {
+          color: "#4f86f7",
+          weight: 2,
+          opacity: 0.8,
+          fillColor: "#4f86f7",
+          fillOpacity: 0.2,
+        };
+      },
+      onEachFeature: function (feature, layer) {
+        if (feature.properties && feature.properties.name) {
+          layer.bindTooltip(feature.properties.name, {
+            permanent: false,
+            direction: "auto",
+            className: "geofence-tooltip",
+          });
         }
-        
-        // Remove both layer groups from map for clean reattachment
-        map.removeLayer(markerClusterGroup);
-        map.removeLayer(markers);
-        
-        // Add new markers
-        geojson.features.forEach(feature => {
-            // Skip if filtered out
-            if (!passesFilter(feature)) {
-                return;
-            }
-            
-            const coords = feature.geometry.coordinates;
-            const props = feature.properties;
-            const status = props.status || 'unknown';
-            
-            // Create a custom icon
-            // Adjust size for retired assets
-            const iconSize = status === 'retired' ? [18, 18] : [24, 24];
-            const iconAnchor = status === 'retired' ? [9, 18] : [12, 24];
-            
-            const icon = L.divIcon({
-                className: `marker-${status}`,
-                html: '<i class="bi bi-geo-alt-fill"></i>',
-                iconSize: iconSize,
-                iconAnchor: iconAnchor,
-                popupAnchor: [0, -20]
-            });
-            
-            // Create marker
-            const marker = L.marker([coords[1], coords[0]], { icon: icon });
-            
-            // Add popup
-            if (props.popup_content) {
-                marker.bindPopup(props.popup_content);
-            }
-            
-            // Add click handler to show asset details
-            marker.on('click', function() {
-                showAssetDetails(props);
-            });
-            
-            // Add to appropriate layer group
-            if (useMarkerClusters) {
-                markerClusterGroup.addLayer(marker);
-            } else {
-                markers.addLayer(marker);
-            }
-        });
-        
-        // Add appropriate layer group to map
-        if (useMarkerClusters) {
-            map.addLayer(markerClusterGroup);
-        } else {
-            map.addLayer(markers);
+      },
+    }).addTo(map);
+
+    // Add empty marker layer group
+    markers = L.layerGroup();
+
+    // Load initial assets and geofences
+    loadAssets();
+    loadGeofences();
+  }
+
+  // Load asset data
+  function loadAssets() {
+    fetch("/map/assets.json")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
         }
-        
-        // If no assets visible in current view, zoom out to see all
-        if (geojson.features.length > 0 && (markers.getLayers().length === 0 && markerClusterGroup.getLayers().length === 0)) {
-            map.setView([32.7767, -96.7970], 10);  // Reset to default view
+        return response.json();
+      })
+      .then((data) => {
+        updateAssets(data);
+      })
+      .catch((error) => {
+        console.error("Error loading assets:", error);
+      });
+  }
+
+  // Load geofence data
+  function loadGeofences() {
+    fetch("/map/geofences.json")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
         }
+        return response.json();
+      })
+      .then((data) => {
+        geofenceLayer.clearLayers();
+        geofenceLayer.addData(data);
+
+        // Apply visibility based on toggle
+        if (!showGeofences) {
+          geofenceLayer.remove();
+        }
+      })
+      .catch((error) => {
+        console.error("Error loading geofences:", error);
+      });
+  }
+
+  // Load asset status for dashboard
+  function loadAssetStatus() {
+    fetch("/map/asset-status")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        updateStatusDashboard(data);
+      })
+      .catch((error) => {
+        console.error("Error loading asset status:", error);
+      });
+  }
+
+  // Load job sites for filter
+  function loadSites() {
+    fetch("/map/job-sites")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        updateSiteFilters(data.sites);
+      })
+      .catch((error) => {
+        console.error("Error loading job sites:", error);
+      });
+  }
+
+  // Update assets on the map
+  function updateAssets(geojson) {
+    // Clear existing markers
+    if (useMarkerClusters) {
+      markerClusterGroup.clearLayers();
+    } else {
+      markers.clearLayers();
     }
-    
-    // Update status dashboard
-    function updateStatusDashboard(data) {
-        // Update stat cards
-        document.getElementById('total-assets').textContent = data.total;
-        document.getElementById('active-assets').textContent = data.active;
-        document.getElementById('inactive-assets').textContent = data.inactive;
-        document.getElementById('retired-assets').textContent = data.retired || 0; // Add retired assets count
-        document.getElementById('ignition-on').textContent = data.ignition_on;
-        
-        // Update asset class chart
-        updateAssetClassChart(data.by_class);
-        
-        // Update location chart
-        updateLocationChart(data.by_location);
+
+    // Remove both layer groups from map for clean reattachment
+    map.removeLayer(markerClusterGroup);
+    map.removeLayer(markers);
+
+    // Add new markers
+    geojson.features.forEach((feature) => {
+      // Skip if filtered out
+      if (!passesFilter(feature)) {
+        return;
+      }
+
+      const coords = feature.geometry.coordinates;
+      const props = feature.properties;
+      const status = props.status || "unknown";
+
+      // Create a custom icon
+      // Adjust size for retired assets
+      const iconSize = status === "retired" ? [18, 18] : [24, 24];
+      const iconAnchor = status === "retired" ? [9, 18] : [12, 24];
+
+      const icon = L.divIcon({
+        className: `marker-${status}`,
+        html: '<i class="bi bi-geo-alt-fill"></i>',
+        iconSize: iconSize,
+        iconAnchor: iconAnchor,
+        popupAnchor: [0, -20],
+      });
+
+      // Create marker
+      const marker = L.marker([coords[1], coords[0]], { icon: icon });
+
+      // Add popup
+      if (props.popup_content) {
+        marker.bindPopup(props.popup_content);
+      }
+
+      // Add click handler to show asset details
+      marker.on("click", function () {
+        showAssetDetails(props);
+      });
+
+      // Add to appropriate layer group
+      if (useMarkerClusters) {
+        markerClusterGroup.addLayer(marker);
+      } else {
+        markers.addLayer(marker);
+      }
+    });
+
+    // Add appropriate layer group to map
+    if (useMarkerClusters) {
+      map.addLayer(markerClusterGroup);
+    } else {
+      map.addLayer(markers);
     }
-    
+
+    // If no assets visible in current view, zoom out to see all
+    if (
+      geojson.features.length > 0 &&
+      markers.getLayers().length === 0 &&
+      markerClusterGroup.getLayers().length === 0
+    ) {
+      map.setView([32.7767, -96.797], 10); // Reset to default view
+    }
+  }
+
+  // Update status dashboard
+  function updateStatusDashboard(data) {
+    // Update stat cards
+    document.getElementById("total-assets").textContent = data.total;
+    document.getElementById("active-assets").textContent = data.active;
+    document.getElementById("inactive-assets").textContent = data.inactive;
+    document.getElementById("retired-assets").textContent = data.retired || 0; // Add retired assets count
+    document.getElementById("ignition-on").textContent = data.ignition_on;
+
     // Update asset class chart
-    function updateAssetClassChart(data) {
-        const ctx = document.getElementById('assetClassChart').getContext('2d');
-        
-        // Prepare chart data
-        const labels = data.map(item => item.name);
-        const counts = data.map(item => item.count);
-        
-        // Create or update chart
-        if (assetClassChart) {
-            assetClassChart.data.labels = labels;
-            assetClassChart.data.datasets[0].data = counts;
-            assetClassChart.update();
-        } else {
-            assetClassChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: counts,
-                        backgroundColor: chartColors,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                color: '#fff'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    }
-    
+    updateAssetClassChart(data.by_class);
+
     // Update location chart
-    function updateLocationChart(data) {
-        const ctx = document.getElementById('locationChart').getContext('2d');
-        
-        // Prepare chart data
-        const labels = data.map(item => item.name);
-        const counts = data.map(item => item.count);
-        
-        // Create or update chart
-        if (locationChart) {
-            locationChart.data.labels = labels;
-            locationChart.data.datasets[0].data = counts;
-            locationChart.update();
+    updateLocationChart(data.by_location);
+  }
+
+  // Update asset class chart
+  function updateAssetClassChart(data) {
+    const ctx = document.getElementById("assetClassChart").getContext("2d");
+
+    // Prepare chart data
+    const labels = data.map((item) => item.name);
+    const counts = data.map((item) => item.count);
+
+    // Create or update chart
+    if (assetClassChart) {
+      assetClassChart.data.labels = labels;
+      assetClassChart.data.datasets[0].data = counts;
+      assetClassChart.update();
+    } else {
+      assetClassChart = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              data: counts,
+              backgroundColor: chartColors,
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "right",
+              labels: {
+                color: "#fff",
+              },
+            },
+          },
+        },
+      });
+    }
+  }
+
+  // Update location chart
+  function updateLocationChart(data) {
+    const ctx = document.getElementById("locationChart").getContext("2d");
+
+    // Prepare chart data
+    const labels = data.map((item) => item.name);
+    const counts = data.map((item) => item.count);
+
+    // Create or update chart
+    if (locationChart) {
+      locationChart.data.labels = labels;
+      locationChart.data.datasets[0].data = counts;
+      locationChart.update();
+    } else {
+      locationChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Asset Count",
+              data: counts,
+              backgroundColor: "#4f86f7",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: "#fff",
+              },
+              grid: {
+                color: "rgba(255, 255, 255, 0.1)",
+              },
+            },
+            x: {
+              ticks: {
+                color: "#fff",
+              },
+              grid: {
+                color: "rgba(255, 255, 255, 0.1)",
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              display: false,
+            },
+          },
+        },
+      });
+    }
+  }
+
+  // Update site filters
+  function updateSiteFilters(sites) {
+    const container = document.getElementById("site-filters");
+    container.innerHTML = "";
+
+    sites.forEach((site) => {
+      const item = document.createElement("li");
+      item.innerHTML = `<a class="dropdown-item filter-site" data-site="${site}" href="#">${site}</a>`;
+      container.appendChild(item);
+    });
+
+    // Attach event listeners to new filter items
+    document.querySelectorAll(".filter-site").forEach((element) => {
+      element.addEventListener("click", function (e) {
+        e.preventDefault();
+        const site = this.getAttribute("data-site");
+        currentFilter.site = site;
+        loadAssets();
+      });
+    });
+  }
+
+  // Setup filter click listeners
+  function setupFilterListeners() {
+    document.querySelectorAll(".filter-status").forEach((element) => {
+      element.addEventListener("click", function (e) {
+        e.preventDefault();
+        const status = this.getAttribute("data-status");
+        currentFilter.status = status;
+        loadAssets();
+      });
+    });
+  }
+
+  // Setup toggle listeners for clusters and geofences
+  function setupToggleListeners() {
+    // Cluster toggle
+    document
+      .getElementById("toggle-clusters")
+      .addEventListener("change", function () {
+        useMarkerClusters = this.checked;
+        loadAssets();
+      });
+
+    // Geofence toggle
+    document
+      .getElementById("toggle-geofences")
+      .addEventListener("change", function () {
+        showGeofences = this.checked;
+        if (showGeofences) {
+          map.addLayer(geofenceLayer);
         } else {
-            locationChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Asset Count',
-                        data: counts,
-                        backgroundColor: '#4f86f7',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                color: '#fff'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: '#fff'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
+          map.removeLayer(geofenceLayer);
         }
+      });
+  }
+
+  // Check if asset passes current filters
+  function passesFilter(feature) {
+    const props = feature.properties;
+
+    // Check status filter
+    if (
+      currentFilter.status !== "all" &&
+      props.status !== currentFilter.status
+    ) {
+      return false;
     }
-    
-    // Update site filters
-    function updateSiteFilters(sites) {
-        const container = document.getElementById('site-filters');
-        container.innerHTML = '';
-        
-        sites.forEach(site => {
-            const item = document.createElement('li');
-            item.innerHTML = `<a class="dropdown-item filter-site" data-site="${site}" href="#">${site}</a>`;
-            container.appendChild(item);
-        });
-        
-        // Attach event listeners to new filter items
-        document.querySelectorAll('.filter-site').forEach(element => {
-            element.addEventListener('click', function(e) {
-                e.preventDefault();
-                const site = this.getAttribute('data-site');
-                currentFilter.site = site;
-                loadAssets();
-            });
-        });
+
+    // Check site filter
+    if (currentFilter.site !== "all" && props.site !== currentFilter.site) {
+      return false;
     }
-    
-    // Setup filter click listeners
-    function setupFilterListeners() {
-        document.querySelectorAll('.filter-status').forEach(element => {
-            element.addEventListener('click', function(e) {
-                e.preventDefault();
-                const status = this.getAttribute('data-status');
-                currentFilter.status = status;
-                loadAssets();
-            });
-        });
+
+    return true;
+  }
+
+  // Asset detail panel
+  function setupAssetDetailPanel() {
+    document
+      .getElementById("close-asset-detail")
+      .addEventListener("click", function () {
+        document.getElementById("asset-detail-panel").style.display = "none";
+      });
+  }
+
+  // Show asset details
+  function showAssetDetails(props) {
+    const panel = document.getElementById("asset-detail-panel");
+    const content = document.getElementById("asset-detail-content");
+    const title = document.getElementById("asset-detail-title");
+
+    // Set title and content
+    title.textContent = props.label || "Asset Details";
+
+    // Format time since update
+    let timeString = "Unknown";
+    if (props.time_since_update !== null) {
+      if (props.time_since_update < 1) {
+        timeString = "Less than 1 hour ago";
+      } else if (props.time_since_update < 24) {
+        timeString = `${Math.round(props.time_since_update)} hours ago`;
+      } else {
+        timeString = `${Math.round(props.time_since_update / 24)} days ago`;
+      }
     }
-    
-    // Setup toggle listeners for clusters and geofences
-    function setupToggleListeners() {
-        // Cluster toggle
-        document.getElementById('toggle-clusters').addEventListener('change', function() {
-            useMarkerClusters = this.checked;
-            loadAssets();
-        });
-        
-        // Geofence toggle
-        document.getElementById('toggle-geofences').addEventListener('change', function() {
-            showGeofences = this.checked;
-            if (showGeofences) {
-                map.addLayer(geofenceLayer);
-            } else {
-                map.removeLayer(geofenceLayer);
-            }
-        });
-    }
-    
-    // Check if asset passes current filters
-    function passesFilter(feature) {
-        const props = feature.properties;
-        
-        // Check status filter
-        if (currentFilter.status !== 'all' && props.status !== currentFilter.status) {
-            return false;
-        }
-        
-        // Check site filter
-        if (currentFilter.site !== 'all' && props.site !== currentFilter.site) {
-            return false;
-        }
-        
-        return true;
-    }
-    
-    // Asset detail panel
-    function setupAssetDetailPanel() {
-        document.getElementById('close-asset-detail').addEventListener('click', function() {
-            document.getElementById('asset-detail-panel').style.display = 'none';
-        });
-    }
-    
-    // Show asset details
-    function showAssetDetails(props) {
-        const panel = document.getElementById('asset-detail-panel');
-        const content = document.getElementById('asset-detail-content');
-        const title = document.getElementById('asset-detail-title');
-        
-        // Set title and content
-        title.textContent = props.label || 'Asset Details';
-        
-        // Format time since update
-        let timeString = 'Unknown';
-        if (props.time_since_update !== null) {
-            if (props.time_since_update < 1) {
-                timeString = 'Less than 1 hour ago';
-            } else if (props.time_since_update < 24) {
-                timeString = `${Math.round(props.time_since_update)} hours ago`;
-            } else {
-                timeString = `${Math.round(props.time_since_update / 24)} days ago`;
-            }
-        }
-        
-        // Build detail content
-        let statusClass = `status-${props.status}`;
-        let statusText = props.status.charAt(0).toUpperCase() + props.status.slice(1);
-        
-        content.innerHTML = `
+
+    // Build detail content
+    let statusClass = `status-${props.status}`;
+    let statusText =
+      props.status.charAt(0).toUpperCase() + props.status.slice(1);
+
+    content.innerHTML = `
             <table class="table table-sm">
                 <tr>
                     <th>ID</th>
@@ -845,27 +958,27 @@
                 </tr>
                 <tr>
                     <th>Type</th>
-                    <td>${props.asset_class || 'Unknown'}</td>
+                    <td>${props.asset_class || "Unknown"}</td>
                 </tr>
                 <tr>
                     <th>Category</th>
-                    <td>${props.asset_category || 'Unknown'}</td>
+                    <td>${props.asset_category || "Unknown"}</td>
                 </tr>
                 <tr>
                     <th>Speed</th>
-                    <td>${props.speed !== undefined ? props.speed + ' mph' : 'Unknown'}</td>
+                    <td>${props.speed !== undefined ? props.speed + " mph" : "Unknown"}</td>
                 </tr>
                 <tr>
                     <th>Location</th>
-                    <td>${props.location || 'Unknown'}</td>
+                    <td>${props.location || "Unknown"}</td>
                 </tr>
                 <tr>
                     <th>Site</th>
-                    <td>${props.site || 'Unknown'}</td>
+                    <td>${props.site || "Unknown"}</td>
                 </tr>
                 <tr>
                     <th>District</th>
-                    <td>${props.district || 'Unknown'}</td>
+                    <td>${props.district || "Unknown"}</td>
                 </tr>
                 <tr>
                     <th>Last Update</th>
@@ -876,9 +989,9 @@
                 <a href="/asset/${props.id}" class="btn btn-sm btn-primary">View Full Details</a>
             </div>
         `;
-        
-        // Show panel
-        panel.style.display = 'block';
-    }
+
+    // Show panel
+    panel.style.display = "block";
+  }
 </script>
 {% endblock %}

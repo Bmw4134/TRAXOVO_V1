@@ -1,126 +1,183 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AI Fleet Assistant - TRAXOVO</title><style>
-body {
-margin: 0;
-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-color: #f2f2f7;
-min-height: 100vh;
-}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Fleet Assistant - TRAXOVO</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(
+          135deg,
+          #1a1a2e 0%,
+          #16213e 50%,
+          #0f3460 100%
+        );
+        color: #f2f2f7;
+        min-height: 100vh;
+      }
 
-.back-button {
-position: fixed;
-top: 20px;
-left: 20px;
-background: rgba(0, 122, 255, 0.2);
-border: 1px solid rgba(0, 122, 255, 0.3);
-color: #007AFF;
-padding: 12px 24px;
-border-radius: 8px;
-text-decoration: none;
-font-weight: 500;
-transition: all 0.3s ease;
-z-index: 1001;
-}
+      .back-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: rgba(0, 122, 255, 0.2);
+        border: 1px solid rgba(0, 122, 255, 0.3);
+        color: #007aff;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        z-index: 1001;
+      }
 
-.assistant-container {
-max-width: 800px;
-margin: 0 auto;
-padding: 80px 20px 20px;
-height: calc(100vh - 100px);
-display: flex;
-flex-direction: column;
-}
+      .assistant-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 80px 20px 20px;
+        height: calc(100vh - 100px);
+        display: flex;
+        flex-direction: column;
+      }
 
-.header {
-text-align: center;
-margin-bottom: 40px;
-}
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
 
-.title {
-font-size: 36px;
-font-weight: 700;
-margin: 0 0 16px 0;
-background: linear-gradient(135deg, #007AFF, #00D4FF);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-}
+      .title {
+        font-size: 36px;
+        font-weight: 700;
+        margin: 0 0 16px 0;
+        background: linear-gradient(135deg, #007aff, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
 
-.chat-area {
-flex: 1;
-background: rgba(255, 255, 255, 0.05);
-border: 1px solid rgba(255, 255, 255, 0.1);
-border-radius: 16px;
-padding: 24px;
-margin-bottom: 20px;
-overflow-y: auto;
-}
+      .chat-area {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+        overflow-y: auto;
+      }
 
-.input-area {
-display: flex;
-gap: 12px;
-}
+      .input-area {
+        display: flex;
+        gap: 12px;
+      }
 
-.chat-input {
-flex: 1;
-background: rgba(255, 255, 255, 0.1);
-border: 1px solid rgba(255, 255, 255, 0.2);
-border-radius: 12px;
-padding: 16px;
-color: #fff;
-font-size: 16px;
-outline: none;
-}
+      .chat-input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 16px;
+        color: #fff;
+        font-size: 16px;
+        outline: none;
+      }
 
-.send-button {
-background: linear-gradient(45deg, #007AFF, #0056CC);
-border: none;
-border-radius: 12px;
-color: white;
-padding: 16px 24px;
-font-size: 16px;
-font-weight: 600;
-cursor: pointer;
-transition: all 0.3s ease;
-}
+      .send-button {
+        background: linear-gradient(45deg, #007aff, #0056cc);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        padding: 16px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
 
-.send-button:hover {
-transform: translateY(-2px);
-}
+      .send-button:hover {
+        transform: translateY(-2px);
+      }
 
-.insight-card {
-background: rgba(0, 122, 255, 0.1);
-border: 1px solid rgba(0, 122, 255, 0.3);
-border-radius: 12px;
-padding: 16px;
-margin-bottom: 16px;
-}
-</style></head><body><a href="/dashboard" class="back-button">← Dashboard</a><div class="assistant-container"><div class="header"><h1 class="title">AI Fleet Assistant</h1><p>ChatGPT-style intelligence for fleet management with authentic data</p></div><div class="chat-area" id="chatArea"><div class="insight-card"><h4>Fleet Status Overview</h4><p>• 701 authentic assets tracked via GAUGE API</p><p>• 687 assets currently active and operational</p><p>• 56 different equipment categories managed</p><p>• 92 drivers monitored for attendance</p></div><div class="insight-card"><h4>Financial Intelligence</h4><p>• YTD Revenue: $946,000 from RAGLE billing data</p><p>• April 2025: $485,000 monthly total</p><p>• March 2025: $461,000 monthly total</p><p>• Average monthly performance: $473,000</p></div></div><div class="input-area"><input type="text" class="chat-input" placeholder="Ask about fleet operations, revenue, or asset management..." /><button class="send-button">Send</button></div></div><script>
-// Basic chat functionality
-document.querySelector('.send-button').addEventListener('click', function() {
-const input = document.querySelector('.chat-input');
-const message = input.value.trim();
-if (message) {
-addMessage('user', message);
-input.value = '';
-// Simulate AI response
-setTimeout(() => {
-addMessage('assistant', 'I have access to your authentic GAUGE API data (701 assets) and RAGLE billing information. How can I help analyze your fleet operations?');
-}, 1000);
-}
-});
+      .insight-card {
+        background: rgba(0, 122, 255, 0.1);
+        border: 1px solid rgba(0, 122, 255, 0.3);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="/dashboard" class="back-button">← Dashboard</a>
+    <div class="assistant-container">
+      <div class="header">
+        <h1 class="title">AI Fleet Assistant</h1>
+        <p>
+          ChatGPT-style intelligence for fleet management with authentic data
+        </p>
+      </div>
+      <div class="chat-area" id="chatArea">
+        <div class="insight-card">
+          <h4>Fleet Status Overview</h4>
+          <p>• 701 authentic assets tracked via GAUGE API</p>
+          <p>• 687 assets currently active and operational</p>
+          <p>• 56 different equipment categories managed</p>
+          <p>• 92 drivers monitored for attendance</p>
+        </div>
+        <div class="insight-card">
+          <h4>Financial Intelligence</h4>
+          <p>• YTD Revenue: $946,000 from RAGLE billing data</p>
+          <p>• April 2025: $485,000 monthly total</p>
+          <p>• March 2025: $461,000 monthly total</p>
+          <p>• Average monthly performance: $473,000</p>
+        </div>
+      </div>
+      <div class="input-area">
+        <input
+          type="text"
+          class="chat-input"
+          placeholder="Ask about fleet operations, revenue, or asset management..."
+        /><button class="send-button">Send</button>
+      </div>
+    </div>
+    <script>
+      // Basic chat functionality
+      document
+        .querySelector(".send-button")
+        .addEventListener("click", function () {
+          const input = document.querySelector(".chat-input");
+          const message = input.value.trim();
+          if (message) {
+            addMessage("user", message);
+            input.value = "";
+            // Simulate AI response
+            setTimeout(() => {
+              addMessage(
+                "assistant",
+                "I have access to your authentic GAUGE API data (701 assets) and RAGLE billing information. How can I help analyze your fleet operations?",
+              );
+            }, 1000);
+          }
+        });
 
-document.querySelector('.chat-input').addEventListener('keypress', function(e) {
-if (e.key === 'Enter') {
-document.querySelector('.send-button').click();
-}
-});
+      document
+        .querySelector(".chat-input")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            document.querySelector(".send-button").click();
+          }
+        });
 
-function addMessage(sender, message) {
-const chatArea = document.getElementById('chatArea');
-const messageDiv = document.createElement('div');
-messageDiv.className = sender === 'user' ? 'user-message' : 'assistant-message';
-messageDiv.innerHTML = `<p><strong>${sender === 'user' ? 'You' : 'AI Assistant'}:</strong> ${message}</p>`;
-chatArea.appendChild(messageDiv);
-chatArea.scrollTop = chatArea.scrollHeight;
-}
-</script></body></html>
+      function addMessage(sender, message) {
+        const chatArea = document.getElementById("chatArea");
+        const messageDiv = document.createElement("div");
+        messageDiv.className =
+          sender === "user" ? "user-message" : "assistant-message";
+        messageDiv.innerHTML = `<p><strong>${sender === "user" ? "You" : "AI Assistant"}:</strong> ${message}</p>`;
+        chatArea.appendChild(messageDiv);
+        chatArea.scrollTop = chatArea.scrollHeight;
+      }
+    </script>
+  </body>
+</html>

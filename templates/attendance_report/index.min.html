@@ -1,383 +1,712 @@
-{% extends "basic_base.html" %}
-
-{% block title %}Weekly Attendance Report - TRAXOVO{% endblock %}
-
-{% block styles %}
+{% extends "basic_base.html" %} {% block title %}Weekly Attendance Report -
+TRAXOVO{% endblock %} {% block styles %}
 <style>
-.status-on-time { background-color: rgba(var(--bs-success-rgb), 0.2); }
-.status-late { background-color: rgba(var(--bs-warning-rgb), 0.2); }
-.status-early-end { background-color: rgba(var(--bs-info-rgb), 0.2); }
-.status-no-show { background-color: rgba(var(--bs-danger-rgb), 0.2); }
-.status-unknown { background-color: rgba(var(--bs-secondary-rgb), 0.2); }
+  .status-on-time {
+    background-color: rgba(var(--bs-success-rgb), 0.2);
+  }
+  .status-late {
+    background-color: rgba(var(--bs-warning-rgb), 0.2);
+  }
+  .status-early-end {
+    background-color: rgba(var(--bs-info-rgb), 0.2);
+  }
+  .status-no-show {
+    background-color: rgba(var(--bs-danger-rgb), 0.2);
+  }
+  .status-unknown {
+    background-color: rgba(var(--bs-secondary-rgb), 0.2);
+  }
 
-.attendance-summary .card-body {
-min-height: 180px;
-}
+  .attendance-summary .card-body {
+    min-height: 180px;
+  }
 
-.loading-overlay {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background-color: rgba(0, 0, 0, 0.8);
-display: flex;
-align-items: center;
-justify-content: center;
-z-index: 9999;
-flex-direction: column;
-}
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    flex-direction: column;
+  }
 
-.loading-text {
-color: white;
-margin-top: 15px;
-font-size: 1.2rem;
-}
+  .loading-text {
+    color: white;
+    margin-top: 15px;
+    font-size: 1.2rem;
+  }
 </style>
-{% endblock %}
-
-{% block content %}
-<div class="row mb-4"><div class="col-12"><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark d-flex justify-content-between align-items-center"><h2 class="card-title mb-0">Weekly Attendance Report</h2><a href="/" class="btn btn-sm btn-outline-primary"><i class="bi bi-house-door me-1"></i> Dashboard
-</a></div><div class="card-body"><p class="lead mb-0">Upload attendance data to generate a weekly summary with support for grouping by driver, job site, division, and zone.</p></div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark"><h4 class="card-title mb-0">Upload Data</h4></div><div class="card-body"><form id="uploadForm" class="row g-3"><div class="col-md-12 mb-3"><label class="form-label">Upload Attendance Data Files</label><div class="card bg-dark-secondary border-0"><div class="card-body"><div class="file-upload-container border border-secondary rounded p-4 mb-3 text-center" id="dropArea"><i class="bi bi-cloud-upload fs-1 mb-2 text-primary"></i><p>Drag & drop your files here or click to select files</p><p class="text-muted small">Accepts CSV, XLS, and XLSX files</p><input type="file" class="d-none" id="fileInput" name="files[]" multiple accept=".csv,.xlsx,.xls"><button type="button" class="btn btn-outline-primary" id="browseButton">Browse Files</button></div><div id="fileList" class="d-none"><h6 class="mb-3">Selected Files:</h6><div class="table-responsive"><table class="table table-dark table-sm"><thead><tr><th>File Name</th><th>File Type</th><th>Data Type</th><th>Actions</th></tr></thead><tbody id="fileListBody"></tbody></table></div><div class="alert alert-info mt-2"><div class="d-flex align-items-center"><i class="bi bi-info-circle me-2"></i><div><strong>File Types:</strong><ul class="mb-0 ps-3"><li><strong>TimeOnSite</strong> - Records presence window at job sites</li><li><strong>ActivityDetail</strong> - Contains movement/activity context</li><li><strong>DrivingHistory</strong> - Shows arrival/departure sequences</li></ul></div></div></div></div></div></div></div><div class="col-md-3"><label for="groupBy" class="form-label">Group By</label><select class="form-select" id="groupBy" name="group_by"><option value="driver">Driver</option><option value="job_number">Job Site</option><option value="division">Division</option><option value="zone">Zone</option></select></div><div class="col-md-3"><label for="weeksCount" class="form-label">Weeks to Include</label><input type="number" class="form-control" id="weeksCount" name="weeks" min="1" max="12" value="1"></div><div class="col-12"><button type="submit" class="btn btn-primary"><i class="bi bi-upload me-1"></i> Process Data
-</button></div></form></div></div></div></div><div id="resultsContainer" class="d-none"><div class="row mb-4"><div class="col-12"><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark d-flex justify-content-between align-items-center"><h4 class="card-title mb-0">Overall Statistics</h4><div><button id="downloadStatsBtn" class="btn btn-sm btn-outline-success"><i class="bi bi-download me-1"></i> Download Stats
-</button></div></div><div class="card-body"><div class="row attendance-summary"><div class="col-md-4 mb-3"><div class="card bg-dark-secondary h-100"><div class="card-body"><h5 class="card-title text-success">On Time</h5><div class="d-flex align-items-center mb-3"><div class="display-4 me-3" id="onTimeCount">0</div><div class="fs-5 text-muted" id="onTimePercent">0%</div></div><div class="progress"><div id="onTimeProgress" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div></div></div></div></div><div class="col-md-4 mb-3"><div class="card bg-dark-secondary h-100"><div class="card-body"><h5 class="card-title text-warning">Late</h5><div class="d-flex align-items-center mb-3"><div class="display-4 me-3" id="lateCount">0</div><div class="fs-5 text-muted" id="latePercent">0%</div></div><div class="progress"><div id="lateProgress" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div></div></div></div></div><div class="col-md-4 mb-3"><div class="card bg-dark-secondary h-100"><div class="card-body"><h5 class="card-title text-info">Early End</h5><div class="d-flex align-items-center mb-3"><div class="display-4 me-3" id="earlyEndCount">0</div><div class="fs-5 text-muted" id="earlyEndPercent">0%</div></div><div class="progress"><div id="earlyEndProgress" class="progress-bar bg-info" role="progressbar" style="width: 0%"></div></div></div></div></div></div><div class="row mt-3"><div class="col-md-6 mb-3"><div class="card bg-dark-secondary h-100"><div class="card-body"><h5 class="card-title text-danger">No Show</h5><div class="d-flex align-items-center mb-3"><div class="display-4 me-3" id="noShowCount">0</div><div class="fs-5 text-muted" id="noShowPercent">0%</div></div><div class="progress"><div id="noShowProgress" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div></div></div></div></div><div class="col-md-6 mb-3"><div class="card bg-dark-secondary h-100"><div class="card-body"><h5 class="card-title text-secondary">Unknown/Other</h5><div class="d-flex align-items-center mb-3"><div class="display-4 me-3" id="unknownCount">0</div><div class="fs-5 text-muted" id="unknownPercent">0%</div></div><div class="progress"><div id="unknownProgress" class="progress-bar bg-secondary" role="progressbar" style="width: 0%"></div></div></div></div></div></div></div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card bg-dark border-0 shadow-sm"><div class="card-header bg-dark d-flex justify-content-between align-items-center"><div class="d-flex align-items-center"><h4 class="card-title mb-0" id="summaryTitle">Weekly Summary</h4><span class="badge bg-primary ms-2" id="groupByBadge">Grouped by Driver</span></div><div><button id="downloadSummaryBtn" class="btn btn-sm btn-outline-success"><i class="bi bi-download me-1"></i> Download Summary
-</button></div></div><div class="card-body"><div class="table-responsive"><table class="table table-dark table-striped table-hover"><thead id="summaryTableHead"></thead><tbody id="summaryTableBody"></tbody></table></div></div></div></div></div></div><div id="loadingOverlay" class="loading-overlay d-none"><div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"><span class="visually-hidden">Loading...</span></div><div class="loading-text">Processing attendance data...</div></div>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block content %}
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card bg-dark border-0 shadow-sm">
+      <div
+        class="card-header bg-dark d-flex justify-content-between align-items-center"
+      >
+        <h2 class="card-title mb-0">Weekly Attendance Report</h2>
+        <a href="/" class="btn btn-sm btn-outline-primary"
+          ><i class="bi bi-house-door me-1"></i> Dashboard
+        </a>
+      </div>
+      <div class="card-body">
+        <p class="lead mb-0">
+          Upload attendance data to generate a weekly summary with support for
+          grouping by driver, job site, division, and zone.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card bg-dark border-0 shadow-sm">
+      <div class="card-header bg-dark">
+        <h4 class="card-title mb-0">Upload Data</h4>
+      </div>
+      <div class="card-body">
+        <form id="uploadForm" class="row g-3">
+          <div class="col-md-12 mb-3">
+            <label class="form-label">Upload Attendance Data Files</label>
+            <div class="card bg-dark-secondary border-0">
+              <div class="card-body">
+                <div
+                  class="file-upload-container border border-secondary rounded p-4 mb-3 text-center"
+                  id="dropArea"
+                >
+                  <i class="bi bi-cloud-upload fs-1 mb-2 text-primary"></i>
+                  <p>Drag & drop your files here or click to select files</p>
+                  <p class="text-muted small">
+                    Accepts CSV, XLS, and XLSX files
+                  </p>
+                  <input
+                    type="file"
+                    class="d-none"
+                    id="fileInput"
+                    name="files[]"
+                    multiple
+                    accept=".csv,.xlsx,.xls"
+                  /><button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    id="browseButton"
+                  >
+                    Browse Files
+                  </button>
+                </div>
+                <div id="fileList" class="d-none">
+                  <h6 class="mb-3">Selected Files:</h6>
+                  <div class="table-responsive">
+                    <table class="table table-dark table-sm">
+                      <thead>
+                        <tr>
+                          <th>File Name</th>
+                          <th>File Type</th>
+                          <th>Data Type</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="fileListBody"></tbody>
+                    </table>
+                  </div>
+                  <div class="alert alert-info mt-2">
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-info-circle me-2"></i>
+                      <div>
+                        <strong>File Types:</strong>
+                        <ul class="mb-0 ps-3">
+                          <li>
+                            <strong>TimeOnSite</strong> - Records presence
+                            window at job sites
+                          </li>
+                          <li>
+                            <strong>ActivityDetail</strong> - Contains
+                            movement/activity context
+                          </li>
+                          <li>
+                            <strong>DrivingHistory</strong> - Shows
+                            arrival/departure sequences
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label for="groupBy" class="form-label">Group By</label
+            ><select class="form-select" id="groupBy" name="group_by">
+              <option value="driver">Driver</option>
+              <option value="job_number">Job Site</option>
+              <option value="division">Division</option>
+              <option value="zone">Zone</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="weeksCount" class="form-label">Weeks to Include</label
+            ><input
+              type="number"
+              class="form-control"
+              id="weeksCount"
+              name="weeks"
+              min="1"
+              max="12"
+              value="1"
+            />
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-upload me-1"></i> Process Data
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="resultsContainer" class="d-none">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card bg-dark border-0 shadow-sm">
+        <div
+          class="card-header bg-dark d-flex justify-content-between align-items-center"
+        >
+          <h4 class="card-title mb-0">Overall Statistics</h4>
+          <div>
+            <button
+              id="downloadStatsBtn"
+              class="btn btn-sm btn-outline-success"
+            >
+              <i class="bi bi-download me-1"></i> Download Stats
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row attendance-summary">
+            <div class="col-md-4 mb-3">
+              <div class="card bg-dark-secondary h-100">
+                <div class="card-body">
+                  <h5 class="card-title text-success">On Time</h5>
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="display-4 me-3" id="onTimeCount">0</div>
+                    <div class="fs-5 text-muted" id="onTimePercent">0%</div>
+                  </div>
+                  <div class="progress">
+                    <div
+                      id="onTimeProgress"
+                      class="progress-bar bg-success"
+                      role="progressbar"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <div class="card bg-dark-secondary h-100">
+                <div class="card-body">
+                  <h5 class="card-title text-warning">Late</h5>
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="display-4 me-3" id="lateCount">0</div>
+                    <div class="fs-5 text-muted" id="latePercent">0%</div>
+                  </div>
+                  <div class="progress">
+                    <div
+                      id="lateProgress"
+                      class="progress-bar bg-warning"
+                      role="progressbar"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <div class="card bg-dark-secondary h-100">
+                <div class="card-body">
+                  <h5 class="card-title text-info">Early End</h5>
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="display-4 me-3" id="earlyEndCount">0</div>
+                    <div class="fs-5 text-muted" id="earlyEndPercent">0%</div>
+                  </div>
+                  <div class="progress">
+                    <div
+                      id="earlyEndProgress"
+                      class="progress-bar bg-info"
+                      role="progressbar"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-md-6 mb-3">
+              <div class="card bg-dark-secondary h-100">
+                <div class="card-body">
+                  <h5 class="card-title text-danger">No Show</h5>
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="display-4 me-3" id="noShowCount">0</div>
+                    <div class="fs-5 text-muted" id="noShowPercent">0%</div>
+                  </div>
+                  <div class="progress">
+                    <div
+                      id="noShowProgress"
+                      class="progress-bar bg-danger"
+                      role="progressbar"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card bg-dark-secondary h-100">
+                <div class="card-body">
+                  <h5 class="card-title text-secondary">Unknown/Other</h5>
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="display-4 me-3" id="unknownCount">0</div>
+                    <div class="fs-5 text-muted" id="unknownPercent">0%</div>
+                  </div>
+                  <div class="progress">
+                    <div
+                      id="unknownProgress"
+                      class="progress-bar bg-secondary"
+                      role="progressbar"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card bg-dark border-0 shadow-sm">
+        <div
+          class="card-header bg-dark d-flex justify-content-between align-items-center"
+        >
+          <div class="d-flex align-items-center">
+            <h4 class="card-title mb-0" id="summaryTitle">Weekly Summary</h4>
+            <span class="badge bg-primary ms-2" id="groupByBadge"
+              >Grouped by Driver</span
+            >
+          </div>
+          <div>
+            <button
+              id="downloadSummaryBtn"
+              class="btn btn-sm btn-outline-success"
+            >
+              <i class="bi bi-download me-1"></i> Download Summary
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-dark table-striped table-hover">
+              <thead id="summaryTableHead"></thead>
+              <tbody id="summaryTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="loadingOverlay" class="loading-overlay d-none">
+  <div
+    class="spinner-border text-primary"
+    style="width: 3rem; height: 3rem"
+    role="status"
+  >
+    <span class="visually-hidden">Loading...</span>
+  </div>
+  <div class="loading-text">Processing attendance data...</div>
+</div>
+{% endblock %} {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-const uploadForm = document.getElementById('uploadForm');
-const resultsContainer = document.getElementById('resultsContainer');
-const loadingOverlay = document.getElementById('loadingOverlay');
-const groupByBadge = document.getElementById('groupByBadge');
-const summaryTitle = document.getElementById('summaryTitle');
-const summaryTableHead = document.getElementById('summaryTableHead');
-const summaryTableBody = document.getElementById('summaryTableBody');
-const downloadStatsBtn = document.getElementById('downloadStatsBtn');
-const downloadSummaryBtn = document.getElementById('downloadSummaryBtn');
+  document.addEventListener("DOMContentLoaded", function () {
+    const uploadForm = document.getElementById("uploadForm");
+    const resultsContainer = document.getElementById("resultsContainer");
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const groupByBadge = document.getElementById("groupByBadge");
+    const summaryTitle = document.getElementById("summaryTitle");
+    const summaryTableHead = document.getElementById("summaryTableHead");
+    const summaryTableBody = document.getElementById("summaryTableBody");
+    const downloadStatsBtn = document.getElementById("downloadStatsBtn");
+    const downloadSummaryBtn = document.getElementById("downloadSummaryBtn");
 
-// Store data for download
-let statsData = null;
-let summaryData = null;
+    // Store data for download
+    let statsData = null;
+    let summaryData = null;
 
-// Handle drag and drop
-const dropArea = document.getElementById('dropArea');
-const browseButton = document.getElementById('browseButton');
-const fileListDiv = document.getElementById('fileList');
-const fileListBody = document.getElementById('fileListBody');
-const selectedFiles = new Map(); // Map to store files with their detected type
+    // Handle drag and drop
+    const dropArea = document.getElementById("dropArea");
+    const browseButton = document.getElementById("browseButton");
+    const fileListDiv = document.getElementById("fileList");
+    const fileListBody = document.getElementById("fileListBody");
+    const selectedFiles = new Map(); // Map to store files with their detected type
 
-// Detect file type based on content
-function detectFileType(file) {
-return new Promise((resolve) => {
-const reader = new FileReader();
-reader.onload = function(e) {
-const content = e.target.result;
-let fileType = 'Unknown';
+    // Detect file type based on content
+    function detectFileType(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const content = e.target.result;
+          let fileType = "Unknown";
 
-// Check for TimeOnSite indicators
-if (content.includes('TimeOnSite') ||
-content.includes('Site Time') ||
-content.includes('Duration')) {
-fileType = 'TimeOnSite';
-}
-// Check for ActivityDetail indicators
-else if (content.includes('ActivityDetail') ||
-content.includes('Activity') ||
-content.includes('Event Type')) {
-fileType = 'ActivityDetail';
-}
-// Check for DrivingHistory indicators
-else if (content.includes('DrivingHistory') ||
-content.includes('Trip') ||
-content.includes('Distance')) {
-fileType = 'DrivingHistory';
-}
+          // Check for TimeOnSite indicators
+          if (
+            content.includes("TimeOnSite") ||
+            content.includes("Site Time") ||
+            content.includes("Duration")
+          ) {
+            fileType = "TimeOnSite";
+          }
+          // Check for ActivityDetail indicators
+          else if (
+            content.includes("ActivityDetail") ||
+            content.includes("Activity") ||
+            content.includes("Event Type")
+          ) {
+            fileType = "ActivityDetail";
+          }
+          // Check for DrivingHistory indicators
+          else if (
+            content.includes("DrivingHistory") ||
+            content.includes("Trip") ||
+            content.includes("Distance")
+          ) {
+            fileType = "DrivingHistory";
+          }
 
-resolve(fileType);
-};
+          resolve(fileType);
+        };
 
-// Read first 5000 chars to detect file type
-reader.readAsText(file.slice(0, 5000));
-});
-}
+        // Read first 5000 chars to detect file type
+        reader.readAsText(file.slice(0, 5000));
+      });
+    }
 
-// Add file to the list
-async function addFileToList(file) {
-const fileId = Date.now() + '-' + file.name; // Unique ID
-const fileType = file.name.split('.').pop().toLowerCase();
-const dataType = await detectFileType(file);
+    // Add file to the list
+    async function addFileToList(file) {
+      const fileId = Date.now() + "-" + file.name; // Unique ID
+      const fileType = file.name.split(".").pop().toLowerCase();
+      const dataType = await detectFileType(file);
 
-selectedFiles.set(fileId, {
-file: file,
-dataType: dataType
-});
+      selectedFiles.set(fileId, {
+        file: file,
+        dataType: dataType,
+      });
 
-updateFileList();
-}
+      updateFileList();
+    }
 
-// Update file list display
-function updateFileList() {
-fileListBody.innerHTML = '';
+    // Update file list display
+    function updateFileList() {
+      fileListBody.innerHTML = "";
 
-if (selectedFiles.size > 0) {
-fileListDiv.classList.remove('d-none');
+      if (selectedFiles.size > 0) {
+        fileListDiv.classList.remove("d-none");
 
-selectedFiles.forEach((fileInfo, fileId) => {
-const file = fileInfo.file;
-const row = document.createElement('tr');
-const fileType = file.name.split('.').pop().toLowerCase();
+        selectedFiles.forEach((fileInfo, fileId) => {
+          const file = fileInfo.file;
+          const row = document.createElement("tr");
+          const fileType = file.name.split(".").pop().toLowerCase();
 
-row.innerHTML = `
-<td>${file.name}</td><td>${fileType.toUpperCase()}</td><td><select class="form-select form-select-sm data-type-select" data-file-id="${fileId}"><option value="TimeOnSite" ${fileInfo.dataType === 'TimeOnSite' ? 'selected' : ''}>TimeOnSite</option><option value="ActivityDetail" ${fileInfo.dataType === 'ActivityDetail' ? 'selected' : ''}>ActivityDetail</option><option value="DrivingHistory" ${fileInfo.dataType === 'DrivingHistory' ? 'selected' : ''}>DrivingHistory</option><option value="Unknown" ${fileInfo.dataType === 'Unknown' ? 'selected' : ''}>Unknown</option></select></td><td><button type="button" class="btn btn-sm btn-outline-danger remove-file" data-file-id="${fileId}"><i class="bi bi-trash"></i></button></td>
+          row.innerHTML = `
+<td>${file.name}</td><td>${fileType.toUpperCase()}</td><td><select class="form-select form-select-sm data-type-select" data-file-id="${fileId}"><option value="TimeOnSite" ${fileInfo.dataType === "TimeOnSite" ? "selected" : ""}>TimeOnSite</option><option value="ActivityDetail" ${fileInfo.dataType === "ActivityDetail" ? "selected" : ""}>ActivityDetail</option><option value="DrivingHistory" ${fileInfo.dataType === "DrivingHistory" ? "selected" : ""}>DrivingHistory</option><option value="Unknown" ${fileInfo.dataType === "Unknown" ? "selected" : ""}>Unknown</option></select></td><td><button type="button" class="btn btn-sm btn-outline-danger remove-file" data-file-id="${fileId}"><i class="bi bi-trash"></i></button></td>
 `;
 
-fileListBody.appendChild(row);
-});
+          fileListBody.appendChild(row);
+        });
 
-// Add event listeners for data type selection
-document.querySelectorAll('.data-type-select').forEach(select => {
-select.addEventListener('change', function() {
-const fileId = this.getAttribute('data-file-id');
-const fileInfo = selectedFiles.get(fileId);
-if (fileInfo) {
-fileInfo.dataType = this.value;
-selectedFiles.set(fileId, fileInfo);
-}
-});
-});
+        // Add event listeners for data type selection
+        document.querySelectorAll(".data-type-select").forEach((select) => {
+          select.addEventListener("change", function () {
+            const fileId = this.getAttribute("data-file-id");
+            const fileInfo = selectedFiles.get(fileId);
+            if (fileInfo) {
+              fileInfo.dataType = this.value;
+              selectedFiles.set(fileId, fileInfo);
+            }
+          });
+        });
 
-// Add event listeners for remove buttons
-document.querySelectorAll('.remove-file').forEach(button => {
-button.addEventListener('click', function() {
-const fileId = this.getAttribute('data-file-id');
-selectedFiles.delete(fileId);
-updateFileList();
-});
-});
-} else {
-fileListDiv.classList.add('d-none');
-}
-}
+        // Add event listeners for remove buttons
+        document.querySelectorAll(".remove-file").forEach((button) => {
+          button.addEventListener("click", function () {
+            const fileId = this.getAttribute("data-file-id");
+            selectedFiles.delete(fileId);
+            updateFileList();
+          });
+        });
+      } else {
+        fileListDiv.classList.add("d-none");
+      }
+    }
 
-// Handle file selection via button
-browseButton.addEventListener('click', function() {
-document.getElementById('fileInput').click();
-});
+    // Handle file selection via button
+    browseButton.addEventListener("click", function () {
+      document.getElementById("fileInput").click();
+    });
 
-// Handle file selection via input
-document.getElementById('fileInput').addEventListener('change', function(e) {
-const files = e.target.files;
-if (files.length > 0) {
-for (let i = 0; i < files.length; i++) {
-addFileToList(files[i]);
-}
-}
-});
+    // Handle file selection via input
+    document
+      .getElementById("fileInput")
+      .addEventListener("change", function (e) {
+        const files = e.target.files;
+        if (files.length > 0) {
+          for (let i = 0; i < files.length; i++) {
+            addFileToList(files[i]);
+          }
+        }
+      });
 
-// Handle drag events
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-dropArea.addEventListener(eventName, function(e) {
-e.preventDefault();
-e.stopPropagation();
-}, false);
-});
+    // Handle drag events
+    ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+      dropArea.addEventListener(
+        eventName,
+        function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        },
+        false,
+      );
+    });
 
-// Highlight drop area on drag over
-['dragenter', 'dragover'].forEach(eventName => {
-dropArea.addEventListener(eventName, function() {
-dropArea.classList.add('border-primary');
-}, false);
-});
+    // Highlight drop area on drag over
+    ["dragenter", "dragover"].forEach((eventName) => {
+      dropArea.addEventListener(
+        eventName,
+        function () {
+          dropArea.classList.add("border-primary");
+        },
+        false,
+      );
+    });
 
-// Remove highlight on drag leave
-['dragleave', 'drop'].forEach(eventName => {
-dropArea.addEventListener(eventName, function() {
-dropArea.classList.remove('border-primary');
-}, false);
-});
+    // Remove highlight on drag leave
+    ["dragleave", "drop"].forEach((eventName) => {
+      dropArea.addEventListener(
+        eventName,
+        function () {
+          dropArea.classList.remove("border-primary");
+        },
+        false,
+      );
+    });
 
-// Handle drop
-dropArea.addEventListener('drop', function(e) {
-const files = e.dataTransfer.files;
-if (files.length > 0) {
-for (let i = 0; i < files.length; i++) {
-addFileToList(files[i]);
-}
-}
-}, false);
+    // Handle drop
+    dropArea.addEventListener(
+      "drop",
+      function (e) {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          for (let i = 0; i < files.length; i++) {
+            addFileToList(files[i]);
+          }
+        }
+      },
+      false,
+    );
 
-// Handle form submission
-uploadForm.addEventListener('submit', function(e) {
-e.preventDefault();
+    // Handle form submission
+    uploadForm.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-if (selectedFiles.size === 0) {
-alert('Please select at least one file to process.');
-return;
-}
+      if (selectedFiles.size === 0) {
+        alert("Please select at least one file to process.");
+        return;
+      }
 
-// Create form data with all files
-const formData = new FormData();
+      // Create form data with all files
+      const formData = new FormData();
 
-// Add each file with its data type
-selectedFiles.forEach((fileInfo, fileId) => {
-formData.append('files[]', fileInfo.file);
-formData.append('fileTypes[]', fileInfo.dataType);
-});
+      // Add each file with its data type
+      selectedFiles.forEach((fileInfo, fileId) => {
+        formData.append("files[]", fileInfo.file);
+        formData.append("fileTypes[]", fileInfo.dataType);
+      });
 
-// Add other form fields
-formData.append('group_by', document.getElementById('groupBy').value);
-formData.append('weeks', document.getElementById('weeksCount').value);
+      // Add other form fields
+      formData.append("group_by", document.getElementById("groupBy").value);
+      formData.append("weeks", document.getElementById("weeksCount").value);
 
-// Show loading overlay
-loadingOverlay.classList.remove('d-none');
+      // Show loading overlay
+      loadingOverlay.classList.remove("d-none");
 
-// Update group by badge
-const groupBySelect = document.getElementById('groupBy');
-const groupByText = groupBySelect.options[groupBySelect.selectedIndex].text;
-groupByBadge.textContent = 'Grouped by ' + groupByText;
+      // Update group by badge
+      const groupBySelect = document.getElementById("groupBy");
+      const groupByText =
+        groupBySelect.options[groupBySelect.selectedIndex].text;
+      groupByBadge.textContent = "Grouped by " + groupByText;
 
-// Send data to server
-fetch('/attendance/process', {
-method: 'POST',
-body: formData
-})
-.then(response => {
-if (!response.ok) {
-return response.json().then(data => {
-throw new Error(data.error || 'Error processing data');
-});
-}
-return response.json();
-})
-.then(data => {
-// Hide loading overlay
-loadingOverlay.classList.add('d-none');
+      // Send data to server
+      fetch("/attendance/process", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => {
+          if (!response.ok) {
+            return response.json().then((data) => {
+              throw new Error(data.error || "Error processing data");
+            });
+          }
+          return response.json();
+        })
+        .then((data) => {
+          // Hide loading overlay
+          loadingOverlay.classList.add("d-none");
 
-// Store data for download
-statsData = data.stats;
-summaryData = data.summary;
+          // Store data for download
+          statsData = data.stats;
+          summaryData = data.summary;
 
-// Update UI with results
-updateStatistics(data.stats);
-updateSummaryTable(data.summary);
+          // Update UI with results
+          updateStatistics(data.stats);
+          updateSummaryTable(data.summary);
 
-// Show results container
-resultsContainer.classList.remove('d-none');
-})
-.catch(error => {
-// Hide loading overlay
-loadingOverlay.classList.add('d-none');
+          // Show results container
+          resultsContainer.classList.remove("d-none");
+        })
+        .catch((error) => {
+          // Hide loading overlay
+          loadingOverlay.classList.add("d-none");
 
-// Show error
-alert('Error: ' + error.message);
-});
-});
+          // Show error
+          alert("Error: " + error.message);
+        });
+    });
 
-// Update statistics in the UI
-function updateStatistics(stats) {
-// Update counts
-document.getElementById('onTimeCount').textContent = stats.on_time;
-document.getElementById('lateCount').textContent = stats.late;
-document.getElementById('earlyEndCount').textContent = stats.early_end;
-document.getElementById('noShowCount').textContent = stats.no_show;
-document.getElementById('unknownCount').textContent = stats.unknown + stats.non_driving;
+    // Update statistics in the UI
+    function updateStatistics(stats) {
+      // Update counts
+      document.getElementById("onTimeCount").textContent = stats.on_time;
+      document.getElementById("lateCount").textContent = stats.late;
+      document.getElementById("earlyEndCount").textContent = stats.early_end;
+      document.getElementById("noShowCount").textContent = stats.no_show;
+      document.getElementById("unknownCount").textContent =
+        stats.unknown + stats.non_driving;
 
-// Calculate percentages
-const total = stats.total_records;
-const onTimePercent = Math.round((stats.on_time / total) * 100) || 0;
-const latePercent = Math.round((stats.late / total) * 100) || 0;
-const earlyEndPercent = Math.round((stats.early_end / total) * 100) || 0;
-const noShowPercent = Math.round((stats.no_show / total) * 100) || 0;
-const unknownPercent = Math.round(((stats.unknown + stats.non_driving) / total) * 100) || 0;
+      // Calculate percentages
+      const total = stats.total_records;
+      const onTimePercent = Math.round((stats.on_time / total) * 100) || 0;
+      const latePercent = Math.round((stats.late / total) * 100) || 0;
+      const earlyEndPercent = Math.round((stats.early_end / total) * 100) || 0;
+      const noShowPercent = Math.round((stats.no_show / total) * 100) || 0;
+      const unknownPercent =
+        Math.round(((stats.unknown + stats.non_driving) / total) * 100) || 0;
 
-// Update percentage text
-document.getElementById('onTimePercent').textContent = onTimePercent + '%';
-document.getElementById('latePercent').textContent = latePercent + '%';
-document.getElementById('earlyEndPercent').textContent = earlyEndPercent + '%';
-document.getElementById('noShowPercent').textContent = noShowPercent + '%';
-document.getElementById('unknownPercent').textContent = unknownPercent + '%';
+      // Update percentage text
+      document.getElementById("onTimePercent").textContent =
+        onTimePercent + "%";
+      document.getElementById("latePercent").textContent = latePercent + "%";
+      document.getElementById("earlyEndPercent").textContent =
+        earlyEndPercent + "%";
+      document.getElementById("noShowPercent").textContent =
+        noShowPercent + "%";
+      document.getElementById("unknownPercent").textContent =
+        unknownPercent + "%";
 
-// Update progress bars
-document.getElementById('onTimeProgress').style.width = onTimePercent + '%';
-document.getElementById('lateProgress').style.width = latePercent + '%';
-document.getElementById('earlyEndProgress').style.width = earlyEndPercent + '%';
-document.getElementById('noShowProgress').style.width = noShowPercent + '%';
-document.getElementById('unknownProgress').style.width = unknownPercent + '%';
-}
+      // Update progress bars
+      document.getElementById("onTimeProgress").style.width =
+        onTimePercent + "%";
+      document.getElementById("lateProgress").style.width = latePercent + "%";
+      document.getElementById("earlyEndProgress").style.width =
+        earlyEndPercent + "%";
+      document.getElementById("noShowProgress").style.width =
+        noShowPercent + "%";
+      document.getElementById("unknownProgress").style.width =
+        unknownPercent + "%";
+    }
 
-// Update summary table based on grouping
-function updateSummaryTable(summary) {
-// Set summary title
-summaryTitle.textContent = `Weekly Summary (${summary.start_date || 'N/A'} to ${summary.end_date || 'N/A'})`;
+    // Update summary table based on grouping
+    function updateSummaryTable(summary) {
+      // Set summary title
+      summaryTitle.textContent = `Weekly Summary (${summary.start_date || "N/A"} to ${summary.end_date || "N/A"})`;
 
-// Clear existing content
-summaryTableHead.innerHTML = '';
-summaryTableBody.innerHTML = '';
+      // Clear existing content
+      summaryTableHead.innerHTML = "";
+      summaryTableBody.innerHTML = "";
 
-// Create table header based on grouping
-const headerRow = document.createElement('tr');
+      // Create table header based on grouping
+      const headerRow = document.createElement("tr");
 
-// First column header based on grouping
-let firstColumnHeader = 'Driver';
-if (summary.group_by === 'job_number') {
-firstColumnHeader = 'Job Number';
-} else if (summary.group_by === 'division') {
-firstColumnHeader = 'Division';
-} else if (summary.group_by === 'zone') {
-firstColumnHeader = 'Zone';
-}
+      // First column header based on grouping
+      let firstColumnHeader = "Driver";
+      if (summary.group_by === "job_number") {
+        firstColumnHeader = "Job Number";
+      } else if (summary.group_by === "division") {
+        firstColumnHeader = "Division";
+      } else if (summary.group_by === "zone") {
+        firstColumnHeader = "Zone";
+      }
 
-headerRow.innerHTML = `
+      headerRow.innerHTML = `
 <th>${firstColumnHeader}</th>
-${summary.group_by === 'job_number' ? '<th>Description</th>' : ''}
-${summary.group_by === 'job_number' ? '<th>Division</th>' : ''}
+${summary.group_by === "job_number" ? "<th>Description</th>" : ""}
+${summary.group_by === "job_number" ? "<th>Division</th>" : ""}
 <th>Total Days</th><th>On Time</th><th>Late</th><th>Early End</th><th>No Show</th><th>Unknown</th><th>Attendance Rate</th>
 `;
 
-summaryTableHead.appendChild(headerRow);
+      summaryTableHead.appendChild(headerRow);
 
-// Create table rows for each item in the report
-summary.report.forEach(item => {
-const row = document.createElement('tr');
+      // Create table rows for each item in the report
+      summary.report.forEach((item) => {
+        const row = document.createElement("tr");
 
-let firstColumn = '';
-if (summary.group_by === 'driver') {
-firstColumn = item.driver;
-} else if (summary.group_by === 'job_number') {
-firstColumn = item.job_number;
-} else if (summary.group_by === 'division') {
-firstColumn = item.division;
-} else if (summary.group_by === 'zone') {
-firstColumn = item.zone;
-}
+        let firstColumn = "";
+        if (summary.group_by === "driver") {
+          firstColumn = item.driver;
+        } else if (summary.group_by === "job_number") {
+          firstColumn = item.job_number;
+        } else if (summary.group_by === "division") {
+          firstColumn = item.division;
+        } else if (summary.group_by === "zone") {
+          firstColumn = item.zone;
+        }
 
-row.innerHTML = `
+        row.innerHTML = `
 <td>${firstColumn}</td>
-${summary.group_by === 'job_number' ? `<td>${item.job_description || 'N/A'}</td>` : ''}
-${summary.group_by === 'job_number' ? `<td>${item.division || 'N/A'}</td>` : ''}
+${summary.group_by === "job_number" ? `<td>${item.job_description || "N/A"}</td>` : ""}
+${summary.group_by === "job_number" ? `<td>${item.division || "N/A"}</td>` : ""}
 <td>${item.total_days}</td><td class="status-on-time">${item.on_time}</td><td class="status-late">${item.late}</td><td class="status-early-end">${item.early_end}</td><td class="status-no-show">${item.no_show}</td><td class="status-unknown">${item.unknown}</td><td><strong>${item.attendance_rate}%</strong></td>
 `;
 
-summaryTableBody.appendChild(row);
-});
-}
+        summaryTableBody.appendChild(row);
+      });
+    }
 
-// Handle download buttons
-downloadStatsBtn.addEventListener('click', function() {
-if (statsData) {
-const queryParams = new URLSearchParams({ report_data: JSON.stringify(statsData) });
-window.location.href = `/attendance/download/stats?${queryParams}`;
-}
-});
+    // Handle download buttons
+    downloadStatsBtn.addEventListener("click", function () {
+      if (statsData) {
+        const queryParams = new URLSearchParams({
+          report_data: JSON.stringify(statsData),
+        });
+        window.location.href = `/attendance/download/stats?${queryParams}`;
+      }
+    });
 
-downloadSummaryBtn.addEventListener('click', function() {
-if (summaryData) {
-const queryParams = new URLSearchParams({ report_data: JSON.stringify(summaryData) });
-window.location.href = `/attendance/download/summary?${queryParams}`;
-}
-});
-});
+    downloadSummaryBtn.addEventListener("click", function () {
+      if (summaryData) {
+        const queryParams = new URLSearchParams({
+          report_data: JSON.stringify(summaryData),
+        });
+        window.location.href = `/attendance/download/summary?${queryParams}`;
+      }
+    });
+  });
 </script>
 {% endblock %}

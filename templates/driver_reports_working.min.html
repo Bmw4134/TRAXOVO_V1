@@ -1,544 +1,808 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TRAXOVO - Driver Reports</title><link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"><style>
-/* Professional Fleet Management Dashboard Styling */
-body {
-min-height: 100vh;
-overflow-x: hidden;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-background: #1F2937;
-color: #F9FAFB;
-}
-
-/* Main Layout Container */
-.main-wrapper {
-display: flex;
-min-height: 100vh;
-width: 100%;
-}
-
-/* Sidebar Styling */
-.sidebar {
-width: 280px;
-background: #374151;
-box-shadow: 2px 0 10px rgba(0,0,0,0.3);
-transition: all 0.3s ease;
-position: fixed;
-height: 100vh;
-z-index: 1000;
-overflow-y: auto;
-}
-
-.sidebar.collapsed {
-width: 60px;
-overflow: hidden;
-}
-
-.sidebar.collapsed .sidebar-text {
-display: none;
-}
-
-.sidebar.collapsed .sidebar-icon {
-margin: 0 auto;
-text-align: center;
-}
-
-/* Content Area */
-.main-content {
-flex: 1;
-margin-left: 0;
-transition: all 0.3s ease;
-padding: 20px;
-background: #1F2937;
-min-height: 100vh;
-width: 100%;
-}
-
-.main-content.expanded {
-margin-left: 60px;
-width: calc(100% - 60px);
-}
-
-/* Mobile-first responsive design */
-@media (max-width: 768px) {
-.sidebar {
-transform: translateX(-100%);
-z-index: 1050;
-width: 280px;
-position: fixed;
-}
-
-.sidebar.mobile-open {
-transform: translateX(0);
-}
-
-.sidebar.collapsed {
-transform: translateX(-100%);
-width: 280px;
-}
-
-.main-content {
-margin-left: 0 !important;
-width: 100% !important;
-}
-
-.main-content.expanded {
-margin-left: 0 !important;
-width: 100% !important;
-}
-
-/* Mobile overlay for sidebar */
-.mobile-overlay {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background-color: rgba(0, 0, 0, 0.5);
-z-index: 1040;
-display: none;
-}
-
-.mobile-overlay.show {
-display: block;
-}
-}
-
-/* Tablet adjustments */
-@media (min-width: 768px) and (max-width: 992px) {
-.sidebar {
-width: 220px;
-}
-
-.sidebar.collapsed {
-width: 50px;
-}
-
-.main-content {
-margin-left: 220px;
-width: calc(100% - 220px);
-}
-
-.main-content.expanded {
-margin-left: 50px;
-width: calc(100% - 50px);
-}
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-.sidebar {
-width: 60px;
-}
-
-.main-content {
-margin-left: 60px;
-}
-}
-
-.container-fluid {
-padding: 0;
-max-width: 100%;
-}
-
-/* Enhanced Navigation */
-.navbar {
-box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-border-bottom: 2px solid #0d6efd;
-}
-
-.navbar-brand {
-font-weight: 700;
-font-size: 1.4rem;
-letter-spacing: 1px;
-}
-
-/* Professional Dashboard Header */
-.dashboard-header {
-background: linear-gradient(90deg, #0d6efd 0%, #0056b3 100%);
-padding: 20px;
-border-radius: 12px;
-margin-bottom: 25px;
-box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
-color: white;
-}
-
-/* Sidebar Toggle Button */
-.sidebar-toggle {
-position: fixed;
-top: 20px;
-left: 20px;
-z-index: 1001;
-background: #0d6efd;
-border: none;
-color: white;
-padding: 10px 12px;
-border-radius: 6px;
-cursor: pointer;
-box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-transition: all 0.3s ease;
-}
-
-.sidebar-toggle:hover {
-background: #0056b3;
-transform: translateY(-1px);
-}
-
-.dashboard-title {
-color: white;
-margin: 0;
-font-weight: 600;
-display: flex;
-align-items: center;
-gap: 15px;
-}
-
-.dashboard-subtitle {
-color: rgba(255,255,255,0.8);
-margin: 5px 0 0 0;
-font-size: 0.95rem;
-}
-
-/* Enhanced Metric Cards */
-.metric-card {
-border: none;
-border-radius: 15px;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-cursor: pointer;
-height: 160px;
-box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-position: relative;
-overflow: hidden;
-}
-
-.metric-card:hover {
-transform: translateY(-8px);
-box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-}
-
-.metric-card::before {
-content: '';
-position: absolute;
-top: 0;
-left: 0;
-right: 0;
-height: 4px;
-background: linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%);
-}
-
-.metric-card-body {
-padding: 25px 20px;
-text-align: center;
-height: 100%;
-display: flex;
-flex-direction: column;
-justify-content: center;
-position: relative;
-}
-
-.metric-icon {
-font-size: 2.5rem;
-margin-bottom: 15px;
-opacity: 0.9;
-}
-
-.metric-number {
-font-size: 3rem;
-font-weight: 700;
-margin: 10px 0;
-line-height: 1;
-text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.metric-label {
-font-size: 1rem;
-font-weight: 500;
-opacity: 0.9;
-margin: 0;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-}
-
-/* Color Schemes for Cards */
-.card-success {
-background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-color: white;
-}
-
-.card-warning {
-background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-color: #212529;
-}
-
-.card-info {
-background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
-color: white;
-}
-
-.card-secondary {
-background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-color: white;
-}
-
-/* Enhanced Information Cards */
-.info-card {
-background: rgba(255,255,255,0.05);
-border: 1px solid rgba(255,255,255,0.1);
-border-radius: 12px;
-backdrop-filter: blur(10px);
-transition: all 0.3s ease;
-}
-
-.info-card:hover {
-background: rgba(255,255,255,0.08);
-border-color: rgba(255,255,255,0.2);
-}
-
-.info-card .card-header {
-background: rgba(13, 110, 253, 0.1);
-border-bottom: 1px solid rgba(255,255,255,0.1);
-border-radius: 12px 12px 0 0;
-padding: 15px 20px;
-}
-
-.info-card .card-body {
-padding: 20px;
-}
-
-/* Professional Typography */
-.stat-label {
-font-weight: 600;
-color: #e9ecef;
-}
-
-.stat-value {
-color: #0d6efd;
-font-weight: 500;
-}
-
-.badge {
-padding: 6px 12px;
-border-radius: 20px;
-font-weight: 500;
-font-size: 0.85rem;
-}
-
-/* Driver List Styling */
-.driver-list {
-max-height: 400px;
-overflow-y: auto;
-}
-
-.driver-item {
-padding: 10px 0;
-border-bottom: 1px solid rgba(255,255,255,0.1);
-display: flex;
-align-items: center;
-gap: 10px;
-transition: all 0.2s ease;
-}
-
-.driver-item:hover {
-background: rgba(255,255,255,0.05);
-padding-left: 10px;
-border-radius: 8px;
-}
-
-.driver-item:last-child {
-border-bottom: none;
-}
-
-.driver-icon {
-color: #0d6efd;
-font-size: 1.1rem;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-.container-fluid {
-padding: 0 15px;
-}
-
-.metric-card {
-height: 140px;
-margin-bottom: 15px;
-}
-
-.metric-number {
-font-size: 2.5rem;
-}
-
-.metric-icon {
-font-size: 2rem;
-}
-
-.dashboard-header {
-padding: 15px;
-margin-bottom: 20px;
-}
-
-.dashboard-title {
-font-size: 1.4rem;
-}
-}
-
-@media (min-width: 768px) and (max-width: 1024px) {
-.col-lg-3 {
-flex: 0 0 50%;
-max-width: 50%;
-}
-}
-
-/* Smooth Scrollbar */
-.driver-list::-webkit-scrollbar {
-width: 6px;
-}
-
-.driver-list::-webkit-scrollbar-track {
-background: rgba(255,255,255,0.1);
-border-radius: 3px;
-}
-
-.driver-list::-webkit-scrollbar-thumb {
-background: #0d6efd;
-border-radius: 3px;
-}
-
-/* Animation Classes */
-.fade-in {
-animation: fadeIn 0.6s ease-in;
-}
-
-@keyframes fadeIn {
-from { opacity: 0; transform: translateY(20px); }
-to { opacity: 1; transform: translateY(0); }
-}
-
-/* Performance Indicator */
-.performance-ring {
-display: inline-block;
-width: 12px;
-height: 12px;
-border-radius: 50%;
-margin-right: 8px;
-}
-
-.performance-excellent { background: #28a745; }
-.performance-good { background: #ffc107; }
-.performance-poor { background: #dc3545; }
-</style></head><body><nav class="navbar navbar-expand-lg navbar-dark bg-dark"><div class="container-fluid"><a class="navbar-brand" href="/"><i class="fas fa-truck me-2"></i>TRAXOVO
-</a></div></nav><div class="container-fluid mt-4"><div class="row"><div class="col-12"><div class="dashboard-header fade-in"><div class="d-flex justify-content-between align-items-start mb-3"><div><h1 class="dashboard-title"><i class="fas fa-users"></i>
-Driver Performance Dashboard
-</h1><p class="dashboard-subtitle"><span class="performance-ring performance-excellent"></span>
-Real-time fleet monitoring for {{ data.mtd_period }} • Last updated: {{ data.last_updated }}
-</p></div><div class="time-period-nav"><div class="btn-group" role="group" aria-label="Time period selection"><a href="/working-reports" class="btn btn-primary"><i class="fas fa-calendar-day me-1"></i>Daily
-</a><a href="/working-reports/weekly" class="btn btn-outline-primary"><i class="fas fa-calendar-week me-1"></i>Weekly
-</a><a href="/working-reports/monthly" class="btn btn-outline-primary"><i class="fas fa-calendar-alt me-1"></i>Monthly
-</a></div></div></div><div class="job-site-links mb-3"><div class="row g-2"><div class="col-md-3"><a href="/job-sites/TEXDIST" class="btn btn-sm btn-outline-success w-100"><i class="fas fa-map-marker-alt me-1"></i>TEXDIST (34 drivers)
-</a></div><div class="col-md-3"><a href="/job-sites/2024-004" class="btn btn-sm btn-outline-info w-100"><i class="fas fa-map-marker-alt me-1"></i>2024-004 (28 drivers)
-</a></div><div class="col-md-3"><a href="/job-sites/2024-001" class="btn btn-sm btn-outline-warning w-100"><i class="fas fa-map-marker-alt me-1"></i>2024-001 (25 drivers)
-</a></div><div class="col-md-3"><a href="/job-sites/all" class="btn btn-sm btn-outline-secondary w-100"><i class="fas fa-list me-1"></i>All Job Sites
-</a></div></div></div></div><div class="row mb-4"><div class="col-md-6 col-lg-3 mb-3"><div class="metric-card card-success fade-in" onclick="showDriverDetails('on_time')"><div class="metric-card-body"><i class="fas fa-clock metric-icon"></i><div class="metric-number">{{ data.on_time }}</div><p class="metric-label">On Time Drivers</p></div></div></div><div class="col-md-6 col-lg-3 mb-3"><div class="metric-card card-warning fade-in" onclick="showDriverDetails('late')" style="animation-delay: 0.1s"><div class="metric-card-body"><i class="fas fa-exclamation-triangle metric-icon"></i><div class="metric-number">{{ data.late }}</div><p class="metric-label">Late Starts</p></div></div></div><div class="col-md-6 col-lg-3 mb-3"><div class="metric-card card-info fade-in" onclick="showDriverDetails('early_end')" style="animation-delay: 0.2s"><div class="metric-card-body"><i class="fas fa-arrow-left metric-icon"></i><div class="metric-number">{{ data.early_end }}</div><p class="metric-label">Early Departures</p></div></div></div><div class="col-md-6 col-lg-3 mb-3"><div class="metric-card card-secondary fade-in" onclick="showDriverDetails('not_on_job')" style="animation-delay: 0.3s"><div class="metric-card-body"><i class="fas fa-times metric-icon"></i><div class="metric-number">{{ data.not_on_job }}</div><p class="metric-label">Not On Job</p></div></div></div></div><div class="row"><div class="col-lg-8"><div class="info-card fade-in" style="animation-delay: 0.4s"><div class="card-header"><h5><i class="fas fa-chart-line me-2"></i>Fleet Performance Summary</h5></div><div class="card-body"><div class="row"><div class="col-sm-6"><p class="mb-3"><span class="stat-label">Total Active Drivers:</span><br><span class="stat-value fs-4">{{ data.total_drivers }}</span></p><p class="mb-3"><span class="stat-label">MTD Period:</span><br><span class="stat-value">{{ data.mtd_period }}</span></p><p class="mb-0"><span class="stat-label">Last Updated:</span><br><span class="stat-value">{{ data.last_updated }}</span></p></div><div class="col-sm-6"><p class="mb-3"><span class="stat-label">Performance Rate:</span><br><span class="stat-value fs-4">
-{{ "%.1f"|format((data.on_time / data.total_drivers * 100) if data.total_drivers > 0 else 0) }}%
-</span></p><p class="mb-3"><span class="stat-label">Data Status:</span><br><span class="badge bg-success"><i class="fas fa-satellite-dish me-1"></i>Live Processing
-</span></p><p class="mb-0"><span class="stat-label">Source:</span><br><span class="stat-value">North Texas Fleet MTD</span></p></div></div></div></div></div><div class="col-lg-4"><div class="info-card fade-in" style="animation-delay: 0.5s"><div class="card-header"><h5><i class="fas fa-users me-2"></i>Active Driver Sample</h5></div><div class="card-body">
-{% if data.drivers_sample %}
-<div class="driver-list">
-{% for driver in data.drivers_sample %}
-<div class="driver-item"><i class="fas fa-user driver-icon"></i><span>{{ driver }}</span></div>
-{% endfor %}
-</div>
-{% else %}
-<div class="text-center py-4"><i class="fas fa-sync-alt fa-spin text-muted"></i><p class="text-muted mt-2">Processing driver data...</p></div>
-{% endif %}
-</div></div></div></div><div class="row mt-4"><div class="col-12"><div class="card"><div class="card-header"><h5><i class="fas fa-cogs me-2"></i>Data Source Information</h5></div><div class="card-body"><p>This dashboard displays real driver performance data extracted from your MTD (Month-to-Date) files covering the North Texas fleet operations.</p><div class="row"><div class="col-md-4"><strong>Data Period:</strong><br>
-{{ data.mtd_period }}
-</div><div class="col-md-4"><strong>Processing Status:</strong><br><span class="badge bg-success">Active</span></div><div class="col-md-4"><strong>Total Records:</strong><br>
-{{ data.total_drivers }} drivers tracked
-</div></div></div></div></div></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script><script>
-// Professional Dashboard Interactions
-function showDriverDetails(category) {
-console.log(`Showing details for category: ${category}`);
-
-// Show actual driver details based on category
-const categoryNames = {
-'on_time': 'On Time Drivers',
-'late': 'Late Start Drivers',
-'early_end': 'Early Departure Drivers',
-'not_on_job': 'Not On Job Drivers'
-};
-
-// Create a modal or detailed view showing the actual drivers
-showDriverModal(category, categoryNames[category]);
-}
-
-function showDriverModal(category, categoryName) {
-// Create modal to show actual driver data
-const modalHtml = `
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TRAXOVO - Driver Reports</title>
+    <link
+      href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* Professional Fleet Management Dashboard Styling */
+      body {
+        min-height: 100vh;
+        overflow-x: hidden;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #1f2937;
+        color: #f9fafb;
+      }
+
+      /* Main Layout Container */
+      .main-wrapper {
+        display: flex;
+        min-height: 100vh;
+        width: 100%;
+      }
+
+      /* Sidebar Styling */
+      .sidebar {
+        width: 280px;
+        background: #374151;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        position: fixed;
+        height: 100vh;
+        z-index: 1000;
+        overflow-y: auto;
+      }
+
+      .sidebar.collapsed {
+        width: 60px;
+        overflow: hidden;
+      }
+
+      .sidebar.collapsed .sidebar-text {
+        display: none;
+      }
+
+      .sidebar.collapsed .sidebar-icon {
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      /* Content Area */
+      .main-content {
+        flex: 1;
+        margin-left: 0;
+        transition: all 0.3s ease;
+        padding: 20px;
+        background: #1f2937;
+        min-height: 100vh;
+        width: 100%;
+      }
+
+      .main-content.expanded {
+        margin-left: 60px;
+        width: calc(100% - 60px);
+      }
+
+      /* Mobile-first responsive design */
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+          z-index: 1050;
+          width: 280px;
+          position: fixed;
+        }
+
+        .sidebar.mobile-open {
+          transform: translateX(0);
+        }
+
+        .sidebar.collapsed {
+          transform: translateX(-100%);
+          width: 280px;
+        }
+
+        .main-content {
+          margin-left: 0 !important;
+          width: 100% !important;
+        }
+
+        .main-content.expanded {
+          margin-left: 0 !important;
+          width: 100% !important;
+        }
+
+        /* Mobile overlay for sidebar */
+        .mobile-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          z-index: 1040;
+          display: none;
+        }
+
+        .mobile-overlay.show {
+          display: block;
+        }
+      }
+
+      /* Tablet adjustments */
+      @media (min-width: 768px) and (max-width: 992px) {
+        .sidebar {
+          width: 220px;
+        }
+
+        .sidebar.collapsed {
+          width: 50px;
+        }
+
+        .main-content {
+          margin-left: 220px;
+          width: calc(100% - 220px);
+        }
+
+        .main-content.expanded {
+          margin-left: 50px;
+          width: calc(100% - 50px);
+        }
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 60px;
+        }
+
+        .main-content {
+          margin-left: 60px;
+        }
+      }
+
+      .container-fluid {
+        padding: 0;
+        max-width: 100%;
+      }
+
+      /* Enhanced Navigation */
+      .navbar {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        border-bottom: 2px solid #0d6efd;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.4rem;
+        letter-spacing: 1px;
+      }
+
+      /* Professional Dashboard Header */
+      .dashboard-header {
+        background: linear-gradient(90deg, #0d6efd 0%, #0056b3 100%);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+        color: white;
+      }
+
+      /* Sidebar Toggle Button */
+      .sidebar-toggle {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1001;
+        background: #0d6efd;
+        border: none;
+        color: white;
+        padding: 10px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .sidebar-toggle:hover {
+        background: #0056b3;
+        transform: translateY(-1px);
+      }
+
+      .dashboard-title {
+        color: white;
+        margin: 0;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .dashboard-subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        margin: 5px 0 0 0;
+        font-size: 0.95rem;
+      }
+
+      /* Enhanced Metric Cards */
+      .metric-card {
+        border: none;
+        border-radius: 15px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        height: 160px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .metric-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .metric-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.3) 0%,
+          rgba(255, 255, 255, 0.1) 100%
+        );
+      }
+
+      .metric-card-body {
+        padding: 25px 20px;
+        text-align: center;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+      }
+
+      .metric-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        opacity: 0.9;
+      }
+
+      .metric-number {
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 10px 0;
+        line-height: 1;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .metric-label {
+        font-size: 1rem;
+        font-weight: 500;
+        opacity: 0.9;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Color Schemes for Cards */
+      .card-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+      }
+
+      .card-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        color: #212529;
+      }
+
+      .card-info {
+        background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+        color: white;
+      }
+
+      .card-secondary {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        color: white;
+      }
+
+      /* Enhanced Information Cards */
+      .info-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+      }
+
+      .info-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .info-card .card-header {
+        background: rgba(13, 110, 253, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px 12px 0 0;
+        padding: 15px 20px;
+      }
+
+      .info-card .card-body {
+        padding: 20px;
+      }
+
+      /* Professional Typography */
+      .stat-label {
+        font-weight: 600;
+        color: #e9ecef;
+      }
+
+      .stat-value {
+        color: #0d6efd;
+        font-weight: 500;
+      }
+
+      .badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.85rem;
+      }
+
+      /* Driver List Styling */
+      .driver-list {
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .driver-item {
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.2s ease;
+      }
+
+      .driver-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        padding-left: 10px;
+        border-radius: 8px;
+      }
+
+      .driver-item:last-child {
+        border-bottom: none;
+      }
+
+      .driver-icon {
+        color: #0d6efd;
+        font-size: 1.1rem;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .container-fluid {
+          padding: 0 15px;
+        }
+
+        .metric-card {
+          height: 140px;
+          margin-bottom: 15px;
+        }
+
+        .metric-number {
+          font-size: 2.5rem;
+        }
+
+        .metric-icon {
+          font-size: 2rem;
+        }
+
+        .dashboard-header {
+          padding: 15px;
+          margin-bottom: 20px;
+        }
+
+        .dashboard-title {
+          font-size: 1.4rem;
+        }
+      }
+
+      @media (min-width: 768px) and (max-width: 1024px) {
+        .col-lg-3 {
+          flex: 0 0 50%;
+          max-width: 50%;
+        }
+      }
+
+      /* Smooth Scrollbar */
+      .driver-list::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .driver-list::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+      }
+
+      .driver-list::-webkit-scrollbar-thumb {
+        background: #0d6efd;
+        border-radius: 3px;
+      }
+
+      /* Animation Classes */
+      .fade-in {
+        animation: fadeIn 0.6s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Performance Indicator */
+      .performance-ring {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+
+      .performance-excellent {
+        background: #28a745;
+      }
+      .performance-good {
+        background: #ffc107;
+      }
+      .performance-poor {
+        background: #dc3545;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/"
+          ><i class="fas fa-truck me-2"></i>TRAXOVO
+        </a>
+      </div>
+    </nav>
+    <div class="container-fluid mt-4">
+      <div class="row">
+        <div class="col-12">
+          <div class="dashboard-header fade-in">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <h1 class="dashboard-title">
+                  <i class="fas fa-users"></i>
+                  Driver Performance Dashboard
+                </h1>
+                <p class="dashboard-subtitle">
+                  <span class="performance-ring performance-excellent"></span>
+                  Real-time fleet monitoring for {{ data.mtd_period }} • Last
+                  updated: {{ data.last_updated }}
+                </p>
+              </div>
+              <div class="time-period-nav">
+                <div
+                  class="btn-group"
+                  role="group"
+                  aria-label="Time period selection"
+                >
+                  <a href="/working-reports" class="btn btn-primary"
+                    ><i class="fas fa-calendar-day me-1"></i>Daily </a
+                  ><a
+                    href="/working-reports/weekly"
+                    class="btn btn-outline-primary"
+                    ><i class="fas fa-calendar-week me-1"></i>Weekly </a
+                  ><a
+                    href="/working-reports/monthly"
+                    class="btn btn-outline-primary"
+                    ><i class="fas fa-calendar-alt me-1"></i>Monthly
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="job-site-links mb-3">
+              <div class="row g-2">
+                <div class="col-md-3">
+                  <a
+                    href="/job-sites/TEXDIST"
+                    class="btn btn-sm btn-outline-success w-100"
+                    ><i class="fas fa-map-marker-alt me-1"></i>TEXDIST (34
+                    drivers)
+                  </a>
+                </div>
+                <div class="col-md-3">
+                  <a
+                    href="/job-sites/2024-004"
+                    class="btn btn-sm btn-outline-info w-100"
+                    ><i class="fas fa-map-marker-alt me-1"></i>2024-004 (28
+                    drivers)
+                  </a>
+                </div>
+                <div class="col-md-3">
+                  <a
+                    href="/job-sites/2024-001"
+                    class="btn btn-sm btn-outline-warning w-100"
+                    ><i class="fas fa-map-marker-alt me-1"></i>2024-001 (25
+                    drivers)
+                  </a>
+                </div>
+                <div class="col-md-3">
+                  <a
+                    href="/job-sites/all"
+                    class="btn btn-sm btn-outline-secondary w-100"
+                    ><i class="fas fa-list me-1"></i>All Job Sites
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-4">
+            <div class="col-md-6 col-lg-3 mb-3">
+              <div
+                class="metric-card card-success fade-in"
+                onclick="showDriverDetails('on_time')"
+              >
+                <div class="metric-card-body">
+                  <i class="fas fa-clock metric-icon"></i>
+                  <div class="metric-number">{{ data.on_time }}</div>
+                  <p class="metric-label">On Time Drivers</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-3">
+              <div
+                class="metric-card card-warning fade-in"
+                onclick="showDriverDetails('late')"
+                style="animation-delay: 0.1s"
+              >
+                <div class="metric-card-body">
+                  <i class="fas fa-exclamation-triangle metric-icon"></i>
+                  <div class="metric-number">{{ data.late }}</div>
+                  <p class="metric-label">Late Starts</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-3">
+              <div
+                class="metric-card card-info fade-in"
+                onclick="showDriverDetails('early_end')"
+                style="animation-delay: 0.2s"
+              >
+                <div class="metric-card-body">
+                  <i class="fas fa-arrow-left metric-icon"></i>
+                  <div class="metric-number">{{ data.early_end }}</div>
+                  <p class="metric-label">Early Departures</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-3">
+              <div
+                class="metric-card card-secondary fade-in"
+                onclick="showDriverDetails('not_on_job')"
+                style="animation-delay: 0.3s"
+              >
+                <div class="metric-card-body">
+                  <i class="fas fa-times metric-icon"></i>
+                  <div class="metric-number">{{ data.not_on_job }}</div>
+                  <p class="metric-label">Not On Job</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-8">
+              <div class="info-card fade-in" style="animation-delay: 0.4s">
+                <div class="card-header">
+                  <h5>
+                    <i class="fas fa-chart-line me-2"></i>Fleet Performance
+                    Summary
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <p class="mb-3">
+                        <span class="stat-label">Total Active Drivers:</span
+                        ><br /><span class="stat-value fs-4"
+                          >{{ data.total_drivers }}</span
+                        >
+                      </p>
+                      <p class="mb-3">
+                        <span class="stat-label">MTD Period:</span><br /><span
+                          class="stat-value"
+                          >{{ data.mtd_period }}</span
+                        >
+                      </p>
+                      <p class="mb-0">
+                        <span class="stat-label">Last Updated:</span><br /><span
+                          class="stat-value"
+                          >{{ data.last_updated }}</span
+                        >
+                      </p>
+                    </div>
+                    <div class="col-sm-6">
+                      <p class="mb-3">
+                        <span class="stat-label">Performance Rate:</span
+                        ><br /><span class="stat-value fs-4">
+                          {{ "%.1f"|format((data.on_time / data.total_drivers *
+                          100) if data.total_drivers > 0 else 0) }}%
+                        </span>
+                      </p>
+                      <p class="mb-3">
+                        <span class="stat-label">Data Status:</span><br /><span
+                          class="badge bg-success"
+                          ><i class="fas fa-satellite-dish me-1"></i>Live
+                          Processing
+                        </span>
+                      </p>
+                      <p class="mb-0">
+                        <span class="stat-label">Source:</span><br /><span
+                          class="stat-value"
+                          >North Texas Fleet MTD</span
+                        >
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="info-card fade-in" style="animation-delay: 0.5s">
+                <div class="card-header">
+                  <h5><i class="fas fa-users me-2"></i>Active Driver Sample</h5>
+                </div>
+                <div class="card-body">
+                  {% if data.drivers_sample %}
+                  <div class="driver-list">
+                    {% for driver in data.drivers_sample %}
+                    <div class="driver-item">
+                      <i class="fas fa-user driver-icon"></i
+                      ><span>{{ driver }}</span>
+                    </div>
+                    {% endfor %}
+                  </div>
+                  {% else %}
+                  <div class="text-center py-4">
+                    <i class="fas fa-sync-alt fa-spin text-muted"></i>
+                    <p class="text-muted mt-2">Processing driver data...</p>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header">
+                  <h5>
+                    <i class="fas fa-cogs me-2"></i>Data Source Information
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <p>
+                    This dashboard displays real driver performance data
+                    extracted from your MTD (Month-to-Date) files covering the
+                    North Texas fleet operations.
+                  </p>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <strong>Data Period:</strong><br />
+                      {{ data.mtd_period }}
+                    </div>
+                    <div class="col-md-4">
+                      <strong>Processing Status:</strong><br /><span
+                        class="badge bg-success"
+                        >Active</span
+                      >
+                    </div>
+                    <div class="col-md-4">
+                      <strong>Total Records:</strong><br />
+                      {{ data.total_drivers }} drivers tracked
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Professional Dashboard Interactions
+      function showDriverDetails(category) {
+        console.log(`Showing details for category: ${category}`);
+
+        // Show actual driver details based on category
+        const categoryNames = {
+          on_time: "On Time Drivers",
+          late: "Late Start Drivers",
+          early_end: "Early Departure Drivers",
+          not_on_job: "Not On Job Drivers",
+        };
+
+        // Create a modal or detailed view showing the actual drivers
+        showDriverModal(category, categoryNames[category]);
+      }
+
+      function showDriverModal(category, categoryName) {
+        // Create modal to show actual driver data
+        const modalHtml = `
 <div class="modal fade" id="driverModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">${categoryName} Details</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="table-responsive"><table class="table table-striped"><thead><tr><th>Driver Name</th><th>Vehicle</th><th>Job Site</th><th>Time</th><th>Status</th></tr></thead><tbody id="driverTableBody"><tr><td colspan="5">Loading driver data...</td></tr></tbody></table></div></div></div></div></div>
 `;
 
-// Remove existing modal if any
-const existingModal = document.getElementById('driverModal');
-if (existingModal) {
-existingModal.remove();
-}
+        // Remove existing modal if any
+        const existingModal = document.getElementById("driverModal");
+        if (existingModal) {
+          existingModal.remove();
+        }
 
-// Add modal to DOM
-document.body.insertAdjacentHTML('beforeend', modalHtml);
+        // Add modal to DOM
+        document.body.insertAdjacentHTML("beforeend", modalHtml);
 
-// Show modal
-const modal = new bootstrap.Modal(document.getElementById('driverModal'));
-modal.show();
+        // Show modal
+        const modal = new bootstrap.Modal(
+          document.getElementById("driverModal"),
+        );
+        modal.show();
 
-// Load actual driver data
-loadDriverData(category);
-}
+        // Load actual driver data
+        loadDriverData(category);
+      }
 
-function loadDriverData(category) {
-// Fetch real driver data from your MTD files
-fetch(`/working-reports/api/drivers/${category}`)
-.then(response => response.json())
-.then(data => {
-const tbody = document.getElementById('driverTableBody');
-if (data.drivers && data.drivers.length > 0) {
-tbody.innerHTML = data.drivers.map(driver => `
-<tr><td><strong>${driver.name}</strong></td><td>${driver.vehicle || 'FORD F150 2024'}</td><td><span class="badge bg-primary">${driver.job_site || '2024-019 DFW'}</span></td><td>${driver.time || '07:30 AM'}</td><td><span class="badge bg-${getStatusColor(category)}">${getStatusText(category)}</span></td></tr>
-`).join('');
-} else {
-tbody.innerHTML = '<tr><td colspan="5" class="text-center">No drivers found for this category</td></tr>';
-}
-})
-.catch(error => {
-console.error('Error loading driver data:', error);
-document.getElementById('driverTableBody').innerHTML =
-'<tr><td colspan="5" class="text-center text-danger">Error loading data</td></tr>';
-});
-}
+      function loadDriverData(category) {
+        // Fetch real driver data from your MTD files
+        fetch(`/working-reports/api/drivers/${category}`)
+          .then((response) => response.json())
+          .then((data) => {
+            const tbody = document.getElementById("driverTableBody");
+            if (data.drivers && data.drivers.length > 0) {
+              tbody.innerHTML = data.drivers
+                .map(
+                  (driver) => `
+<tr><td><strong>${driver.name}</strong></td><td>${driver.vehicle || "FORD F150 2024"}</td><td><span class="badge bg-primary">${driver.job_site || "2024-019 DFW"}</span></td><td>${driver.time || "07:30 AM"}</td><td><span class="badge bg-${getStatusColor(category)}">${getStatusText(category)}</span></td></tr>
+`,
+                )
+                .join("");
+            } else {
+              tbody.innerHTML =
+                '<tr><td colspan="5" class="text-center">No drivers found for this category</td></tr>';
+            }
+          })
+          .catch((error) => {
+            console.error("Error loading driver data:", error);
+            document.getElementById("driverTableBody").innerHTML =
+              '<tr><td colspan="5" class="text-center text-danger">Error loading data</td></tr>';
+          });
+      }
 
-function getStatusColor(category) {
-const colors = {
-'on_time': 'success',
-'late': 'warning',
-'early_end': 'info',
-'not_on_job': 'danger'
-};
-return colors[category] || 'secondary';
-}
+      function getStatusColor(category) {
+        const colors = {
+          on_time: "success",
+          late: "warning",
+          early_end: "info",
+          not_on_job: "danger",
+        };
+        return colors[category] || "secondary";
+      }
 
-function getStatusText(category) {
-const texts = {
-'on_time': 'On Time',
-'late': 'Late Start',
-'early_end': 'Early End',
-'not_on_job': 'Not On Job'
-};
-return texts[category] || 'Unknown';
-}
+      function getStatusText(category) {
+        const texts = {
+          on_time: "On Time",
+          late: "Late Start",
+          early_end: "Early End",
+          not_on_job: "Not On Job",
+        };
+        return texts[category] || "Unknown";
+      }
 
-function showNotification(message) {
-// Create and show a professional notification
-const notification = document.createElement('div');
-notification.className = 'alert alert-info alert-dismissible fade show position-fixed';
-notification.style.cssText = `
+      function showNotification(message) {
+        // Create and show a professional notification
+        const notification = document.createElement("div");
+        notification.className =
+          "alert alert-info alert-dismissible fade show position-fixed";
+        notification.style.cssText = `
 top: 20px;
 right: 20px;
 z-index: 9999;
@@ -546,53 +810,55 @@ min-width: 300px;
 border-radius: 10px;
 box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 `;
-notification.innerHTML = `
+        notification.innerHTML = `
 <i class="fas fa-info-circle me-2"></i>${message}
 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 `;
 
-document.body.appendChild(notification);
+        document.body.appendChild(notification);
 
-// Auto-remove after 3 seconds
-setTimeout(() => {
-if (notification.parentNode) {
-notification.remove();
-}
-}, 3000);
-}
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 3000);
+      }
 
-// Add smooth loading animation when page loads
-document.addEventListener('DOMContentLoaded', function() {
-// Stagger the fade-in animations
-const fadeElements = document.querySelectorAll('.fade-in');
-fadeElements.forEach((element, index) => {
-element.style.animationDelay = `${index * 0.1}s`;
-});
+      // Add smooth loading animation when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        // Stagger the fade-in animations
+        const fadeElements = document.querySelectorAll(".fade-in");
+        fadeElements.forEach((element, index) => {
+          element.style.animationDelay = `${index * 0.1}s`;
+        });
 
-// Add hover effects to driver items
-const driverItems = document.querySelectorAll('.driver-item');
-driverItems.forEach(item => {
-item.addEventListener('mouseenter', function() {
-this.style.transform = 'translateX(5px)';
-});
+        // Add hover effects to driver items
+        const driverItems = document.querySelectorAll(".driver-item");
+        driverItems.forEach((item) => {
+          item.addEventListener("mouseenter", function () {
+            this.style.transform = "translateX(5px)";
+          });
 
-item.addEventListener('mouseleave', function() {
-this.style.transform = 'translateX(0)';
-});
-});
+          item.addEventListener("mouseleave", function () {
+            this.style.transform = "translateX(0)";
+          });
+        });
 
-// Show welcome message
-setTimeout(() => {
-showNotification('Dashboard loaded with live fleet data');
-}, 1000);
-});
+        // Show welcome message
+        setTimeout(() => {
+          showNotification("Dashboard loaded with live fleet data");
+        }, 1000);
+      });
 
-// Add keyboard navigation
-document.addEventListener('keydown', function(e) {
-if (e.key === 'Escape') {
-// Close any open notifications
-const notifications = document.querySelectorAll('.alert');
-notifications.forEach(n => n.remove());
-}
-});
-</script></body></html>
+      // Add keyboard navigation
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          // Close any open notifications
+          const notifications = document.querySelectorAll(".alert");
+          notifications.forEach((n) => n.remove());
+        }
+      });
+    </script>
+  </body>
+</html>

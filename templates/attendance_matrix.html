@@ -1,125 +1,126 @@
-{% extends "base.html" %}
-
-{% block title %}Attendance Matrix - TRAXOVO{% endblock %}
-
-{% block extra_css %}
+{% extends "base.html" %} {% block title %}Attendance Matrix - TRAXOVO{%
+endblock %} {% block extra_css %}
 <style>
-.attendance-header {
-    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+  .attendance-header {
+    background: linear-gradient(
+      135deg,
+      var(--primary-blue) 0%,
+      var(--secondary-blue) 100%
+    );
     color: white;
     padding: 2rem;
     border-radius: 12px;
     margin-bottom: 2rem;
-}
+  }
 
-.attendance-controls {
+  .attendance-controls {
     background: white;
     padding: 1.5rem;
     border-radius: 8px;
     margin-bottom: 2rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 
-.control-group {
+  .control-group {
     display: flex;
     gap: 1rem;
     align-items: center;
     flex-wrap: wrap;
-}
+  }
 
-.control-label {
+  .control-label {
     font-weight: 600;
     color: var(--dark-gray);
     min-width: 60px;
-}
+  }
 
-.control-input {
+  .control-input {
     padding: 8px 12px;
     border: 1px solid #d1d5db;
     border-radius: 6px;
     font-size: 0.9rem;
-}
+  }
 
-.matrix-container {
+  .matrix-container {
     background: white;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
 
-.matrix-table {
+  .matrix-table {
     width: 100%;
     border-collapse: collapse;
-}
+  }
 
-.matrix-table th {
+  .matrix-table th {
     background: var(--primary-blue);
     color: white;
     padding: 12px;
     text-align: left;
     font-weight: 600;
-}
+  }
 
-.matrix-table td {
+  .matrix-table td {
     padding: 10px 12px;
     border-bottom: 1px solid #e5e7eb;
-}
+  }
 
-.matrix-table tr:hover {
+  .matrix-table tr:hover {
     background: #f9fafb;
-}
+  }
 
-.status-present {
+  .status-present {
     background: #dcfce7;
     color: #166534;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 0.8rem;
     font-weight: 600;
-}
+  }
 
-.status-absent {
+  .status-absent {
     background: #fee2e2;
     color: #991b1b;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 0.8rem;
     font-weight: 600;
-}
+  }
 
-.status-late-start {
+  .status-late-start {
     background: #fef3c7;
     color: #d97706;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 0.8rem;
     font-weight: 600;
-}
+  }
 
-.status-early-end {
+  .status-early-end {
     background: #fed7e2;
     color: #be185d;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 0.8rem;
     font-weight: 600;
-}
+  }
 
-.division-pm {
+  .division-pm {
     background: #dbeafe;
     color: #1e40af;
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.75rem;
-}
+  }
 
-.division-ej {
+  .division-ej {
     background: #dcfce7;
     color: #166534;
-}
+  }
 
-/* Backend Log Panel Styles */
-.backend-log-panel {
+  /* Backend Log Panel Styles */
+  .backend-log-panel {
     position: fixed;
     top: 20px;
     right: 20px;
@@ -127,12 +128,12 @@
     max-height: 500px;
     background: white;
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
     z-index: 1000;
     border: 1px solid #e2e8f0;
-}
+  }
 
-.log-header {
+  .log-header {
     background: var(--primary-blue);
     color: white;
     padding: 1rem;
@@ -140,34 +141,34 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
+  }
 
-.log-header h5 {
+  .log-header h5 {
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
-}
+  }
 
-.btn-close-log {
+  .btn-close-log {
     background: none;
     border: none;
     color: white;
     cursor: pointer;
     padding: 4px;
     border-radius: 4px;
-}
+  }
 
-.btn-close-log:hover {
-    background: rgba(255,255,255,0.1);
-}
+  .btn-close-log:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
 
-.log-content {
+  .log-content {
     max-height: 400px;
     overflow-y: auto;
     padding: 0.5rem;
-}
+  }
 
-.log-entry {
+  .log-entry {
     display: grid;
     grid-template-columns: 60px 1fr 60px 80px;
     gap: 8px;
@@ -177,367 +178,463 @@
     border-radius: 6px;
     font-size: 0.85rem;
     align-items: center;
-}
+  }
 
-.log-time {
-    font-family: 'Courier New', monospace;
+  .log-time {
+    font-family: "Courier New", monospace;
     color: #64748b;
     font-weight: 600;
-}
+  }
 
-.log-action {
+  .log-action {
     color: #374151;
     font-weight: 500;
-}
+  }
 
-.log-user {
+  .log-user {
     color: #6b7280;
     font-size: 0.8rem;
     text-align: center;
-}
+  }
 
-.log-status {
+  .log-status {
     padding: 2px 6px;
     border-radius: 12px;
     font-size: 0.75rem;
     font-weight: 600;
     text-align: center;
-}
+  }
 
-.status-executed { background: #dbeafe; color: #1d4ed8; }
-.status-online { background: #d1fae5; color: #059669; }
-.status-completed { background: #d1fae5; color: #059669; }
-.status-active { background: #fef3c7; color: #d97706; }
-.status-ready { background: #e0e7ff; color: #5b21b6; }
-.status-viewing { background: #e0e7ff; color: #5b21b6; }
-.status-fixed { background: #d1fae5; color: #059669; }
-.status-complete { background: #d1fae5; color: #059669;
+  .status-executed {
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+  .status-online {
+    background: #d1fae5;
+    color: #059669;
+  }
+  .status-completed {
+    background: #d1fae5;
+    color: #059669;
+  }
+  .status-active {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  .status-ready {
+    background: #e0e7ff;
+    color: #5b21b6;
+  }
+  .status-viewing {
+    background: #e0e7ff;
+    color: #5b21b6;
+  }
+  .status-fixed {
+    background: #d1fae5;
+    color: #059669;
+  }
+  .status-complete {
+    background: #d1fae5;
+    color: #059669;
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.75rem;
-}
+  }
 
-.summary-cards {
+  .summary-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     margin-bottom: 2rem;
-}
+  }
 
-.summary-card {
+  .summary-card {
     background: white;
     padding: 1.5rem;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     text-align: center;
-}
+  }
 
-.summary-number {
+  .summary-number {
     font-size: 2rem;
     font-weight: 700;
     color: var(--primary-blue);
     display: block;
-}
+  }
 
-.summary-label {
+  .summary-label {
     color: var(--dark-gray);
     font-size: 0.9rem;
     margin-top: 0.5rem;
-}
+  }
 
-.upload-zone {
+  .upload-zone {
     border: 2px dashed #d1d5db;
     border-radius: 8px;
     padding: 2rem;
     text-align: center;
     margin-bottom: 2rem;
     background: #f9fafb;
-}
+  }
 
-.upload-zone:hover {
+  .upload-zone:hover {
     border-color: var(--primary-blue);
     background: #f0f9ff;
-}
+  }
 
-@media (max-width: 768px) {
+  @media (max-width: 768px) {
     .control-group {
-        flex-direction: column;
-        gap: 0.5rem;
+      flex-direction: column;
+      gap: 0.5rem;
     }
-    
+
     .matrix-table {
-        font-size: 0.8rem;
+      font-size: 0.8rem;
     }
-    
+
     .matrix-table th,
     .matrix-table td {
-        padding: 8px;
+      padding: 8px;
     }
-}
+  }
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <!-- Attendance Header -->
 <div class="attendance-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="mb-2">Attendance Matrix</h1>
-            <p class="mb-0 opacity-75">GPS-validated workforce tracking with job zone integration</p>
-        </div>
-        <div class="text-end">
-            <span class="badge bg-success fs-6">{{ total_records }} Records</span>
-        </div>
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h1 class="mb-2">Attendance Matrix</h1>
+      <p class="mb-0 opacity-75">
+        GPS-validated workforce tracking with job zone integration
+      </p>
     </div>
+    <div class="text-end">
+      <span class="badge bg-success fs-6">{{ total_records }} Records</span>
+    </div>
+  </div>
 </div>
 
 <!-- Upload Zone -->
-<div class="upload-zone" onclick="document.getElementById('file-upload').click()">
-    <i class="fas fa-upload fa-2x mb-3 text-muted"></i>
-    <h5>Upload Attendance Data</h5>
-    <p class="text-muted mb-0">Drop GAUGE reports, driving history, or activity detail files here</p>
-    <input type="file" id="file-upload" multiple accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleFileUpload(this.files)">
+<div
+  class="upload-zone"
+  onclick="document.getElementById('file-upload').click()"
+>
+  <i class="fas fa-upload fa-2x mb-3 text-muted"></i>
+  <h5>Upload Attendance Data</h5>
+  <p class="text-muted mb-0">
+    Drop GAUGE reports, driving history, or activity detail files here
+  </p>
+  <input
+    type="file"
+    id="file-upload"
+    multiple
+    accept=".xlsx,.xls,.csv"
+    style="display: none"
+    onchange="handleFileUpload(this.files)"
+  />
 </div>
 
 <!-- Summary Cards -->
 <div class="summary-cards">
-    <div class="summary-card">
-        <span class="summary-number">{{ summary_stats.total_drivers or 0 }}</span>
-        <div class="summary-label">Total Drivers</div>
-    </div>
-    <div class="summary-card">
-        <span class="summary-number">{{ summary_stats.present_drivers or 0 }}</span>
-        <div class="summary-label">Present Today</div>
-    </div>
-    <div class="summary-card">
-        <span class="summary-number">{{ summary_stats.attendance_rate or 0 }}%</span>
-        <div class="summary-label">Attendance Rate</div>
-    </div>
-    <div class="summary-card">
-        <span class="summary-number">{{ summary_stats.total_hours or 0 }}</span>
-        <div class="summary-label">Total Hours</div>
-    </div>
+  <div class="summary-card">
+    <span class="summary-number">{{ summary_stats.total_drivers or 0 }}</span>
+    <div class="summary-label">Total Drivers</div>
+  </div>
+  <div class="summary-card">
+    <span class="summary-number">{{ summary_stats.present_drivers or 0 }}</span>
+    <div class="summary-label">Present Today</div>
+  </div>
+  <div class="summary-card">
+    <span class="summary-number"
+      >{{ summary_stats.attendance_rate or 0 }}%</span
+    >
+    <div class="summary-label">Attendance Rate</div>
+  </div>
+  <div class="summary-card">
+    <span class="summary-number">{{ summary_stats.total_hours or 0 }}</span>
+    <div class="summary-label">Total Hours</div>
+  </div>
 </div>
 
 <!-- Controls -->
 <div class="attendance-controls">
-    <div class="control-group">
-        <span class="control-label">View:</span>
-        <select class="control-input" id="view-type" onchange="changeView(this.value)">
-            <option value="daily" {% if current_period == 'daily' %}selected{% endif %}>Daily</option>
-            <option value="weekly" {% if current_period == 'weekly' %}selected{% endif %}>Weekly</option>
-            <option value="monthly" {% if current_period == 'monthly' %}selected{% endif %}>Monthly</option>
-        </select>
-        
-        <span class="control-label">Date:</span>
-        <input type="date" class="control-input" id="date-picker" value="{{ current_date }}" onchange="changeDate(this.value)">
-        
-        <span class="control-label">Job Zone:</span>
-        <select class="control-input" id="job-filter" onchange="filterByJob(this.value)">
-            <option value="">All Jobs</option>
-            {% for job in job_zones %}
-            <option value="{{ job.id }}" {% if job_filter == job.id %}selected{% endif %}>{{ job.name }}</option>
-            {% endfor %}
-        </select>
-        
-        <button class="btn btn-primary" onclick="refreshData()">
-            <i class="fas fa-sync-alt me-1"></i>Refresh
-        </button>
-        
-        <button class="btn btn-success" onclick="exportData()">
-            <i class="fas fa-download me-1"></i>Export
-        </button>
-        
-        {% if is_watson %}
-        <button class="btn btn-outline-secondary" onclick="toggleBackendLog()">
-            <i class="fas fa-terminal me-1"></i>Backend Log
-        </button>
-        {% endif %}
-    </div>
+  <div class="control-group">
+    <span class="control-label">View:</span>
+    <select
+      class="control-input"
+      id="view-type"
+      onchange="changeView(this.value)"
+    >
+      <option
+        value="daily"
+        {%
+        if
+        current_period=""
+        ="daily"
+        %}selected{%
+        endif
+        %}
+      >
+        Daily
+      </option>
+      <option
+        value="weekly"
+        {%
+        if
+        current_period=""
+        ="weekly"
+        %}selected{%
+        endif
+        %}
+      >
+        Weekly
+      </option>
+      <option
+        value="monthly"
+        {%
+        if
+        current_period=""
+        ="monthly"
+        %}selected{%
+        endif
+        %}
+      >
+        Monthly
+      </option>
+    </select>
+
+    <span class="control-label">Date:</span>
+    <input
+      type="date"
+      class="control-input"
+      id="date-picker"
+      value="{{ current_date }}"
+      onchange="changeDate(this.value)"
+    />
+
+    <span class="control-label">Job Zone:</span>
+    <select
+      class="control-input"
+      id="job-filter"
+      onchange="filterByJob(this.value)"
+    >
+      <option value="">All Jobs</option>
+      {% for job in job_zones %}
+      <option
+        value="{{ job.id }}"
+        {%
+        if
+        job_filter=""
+        ="job.id"
+        %}selected{%
+        endif
+        %}
+      >
+        {{ job.name }}
+      </option>
+      {% endfor %}
+    </select>
+
+    <button class="btn btn-primary" onclick="refreshData()">
+      <i class="fas fa-sync-alt me-1"></i>Refresh
+    </button>
+
+    <button class="btn btn-success" onclick="exportData()">
+      <i class="fas fa-download me-1"></i>Export
+    </button>
+
+    {% if is_watson %}
+    <button class="btn btn-outline-secondary" onclick="toggleBackendLog()">
+      <i class="fas fa-terminal me-1"></i>Backend Log
+    </button>
+    {% endif %}
+  </div>
 </div>
 
 {% if is_watson %}
 <!-- Backend Activity Log Panel (Watson only) -->
-<div id="backend-log-panel" class="backend-log-panel" style="display: none;">
-    <div class="log-header">
-        <h5><i class="fas fa-terminal me-2"></i>Backend Activity Log</h5>
-        <button class="btn-close-log" onclick="toggleBackendLog()">
-            <i class="fas fa-times"></i>
-        </button>
+<div id="backend-log-panel" class="backend-log-panel" style="display: none">
+  <div class="log-header">
+    <h5><i class="fas fa-terminal me-2"></i>Backend Activity Log</h5>
+    <button class="btn-close-log" onclick="toggleBackendLog()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="log-content">
+    {% for log in backend_log %}
+    <div class="log-entry">
+      <span class="log-time">{{ log.time }}</span>
+      <span class="log-action">{{ log.action }}</span>
+      <span class="log-user">{{ log.user }}</span>
+      <span class="log-status status-{{ log.status }}">{{ log.status }}</span>
     </div>
-    <div class="log-content">
-        {% for log in backend_log %}
-        <div class="log-entry">
-            <span class="log-time">{{ log.time }}</span>
-            <span class="log-action">{{ log.action }}</span>
-            <span class="log-user">{{ log.user }}</span>
-            <span class="log-status status-{{ log.status }}">{{ log.status }}</span>
-        </div>
-        {% endfor %}
-    </div>
+    {% endfor %}
+  </div>
 </div>
 {% endif %}
 
 <!-- Matrix Table -->
 <div class="matrix-container">
-    <table class="matrix-table">
-        <thead>
-            <tr>
-                <th>Driver ID</th>
-                <th>Division</th>
-                <th>Status</th>
-                <th>Hours</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Location</th>
-                <th>Job Code</th>
-                <th>Vehicle</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for record in matrix_data.records %}
-            <tr>
-                <td><strong>{{ record.driver }}</strong></td>
-                <td>
-                    <span class="division-{{ record.division.lower() }}">{{ record.division }}</span>
-                </td>
-                <td>
-                    <span class="status-{{ record.status.lower().replace(' ', '-') }}">
-                        {{ record.status }}
-                    </span>
-                </td>
-                <td>{{ record.hours }} hrs</td>
-                <td>{{ record.start_time }}</td>
-                <td>{{ record.end_time }}</td>
-                <td>{{ record.location }}</td>
-                <td><code>{{ record.job_code }}</code></td>
-                <td><small class="text-muted">{{ record.vin }}</small></td>
-            </tr>
-            {% endfor %}
-            
-            {% if not matrix_data.records %}
-            <tr>
-                <td colspan="9" class="text-center text-muted py-4">
-                    No attendance data available for the selected period. Upload GAUGE reports to populate the matrix.
-                </td>
-            </tr>
-            {% endif %}
-        </tbody>
-    </table>
+  <table class="matrix-table">
+    <thead>
+      <tr>
+        <th>Driver ID</th>
+        <th>Division</th>
+        <th>Status</th>
+        <th>Hours</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th>Location</th>
+        <th>Job Code</th>
+        <th>Vehicle</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for record in matrix_data.records %}
+      <tr>
+        <td><strong>{{ record.driver }}</strong></td>
+        <td>
+          <span class="division-{{ record.division.lower() }}"
+            >{{ record.division }}</span
+          >
+        </td>
+        <td>
+          <span class="status-{{ record.status.lower().replace(' ', '-') }}">
+            {{ record.status }}
+          </span>
+        </td>
+        <td>{{ record.hours }} hrs</td>
+        <td>{{ record.start_time }}</td>
+        <td>{{ record.end_time }}</td>
+        <td>{{ record.location }}</td>
+        <td><code>{{ record.job_code }}</code></td>
+        <td><small class="text-muted">{{ record.vin }}</small></td>
+      </tr>
+      {% endfor %} {% if not matrix_data.records %}
+      <tr>
+        <td colspan="9" class="text-center text-muted py-4">
+          No attendance data available for the selected period. Upload GAUGE
+          reports to populate the matrix.
+        </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-let currentView = '{{ current_period }}';
-let currentDate = '{{ current_date }}';
-let currentJob = '{{ job_filter }}';
+  let currentView = "{{ current_period }}";
+  let currentDate = "{{ current_date }}";
+  let currentJob = "{{ job_filter }}";
 
-function handleFileUpload(files) {
+  function handleFileUpload(files) {
     const formData = new FormData();
-    
+
     for (let i = 0; i < files.length; i++) {
-        formData.append('files', files[i]);
+      formData.append("files", files[i]);
     }
-    
+
     // Show upload progress
-    const uploadZone = document.querySelector('.upload-zone');
+    const uploadZone = document.querySelector(".upload-zone");
     uploadZone.innerHTML = `
         <i class="fas fa-spinner fa-spin fa-2x mb-3 text-primary"></i>
         <h5>Processing Files...</h5>
         <p class="text-muted mb-0">Analyzing attendance data and updating matrix</p>
     `;
-    
-    fetch('/api/upload-attendance', {
-        method: 'POST',
-        body: formData
+
+    fetch("/api/upload-attendance", {
+      method: "POST",
+      body: formData,
     })
-    .then(response => response.json())
-    .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         if (data.success) {
-            uploadZone.innerHTML = `
+          uploadZone.innerHTML = `
                 <i class="fas fa-check-circle fa-2x mb-3 text-success"></i>
                 <h5>Upload Complete</h5>
                 <p class="text-muted mb-0">${data.records_processed} records processed successfully</p>
             `;
-            
-            // Refresh the matrix after 2 seconds
-            setTimeout(() => {
-                location.reload();
-            }, 2000);
+
+          // Refresh the matrix after 2 seconds
+          setTimeout(() => {
+            location.reload();
+          }, 2000);
         } else {
-            uploadZone.innerHTML = `
+          uploadZone.innerHTML = `
                 <i class="fas fa-exclamation-triangle fa-2x mb-3 text-warning"></i>
                 <h5>Upload Error</h5>
-                <p class="text-muted mb-0">${data.error || 'Failed to process files'}</p>
+                <p class="text-muted mb-0">${data.error || "Failed to process files"}</p>
             `;
         }
-    })
-    .catch(error => {
+      })
+      .catch((error) => {
         uploadZone.innerHTML = `
             <i class="fas fa-times-circle fa-2x mb-3 text-danger"></i>
             <h5>Upload Failed</h5>
             <p class="text-muted mb-0">Please try again or contact support</p>
         `;
-    });
-}
+      });
+  }
 
-function changeView(view) {
+  function changeView(view) {
     currentView = view;
     updateMatrix();
-}
+  }
 
-function changeDate(date) {
+  function changeDate(date) {
     currentDate = date;
     updateMatrix();
-}
+  }
 
-function filterByJob(jobId) {
+  function filterByJob(jobId) {
     currentJob = jobId;
     updateMatrix();
-}
+  }
 
-function updateMatrix() {
+  function updateMatrix() {
     const params = new URLSearchParams({
-        period: currentView,
-        date: currentDate,
-        job: currentJob
+      period: currentView,
+      date: currentDate,
+      job: currentJob,
     });
-    
+
     window.location.href = `/attendance-matrix?${params.toString()}`;
-}
+  }
 
-function refreshData() {
-    fetch(`/api/attendance-matrix-data?period=${currentView}&date=${currentDate}&job=${currentJob}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            }
-        });
-}
+  function refreshData() {
+    fetch(
+      `/api/attendance-matrix-data?period=${currentView}&date=${currentDate}&job=${currentJob}`,
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          location.reload();
+        }
+      });
+  }
 
-function toggleBackendLog() {
-    const panel = document.getElementById('backend-log-panel');
-    if (panel.style.display === 'none') {
-        panel.style.display = 'block';
+  function toggleBackendLog() {
+    const panel = document.getElementById("backend-log-panel");
+    if (panel.style.display === "none") {
+      panel.style.display = "block";
     } else {
-        panel.style.display = 'none';
+      panel.style.display = "none";
     }
-}
+  }
 
-function exportData() {
+  function exportData() {
     const params = new URLSearchParams({
-        period: currentView,
-        date: currentDate,
-        job: currentJob,
-        format: 'excel'
+      period: currentView,
+      date: currentDate,
+      job: currentJob,
+      format: "excel",
     });
-    
-    window.location.href = `/api/export-attendance?${params.toString()}`;
-}
 
-// Auto-refresh every 5 minutes
-setInterval(refreshData, 300000);
+    window.location.href = `/api/export-attendance?${params.toString()}`;
+  }
+
+  // Auto-refresh every 5 minutes
+  setInterval(refreshData, 300000);
 </script>
 {% endblock %}

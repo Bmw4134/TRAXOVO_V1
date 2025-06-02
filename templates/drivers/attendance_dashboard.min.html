@@ -1,80 +1,267 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block title %}Driver Attendance Dashboard{%
+endblock %} {% block content %}
+<div class="container">
+  <div class="row mb-4">
+    <div class="col">
+      <div class="card">
+        <div
+          class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+        >
+          <h4 class="mb-0">Driver Attendance Dashboard</h4>
+          <a
+            href="{{ url_for('driver_module.daily_report') }}"
+            class="btn btn-light btn-sm"
+            ><i class="bi bi-calendar-day me-1"></i> Daily Report
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+              <div class="card text-center">
+                <div class="card-body">
+                  <h1 class="display-4">{{ total_drivers|default('13') }}</h1>
+                  <p class="card-text text-muted">Total Drivers</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card text-center bg-success text-white">
+                <div class="card-body">
+                  <h1 class="display-4">
+                    {{ on_time_percentage|default('85') }}%
+                  </h1>
+                  <p class="card-text">On Time</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card text-center bg-warning text-dark">
+                <div class="card-body">
+                  <h1 class="display-4">
+                    {{ late_percentage|default('15') }}%
+                  </h1>
+                  <p class="card-text">Late Arrivals</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card text-center bg-danger text-white">
+                <div class="card-body">
+                  <h1 class="display-4">
+                    {{ early_departure_percentage|default('8') }}%
+                  </h1>
+                  <p class="card-text">Early Departures</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-4">
+            <div class="col">
+              <div class="card">
+                <div class="card-header bg-light">
+                  <h5 class="mb-0">Attendance Trends (Last 7 Days)</h5>
+                </div>
+                <div class="card-body">
+                  <canvas id="attendanceChart" height="250"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <div class="card">
+                <div
+                  class="card-header bg-light d-flex justify-content-between align-items-center"
+                >
+                  <h5 class="mb-0">Driver Performance</h5>
+                  <div class="input-group input-group-sm" style="width: 250px">
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Search drivers..."
+                      id="driverSearch"
+                    /><button class="btn btn-outline-secondary" type="button">
+                      <i class="bi bi-search"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                      <thead>
+                        <tr>
+                          <th>Driver Name</th>
+                          <th>Asset</th>
+                          <th>On-Time %</th>
+                          <th>Late Count</th>
+                          <th>Trend</th>
+                          <th>Flags</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>John Smith</td>
+                          <td>RAM-2500</td>
+                          <td>95%</td>
+                          <td>1</td>
+                          <td>
+                            <span class="badge bg-success">Improving</span>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>Mary Johnson</td>
+                          <td>F-150</td>
+                          <td>100%</td>
+                          <td>0</td>
+                          <td><span class="badge bg-success">Stable</span></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>Robert Williams</td>
+                          <td>ET-05</td>
+                          <td>75%</td>
+                          <td>5</td>
+                          <td>
+                            <span class="badge bg-danger">Declining</span>
+                          </td>
+                          <td>
+                            <span class="badge bg-danger">CHRONIC_LATE</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Patricia Brown</td>
+                          <td>RAM-3500</td>
+                          <td>90%</td>
+                          <td>2</td>
+                          <td><span class="badge bg-warning">Neutral</span></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>Michael Davis</td>
+                          <td>ET-12</td>
+                          <td>100%</td>
+                          <td>0</td>
+                          <td><span class="badge bg-success">Stable</span></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td>Linda Miller</td>
+                          <td>F-250</td>
+                          <td>65%</td>
+                          <td>7</td>
+                          <td>
+                            <span class="badge bg-danger">Declining</span>
+                          </td>
+                          <td>
+                            <span class="badge bg-danger">CHRONIC_LATE</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Roger Doddy</td>
+                          <td>UNMATCHED</td>
+                          <td>N/A</td>
+                          <td>N/A</td>
+                          <td>
+                            <span class="badge bg-secondary">Unknown</span>
+                          </td>
+                          <td>
+                            <span class="badge bg-warning"
+                              >UNMATCHED_DRIVER</span
+                            >
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Sample data for the attendance chart
+    const attendanceData = {
+      labels: [
+        "May 13",
+        "May 14",
+        "May 15",
+        "May 16",
+        "May 17",
+        "May 18",
+        "May 19",
+      ],
+      datasets: [
+        {
+          label: "On Time",
+          data: [10, 11, 9, 12, 11, 10, 11],
+          backgroundColor: "rgba(40, 167, 69, 0.5)",
+          borderColor: "rgb(40, 167, 69)",
+          borderWidth: 1,
+        },
+        {
+          label: "Late Arrivals",
+          data: [2, 1, 3, 1, 2, 2, 2],
+          backgroundColor: "rgba(255, 193, 7, 0.5)",
+          borderColor: "rgb(255, 193, 7)",
+          borderWidth: 1,
+        },
+        {
+          label: "Early Departures",
+          data: [1, 1, 2, 0, 1, 0, 1],
+          backgroundColor: "rgba(220, 53, 69, 0.5)",
+          borderColor: "rgb(220, 53, 69)",
+          borderWidth: 1,
+        },
+      ],
+    };
 
-{% block title %}Driver Attendance Dashboard{% endblock %}
+    // Configure attendance chart
+    const attendanceChart = new Chart(
+      document.getElementById("attendanceChart"),
+      {
+        type: "bar",
+        data: attendanceData,
+        options: {
+          plugins: {
+            title: {
+              display: true,
+              text: "Daily Attendance Trends",
+            },
+          },
+          responsive: true,
+          scales: {
+            x: {
+              stacked: true,
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+            },
+          },
+        },
+      },
+    );
 
-{% block content %}
-<div class="container"><div class="row mb-4"><div class="col"><div class="card"><div class="card-header bg-primary text-white d-flex justify-content-between align-items-center"><h4 class="mb-0">Driver Attendance Dashboard</h4><a href="{{ url_for('driver_module.daily_report') }}" class="btn btn-light btn-sm"><i class="bi bi-calendar-day me-1"></i> Daily Report
-</a></div><div class="card-body"><div class="row mb-4"><div class="col-md-3 mb-3"><div class="card text-center"><div class="card-body"><h1 class="display-4">{{ total_drivers|default('13') }}</h1><p class="card-text text-muted">Total Drivers</p></div></div></div><div class="col-md-3 mb-3"><div class="card text-center bg-success text-white"><div class="card-body"><h1 class="display-4">{{ on_time_percentage|default('85') }}%</h1><p class="card-text">On Time</p></div></div></div><div class="col-md-3 mb-3"><div class="card text-center bg-warning text-dark"><div class="card-body"><h1 class="display-4">{{ late_percentage|default('15') }}%</h1><p class="card-text">Late Arrivals</p></div></div></div><div class="col-md-3 mb-3"><div class="card text-center bg-danger text-white"><div class="card-body"><h1 class="display-4">{{ early_departure_percentage|default('8') }}%</h1><p class="card-text">Early Departures</p></div></div></div></div><div class="row mb-4"><div class="col"><div class="card"><div class="card-header bg-light"><h5 class="mb-0">Attendance Trends (Last 7 Days)</h5></div><div class="card-body"><canvas id="attendanceChart" height="250"></canvas></div></div></div></div><div class="row"><div class="col"><div class="card"><div class="card-header bg-light d-flex justify-content-between align-items-center"><h5 class="mb-0">Driver Performance</h5><div class="input-group input-group-sm" style="width: 250px;"><input type="text" class="form-control" placeholder="Search drivers..." id="driverSearch"><button class="btn btn-outline-secondary" type="button"><i class="bi bi-search"></i></button></div></div><div class="card-body p-0"><div class="table-responsive"><table class="table table-striped table-hover mb-0"><thead><tr><th>Driver Name</th><th>Asset</th><th>On-Time %</th><th>Late Count</th><th>Trend</th><th>Flags</th></tr></thead><tbody><tr><td>John Smith</td><td>RAM-2500</td><td>95%</td><td>1</td><td><span class="badge bg-success">Improving</span></td><td></td></tr><tr><td>Mary Johnson</td><td>F-150</td><td>100%</td><td>0</td><td><span class="badge bg-success">Stable</span></td><td></td></tr><tr><td>Robert Williams</td><td>ET-05</td><td>75%</td><td>5</td><td><span class="badge bg-danger">Declining</span></td><td><span class="badge bg-danger">CHRONIC_LATE</span></td></tr><tr><td>Patricia Brown</td><td>RAM-3500</td><td>90%</td><td>2</td><td><span class="badge bg-warning">Neutral</span></td><td></td></tr><tr><td>Michael Davis</td><td>ET-12</td><td>100%</td><td>0</td><td><span class="badge bg-success">Stable</span></td><td></td></tr><tr><td>Linda Miller</td><td>F-250</td><td>65%</td><td>7</td><td><span class="badge bg-danger">Declining</span></td><td><span class="badge bg-danger">CHRONIC_LATE</span></td></tr><tr><td>Roger Doddy</td><td>UNMATCHED</td><td>N/A</td><td>N/A</td><td><span class="badge bg-secondary">Unknown</span></td><td><span class="badge bg-warning">UNMATCHED_DRIVER</span></td></tr></tbody></table></div></div></div></div></div></div></div></div></div></div>
-{% endblock %}
+    // Simple search functionality for the driver table
+    document
+      .getElementById("driverSearch")
+      .addEventListener("keyup", function () {
+        const searchValue = this.value.toLowerCase();
+        const rows = document.querySelectorAll("tbody tr");
 
-{% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>
-document.addEventListener('DOMContentLoaded', function() {
-// Sample data for the attendance chart
-const attendanceData = {
-labels: ['May 13', 'May 14', 'May 15', 'May 16', 'May 17', 'May 18', 'May 19'],
-datasets: [
-{
-label: 'On Time',
-data: [10, 11, 9, 12, 11, 10, 11],
-backgroundColor: 'rgba(40, 167, 69, 0.5)',
-borderColor: 'rgb(40, 167, 69)',
-borderWidth: 1
-},
-{
-label: 'Late Arrivals',
-data: [2, 1, 3, 1, 2, 2, 2],
-backgroundColor: 'rgba(255, 193, 7, 0.5)',
-borderColor: 'rgb(255, 193, 7)',
-borderWidth: 1
-},
-{
-label: 'Early Departures',
-data: [1, 1, 2, 0, 1, 0, 1],
-backgroundColor: 'rgba(220, 53, 69, 0.5)',
-borderColor: 'rgb(220, 53, 69)',
-borderWidth: 1
-}
-]
-};
-
-// Configure attendance chart
-const attendanceChart = new Chart(
-document.getElementById('attendanceChart'),
-{
-type: 'bar',
-data: attendanceData,
-options: {
-plugins: {
-title: {
-display: true,
-text: 'Daily Attendance Trends'
-},
-},
-responsive: true,
-scales: {
-x: {
-stacked: true,
-},
-y: {
-stacked: true,
-beginAtZero: true
-}
-}
-}
-}
-);
-
-// Simple search functionality for the driver table
-document.getElementById('driverSearch').addEventListener('keyup', function() {
-const searchValue = this.value.toLowerCase();
-const rows = document.querySelectorAll('tbody tr');
-
-rows.forEach(row => {
-const text = row.textContent.toLowerCase();
-row.style.display = text.includes(searchValue) ? '' : 'none';
-});
-});
-});
+        rows.forEach((row) => {
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(searchValue) ? "" : "none";
+        });
+      });
+  });
 </script>
 {% endblock %}

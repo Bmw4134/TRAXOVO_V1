@@ -1,85 +1,135 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Data Processing Hub - TRAXOVO</title><style>
-body {
-margin: 0;
-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-color: #f2f2f7;
-min-height: 100vh;
-}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Processing Hub - TRAXOVO</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(
+          135deg,
+          #1a1a2e 0%,
+          #16213e 50%,
+          #0f3460 100%
+        );
+        color: #f2f2f7;
+        min-height: 100vh;
+      }
 
-.header {
-text-align: center;
-padding: 40px 20px;
-border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
+      .header {
+        text-align: center;
+        padding: 40px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
 
-.title {
-font-size: 36px;
-font-weight: 700;
-margin: 0 0 16px 0;
-background: linear-gradient(135deg, #007AFF, #00D4FF);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-}
+      .title {
+        font-size: 36px;
+        font-weight: 700;
+        margin: 0 0 16px 0;
+        background: linear-gradient(135deg, #007aff, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
 
-.upload-container {
-max-width: 800px;
-margin: 40px auto;
-padding: 0 20px;
-}
+      .upload-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
 
-.upload-area {
-background: rgba(255, 255, 255, 0.05);
-border: 2px dashed rgba(255, 255, 255, 0.3);
-border-radius: 16px;
-padding: 60px 40px;
-text-align: center;
-transition: all 0.3s ease;
-cursor: pointer;
-}
+      .upload-area {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+        border-radius: 16px;
+        padding: 60px 40px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
 
-.upload-area:hover {
-border-color: #007AFF;
-background: rgba(0, 122, 255, 0.05);
-}
+      .upload-area:hover {
+        border-color: #007aff;
+        background: rgba(0, 122, 255, 0.05);
+      }
 
-.back-button {
-position: fixed;
-top: 20px;
-left: 20px;
-background: rgba(0, 122, 255, 0.2);
-border: 1px solid rgba(0, 122, 255, 0.3);
-color: #007AFF;
-padding: 12px 24px;
-border-radius: 8px;
-text-decoration: none;
-font-weight: 500;
-transition: all 0.3s ease;
-}
+      .back-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: rgba(0, 122, 255, 0.2);
+        border: 1px solid rgba(0, 122, 255, 0.3);
+        color: #007aff;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
 
-.file-types {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-gap: 20px;
-margin-top: 40px;
-}
+      .file-types {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 40px;
+      }
 
-.file-type-card {
-background: rgba(255, 255, 255, 0.05);
-border: 1px solid rgba(255, 255, 255, 0.1);
-border-radius: 12px;
-padding: 20px;
-text-align: center;
-}
-</style></head><body><a href="/dashboard" class="back-button">← Dashboard</a><div class="header"><h1 class="title">Data Processing Hub</h1><p>Upload and process attendance data, Excel files, and integration workflows</p></div><div class="upload-container"><div class="upload-area"><h3>Drop files here or click to browse</h3><p>Supported formats: Excel (.xlsx, .xlsm), CSV, JSON</p><input type="file" multiple style="display: none;" id="fileInput"></div><div class="file-types"><div class="file-type-card"><h4>Attendance Data</h4><p>Process driver attendance and timecard information</p></div><div class="file-type-card"><h4>Billing Workbooks</h4><p>Import RAGLE billing data and revenue tracking</p></div><div class="file-type-card"><h4>Asset Data</h4><p>Update equipment information and categories</p></div></div></div><script>
-document.querySelector('.upload-area').addEventListener('click', function() {
-document.getElementById('fileInput').click();
-});
+      .file-type-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="/dashboard" class="back-button">← Dashboard</a>
+    <div class="header">
+      <h1 class="title">Data Processing Hub</h1>
+      <p>
+        Upload and process attendance data, Excel files, and integration
+        workflows
+      </p>
+    </div>
+    <div class="upload-container">
+      <div class="upload-area">
+        <h3>Drop files here or click to browse</h3>
+        <p>Supported formats: Excel (.xlsx, .xlsm), CSV, JSON</p>
+        <input type="file" multiple style="display: none" id="fileInput" />
+      </div>
+      <div class="file-types">
+        <div class="file-type-card">
+          <h4>Attendance Data</h4>
+          <p>Process driver attendance and timecard information</p>
+        </div>
+        <div class="file-type-card">
+          <h4>Billing Workbooks</h4>
+          <p>Import RAGLE billing data and revenue tracking</p>
+        </div>
+        <div class="file-type-card">
+          <h4>Asset Data</h4>
+          <p>Update equipment information and categories</p>
+        </div>
+      </div>
+    </div>
+    <script>
+      document
+        .querySelector(".upload-area")
+        .addEventListener("click", function () {
+          document.getElementById("fileInput").click();
+        });
 
-document.getElementById('fileInput').addEventListener('change', function(e) {
-const files = e.target.files;
-if (files.length > 0) {
-alert(`Selected ${files.length} file(s) for processing`);
-}
-});
-</script></body></html>
+      document
+        .getElementById("fileInput")
+        .addEventListener("change", function (e) {
+          const files = e.target.files;
+          if (files.length > 0) {
+            alert(`Selected ${files.length} file(s) for processing`);
+          }
+        });
+    </script>
+  </body>
+</html>

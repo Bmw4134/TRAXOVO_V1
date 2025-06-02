@@ -1,11 +1,8 @@
-{% extends "base.html" %}
-
-{% block title %}Reports | TRAXOVO{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Reports | TRAXOVO{% endblock %} {%
+block content %}
 <div class="container pt-4">
   <h1 class="mb-4">Reports Dashboard</h1>
-  
+
   <div class="row g-4">
     <div class="col-md-4">
       <div class="card h-100">
@@ -14,7 +11,9 @@
           <h5 class="mb-0">Driver Reports</h5>
         </div>
         <div class="card-body">
-          <p>View and generate daily driver reports showing attendance status.</p>
+          <p>
+            View and generate daily driver reports showing attendance status.
+          </p>
           <ul>
             <li>Late Start Reports</li>
             <li>Early End Reports</li>
@@ -22,13 +21,16 @@
           </ul>
         </div>
         <div class="card-footer">
-          <a href="{{ url_for('reports.driver_reports') }}" class="btn btn-primary">
+          <a
+            href="{{ url_for('reports.driver_reports') }}"
+            class="btn btn-primary"
+          >
             <i class="bi bi-arrow-right-circle me-1"></i> Access Reports
           </a>
         </div>
       </div>
     </div>
-    
+
     <div class="col-md-4">
       <div class="card h-100">
         <div class="card-header d-flex align-items-center">
@@ -44,13 +46,16 @@
           </ul>
         </div>
         <div class="card-footer">
-          <a href="{{ url_for('pm_allocation.pm_allocation_processor') }}" class="btn btn-primary">
+          <a
+            href="{{ url_for('pm_allocation.pm_allocation_processor') }}"
+            class="btn btn-primary"
+          >
             <i class="bi bi-arrow-right-circle me-1"></i> Process Files
           </a>
         </div>
       </div>
     </div>
-    
+
     <div class="col-md-4">
       <div class="card h-100">
         <div class="card-header d-flex align-items-center">
@@ -66,7 +71,10 @@
           </ul>
         </div>
         <div class="card-footer">
-          <a href="{{ url_for('asset_map.asset_map') }}" class="btn btn-primary">
+          <a
+            href="{{ url_for('asset_map.asset_map') }}"
+            class="btn btn-primary"
+          >
             <i class="bi bi-arrow-right-circle me-1"></i> Open Map
           </a>
         </div>

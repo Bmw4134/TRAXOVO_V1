@@ -1,182 +1,322 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>User Management - TRAXOVO</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"><style>
-body {
-background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-color: #f9fafb;
-font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-min-height: 100vh;
-}
-.professional-card {
-background: rgba(31, 41, 55, 0.8);
-backdrop-filter: blur(20px);
-border: 1px solid rgba(16, 185, 129, 0.2);
-border-radius: 16px;
-padding: 2rem;
-margin-bottom: 2rem;
-transition: all 0.3s ease;
-}
-.professional-card:hover {
-border-color: rgba(16, 185, 129, 0.4);
-transform: translateY(-2px);
-}
-.backup-item {
-background: rgba(31, 41, 55, 0.6);
-border: 1px solid rgba(16, 185, 129, 0.1);
-border-radius: 8px;
-padding: 1rem;
-margin-bottom: 0.5rem;
-}
-.btn-dashboard-action {
-background: rgba(16, 185, 129, 0.1);
-border: 1px solid rgba(16, 185, 129, 0.3);
-color: #10b981;
-border-radius: 8px;
-padding: 0.5rem 1rem;
-margin: 0.25rem;
-transition: all 0.3s ease;
-}
-.btn-dashboard-action:hover {
-background: rgba(16, 185, 129, 0.2);
-color: #10b981;
-}
-.mobile-nav-toggle {
-position: fixed;
-top: 20px;
-left: 20px;
-z-index: 1001;
-background: rgba(16, 185, 129, 0.2);
-border: 1px solid rgba(16, 185, 129, 0.3);
-color: #10b981;
-padding: 0.5rem;
-border-radius: 8px;
-}
-</style></head><body><button class="mobile-nav-toggle d-md-none" onclick="toggleMobileNav()"><i class="fas fa-bars"></i></button>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Management - TRAXOVO</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        color: #f9fafb;
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        min-height: 100vh;
+      }
+      .professional-card {
+        background: rgba(31, 41, 55, 0.8);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+      }
+      .professional-card:hover {
+        border-color: rgba(16, 185, 129, 0.4);
+        transform: translateY(-2px);
+      }
+      .backup-item {
+        background: rgba(31, 41, 55, 0.6);
+        border: 1px solid rgba(16, 185, 129, 0.1);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+      }
+      .btn-dashboard-action {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: #10b981;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        margin: 0.25rem;
+        transition: all 0.3s ease;
+      }
+      .btn-dashboard-action:hover {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+      }
+      .mobile-nav-toggle {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1001;
+        background: rgba(16, 185, 129, 0.2);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: #10b981;
+        padding: 0.5rem;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <button class="mobile-nav-toggle d-md-none" onclick="toggleMobileNav()">
+      <i class="fas fa-bars"></i>
+    </button>
 
+    {% include 'components/unified_navigation.html' %}
 
-{% include 'components/unified_navigation.html' %}
+    <div class="main-content">
+      <div class="container-fluid p-4">
+        <div class="row mb-4">
+          <div class="col-12">
+            <h2>
+              <i class="fas fa-users-cog me-2"></i>User Management & Dashboard
+              Controls
+            </h2>
+            <p class="text-muted">
+              Manage user access and personal dashboard configurations
+            </p>
+          </div>
+        </div>
+        <div class="row mb-4">
+          <div class="col-md-8">
+            <div class="professional-card">
+              <h4>
+                <i class="fas fa-save me-2"></i>Dashboard Backup & Restore
+              </h4>
+              <p class="text-muted">
+                Save, restore, and manage your dashboard configurations
+              </p>
+              <div class="mb-3">
+                <label class="form-label">Create New Backup</label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="backupName"
+                    placeholder="Enter backup name..."
+                  /><button class="btn btn-success" onclick="createBackup()">
+                    <i class="fas fa-save me-1"></i>Create Backup
+                  </button>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Existing Backups</label>
+                <div id="backupsList"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="professional-card">
+              <h5><i class="fas fa-user-circle me-2"></i>Session Info</h5>
+              <div class="mb-2">
+                <strong>User:</strong> {{ session.username or 'Guest' }}
+              </div>
+              <div class="mb-2">
+                <strong>Role:</strong> {{ session.role or 'N/A' }}
+              </div>
+              <div class="mb-3">
+                <strong>Login Time:</strong><span id="loginTime">Active</span>
+              </div>
+              <div class="d-grid gap-2">
+                <button
+                  class="btn btn-outline-light"
+                  onclick="refreshDashboard()"
+                >
+                  <i class="fas fa-sync me-1"></i>Refresh Dashboard</button
+                ><button class="btn btn-outline-warning" onclick="clearCache()">
+                  <i class="fas fa-broom me-1"></i>Clear Cache</button
+                ><a href="/logout" class="btn btn-outline-danger"
+                  ><i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <div class="professional-card">
+              <h4><i class="fas fa-heartbeat me-2"></i>System Status</h4>
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="text-center">
+                    <i class="fas fa-database fa-2x text-success mb-2"></i>
+                    <div><strong>Database</strong></div>
+                    <div class="text-success">Connected</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="text-center">
+                    <i class="fas fa-cloud fa-2x text-success mb-2"></i>
+                    <div><strong>Supabase</strong></div>
+                    <div class="text-success">Active</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="text-center">
+                    <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
+                    <div><strong>Authentication</strong></div>
+                    <div class="text-success">Secure</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="text-center">
+                    <i
+                      class="fas fa-tachometer-alt fa-2x text-success mb-2"
+                    ></i>
+                    <div><strong>Performance</strong></div>
+                    <div class="text-success">Optimal</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Load existing backups on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        loadBackups();
+      });
 
-<div class="main-content"><div class="container-fluid p-4"><div class="row mb-4"><div class="col-12"><h2><i class="fas fa-users-cog me-2"></i>User Management & Dashboard Controls</h2><p class="text-muted">Manage user access and personal dashboard configurations</p></div></div><div class="row mb-4"><div class="col-md-8"><div class="professional-card"><h4><i class="fas fa-save me-2"></i>Dashboard Backup & Restore</h4><p class="text-muted">Save, restore, and manage your dashboard configurations</p><div class="mb-3"><label class="form-label">Create New Backup</label><div class="input-group"><input type="text" class="form-control" id="backupName" placeholder="Enter backup name..."><button class="btn btn-success" onclick="createBackup()"><i class="fas fa-save me-1"></i>Create Backup
-</button></div></div><div class="mb-3"><label class="form-label">Existing Backups</label><div id="backupsList"></div></div></div></div><div class="col-md-4"><div class="professional-card"><h5><i class="fas fa-user-circle me-2"></i>Session Info</h5><div class="mb-2"><strong>User:</strong> {{ session.username or 'Guest' }}
-</div><div class="mb-2"><strong>Role:</strong> {{ session.role or 'N/A' }}
-</div><div class="mb-3"><strong>Login Time:</strong><span id="loginTime">Active</span></div><div class="d-grid gap-2"><button class="btn btn-outline-light" onclick="refreshDashboard()"><i class="fas fa-sync me-1"></i>Refresh Dashboard
-</button><button class="btn btn-outline-warning" onclick="clearCache()"><i class="fas fa-broom me-1"></i>Clear Cache
-</button><a href="/logout" class="btn btn-outline-danger"><i class="fas fa-sign-out-alt me-1"></i>Logout
-</a></div></div></div></div><div class="row"><div class="col-12"><div class="professional-card"><h4><i class="fas fa-heartbeat me-2"></i>System Status</h4><div class="row"><div class="col-md-3"><div class="text-center"><i class="fas fa-database fa-2x text-success mb-2"></i><div><strong>Database</strong></div><div class="text-success">Connected</div></div></div><div class="col-md-3"><div class="text-center"><i class="fas fa-cloud fa-2x text-success mb-2"></i><div><strong>Supabase</strong></div><div class="text-success">Active</div></div></div><div class="col-md-3"><div class="text-center"><i class="fas fa-shield-alt fa-2x text-success mb-2"></i><div><strong>Authentication</strong></div><div class="text-success">Secure</div></div></div><div class="col-md-3"><div class="text-center"><i class="fas fa-tachometer-alt fa-2x text-success mb-2"></i><div><strong>Performance</strong></div><div class="text-success">Optimal</div></div></div></div></div></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script><script>
-// Load existing backups on page load
-document.addEventListener('DOMContentLoaded', function() {
-loadBackups();
-});
+      async function createBackup() {
+        const backupName = document.getElementById("backupName").value.trim();
+        if (!backupName) {
+          alert("Please enter a backup name");
+          return;
+        }
 
-async function createBackup() {
-const backupName = document.getElementById('backupName').value.trim();
-if (!backupName) {
-alert('Please enter a backup name');
-return;
-}
+        try {
+          // Get current dashboard configuration (simplified)
+          const dashboardConfig = {
+            timestamp: new Date().toISOString(),
+            modules: [
+              "billing",
+              "analytics",
+              "attendance",
+              "fleet_management",
+              "asset_lifecycle",
+            ],
+            preferences: {
+              theme: "dark",
+              layout: "unified",
+            },
+          };
 
-try {
-// Get current dashboard configuration (simplified)
-const dashboardConfig = {
-timestamp: new Date().toISOString(),
-modules: ['billing', 'analytics', 'attendance', 'fleet_management', 'asset_lifecycle'],
-preferences: {
-theme: 'dark',
-layout: 'unified'
-}
-};
+          const response = await fetch("/api/dashboard-backup", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              backup_name: backupName,
+              dashboard_config: dashboardConfig,
+            }),
+          });
 
-const response = await fetch('/api/dashboard-backup', {
-method: 'POST',
-headers: {
-'Content-Type': 'application/json'
-},
-body: JSON.stringify({
-backup_name: backupName,
-dashboard_config: dashboardConfig
-})
-});
+          if (response.ok) {
+            document.getElementById("backupName").value = "";
+            loadBackups();
+            alert("Backup created successfully!");
+          } else {
+            alert("Failed to create backup");
+          }
+        } catch (error) {
+          console.error("Error creating backup:", error);
+          alert("Error creating backup");
+        }
+      }
 
-if (response.ok) {
-document.getElementById('backupName').value = '';
-loadBackups();
-alert('Backup created successfully!');
-} else {
-alert('Failed to create backup');
-}
-} catch (error) {
-console.error('Error creating backup:', error);
-alert('Error creating backup');
-}
-}
+      async function loadBackups() {
+        try {
+          const response = await fetch("/api/dashboard-backups");
+          const backups = await response.json();
 
-async function loadBackups() {
-try {
-const response = await fetch('/api/dashboard-backups');
-const backups = await response.json();
+          const backupsList = document.getElementById("backupsList");
+          backupsList.innerHTML = "";
 
-const backupsList = document.getElementById('backupsList');
-backupsList.innerHTML = '';
+          if (backups.length === 0) {
+            backupsList.innerHTML =
+              '<div class="text-muted">No backups found</div>';
+            return;
+          }
 
-if (backups.length === 0) {
-backupsList.innerHTML = '<div class="text-muted">No backups found</div>';
-return;
-}
-
-backups.forEach(backup => {
-const backupItem = document.createElement('div');
-backupItem.className = 'backup-item';
-backupItem.innerHTML = `
+          backups.forEach((backup) => {
+            const backupItem = document.createElement("div");
+            backupItem.className = "backup-item";
+            backupItem.innerHTML = `
 <div class="d-flex justify-content-between align-items-center"><div><strong>${backup.backup_name}</strong><br><small class="text-muted">${new Date(backup.created_at).toLocaleString()}</small></div><div><button class="btn btn-dashboard-action btn-sm" onclick="restoreBackup(${backup.id})"><i class="fas fa-undo me-1"></i>Restore
 </button></div></div>
 `;
-backupsList.appendChild(backupItem);
-});
-} catch (error) {
-console.error('Error loading backups:', error);
-}
-}
+            backupsList.appendChild(backupItem);
+          });
+        } catch (error) {
+          console.error("Error loading backups:", error);
+        }
+      }
 
-async function restoreBackup(backupId) {
-if (!confirm('Are you sure you want to restore this backup? Current configuration will be replaced.')) {
-return;
-}
+      async function restoreBackup(backupId) {
+        if (
+          !confirm(
+            "Are you sure you want to restore this backup? Current configuration will be replaced.",
+          )
+        ) {
+          return;
+        }
 
-try {
-const response = await fetch(`/api/dashboard-restore/${backupId}`, {
-method: 'POST'
-});
+        try {
+          const response = await fetch(`/api/dashboard-restore/${backupId}`, {
+            method: "POST",
+          });
 
-if (response.ok) {
-alert('Backup restored successfully! Refreshing page...');
-window.location.reload();
-} else {
-alert('Failed to restore backup');
-}
-} catch (error) {
-console.error('Error restoring backup:', error);
-alert('Error restoring backup');
-}
-}
+          if (response.ok) {
+            alert("Backup restored successfully! Refreshing page...");
+            window.location.reload();
+          } else {
+            alert("Failed to restore backup");
+          }
+        } catch (error) {
+          console.error("Error restoring backup:", error);
+          alert("Error restoring backup");
+        }
+      }
 
-function refreshDashboard() {
-window.location.href = '/dashboard';
-}
+      function refreshDashboard() {
+        window.location.href = "/dashboard";
+      }
 
-function clearCache() {
-if (confirm('Clear all cached data? This will refresh all modules.')) {
-// Clear localStorage
-localStorage.clear();
-sessionStorage.clear();
+      function clearCache() {
+        if (confirm("Clear all cached data? This will refresh all modules.")) {
+          // Clear localStorage
+          localStorage.clear();
+          sessionStorage.clear();
 
-alert('Cache cleared successfully!');
-window.location.reload();
-}
-}
+          alert("Cache cleared successfully!");
+          window.location.reload();
+        }
+      }
 
-function toggleMobileNav() {
-const nav = document.querySelector('.traxovo-unified-nav');
-nav.classList.toggle('mobile-open');
-}
+      function toggleMobileNav() {
+        const nav = document.querySelector(".traxovo-unified-nav");
+        nav.classList.toggle("mobile-open");
+      }
 
-// Set login time display
-document.getElementById('loginTime').textContent = new Date().toLocaleTimeString();
-</script></body></html>
+      // Set login time display
+      document.getElementById("loginTime").textContent =
+        new Date().toLocaleTimeString();
+    </script>
+  </body>
+</html>

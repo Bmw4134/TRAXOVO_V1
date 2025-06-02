@@ -1,11 +1,118 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %}Equipment Dispatch - TRAXOVO{%
+endblock %} {% block content %}
+<div class="container-fluid mt-4">
+  <div class="row">
+    {% include "includes/sidebar.html" %}
 
-{% block title %}Equipment Dispatch - TRAXOVO{% endblock %}
-
-{% block content %}
-<div class="container-fluid mt-4"><div class="row">
-{% include "includes/sidebar.html" %}
-
-<div class="col-md-9"><div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="mb-1">{{ page_title }}</h2><p class="text-muted">{{ page_subtitle }}</p></div><div><button class="btn btn-primary"><i class="fas fa-plus me-2"></i>New Dispatch
-</button></div></div><div class="row mb-4"><div class="col-md-3"><div class="card text-center"><div class="card-body"><h5 class="text-primary">{{ total_assets|default:581 }}</h5><small class="text-muted">Total Equipment</small></div></div></div><div class="col-md-3"><div class="card text-center"><div class="card-body"><h5 class="text-success">87</h5><small class="text-muted">Currently Dispatched</small></div></div></div><div class="col-md-3"><div class="card text-center"><div class="card-body"><h5 class="text-warning">12</h5><small class="text-muted">Pending Assignment</small></div></div></div><div class="col-md-3"><div class="card text-center"><div class="card-body"><h5 class="text-info">{{ driver_count|default:92 }}</h5><small class="text-muted">Available Operators</small></div></div></div></div><div class="card"><div class="card-header"><h5 class="mb-0">Equipment Dispatch Schedule</h5></div><div class="card-body"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Equipment ID</th><th>Type</th><th>Operator</th><th>Job Site</th><th>Status</th><th>Actions</th></tr></thead><tbody><tr><td>EQ-001</td><td>Excavator</td><td>John Smith</td><td>2019-044 Long Avenue</td><td><span class="badge bg-success">Active</span></td><td><button class="btn btn-sm btn-outline-primary">Edit</button><button class="btn btn-sm btn-outline-secondary">Track</button></td></tr><tr><td>EQ-002</td><td>Dozer</td><td>Mike Johnson</td><td>2021-017 Plaza Development</td><td><span class="badge bg-warning">Standby</span></td><td><button class="btn btn-sm btn-outline-primary">Edit</button><button class="btn btn-sm btn-outline-secondary">Track</button></td></tr><tr><td>EQ-003</td><td>Loader</td><td>David Wilson</td><td>Maintenance Shop</td><td><span class="badge bg-danger">Maintenance</span></td><td><button class="btn btn-sm btn-outline-primary">Edit</button><button class="btn btn-sm btn-outline-secondary">Track</button></td></tr></tbody></table></div></div></div></div></div></div>
+    <div class="col-md-9">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="mb-1">{{ page_title }}</h2>
+          <p class="text-muted">{{ page_subtitle }}</p>
+        </div>
+        <div>
+          <button class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>New Dispatch
+          </button>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="text-primary">{{ total_assets|default:581 }}</h5>
+              <small class="text-muted">Total Equipment</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="text-success">87</h5>
+              <small class="text-muted">Currently Dispatched</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="text-warning">12</h5>
+              <small class="text-muted">Pending Assignment</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="text-info">{{ driver_count|default:92 }}</h5>
+              <small class="text-muted">Available Operators</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Equipment Dispatch Schedule</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Equipment ID</th>
+                  <th>Type</th>
+                  <th>Operator</th>
+                  <th>Job Site</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>EQ-001</td>
+                  <td>Excavator</td>
+                  <td>John Smith</td>
+                  <td>2019-044 Long Avenue</td>
+                  <td><span class="badge bg-success">Active</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary">Edit</button
+                    ><button class="btn btn-sm btn-outline-secondary">
+                      Track
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>EQ-002</td>
+                  <td>Dozer</td>
+                  <td>Mike Johnson</td>
+                  <td>2021-017 Plaza Development</td>
+                  <td><span class="badge bg-warning">Standby</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary">Edit</button
+                    ><button class="btn btn-sm btn-outline-secondary">
+                      Track
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>EQ-003</td>
+                  <td>Loader</td>
+                  <td>David Wilson</td>
+                  <td>Maintenance Shop</td>
+                  <td><span class="badge bg-danger">Maintenance</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary">Edit</button
+                    ><button class="btn btn-sm btn-outline-secondary">
+                      Track
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

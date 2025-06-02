@@ -1,26 +1,207 @@
-{% extends "layout_unified.html" %}
-
-{% block title %}Secure Attendance Reports - TRAXOVO{% endblock %}
-
-{% block breadcrumb %}
-<li class="breadcrumb-item"><a href="/">Home</a></li><li class="breadcrumb-item active" aria-current="page">Secure Attendance</li>
-{% endblock %}
-
-{% block page_title %}Secure Daily Attendance Reports{% endblock %}
-{% block page_subtitle %}GPS/Timecard validation with exception flagging for {{ formatted_date }}{% endblock %}
-
-{% block page_actions %}
-<a href="{{ url_for('secure_attendance.process_report') }}" class="btn btn-primary"><i class="bi bi-upload me-2"></i> Process Today's Report
+{% extends "layout_unified.html" %} {% block title %}Secure Attendance Reports -
+TRAXOVO{% endblock %} {% block breadcrumb %}
+<li class="breadcrumb-item"><a href="/">Home</a></li>
+<li class="breadcrumb-item active" aria-current="page">Secure Attendance</li>
+{% endblock %} {% block page_title %}Secure Daily Attendance Reports{% endblock
+%} {% block page_subtitle %}GPS/Timecard validation with exception flagging for
+{{ formatted_date }}{% endblock %} {% block page_actions %}
+<a
+  href="{{ url_for('secure_attendance.process_report') }}"
+  class="btn btn-primary"
+  ><i class="bi bi-upload me-2"></i> Process Today's Report
 </a>
-{% endblock %}
+{% endblock %} {% block content %}
 
-{% block content %}
-
-<div class="row mb-4"><div class="col-12"><div class="alert alert-success d-flex align-items-center" role="alert"><i class="bi bi-shield-check-fill fs-4 me-3"></i><div><h6 class="alert-heading mb-1">🔒 TRAXOVO Security Suite Active</h6><small class="mb-0">CSRF Protection • Rate Limiting • Secure File Upload • Admin Access Control</small></div></div></div></div><div class="row mb-4"><div class="col-12"><div class="card traxovo-card"><div class="card-header d-flex justify-content-between align-items-center"><h5 class="card-title mb-0">Today's Attendance Processing ({{ formatted_date }})</h5><span class="badge bg-info">PHASE 4 - Attendance Report Fix</span></div><div class="card-body"><div class="row"><div class="col-md-8"><h6 class="mb-3">Required Data Sources for 5/27 Processing:</h6><ul class="list-unstyled"><li class="mb-2"><i class="bi bi-file-earmark-csv text-primary me-2"></i><strong>Driving History CSV:</strong> GPS tracking data from your fleet
-</li><li class="mb-2"><i class="bi bi-file-earmark-csv text-success me-2"></i><strong>Asset Time on Site CSV:</strong> Asset location validation
-</li><li class="mb-2"><i class="bi bi-file-earmark-csv text-info me-2"></i><strong>Activity Detail CSV:</strong> Enhanced location data (optional)
-</li></ul><div class="alert alert-warning mt-3"><i class="bi bi-exclamation-triangle me-2"></i><strong>Validation Flags:</strong> System will flag
-⛔ GPS but no timecard, ⛔ Timecard but no GPS, and ✅ Valid matches
-</div></div><div class="col-md-4 text-center"><div class="p-4"><i class="bi bi-clipboard-data display-4 text-primary mb-3"></i><h6>Process Report</h6><a href="{{ url_for('secure_attendance.process_report') }}" class="btn btn-primary btn-lg"><i class="bi bi-play-fill me-2"></i> Start Processing
-</a></div></div></div></div></div></div></div><div class="row mb-4"><div class="col-md-4"><div class="card traxovo-card text-center"><div class="card-body"><div class="text-warning mb-2"><i class="bi bi-exclamation-triangle fs-1"></i></div><h6>GPS but No Timecard</h6><p class="text-muted small">Drivers with GPS data but missing timecard validation</p></div></div></div><div class="col-md-4"><div class="card traxovo-card text-center"><div class="card-body"><div class="text-danger mb-2"><i class="bi bi-x-circle fs-1"></i></div><h6>Timecard but No GPS</h6><p class="text-muted small">Timecard entries without corresponding GPS validation</p></div></div></div><div class="col-md-4"><div class="card traxovo-card text-center"><div class="card-body"><div class="text-success mb-2"><i class="bi bi-check-circle fs-1"></i></div><h6>Complete Coverage</h6><p class="text-muted small">Drivers with both GPS and timecard validation</p></div></div></div></div><div class="row"><div class="col-12"><div class="card traxovo-card"><div class="card-header"><h5 class="card-title mb-0">Automated Processing Workflow</h5></div><div class="card-body"><div class="row"><div class="col-md-3 text-center mb-4"><div class="rounded-circle bg-primary bg-opacity-10 p-3 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;"><i class="bi bi-1-circle-fill text-primary fs-2"></i></div><h6>Upload Files</h6><p class="text-muted small">Securely upload your CSV data files with CSRF protection</p></div><div class="col-md-3 text-center mb-4"><div class="rounded-circle bg-primary bg-opacity-10 p-3 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;"><i class="bi bi-2-circle-fill text-primary fs-2"></i></div><h6>Process Data</h6><p class="text-muted small">System validates GPS and timecard data with exception flagging</p></div><div class="col-md-3 text-center mb-4"><div class="rounded-circle bg-primary bg-opacity-10 p-3 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;"><i class="bi bi-3-circle-fill text-primary fs-2"></i></div><h6>Review Flags</h6><p class="text-muted small">View validation results with clear status indicators</p></div><div class="col-md-3 text-center mb-4"><div class="rounded-circle bg-primary bg-opacity-10 p-3 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;"><i class="bi bi-4-circle-fill text-primary fs-2"></i></div><h6>Export Report</h6><p class="text-muted small">Download Excel report with job zones and validation status</p></div></div></div></div></div></div>
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+      <i class="bi bi-shield-check-fill fs-4 me-3"></i>
+      <div>
+        <h6 class="alert-heading mb-1">🔒 TRAXOVO Security Suite Active</h6>
+        <small class="mb-0"
+          >CSRF Protection • Rate Limiting • Secure File Upload • Admin Access
+          Control</small
+        >
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card traxovo-card">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <h5 class="card-title mb-0">
+          Today's Attendance Processing ({{ formatted_date }})
+        </h5>
+        <span class="badge bg-info">PHASE 4 - Attendance Report Fix</span>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-8">
+            <h6 class="mb-3">Required Data Sources for 5/27 Processing:</h6>
+            <ul class="list-unstyled">
+              <li class="mb-2">
+                <i class="bi bi-file-earmark-csv text-primary me-2"></i
+                ><strong>Driving History CSV:</strong> GPS tracking data from
+                your fleet
+              </li>
+              <li class="mb-2">
+                <i class="bi bi-file-earmark-csv text-success me-2"></i
+                ><strong>Asset Time on Site CSV:</strong> Asset location
+                validation
+              </li>
+              <li class="mb-2">
+                <i class="bi bi-file-earmark-csv text-info me-2"></i
+                ><strong>Activity Detail CSV:</strong> Enhanced location data
+                (optional)
+              </li>
+            </ul>
+            <div class="alert alert-warning mt-3">
+              <i class="bi bi-exclamation-triangle me-2"></i
+              ><strong>Validation Flags:</strong> System will flag ⛔ GPS but no
+              timecard, ⛔ Timecard but no GPS, and ✅ Valid matches
+            </div>
+          </div>
+          <div class="col-md-4 text-center">
+            <div class="p-4">
+              <i class="bi bi-clipboard-data display-4 text-primary mb-3"></i>
+              <h6>Process Report</h6>
+              <a
+                href="{{ url_for('secure_attendance.process_report') }}"
+                class="btn btn-primary btn-lg"
+                ><i class="bi bi-play-fill me-2"></i> Start Processing
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card traxovo-card text-center">
+      <div class="card-body">
+        <div class="text-warning mb-2">
+          <i class="bi bi-exclamation-triangle fs-1"></i>
+        </div>
+        <h6>GPS but No Timecard</h6>
+        <p class="text-muted small">
+          Drivers with GPS data but missing timecard validation
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card traxovo-card text-center">
+      <div class="card-body">
+        <div class="text-danger mb-2"><i class="bi bi-x-circle fs-1"></i></div>
+        <h6>Timecard but No GPS</h6>
+        <p class="text-muted small">
+          Timecard entries without corresponding GPS validation
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card traxovo-card text-center">
+      <div class="card-body">
+        <div class="text-success mb-2">
+          <i class="bi bi-check-circle fs-1"></i>
+        </div>
+        <h6>Complete Coverage</h6>
+        <p class="text-muted small">
+          Drivers with both GPS and timecard validation
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-12">
+    <div class="card traxovo-card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Automated Processing Workflow</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3 text-center mb-4">
+            <div
+              class="rounded-circle bg-primary bg-opacity-10 p-3 mx-auto mb-3"
+              style="
+                width: 80px;
+                height: 80px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <i class="bi bi-1-circle-fill text-primary fs-2"></i>
+            </div>
+            <h6>Upload Files</h6>
+            <p class="text-muted small">
+              Securely upload your CSV data files with CSRF protection
+            </p>
+          </div>
+          <div class="col-md-3 text-center mb-4">
+            <div
+              class="rounded-circle bg-primary bg-opacity-10 p-3 mx-auto mb-3"
+              style="
+                width: 80px;
+                height: 80px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <i class="bi bi-2-circle-fill text-primary fs-2"></i>
+            </div>
+            <h6>Process Data</h6>
+            <p class="text-muted small">
+              System validates GPS and timecard data with exception flagging
+            </p>
+          </div>
+          <div class="col-md-3 text-center mb-4">
+            <div
+              class="rounded-circle bg-primary bg-opacity-10 p-3 mx-auto mb-3"
+              style="
+                width: 80px;
+                height: 80px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <i class="bi bi-3-circle-fill text-primary fs-2"></i>
+            </div>
+            <h6>Review Flags</h6>
+            <p class="text-muted small">
+              View validation results with clear status indicators
+            </p>
+          </div>
+          <div class="col-md-3 text-center mb-4">
+            <div
+              class="rounded-circle bg-primary bg-opacity-10 p-3 mx-auto mb-3"
+              style="
+                width: 80px;
+                height: 80px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <i class="bi bi-4-circle-fill text-primary fs-2"></i>
+            </div>
+            <h6>Export Report</h6>
+            <p class="text-muted small">
+              Download Excel report with job zones and validation status
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

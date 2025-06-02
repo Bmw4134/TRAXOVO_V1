@@ -1,164 +1,238 @@
 <!-- TRAXOVO Mobile-Responsive Sidebar Navigation -->
 <div class="col-md-3">
-    <!-- Mobile Menu Toggle Button - Fixed Position -->
-    <div class="mobile-nav-toggle d-md-none">
-        <button class="btn btn-primary mobile-menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavigation" aria-controls="mobileNavigation">
-            <i class="fas fa-bars"></i>
-        </button>
+  <!-- Mobile Menu Toggle Button - Fixed Position -->
+  <div class="mobile-nav-toggle d-md-none">
+    <button
+      class="btn btn-primary mobile-menu-btn"
+      type="button"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#mobileNavigation"
+      aria-controls="mobileNavigation"
+    >
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <!-- Desktop Sidebar -->
+  <div class="card d-none d-md-block">
+    <div class="card-header bg-primary text-white">
+      <h6 class="mb-0"><i class="fas fa-bars me-2"></i>TRAXOVO Navigation</h6>
     </div>
+    <div class="card-body p-0">
+      <!-- Core Operations -->
+      <div class="nav-section">
+        <div class="nav-section-header">Core Operations</div>
+        <a href="/" class="list-group-item list-group-item-action">
+          <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </a>
+        <a href="/fleet-map" class="list-group-item list-group-item-action">
+          <i class="fas fa-map-marked-alt me-2"></i>Live Fleet Map
+        </a>
+      </div>
 
-    <!-- Desktop Sidebar -->
-    <div class="card d-none d-md-block">
-        <div class="card-header bg-primary text-white">
-            <h6 class="mb-0"><i class="fas fa-bars me-2"></i>TRAXOVO Navigation</h6>
-        </div>
-        <div class="card-body p-0">
-            <!-- Core Operations -->
-            <div class="nav-section">
-                <div class="nav-section-header">Core Operations</div>
-                <a href="/" class="list-group-item list-group-item-action">
-                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                </a>
-                <a href="/fleet-map" class="list-group-item list-group-item-action">
-                    <i class="fas fa-map-marked-alt me-2"></i>Live Fleet Map
-                </a>
-            </div>
+      <!-- Fleet Management -->
+      <div class="nav-section">
+        <div class="nav-section-header">Fleet Management</div>
+        <a href="/asset-manager" class="list-group-item list-group-item-action">
+          <i class="fas fa-truck me-2"></i>Asset Manager
+        </a>
+        <a
+          href="/equipment-dispatch"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-clipboard-list me-2"></i>Equipment Dispatch
+        </a>
+        <a
+          href="/interactive-schedule"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-calendar-alt me-2"></i>Schedule Manager
+        </a>
+      </div>
 
-            <!-- Fleet Management -->
-            <div class="nav-section">
-                <div class="nav-section-header">Fleet Management</div>
-                <a href="/asset-manager" class="list-group-item list-group-item-action">
-                    <i class="fas fa-truck me-2"></i>Asset Manager
-                </a>
-                <a href="/equipment-dispatch" class="list-group-item list-group-item-action">
-                    <i class="fas fa-clipboard-list me-2"></i>Equipment Dispatch
-                </a>
-                <a href="/interactive-schedule" class="list-group-item list-group-item-action">
-                    <i class="fas fa-calendar-alt me-2"></i>Schedule Manager
-                </a>
-            </div>
+      <!-- Workforce -->
+      <div class="nav-section">
+        <div class="nav-section-header">Workforce</div>
+        <a
+          href="/attendance-matrix"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-calendar-check me-2"></i>Attendance Matrix
+        </a>
+        <a
+          href="/driver-asset-tracking"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-user-cog me-2"></i>Driver Management
+        </a>
+      </div>
 
-            <!-- Workforce -->
-            <div class="nav-section">
-                <div class="nav-section-header">Workforce</div>
-                <a href="/attendance-matrix" class="list-group-item list-group-item-action">
-                    <i class="fas fa-calendar-check me-2"></i>Attendance Matrix
-                </a>
-                <a href="/driver-asset-tracking" class="list-group-item list-group-item-action">
-                    <i class="fas fa-user-cog me-2"></i>Driver Management
-                </a>
-            </div>
-
-            <!-- Analytics & Reporting -->
-            <div class="nav-section">
-                <div class="nav-section-header">Analytics & Reporting</div>
-                <a href="/billing" class="list-group-item list-group-item-action">
-                    <i class="fas fa-dollar-sign me-2"></i>Revenue Analytics
-                </a>
-                <a href="/project-accountability" class="list-group-item list-group-item-action">
-                    <i class="fas fa-shield-alt me-2"></i>Project Tracking
-                </a>
-                <a href="/workflow-optimization" class="list-group-item list-group-item-action">
-                    <i class="fas fa-cogs me-2"></i>Workflow Wizard
-                </a>
-                <a href="/ai-assistant" class="list-group-item list-group-item-action">
-                    <i class="fas fa-robot me-2"></i>AI Assistant
-                </a>
-            </div>
-        </div>
+      <!-- Analytics & Reporting -->
+      <div class="nav-section">
+        <div class="nav-section-header">Analytics & Reporting</div>
+        <a href="/billing" class="list-group-item list-group-item-action">
+          <i class="fas fa-dollar-sign me-2"></i>Revenue Analytics
+        </a>
+        <a
+          href="/project-accountability"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-shield-alt me-2"></i>Project Tracking
+        </a>
+        <a
+          href="/workflow-optimization"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-cogs me-2"></i>Workflow Wizard
+        </a>
+        <a href="/ai-assistant" class="list-group-item list-group-item-action">
+          <i class="fas fa-robot me-2"></i>AI Assistant
+        </a>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Mobile Offcanvas Navigation -->
-<div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileNavigation" aria-labelledby="mobileNavigationLabel">
-    <div class="offcanvas-header bg-primary text-white">
-        <h5 class="offcanvas-title" id="mobileNavigationLabel">
-            <i class="fas fa-bars me-2"></i>TRAXOVO Navigation
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+<div
+  class="offcanvas offcanvas-start d-md-none"
+  tabindex="-1"
+  id="mobileNavigation"
+  aria-labelledby="mobileNavigationLabel"
+>
+  <div class="offcanvas-header bg-primary text-white">
+    <h5 class="offcanvas-title" id="mobileNavigationLabel">
+      <i class="fas fa-bars me-2"></i>TRAXOVO Navigation
+    </h5>
+    <button
+      type="button"
+      class="btn-close btn-close-white"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body p-0">
+    <!-- Core Operations -->
+    <div class="nav-section">
+      <div class="nav-section-header">Core Operations</div>
+      <a
+        href="/"
+        class="list-group-item list-group-item-action"
+        data-bs-dismiss="offcanvas"
+      >
+        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+      </a>
+      <a
+        href="/fleet-map"
+        class="list-group-item list-group-item-action"
+        data-bs-dismiss="offcanvas"
+      >
+        <i class="fas fa-map-marked-alt me-2"></i>Live Fleet Map
+      </a>
     </div>
-    <div class="offcanvas-body p-0">
-        <!-- Core Operations -->
-        <div class="nav-section">
-            <div class="nav-section-header">Core Operations</div>
-            <a href="/" class="list-group-item list-group-item-action" data-bs-dismiss="offcanvas">
-                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-            </a>
-            <a href="/fleet-map" class="list-group-item list-group-item-action" data-bs-dismiss="offcanvas">
-                <i class="fas fa-map-marked-alt me-2"></i>Live Fleet Map
-            </a>
-        </div>
 
-        <!-- Fleet Management -->
-        <div class="nav-section">
-            <div class="nav-section-header">Fleet Management</div>
-            <a href="/asset-manager" class="list-group-item list-group-item-action" data-bs-dismiss="offcanvas">
-                <i class="fas fa-truck me-2"></i>Asset Manager
-            </a>
-            <a href="/equipment-dispatch" class="list-group-item list-group-item-action" data-bs-dismiss="offcanvas">
-                <i class="fas fa-clipboard-list me-2"></i>Equipment Dispatch
-            </a>
-            <a href="/interactive-schedule" class="list-group-item list-group-item-action" data-bs-dismiss="offcanvas">
-                <i class="fas fa-calendar-alt me-2"></i>Schedule Manager
-            </a>
-        </div>
-
-        <!-- Workforce -->
-        <div class="nav-section">
-            <div class="nav-section-header">Workforce</div>
-            <a href="/attendance-matrix" class="list-group-item list-group-item-action" data-bs-dismiss="offcanvas">
-                <i class="fas fa-calendar-check me-2"></i>Attendance Matrix
-            </a>
-            <a href="/driver-asset-tracking" class="list-group-item list-group-item-action" data-bs-dismiss="offcanvas">
-                <i class="fas fa-user-cog me-2"></i>Driver Management
-            </a>
-        </div>
-
-        <!-- Analytics & Reporting -->
-        <div class="nav-section">
-            <div class="nav-section-header">Analytics & Reporting</div>
-            <a href="/billing" class="list-group-item list-group-item-action" data-bs-dismiss="offcanvas">
-                <i class="fas fa-dollar-sign me-2"></i>Revenue Analytics
-            </a>
-            <a href="/project-accountability" class="list-group-item list-group-item-action" data-bs-dismiss="offcanvas">
-                <i class="fas fa-shield-alt me-2"></i>Project Tracking
-            </a>
-            <a href="/ai-assistant" class="list-group-item list-group-item-action" data-bs-dismiss="offcanvas">
-                <i class="fas fa-robot me-2"></i>AI Assistant
-            </a>
-        </div>
+    <!-- Fleet Management -->
+    <div class="nav-section">
+      <div class="nav-section-header">Fleet Management</div>
+      <a
+        href="/asset-manager"
+        class="list-group-item list-group-item-action"
+        data-bs-dismiss="offcanvas"
+      >
+        <i class="fas fa-truck me-2"></i>Asset Manager
+      </a>
+      <a
+        href="/equipment-dispatch"
+        class="list-group-item list-group-item-action"
+        data-bs-dismiss="offcanvas"
+      >
+        <i class="fas fa-clipboard-list me-2"></i>Equipment Dispatch
+      </a>
+      <a
+        href="/interactive-schedule"
+        class="list-group-item list-group-item-action"
+        data-bs-dismiss="offcanvas"
+      >
+        <i class="fas fa-calendar-alt me-2"></i>Schedule Manager
+      </a>
     </div>
+
+    <!-- Workforce -->
+    <div class="nav-section">
+      <div class="nav-section-header">Workforce</div>
+      <a
+        href="/attendance-matrix"
+        class="list-group-item list-group-item-action"
+        data-bs-dismiss="offcanvas"
+      >
+        <i class="fas fa-calendar-check me-2"></i>Attendance Matrix
+      </a>
+      <a
+        href="/driver-asset-tracking"
+        class="list-group-item list-group-item-action"
+        data-bs-dismiss="offcanvas"
+      >
+        <i class="fas fa-user-cog me-2"></i>Driver Management
+      </a>
+    </div>
+
+    <!-- Analytics & Reporting -->
+    <div class="nav-section">
+      <div class="nav-section-header">Analytics & Reporting</div>
+      <a
+        href="/billing"
+        class="list-group-item list-group-item-action"
+        data-bs-dismiss="offcanvas"
+      >
+        <i class="fas fa-dollar-sign me-2"></i>Revenue Analytics
+      </a>
+      <a
+        href="/project-accountability"
+        class="list-group-item list-group-item-action"
+        data-bs-dismiss="offcanvas"
+      >
+        <i class="fas fa-shield-alt me-2"></i>Project Tracking
+      </a>
+      <a
+        href="/ai-assistant"
+        class="list-group-item list-group-item-action"
+        data-bs-dismiss="offcanvas"
+      >
+        <i class="fas fa-robot me-2"></i>AI Assistant
+      </a>
+    </div>
+  </div>
 </div>
 
 <style>
-.mobile-nav-toggle {
+  .mobile-nav-toggle {
     position: fixed;
     top: 20px;
     left: 20px;
     z-index: 1050;
-}
+  }
 
-.mobile-menu-btn {
+  .mobile-menu-btn {
     width: 50px;
     height: 50px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     border: none;
     background: linear-gradient(135deg, #007bff, #0056b3);
-}
+  }
 
-.mobile-menu-btn:hover {
+  .mobile-menu-btn:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-}
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  }
 
-.nav-section {
+  .nav-section {
     border-bottom: 1px solid #dee2e6;
-}
-.nav-section-header {
+  }
+  .nav-section-header {
     background: #f8f9fa;
     padding: 0.75rem 1rem;
     font-weight: 600;
@@ -166,35 +240,35 @@
     color: #495057;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-}
-.list-group-item {
+  }
+  .list-group-item {
     border-left: none;
     border-right: none;
     border-radius: 0;
     padding: 0.75rem 1.25rem;
-}
-.list-group-item:hover {
+  }
+  .list-group-item:hover {
     background: #f8f9fa;
     border-left: 3px solid #007bff;
-}
-.list-group-item.active {
+  }
+  .list-group-item.active {
     background: #007bff;
     border-color: #007bff;
-}
+  }
 
-/* Mobile Responsive Adjustments */
-@media (max-width: 768px) {
+  /* Mobile Responsive Adjustments */
+  @media (max-width: 768px) {
     .col-lg-10.offset-lg-2 {
-        margin-left: 0 !important;
-        padding-top: 80px;
+      margin-left: 0 !important;
+      padding-top: 80px;
     }
-    
+
     .container-fluid .row {
-        margin: 0;
+      margin: 0;
     }
-    
+
     .offcanvas {
-        width: 300px;
+      width: 300px;
     }
-}
+  }
 </style>

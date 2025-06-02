@@ -1,500 +1,632 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Deployment Optimization - TRAXOVO</title><style>
-* {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-}
-
-body {
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
-color: #fff;
-min-height: 100vh;
-}
-
-.header {
-background: rgba(28, 28, 30, 0.95);
-backdrop-filter: blur(20px);
-padding: 20px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-position: sticky;
-top: 0;
-z-index: 1000;
-border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.logo {
-font-size: 24px;
-font-weight: 700;
-color: #007AFF;
-}
-
-.nav-back {
-background: rgba(0, 122, 255, 0.1);
-border: 1px solid rgba(0, 122, 255, 0.3);
-color: #007AFF;
-padding: 8px 16px;
-border-radius: 8px;
-text-decoration: none;
-font-size: 14px;
-transition: all 0.3s ease;
-}
-
-.nav-back:hover {
-background: rgba(0, 122, 255, 0.2);
-transform: translateY(-2px);
-}
-
-.container {
-padding: 30px 20px;
-max-width: 1400px;
-margin: 0 auto;
-}
-
-.page-title {
-text-align: center;
-margin-bottom: 40px;
-}
-
-.page-title h1 {
-font-size: 36px;
-font-weight: 700;
-background: linear-gradient(45deg, #007AFF, #00D4FF);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-background-clip: text;
-margin-bottom: 10px;
-}
-
-.page-title p {
-color: #8E8E93;
-font-size: 18px;
-}
-
-.optimization-controls {
-background: rgba(28, 28, 30, 0.95);
-backdrop-filter: blur(20px);
-border-radius: 16px;
-padding: 25px;
-border: 1px solid rgba(255, 255, 255, 0.1);
-margin-bottom: 30px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-flex-wrap: wrap;
-gap: 20px;
-}
-
-.optimization-info {
-flex: 1;
-}
-
-.optimization-info h3 {
-color: #fff;
-margin-bottom: 8px;
-font-size: 18px;
-}
-
-.optimization-info p {
-color: #8E8E93;
-font-size: 14px;
-}
-
-.optimization-actions {
-display: flex;
-gap: 15px;
-}
-
-.btn-primary {
-background: linear-gradient(135deg, #007AFF, #0056CC);
-border: none;
-color: white;
-padding: 12px 24px;
-border-radius: 10px;
-cursor: pointer;
-font-size: 14px;
-font-weight: 600;
-transition: all 0.3s ease;
-position: relative;
-overflow: hidden;
-}
-
-.btn-primary:hover {
-transform: translateY(-2px);
-box-shadow: 0 10px 30px rgba(0, 122, 255, 0.3);
-}
-
-.btn-secondary {
-background: rgba(255, 255, 255, 0.1);
-border: 1px solid rgba(255, 255, 255, 0.2);
-color: #fff;
-padding: 12px 24px;
-border-radius: 10px;
-cursor: pointer;
-font-size: 14px;
-font-weight: 600;
-transition: all 0.3s ease;
-}
-
-.btn-secondary:hover {
-background: rgba(255, 255, 255, 0.15);
-transform: translateY(-2px);
-}
-
-.optimization-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-gap: 25px;
-margin-bottom: 30px;
-}
-
-.optimization-card {
-background: rgba(28, 28, 30, 0.95);
-backdrop-filter: blur(20px);
-border-radius: 16px;
-padding: 25px;
-border: 1px solid rgba(255, 255, 255, 0.1);
-transition: all 0.3s ease;
-}
-
-.optimization-card:hover {
-transform: translateY(-4px);
-box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-border-color: rgba(0, 122, 255, 0.3);
-}
-
-.card-header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-margin-bottom: 20px;
-}
-
-.card-title {
-font-size: 18px;
-font-weight: 600;
-color: #fff;
-}
-
-.card-icon {
-font-size: 24px;
-opacity: 0.8;
-}
-
-.metric-value {
-font-size: 28px;
-font-weight: 700;
-color: #007AFF;
-margin-bottom: 8px;
-}
-
-.metric-label {
-color: #8E8E93;
-font-size: 14px;
-margin-bottom: 15px;
-}
-
-.progress-bar {
-background: rgba(255, 255, 255, 0.1);
-border-radius: 8px;
-height: 8px;
-margin-bottom: 10px;
-overflow: hidden;
-}
-
-.progress-fill {
-height: 100%;
-background: linear-gradient(90deg, #007AFF, #00D4FF);
-border-radius: 8px;
-transition: width 1s ease;
-}
-
-.report-section {
-background: rgba(28, 28, 30, 0.95);
-backdrop-filter: blur(20px);
-border-radius: 16px;
-padding: 25px;
-border: 1px solid rgba(255, 255, 255, 0.1);
-margin-bottom: 25px;
-}
-
-.report-header {
-display: flex;
-align-items: center;
-justify-content: between;
-margin-bottom: 20px;
-}
-
-.report-title {
-font-size: 20px;
-font-weight: 600;
-color: #fff;
-}
-
-.optimization-list {
-max-height: 300px;
-overflow-y: auto;
-}
-
-.optimization-item {
-background: rgba(255, 255, 255, 0.05);
-border-radius: 8px;
-padding: 15px;
-margin-bottom: 10px;
-border-left: 3px solid #007AFF;
-}
-
-.optimization-type {
-font-size: 12px;
-color: #007AFF;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-margin-bottom: 5px;
-}
-
-.optimization-details {
-color: #fff;
-font-size: 14px;
-margin-bottom: 5px;
-}
-
-.optimization-savings {
-color: #30D158;
-font-size: 12px;
-font-weight: 600;
-}
-
-.status-indicator {
-display: inline-block;
-width: 12px;
-height: 12px;
-border-radius: 50%;
-margin-right: 8px;
-}
-
-.status-running {
-background: #FF9500;
-animation: pulse 2s infinite;
-}
-
-.status-complete {
-background: #30D158;
-}
-
-.status-error {
-background: #FF453A;
-}
-
-@keyframes pulse {
-0% { opacity: 1; transform: scale(1); }
-50% { opacity: 0.6; transform: scale(1.1); }
-100% { opacity: 1; transform: scale(1); }
-}
-
-.loading-spinner {
-display: inline-block;
-width: 16px;
-height: 16px;
-border: 2px solid rgba(255, 255, 255, 0.3);
-border-radius: 50%;
-border-top-color: #007AFF;
-animation: spin 1s ease-in-out infinite;
-margin-right: 8px;
-}
-
-@keyframes spin {
-to { transform: rotate(360deg); }
-}
-
-.deployment-bundle {
-background: linear-gradient(135deg, rgba(48, 209, 88, 0.1) 0%, rgba(30, 212, 125, 0.05) 100%);
-border: 1px solid rgba(48, 209, 88, 0.2);
-border-radius: 12px;
-padding: 20px;
-margin-top: 20px;
-}
-
-.bundle-info {
-display: flex;
-align-items: center;
-justify-content: space-between;
-flex-wrap: wrap;
-gap: 15px;
-}
-
-.bundle-details h4 {
-color: #30D158;
-margin-bottom: 5px;
-}
-
-.bundle-details p {
-color: #8E8E93;
-font-size: 14px;
-}
-
-.download-btn {
-background: #30D158;
-border: none;
-color: white;
-padding: 10px 20px;
-border-radius: 8px;
-cursor: pointer;
-font-size: 14px;
-font-weight: 600;
-transition: all 0.3s ease;
-}
-
-.download-btn:hover {
-background: #28CD56;
-transform: translateY(-2px);
-}
-
-@media (max-width: 768px) {
-.container {
-padding: 20px 15px;
-}
-
-.optimization-grid {
-grid-template-columns: 1fr;
-gap: 20px;
-}
-
-.optimization-controls {
-flex-direction: column;
-align-items: stretch;
-text-align: center;
-}
-
-.optimization-actions {
-justify-content: center;
-}
-
-.page-title h1 {
-font-size: 28px;
-}
-}
-</style></head><body><div class="header"><div class="logo">TRAXOVO</div><a href="/watson-admin" class="nav-back">← Watson Admin</a></div><div class="container"><div class="page-title"><h1>Deployment Optimization</h1><p>Intelligent compression and repository optimization for enterprise deployment</p></div><div class="optimization-controls"><div class="optimization-info"><h3>Repository Optimization</h3><p>Analyze, compress, and optimize your TRAXOVO deployment for maximum efficiency</p></div><div class="optimization-actions"><button class="btn-primary" onclick="runOptimization()"><span id="optimizeIcon">🚀</span> Run Optimization
-</button><button class="btn-secondary" onclick="createBundle()">
-📦 Create Bundle
-</button></div></div><div class="optimization-grid"><div class="optimization-card"><div class="card-header"><div class="card-title">Repository Size</div><div class="card-icon">💾</div></div><div class="metric-value" id="repositorySize">Analyzing...</div><div class="metric-label">Total repository size</div><div class="progress-bar"><div class="progress-fill" id="sizeProgress" style="width: 0%"></div></div></div><div class="optimization-card"><div class="card-header"><div class="card-title">Compression Ratio</div><div class="card-icon">📊</div></div><div class="metric-value" id="compressionRatio">0%</div><div class="metric-label">Space saved through optimization</div><div class="progress-bar"><div class="progress-fill" id="compressionProgress" style="width: 0%"></div></div></div><div class="optimization-card"><div class="card-header"><div class="card-title">Files Processed</div><div class="card-icon">📁</div></div><div class="metric-value" id="filesProcessed">0</div><div class="metric-label">Files analyzed and optimized</div><div class="progress-bar"><div class="progress-fill" id="filesProgress" style="width: 0%"></div></div></div><div class="optimization-card"><div class="card-header"><div class="card-title">Optimization Status</div><div class="card-icon">⚡</div></div><div class="metric-value" id="optimizationStatus"><span class="status-indicator status-complete"></span>
-Ready
-</div><div class="metric-label">Current optimization state</div></div></div><div class="report-section" id="optimizationReport" style="display: none;"><div class="report-header"><div class="report-title">Optimization Report</div></div><div class="optimization-list" id="optimizationList"></div><div class="deployment-bundle" id="deploymentBundle" style="display: none;"><div class="bundle-info"><div class="bundle-details"><h4>Deployment Bundle Ready</h4><p id="bundleSize">Bundle size: calculating...</p></div><button class="download-btn" onclick="downloadBundle()">
-Download Bundle
-</button></div></div></div></div><script>
-let optimizationData = {};
-
-async function runOptimization() {
-const optimizeBtn = document.querySelector('.btn-primary');
-const optimizeIcon = document.getElementById('optimizeIcon');
-const statusElement = document.getElementById('optimizationStatus');
-
-// Update UI to show running state
-optimizeIcon.innerHTML = '<div class="loading-spinner"></div>';
-optimizeBtn.disabled = true;
-statusElement.innerHTML = '<span class="status-indicator status-running"></span>Running...';
-
-try {
-const response = await fetch('/api/deployment/optimize');
-const data = await response.json();
-
-if (data.success) {
-optimizationData = data;
-updateOptimizationUI(data);
-showOptimizationReport(data.report);
-
-statusElement.innerHTML = '<span class="status-indicator status-complete"></span>Complete';
-} else {
-throw new Error(data.error || 'Optimization failed');
-}
-} catch (error) {
-console.error('Optimization error:', error);
-statusElement.innerHTML = '<span class="status-indicator status-error"></span>Error';
-alert('Optimization failed: ' + error.message);
-} finally {
-optimizeIcon.textContent = '🚀';
-optimizeBtn.disabled = false;
-}
-}
-
-function updateOptimizationUI(data) {
-// Update metrics
-document.getElementById('repositorySize').textContent =
-(data.report.original_size / (1024 * 1024)).toFixed(1) + ' MB';
-document.getElementById('compressionRatio').textContent =
-data.compression_ratio.toFixed(1) + '%';
-document.getElementById('filesProcessed').textContent =
-data.optimizations_count;
-
-// Update progress bars
-document.getElementById('sizeProgress').style.width = '100%';
-document.getElementById('compressionProgress').style.width =
-Math.min(data.compression_ratio, 100) + '%';
-document.getElementById('filesProgress').style.width =
-Math.min((data.optimizations_count / 100) * 100, 100) + '%';
-}
-
-function showOptimizationReport(report) {
-const reportSection = document.getElementById('optimizationReport');
-const optimizationList = document.getElementById('optimizationList');
-
-let listHTML = '';
-
-report.optimizations.forEach(opt => {
-const spaceSaved = opt.space_saved ?
-(opt.space_saved / 1024).toFixed(1) + ' KB saved' :
-'Optimized';
-
-listHTML += `
-<div class="optimization-item"><div class="optimization-type">${opt.type.replace('_', ' ')}</div><div class="optimization-details">${opt.file || 'System optimization'}</div><div class="optimization-savings">${spaceSaved}</div></div>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deployment Optimization - TRAXOVO</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+        color: #fff;
+        min-height: 100vh;
+      }
+
+      .header {
+        background: rgba(28, 28, 30, 0.95);
+        backdrop-filter: blur(20px);
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: 700;
+        color: #007aff;
+      }
+
+      .nav-back {
+        background: rgba(0, 122, 255, 0.1);
+        border: 1px solid rgba(0, 122, 255, 0.3);
+        color: #007aff;
+        padding: 8px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+
+      .nav-back:hover {
+        background: rgba(0, 122, 255, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .container {
+        padding: 30px 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .page-title {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .page-title h1 {
+        font-size: 36px;
+        font-weight: 700;
+        background: linear-gradient(45deg, #007aff, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+      }
+
+      .page-title p {
+        color: #8e8e93;
+        font-size: 18px;
+      }
+
+      .optimization-controls {
+        background: rgba(28, 28, 30, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .optimization-info {
+        flex: 1;
+      }
+
+      .optimization-info h3 {
+        color: #fff;
+        margin-bottom: 8px;
+        font-size: 18px;
+      }
+
+      .optimization-info p {
+        color: #8e8e93;
+        font-size: 14px;
+      }
+
+      .optimization-actions {
+        display: flex;
+        gap: 15px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #007aff, #0056cc);
+        border: none;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 122, 255, 0.3);
+      }
+
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .optimization-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+      }
+
+      .optimization-card {
+        background: rgba(28, 28, 30, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .optimization-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        border-color: rgba(0, 122, 255, 0.3);
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      .card-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .card-icon {
+        font-size: 24px;
+        opacity: 0.8;
+      }
+
+      .metric-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: #007aff;
+        margin-bottom: 8px;
+      }
+
+      .metric-label {
+        color: #8e8e93;
+        font-size: 14px;
+        margin-bottom: 15px;
+      }
+
+      .progress-bar {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        height: 8px;
+        margin-bottom: 10px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #007aff, #00d4ff);
+        border-radius: 8px;
+        transition: width 1s ease;
+      }
+
+      .report-section {
+        background: rgba(28, 28, 30, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 25px;
+      }
+
+      .report-header {
+        display: flex;
+        align-items: center;
+        justify-content: between;
+        margin-bottom: 20px;
+      }
+
+      .report-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .optimization-list {
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .optimization-item {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-left: 3px solid #007aff;
+      }
+
+      .optimization-type {
+        font-size: 12px;
+        color: #007aff;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 5px;
+      }
+
+      .optimization-details {
+        color: #fff;
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+
+      .optimization-savings {
+        color: #30d158;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .status-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+
+      .status-running {
+        background: #ff9500;
+        animation: pulse 2s infinite;
+      }
+
+      .status-complete {
+        background: #30d158;
+      }
+
+      .status-error {
+        background: #ff453a;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.6;
+          transform: scale(1.1);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #007aff;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 8px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .deployment-bundle {
+        background: linear-gradient(
+          135deg,
+          rgba(48, 209, 88, 0.1) 0%,
+          rgba(30, 212, 125, 0.05) 100%
+        );
+        border: 1px solid rgba(48, 209, 88, 0.2);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .bundle-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .bundle-details h4 {
+        color: #30d158;
+        margin-bottom: 5px;
+      }
+
+      .bundle-details p {
+        color: #8e8e93;
+        font-size: 14px;
+      }
+
+      .download-btn {
+        background: #30d158;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .download-btn:hover {
+        background: #28cd56;
+        transform: translateY(-2px);
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 20px 15px;
+        }
+
+        .optimization-grid {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .optimization-controls {
+          flex-direction: column;
+          align-items: stretch;
+          text-align: center;
+        }
+
+        .optimization-actions {
+          justify-content: center;
+        }
+
+        .page-title h1 {
+          font-size: 28px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="logo">TRAXOVO</div>
+      <a href="/watson-admin" class="nav-back">← Watson Admin</a>
+    </div>
+    <div class="container">
+      <div class="page-title">
+        <h1>Deployment Optimization</h1>
+        <p>
+          Intelligent compression and repository optimization for enterprise
+          deployment
+        </p>
+      </div>
+      <div class="optimization-controls">
+        <div class="optimization-info">
+          <h3>Repository Optimization</h3>
+          <p>
+            Analyze, compress, and optimize your TRAXOVO deployment for maximum
+            efficiency
+          </p>
+        </div>
+        <div class="optimization-actions">
+          <button class="btn-primary" onclick="runOptimization()">
+            <span id="optimizeIcon">🚀</span> Run Optimization</button
+          ><button class="btn-secondary" onclick="createBundle()">
+            📦 Create Bundle
+          </button>
+        </div>
+      </div>
+      <div class="optimization-grid">
+        <div class="optimization-card">
+          <div class="card-header">
+            <div class="card-title">Repository Size</div>
+            <div class="card-icon">💾</div>
+          </div>
+          <div class="metric-value" id="repositorySize">Analyzing...</div>
+          <div class="metric-label">Total repository size</div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="sizeProgress"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+        <div class="optimization-card">
+          <div class="card-header">
+            <div class="card-title">Compression Ratio</div>
+            <div class="card-icon">📊</div>
+          </div>
+          <div class="metric-value" id="compressionRatio">0%</div>
+          <div class="metric-label">Space saved through optimization</div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="compressionProgress"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+        <div class="optimization-card">
+          <div class="card-header">
+            <div class="card-title">Files Processed</div>
+            <div class="card-icon">📁</div>
+          </div>
+          <div class="metric-value" id="filesProcessed">0</div>
+          <div class="metric-label">Files analyzed and optimized</div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="filesProgress"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+        <div class="optimization-card">
+          <div class="card-header">
+            <div class="card-title">Optimization Status</div>
+            <div class="card-icon">⚡</div>
+          </div>
+          <div class="metric-value" id="optimizationStatus">
+            <span class="status-indicator status-complete"></span>
+            Ready
+          </div>
+          <div class="metric-label">Current optimization state</div>
+        </div>
+      </div>
+      <div class="report-section" id="optimizationReport" style="display: none">
+        <div class="report-header">
+          <div class="report-title">Optimization Report</div>
+        </div>
+        <div class="optimization-list" id="optimizationList"></div>
+        <div
+          class="deployment-bundle"
+          id="deploymentBundle"
+          style="display: none"
+        >
+          <div class="bundle-info">
+            <div class="bundle-details">
+              <h4>Deployment Bundle Ready</h4>
+              <p id="bundleSize">Bundle size: calculating...</p>
+            </div>
+            <button class="download-btn" onclick="downloadBundle()">
+              Download Bundle
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      let optimizationData = {};
+
+      async function runOptimization() {
+        const optimizeBtn = document.querySelector(".btn-primary");
+        const optimizeIcon = document.getElementById("optimizeIcon");
+        const statusElement = document.getElementById("optimizationStatus");
+
+        // Update UI to show running state
+        optimizeIcon.innerHTML = '<div class="loading-spinner"></div>';
+        optimizeBtn.disabled = true;
+        statusElement.innerHTML =
+          '<span class="status-indicator status-running"></span>Running...';
+
+        try {
+          const response = await fetch("/api/deployment/optimize");
+          const data = await response.json();
+
+          if (data.success) {
+            optimizationData = data;
+            updateOptimizationUI(data);
+            showOptimizationReport(data.report);
+
+            statusElement.innerHTML =
+              '<span class="status-indicator status-complete"></span>Complete';
+          } else {
+            throw new Error(data.error || "Optimization failed");
+          }
+        } catch (error) {
+          console.error("Optimization error:", error);
+          statusElement.innerHTML =
+            '<span class="status-indicator status-error"></span>Error';
+          alert("Optimization failed: " + error.message);
+        } finally {
+          optimizeIcon.textContent = "🚀";
+          optimizeBtn.disabled = false;
+        }
+      }
+
+      function updateOptimizationUI(data) {
+        // Update metrics
+        document.getElementById("repositorySize").textContent =
+          (data.report.original_size / (1024 * 1024)).toFixed(1) + " MB";
+        document.getElementById("compressionRatio").textContent =
+          data.compression_ratio.toFixed(1) + "%";
+        document.getElementById("filesProcessed").textContent =
+          data.optimizations_count;
+
+        // Update progress bars
+        document.getElementById("sizeProgress").style.width = "100%";
+        document.getElementById("compressionProgress").style.width =
+          Math.min(data.compression_ratio, 100) + "%";
+        document.getElementById("filesProgress").style.width =
+          Math.min((data.optimizations_count / 100) * 100, 100) + "%";
+      }
+
+      function showOptimizationReport(report) {
+        const reportSection = document.getElementById("optimizationReport");
+        const optimizationList = document.getElementById("optimizationList");
+
+        let listHTML = "";
+
+        report.optimizations.forEach((opt) => {
+          const spaceSaved = opt.space_saved
+            ? (opt.space_saved / 1024).toFixed(1) + " KB saved"
+            : "Optimized";
+
+          listHTML += `
+<div class="optimization-item"><div class="optimization-type">${opt.type.replace("_", " ")}</div><div class="optimization-details">${opt.file || "System optimization"}</div><div class="optimization-savings">${spaceSaved}</div></div>
 `;
-});
+        });
 
-if (!listHTML) {
-listHTML = '<div class="optimization-item"><div class="optimization-details">No optimizations needed - repository already optimized</div></div>';
-}
+        if (!listHTML) {
+          listHTML =
+            '<div class="optimization-item"><div class="optimization-details">No optimizations needed - repository already optimized</div></div>';
+        }
 
-optimizationList.innerHTML = listHTML;
-reportSection.style.display = 'block';
-}
+        optimizationList.innerHTML = listHTML;
+        reportSection.style.display = "block";
+      }
 
-async function createBundle() {
-const bundleSection = document.getElementById('deploymentBundle');
+      async function createBundle() {
+        const bundleSection = document.getElementById("deploymentBundle");
 
-try {
-const response = await fetch('/api/deployment/bundle');
-const data = await response.json();
+        try {
+          const response = await fetch("/api/deployment/bundle");
+          const data = await response.json();
 
-if (data.success) {
-document.getElementById('bundleSize').textContent =
-`Bundle size: ${data.bundle_size_mb.toFixed(1)} MB`;
-bundleSection.style.display = 'block';
-optimizationData.bundlePath = data.bundle_path;
-} else {
-throw new Error(data.error || 'Bundle creation failed');
-}
-} catch (error) {
-console.error('Bundle creation error:', error);
-alert('Bundle creation failed: ' + error.message);
-}
-}
+          if (data.success) {
+            document.getElementById("bundleSize").textContent =
+              `Bundle size: ${data.bundle_size_mb.toFixed(1)} MB`;
+            bundleSection.style.display = "block";
+            optimizationData.bundlePath = data.bundle_path;
+          } else {
+            throw new Error(data.error || "Bundle creation failed");
+          }
+        } catch (error) {
+          console.error("Bundle creation error:", error);
+          alert("Bundle creation failed: " + error.message);
+        }
+      }
 
-function downloadBundle() {
-if (optimizationData.bundlePath) {
-// In a real implementation, this would trigger a download
-alert('Bundle ready for download: ' + optimizationData.bundlePath);
-} else {
-alert('No bundle available. Create a bundle first.');
-}
-}
+      function downloadBundle() {
+        if (optimizationData.bundlePath) {
+          // In a real implementation, this would trigger a download
+          alert("Bundle ready for download: " + optimizationData.bundlePath);
+        } else {
+          alert("No bundle available. Create a bundle first.");
+        }
+      }
 
-// Initialize page
-document.addEventListener('DOMContentLoaded', function() {
-// Auto-analyze repository size on load
-setTimeout(() => {
-document.getElementById('repositorySize').textContent = '150.3 MB';
-document.getElementById('sizeProgress').style.width = '75%';
-}, 1000);
-});
-</script></body></html>
+      // Initialize page
+      document.addEventListener("DOMContentLoaded", function () {
+        // Auto-analyze repository size on load
+        setTimeout(() => {
+          document.getElementById("repositorySize").textContent = "150.3 MB";
+          document.getElementById("sizeProgress").style.width = "75%";
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>

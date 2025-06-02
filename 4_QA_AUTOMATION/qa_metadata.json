@@ -1,21 +1,13 @@
 {
-    "requires_validation": true,
-    "data_file_bindings": {
-        "FleetUtilization.xlsx": [
-            "Asset ID",
-            "Division",
-            "Project"
-        ],
-        "DailyAttendance.csv": [
-            "Driver ID",
-            "Hours",
-            "Job Code"
-        ]
-    },
-    "ui_elements_expected": [
-        "Weekend Toggle",
-        "Project Analytics Button",
-        "Division Tabs"
-    ],
-    "notes": "Match 92 active drivers across timecard and GPS logs before rendering daily summary"
+  "requires_validation": true,
+  "data_file_bindings": {
+    "FleetUtilization.xlsx": ["Asset ID", "Division", "Project"],
+    "DailyAttendance.csv": ["Driver ID", "Hours", "Job Code"]
+  },
+  "ui_elements_expected": [
+    "Weekend Toggle",
+    "Project Analytics Button",
+    "Division Tabs"
+  ],
+  "notes": "Match 92 active drivers across timecard and GPS logs before rendering daily summary"
 }

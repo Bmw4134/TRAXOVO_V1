@@ -1,240 +1,316 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TRAXOVO - Data Upload Center</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #e2e8f0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            min-height: 100vh;
-        }
-        .upload-card {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-        }
-        .upload-card:hover {
-            border-color: #60a5fa;
-            transform: translateY(-2px);
-        }
-        .upload-zone {
-            border: 2px dashed #64748b;
-            border-radius: 8px;
-            padding: 3rem 2rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            background: rgba(51, 65, 85, 0.3);
-        }
-        .upload-zone.dragover {
-            border-color: #60a5fa;
-            background: rgba(96, 165, 250, 0.1);
-        }
-        .btn-upload {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            border: none;
-            color: white;
-            padding: 0.75rem 2rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-upload:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-        .upload-result {
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 8px;
-            display: none;
-        }
-        .nav-header {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #334155;
-            padding: 1rem 0;
-        }
+      body {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #e2e8f0;
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        min-height: 100vh;
+      }
+      .upload-card {
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+      }
+      .upload-card:hover {
+        border-color: #60a5fa;
+        transform: translateY(-2px);
+      }
+      .upload-zone {
+        border: 2px dashed #64748b;
+        border-radius: 8px;
+        padding: 3rem 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: rgba(51, 65, 85, 0.3);
+      }
+      .upload-zone.dragover {
+        border-color: #60a5fa;
+        background: rgba(96, 165, 250, 0.1);
+      }
+      .btn-upload {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+      .btn-upload:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+      .upload-result {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        display: none;
+      }
+      .nav-header {
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #334155;
+        padding: 1rem 0;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <nav class="nav-header">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-0">
-                        <i class="fas fa-cloud-upload-alt me-2 text-primary"></i>
-                        Data Upload Center
-                    </h1>
-                </div>
-                <a href="/" class="btn btn-outline-light">
-                    <i class="fas fa-arrow-left me-2"></i>Dashboard
-                </a>
-            </div>
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="h3 mb-0">
+              <i class="fas fa-cloud-upload-alt me-2 text-primary"></i>
+              Data Upload Center
+            </h1>
+          </div>
+          <a href="/" class="btn btn-outline-light">
+            <i class="fas fa-arrow-left me-2"></i>Dashboard
+          </a>
         </div>
+      </div>
     </nav>
 
     <div class="container mt-4">
-        <div class="row">
-            <!-- Attendance Data Upload -->
-            <div class="col-md-6">
-                <div class="upload-card">
-                    <h5><i class="fas fa-calendar-check me-2 text-primary"></i>Attendance Data</h5>
-                    <p class="text-muted">Upload driver attendance and timecard files</p>
-                    <div class="upload-zone" id="attendance-zone">
-                        <i class="fas fa-file-csv fa-3x text-muted mb-3"></i>
-                        <p>Drag & drop attendance files here<br>or click to browse</p>
-                        <input type="file" id="attendance-file" accept=".csv,.xlsx,.xls" style="display: none;">
-                        <button class="btn btn-upload" onclick="document.getElementById('attendance-file').click()">
-                            <i class="fas fa-upload me-2"></i>Select Files
-                        </button>
-                    </div>
-                    <div class="upload-result" id="attendance-result"></div>
-                </div>
+      <div class="row">
+        <!-- Attendance Data Upload -->
+        <div class="col-md-6">
+          <div class="upload-card">
+            <h5>
+              <i class="fas fa-calendar-check me-2 text-primary"></i>Attendance
+              Data
+            </h5>
+            <p class="text-muted">
+              Upload driver attendance and timecard files
+            </p>
+            <div class="upload-zone" id="attendance-zone">
+              <i class="fas fa-file-csv fa-3x text-muted mb-3"></i>
+              <p>Drag & drop attendance files here<br />or click to browse</p>
+              <input
+                type="file"
+                id="attendance-file"
+                accept=".csv,.xlsx,.xls"
+                style="display: none"
+              />
+              <button
+                class="btn btn-upload"
+                onclick="document.getElementById('attendance-file').click()"
+              >
+                <i class="fas fa-upload me-2"></i>Select Files
+              </button>
             </div>
-
-            <!-- GPS Data Upload -->
-            <div class="col-md-6">
-                <div class="upload-card">
-                    <h5><i class="fas fa-map-marked-alt me-2 text-success"></i>GPS Tracking Data</h5>
-                    <p class="text-muted">Upload GPS coordinates and vehicle tracking data</p>
-                    <div class="upload-zone" id="gps-zone">
-                        <i class="fas fa-file-excel fa-3x text-muted mb-3"></i>
-                        <p>Drag & drop GPS files here<br>or click to browse</p>
-                        <input type="file" id="gps-file" accept=".csv,.xlsx,.xls" style="display: none;">
-                        <button class="btn btn-upload" onclick="document.getElementById('gps-file').click()">
-                            <i class="fas fa-upload me-2"></i>Select Files
-                        </button>
-                    </div>
-                    <div class="upload-result" id="gps-result"></div>
-                </div>
-            </div>
-
-            <!-- Billing Data Upload -->
-            <div class="col-md-6">
-                <div class="upload-card">
-                    <h5><i class="fas fa-dollar-sign me-2 text-warning"></i>Equipment Billing</h5>
-                    <p class="text-muted">Upload equipment billing and allocation data</p>
-                    <div class="upload-zone" id="billing-zone">
-                        <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
-                        <p>Drag & drop billing files here<br>or click to browse</p>
-                        <input type="file" id="billing-file" accept=".csv,.xlsx,.xls" style="display: none;">
-                        <button class="btn btn-upload" onclick="document.getElementById('billing-file').click()">
-                            <i class="fas fa-upload me-2"></i>Select Files
-                        </button>
-                    </div>
-                    <div class="upload-result" id="billing-result"></div>
-                </div>
-            </div>
-
-            <!-- General Data Upload -->
-            <div class="col-md-6">
-                <div class="upload-card">
-                    <h5><i class="fas fa-database me-2 text-info"></i>General Fleet Data</h5>
-                    <p class="text-muted">Upload any fleet management data files</p>
-                    <div class="upload-zone" id="general-zone">
-                        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
-                        <p>Drag & drop any data files here<br>or click to browse</p>
-                        <input type="file" id="general-file" accept=".csv,.xlsx,.xls" style="display: none;">
-                        <button class="btn btn-upload" onclick="document.getElementById('general-file').click()">
-                            <i class="fas fa-upload me-2"></i>Select Files
-                        </button>
-                    </div>
-                    <div class="upload-result" id="general-result"></div>
-                </div>
-            </div>
+            <div class="upload-result" id="attendance-result"></div>
+          </div>
         </div>
 
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Supported formats:</strong> CSV, Excel (.xlsx, .xls)<br>
-                    <strong>Ready for:</strong> All modules including attendance tracking, GPS monitoring, billing analysis, and fleet management
-                </div>
+        <!-- GPS Data Upload -->
+        <div class="col-md-6">
+          <div class="upload-card">
+            <h5>
+              <i class="fas fa-map-marked-alt me-2 text-success"></i>GPS
+              Tracking Data
+            </h5>
+            <p class="text-muted">
+              Upload GPS coordinates and vehicle tracking data
+            </p>
+            <div class="upload-zone" id="gps-zone">
+              <i class="fas fa-file-excel fa-3x text-muted mb-3"></i>
+              <p>Drag & drop GPS files here<br />or click to browse</p>
+              <input
+                type="file"
+                id="gps-file"
+                accept=".csv,.xlsx,.xls"
+                style="display: none"
+              />
+              <button
+                class="btn btn-upload"
+                onclick="document.getElementById('gps-file').click()"
+              >
+                <i class="fas fa-upload me-2"></i>Select Files
+              </button>
             </div>
+            <div class="upload-result" id="gps-result"></div>
+          </div>
         </div>
+
+        <!-- Billing Data Upload -->
+        <div class="col-md-6">
+          <div class="upload-card">
+            <h5>
+              <i class="fas fa-dollar-sign me-2 text-warning"></i>Equipment
+              Billing
+            </h5>
+            <p class="text-muted">
+              Upload equipment billing and allocation data
+            </p>
+            <div class="upload-zone" id="billing-zone">
+              <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
+              <p>Drag & drop billing files here<br />or click to browse</p>
+              <input
+                type="file"
+                id="billing-file"
+                accept=".csv,.xlsx,.xls"
+                style="display: none"
+              />
+              <button
+                class="btn btn-upload"
+                onclick="document.getElementById('billing-file').click()"
+              >
+                <i class="fas fa-upload me-2"></i>Select Files
+              </button>
+            </div>
+            <div class="upload-result" id="billing-result"></div>
+          </div>
+        </div>
+
+        <!-- General Data Upload -->
+        <div class="col-md-6">
+          <div class="upload-card">
+            <h5>
+              <i class="fas fa-database me-2 text-info"></i>General Fleet Data
+            </h5>
+            <p class="text-muted">Upload any fleet management data files</p>
+            <div class="upload-zone" id="general-zone">
+              <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+              <p>Drag & drop any data files here<br />or click to browse</p>
+              <input
+                type="file"
+                id="general-file"
+                accept=".csv,.xlsx,.xls"
+                style="display: none"
+              />
+              <button
+                class="btn btn-upload"
+                onclick="document.getElementById('general-file').click()"
+              >
+                <i class="fas fa-upload me-2"></i>Select Files
+              </button>
+            </div>
+            <div class="upload-result" id="general-result"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Supported formats:</strong> CSV, Excel (.xlsx, .xls)<br />
+            <strong>Ready for:</strong> All modules including attendance
+            tracking, GPS monitoring, billing analysis, and fleet management
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
-        // File upload handlers
-        function setupUpload(fileInputId, zoneId, resultId, uploadUrl) {
-            const fileInput = document.getElementById(fileInputId);
-            const zone = document.getElementById(zoneId);
-            const result = document.getElementById(resultId);
+      // File upload handlers
+      function setupUpload(fileInputId, zoneId, resultId, uploadUrl) {
+        const fileInput = document.getElementById(fileInputId);
+        const zone = document.getElementById(zoneId);
+        const result = document.getElementById(resultId);
 
-            fileInput.addEventListener('change', function(e) {
-                if (e.target.files.length > 0) {
-                    uploadFile(e.target.files[0], uploadUrl, result);
-                }
-            });
+        fileInput.addEventListener("change", function (e) {
+          if (e.target.files.length > 0) {
+            uploadFile(e.target.files[0], uploadUrl, result);
+          }
+        });
 
-            // Drag and drop
-            zone.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                zone.classList.add('dragover');
-            });
+        // Drag and drop
+        zone.addEventListener("dragover", function (e) {
+          e.preventDefault();
+          zone.classList.add("dragover");
+        });
 
-            zone.addEventListener('dragleave', function(e) {
-                e.preventDefault();
-                zone.classList.remove('dragover');
-            });
+        zone.addEventListener("dragleave", function (e) {
+          e.preventDefault();
+          zone.classList.remove("dragover");
+        });
 
-            zone.addEventListener('drop', function(e) {
-                e.preventDefault();
-                zone.classList.remove('dragover');
-                if (e.dataTransfer.files.length > 0) {
-                    uploadFile(e.dataTransfer.files[0], uploadUrl, result);
-                }
-            });
-        }
+        zone.addEventListener("drop", function (e) {
+          e.preventDefault();
+          zone.classList.remove("dragover");
+          if (e.dataTransfer.files.length > 0) {
+            uploadFile(e.dataTransfer.files[0], uploadUrl, result);
+          }
+        });
+      }
 
-        function uploadFile(file, url, resultDiv) {
-            const formData = new FormData();
-            formData.append('file', file);
+      function uploadFile(file, url, resultDiv) {
+        const formData = new FormData();
+        formData.append("file", file);
 
-            resultDiv.style.display = 'block';
-            resultDiv.className = 'upload-result alert alert-info';
-            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+        resultDiv.style.display = "block";
+        resultDiv.className = "upload-result alert alert-info";
+        resultDiv.innerHTML =
+          '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
 
-            fetch(url, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    resultDiv.className = 'upload-result alert alert-success';
-                    resultDiv.innerHTML = `
+        fetch(url, {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              resultDiv.className = "upload-result alert alert-success";
+              resultDiv.innerHTML = `
                         <i class="fas fa-check-circle me-2"></i>
                         <strong>Success!</strong> ${data.message}<br>
-                        <small>Rows: ${data.rows} | Columns: ${data.columns.join(', ')}</small>
+                        <small>Rows: ${data.rows} | Columns: ${data.columns.join(", ")}</small>
                     `;
-                } else {
-                    resultDiv.className = 'upload-result alert alert-danger';
-                    resultDiv.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i>${data.error}`;
-                }
-            })
-            .catch(error => {
-                resultDiv.className = 'upload-result alert alert-danger';
-                resultDiv.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i>Upload failed: ${error.message}`;
-            });
-        }
+            } else {
+              resultDiv.className = "upload-result alert alert-danger";
+              resultDiv.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i>${data.error}`;
+            }
+          })
+          .catch((error) => {
+            resultDiv.className = "upload-result alert alert-danger";
+            resultDiv.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i>Upload failed: ${error.message}`;
+          });
+      }
 
-        // Initialize upload handlers
-        setupUpload('attendance-file', 'attendance-zone', 'attendance-result', '/upload-attendance');
-        setupUpload('gps-file', 'gps-zone', 'gps-result', '/upload-gps');
-        setupUpload('billing-file', 'billing-zone', 'billing-result', '/upload-billing');
-        setupUpload('general-file', 'general-zone', 'general-result', '/upload-file');
+      // Initialize upload handlers
+      setupUpload(
+        "attendance-file",
+        "attendance-zone",
+        "attendance-result",
+        "/upload-attendance",
+      );
+      setupUpload("gps-file", "gps-zone", "gps-result", "/upload-gps");
+      setupUpload(
+        "billing-file",
+        "billing-zone",
+        "billing-result",
+        "/upload-billing",
+      );
+      setupUpload(
+        "general-file",
+        "general-zone",
+        "general-result",
+        "/upload-file",
+      );
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+  </body>
 </html>

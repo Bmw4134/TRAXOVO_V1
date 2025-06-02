@@ -1,344 +1,372 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Asset Management - TRAXOVO</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-        .asset-card {
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-        }
-        .asset-card:hover {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
-        }
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        .filter-panel {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 2rem;
-        }
-        .gps-enabled { color: #28a745; }
-        .gps-disabled { color: #dc3545; }
-        .status-active { 
-            background: #d4edda; 
-            color: #155724;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-        }
-        .status-inactive { 
-            background: #f8d7da; 
-            color: #721c24;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-        }
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .asset-table {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+      .asset-card {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+      }
+      .asset-card:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+      .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      .filter-panel {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+      }
+      .gps-enabled {
+        color: #28a745;
+      }
+      .gps-disabled {
+        color: #dc3545;
+      }
+      .status-active {
+        background: #d4edda;
+        color: #155724;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+      }
+      .status-inactive {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+      }
+      .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .asset-table {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container-fluid py-4">
-        <!-- Header -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <h2><i class="fas fa-truck"></i> Asset Management</h2>
-                <p class="text-muted">Comprehensive view of all fleet assets from Gauge API</p>
+      <!-- Header -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h2><i class="fas fa-truck"></i> Asset Management</h2>
+          <p class="text-muted">
+            Comprehensive view of all fleet assets from Gauge API
+          </p>
+        </div>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h3>{{ stats.total_assets }}</h3>
+                <p class="mb-0">Total Assets</p>
+              </div>
+              <i class="fas fa-boxes fa-2x"></i>
             </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h3>{{ stats.active_assets }}</h3>
+                <p class="mb-0">Active Assets</p>
+              </div>
+              <i class="fas fa-check-circle fa-2x"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h3>{{ stats.gps_enabled }}</h3>
+                <p class="mb-0">GPS Enabled</p>
+              </div>
+              <i class="fas fa-map-marker-alt fa-2x"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h3>{{ stats.gps_coverage }}</h3>
+                <p class="mb-0">GPS Coverage</p>
+              </div>
+              <i class="fas fa-satellite fa-2x"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Panel -->
+      <div class="filter-panel">
+        <div class="row">
+          <div class="col-md-3">
+            <label class="form-label">Search Assets</label>
+            <input
+              type="text"
+              id="assetSearch"
+              class="form-control"
+              placeholder="Asset number, description, serial..."
+            />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Category</label>
+            <select id="categoryFilter" class="form-select">
+              <option value="">All Categories</option>
+              {% for category in categories %}
+              <option value="{{ category }}">{{ category }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Status</label>
+            <select id="statusFilter" class="form-select">
+              <option value="">All Status</option>
+              <option value="active">Active Only</option>
+              <option value="gps">GPS Enabled</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Per Page</label>
+            <select id="perPageSelect" class="form-select">
+              <option value="25">25</option>
+              <option value="50" selected>50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">&nbsp;</label>
+            <div class="d-flex gap-2">
+              <button id="applyFilters" class="btn btn-primary flex-fill">
+                <i class="fas fa-filter"></i> Apply Filters
+              </button>
+              <button id="exportAssets" class="btn btn-success">
+                <i class="fas fa-download"></i> Export
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Assets Table -->
+      <div class="asset-table position-relative">
+        <div id="loadingOverlay" class="loading-overlay d-none">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
         </div>
 
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h3>{{ stats.total_assets }}</h3>
-                            <p class="mb-0">Total Assets</p>
-                        </div>
-                        <i class="fas fa-boxes fa-2x"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h3>{{ stats.active_assets }}</h3>
-                            <p class="mb-0">Active Assets</p>
-                        </div>
-                        <i class="fas fa-check-circle fa-2x"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h3>{{ stats.gps_enabled }}</h3>
-                            <p class="mb-0">GPS Enabled</p>
-                        </div>
-                        <i class="fas fa-map-marker-alt fa-2x"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h3>{{ stats.gps_coverage }}</h3>
-                            <p class="mb-0">GPS Coverage</p>
-                        </div>
-                        <i class="fas fa-satellite fa-2x"></i>
-                    </div>
-                </div>
-            </div>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th>Asset Number</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Serial Number</th>
+                <th>Status</th>
+                <th>GPS Status</th>
+                <th>Last Update</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="assetsTableBody">
+              <!-- Assets will be loaded here -->
+            </tbody>
+          </table>
         </div>
 
-        <!-- Filter Panel -->
-        <div class="filter-panel">
-            <div class="row">
-                <div class="col-md-3">
-                    <label class="form-label">Search Assets</label>
-                    <input type="text" id="assetSearch" class="form-control" placeholder="Asset number, description, serial...">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Category</label>
-                    <select id="categoryFilter" class="form-select">
-                        <option value="">All Categories</option>
-                        {% for category in categories %}
-                        <option value="{{ category }}">{{ category }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Status</label>
-                    <select id="statusFilter" class="form-select">
-                        <option value="">All Status</option>
-                        <option value="active">Active Only</option>
-                        <option value="gps">GPS Enabled</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Per Page</label>
-                    <select id="perPageSelect" class="form-select">
-                        <option value="25">25</option>
-                        <option value="50" selected>50</option>
-                        <option value="100">100</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">&nbsp;</label>
-                    <div class="d-flex gap-2">
-                        <button id="applyFilters" class="btn btn-primary flex-fill">
-                            <i class="fas fa-filter"></i> Apply Filters
-                        </button>
-                        <button id="exportAssets" class="btn btn-success">
-                            <i class="fas fa-download"></i> Export
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center p-3">
+          <div id="assetCount" class="text-muted">Loading assets...</div>
+          <nav>
+            <ul id="pagination" class="pagination mb-0">
+              <!-- Pagination will be generated here -->
+            </ul>
+          </nav>
         </div>
-
-        <!-- Assets Table -->
-        <div class="asset-table position-relative">
-            <div id="loadingOverlay" class="loading-overlay d-none">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>
-            
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Asset Number</th>
-                            <th>Description</th>
-                            <th>Category</th>
-                            <th>Serial Number</th>
-                            <th>Status</th>
-                            <th>GPS Status</th>
-                            <th>Last Update</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="assetsTableBody">
-                        <!-- Assets will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Pagination -->
-            <div class="d-flex justify-content-between align-items-center p-3">
-                <div id="assetCount" class="text-muted">
-                    Loading assets...
-                </div>
-                <nav>
-                    <ul id="pagination" class="pagination mb-0">
-                        <!-- Pagination will be generated here -->
-                    </ul>
-                </nav>
-            </div>
-        </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let currentPage = 1;
-        let currentFilters = {};
+      let currentPage = 1;
+      let currentFilters = {};
 
-        function showLoading() {
-            document.getElementById('loadingOverlay').classList.remove('d-none');
-        }
+      function showLoading() {
+        document.getElementById("loadingOverlay").classList.remove("d-none");
+      }
 
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.add('d-none');
-        }
+      function hideLoading() {
+        document.getElementById("loadingOverlay").classList.add("d-none");
+      }
 
-        function loadAssets(page = 1, filters = {}) {
-            showLoading();
-            currentPage = page;
-            currentFilters = filters;
+      function loadAssets(page = 1, filters = {}) {
+        showLoading();
+        currentPage = page;
+        currentFilters = filters;
 
-            const params = new URLSearchParams({
-                page: page,
-                per_page: document.getElementById('perPageSelect').value,
-                ...filters
-            });
+        const params = new URLSearchParams({
+          page: page,
+          per_page: document.getElementById("perPageSelect").value,
+          ...filters,
+        });
 
-            fetch(`/api/assets?${params}`)
-                .then(response => response.json())
-                .then(data => {
-                    renderAssetsTable(data.assets);
-                    renderPagination(data);
-                    updateAssetCount(data);
-                    hideLoading();
-                })
-                .catch(error => {
-                    console.error('Error loading assets:', error);
-                    hideLoading();
-                });
-        }
+        fetch(`/api/assets?${params}`)
+          .then((response) => response.json())
+          .then((data) => {
+            renderAssetsTable(data.assets);
+            renderPagination(data);
+            updateAssetCount(data);
+            hideLoading();
+          })
+          .catch((error) => {
+            console.error("Error loading assets:", error);
+            hideLoading();
+          });
+      }
 
-        function renderAssetsTable(assets) {
-            const tbody = document.getElementById('assetsTableBody');
-            tbody.innerHTML = '';
+      function renderAssetsTable(assets) {
+        const tbody = document.getElementById("assetsTableBody");
+        tbody.innerHTML = "";
 
-            assets.forEach(asset => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><strong>${asset.AssetNumber || 'N/A'}</strong></td>
-                    <td>${asset.Description || 'No description'}</td>
-                    <td><span class="badge bg-secondary">${asset.AssetCategory || 'Uncategorized'}</span></td>
-                    <td>${asset.SerialNumber || 'N/A'}</td>
-                    <td><span class="status-${asset.Active ? 'active' : 'inactive'}">${asset.status_display}</span></td>
-                    <td><i class="fas fa-map-marker-alt ${asset.gps_status === 'GPS Enabled' ? 'gps-enabled' : 'gps-disabled'}"></i> ${asset.gps_status}</td>
-                    <td>${asset.last_location_update || 'Unknown'}</td>
+        assets.forEach((asset) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+                    <td><strong>${asset.AssetNumber || "N/A"}</strong></td>
+                    <td>${asset.Description || "No description"}</td>
+                    <td><span class="badge bg-secondary">${asset.AssetCategory || "Uncategorized"}</span></td>
+                    <td>${asset.SerialNumber || "N/A"}</td>
+                    <td><span class="status-${asset.Active ? "active" : "inactive"}">${asset.status_display}</span></td>
+                    <td><i class="fas fa-map-marker-alt ${asset.gps_status === "GPS Enabled" ? "gps-enabled" : "gps-disabled"}"></i> ${asset.gps_status}</td>
+                    <td>${asset.last_location_update || "Unknown"}</td>
                     <td>
                         <a href="/assets/${asset.AssetNumber}" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-eye"></i> View
                         </a>
                     </td>
                 `;
-                tbody.appendChild(row);
-            });
+          tbody.appendChild(row);
+        });
+      }
+
+      function renderPagination(data) {
+        const pagination = document.getElementById("pagination");
+        pagination.innerHTML = "";
+
+        // Previous button
+        const prevLi = document.createElement("li");
+        prevLi.className = `page-item ${!data.has_prev ? "disabled" : ""}`;
+        prevLi.innerHTML = `<a class="page-link" href="#" onclick="loadAssets(${currentPage - 1}, currentFilters)">Previous</a>`;
+        pagination.appendChild(prevLi);
+
+        // Page numbers (simplified)
+        for (
+          let i = Math.max(1, currentPage - 2);
+          i <= Math.min(Math.ceil(data.total / data.per_page), currentPage + 2);
+          i++
+        ) {
+          const li = document.createElement("li");
+          li.className = `page-item ${i === currentPage ? "active" : ""}`;
+          li.innerHTML = `<a class="page-link" href="#" onclick="loadAssets(${i}, currentFilters)">${i}</a>`;
+          pagination.appendChild(li);
         }
 
-        function renderPagination(data) {
-            const pagination = document.getElementById('pagination');
-            pagination.innerHTML = '';
+        // Next button
+        const nextLi = document.createElement("li");
+        nextLi.className = `page-item ${!data.has_next ? "disabled" : ""}`;
+        nextLi.innerHTML = `<a class="page-link" href="#" onclick="loadAssets(${currentPage + 1}, currentFilters)">Next</a>`;
+        pagination.appendChild(nextLi);
+      }
 
-            // Previous button
-            const prevLi = document.createElement('li');
-            prevLi.className = `page-item ${!data.has_prev ? 'disabled' : ''}`;
-            prevLi.innerHTML = `<a class="page-link" href="#" onclick="loadAssets(${currentPage - 1}, currentFilters)">Previous</a>`;
-            pagination.appendChild(prevLi);
+      function updateAssetCount(data) {
+        const start = (data.page - 1) * data.per_page + 1;
+        const end = Math.min(data.page * data.per_page, data.total);
+        document.getElementById("assetCount").textContent =
+          `Showing ${start}-${end} of ${data.total} assets`;
+      }
 
-            // Page numbers (simplified)
-            for (let i = Math.max(1, currentPage - 2); i <= Math.min(Math.ceil(data.total / data.per_page), currentPage + 2); i++) {
-                const li = document.createElement('li');
-                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
-                li.innerHTML = `<a class="page-link" href="#" onclick="loadAssets(${i}, currentFilters)">${i}</a>`;
-                pagination.appendChild(li);
-            }
+      function applyFilters() {
+        const filters = {};
 
-            // Next button
-            const nextLi = document.createElement('li');
-            nextLi.className = `page-item ${!data.has_next ? 'disabled' : ''}`;
-            nextLi.innerHTML = `<a class="page-link" href="#" onclick="loadAssets(${currentPage + 1}, currentFilters)">Next</a>`;
-            pagination.appendChild(nextLi);
-        }
+        const search = document.getElementById("assetSearch").value.trim();
+        if (search) filters.search = search;
 
-        function updateAssetCount(data) {
-            const start = (data.page - 1) * data.per_page + 1;
-            const end = Math.min(data.page * data.per_page, data.total);
-            document.getElementById('assetCount').textContent = `Showing ${start}-${end} of ${data.total} assets`;
-        }
+        const category = document.getElementById("categoryFilter").value;
+        if (category) filters.category = category;
 
-        function applyFilters() {
-            const filters = {};
-            
-            const search = document.getElementById('assetSearch').value.trim();
-            if (search) filters.search = search;
-            
-            const category = document.getElementById('categoryFilter').value;
-            if (category) filters.category = category;
-            
-            const status = document.getElementById('statusFilter').value;
-            if (status === 'active') filters.active_only = 'true';
-            if (status === 'gps') filters.gps_enabled = 'true';
-            
-            loadAssets(1, filters);
-        }
+        const status = document.getElementById("statusFilter").value;
+        if (status === "active") filters.active_only = "true";
+        if (status === "gps") filters.gps_enabled = "true";
 
-        function exportAssets() {
-            const params = new URLSearchParams(currentFilters);
-            window.open(`/assets/export?${params}`, '_blank');
-        }
+        loadAssets(1, filters);
+      }
 
-        // Event listeners
-        document.getElementById('applyFilters').addEventListener('click', applyFilters);
-        document.getElementById('exportAssets').addEventListener('click', exportAssets);
-        
-        document.getElementById('assetSearch').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') applyFilters();
+      function exportAssets() {
+        const params = new URLSearchParams(currentFilters);
+        window.open(`/assets/export?${params}`, "_blank");
+      }
+
+      // Event listeners
+      document
+        .getElementById("applyFilters")
+        .addEventListener("click", applyFilters);
+      document
+        .getElementById("exportAssets")
+        .addEventListener("click", exportAssets);
+
+      document
+        .getElementById("assetSearch")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") applyFilters();
         });
 
-        document.getElementById('perPageSelect').addEventListener('change', function() {
-            loadAssets(1, currentFilters);
+      document
+        .getElementById("perPageSelect")
+        .addEventListener("change", function () {
+          loadAssets(1, currentFilters);
         });
 
-        // Load initial assets
-        loadAssets();
+      // Load initial assets
+      loadAssets();
     </script>
-</body>
+  </body>
 </html>

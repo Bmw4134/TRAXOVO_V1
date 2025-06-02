@@ -1,106 +1,330 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>{{ page_title }} - TRAXOVO</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet"><style>
-.bleeding-edge-card {
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-color: white;
-border: none;
-border-radius: 15px;
-box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ page_title }} - TRAXOVO</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      .bleeding-edge-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
 
-.prediction-card {
-background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-color: white;
-}
+      .prediction-card {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        color: white;
+      }
 
-.optimization-card {
-background: linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%);
-color: white;
-}
+      .optimization-card {
+        background: linear-gradient(135deg, #10ac84 0%, #1dd1a1 100%);
+        color: white;
+      }
 
-.competitive-card {
-background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
-color: white;
-}
+      .competitive-card {
+        background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+        color: white;
+      }
 
-.alert-card {
-background: linear-gradient(135deg, #ff7675 0%, #fd79a8 100%);
-color: white;
-}
+      .alert-card {
+        background: linear-gradient(135deg, #ff7675 0%, #fd79a8 100%);
+        color: white;
+      }
 
-.metric-value {
-font-size: 2.5rem;
-font-weight: 700;
-text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-}
+      .metric-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
 
-.metric-label {
-font-size: 0.9rem;
-opacity: 0.9;
-text-transform: uppercase;
-letter-spacing: 1px;
-}
+      .metric-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
 
-.pulse-animation {
-animation: pulse 2s infinite;
-}
+      .pulse-animation {
+        animation: pulse 2s infinite;
+      }
 
-@keyframes pulse {
-0% { transform: scale(1); }
-50% { transform: scale(1.05); }
-100% { transform: scale(1); }
-}
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
 
-.revolutionary-badge {
-background: linear-gradient(45deg, #ff0844, #ffb199);
-padding: 0.5rem 1rem;
-border-radius: 25px;
-font-weight: 600;
-font-size: 0.8rem;
-text-transform: uppercase;
-letter-spacing: 1px;
-}
-</style></head><body class="bg-light"><nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"><div class="container-fluid"><a class="navbar-brand fw-bold" href="/dashboard"><i class="bi bi-lightning-fill me-2"></i>
-TRAXOVO Bleeding Edge Intelligence
-</a><a href="/dashboard" class="btn btn-outline-light"><i class="bi bi-house me-2"></i>Dashboard
-</a></div></nav><div class="container-fluid mt-4"><div class="row mb-4"><div class="col-12"><div class="card bleeding-edge-card"><div class="card-body text-center py-4"><h1 class="display-4 fw-bold mb-3"><i class="bi bi-lightning-fill me-3"></i>
-Bleeding Edge Intelligence
-</h1><p class="lead mb-3">Revolutionary AI-powered fleet intelligence beyond all competitors</p><div class="row text-center"><div class="col-md-3"><div class="metric-value">{{ total_assets }}</div><div class="metric-label">Total Assets</div></div><div class="col-md-3"><div class="metric-value">{{ active_assets }}</div><div class="metric-label">Active Assets</div></div><div class="col-md-3"><div class="metric-value">${{ "${:,.0f}".format(monthly_revenue) }}</div><div class="metric-label">Monthly Revenue</div></div><div class="col-md-3"><span class="revolutionary-badge">REVOLUTIONARY</span></div></div></div></div></div></div><div class="row mb-4"><div class="col-12"><h2 class="fw-bold mb-3"><i class="bi bi-graph-up-arrow me-2"></i>
-AI Failure Prediction - 30 Days Ahead
-</h2></div>
-{% for asset_id, prediction in predictions.items() %}
-<div class="col-md-4 mb-3"><div class="card prediction-card pulse-animation"><div class="card-body"><h5 class="card-title"><i class="bi bi-exclamation-triangle me-2"></i>
-Asset {{ asset_id }}
-</h5><div class="row"><div class="col-6"><div class="metric-value">{{ prediction.risk_score }}%</div><div class="metric-label">Risk Score</div></div><div class="col-6"><div class="metric-value">{{ prediction.days_to_failure }}</div><div class="metric-label">Days to Failure</div></div></div><hr class="my-3" style="border-color: rgba(255,255,255,0.3);"><p class="mb-2"><strong>Action:</strong> {{ prediction.recommended_action }}</p><p class="mb-2"><strong>Cost Impact:</strong> ${{ "{:,}".format(prediction.cost_impact) }}</p><p class="mb-0"><strong>Confidence:</strong> {{ prediction.confidence }}%</p></div></div></div>
-{% endfor %}
-</div><div class="row mb-4"><div class="col-12"><h2 class="fw-bold mb-3"><i class="bi bi-currency-dollar me-2"></i>
-Real-Time Cost Optimization
-</h2></div>
-{% for optimization in optimizations %}
-<div class="col-md-6 mb-3"><div class="card optimization-card"><div class="card-body"><h5 class="card-title">{{ optimization.title }}</h5><div class="row mb-3"><div class="col-6"><div class="metric-value">${{ "{:,}".format(optimization.potential_monthly_savings) }}</div><div class="metric-label">Monthly Savings</div></div><div class="col-6"><div class="metric-value">{{ optimization.roi_months }}</div><div class="metric-label">ROI Months</div></div></div><p class="mb-2"><strong>Implementation Cost:</strong> ${{ "{:,}".format(optimization.implementation_cost) }}</p><p class="mb-2"><strong>Actions:</strong></p><ul class="mb-0">
-{% for action in optimization.actions %}
-<li>{{ action }}</li>
-{% endfor %}
-</ul></div></div></div>
-{% endfor %}
-</div><div class="row mb-4"><div class="col-12"><h2 class="fw-bold mb-3"><i class="bi bi-trophy me-2"></i>
-Competitive Intelligence Dashboard
-</h2></div><div class="col-md-6 mb-3"><div class="card competitive-card"><div class="card-body"><h5 class="card-title">Market Position Scores</h5>
-{% for competitor, score in competitive_intel.market_position.items() %}
-<div class="d-flex justify-content-between align-items-center mb-2"><span>{{ competitor.replace('_', ' ').title() }}</span><span class="fw-bold">{{ score }}/100</span></div>
-{% endfor %}
-</div></div></div><div class="col-md-6 mb-3"><div class="card competitive-card"><div class="card-body"><h5 class="card-title">Cost Advantage</h5><div class="metric-value">${{ "{:,}".format(competitive_intel.cost_advantage.annual_savings_vs_equipmentwatch) }}</div><div class="metric-label">Annual Savings vs EquipmentWatch</div><hr class="my-3" style="border-color: rgba(255,255,255,0.3);"><p class="mb-0"><strong>ROI Advantage:</strong> {{ competitive_intel.cost_advantage.roi_advantage }}</p></div></div></div></div><div class="row mb-4"><div class="col-12"><h2 class="fw-bold mb-3"><i class="bi bi-bell me-2"></i>
-Ultra-Intelligent Alert System
-</h2></div>
-{% for alert in alerts %}
-<div class="col-md-4 mb-3"><div class="card alert-card"><div class="card-body"><div class="d-flex justify-content-between align-items-start mb-2"><h6 class="card-title mb-0">{{ alert.title }}</h6><span class="badge bg-light text-dark">{{ alert.priority.upper() }}</span></div><p class="mb-2">{{ alert.message }}</p><p class="mb-2"><strong>Impact:</strong> {{ alert.potential_impact }}</p><p class="mb-2"><strong>Action:</strong> {{ alert.recommended_action }}</p>
-{% if alert.time_sensitive %}
-<span class="badge bg-danger pulse-animation">TIME SENSITIVE</span>
-{% endif %}
-</div></div></div>
-{% endfor %}
-</div><div class="row"><div class="col-12"><div class="card bleeding-edge-card"><div class="card-body text-center"><h3 class="fw-bold mb-3">Revolutionary Features Active</h3><div class="row"><div class="col-md-3"><i class="bi bi-cpu display-6 mb-2"></i><p class="fw-bold">AI Failure Prediction</p></div><div class="col-md-3"><i class="bi bi-graph-up display-6 mb-2"></i><p class="fw-bold">Real-Time Optimization</p></div><div class="col-md-3"><i class="bi bi-shield-check display-6 mb-2"></i><p class="fw-bold">Competitive Intelligence</p></div><div class="col-md-3"><i class="bi bi-lightning display-6 mb-2"></i><p class="fw-bold">Ultra-Smart Alerts</p></div></div></div></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script><script>
-// Auto-refresh every 30 seconds for real-time data
-setInterval(() => {
-location.reload();
-}, 30000);
-</script></body></html>
+      .revolutionary-badge {
+        background: linear-gradient(45deg, #ff0844, #ffb199);
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <nav
+      class="navbar navbar-expand-lg navbar-dark"
+      style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+    >
+      <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="/dashboard"
+          ><i class="bi bi-lightning-fill me-2"></i>
+          TRAXOVO Bleeding Edge Intelligence </a
+        ><a href="/dashboard" class="btn btn-outline-light"
+          ><i class="bi bi-house me-2"></i>Dashboard
+        </a>
+      </div>
+    </nav>
+    <div class="container-fluid mt-4">
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card bleeding-edge-card">
+            <div class="card-body text-center py-4">
+              <h1 class="display-4 fw-bold mb-3">
+                <i class="bi bi-lightning-fill me-3"></i>
+                Bleeding Edge Intelligence
+              </h1>
+              <p class="lead mb-3">
+                Revolutionary AI-powered fleet intelligence beyond all
+                competitors
+              </p>
+              <div class="row text-center">
+                <div class="col-md-3">
+                  <div class="metric-value">{{ total_assets }}</div>
+                  <div class="metric-label">Total Assets</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="metric-value">{{ active_assets }}</div>
+                  <div class="metric-label">Active Assets</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="metric-value">
+                    ${{ "${:,.0f}".format(monthly_revenue) }}
+                  </div>
+                  <div class="metric-label">Monthly Revenue</div>
+                </div>
+                <div class="col-md-3">
+                  <span class="revolutionary-badge">REVOLUTIONARY</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-12">
+          <h2 class="fw-bold mb-3">
+            <i class="bi bi-graph-up-arrow me-2"></i>
+            AI Failure Prediction - 30 Days Ahead
+          </h2>
+        </div>
+        {% for asset_id, prediction in predictions.items() %}
+        <div class="col-md-4 mb-3">
+          <div class="card prediction-card pulse-animation">
+            <div class="card-body">
+              <h5 class="card-title">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Asset {{ asset_id }}
+              </h5>
+              <div class="row">
+                <div class="col-6">
+                  <div class="metric-value">{{ prediction.risk_score }}%</div>
+                  <div class="metric-label">Risk Score</div>
+                </div>
+                <div class="col-6">
+                  <div class="metric-value">
+                    {{ prediction.days_to_failure }}
+                  </div>
+                  <div class="metric-label">Days to Failure</div>
+                </div>
+              </div>
+              <hr class="my-3" style="border-color: rgba(255, 255, 255, 0.3)" />
+              <p class="mb-2">
+                <strong>Action:</strong> {{ prediction.recommended_action }}
+              </p>
+              <p class="mb-2">
+                <strong>Cost Impact:</strong> ${{
+                "{:,}".format(prediction.cost_impact) }}
+              </p>
+              <p class="mb-0">
+                <strong>Confidence:</strong> {{ prediction.confidence }}%
+              </p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="row mb-4">
+        <div class="col-12">
+          <h2 class="fw-bold mb-3">
+            <i class="bi bi-currency-dollar me-2"></i>
+            Real-Time Cost Optimization
+          </h2>
+        </div>
+        {% for optimization in optimizations %}
+        <div class="col-md-6 mb-3">
+          <div class="card optimization-card">
+            <div class="card-body">
+              <h5 class="card-title">{{ optimization.title }}</h5>
+              <div class="row mb-3">
+                <div class="col-6">
+                  <div class="metric-value">
+                    ${{ "{:,}".format(optimization.potential_monthly_savings) }}
+                  </div>
+                  <div class="metric-label">Monthly Savings</div>
+                </div>
+                <div class="col-6">
+                  <div class="metric-value">{{ optimization.roi_months }}</div>
+                  <div class="metric-label">ROI Months</div>
+                </div>
+              </div>
+              <p class="mb-2">
+                <strong>Implementation Cost:</strong> ${{
+                "{:,}".format(optimization.implementation_cost) }}
+              </p>
+              <p class="mb-2"><strong>Actions:</strong></p>
+              <ul class="mb-0">
+                {% for action in optimization.actions %}
+                <li>{{ action }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="row mb-4">
+        <div class="col-12">
+          <h2 class="fw-bold mb-3">
+            <i class="bi bi-trophy me-2"></i>
+            Competitive Intelligence Dashboard
+          </h2>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="card competitive-card">
+            <div class="card-body">
+              <h5 class="card-title">Market Position Scores</h5>
+              {% for competitor, score in
+              competitive_intel.market_position.items() %}
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <span>{{ competitor.replace('_', ' ').title() }}</span
+                ><span class="fw-bold">{{ score }}/100</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="card competitive-card">
+            <div class="card-body">
+              <h5 class="card-title">Cost Advantage</h5>
+              <div class="metric-value">
+                ${{
+                "{:,}".format(competitive_intel.cost_advantage.annual_savings_vs_equipmentwatch)
+                }}
+              </div>
+              <div class="metric-label">Annual Savings vs EquipmentWatch</div>
+              <hr class="my-3" style="border-color: rgba(255, 255, 255, 0.3)" />
+              <p class="mb-0">
+                <strong>ROI Advantage:</strong> {{
+                competitive_intel.cost_advantage.roi_advantage }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-12">
+          <h2 class="fw-bold mb-3">
+            <i class="bi bi-bell me-2"></i>
+            Ultra-Intelligent Alert System
+          </h2>
+        </div>
+        {% for alert in alerts %}
+        <div class="col-md-4 mb-3">
+          <div class="card alert-card">
+            <div class="card-body">
+              <div
+                class="d-flex justify-content-between align-items-start mb-2"
+              >
+                <h6 class="card-title mb-0">{{ alert.title }}</h6>
+                <span class="badge bg-light text-dark"
+                  >{{ alert.priority.upper() }}</span
+                >
+              </div>
+              <p class="mb-2">{{ alert.message }}</p>
+              <p class="mb-2">
+                <strong>Impact:</strong> {{ alert.potential_impact }}
+              </p>
+              <p class="mb-2">
+                <strong>Action:</strong> {{ alert.recommended_action }}
+              </p>
+              {% if alert.time_sensitive %}
+              <span class="badge bg-danger pulse-animation"
+                >TIME SENSITIVE</span
+              >
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="row">
+        <div class="col-12">
+          <div class="card bleeding-edge-card">
+            <div class="card-body text-center">
+              <h3 class="fw-bold mb-3">Revolutionary Features Active</h3>
+              <div class="row">
+                <div class="col-md-3">
+                  <i class="bi bi-cpu display-6 mb-2"></i>
+                  <p class="fw-bold">AI Failure Prediction</p>
+                </div>
+                <div class="col-md-3">
+                  <i class="bi bi-graph-up display-6 mb-2"></i>
+                  <p class="fw-bold">Real-Time Optimization</p>
+                </div>
+                <div class="col-md-3">
+                  <i class="bi bi-shield-check display-6 mb-2"></i>
+                  <p class="fw-bold">Competitive Intelligence</p>
+                </div>
+                <div class="col-md-3">
+                  <i class="bi bi-lightning display-6 mb-2"></i>
+                  <p class="fw-bold">Ultra-Smart Alerts</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Auto-refresh every 30 seconds for real-time data
+      setInterval(() => {
+        location.reload();
+      }, 30000);
+    </script>
+  </body>
+</html>

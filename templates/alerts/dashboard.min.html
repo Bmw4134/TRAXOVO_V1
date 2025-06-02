@@ -1,112 +1,474 @@
-{% extends "base.html" %}
-
-{% block content %}
-<div class="container my-4"><div class="d-flex justify-content-between align-items-center mb-4"><h1 class="display-5">Equipment Alerts</h1><div class="btn-group"><button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-download me-1"></i> Export
-</button><ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" href="{{ url_for('export_alerts', format='excel') }}">Export to Excel</a></li><li><a class="dropdown-item" href="{{ url_for('export_alerts', format='csv') }}">Export to CSV</a></li></ul></div></div><div class="row mb-4"><div class="col-md-3"><div class="card bg-danger text-white h-100"><div class="card-body"><div class="d-flex justify-content-between align-items-center"><div><h5 class="card-title mb-0">Critical Alerts</h5><p class="card-text display-4 mb-0">{{ summary.level_counts.critical }}</p></div><i class="bi bi-exclamation-triangle-fill fs-1"></i></div></div><div class="card-footer d-flex justify-content-between align-items-center"><span>Requires Immediate Action</span><a href="#criticalAlerts" class="text-white text-decoration-none">View <i class="bi bi-arrow-right"></i></a></div></div></div><div class="col-md-3"><div class="card bg-warning text-dark h-100"><div class="card-body"><div class="d-flex justify-content-between align-items-center"><div><h5 class="card-title mb-0">Warning Alerts</h5><p class="card-text display-4 mb-0">{{ summary.level_counts.warning }}</p></div><i class="bi bi-exclamation-circle-fill fs-1"></i></div></div><div class="card-footer d-flex justify-content-between align-items-center"><span>Needs Attention Soon</span><a href="#warningAlerts" class="text-dark text-decoration-none">View <i class="bi bi-arrow-right"></i></a></div></div></div><div class="col-md-3"><div class="card bg-info text-white h-100"><div class="card-body"><div class="d-flex justify-content-between align-items-center"><div><h5 class="card-title mb-0">Info Alerts</h5><p class="card-text display-4 mb-0">{{ summary.level_counts.info }}</p></div><i class="bi bi-info-circle-fill fs-1"></i></div></div><div class="card-footer d-flex justify-content-between align-items-center"><span>Informational Only</span><a href="#infoAlerts" class="text-white text-decoration-none">View <i class="bi bi-arrow-right"></i></a></div></div></div><div class="col-md-3"><div class="card bg-primary text-white h-100"><div class="card-body"><div class="d-flex justify-content-between align-items-center"><div><h5 class="card-title mb-0">Total Alerts</h5><p class="card-text display-4 mb-0">{{ summary.total_alerts }}</p></div><i class="bi bi-bell-fill fs-1"></i></div></div><div class="card-footer d-flex justify-content-between align-items-center"><span>All System Alerts</span>
-{% if current_user.is_admin %}
-<a href="{{ url_for('equipment_alerts', refresh='true') }}" class="text-white text-decoration-none">
-Refresh <i class="bi bi-arrow-clockwise"></i></a>
-{% else %}
-<span class="text-white-50">Updated {{ now().strftime('%m/%d/%Y %H:%M') }}</span>
-{% endif %}
-</div></div></div></div><div class="card mb-4"><div class="card-header"><h5 class="mb-0">Alert Types</h5></div><div class="card-body"><div class="row"><div class="col-md-4"><div class="d-flex align-items-center mb-3"><div class="me-3"><span class="badge bg-secondary p-2"><i class="bi bi-hourglass-split fs-5"></i></span></div><div><h6 class="mb-0">Inactivity</h6><div class="progress mt-1" style="height: 5px; width: 100%;"><div class="progress-bar bg-secondary" role="progressbar" style="width: {{ (summary.type_counts.inactivity / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"></div></div><small class="text-muted">{{ summary.type_counts.inactivity }} alerts</small></div></div></div><div class="col-md-4"><div class="d-flex align-items-center mb-3"><div class="me-3"><span class="badge bg-danger p-2"><i class="bi bi-lightning-charge-fill fs-5"></i></span></div><div><h6 class="mb-0">High Usage</h6><div class="progress mt-1" style="height: 5px; width: 100%;"><div class="progress-bar bg-danger" role="progressbar" style="width: {{ (summary.type_counts.high_usage / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"></div></div><small class="text-muted">{{ summary.type_counts.high_usage }} alerts</small></div></div></div><div class="col-md-4"><div class="d-flex align-items-center mb-3"><div class="me-3"><span class="badge bg-info p-2"><i class="bi bi-battery-half fs-5"></i></span></div><div><h6 class="mb-0">Low Usage</h6><div class="progress mt-1" style="height: 5px; width: 100%;"><div class="progress-bar bg-info" role="progressbar" style="width: {{ (summary.type_counts.low_usage / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"></div></div><small class="text-muted">{{ summary.type_counts.low_usage }} alerts</small></div></div></div><div class="col-md-4"><div class="d-flex align-items-center mb-3"><div class="me-3"><span class="badge bg-warning p-2"><i class="bi bi-speedometer fs-5"></i></span></div><div><h6 class="mb-0">Maintenance (Hours)</h6><div class="progress mt-1" style="height: 5px; width: 100%;"><div class="progress-bar bg-warning" role="progressbar" style="width: {{ (summary.type_counts.maintenance_hours / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"></div></div><small class="text-muted">{{ summary.type_counts.maintenance_hours }} alerts</small></div></div></div><div class="col-md-4"><div class="d-flex align-items-center mb-3"><div class="me-3"><span class="badge bg-primary p-2"><i class="bi bi-calendar-check fs-5"></i></span></div><div><h6 class="mb-0">Maintenance (Days)</h6><div class="progress mt-1" style="height: 5px; width: 100%;"><div class="progress-bar bg-primary" role="progressbar" style="width: {{ (summary.type_counts.maintenance_days / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"></div></div><small class="text-muted">{{ summary.type_counts.maintenance_days }} alerts</small></div></div></div></div></div></div><div class="card mb-4" id="criticalAlerts"><div class="card-header bg-danger text-white"><h5 class="mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>Critical Alerts ({{ critical_alerts|length }})</h5></div><div class="card-body p-0">
-{% if critical_alerts %}
-<div class="table-responsive"><table class="table table-hover table-striped mb-0"><thead><tr><th>Asset ID</th><th>Type</th><th>Description</th><th>Location</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-{% for alert in critical_alerts %}
-<tr><td><strong>{{ alert.asset_id }}</strong></td><td>
-{% if alert.alert_type == 'inactivity' %}
-<span class="badge bg-secondary">Inactivity</span>
-{% elif alert.alert_type == 'maintenance_hours' %}
-<span class="badge bg-warning">Maintenance (Hours)</span>
-{% elif alert.alert_type == 'maintenance_days' %}
-<span class="badge bg-primary">Maintenance (Days)</span>
-{% else %}
-<span class="badge bg-secondary">{{ alert.alert_type }}</span>
-{% endif %}
-</td><td>{{ alert.description }}</td><td>{{ alert.location }}</td><td>{{ alert.created_at.strftime('%m/%d/%Y %H:%M') }}</td><td>
-{% if alert.resolved %}
-<span class="badge bg-success">Resolved</span>
-{% elif alert.acknowledged %}
-<span class="badge bg-warning">Acknowledged</span>
-{% else %}
-<span class="badge bg-danger">New</span>
-{% endif %}
-</td><td><div class="btn-group btn-group-sm"><a href="#" class="btn btn-outline-secondary"><i class="bi bi-check-circle"></i> Acknowledge
-</a><a href="#" class="btn btn-outline-success"><i class="bi bi-check-square"></i> Resolve
-</a></div></td></tr>
-{% endfor %}
-</tbody></table></div>
-{% else %}
-<div class="text-center py-4"><i class="bi bi-check-circle-fill text-success fs-1"></i><p class="mt-2">No critical alerts at this time.</p></div>
-{% endif %}
-</div></div><div class="card mb-4" id="warningAlerts"><div class="card-header bg-warning text-dark"><h5 class="mb-0"><i class="bi bi-exclamation-circle-fill me-2"></i>Warning Alerts ({{ warning_alerts|length }})</h5></div><div class="card-body p-0">
-{% if warning_alerts %}
-<div class="table-responsive"><table class="table table-hover table-striped mb-0"><thead><tr><th>Asset ID</th><th>Type</th><th>Description</th><th>Location</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-{% for alert in warning_alerts %}
-<tr><td><strong>{{ alert.asset_id }}</strong></td><td>
-{% if alert.alert_type == 'inactivity' %}
-<span class="badge bg-secondary">Inactivity</span>
-{% elif alert.alert_type == 'high_usage' %}
-<span class="badge bg-danger">High Usage</span>
-{% elif alert.alert_type == 'maintenance_hours' %}
-<span class="badge bg-warning">Maintenance (Hours)</span>
-{% elif alert.alert_type == 'maintenance_days' %}
-<span class="badge bg-primary">Maintenance (Days)</span>
-{% else %}
-<span class="badge bg-secondary">{{ alert.alert_type }}</span>
-{% endif %}
-</td><td>{{ alert.description }}</td><td>{{ alert.location }}</td><td>{{ alert.created_at.strftime('%m/%d/%Y %H:%M') }}</td><td>
-{% if alert.resolved %}
-<span class="badge bg-success">Resolved</span>
-{% elif alert.acknowledged %}
-<span class="badge bg-warning">Acknowledged</span>
-{% else %}
-<span class="badge bg-danger">New</span>
-{% endif %}
-</td><td><div class="btn-group btn-group-sm"><a href="#" class="btn btn-outline-secondary"><i class="bi bi-check-circle"></i> Acknowledge
-</a><a href="#" class="btn btn-outline-success"><i class="bi bi-check-square"></i> Resolve
-</a></div></td></tr>
-{% endfor %}
-</tbody></table></div>
-{% else %}
-<div class="text-center py-4"><i class="bi bi-check-circle-fill text-success fs-1"></i><p class="mt-2">No warning alerts at this time.</p></div>
-{% endif %}
-</div></div><div class="card mb-4" id="infoAlerts"><div class="card-header bg-info text-white"><h5 class="mb-0"><i class="bi bi-info-circle-fill me-2"></i>Info Alerts ({{ info_alerts|length }})</h5></div><div class="card-body p-0">
-{% if info_alerts %}
-<div class="table-responsive"><table class="table table-hover table-striped mb-0"><thead><tr><th>Asset ID</th><th>Type</th><th>Description</th><th>Location</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-{% for alert in info_alerts %}
-<tr><td><strong>{{ alert.asset_id }}</strong></td><td>
-{% if alert.alert_type == 'low_usage' %}
-<span class="badge bg-info">Low Usage</span>
-{% else %}
-<span class="badge bg-secondary">{{ alert.alert_type }}</span>
-{% endif %}
-</td><td>{{ alert.description }}</td><td>{{ alert.location }}</td><td>{{ alert.created_at.strftime('%m/%d/%Y %H:%M') }}</td><td>
-{% if alert.resolved %}
-<span class="badge bg-success">Resolved</span>
-{% elif alert.acknowledged %}
-<span class="badge bg-warning">Acknowledged</span>
-{% else %}
-<span class="badge bg-danger">New</span>
-{% endif %}
-</td><td><div class="btn-group btn-group-sm"><a href="#" class="btn btn-outline-secondary"><i class="bi bi-check-circle"></i> Acknowledge
-</a><a href="#" class="btn btn-outline-success"><i class="bi bi-check-square"></i> Resolve
-</a></div></td></tr>
-{% endfor %}
-</tbody></table></div>
-{% else %}
-<div class="text-center py-4"><i class="bi bi-check-circle-fill text-success fs-1"></i><p class="mt-2">No info alerts at this time.</p></div>
-{% endif %}
-</div></div></div><script>
-// Automatically scroll to alert sections based on URL hash
-document.addEventListener('DOMContentLoaded', function() {
-const hash = window.location.hash;
-if (hash) {
-const element = document.querySelector(hash);
-if (element) {
-element.scrollIntoView({ behavior: 'smooth' });
-}
-}
-});
+{% extends "base.html" %} {% block content %}
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-5">Equipment Alerts</h1>
+    <div class="btn-group">
+      <button
+        type="button"
+        class="btn btn-primary dropdown-toggle"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="bi bi-download me-1"></i> Export
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+          <a
+            class="dropdown-item"
+            href="{{ url_for('export_alerts', format='excel') }}"
+            >Export to Excel</a
+          >
+        </li>
+        <li>
+          <a
+            class="dropdown-item"
+            href="{{ url_for('export_alerts', format='csv') }}"
+            >Export to CSV</a
+          >
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card bg-danger text-white h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title mb-0">Critical Alerts</h5>
+              <p class="card-text display-4 mb-0">
+                {{ summary.level_counts.critical }}
+              </p>
+            </div>
+            <i class="bi bi-exclamation-triangle-fill fs-1"></i>
+          </div>
+        </div>
+        <div
+          class="card-footer d-flex justify-content-between align-items-center"
+        >
+          <span>Requires Immediate Action</span
+          ><a href="#criticalAlerts" class="text-white text-decoration-none"
+            >View <i class="bi bi-arrow-right"></i
+          ></a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-warning text-dark h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title mb-0">Warning Alerts</h5>
+              <p class="card-text display-4 mb-0">
+                {{ summary.level_counts.warning }}
+              </p>
+            </div>
+            <i class="bi bi-exclamation-circle-fill fs-1"></i>
+          </div>
+        </div>
+        <div
+          class="card-footer d-flex justify-content-between align-items-center"
+        >
+          <span>Needs Attention Soon</span
+          ><a href="#warningAlerts" class="text-dark text-decoration-none"
+            >View <i class="bi bi-arrow-right"></i
+          ></a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-info text-white h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title mb-0">Info Alerts</h5>
+              <p class="card-text display-4 mb-0">
+                {{ summary.level_counts.info }}
+              </p>
+            </div>
+            <i class="bi bi-info-circle-fill fs-1"></i>
+          </div>
+        </div>
+        <div
+          class="card-footer d-flex justify-content-between align-items-center"
+        >
+          <span>Informational Only</span
+          ><a href="#infoAlerts" class="text-white text-decoration-none"
+            >View <i class="bi bi-arrow-right"></i
+          ></a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-primary text-white h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title mb-0">Total Alerts</h5>
+              <p class="card-text display-4 mb-0">{{ summary.total_alerts }}</p>
+            </div>
+            <i class="bi bi-bell-fill fs-1"></i>
+          </div>
+        </div>
+        <div
+          class="card-footer d-flex justify-content-between align-items-center"
+        >
+          <span>All System Alerts</span>
+          {% if current_user.is_admin %}
+          <a
+            href="{{ url_for('equipment_alerts', refresh='true') }}"
+            class="text-white text-decoration-none"
+          >
+            Refresh <i class="bi bi-arrow-clockwise"></i
+          ></a>
+          {% else %}
+          <span class="text-white-50"
+            >Updated {{ now().strftime('%m/%d/%Y %H:%M') }}</span
+          >
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card mb-4">
+    <div class="card-header"><h5 class="mb-0">Alert Types</h5></div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="me-3">
+              <span class="badge bg-secondary p-2"
+                ><i class="bi bi-hourglass-split fs-5"></i
+              ></span>
+            </div>
+            <div>
+              <h6 class="mb-0">Inactivity</h6>
+              <div class="progress mt-1" style="height: 5px; width: 100%">
+                <div
+                  class="progress-bar bg-secondary"
+                  role="progressbar"
+                  style="width: {{ (summary.type_counts.inactivity / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"
+                ></div>
+              </div>
+              <small class="text-muted"
+                >{{ summary.type_counts.inactivity }} alerts</small
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="me-3">
+              <span class="badge bg-danger p-2"
+                ><i class="bi bi-lightning-charge-fill fs-5"></i
+              ></span>
+            </div>
+            <div>
+              <h6 class="mb-0">High Usage</h6>
+              <div class="progress mt-1" style="height: 5px; width: 100%">
+                <div
+                  class="progress-bar bg-danger"
+                  role="progressbar"
+                  style="width: {{ (summary.type_counts.high_usage / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"
+                ></div>
+              </div>
+              <small class="text-muted"
+                >{{ summary.type_counts.high_usage }} alerts</small
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="me-3">
+              <span class="badge bg-info p-2"
+                ><i class="bi bi-battery-half fs-5"></i
+              ></span>
+            </div>
+            <div>
+              <h6 class="mb-0">Low Usage</h6>
+              <div class="progress mt-1" style="height: 5px; width: 100%">
+                <div
+                  class="progress-bar bg-info"
+                  role="progressbar"
+                  style="width: {{ (summary.type_counts.low_usage / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"
+                ></div>
+              </div>
+              <small class="text-muted"
+                >{{ summary.type_counts.low_usage }} alerts</small
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="me-3">
+              <span class="badge bg-warning p-2"
+                ><i class="bi bi-speedometer fs-5"></i
+              ></span>
+            </div>
+            <div>
+              <h6 class="mb-0">Maintenance (Hours)</h6>
+              <div class="progress mt-1" style="height: 5px; width: 100%">
+                <div
+                  class="progress-bar bg-warning"
+                  role="progressbar"
+                  style="width: {{ (summary.type_counts.maintenance_hours / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"
+                ></div>
+              </div>
+              <small class="text-muted"
+                >{{ summary.type_counts.maintenance_hours }} alerts</small
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="me-3">
+              <span class="badge bg-primary p-2"
+                ><i class="bi bi-calendar-check fs-5"></i
+              ></span>
+            </div>
+            <div>
+              <h6 class="mb-0">Maintenance (Days)</h6>
+              <div class="progress mt-1" style="height: 5px; width: 100%">
+                <div
+                  class="progress-bar bg-primary"
+                  role="progressbar"
+                  style="width: {{ (summary.type_counts.maintenance_days / summary.total_alerts * 100) if summary.total_alerts else 0 }}%"
+                ></div>
+              </div>
+              <small class="text-muted"
+                >{{ summary.type_counts.maintenance_days }} alerts</small
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card mb-4" id="criticalAlerts">
+    <div class="card-header bg-danger text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>Critical Alerts ({{
+        critical_alerts|length }})
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      {% if critical_alerts %}
+      <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Asset ID</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Location</th>
+              <th>Created</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for alert in critical_alerts %}
+            <tr>
+              <td><strong>{{ alert.asset_id }}</strong></td>
+              <td>
+                {% if alert.alert_type == 'inactivity' %}
+                <span class="badge bg-secondary">Inactivity</span>
+                {% elif alert.alert_type == 'maintenance_hours' %}
+                <span class="badge bg-warning">Maintenance (Hours)</span>
+                {% elif alert.alert_type == 'maintenance_days' %}
+                <span class="badge bg-primary">Maintenance (Days)</span>
+                {% else %}
+                <span class="badge bg-secondary">{{ alert.alert_type }}</span>
+                {% endif %}
+              </td>
+              <td>{{ alert.description }}</td>
+              <td>{{ alert.location }}</td>
+              <td>{{ alert.created_at.strftime('%m/%d/%Y %H:%M') }}</td>
+              <td>
+                {% if alert.resolved %}
+                <span class="badge bg-success">Resolved</span>
+                {% elif alert.acknowledged %}
+                <span class="badge bg-warning">Acknowledged</span>
+                {% else %}
+                <span class="badge bg-danger">New</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <a href="#" class="btn btn-outline-secondary"
+                    ><i class="bi bi-check-circle"></i> Acknowledge </a
+                  ><a href="#" class="btn btn-outline-success"
+                    ><i class="bi bi-check-square"></i> Resolve
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-4">
+        <i class="bi bi-check-circle-fill text-success fs-1"></i>
+        <p class="mt-2">No critical alerts at this time.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card mb-4" id="warningAlerts">
+    <div class="card-header bg-warning text-dark">
+      <h5 class="mb-0">
+        <i class="bi bi-exclamation-circle-fill me-2"></i>Warning Alerts ({{
+        warning_alerts|length }})
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      {% if warning_alerts %}
+      <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Asset ID</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Location</th>
+              <th>Created</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for alert in warning_alerts %}
+            <tr>
+              <td><strong>{{ alert.asset_id }}</strong></td>
+              <td>
+                {% if alert.alert_type == 'inactivity' %}
+                <span class="badge bg-secondary">Inactivity</span>
+                {% elif alert.alert_type == 'high_usage' %}
+                <span class="badge bg-danger">High Usage</span>
+                {% elif alert.alert_type == 'maintenance_hours' %}
+                <span class="badge bg-warning">Maintenance (Hours)</span>
+                {% elif alert.alert_type == 'maintenance_days' %}
+                <span class="badge bg-primary">Maintenance (Days)</span>
+                {% else %}
+                <span class="badge bg-secondary">{{ alert.alert_type }}</span>
+                {% endif %}
+              </td>
+              <td>{{ alert.description }}</td>
+              <td>{{ alert.location }}</td>
+              <td>{{ alert.created_at.strftime('%m/%d/%Y %H:%M') }}</td>
+              <td>
+                {% if alert.resolved %}
+                <span class="badge bg-success">Resolved</span>
+                {% elif alert.acknowledged %}
+                <span class="badge bg-warning">Acknowledged</span>
+                {% else %}
+                <span class="badge bg-danger">New</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <a href="#" class="btn btn-outline-secondary"
+                    ><i class="bi bi-check-circle"></i> Acknowledge </a
+                  ><a href="#" class="btn btn-outline-success"
+                    ><i class="bi bi-check-square"></i> Resolve
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-4">
+        <i class="bi bi-check-circle-fill text-success fs-1"></i>
+        <p class="mt-2">No warning alerts at this time.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card mb-4" id="infoAlerts">
+    <div class="card-header bg-info text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-info-circle-fill me-2"></i>Info Alerts ({{
+        info_alerts|length }})
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      {% if info_alerts %}
+      <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Asset ID</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Location</th>
+              <th>Created</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for alert in info_alerts %}
+            <tr>
+              <td><strong>{{ alert.asset_id }}</strong></td>
+              <td>
+                {% if alert.alert_type == 'low_usage' %}
+                <span class="badge bg-info">Low Usage</span>
+                {% else %}
+                <span class="badge bg-secondary">{{ alert.alert_type }}</span>
+                {% endif %}
+              </td>
+              <td>{{ alert.description }}</td>
+              <td>{{ alert.location }}</td>
+              <td>{{ alert.created_at.strftime('%m/%d/%Y %H:%M') }}</td>
+              <td>
+                {% if alert.resolved %}
+                <span class="badge bg-success">Resolved</span>
+                {% elif alert.acknowledged %}
+                <span class="badge bg-warning">Acknowledged</span>
+                {% else %}
+                <span class="badge bg-danger">New</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <a href="#" class="btn btn-outline-secondary"
+                    ><i class="bi bi-check-circle"></i> Acknowledge </a
+                  ><a href="#" class="btn btn-outline-success"
+                    ><i class="bi bi-check-square"></i> Resolve
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-4">
+        <i class="bi bi-check-circle-fill text-success fs-1"></i>
+        <p class="mt-2">No info alerts at this time.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<script>
+  // Automatically scroll to alert sections based on URL hash
+  document.addEventListener("DOMContentLoaded", function () {
+    const hash = window.location.hash;
+    if (hash) {
+      const element = document.querySelector(hash);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  });
 </script>
 {% endblock %}

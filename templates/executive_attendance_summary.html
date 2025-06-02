@@ -1,226 +1,257 @@
-{% extends "master_unified.html" %}
-
-{% block extra_css %}
+{% extends "master_unified.html" %} {% block extra_css %}
 <style>
+  .executive-summary {
+    background: linear-gradient(135deg, #1a365d 0%, #2d5a87 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .summary-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+  }
+
+  .summary-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .summary-label {
+    opacity: 0.9;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .action-required {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .quick-stats {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .stat-row:last-child {
+    border-bottom: none;
+  }
+
+  .print-ready {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  @media print {
+    body {
+      margin: 0;
+    }
+    .no-print {
+      display: none !important;
+    }
     .executive-summary {
-        background: linear-gradient(135deg, #1a365d 0%, #2d5a87 100%);
-        color: white;
-        padding: 2rem;
-        border-radius: 12px;
-        margin-bottom: 2rem;
+      background: #1a365d !important;
     }
-    
-    .summary-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-top: 1.5rem;
-    }
-    
-    .summary-card {
-        background: rgba(255,255,255,0.1);
-        padding: 1.5rem;
-        border-radius: 8px;
-        text-align: center;
-        backdrop-filter: blur(10px);
-    }
-    
-    .summary-number {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-    
-    .summary-label {
-        opacity: 0.9;
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .action-required {
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-        color: white;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-    }
-    
-    .quick-stats {
-        background: white;
-        border-radius: 8px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 1.5rem;
-    }
-    
-    .stat-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid #f1f5f9;
-    }
-    
-    .stat-row:last-child {
-        border-bottom: none;
-    }
-    
     .print-ready {
-        background: white;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: none;
     }
-    
-    @media print {
-        body { margin: 0; }
-        .no-print { display: none !important; }
-        .executive-summary { background: #1a365d !important; }
-        .print-ready { box-shadow: none; }
-    }
+  }
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <div class="container-fluid px-4">
-    <!-- Executive Summary Header -->
-    <div class="executive-summary">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="mb-2">Executive Attendance Summary</h1>
-                <p class="mb-0 opacity-75">{{ summary.date }} - Generated {{ summary.timestamp }}</p>
-            </div>
-            <div class="col-md-4 text-end no-print">
-                <button class="btn btn-light me-2" onclick="window.print()">
-                    <i class="fas fa-print me-2"></i>Print Report
-                </button>
-                <a href="/attendance/matrix" class="btn btn-outline-light">
-                    <i class="fas fa-table me-2"></i>Full Matrix
-                </a>
-            </div>
-        </div>
-        
-        <div class="summary-grid">
-            <div class="summary-card">
-                <div class="summary-number">{{ summary.total_drivers }}</div>
-                <div class="summary-label">Total Drivers</div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-number text-success">{{ summary.on_time }}</div>
-                <div class="summary-label">On Time</div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-number text-warning">{{ summary.late_starts }}</div>
-                <div class="summary-label">Late Starts</div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-number text-danger">{{ summary.not_on_job }}</div>
-                <div class="summary-label">Not on Job</div>
-            </div>
-            <div class="summary-card">
-                <div class="summary-number">{{ "%.1f"|format(summary.total_hours) }}</div>
-                <div class="summary-label">Total Hours</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Action Required Alert -->
-    {% if summary.late_starts > 5 or summary.not_on_job > 3 %}
-    <div class="action-required">
-        <h5 class="mb-2"><i class="fas fa-exclamation-triangle me-2"></i>Immediate Action Required</h5>
-        <p class="mb-0">
-            {% if summary.late_starts > 5 %}{{ summary.late_starts }} drivers with late starts - review scheduling protocols. {% endif %}
-            {% if summary.not_on_job > 3 %}{{ summary.not_on_job }} drivers not on job sites - verify assignments. {% endif %}
+  <!-- Executive Summary Header -->
+  <div class="executive-summary">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h1 class="mb-2">Executive Attendance Summary</h1>
+        <p class="mb-0 opacity-75">
+          {{ summary.date }} - Generated {{ summary.timestamp }}
         </p>
-    </div>
-    {% endif %}
-
-    <!-- Quick Statistics -->
-    <div class="quick-stats">
-        <h5 class="mb-3">Performance Metrics</h5>
-        
-        <div class="stat-row">
-            <span><strong>On-Time Performance:</strong></span>
-            <span class="badge bg-{% if (summary.on_time / summary.total_drivers * 100) >= 90 %}success{% elif (summary.on_time / summary.total_drivers * 100) >= 75 %}warning{% else %}danger{% endif %} fs-6">
-                {{ "%.1f"|format(summary.on_time / summary.total_drivers * 100) if summary.total_drivers > 0 else 0 }}%
-            </span>
-        </div>
-        
-        <div class="stat-row">
-            <span><strong>Average Hours per Driver:</strong></span>
-            <span class="fw-bold">{{ "%.1f"|format(summary.total_hours / summary.total_drivers) if summary.total_drivers > 0 else 0 }} hours</span>
-        </div>
-        
-        <div class="stat-row">
-            <span><strong>Productivity Score:</strong></span>
-            <span class="badge bg-{% if (summary.total_hours / (summary.total_drivers * 8) * 100) >= 85 %}success{% elif (summary.total_hours / (summary.total_drivers * 8) * 100) >= 70 %}warning{% else %}danger{% endif %} fs-6">
-                {{ "%.1f"|format(summary.total_hours / (summary.total_drivers * 8) * 100) if summary.total_drivers > 0 else 0 }}%
-            </span>
-        </div>
+      </div>
+      <div class="col-md-4 text-end no-print">
+        <button class="btn btn-light me-2" onclick="window.print()">
+          <i class="fas fa-print me-2"></i>Print Report
+        </button>
+        <a href="/attendance/matrix" class="btn btn-outline-light">
+          <i class="fas fa-table me-2"></i>Full Matrix
+        </a>
+      </div>
     </div>
 
-    <!-- Detailed Breakdown -->
-    <div class="print-ready">
-        <h5 class="mb-3">Driver Status Details</h5>
-        
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Driver Name</th>
-                        <th>Status</th>
-                        <th>Hours Worked</th>
-                        <th>Division</th>
-                        <th>Job Assignment</th>
-                        <th>Clock In</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for driver in attendance_data %}
-                    <tr class="{% if driver.status_icon == '❌' %}table-danger{% elif driver.status_icon == '🕒' %}table-warning{% endif %}">
-                        <td class="fw-bold">{{ driver.employee_name }}</td>
-                        <td class="text-center fs-5">{{ driver.status_icon }}</td>
-                        <td class="{% if driver.hours_worked == 0 %}text-danger{% elif driver.hours_worked < 8 %}text-warning{% else %}text-success{% endif %} fw-bold">
-                            {{ "%.1f"|format(driver.hours_worked) }}
-                        </td>
-                        <td>{{ driver.division }}</td>
-                        <td>{{ driver.job_id }}</td>
-                        <td>{{ driver.clock_in }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-number">{{ summary.total_drivers }}</div>
+        <div class="summary-label">Total Drivers</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-number text-success">{{ summary.on_time }}</div>
+        <div class="summary-label">On Time</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-number text-warning">{{ summary.late_starts }}</div>
+        <div class="summary-label">Late Starts</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-number text-danger">{{ summary.not_on_job }}</div>
+        <div class="summary-label">Not on Job</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-number">
+          {{ "%.1f"|format(summary.total_hours) }}
         </div>
+        <div class="summary-label">Total Hours</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Required Alert -->
+  {% if summary.late_starts > 5 or summary.not_on_job > 3 %}
+  <div class="action-required">
+    <h5 class="mb-2">
+      <i class="fas fa-exclamation-triangle me-2"></i>Immediate Action Required
+    </h5>
+    <p class="mb-0">
+      {% if summary.late_starts > 5 %}{{ summary.late_starts }} drivers with
+      late starts - review scheduling protocols. {% endif %} {% if
+      summary.not_on_job > 3 %}{{ summary.not_on_job }} drivers not on job sites
+      - verify assignments. {% endif %}
+    </p>
+  </div>
+  {% endif %}
+
+  <!-- Quick Statistics -->
+  <div class="quick-stats">
+    <h5 class="mb-3">Performance Metrics</h5>
+
+    <div class="stat-row">
+      <span><strong>On-Time Performance:</strong></span>
+      <span
+        class="badge bg-{% if (summary.on_time / summary.total_drivers * 100) >= 90 %}success{% elif (summary.on_time / summary.total_drivers * 100) >= 75 %}warning{% else %}danger{% endif %} fs-6"
+      >
+        {{ "%.1f"|format(summary.on_time / summary.total_drivers * 100) if
+        summary.total_drivers > 0 else 0 }}%
+      </span>
     </div>
 
-    <!-- Executive Actions -->
-    <div class="row mt-4 no-print">
-        <div class="col-12">
-            <div class="d-flex gap-3 flex-wrap">
-                <a href="/attendance/export/pdf/all/{{ summary.date }}" class="btn btn-danger">
-                    <i class="fas fa-file-pdf me-2"></i>Export PDF
-                </a>
-                <a href="/attendance/export/xlsx/all/{{ summary.date }}" class="btn btn-success">
-                    <i class="fas fa-file-excel me-2"></i>Export Excel
-                </a>
-                <a href="/attendance/matrix" class="btn btn-primary">
-                    <i class="fas fa-table me-2"></i>Full Matrix View
-                </a>
-                <a href="/driver-management" class="btn btn-info">
-                    <i class="fas fa-users me-2"></i>Driver Management
-                </a>
-            </div>
-        </div>
+    <div class="stat-row">
+      <span><strong>Average Hours per Driver:</strong></span>
+      <span class="fw-bold"
+        >{{ "%.1f"|format(summary.total_hours / summary.total_drivers) if
+        summary.total_drivers > 0 else 0 }} hours</span
+      >
     </div>
+
+    <div class="stat-row">
+      <span><strong>Productivity Score:</strong></span>
+      <span
+        class="badge bg-{% if (summary.total_hours / (summary.total_drivers * 8) * 100) >= 85 %}success{% elif (summary.total_hours / (summary.total_drivers * 8) * 100) >= 70 %}warning{% else %}danger{% endif %} fs-6"
+      >
+        {{ "%.1f"|format(summary.total_hours / (summary.total_drivers * 8) *
+        100) if summary.total_drivers > 0 else 0 }}%
+      </span>
+    </div>
+  </div>
+
+  <!-- Detailed Breakdown -->
+  <div class="print-ready">
+    <h5 class="mb-3">Driver Status Details</h5>
+
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>Driver Name</th>
+            <th>Status</th>
+            <th>Hours Worked</th>
+            <th>Division</th>
+            <th>Job Assignment</th>
+            <th>Clock In</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for driver in attendance_data %}
+          <tr
+            class="{% if driver.status_icon == '❌' %}table-danger{% elif driver.status_icon == '🕒' %}table-warning{% endif %}"
+          >
+            <td class="fw-bold">{{ driver.employee_name }}</td>
+            <td class="text-center fs-5">{{ driver.status_icon }}</td>
+            <td
+              class="{% if driver.hours_worked == 0 %}text-danger{% elif driver.hours_worked < 8 %}text-warning{% else %}text-success{% endif %} fw-bold"
+            >
+              {{ "%.1f"|format(driver.hours_worked) }}
+            </td>
+            <td>{{ driver.division }}</td>
+            <td>{{ driver.job_id }}</td>
+            <td>{{ driver.clock_in }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Executive Actions -->
+  <div class="row mt-4 no-print">
+    <div class="col-12">
+      <div class="d-flex gap-3 flex-wrap">
+        <a
+          href="/attendance/export/pdf/all/{{ summary.date }}"
+          class="btn btn-danger"
+        >
+          <i class="fas fa-file-pdf me-2"></i>Export PDF
+        </a>
+        <a
+          href="/attendance/export/xlsx/all/{{ summary.date }}"
+          class="btn btn-success"
+        >
+          <i class="fas fa-file-excel me-2"></i>Export Excel
+        </a>
+        <a href="/attendance/matrix" class="btn btn-primary">
+          <i class="fas fa-table me-2"></i>Full Matrix View
+        </a>
+        <a href="/driver-management" class="btn btn-info">
+          <i class="fas fa-users me-2"></i>Driver Management
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-// Auto-refresh every 10 minutes for live updates
-setInterval(function() {
+  // Auto-refresh every 10 minutes for live updates
+  setInterval(function () {
     if (!document.hidden) {
-        window.location.reload();
+      window.location.reload();
     }
-}, 600000);
+  }, 600000);
 </script>
 {% endblock %}

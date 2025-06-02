@@ -1,65 +1,324 @@
-{% extends "base.html" %}
-
-{% block title %}Predictive Maintenance - TRAXOVO{% endblock %}
-
-{% block head %}
+{% extends "base.html" %} {% block title %}Predictive Maintenance - TRAXOVO{%
+endblock %} {% block head %}
 <style>
-.maintenance-card {
-background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-color: white;
-border-radius: 15px;
-transition: all 0.3s ease;
-}
+  .maintenance-card {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    color: white;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+  }
 
-.maintenance-card:hover {
-transform: translateY(-5px);
-box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
-}
+  .maintenance-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
+  }
 
-.risk-high { border-left: 5px solid #dc3545; }
-.risk-medium { border-left: 5px solid #ffc107; }
-.risk-low { border-left: 5px solid #28a745; }
+  .risk-high {
+    border-left: 5px solid #dc3545;
+  }
+  .risk-medium {
+    border-left: 5px solid #ffc107;
+  }
+  .risk-low {
+    border-left: 5px solid #28a745;
+  }
 
-.maintenance-timeline {
-position: relative;
-padding-left: 30px;
-}
+  .maintenance-timeline {
+    position: relative;
+    padding-left: 30px;
+  }
 
-.maintenance-timeline::before {
-content: '';
-position: absolute;
-left: 15px;
-top: 0;
-bottom: 0;
-width: 2px;
-background: #007bff;
-}
+  .maintenance-timeline::before {
+    content: "";
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #007bff;
+  }
 
-.timeline-item {
-position: relative;
-padding: 1rem 0;
-}
+  .timeline-item {
+    position: relative;
+    padding: 1rem 0;
+  }
 
-.timeline-item::before {
-content: '';
-position: absolute;
-left: -19px;
-top: 1.5rem;
-width: 10px;
-height: 10px;
-border-radius: 50%;
-background: #007bff;
-border: 3px solid white;
-box-shadow: 0 0 0 3px #007bff;
-}
+  .timeline-item::before {
+    content: "";
+    position: absolute;
+    left: -19px;
+    top: 1.5rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #007bff;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px #007bff;
+  }
 </style>
-{% endblock %}
-
-{% block content %}
-<div class="container-fluid"><div class="row"><div class="col-12"><div class="d-sm-flex align-items-center justify-content-between mb-4"><h1 class="h3 mb-0 text-gray-800">🔧 Predictive Maintenance</h1><div class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-wrench fa-sm text-white-50"></i> AI-Powered Maintenance
-</div></div><div class="row mb-4"><div class="col-xl-3 col-md-6 mb-4"><div class="card border-left-success shadow h-100 py-2"><div class="card-body"><div class="row no-gutters align-items-center"><div class="col mr-2"><div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-Equipment Uptime</div><div class="h5 mb-0 font-weight-bold text-gray-800">{{ "%.1f"|format(maintenance_data.equipment_uptime_rate * 100) }}%</div></div><div class="col-auto"><i class="fas fa-chart-line fa-2x text-gray-300"></i></div></div></div></div></div><div class="col-xl-3 col-md-6 mb-4"><div class="card border-left-warning shadow h-100 py-2"><div class="card-body"><div class="row no-gutters align-items-center"><div class="col mr-2"><div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-Monthly Maintenance Cost</div><div class="h5 mb-0 font-weight-bold text-gray-800">${{ "{:,}".format(maintenance_data.maintenance_cost_monthly) }}</div></div><div class="col-auto"><i class="fas fa-dollar-sign fa-2x text-gray-300"></i></div></div></div></div></div><div class="col-xl-3 col-md-6 mb-4"><div class="card border-left-danger shadow h-100 py-2"><div class="card-body"><div class="row no-gutters align-items-center"><div class="col mr-2"><div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-High Risk Assets</div><div class="h5 mb-0 font-weight-bold text-gray-800">{{ maintenance_data.get('high_risk_assets', 108) }}</div></div><div class="col-auto"><i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i></div></div></div></div></div><div class="col-xl-3 col-md-6 mb-4"><div class="card border-left-info shadow h-100 py-2"><div class="card-body"><div class="row no-gutters align-items-center"><div class="col mr-2"><div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-Predicted Savings</div><div class="h5 mb-0 font-weight-bold text-gray-800">${{ "{:,}".format(85000) }}/mo</div></div><div class="col-auto"><i class="fas fa-piggy-bank fa-2x text-gray-300"></i></div></div></div></div></div></div><div class="row"><div class="col-xl-8 col-lg-7"><div class="card shadow mb-4"><div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">AI Maintenance Predictions</h6></div><div class="card-body"><div class="table-responsive"><table class="table table-bordered"><thead><tr><th>Asset ID</th><th>Type</th><th>Risk Level</th><th>Predicted Issue</th><th>Days Until Failure</th><th>Action</th></tr></thead><tbody><tr class="risk-high"><td><strong>EX-1045</strong></td><td>Excavator</td><td><span class="badge badge-danger">High</span></td><td>Hydraulic System</td><td><strong>3-5 days</strong></td><td><button class="btn btn-sm btn-danger">Schedule Now</button></td></tr><tr class="risk-high"><td><strong>DZ-2089</strong></td><td>Dozer</td><td><span class="badge badge-danger">High</span></td><td>Track Tension</td><td><strong>7-10 days</strong></td><td><button class="btn btn-sm btn-danger">Schedule Now</button></td></tr><tr class="risk-medium"><td><strong>LD-3012</strong></td><td>Loader</td><td><span class="badge badge-warning">Medium</span></td><td>Engine Oil</td><td>15-20 days</td><td><button class="btn btn-sm btn-warning">Plan Maintenance</button></td></tr><tr class="risk-medium"><td><strong>GR-4078</strong></td><td>Grader</td><td><span class="badge badge-warning">Medium</span></td><td>Blade Wear</td><td>25-30 days</td><td><button class="btn btn-sm btn-warning">Plan Maintenance</button></td></tr><tr class="risk-low"><td><strong>TR-5045</strong></td><td>Truck</td><td><span class="badge badge-success">Low</span></td><td>Brake Pads</td><td>45-60 days</td><td><button class="btn btn-sm btn-success">Monitor</button></td></tr></tbody></table></div></div></div></div><div class="col-xl-4 col-lg-5"><div class="card shadow mb-4"><div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Maintenance Schedule</h6></div><div class="card-body"><div class="maintenance-timeline"><div class="timeline-item"><div class="d-flex justify-content-between"><strong>Today</strong><span class="text-muted">May 31</span></div><p class="mb-0 text-muted">Regular inspections scheduled</p></div><div class="timeline-item"><div class="d-flex justify-content-between"><strong>Emergency</strong><span class="text-danger">June 3</span></div><p class="mb-0">EX-1045 Hydraulic repair</p></div><div class="timeline-item"><div class="d-flex justify-content-between"><strong>Urgent</strong><span class="text-warning">June 7</span></div><p class="mb-0">DZ-2089 Track maintenance</p></div><div class="timeline-item"><div class="d-flex justify-content-between"><strong>Planned</strong><span class="text-info">June 15</span></div><p class="mb-0">LD-3012 Oil change</p></div><div class="timeline-item"><div class="d-flex justify-content-between"><strong>Routine</strong><span class="text-success">June 25</span></div><p class="mb-0">GR-4078 Blade inspection</p></div></div></div></div><div class="card shadow"><div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Cost Savings</h6></div><div class="card-body"><div class="mb-3"><div class="small mb-1">Preventive vs Reactive</div><div class="progress"><div class="progress-bar bg-success" style="width: 85%">85% Preventive</div></div></div><div class="row text-center"><div class="col-6"><div class="border-right"><h5 class="text-success">${{ "{:,}".format(125000) }}</h5><small class="text-muted">Saved YTD</small></div></div><div class="col-6"><h5 class="text-danger">${{ "{:,}".format(32000) }}</h5><small class="text-muted">Emergency Costs</small></div></div></div></div></div></div></div></div></div>
+{% endblock %} {% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">🔧 Predictive Maintenance</h1>
+        <div class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+          <i class="fas fa-wrench fa-sm text-white-50"></i> AI-Powered
+          Maintenance
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+          <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-success text-uppercase mb-1"
+                  >
+                    Equipment Uptime
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    {{ "%.1f"|format(maintenance_data.equipment_uptime_rate *
+                    100) }}%
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+          <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-warning text-uppercase mb-1"
+                  >
+                    Monthly Maintenance Cost
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    ${{ "{:,}".format(maintenance_data.maintenance_cost_monthly)
+                    }}
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+          <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-danger text-uppercase mb-1"
+                  >
+                    High Risk Assets
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    {{ maintenance_data.get('high_risk_assets', 108) }}
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i
+                    class="fas fa-exclamation-triangle fa-2x text-gray-300"
+                  ></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+          <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div
+                    class="text-xs font-weight-bold text-info text-uppercase mb-1"
+                  >
+                    Predicted Savings
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    ${{ "{:,}".format(85000) }}/mo
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-piggy-bank fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xl-8 col-lg-7">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">
+                AI Maintenance Predictions
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Asset ID</th>
+                      <th>Type</th>
+                      <th>Risk Level</th>
+                      <th>Predicted Issue</th>
+                      <th>Days Until Failure</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="risk-high">
+                      <td><strong>EX-1045</strong></td>
+                      <td>Excavator</td>
+                      <td><span class="badge badge-danger">High</span></td>
+                      <td>Hydraulic System</td>
+                      <td><strong>3-5 days</strong></td>
+                      <td>
+                        <button class="btn btn-sm btn-danger">
+                          Schedule Now
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="risk-high">
+                      <td><strong>DZ-2089</strong></td>
+                      <td>Dozer</td>
+                      <td><span class="badge badge-danger">High</span></td>
+                      <td>Track Tension</td>
+                      <td><strong>7-10 days</strong></td>
+                      <td>
+                        <button class="btn btn-sm btn-danger">
+                          Schedule Now
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="risk-medium">
+                      <td><strong>LD-3012</strong></td>
+                      <td>Loader</td>
+                      <td><span class="badge badge-warning">Medium</span></td>
+                      <td>Engine Oil</td>
+                      <td>15-20 days</td>
+                      <td>
+                        <button class="btn btn-sm btn-warning">
+                          Plan Maintenance
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="risk-medium">
+                      <td><strong>GR-4078</strong></td>
+                      <td>Grader</td>
+                      <td><span class="badge badge-warning">Medium</span></td>
+                      <td>Blade Wear</td>
+                      <td>25-30 days</td>
+                      <td>
+                        <button class="btn btn-sm btn-warning">
+                          Plan Maintenance
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="risk-low">
+                      <td><strong>TR-5045</strong></td>
+                      <td>Truck</td>
+                      <td><span class="badge badge-success">Low</span></td>
+                      <td>Brake Pads</td>
+                      <td>45-60 days</td>
+                      <td>
+                        <button class="btn btn-sm btn-success">Monitor</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4 col-lg-5">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">
+                Maintenance Schedule
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="maintenance-timeline">
+                <div class="timeline-item">
+                  <div class="d-flex justify-content-between">
+                    <strong>Today</strong><span class="text-muted">May 31</span>
+                  </div>
+                  <p class="mb-0 text-muted">Regular inspections scheduled</p>
+                </div>
+                <div class="timeline-item">
+                  <div class="d-flex justify-content-between">
+                    <strong>Emergency</strong
+                    ><span class="text-danger">June 3</span>
+                  </div>
+                  <p class="mb-0">EX-1045 Hydraulic repair</p>
+                </div>
+                <div class="timeline-item">
+                  <div class="d-flex justify-content-between">
+                    <strong>Urgent</strong
+                    ><span class="text-warning">June 7</span>
+                  </div>
+                  <p class="mb-0">DZ-2089 Track maintenance</p>
+                </div>
+                <div class="timeline-item">
+                  <div class="d-flex justify-content-between">
+                    <strong>Planned</strong
+                    ><span class="text-info">June 15</span>
+                  </div>
+                  <p class="mb-0">LD-3012 Oil change</p>
+                </div>
+                <div class="timeline-item">
+                  <div class="d-flex justify-content-between">
+                    <strong>Routine</strong
+                    ><span class="text-success">June 25</span>
+                  </div>
+                  <p class="mb-0">GR-4078 Blade inspection</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card shadow">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Cost Savings</h6>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <div class="small mb-1">Preventive vs Reactive</div>
+                <div class="progress">
+                  <div class="progress-bar bg-success" style="width: 85%">
+                    85% Preventive
+                  </div>
+                </div>
+              </div>
+              <div class="row text-center">
+                <div class="col-6">
+                  <div class="border-right">
+                    <h5 class="text-success">${{ "{:,}".format(125000) }}</h5>
+                    <small class="text-muted">Saved YTD</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <h5 class="text-danger">${{ "{:,}".format(32000) }}</h5>
+                  <small class="text-muted">Emergency Costs</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

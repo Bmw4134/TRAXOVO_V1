@@ -1,14 +1,14 @@
 {
-    "tabs": [
-        {
-            "label": "Fleet Analytics",
-            "path": "/fleet_analytics",
-            "handler": "fleet_analytics_view"
-        },
-        {
-            "label": "Asset Profitability",
-            "path": "/asset_profit",
-            "handler": "asset_profit_view"
-        }
-    ]
+  "tabs": [
+    {
+      "label": "Fleet Analytics",
+      "path": "/fleet_analytics",
+      "handler": "fleet_analytics_view"
+    },
+    {
+      "label": "Asset Profitability",
+      "path": "/asset_profit",
+      "handler": "asset_profit_view"
+    }
+  ]
 }

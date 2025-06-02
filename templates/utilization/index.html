@@ -1,231 +1,280 @@
-{% extends 'base.html' %}
-
-{% block title %}{{ title }}{% endblock %}
-
-{% block content %}
+{% extends 'base.html' %} {% block title %}{{ title }}{% endblock %} {% block
+content %}
 <div class="container-fluid p-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3">Equipment Utilization Dashboard</h1>
-            <p class="text-muted">Track and analyze equipment utilization metrics</p>
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="h3">Equipment Utilization Dashboard</h1>
+      <p class="text-muted">Track and analyze equipment utilization metrics</p>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <!-- Summary Cards -->
+    <div class="col-12 col-md-6 col-lg-3 mb-3">
+      <div class="card stat-card bg-primary bg-opacity-25">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col-8">
+              <div class="stat-value" id="avg-utilization">--</div>
+              <div class="stat-label">Average Utilization</div>
+            </div>
+            <div class="col-4 text-end">
+              <i class="bi bi-bar-chart fs-1 opacity-75"></i>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <div class="row mb-4">
-        <!-- Summary Cards -->
-        <div class="col-12 col-md-6 col-lg-3 mb-3">
-            <div class="card stat-card bg-primary bg-opacity-25">
-                <div class="card-body p-3">
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="stat-value" id="avg-utilization">--</div>
-                            <div class="stat-label">Average Utilization</div>
-                        </div>
-                        <div class="col-4 text-end">
-                            <i class="bi bi-bar-chart fs-1 opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
+    <div class="col-12 col-md-6 col-lg-3 mb-3">
+      <div class="card stat-card bg-success bg-opacity-25">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col-8">
+              <div class="stat-value" id="active-equipment">--</div>
+              <div class="stat-label">Active Equipment</div>
             </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-lg-3 mb-3">
-            <div class="card stat-card bg-success bg-opacity-25">
-                <div class="card-body p-3">
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="stat-value" id="active-equipment">--</div>
-                            <div class="stat-label">Active Equipment</div>
-                        </div>
-                        <div class="col-4 text-end">
-                            <i class="bi bi-check-circle fs-1 opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-4 text-end">
+              <i class="bi bi-check-circle fs-1 opacity-75"></i>
             </div>
+          </div>
         </div>
-
-        <div class="col-12 col-md-6 col-lg-3 mb-3">
-            <div class="card stat-card bg-warning bg-opacity-25">
-                <div class="card-body p-3">
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="stat-value" id="idle-time">--</div>
-                            <div class="stat-label">Idle Time %</div>
-                        </div>
-                        <div class="col-4 text-end">
-                            <i class="bi bi-hourglass-split fs-1 opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-lg-3 mb-3">
-            <div class="card stat-card bg-info bg-opacity-25">
-                <div class="card-body p-3">
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="stat-value" id="total-engine-hours">--</div>
-                            <div class="stat-label">Total Engine Hours</div>
-                        </div>
-                        <div class="col-4 text-end">
-                            <i class="bi bi-clock-history fs-1 opacity-75"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
 
-    <div class="row mb-4">
-        <!-- Utilization Chart -->
-        <div class="col-12 col-lg-8 mb-3">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Utilization by Equipment Category</h5>
-                </div>
-                <div class="card-body">
-                    <div style="height: 300px" id="utilization-chart">
-                        <div class="d-flex h-100 justify-content-center align-items-center">
-                            <p class="text-muted">Loading utilization data...</p>
-                        </div>
-                    </div>
-                </div>
+    <div class="col-12 col-md-6 col-lg-3 mb-3">
+      <div class="card stat-card bg-warning bg-opacity-25">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col-8">
+              <div class="stat-value" id="idle-time">--</div>
+              <div class="stat-label">Idle Time %</div>
             </div>
-        </div>
-
-        <!-- Efficiency Metrics -->
-        <div class="col-12 col-lg-4 mb-3">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Efficiency Metrics</h5>
-                </div>
-                <div class="card-body">
-                    <div style="height: 300px" id="efficiency-chart">
-                        <div class="d-flex h-100 justify-content-center align-items-center">
-                            <p class="text-muted">Loading efficiency data...</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-4 text-end">
+              <i class="bi bi-hourglass-split fs-1 opacity-75"></i>
             </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <div class="row mb-4">
-        <!-- Equipment Table -->
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Equipment Utilization Details</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Equipment ID</th>
-                                    <th>Type</th>
-                                    <th>Location</th>
-                                    <th>Last Active</th>
-                                    <th>Engine Hours</th>
-                                    <th>Utilization %</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="equipment-table-body">
-                                <tr>
-                                    <td colspan="7" class="text-center">Loading equipment data...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    <div class="col-12 col-md-6 col-lg-3 mb-3">
+      <div class="card stat-card bg-info bg-opacity-25">
+        <div class="card-body p-3">
+          <div class="row">
+            <div class="col-8">
+              <div class="stat-value" id="total-engine-hours">--</div>
+              <div class="stat-label">Total Engine Hours</div>
             </div>
+            <div class="col-4 text-end">
+              <i class="bi bi-clock-history fs-1 opacity-75"></i>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
+
+  <div class="row mb-4">
+    <!-- Utilization Chart -->
+    <div class="col-12 col-lg-8 mb-3">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Utilization by Equipment Category</h5>
+        </div>
+        <div class="card-body">
+          <div style="height: 300px" id="utilization-chart">
+            <div class="d-flex h-100 justify-content-center align-items-center">
+              <p class="text-muted">Loading utilization data...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Efficiency Metrics -->
+    <div class="col-12 col-lg-4 mb-3">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Efficiency Metrics</h5>
+        </div>
+        <div class="card-body">
+          <div style="height: 300px" id="efficiency-chart">
+            <div class="d-flex h-100 justify-content-center align-items-center">
+              <p class="text-muted">Loading efficiency data...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <!-- Equipment Table -->
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Equipment Utilization Details</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Equipment ID</th>
+                  <th>Type</th>
+                  <th>Location</th>
+                  <th>Last Active</th>
+                  <th>Engine Hours</th>
+                  <th>Utilization %</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="equipment-table-body">
+                <tr>
+                  <td colspan="7" class="text-center">
+                    Loading equipment data...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Placeholder for actual data load
-    document.addEventListener('DOMContentLoaded', function() {
-        // Display coming soon message
-        document.getElementById('avg-utilization').textContent = "72.5%";
-        document.getElementById('active-equipment').textContent = "356";
-        document.getElementById('idle-time').textContent = "18.2%";
-        document.getElementById('total-engine-hours').textContent = "14,523";
-        
-        // Create placeholder chart
-        const ctx = document.getElementById('utilization-chart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Excavators', 'Dozers', 'Loaders', 'Trucks', 'Other'],
-                datasets: [{
-                    label: 'Utilization %',
-                    data: [81.3, 76.8, 68.4, 65.1, 58.7],
-                    backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(54, 162, 235, 0.6)', 
-                                    'rgba(255, 206, 86, 0.6)', 'rgba(153, 102, 255, 0.6)',
-                                    'rgba(255, 159, 64, 0.6)'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                }
-            }
-        });
-        
-        // Create placeholder efficiency chart
-        const effCtx = document.getElementById('efficiency-chart').getContext('2d');
-        new Chart(effCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Optimal', 'Average', 'Below Average'],
-                datasets: [{
-                    data: [45, 35, 20],
-                    backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 206, 86, 0.6)', 'rgba(255, 99, 132, 0.6)'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-        
-        // Populate table with placeholder data
-        const tableBody = document.getElementById('equipment-table-body');
-        tableBody.innerHTML = ''; // Clear loading message
-        
-        const sampleData = [
-            { id: 'EX-81', type: 'Excavator', location: 'Site A', lastActive: '2025-05-15', engineHours: 1250, utilization: 85, status: 'Active' },
-            { id: 'DT-11', type: 'Dozer', location: 'Site B', lastActive: '2025-05-15', engineHours: 980, utilization: 78, status: 'Active' },
-            { id: 'LP-116', type: 'Loader', location: 'Site C', lastActive: '2025-05-14', engineHours: 1430, utilization: 72, status: 'Idle' },
-            { id: 'PT-276', type: 'Pickup Truck', location: 'Site A', lastActive: '2025-05-15', engineHours: 3250, utilization: 65, status: 'Active' },
-            { id: 'ME-58', type: 'Mini Excavator', location: 'Site D', lastActive: '2025-05-13', engineHours: 780, utilization: 58, status: 'Idle' }
-        ];
-        
-        sampleData.forEach(item => {
-            const row = document.createElement('tr');
-            
-            // Add status class
-            if (item.status === 'Active') {
-                row.classList.add('table-success');
-            } else if (item.status === 'Idle') {
-                row.classList.add('table-warning');
-            }
-            
-            row.innerHTML = `
+  // Placeholder for actual data load
+  document.addEventListener("DOMContentLoaded", function () {
+    // Display coming soon message
+    document.getElementById("avg-utilization").textContent = "72.5%";
+    document.getElementById("active-equipment").textContent = "356";
+    document.getElementById("idle-time").textContent = "18.2%";
+    document.getElementById("total-engine-hours").textContent = "14,523";
+
+    // Create placeholder chart
+    const ctx = document.getElementById("utilization-chart").getContext("2d");
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Excavators", "Dozers", "Loaders", "Trucks", "Other"],
+        datasets: [
+          {
+            label: "Utilization %",
+            data: [81.3, 76.8, 68.4, 65.1, 58.7],
+            backgroundColor: [
+              "rgba(75, 192, 192, 0.6)",
+              "rgba(54, 162, 235, 0.6)",
+              "rgba(255, 206, 86, 0.6)",
+              "rgba(153, 102, 255, 0.6)",
+              "rgba(255, 159, 64, 0.6)",
+            ],
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+          },
+        },
+      },
+    });
+
+    // Create placeholder efficiency chart
+    const effCtx = document.getElementById("efficiency-chart").getContext("2d");
+    new Chart(effCtx, {
+      type: "doughnut",
+      data: {
+        labels: ["Optimal", "Average", "Below Average"],
+        datasets: [
+          {
+            data: [45, 35, 20],
+            backgroundColor: [
+              "rgba(75, 192, 192, 0.6)",
+              "rgba(255, 206, 86, 0.6)",
+              "rgba(255, 99, 132, 0.6)",
+            ],
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+      },
+    });
+
+    // Populate table with placeholder data
+    const tableBody = document.getElementById("equipment-table-body");
+    tableBody.innerHTML = ""; // Clear loading message
+
+    const sampleData = [
+      {
+        id: "EX-81",
+        type: "Excavator",
+        location: "Site A",
+        lastActive: "2025-05-15",
+        engineHours: 1250,
+        utilization: 85,
+        status: "Active",
+      },
+      {
+        id: "DT-11",
+        type: "Dozer",
+        location: "Site B",
+        lastActive: "2025-05-15",
+        engineHours: 980,
+        utilization: 78,
+        status: "Active",
+      },
+      {
+        id: "LP-116",
+        type: "Loader",
+        location: "Site C",
+        lastActive: "2025-05-14",
+        engineHours: 1430,
+        utilization: 72,
+        status: "Idle",
+      },
+      {
+        id: "PT-276",
+        type: "Pickup Truck",
+        location: "Site A",
+        lastActive: "2025-05-15",
+        engineHours: 3250,
+        utilization: 65,
+        status: "Active",
+      },
+      {
+        id: "ME-58",
+        type: "Mini Excavator",
+        location: "Site D",
+        lastActive: "2025-05-13",
+        engineHours: 780,
+        utilization: 58,
+        status: "Idle",
+      },
+    ];
+
+    sampleData.forEach((item) => {
+      const row = document.createElement("tr");
+
+      // Add status class
+      if (item.status === "Active") {
+        row.classList.add("table-success");
+      } else if (item.status === "Idle") {
+        row.classList.add("table-warning");
+      }
+
+      row.innerHTML = `
                 <td>${item.id}</td>
                 <td>${item.type}</td>
                 <td>${item.location}</td>
@@ -234,9 +283,9 @@
                 <td>${item.utilization}%</td>
                 <td>${item.status}</td>
             `;
-            
-            tableBody.appendChild(row);
-        });
+
+      tableBody.appendChild(row);
     });
+  });
 </script>
 {% endblock %}

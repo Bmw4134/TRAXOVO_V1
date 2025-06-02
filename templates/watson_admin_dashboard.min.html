@@ -1,168 +1,388 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Watson Admin Command Center - TRAXOVO</title><style>
-body {
-margin: 0;
-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-color: #f2f2f7;
-min-height: 100vh;
-}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Watson Admin Command Center - TRAXOVO</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(
+          135deg,
+          #1a1a2e 0%,
+          #16213e 50%,
+          #0f3460 100%
+        );
+        color: #f2f2f7;
+        min-height: 100vh;
+      }
 
-.admin-header {
-text-align: center;
-padding: 40px 20px;
-border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
+      .admin-header {
+        text-align: center;
+        padding: 40px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
 
-.admin-title {
-font-size: 42px;
-font-weight: 700;
-margin: 0 0 16px 0;
-background: linear-gradient(135deg, #ff6b35, #f7931e, #ffd700);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-}
+      .admin-title {
+        font-size: 42px;
+        font-weight: 700;
+        margin: 0 0 16px 0;
+        background: linear-gradient(135deg, #ff6b35, #f7931e, #ffd700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
 
-.admin-subtitle {
-font-size: 18px;
-color: #8e8e93;
-margin: 0;
-}
+      .admin-subtitle {
+        font-size: 18px;
+        color: #8e8e93;
+        margin: 0;
+      }
 
-.modules-container {
-max-width: 1400px;
-margin: 0 auto;
-padding: 40px 20px;
-}
+      .modules-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
 
-.module-category {
-margin-bottom: 50px;
-}
+      .module-category {
+        margin-bottom: 50px;
+      }
 
-.category-header {
-font-size: 24px;
-font-weight: 600;
-margin-bottom: 24px;
-color: #007AFF;
-border-left: 4px solid #007AFF;
-padding-left: 16px;
-}
+      .category-header {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 24px;
+        color: #007aff;
+        border-left: 4px solid #007aff;
+        padding-left: 16px;
+      }
 
-.modules-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-gap: 24px;
-}
+      .modules-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+      }
 
-.module-card {
-background: rgba(255, 255, 255, 0.05);
-border: 1px solid rgba(255, 255, 255, 0.1);
-border-radius: 16px;
-padding: 24px;
-transition: all 0.3s ease;
-cursor: pointer;
-position: relative;
-overflow: hidden;
-}
+      .module-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
 
-.module-card:hover {
-transform: translateY(-4px);
-background: rgba(255, 255, 255, 0.08);
-border-color: rgba(0, 122, 255, 0.3);
-}
+      .module-card:hover {
+        transform: translateY(-4px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(0, 122, 255, 0.3);
+      }
 
-.module-icon {
-font-size: 32px;
-margin-bottom: 16px;
-display: block;
-}
+      .module-icon {
+        font-size: 32px;
+        margin-bottom: 16px;
+        display: block;
+      }
 
-.module-title {
-font-size: 18px;
-font-weight: 600;
-margin: 0 0 8px 0;
-color: #fff;
-}
+      .module-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 8px 0;
+        color: #fff;
+      }
 
-.module-description {
-font-size: 14px;
-color: #8e8e93;
-margin: 0 0 16px 0;
-line-height: 1.4;
-}
+      .module-description {
+        font-size: 14px;
+        color: #8e8e93;
+        margin: 0 0 16px 0;
+        line-height: 1.4;
+      }
 
-.module-route {
-font-size: 12px;
-color: #007AFF;
-font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
-background: rgba(0, 122, 255, 0.1);
-padding: 4px 8px;
-border-radius: 4px;
-display: inline-block;
-}
+      .module-route {
+        font-size: 12px;
+        color: #007aff;
+        font-family: "SF Mono", "Monaco", "Cascadia Code", monospace;
+        background: rgba(0, 122, 255, 0.1);
+        padding: 4px 8px;
+        border-radius: 4px;
+        display: inline-block;
+      }
 
-.secret-badge {
-position: absolute;
-top: 12px;
-right: 12px;
-background: linear-gradient(135deg, #ff3b30, #ff9500);
-color: white;
-font-size: 10px;
-font-weight: 600;
-padding: 4px 8px;
-border-radius: 12px;
-text-transform: uppercase;
-}
+      .secret-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: linear-gradient(135deg, #ff3b30, #ff9500);
+        color: white;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 12px;
+        text-transform: uppercase;
+      }
 
-.watson-only {
-border-left: 4px solid #ff6b35;
-}
+      .watson-only {
+        border-left: 4px solid #ff6b35;
+      }
 
-.back-button {
-position: fixed;
-top: 20px;
-left: 20px;
-background: rgba(0, 122, 255, 0.2);
-border: 1px solid rgba(0, 122, 255, 0.3);
-color: #007AFF;
-padding: 12px 24px;
-border-radius: 8px;
-text-decoration: none;
-font-weight: 500;
-transition: all 0.3s ease;
-}
+      .back-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: rgba(0, 122, 255, 0.2);
+        border: 1px solid rgba(0, 122, 255, 0.3);
+        color: #007aff;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
 
-.back-button:hover {
-background: rgba(0, 122, 255, 0.3);
-transform: translateY(-2px);
-}
+      .back-button:hover {
+        background: rgba(0, 122, 255, 0.3);
+        transform: translateY(-2px);
+      }
 
-@media (max-width: 768px) {
-.modules-grid {
-grid-template-columns: 1fr;
-}
+      @media (max-width: 768px) {
+        .modules-grid {
+          grid-template-columns: 1fr;
+        }
 
-.admin-title {
-font-size: 28px;
-}
-}
-</style></head><body><a href="/" class="back-button">← Dashboard</a><div class="admin-header"><h1 class="admin-title">Watson Admin Command Center</h1><p class="admin-subtitle">Advanced modules and secret features for system administration</p></div><div class="modules-container"><div class="module-category"><h2 class="category-header">Core Administration</h2><div class="modules-grid"><div class="module-card watson-only" onclick="window.location.href='/kaizen'"><span class="secret-badge">Secret</span><div class="module-icon">⚡</div><h3 class="module-title">Kaizen Optimization</h3><p class="module-description">System self-improvement engine with AI-powered optimization suggestions and performance analytics</p><span class="module-route">/kaizen</span></div><div class="module-card watson-only" onclick="window.location.href='/system-health'"><span class="secret-badge">Secret</span><div class="module-icon">🏥</div><h3 class="module-title">System Health Monitor</h3><p class="module-description">Real-time system diagnostics, performance monitoring, and health score tracking</p><span class="module-route">/system-health</span></div><div class="module-card watson-only" onclick="window.location.href='/dev-audit'"><span class="secret-badge">Secret</span><div class="module-icon">🔍</div><h3 class="module-title">Development Audit</h3><p class="module-description">Code integrity checks, security audits, and development monitoring tools</p><span class="module-route">/dev-audit</span></div></div></div><div class="module-category"><h2 class="category-header">Hidden Features</h2><div class="modules-grid"><div class="module-card" onclick="window.location.href='/idea-box'"><div class="module-icon">💡</div><h3 class="module-title">Idea Box</h3><p class="module-description">Innovation hub for capturing and tracking improvement ideas and feature requests</p><span class="module-route">/idea-box</span></div><div class="module-card" onclick="window.location.href='/workflow-optimization'"><div class="module-icon">🔄</div><h3 class="module-title">Workflow Optimization</h3><p class="module-description">Personalized workflow analysis and process improvement recommendations</p><span class="module-route">/workflow-optimization</span></div><div class="module-card" onclick="window.location.href='/industry-news'"><div class="module-icon">📰</div><h3 class="module-title">Industry Intelligence</h3><p class="module-description">AEMP news integration and industry trend analysis for equipment management</p><span class="module-route">/industry-news</span></div></div></div><div class="module-category"><h2 class="category-header">Advanced Tools</h2><div class="modules-grid"><div class="module-card" onclick="window.location.href='/seamless-fleet-map'"><div class="module-icon">🗺️</div><h3 class="module-title">Seamless Fleet Map</h3><p class="module-description">Advanced mapping with authentic GAUGE data integration and real-time tracking</p><span class="module-route">/seamless-fleet-map</span></div><div class="module-card" onclick="window.location.href='/ai-assistant'"><div class="module-icon">🤖</div><h3 class="module-title">AI Fleet Assistant</h3><p class="module-description">ChatGPT-style fleet intelligence with real-time data analysis and insights</p><span class="module-route">/ai-assistant</span></div><div class="module-card" onclick="window.location.href='/data-upload'"><div class="module-icon">📤</div><h3 class="module-title">Data Processing Hub</h3><p class="module-description">Upload and process attendance data, Excel files, and integration workflows</p><span class="module-route">/data-upload</span></div></div></div><div class="module-category"><h2 class="category-header">Analytics & Reporting</h2><div class="modules-grid"><div class="module-card" onclick="window.location.href='/billing'"><div class="module-icon">💰</div><h3 class="module-title">Billing Intelligence</h3><p class="module-description">Revenue analysis from authentic RAGLE workbooks with $605K monthly tracking</p><span class="module-route">/billing</span></div><div class="module-card" onclick="window.location.href='/executive-reports'"><div class="module-icon">📊</div><h3 class="module-title">Executive Reports</h3><p class="module-description">Comprehensive reporting dashboard with authentic financial and operational metrics</p><span class="module-route">/executive-reports</span></div><div class="module-card" onclick="window.location.href='/jobs'"><div class="module-icon">🏗️</div><h3 class="module-title">Project Accountability</h3><p class="module-description">Project tracking and asset allocation monitoring across construction sites</p><span class="module-route">/jobs</span></div></div></div><div class="module-category"><h2 class="category-header">Fleet Operations</h2><div class="modules-grid"><div class="module-card" onclick="window.location.href='/fleet-map'"><div class="module-icon">🚛</div><h3 class="module-title">Fleet Map</h3><p class="module-description">Live fleet tracking with 701 authentic assets from GAUGE API integration</p><span class="module-route">/fleet-map</span></div><div class="module-card" onclick="window.location.href='/attendance-matrix'"><div class="module-icon">👥</div><h3 class="module-title">Driver Attendance</h3><p class="module-description">Comprehensive attendance tracking and driver performance analytics</p><span class="module-route">/attendance-matrix</span></div><div class="module-card" onclick="window.location.href='/asset-manager'"><div class="module-icon">⚙️</div><h3 class="module-title">Asset Manager</h3><p class="module-description">Equipment lifecycle management and utilization optimization tools</p><span class="module-route">/asset-manager</span></div></div></div></div><script>
-// Add keyboard shortcuts for power users
-document.addEventListener('keydown', function(e) {
-if (e.ctrlKey || e.metaKey) {
-switch(e.key) {
-case 'k':
-e.preventDefault();
-window.location.href = '/kaizen';
-break;
-case 'h':
-e.preventDefault();
-window.location.href = '/system-health';
-break;
-case 'm':
-e.preventDefault();
-window.location.href = '/fleet-map';
-break;
-}
-}
-});
-</script></body></html>
+        .admin-title {
+          font-size: 28px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="/" class="back-button">← Dashboard</a>
+    <div class="admin-header">
+      <h1 class="admin-title">Watson Admin Command Center</h1>
+      <p class="admin-subtitle">
+        Advanced modules and secret features for system administration
+      </p>
+    </div>
+    <div class="modules-container">
+      <div class="module-category">
+        <h2 class="category-header">Core Administration</h2>
+        <div class="modules-grid">
+          <div
+            class="module-card watson-only"
+            onclick="window.location.href='/kaizen'"
+          >
+            <span class="secret-badge">Secret</span>
+            <div class="module-icon">⚡</div>
+            <h3 class="module-title">Kaizen Optimization</h3>
+            <p class="module-description">
+              System self-improvement engine with AI-powered optimization
+              suggestions and performance analytics
+            </p>
+            <span class="module-route">/kaizen</span>
+          </div>
+          <div
+            class="module-card watson-only"
+            onclick="window.location.href='/system-health'"
+          >
+            <span class="secret-badge">Secret</span>
+            <div class="module-icon">🏥</div>
+            <h3 class="module-title">System Health Monitor</h3>
+            <p class="module-description">
+              Real-time system diagnostics, performance monitoring, and health
+              score tracking
+            </p>
+            <span class="module-route">/system-health</span>
+          </div>
+          <div
+            class="module-card watson-only"
+            onclick="window.location.href='/dev-audit'"
+          >
+            <span class="secret-badge">Secret</span>
+            <div class="module-icon">🔍</div>
+            <h3 class="module-title">Development Audit</h3>
+            <p class="module-description">
+              Code integrity checks, security audits, and development monitoring
+              tools
+            </p>
+            <span class="module-route">/dev-audit</span>
+          </div>
+        </div>
+      </div>
+      <div class="module-category">
+        <h2 class="category-header">Hidden Features</h2>
+        <div class="modules-grid">
+          <div class="module-card" onclick="window.location.href='/idea-box'">
+            <div class="module-icon">💡</div>
+            <h3 class="module-title">Idea Box</h3>
+            <p class="module-description">
+              Innovation hub for capturing and tracking improvement ideas and
+              feature requests
+            </p>
+            <span class="module-route">/idea-box</span>
+          </div>
+          <div
+            class="module-card"
+            onclick="window.location.href='/workflow-optimization'"
+          >
+            <div class="module-icon">🔄</div>
+            <h3 class="module-title">Workflow Optimization</h3>
+            <p class="module-description">
+              Personalized workflow analysis and process improvement
+              recommendations
+            </p>
+            <span class="module-route">/workflow-optimization</span>
+          </div>
+          <div
+            class="module-card"
+            onclick="window.location.href='/industry-news'"
+          >
+            <div class="module-icon">📰</div>
+            <h3 class="module-title">Industry Intelligence</h3>
+            <p class="module-description">
+              AEMP news integration and industry trend analysis for equipment
+              management
+            </p>
+            <span class="module-route">/industry-news</span>
+          </div>
+        </div>
+      </div>
+      <div class="module-category">
+        <h2 class="category-header">Advanced Tools</h2>
+        <div class="modules-grid">
+          <div
+            class="module-card"
+            onclick="window.location.href='/seamless-fleet-map'"
+          >
+            <div class="module-icon">🗺️</div>
+            <h3 class="module-title">Seamless Fleet Map</h3>
+            <p class="module-description">
+              Advanced mapping with authentic GAUGE data integration and
+              real-time tracking
+            </p>
+            <span class="module-route">/seamless-fleet-map</span>
+          </div>
+          <div
+            class="module-card"
+            onclick="window.location.href='/ai-assistant'"
+          >
+            <div class="module-icon">🤖</div>
+            <h3 class="module-title">AI Fleet Assistant</h3>
+            <p class="module-description">
+              ChatGPT-style fleet intelligence with real-time data analysis and
+              insights
+            </p>
+            <span class="module-route">/ai-assistant</span>
+          </div>
+          <div
+            class="module-card"
+            onclick="window.location.href='/data-upload'"
+          >
+            <div class="module-icon">📤</div>
+            <h3 class="module-title">Data Processing Hub</h3>
+            <p class="module-description">
+              Upload and process attendance data, Excel files, and integration
+              workflows
+            </p>
+            <span class="module-route">/data-upload</span>
+          </div>
+        </div>
+      </div>
+      <div class="module-category">
+        <h2 class="category-header">Analytics & Reporting</h2>
+        <div class="modules-grid">
+          <div class="module-card" onclick="window.location.href='/billing'">
+            <div class="module-icon">💰</div>
+            <h3 class="module-title">Billing Intelligence</h3>
+            <p class="module-description">
+              Revenue analysis from authentic RAGLE workbooks with $605K monthly
+              tracking
+            </p>
+            <span class="module-route">/billing</span>
+          </div>
+          <div
+            class="module-card"
+            onclick="window.location.href='/executive-reports'"
+          >
+            <div class="module-icon">📊</div>
+            <h3 class="module-title">Executive Reports</h3>
+            <p class="module-description">
+              Comprehensive reporting dashboard with authentic financial and
+              operational metrics
+            </p>
+            <span class="module-route">/executive-reports</span>
+          </div>
+          <div class="module-card" onclick="window.location.href='/jobs'">
+            <div class="module-icon">🏗️</div>
+            <h3 class="module-title">Project Accountability</h3>
+            <p class="module-description">
+              Project tracking and asset allocation monitoring across
+              construction sites
+            </p>
+            <span class="module-route">/jobs</span>
+          </div>
+        </div>
+      </div>
+      <div class="module-category">
+        <h2 class="category-header">Fleet Operations</h2>
+        <div class="modules-grid">
+          <div class="module-card" onclick="window.location.href='/fleet-map'">
+            <div class="module-icon">🚛</div>
+            <h3 class="module-title">Fleet Map</h3>
+            <p class="module-description">
+              Live fleet tracking with 701 authentic assets from GAUGE API
+              integration
+            </p>
+            <span class="module-route">/fleet-map</span>
+          </div>
+          <div
+            class="module-card"
+            onclick="window.location.href='/attendance-matrix'"
+          >
+            <div class="module-icon">👥</div>
+            <h3 class="module-title">Driver Attendance</h3>
+            <p class="module-description">
+              Comprehensive attendance tracking and driver performance analytics
+            </p>
+            <span class="module-route">/attendance-matrix</span>
+          </div>
+          <div
+            class="module-card"
+            onclick="window.location.href='/asset-manager'"
+          >
+            <div class="module-icon">⚙️</div>
+            <h3 class="module-title">Asset Manager</h3>
+            <p class="module-description">
+              Equipment lifecycle management and utilization optimization tools
+            </p>
+            <span class="module-route">/asset-manager</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Add keyboard shortcuts for power users
+      document.addEventListener("keydown", function (e) {
+        if (e.ctrlKey || e.metaKey) {
+          switch (e.key) {
+            case "k":
+              e.preventDefault();
+              window.location.href = "/kaizen";
+              break;
+            case "h":
+              e.preventDefault();
+              window.location.href = "/system-health";
+              break;
+            case "m":
+              e.preventDefault();
+              window.location.href = "/fleet-map";
+              break;
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

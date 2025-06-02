@@ -79,6 +79,9 @@ from agi_master_upload_portal import agi_upload_bp
 from internal_llm_system import internal_llm_bp
 from agi_analytics_engine import agi_analytics_bp
 from agi_quantum_deployment_sweep import agi_quantum_bp
+from routes.basic_routes import basic_bp
+from routes.asset_manager import asset_manager_bp
+from asi_enhanced_debugger import asi_debug_bp
 
 # Import AGI-enhanced data access modules
 try:
@@ -450,21 +453,28 @@ def upload():
 
     return render_template('upload.html', page_title='Data Upload')
 
+@app.route('/asi-enhanced-debugger')
+def asi_enhanced_debugger_dashboard():
+    """ASI Enhanced Debugger Dashboard"""
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    # Allow access to authorized users
+    if session.get('username') not in ['watson', 'cooper', 'controller']:
+        flash('Access denied. ASI Debugger requires elevated privileges.', 'error')
+        return redirect(url_for('dashboard'))
+
+    return redirect(url_for('asi_debug.debug_dashboard'))
+
 @app.route('/safemode')
 def safemode():
-    """SafeMode diagnostic interface"""
-    system_status = {
-        'database': 'Connected',
-        'gauge_api': 'Active',
-        'ragle_integration': 'Active',
-        'total_modules': 6,
-        'active_modules': 6,
-        'system_health': 94.7
-    }
+    """SafeMode Dashboard - Watson Only"""
+    if 'username' not in session:
+        return redirect(url_for('login'))
 
-    return render_template('safemode.html',
-                         page_title='SafeMode Diagnostics',
-                         system_status=system_status)
+    if session.get('username') != 'watson':
+        flash('Access denied. SafeMode is restricted to Watson.', 'error')
+        return redirect(url_for('dashboard'))
 
 @app.route('/fleet-map')
 def fleet_map():
@@ -845,6 +855,9 @@ app.register_blueprint(agi_upload_bp)
 app.register_blueprint(internal_llm_bp)
 app.register_blueprint(agi_analytics_bp)
 app.register_blueprint(agi_quantum_bp)
+app.register_blueprint(basic_bp)
+app.register_blueprint(asset_manager_bp)
+app.register_blueprint(asi_debug_bp)
 
 # Register AGI Workflow Automation
 from agi_workflow_automation import get_agi_workflow_automation

@@ -13,6 +13,7 @@ import logging
 from routes.billing_intelligence import billing_bp
 from routes.master_billing import master_billing_bp
 from routes.admin_guide import admin_guide_bp
+from routes.ai_intelligence import ai_intelligence_bp
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -517,6 +518,7 @@ def get_sample_attendance_data():
 app.register_blueprint(billing_bp)
 app.register_blueprint(master_billing_bp)
 app.register_blueprint(admin_guide_bp)
+app.register_blueprint(ai_intelligence_bp)
 
 # Create database tables
 with app.app_context():

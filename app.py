@@ -74,6 +74,17 @@ from routes.quantum_admin import quantum_admin_bp
 from routes.email_intelligence import email_intelligence_bp
 from quantum_security_engine import quantum_security_bp, get_quantum_security_engine
 
+# Import AGI-enhanced data access modules
+try:
+    from agi_data_integration import agi_asset_lookup, agi_search
+    from agi_module_enhancer import run_agi_enhancement
+except ImportError:
+    # Fallback functions if AGI modules not available
+    def agi_asset_lookup(asset_id):
+        return None
+    def agi_search(query):
+        return []
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

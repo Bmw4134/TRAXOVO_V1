@@ -15,6 +15,7 @@ from routes.master_billing import master_billing_bp
 from routes.admin_guide import admin_guide_bp
 from routes.ai_intelligence import ai_intelligence_bp
 from routes.quantum_admin import quantum_admin_bp
+from routes.email_intelligence import email_intelligence_bp
 from quantum_security_engine import quantum_security_bp, get_quantum_security_engine
 
 # Configure logging
@@ -524,6 +525,7 @@ app.register_blueprint(ai_intelligence_bp)
 app.register_blueprint(stress_testing_bp)
 app.register_blueprint(quantum_security_bp)
 app.register_blueprint(quantum_admin_bp)
+app.register_blueprint(email_intelligence_bp)
 
 # Create database tables
 with app.app_context():

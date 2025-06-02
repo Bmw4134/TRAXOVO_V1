@@ -49,15 +49,11 @@ class ChrisFleetManager:
         if not self.gauge_data:
             return self._get_fallback_fleet_data()
         
-        # Handle different GAUGE data structures
-        if isinstance(self.gauge_data, list):
-            assets = self.gauge_data
-        elif isinstance(self.gauge_data, dict) and 'data' in self.gauge_data:
-            assets = self.gauge_data['data']
-        else:
-            return self._get_fallback_fleet_data()
+        # GAUGE data is a direct array of assets
+        assets = self.gauge_data if isinstance(self.gauge_data, list) else []
         
-        active_assets = [a for a in assets if isinstance(a, dict) and a.get('IsActive', False)]
+        # Check for both 'Active' and 'IsActive' fields in GAUGE data
+        active_assets = [a for a in assets if isinstance(a, dict) and (a.get('Active', False) or a.get('IsActive', False))]
         
         # Calculate real metrics from GAUGE data
         total_assets = len(assets)
@@ -86,13 +82,8 @@ class ChrisFleetManager:
             if asset:
                 return self._analyze_single_asset(asset)
         
-        # Fleet-wide lifecycle analysis - handle different data structures
-        if isinstance(self.gauge_data, list):
-            assets = self.gauge_data
-        elif isinstance(self.gauge_data, dict) and 'data' in self.gauge_data:
-            assets = self.gauge_data['data']
-        else:
-            assets = []
+        # GAUGE data is a direct array of assets
+        assets = self.gauge_data if isinstance(self.gauge_data, list) else []
         
         lifecycle_data = []
         
@@ -111,10 +102,10 @@ class ChrisFleetManager:
     def _analyze_single_asset(self, asset: Dict) -> Dict[str, Any]:
         """Analyze individual asset for lifecycle costing"""
         try:
-            # Extract real data from GAUGE
-            asset_id = asset.get('SerialNumber', 'Unknown')
-            make_model = f"{asset.get('Make', '')} {asset.get('Model', '')}".strip()
-            hours = float(asset.get('HourMeter', 0))
+            # Extract real data from GAUGE - using correct field names
+            asset_id = asset.get('AssetIdentifier', 'Unknown')
+            make_model = f"{asset.get('AssetMake', '')} {asset.get('AssetModel', '')}".strip()
+            hours = float(asset.get('Engine1Hours', 0))
             
             # Calculate depreciation and book value
             depreciation_data = self._calculate_asset_depreciation(asset)
@@ -275,7 +266,7 @@ class ChrisFleetManager:
             return None
         
         for asset in assets:
-            if isinstance(asset, dict) and asset.get('SerialNumber') == asset_id:
+            if isinstance(asset, dict) and asset.get('AssetIdentifier') == asset_id:
                 return asset
         
         return None

@@ -1,1 +1,0 @@
-../kaizen_daily_sync.py

@@ -1,9 +1,0 @@
-{
-  "timestamp": "2025-06-01T13:45:14.982483",
-  "modules_tested": [],
-  "performance_metrics": {},
-  "errors": [
-    "Test suite error: Message: Service /home/runner/.cache/selenium/chromedriver/linux64/137.0.7151.55/chromedriver unexpectedly exited. Status code was: 127\n"
-  ],
-  "success_rate": 0
-}

@@ -1,1 +1,0 @@
-{"cache_strategy": "adaptive", "max_cache_size": "500MB", "cache_expiry": {"fleet_data": 300, "analytics": 900, "reports": 3600}, "cache_warming": true, "compression": true}

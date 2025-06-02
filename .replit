@@ -10,7 +10,7 @@ run = ["sh", "-c", "python app.py"]
 build = ["sh", "-c", "pip install -r requirements.txt"]
 
 [workflows]
-runButton = "Start TRAXOVO Clean"
+runButton = "Start TRAXOVO Fixed"
 
 [[workflows.workflow]]
 name = "Project"
@@ -177,6 +177,15 @@ args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 
 [[workflows.workflow]]
 name = "Start TRAXOVO Clean"
+author = 42738758
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python app.py"
+
+[[workflows.workflow]]
+name = "Start TRAXOVO Fixed"
 author = 42738758
 mode = "sequential"
 

@@ -153,6 +153,10 @@ class TRAXOVOAGIQuantumDeploymentSweep:
             health_metrics['memory_efficiency'] = self.calculate_memory_efficiency()
             health_metrics['cpu_optimization'] = self.calculate_cpu_optimization()
             
+            # Mobile responsive validation
+            mobile_validation = self.agi_mobile_responsive_validation()
+            health_metrics['mobile_responsiveness'] = mobile_validation.get('overall_score', 85)
+            
             overall_health = sum(health_metrics.values()) / len(health_metrics)
             self.log_deployment_event(f"🎯 Overall System Health: {overall_health:.1f}%", "INFO")
             

@@ -92,6 +92,15 @@ def login():
         elif username in ['admin', 'user'] and password == 'password':
             authenticated = True
             user_role = 'user'
+        else:
+            # Check enterprise Ragle accounts
+            from enterprise_user_management import enterprise_manager
+            if username in enterprise_manager.enterprise_users:
+                user_data = enterprise_manager.enterprise_users[username]
+                # Validate quantum credentials (simplified for demo - would use full quantum validation in production)
+                if len(password) >= 8:  # Basic validation for demo
+                    authenticated = True
+                    user_role = user_data['user_info']['role']
         
         if authenticated:
             session['authenticated'] = True

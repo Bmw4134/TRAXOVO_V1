@@ -127,6 +127,11 @@ def asi_excellence_dashboard():
     """ASI Excellence Leadership Dashboard"""
     return render_template('asi_excellence.html')
 
+@app.route('/technical_testing')
+def technical_testing():
+    """Technical Testing Console"""
+    return render_template('technical_testing.html')
+
 @app.route('/api/asi_excellence_init')
 def api_asi_excellence_init():
     """Initialize ASI Excellence system"""

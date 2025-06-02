@@ -11,6 +11,7 @@ import logging
 
 # Import billing blueprint
 from routes.billing_intelligence import billing_bp
+from routes.master_billing import master_billing_bp
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -262,13 +263,34 @@ def fleet_map():
         active_assets = 614
         gps_enabled = 586
     
+    # Ensure JSON serializable data
+    serializable_assets = []
+    for asset in assets_with_gps:
+        serializable_assets.append({
+            'id': str(asset.get('Asset ID', '')),
+            'name': str(asset.get('Asset Name', '')),
+            'lat': float(asset.get('Latitude', 0)),
+            'lng': float(asset.get('Longitude', 0)),
+            'status': 'active' if asset.get('Active') else 'inactive',
+            'type': str(asset.get('Asset Type', '')),
+            'location': str(asset.get('Location', '')),
+            'last_update': str(asset.get('Last GPS Update', ''))
+        })
+    
+    job_zones = [
+        {'id': '2019-044', 'name': '2019-044 E Long Avenue', 'lat': 32.7767, 'lng': -96.7970},
+        {'id': '2021-017', 'name': '2021-017 Plaza Drive', 'lat': 32.7831, 'lng': -96.8067},
+        {'id': 'central-yard', 'name': 'Central Yard Operations', 'lat': 32.7767, 'lng': -96.7970},
+        {'id': 'equipment-staging', 'name': 'Equipment Staging', 'lat': 32.7900, 'lng': -96.8100}
+    ]
+    
     return render_template('fleet_map.html',
                          page_title='Fleet Map',
                          total_assets=total_assets,
                          active_assets=active_assets,
                          gps_enabled_count=gps_enabled,
-                         assets=assets_with_gps,
-                         job_zones=[],
+                         assets=serializable_assets,
+                         job_zones=job_zones,
                          geofences=[])
 
 @app.route('/asset-manager')
@@ -447,6 +469,7 @@ def get_sample_attendance_data():
 
 # Register blueprints
 app.register_blueprint(billing_bp)
+app.register_blueprint(master_billing_bp)
 
 # Create database tables
 with app.app_context():

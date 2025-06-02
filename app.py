@@ -176,6 +176,42 @@ def api_execute_real_test(test_type):
     result = testing_engine.execute_real_system_test(test_type)
     return jsonify(result)
 
+# Add UX learning engine routes
+@app.route('/api/analyze_ux')
+def analyze_ux():
+    """Analyze current interface with Puppeteer"""
+    from ux_learning_engine import get_ux_learning_engine
+    
+    engine = get_ux_learning_engine()
+    route = request.args.get('route', '/technical_testing')
+    
+    analysis = engine.analyze_interface_interactions(route)
+    return jsonify(analysis)
+
+@app.route('/api/learn_from_feedback', methods=['POST'])
+def learn_from_feedback():
+    """Learn from user feedback"""
+    from ux_learning_engine import get_ux_learning_engine
+    
+    data = request.get_json()
+    feedback = data.get('feedback', '')
+    context = data.get('context', {})
+    
+    engine = get_ux_learning_engine()
+    result = engine.learn_from_feedback(feedback, context)
+    
+    return jsonify(result)
+
+@app.route('/api/get_learned_preferences')
+def get_learned_preferences():
+    """Get current learned design preferences"""
+    from ux_learning_engine import get_ux_learning_engine
+    
+    engine = get_ux_learning_engine()
+    preferences = engine.get_learned_preferences()
+    
+    return jsonify(preferences)
+
 # Create tables
 with app.app_context():
     db.create_all()

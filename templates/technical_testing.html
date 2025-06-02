@@ -9,240 +9,273 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: #0a0a0a;
             color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            line-height: 1.4;
+            overflow-x: hidden;
         }
 
         .main-header {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 20px 0;
-            margin-bottom: 30px;
+            background: #111111;
+            border-bottom: 2px solid #333333;
+            padding: 12px 0;
+            position: relative;
+        }
+
+        .main-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #ff4500, transparent);
         }
 
         .main-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: #ffffff;
+            text-align: left;
             margin: 0;
+            padding-left: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .main-title::before {
+            content: '> ';
+            color: #ff4500;
+            font-weight: bold;
         }
 
         .subtitle {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 1.1rem;
-            margin-top: 10px;
+            color: #888888;
+            font-size: 0.9rem;
+            margin-top: 4px;
+            padding-left: 20px;
+            font-weight: 300;
         }
 
-        .dashboard-container {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            padding: 25px;
-            margin: 20px 0;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        .container-fluid {
+            padding: 0;
         }
 
-        .section-header {
-            display: flex;
-            align-items: center;
-            background: rgba(255, 215, 0, 0.1);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            border-radius: 12px;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            font-weight: 600;
-            font-size: 1.2rem;
-            color: #ffd700;
+        .panel {
+            background: #111111;
+            border: 1px solid #333333;
+            margin: 8px;
+            position: relative;
         }
 
-        .section-header i {
-            margin-right: 12px;
-            font-size: 1.3rem;
+        .panel-header {
+            background: #1a1a1a;
+            border-bottom: 1px solid #333333;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .panel-header::before {
+            content: '■ ';
+            color: #ff4500;
+            margin-right: 6px;
         }
 
         .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin: 25px 0;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 12px;
         }
 
-        .metric-card {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
-            padding: 25px;
+        .metric-display {
+            background: #0a0a0a;
+            border: 1px solid #333333;
+            padding: 16px 12px;
             text-align: center;
-            transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
         }
 
-        .metric-card::before {
+        .metric-display::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #ffd700, #ffed4e);
-        }
-
-        .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.2);
+            width: 100%;
+            height: 2px;
+            background: #ff4500;
         }
 
         .metric-value {
-            font-size: 2.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+            font-family: inherit;
         }
 
         .metric-label {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.95rem;
-            font-weight: 500;
+            color: #888888;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .test-controls {
+        .test-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-            margin: 25px 0;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            padding: 12px;
         }
 
-        .test-button {
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 237, 78, 0.1) 100%);
-            border: 2px solid rgba(255, 215, 0, 0.4);
+        .test-btn {
+            background: #1a1a1a;
+            border: 1px solid #444444;
             color: #ffffff;
-            padding: 18px 25px;
-            border-radius: 12px;
+            padding: 12px 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 400;
+            text-align: left;
+            transition: all 0.1s ease;
             position: relative;
-            overflow: hidden;
+            outline: none;
         }
 
-        .test-button i {
-            margin-right: 10px;
-            font-size: 1.1rem;
+        .test-btn::before {
+            content: '▶ ';
+            color: #ff4500;
+            margin-right: 8px;
         }
 
-        .test-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.3);
-            border-color: rgba(255, 215, 0, 0.6);
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 237, 78, 0.2) 100%);
+        .test-btn:hover {
+            background: #222222;
+            border-color: #ff4500;
         }
 
-        .test-button:disabled {
+        .test-btn:active {
+            background: #333333;
+        }
+
+        .test-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
 
-        .console-output {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            padding: 20px;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 14px;
-            line-height: 1.6;
-            min-height: 300px;
+        .test-btn:disabled::before {
+            content: '⏸ ';
+        }
+
+        .terminal {
+            background: #000000;
+            border: 1px solid #333333;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            color: #ffffff;
+            min-height: 200px;
             max-height: 400px;
             overflow-y: auto;
-            color: #e0e0e0;
+            white-space: pre-wrap;
         }
 
-        .status-success { color: #4ade80; font-weight: 600; }
-        .status-warning { color: #fbbf24; font-weight: 600; }
-        .status-error { color: #f87171; font-weight: 600; }
-        .status-info { color: #60a5fa; font-weight: 600; }
+        .terminal::before {
+            content: 'root@traxovo:~# ';
+            color: #ff4500;
+            display: block;
+            margin-bottom: 8px;
+        }
 
-        .history-container {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            padding: 20px;
+        .history-display {
+            background: #0a0a0a;
+            border: 1px solid #333333;
+            padding: 12px;
+            font-size: 0.8rem;
             min-height: 200px;
             max-height: 300px;
             overflow-y: auto;
         }
 
-        .revolutionary-badge {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            animation: pulse 2s infinite;
+        .status-ok { color: #00ff00; }
+        .status-warn { color: #ffff00; }
+        .status-err { color: #ff0000; }
+        .status-info { color: #00ffff; }
+
+        .system-indicator {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            background: #000000;
+            border: 1px solid #333333;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            color: #ffffff;
+            z-index: 1000;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
+        .system-indicator::before {
+            content: '● ';
+            color: #00ff00;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .row {
+            margin: 0;
+        }
+
+        .col-lg-7, .col-lg-5 {
+            padding: 0;
         }
     </style>
 </head>
 <body>
-    <div class="revolutionary-badge">
-        <i class="fas fa-rocket me-1"></i>REVOLUTIONARY ACTIVE
-    </div>
+    <div class="system-indicator">SYSTEM OPERATIONAL</div>
 
     <div class="main-header">
         <div class="container">
-            <h1 class="main-title">
-                <i class="fas fa-microchip me-3"></i>Technical Testing Console
-            </h1>
-            <p class="subtitle">Enterprise-Grade System Diagnostics & Performance Validation</p>
+            <h1 class="main-title">FLEET DIAGNOSTICS</h1>
+            <p class="subtitle">EQUIPMENT MONITORING & SYSTEM VALIDATION</p>
         </div>
     </div>
 
-    <div class="container-fluid px-4">
+    <div class="container-fluid">
         <!-- System Metrics -->
-        <div class="dashboard-container">
-            <div class="section-header">
-                <i class="fas fa-chart-line"></i>Real-Time System Metrics
-            </div>
+        <div class="panel">
+            <div class="panel-header">SYSTEM STATUS</div>
             <div class="metrics-grid" id="systemMetrics">
-                <div class="metric-card">
+                <div class="metric-display">
                     <div class="metric-value" id="cpuUsage">--</div>
-                    <div class="metric-label">CPU Usage</div>
+                    <div class="metric-label">CPU</div>
                 </div>
-                <div class="metric-card">
+                <div class="metric-display">
                     <div class="metric-value" id="memoryUsage">--</div>
-                    <div class="metric-label">Memory Usage</div>
+                    <div class="metric-label">MEMORY</div>
                 </div>
-                <div class="metric-card">
+                <div class="metric-display">
                     <div class="metric-value" id="diskUsage">--</div>
-                    <div class="metric-label">Disk Usage</div>
+                    <div class="metric-label">STORAGE</div>
                 </div>
-                <div class="metric-card">
+                <div class="metric-display">
                     <div class="metric-value" id="processCount">--</div>
-                    <div class="metric-label">Running Processes</div>
+                    <div class="metric-label">PROCESSES</div>
                 </div>
             </div>
         </div>
@@ -250,45 +283,39 @@
         <!-- Test Controls and History -->
         <div class="row">
             <div class="col-lg-7">
-                <div class="dashboard-container">
-                    <div class="section-header">
-                        <i class="fas fa-cogs"></i>System Diagnostic Tests
-                    </div>
-                    <div class="test-controls">
-                        <button class="test-button" onclick="executeTest('memory_optimization')">
-                            <i class="fas fa-memory"></i>Memory Optimization
+                <div class="panel">
+                    <div class="panel-header">DIAGNOSTIC TESTS</div>
+                    <div class="test-grid">
+                        <button class="test-btn" onclick="executeTest('memory_optimization')">
+                            MEMORY OPTIMIZATION
                         </button>
-                        <button class="test-button" onclick="executeTest('database_performance')">
-                            <i class="fas fa-database"></i>Database Performance
+                        <button class="test-btn" onclick="executeTest('database_performance')">
+                            DATABASE PERFORMANCE
                         </button>
-                        <button class="test-button" onclick="executeTest('api_connectivity')">
-                            <i class="fas fa-network-wired"></i>API Connectivity
+                        <button class="test-btn" onclick="executeTest('api_connectivity')">
+                            API CONNECTIVITY
                         </button>
-                        <button class="test-button" onclick="executeTest('file_system_health')">
-                            <i class="fas fa-hdd"></i>File System Health
+                        <button class="test-btn" onclick="executeTest('file_system_health')">
+                            FILE SYSTEM HEALTH
                         </button>
                     </div>
                 </div>
             </div>
             <div class="col-lg-5">
-                <div class="dashboard-container">
-                    <div class="section-header">
-                        <i class="fas fa-history"></i>Test Execution History
-                    </div>
-                    <div class="history-container" id="testHistory">
-                        <div class="status-info">No tests executed yet. Select a test to begin diagnostics.</div>
+                <div class="panel">
+                    <div class="panel-header">TEST HISTORY</div>
+                    <div class="history-display" id="testHistory">
+                        <div class="status-info">NO TESTS EXECUTED</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Test Output -->
-        <div class="dashboard-container">
-            <div class="section-header">
-                <i class="fas fa-terminal"></i>Live Test Execution Output
-            </div>
-            <div class="console-output" id="testOutput">
-                <div class="status-info">System ready for diagnostic testing. Execute a test to see real-time system operations and results.</div>
+        <div class="panel">
+            <div class="panel-header">EXECUTION OUTPUT</div>
+            <div class="terminal" id="testOutput">
+                <div class="status-info">READY FOR OPERATION</div>
             </div>
         </div>
     </div>

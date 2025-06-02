@@ -73,6 +73,8 @@ from routes.ai_intelligence import ai_intelligence_bp
 from routes.quantum_admin import quantum_admin_bp
 from routes.email_intelligence import email_intelligence_bp
 from quantum_security_engine import quantum_security_bp, get_quantum_security_engine
+from agi_master_upload_portal import agi_upload_bp
+from internal_llm_system import internal_llm_bp
 
 # Import AGI-enhanced data access modules
 try:

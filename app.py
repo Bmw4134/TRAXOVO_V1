@@ -79,7 +79,50 @@ def dashboard():
         "monthly_revenue": 2847500,
         "cost_per_hour": 125.80
     }
-    return render_template('dashboard.html', metrics=metrics)
+    return render_template('modern_dashboard.html', metrics=metrics)
+
+@app.route('/quantum_asi_dashboard')
+def quantum_asi_dashboard():
+    """Watson-only Quantum ASI Excellence Dashboard"""
+    return render_template('quantum_asi_dashboard.html')
+
+@app.route('/api/quantum_asi_status')
+def api_quantum_asi_status():
+    """Get quantum ASI status data"""
+    try:
+        from quantum_asi_excellence import get_quantum_asi
+        asi = get_quantum_asi()
+        status = asi.get_quantum_status()
+        dashboard_data = asi.get_asi_dashboard_data()
+        
+        return jsonify({
+            **status,
+            **dashboard_data
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/activate_excellence_mode', methods=['POST'])
+def api_activate_excellence_mode():
+    """Activate quantum excellence mode"""
+    try:
+        from quantum_asi_excellence import get_quantum_asi
+        asi = get_quantum_asi()
+        result = asi.activate_excellence_mode()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/generate_prediction/<scenario>', methods=['POST'])
+def api_generate_prediction(scenario):
+    """Generate future prediction for scenario"""
+    try:
+        from quantum_asi_excellence import get_quantum_asi
+        asi = get_quantum_asi()
+        prediction = asi.generate_future_prediction(scenario)
+        return jsonify(prediction)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/gauge_data')
 def api_gauge_data():

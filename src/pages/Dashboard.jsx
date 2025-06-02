@@ -77,29 +77,50 @@ export default function Dashboard() {
       value: fleetData.revenue || '$2.1M',
       trend: '+8.2% vs Last Year',
       icon: '💰',
-      category: 'financial'
+      category: 'financial',
+      onClick: () => drillDownRevenue()
     },
     'efficiency-trends': {
       title: 'Fleet Efficiency',
       value: fleetData.efficiency || '94.2%',
       trend: '+2.1% This Month',
       icon: '⚡',
-      category: 'operations'
+      category: 'operations',
+      onClick: () => drillDownEfficiency()
     },
     'asset-utilization': {
       title: 'Assets Active',
       value: `${fleetData.active_assets || 614}/${fleetData.total_assets || 717}`,
       trend: `${((fleetData.active_assets || 614) / (fleetData.total_assets || 717) * 100).toFixed(1)}% Utilization`,
       icon: '🚛',
-      category: 'operations'
+      category: 'operations',
+      onClick: () => drillDownAssets()
     },
     'billing-summary': {
       title: 'Profit Margin',
       value: fleetData.profit_margin || '34.7%',
       trend: '+1.8% vs Target',
       icon: '📊',
-      category: 'financial'
+      category: 'financial',
+      onClick: () => drillDownMargin()
     }
+  };
+
+  // Drill-down functions from current dashboard
+  const drillDownRevenue = () => {
+    window.location.href = '/billing';
+  };
+
+  const drillDownEfficiency = () => {
+    console.log('Fleet Efficiency drill-down');
+  };
+
+  const drillDownAssets = () => {
+    window.location.href = '/assets';
+  };
+
+  const drillDownMargin = () => {
+    window.location.href = '/billing';
   };
 
   return (

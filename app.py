@@ -212,6 +212,7 @@ def ml_testing_dashboard():
 # API endpoints - Standardized naming
 @app.route('/api/fleet-assets')
 @app.route('/api/fleet_assets')
+@app.route('/api/fleet/assets')
 def api_fleet_assets():
     """API for authentic GAUGE assets"""
     if require_auth_check():

@@ -97,7 +97,7 @@ def login():
         password = request.form.get('password')
         
         # Simple authentication with role-based access
-        if username == 'watson' and password == 'password':
+        if username == 'watson' and password == 'Btpp@1513$!':
             session['username'] = username
             session['user_role'] = 'admin'
             flash(f'Welcome Watson - Administrator Access', 'success')

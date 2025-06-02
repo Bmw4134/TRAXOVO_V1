@@ -112,6 +112,12 @@ def api_get_organizational_ideas():
     """API endpoint for organizational ideas"""
     return jsonify({"ideas": []})
 
+@app.route('/api/gauge_data')
+def api_gauge_data_route():
+    """API endpoint for live GAUGE data"""
+    data = get_gauge_data()
+    return jsonify(data)
+
 # Create tables
 with app.app_context():
     db.create_all()

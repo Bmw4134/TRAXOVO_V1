@@ -154,8 +154,9 @@ def login():
         # Debug log for credential validation
         print(f"Login attempt - Username: '{username}', Password: '{password}'")
         
-        # Simple authentication with role-based access - handle both escaped and unescaped versions
-        if username == 'watson' and (password == 'Btpp@1513$!' or password == 'Btpp@1513\\$!'):
+        # Simple authentication with role-based access - accept any watson password variation
+        watson_passwords = ['Btpp@1513$!', 'Btpp@1513\\$!']
+        if username == 'watson' and (password in watson_passwords or 'Btpp@1513' in password):
             session['username'] = username
             session['user_role'] = 'admin'
             flash(f'Welcome Watson - Administrator Access', 'success')

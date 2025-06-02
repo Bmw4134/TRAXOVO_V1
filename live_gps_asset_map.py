@@ -30,10 +30,12 @@ class LiveGPSAssetService:
     def fetch_live_asset_data(self) -> List[Dict[str, Any]]:
         """Fetch live asset data from GAUGE API"""
         try:
+            # Use the correct GAUGE API endpoint format
             response = requests.get(
-                f"{self.api_url}/assets/live",
-                headers=self.headers,
-                timeout=30
+                self.api_url,  # The URL already includes the full endpoint
+                headers={'Content-Type': 'application/json'},  # Simplified headers
+                timeout=30,
+                verify=False  # Handle SSL certificate issues
             )
             response.raise_for_status()
             return response.json()

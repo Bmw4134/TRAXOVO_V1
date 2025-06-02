@@ -40,10 +40,12 @@ os.makedirs('uploads', exist_ok=True)
 from routes.matrix_renderer import matrix_bp
 from routes.billing_logic import billing_bp
 from routes.watson_admin import watson_bp
+from live_gps_asset_map import live_gps_bp
 
 app.register_blueprint(matrix_bp)
 app.register_blueprint(billing_bp)
 app.register_blueprint(watson_bp)
+app.register_blueprint(live_gps_bp)
 
 # Authentication check
 def require_auth():

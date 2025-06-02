@@ -174,31 +174,7 @@ def api_fleet_assets():
     assets_data = load_gauge_api_data()
     return jsonify(assets_data)
 
-@app.route('/api/live-assets')
-def api_live_assets():
-    """API endpoint for GPS React component"""
-    if require_auth():
-        return jsonify({"error": "Authentication required"}), 401
-    
-    # Load authentic GAUGE data and format for GPS map
-    gauge_data = load_gauge_api_data()
-    
-    # Transform GAUGE format to GPS map format
-    gps_assets = []
-    for asset in gauge_data:
-        if asset.get('Latitude') and asset.get('Longitude'):
-            gps_assets.append({
-                'id': asset.get('AssetIdentifier', 'Unknown'),
-                'lat': float(asset.get('Latitude', 0)),
-                'lng': float(asset.get('Longitude', 0)),
-                'label': asset.get('Label', ''),
-                'active': asset.get('Active', False),
-                'location': asset.get('Location', ''),
-                'category': asset.get('AssetCategory', 'Unknown'),
-                'hours': asset.get('Engine1Hours', 0)
-            })
-    
-    return jsonify(gps_assets)
+# GPS routes are handled by live_gps_bp blueprint
 
 @app.route('/api/upload-attendance', methods=['POST'])
 def api_upload_attendance():

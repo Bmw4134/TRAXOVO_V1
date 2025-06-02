@@ -54,7 +54,7 @@ this.searchInput.addEventListener('focus', () => {
 this.showSearchInterface();
 });
 document.addEventListener('click', (e) => {
-if (!e.target.closest('.universal-search-container')) {
+if (!e.target.parentElement&&.parentElement.querySelector('.universal-search-container')) {
 this.hideSearchInterface();
 }
 });

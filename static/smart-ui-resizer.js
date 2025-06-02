@@ -58,7 +58,7 @@ optimizeTableViews() {
 const tables = document.querySelectorAll('table');
 tables.forEach(table => {
 if (this.deviceInfo.isMobile) {
-if (!table.closest('.table-responsive')) {
+if (!table.parentElement&&.parentElement.querySelector('.table-responsive')) {
 const wrapper = document.createElement('div');
 wrapper.className = 'table-responsive';
 table.parentNode.insertBefore(wrapper, table);

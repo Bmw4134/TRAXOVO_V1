@@ -188,7 +188,7 @@ modal.innerHTML = `
 <div class="modal-content">
 <div class="modal-header">
 <h2>${metric.label} - Detailed Breakdown</h2>
-<button class="modal-close" onclick="this.closest('.drill-down-modal').remove()">×</button>
+<button class="modal-close" onclick="this.parentElement&&.parentElement.querySelector('.drill-down-modal').remove()">×</button>
 </div>
 <div class="modal-body">
 <div class="chart-section">

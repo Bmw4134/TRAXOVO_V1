@@ -27,7 +27,7 @@ this.showAssetGridLoading('asset-grid');
 }
 setupEventListeners() {
 document.addEventListener('click', (e) => {
-const target = e.target.closest('[data-loading-trigger]');
+const target = e.target.parentElement&&.parentElement.querySelector('[data-loading-trigger]');
 if (target) {
 const loadingType = target.dataset.loadingTrigger;
 const targetId = target.dataset.loadingTarget;

@@ -221,7 +221,7 @@ document.body.insertBefore(skipLinks, document.body.firstChild);
 enhanceWithARIA() {
 const iconButtons = document.querySelectorAll('button .fas, button .far, button .fab');
 iconButtons.forEach(icon => {
-const button = icon.closest('button');
+const button = icon.parentElement&&.parentElement.querySelector('button');
 if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
 const iconClass = Array.from(icon.classList).find(cls => cls.startsWith('fa-'));
 if (iconClass) {
@@ -237,7 +237,7 @@ table.setAttribute('role', 'table');
 }
 if (!table.getAttribute('aria-label')) {
 const caption = table.querySelector('caption');
-const heading = table.closest('.card')?.querySelector('.card-header h5');
+const heading = table.parentElement&&.parentElement.querySelector('.card')?.querySelector('.card-header h5');
 if (caption) {
 table.setAttribute('aria-label', caption.textContent);
 } else if (heading) {
@@ -248,7 +248,7 @@ table.setAttribute('aria-label', heading.textContent + ' data table');
 const formControls = document.querySelectorAll('input, select, textarea');
 formControls.forEach(control => {
 if (!control.getAttribute('aria-label') && !control.getAttribute('aria-labelledby')) {
-const label = control.closest('.form-group')?.querySelector('label');
+const label = control.parentElement&&.parentElement.querySelector('.form-group')?.querySelector('label');
 if (label && !label.getAttribute('for')) {
 const id = control.id || `input-${Math.random().toString(36).substr(2, 9)}`;
 control.id = id;
@@ -269,7 +269,7 @@ addLandmarkRoles() {
 const main = document.querySelector('main') || document.querySelector('[role="main"]');
 if (!main) {
 const container = document.querySelector('.container, .container-fluid');
-if (container && !container.closest('nav, header, footer')) {
+if (container && !container.parentElement&&.parentElement.querySelector('nav, header, footer')) {
 container.setAttribute('role', 'main');
 container.id = 'main-content';
 }

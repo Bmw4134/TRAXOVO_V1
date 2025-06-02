@@ -97,7 +97,7 @@ this.hideAllBubbles();
 handleMouseOver(e) {
 if (!this.isActive) return;
 for (const [selector, config] of this.helpBubbles) {
-if (e.target.matches(selector) || e.target.closest(selector)) {
+if (e.target.matches(selector) || e.target.parentElement&&.parentElement.querySelector(selector)) {
 if (config.trigger === 'hover') {
 this.showBubbleDelayed(e.target, config);
 }
@@ -110,7 +110,7 @@ this.hideCurrentBubble();
 }
 handleClick(e) {
 for (const [selector, config] of this.helpBubbles) {
-if (e.target.matches(selector) || e.target.closest(selector)) {
+if (e.target.matches(selector) || e.target.parentElement&&.parentElement.querySelector(selector)) {
 if (config.trigger === 'click') {
 this.showBubble(e.target, config);
 }

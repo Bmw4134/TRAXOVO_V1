@@ -44,7 +44,7 @@ chart.destroy();
 }
 setupInstantNavigation() {
 document.addEventListener('click', (e) => {
-const link = e.target.closest('a[href], button[onclick]');
+const link = e.target.parentElement&&.parentElement.querySelector('a[href], button[onclick]');
 if (!link) return;
 this.showInstantFeedback(link);
 this.prioritizeNavigation();
@@ -138,7 +138,7 @@ this.optimizeTableRendering();
 optimizeTableRendering() {
 const largeTables = document.querySelectorAll('table tbody tr');
 if (largeTables.length > 50) {
-this.virtualizeTable(largeTables[0].closest('table'));
+this.virtualizeTable(largeTables[0].parentElement&&.parentElement.querySelector('table'));
 }
 }
 virtualizeTable(table) {

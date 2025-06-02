@@ -46,11 +46,18 @@ class ChrisFleetManager:
     
     def get_fleet_overview(self) -> Dict[str, Any]:
         """Real-time fleet overview for Chris"""
-        if not self.gauge_data or 'data' not in self.gauge_data:
+        if not self.gauge_data:
             return self._get_fallback_fleet_data()
         
-        assets = self.gauge_data['data']
-        active_assets = [a for a in assets if a.get('IsActive', False)]
+        # Handle different GAUGE data structures
+        if isinstance(self.gauge_data, list):
+            assets = self.gauge_data
+        elif isinstance(self.gauge_data, dict) and 'data' in self.gauge_data:
+            assets = self.gauge_data['data']
+        else:
+            return self._get_fallback_fleet_data()
+        
+        active_assets = [a for a in assets if isinstance(a, dict) and a.get('IsActive', False)]
         
         # Calculate real metrics from GAUGE data
         total_assets = len(assets)
@@ -79,8 +86,14 @@ class ChrisFleetManager:
             if asset:
                 return self._analyze_single_asset(asset)
         
-        # Fleet-wide lifecycle analysis
-        assets = self.gauge_data.get('data', [])
+        # Fleet-wide lifecycle analysis - handle different data structures
+        if isinstance(self.gauge_data, list):
+            assets = self.gauge_data
+        elif isinstance(self.gauge_data, dict) and 'data' in self.gauge_data:
+            assets = self.gauge_data['data']
+        else:
+            assets = []
+        
         lifecycle_data = []
         
         for asset in assets[:20]:  # Limit for performance
@@ -253,8 +266,16 @@ class ChrisFleetManager:
         if not self.gauge_data:
             return None
         
-        for asset in self.gauge_data.get('data', []):
-            if asset.get('SerialNumber') == asset_id:
+        # Handle different GAUGE data structures
+        if isinstance(self.gauge_data, list):
+            assets = self.gauge_data
+        elif isinstance(self.gauge_data, dict) and 'data' in self.gauge_data:
+            assets = self.gauge_data['data']
+        else:
+            return None
+        
+        for asset in assets:
+            if isinstance(asset, dict) and asset.get('SerialNumber') == asset_id:
                 return asset
         
         return None

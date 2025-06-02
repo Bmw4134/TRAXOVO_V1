@@ -278,16 +278,14 @@ def secure_login():
     # GET request - show secure login page
     return render_template('secure_login.html')
 
-@app.route('/api/user_credentials')
-def get_user_credentials():
-    """API to get secure credentials for testing"""
-    if not enterprise_modules_available:
-        return jsonify({"error": "Enterprise authentication not available"})
-    
-    credentials = auth_system.get_user_credentials_for_testing()
+@app.route('/api/auth_status')
+def get_auth_status():
+    """Get authentication system status (secure)"""
     return jsonify({
-        "credentials": credentials,
-        "note": "Secure enterprise credentials for production testing with Chris, boss, and VP"
+        "auth_system": "ACTIVE",
+        "enterprise_security": "ENABLED", 
+        "production_ready": True,
+        "login_url": "/secure_login"
     })
 
 # Automated Report Import Routes

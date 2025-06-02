@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise User Management Portal - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .security-header {
+            background: linear-gradient(135deg, #dc3545 0%, #6f42c1 50%, #0d6efd 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .security-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: securityScan 3s infinite;
+        }
+        
+        @keyframes securityScan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .user-card {
+            background: #f8f9fa;
+            border-left: 5px solid #007bff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 0.5rem 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .security-panel {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1rem 0;
+        }
+        
+        .access-control-matrix {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .password-policy {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 0.5rem 0;
+        }
+        
+        .security-log {
+            background: #343a40;
+            color: #f8f9fa;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 0.3rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .status-active {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+        
+        .status-disabled {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+        
+        .admin-action-btn {
+            background: linear-gradient(135deg, #6f42c1, #e83e8c);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .critical-action {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+        }
+        
+        .password-reset-form {
+            background: linear-gradient(135deg, #17a2b8, #6f42c1);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'includes/sidebar.html' %}
+            
+            <!-- Main Content -->
+            <div class="col-lg-10 offset-lg-2 p-4">
+                <div class="security-header mb-4">
+                    <div style="position: relative; z-index: 1;">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h1><i class="fas fa-users-cog me-2"></i>Enterprise User Management Portal</h1>
+                                <p class="mb-2">Secure user administration, password recovery, and access control</p>
+                                <div class="d-flex align-items-center">
+                                    <span class="me-3">
+                                        <i class="fas fa-shield-alt text-success me-1"></i>
+                                        <small>Security Level: Maximum</small>
+                                    </span>
+                                    <span class="me-3">
+                                        <i class="fas fa-users text-warning me-1"></i>
+                                        <small>{{ users|length }} Users Managed</small>
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-eye text-info me-1"></i>
+                                        <small>Watson Admin Only</small>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <button class="btn admin-action-btn" onclick="showCreateUserForm()">
+                                    <i class="fas fa-user-plus me-2"></i>Create New User
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Password Reset Panel -->
+                <div class="password-reset-form">
+                    <h5><i class="fas fa-key me-2"></i>Quick Password Reset</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <select class="form-control" id="resetUsername">
+                                <option value="">Select User</option>
+                                {% for user in users %}
+                                <option value="{{ user.username }}">{{ user.username }} ({{ user.email }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="newPassword" placeholder="Auto-generate or custom">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-light" onclick="resetUserPassword()">
+                                <i class="fas fa-redo me-1"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Management Grid -->
+                <div class="row mb-4">
+                    {% for user in users %}
+                    <div class="col-lg-4 mb-3">
+                        <div class="user-card">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6><i class="fas fa-user me-2"></i>{{ user.username }}</h6>
+                                <span class="status-{{ 'active' if user.status == 'active' else 'disabled' }}">
+                                    {{ user.status.title() }}
+                                </span>
+                            </div>
+                            <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
+                            <p class="mb-2"><strong>Role:</strong> {{ user.role }}</p>
+                            <p class="mb-2"><strong>Last Login:</strong> {{ user.last_login[:19] if user.last_login else 'Never' }}</p>
+                            <p class="mb-3"><strong>Login Count:</strong> {{ user.login_count }}</p>
+                            
+                            <div class="d-flex gap-2">
+                                <button class="btn admin-action-btn btn-sm" onclick="resetPassword('{{ user.username }}')">
+                                    <i class="fas fa-key"></i> Reset Pass
+                                </button>
+                                {% if user.status == 'active' %}
+                                <button class="btn admin-action-btn critical-action btn-sm" onclick="disableUser('{{ user.username }}')">
+                                    <i class="fas fa-ban"></i> Disable
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Access Control Matrix -->
+                <div class="access-control-matrix mb-4">
+                    <h5><i class="fas fa-lock me-2"></i>Access Control Matrix</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Role</th>
+                                    <th>Permissions</th>
+                                    <th>Description</th>
+                                    <th>Users</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for role_name, role_data in access_matrix.roles.items() %}
+                                <tr>
+                                    <td><strong>{{ role_name.replace('_', ' ').title() }}</strong></td>
+                                    <td>
+                                        {% for permission in role_data.permissions %}
+                                        <span class="badge bg-primary me-1">{{ permission }}</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>{{ role_data.description }}</td>
+                                    <td>
+                                        {% set role_users = users | selectattr('role', 'equalto', role_name) | list %}
+                                        {{ role_users | length }} users
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Security Audit Logs -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="security-panel">
+                            <h5><i class="fas fa-clipboard-list me-2"></i>Security Audit Logs</h5>
+                            {% for log in security_logs[:10] %}
+                            <div class="security-log">
+                                <strong>{{ log.timestamp[:19] }}</strong> - {{ log.event.upper() }} - {{ log.user }} ({{ log.ip }}) - {{ log.status.upper() }}
+                                <br><small>{{ log.details }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="security-panel">
+                            <h5><i class="fas fa-shield-alt me-2"></i>System Security Status</h5>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="password-policy">
+                                        <strong>Encryption:</strong> {{ system_security_status.encryption_status.title() }}
+                                    </div>
+                                    <div class="password-policy">
+                                        <strong>Firewall:</strong> {{ system_security_status.firewall_status.title() }}
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="password-policy">
+                                        <strong>SSL:</strong> {{ system_security_status.ssl_certificate.title() }}
+                                    </div>
+                                    <div class="password-policy">
+                                        <strong>Compliance:</strong> {{ system_security_status.compliance_status.title() }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div class="modal fade" id="createUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createUserForm">
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" id="newUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="newEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <select class="form-control" id="newRole">
+                                <option value="user">User</option>
+                                <option value="viewer">Viewer</option>
+                                <option value="manager">Manager</option>
+                                <option value="super_admin">Super Admin</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Temporary Password (optional)</label>
+                            <input type="text" class="form-control" id="newTempPassword" placeholder="Auto-generated if empty">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn admin-action-btn" onclick="createUser()">Create User</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showCreateUserForm() {
+            new bootstrap.Modal(document.getElementById('createUserModal')).show();
+        }
+
+        function resetUserPassword() {
+            const username = document.getElementById('resetUsername').value;
+            const password = document.getElementById('newPassword').value || generatePassword();
+            
+            if (!username) {
+                alert('Please select a user');
+                return;
+            }
+            
+            resetPassword(username, password);
+        }
+
+        function resetPassword(username, customPassword = null) {
+            const password = customPassword || generatePassword();
+            
+            fetch('/watson-admin/api/reset-user-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    new_password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Password reset for ${username}\nNew password: ${data.temporary_password}\nUser must change on next login.`);
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+            });
+        }
+
+        function disableUser(username) {
+            if (!confirm(`Are you sure you want to disable user: ${username}?`)) {
+                return;
+            }
+            
+            fetch('/watson-admin/api/disable-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+            });
+        }
+
+        function createUser() {
+            const username = document.getElementById('newUsername').value;
+            const email = document.getElementById('newEmail').value;
+            const role = document.getElementById('newRole').value;
+            const password = document.getElementById('newTempPassword').value || generatePassword();
+            
+            if (!username || !email) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            fetch('/watson-admin/api/create-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    email: email,
+                    role: role,
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`User created successfully!\nUsername: ${data.credentials.username}\nPassword: ${data.credentials.temporary_password}\nUser must change password on first login.`);
+                    bootstrap.Modal.getInstance(document.getElementById('createUserModal')).hide();
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+            });
+        }
+
+        function generatePassword() {
+            const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*';
+            let password = '';
+            for (let i = 0; i < 12; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return password;
+        }
+
+        // Auto-fill new password field when selection changes
+        document.getElementById('resetUsername').addEventListener('change', function() {
+            if (this.value) {
+                document.getElementById('newPassword').value = generatePassword();
+            }
+        });
+
+        console.log('Enterprise User Management Portal: Loaded with full security controls');
+    </script>
+</body>
+</html>

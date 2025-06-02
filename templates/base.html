@@ -157,10 +157,10 @@ Adding ASI Enhanced Debugger link to the navigation bar based on user roles.
                             <i class="fas fa-microphone me-1"></i>Voice
                         </button>
                     </li>
-                    {% if is_watson or username in ['cooper', 'controller'] %}
+                    {% if session.username == 'watson' or session.username == 'cooper' or session.username == 'demo' %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/asi-enhanced-debugger">
-                            <i class="fas fa-brain"></i> ASI Debugger
+                        <a class="nav-link" href="/asi-enhanced-debugger" title="ASI Enhanced Debugger - Trillion-Power System Analysis">
+                            <i class="fas fa-brain me-1"></i>ASI Debugger
                         </a>
                     </li>
                     {% endif %}

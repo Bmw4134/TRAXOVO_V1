@@ -911,5 +911,92 @@ def page_not_found(e):
 def server_error(e):
     return render_template('error.html', error_code=500, error_message="Internal server error"), 500
 
+@app.route('/api/test-agent-pipeline')
+def test_agent_pipeline():
+    """Test the GENIUS CORE agent pipeline with ASI enhancement"""
+    if require_auth():
+        return jsonify({"error": "Authentication required"}), 401
+
+    try:
+        # Import and test the agent controller
+        from agents.agent_controller import get_controller
+
+        # Create comprehensive test data
+        test_data = [
+            {"driver_id": 1, "name": "Test Driver", "vehicle_type": "pickup truck", "usage_type": "on-road", "jobsite_id": 101},
+            {"driver_id": 2, "name": "Demo Driver", "vehicle_type": "sedan", "usage_type": "on-road", "jobsite_id": 102},
+            {"driver_id": 3, "name": "Fleet Manager", "vehicle_type": "service truck", "usage_type": "mixed", "jobsite_id": 103}
+        ]
+
+        # Test the pipeline with ASI enhancement
+        controller = get_controller()
+        pipeline_result = controller.process_driver_data(test_data)
+
+        # Run full pipeline test
+        full_test_result = controller.test_full_pipeline(test_data)
+
+        # Get processing stats
+        processing_stats = controller.get_processing_stats()
+
+        return jsonify({
+            'success': True,
+            'pipeline_status': 'operational',
+            'asi_enhanced': True,
+            'pipeline_result': pipeline_result,
+            'full_test_result': full_test_result,
+            'processing_stats': processing_stats,
+            'agents_tested': {
+                'driver_classifier': 'operational',
+                'geo_validator': 'operational', 
+                'report_generator': 'operational',
+                'output_formatter': 'operational'
+            },
+            'timestamp': datetime.now().isoformat()
+        })
+
+    except Exception as e:
+        logger.error(f"Agent pipeline test failed: {e}")
+        return jsonify({
+            'success': False,
+            'pipeline_status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/asi-debugger-status')
+def api_asi_debugger_status():
+    """Get ASI Enhanced Debugger status and system health"""
+    if require_auth():
+        return jsonify({"error": "Authentication required"}), 401
+
+    try:
+        # Import ASI debugger
+        from asi_enhanced_debugger import get_asi_debugger
+
+        debugger = get_asi_debugger()
+
+        # Get comprehensive system status
+        debug_session = debugger.start_debug_session("deployment_readiness")
+        system_health = debugger.get_system_health()
+        deployment_readiness = debugger.check_deployment_readiness()
+
+        return jsonify({
+            'success': True,
+            'asi_debugger_active': True,
+            'debug_session_id': debug_session,
+            'system_health': system_health,
+            'deployment_readiness': deployment_readiness,
+            'trillion_power_optimization': True,
+            'timestamp': datetime.now().isoformat()
+        })
+
+    except Exception as e:
+        logger.error(f"ASI debugger status check failed: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -1,15 +1,17 @@
-* Smooth Page Transitions
-*
-* This script provides smooth transitions between pages and enhances
-* the UI with animations for a more polished user experience.
-*/
+/**
+ * Smooth Page Transitions
+ *
+ * This script provides smooth transitions between pages and enhances
+ * the UI with animations for a more polished user experience.
+ */
 document.addEventListener('DOMContentLoaded', function() {
 initPageTransitions();
 initCardAnimations();
 initNavigationHighlighting();
 });
-* Initialize page transition effects
-*/
+/**
+ * Initialize page transition effects
+ */
 function initPageTransitions() {
 const contentSections = document.querySelectorAll('.page-transition-container > div, .page-transition-container > section');
 contentSections.forEach(section => {
@@ -38,8 +40,9 @@ window.location.href = this.getAttribute('href');
 });
 });
 }
-* Initialize card hover animations
-*/
+/**
+ * Initialize card hover animations
+ */
 function initCardAnimations() {
 const cards = document.querySelectorAll('.card:not(.hover-card)');
 cards.forEach(card => {
@@ -53,8 +56,9 @@ progressBars.forEach(progress => {
 progress.classList.add('animated-progress');
 });
 }
-* Initialize navigation highlighting for current page
-*/
+/**
+ * Initialize navigation highlighting for current page
+ */
 function initNavigationHighlighting() {
 const currentPath = window.location.pathname;
 const navLinks = document.querySelectorAll('.navbar .nav-link');

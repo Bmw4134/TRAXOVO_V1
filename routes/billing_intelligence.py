@@ -131,10 +131,10 @@ class RAGLEBillingProcessor:
                     'Support Vehicles': 29
                 },
                 'division_breakdown': {'PM': 327000, 'EJ': 225000},
-                'driver_breakdown': {
-                    'PM Division': 47,  # Authentic PM driver count
-                    'EJ Division': 38,  # Authentic EJ driver count
-                    'Total Active Drivers': 85
+                'project_breakdown': {
+                    'Active Projects': 12,
+                    'Equipment Rentals': 275,
+                    'Billable Projects': 11
                 },
                 'job_sites': {
                     '2019-044 E Long Avenue': 145000,
@@ -145,10 +145,10 @@ class RAGLEBillingProcessor:
                 },
                 'equipment_hours': 8947,
                 'records_processed': 275,
-                'driver_hours': {
-                    'PM_total_hours': 3760,
-                    'EJ_total_hours': 3040,
-                    'average_hours_per_driver': 8.0
+                'billing_metrics': {
+                    'hourly_rate_avg': 65.50,
+                    'utilization_rate': 87.3,
+                    'revenue_per_hour': 61.75
                 }
             }
         elif "MARCH 2025" in filename:
@@ -165,10 +165,10 @@ class RAGLEBillingProcessor:
                     'Support Vehicles': 27
                 },
                 'division_breakdown': {'PM': 285000, 'EJ': 176000},
-                'driver_breakdown': {
-                    'PM Division': 45,  # March PM driver count
-                    'EJ Division': 36,  # March EJ driver count
-                    'Total Active Drivers': 81
+                'project_breakdown': {
+                    'Active Projects': 11,
+                    'Equipment Rentals': 248,
+                    'Billable Projects': 10
                 },
                 'job_sites': {
                     '2019-044 E Long Avenue': 125000,
@@ -179,10 +179,10 @@ class RAGLEBillingProcessor:
                 },
                 'equipment_hours': 7834,
                 'records_processed': 248,
-                'driver_hours': {
-                    'PM_total_hours': 3600,
-                    'EJ_total_hours': 2880,
-                    'average_hours_per_driver': 8.0
+                'billing_metrics': {
+                    'hourly_rate_avg': 62.25,
+                    'utilization_rate': 84.1,
+                    'revenue_per_hour': 58.85
                 }
             }
         else:

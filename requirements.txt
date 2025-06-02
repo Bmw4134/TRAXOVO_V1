@@ -52,6 +52,6 @@ bleach
 flask-limiter
 flask-talisman
 markupsafe
-sentence-transformers
+sentence-transformers[cpu]
 supabase
 selenium

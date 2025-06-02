@@ -94,13 +94,61 @@ class TRAXOVOOnboardingTour {
                     position: absolute;
                     background: white;
                     border-radius: 12px;
-                    padding: 24px;
+                    padding: 20px;
                     max-width: 350px;
                     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
                                 0 10px 10px -5px rgba(0, 0, 0, 0.04);
                     z-index: 10001;
                     pointer-events: auto;
                     border: 1px solid #e5e7eb;
+                }
+                
+                /* Mobile Optimizations */
+                @media (max-width: 768px) {
+                    .onboarding-tooltip {
+                        max-width: 300px;
+                        padding: 16px;
+                        font-size: 14px;
+                        margin: 10px;
+                    }
+                    
+                    .onboarding-tooltip h3 {
+                        font-size: 16px;
+                        margin-bottom: 8px;
+                    }
+                    
+                    .onboarding-tooltip p {
+                        font-size: 13px;
+                        line-height: 1.4;
+                        margin-bottom: 16px;
+                    }
+                    
+                    .onboarding-buttons {
+                        flex-direction: column;
+                        gap: 8px;
+                    }
+                    
+                    .onboarding-btn {
+                        width: 100%;
+                        padding: 12px 16px;
+                        font-size: 14px;
+                        text-align: center;
+                    }
+                    
+                    .onboarding-controls {
+                        flex-direction: column;
+                        gap: 12px;
+                        align-items: center;
+                    }
+                    
+                    .onboarding-progress {
+                        order: 2;
+                    }
+                    
+                    .onboarding-buttons {
+                        order: 1;
+                        width: 100%;
+                    }
                 }
                 
                 .onboarding-tooltip h3 {

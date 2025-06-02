@@ -2,7 +2,7 @@ modules = ["python-3.11", "postgresql-16"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["cairo", "cargo", "ffmpeg-full", "freetype", "geckodriver", "ghostscript", "glibcLocales", "gobject-introspection", "gtk3", "jre", "lcms2", "libiconv", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "libyaml", "openjpeg", "openssl", "pkg-config", "postgresql", "qhull", "rustc", "tcl", "tk", "unzip", "zlib"]
+packages = ["cairo", "cargo", "ffmpeg-full", "freetype", "geckodriver", "ghostscript", "glibcLocales", "gobject-introspection", "gtk3", "jre", "lcms2", "libiconv", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "libyaml", "openjpeg", "openssl", "pkg-config", "postgresql", "qhull", "rustc", "tcl", "tk", "unzip", "zlib", "zip"]
 
 [deployment]
 deploymentTarget = "cloudrun"

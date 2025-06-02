@@ -24,13 +24,13 @@ Processes authentic GAUGE API data for dashboard display
                 if (xhr.status === 200) {
                     try {
                         var data = JSON.parse(xhr.responseText);
-                        if (data.success) {
+                        if (data.total_count || data.assets) {
                             metricsData = data;
                             lastUpdate = Date.now();
                             updateDashboardDisplay(data);
                             console.log('Dashboard metrics updated successfully');
                         } else {
-                            console.error('API returned unsuccessful response:', data);
+                            console.error('API returned unexpected format:', data);
                             showErrorState();
                         }
                     } catch (e) {

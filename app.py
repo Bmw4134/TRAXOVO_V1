@@ -151,38 +151,41 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        # Simple authentication with role-based access
-        if username == 'watson' and password == 'Btpp@1513$!':
+        # Debug log for credential validation
+        print(f"Login attempt - Username: '{username}', Password: '{password}'")
+        
+        # Simple authentication with role-based access - handle both escaped and unescaped versions
+        if username == 'watson' and (password == 'Btpp@1513$!' or password == 'Btpp@1513\\$!'):
             session['username'] = username
             session['user_role'] = 'admin'
             flash(f'Welcome Watson - Administrator Access', 'success')
             return redirect(url_for('dashboard'))
-        elif username == 'chris' and password == 'Chris@FM$1':
+        elif username == 'chris' and (password == 'Chris@FM$1' or password == 'Chris@FM\\$1'):
             session['username'] = username
             session['user_role'] = 'fleet_manager'
             flash(f'Welcome Chris - Fleet Manager Access', 'success')
             return redirect(url_for('dashboard'))
-        elif username == 'cooper' and password == 'Cooper@Esoc$1!':
+        elif username == 'cooper' and (password == 'Cooper@Esoc$1!' or password == 'Cooper@Esoc\\$1!'):
             session['username'] = username
             session['user_role'] = 'sr_estimator'
             flash(f'Welcome Cooper - Senior Estimator Access', 'success')
             return redirect(url_for('dashboard'))
-        elif username == 'sebastian' and password == 'Sebastian@Ctrl$1!':
+        elif username == 'sebastian' and (password == 'Sebastian@Ctrl$1!' or password == 'Sebastian@Ctrl\\$1!'):
             session['username'] = username
             session['user_role'] = 'controls_manager'
             flash(f'Welcome Sebastian - Controls Manager Access', 'success')
             return redirect(url_for('dashboard'))
-        elif username == 'william' and password == 'William@CPA$1!':
+        elif username == 'william' and (password == 'William@CPA$1!' or password == 'William@CPA\\$1!'):
             session['username'] = username
             session['user_role'] = 'controller'
             flash(f'Welcome William - Controller/CPA Access', 'success')
             return redirect(url_for('dashboard'))
-        elif username == 'troy' and password == 'Troy@VP$1!':
+        elif username == 'troy' and (password == 'Troy@VP$1!' or password == 'Troy@VP\\$1!'):
             session['username'] = username
             session['user_role'] = 'vp_executive'
             flash(f'Welcome Troy - VP Executive Access', 'success')
             return redirect(url_for('dashboard'))
-        elif username == 'demo' and password == 'TRAXOVO@Demo$2025!':
+        elif username == 'demo' and (password == 'TRAXOVO@Demo$2025!' or password == 'TRAXOVO@Demo\\$2025!'):
             session['username'] = username
             session['user_role'] = 'demo_user'
             flash(f'Welcome to TRAXOVO Demo - Full POC Access', 'success')

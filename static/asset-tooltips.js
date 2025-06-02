@@ -23,7 +23,7 @@ document.body.appendChild(this.tooltip);
 }
 async loadTooltipData() {
 try {
-const response = await fetch('/api/fleet/assets');
+const response = await fetch('/api/fleet_assets');
 const data = await response.json();
 if (data.success && data.assets) {
 // Process authentic GAUGE asset data for tooltips

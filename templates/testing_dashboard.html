@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASI Testing Dashboard - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .testing-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 1200px;
+        }
+        .status-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+        .status-card:hover {
+            transform: translateY(-2px);
+        }
+        .test-result-card {
+            border-left: 4px solid #28a745;
+            background: #f8f9fa;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+        }
+        .failed-test {
+            border-left-color: #dc3545;
+        }
+        .automation-controls {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            color: white;
+        }
+        .scraping-section {
+            background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            color: white;
+            margin-top: 1rem;
+        }
+        .real-time-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #28a745;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+        .btn-quantum {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .btn-quantum:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-robot me-2"></i>TRAXOVO ASI Testing
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/dashboard">Dashboard</a>
+                <a class="nav-link" href="/watson-confidence">Watson Center</a>
+                <a class="nav-link" href="/chris-fleet">Fleet Manager</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="testing-container">
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="text-center mb-4">
+                        <i class="fas fa-cogs me-3"></i>ASI Testing Dashboard
+                        <span class="real-time-indicator ms-3"></span>
+                        <small class="text-muted">Real-time Automation</small>
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Real-time Status Section -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="status-card">
+                        <h5><i class="fas fa-heartbeat me-2"></i>System Status</h5>
+                        <p id="system-status">Initializing...</p>
+                        <small id="last-updated">Last updated: --</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="status-card">
+                        <h5><i class="fas fa-vial me-2"></i>Tests Run</h5>
+                        <p id="tests-count">0</p>
+                        <small>Total test executions</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="status-card">
+                        <h5><i class="fas fa-spider me-2"></i>Scrapes Completed</h5>
+                        <p id="scrapes-count">0</p>
+                        <small>Web scraping operations</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Automation Controls -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="automation-controls">
+                        <h4><i class="fas fa-play-circle me-2"></i>Automated Testing</h4>
+                        <p>Run comprehensive system validation</p>
+                        <button class="btn btn-light me-2" onclick="runFullTests()">
+                            <i class="fas fa-rocket me-1"></i>Run All Tests
+                        </button>
+                        <button class="btn btn-outline-light" onclick="validateUploadSystem()">
+                            <i class="fas fa-upload me-1"></i>Test Upload System
+                        </button>
+                        <div id="test-progress" class="mt-3" style="display: none;">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="scraping-section">
+                        <h4><i class="fas fa-globe me-2"></i>Web Scraping</h4>
+                        <p>Extract data from external sources</p>
+                        <div class="input-group mb-3">
+                            <input type="url" id="scrape-url" class="form-control" placeholder="Enter URL to scrape...">
+                            <button class="btn btn-light" onclick="scrapeWebsite()">
+                                <i class="fas fa-search me-1"></i>Scrape
+                            </button>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <button class="btn btn-outline-light btn-sm w-100" onclick="scrapeCompetitor('https://www.samsara.com')">
+                                    Samsara Fleet
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-outline-light btn-sm w-100" onclick="scrapeCompetitor('https://www.geotab.com')">
+                                    Geotab Telematics
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Results Display -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h4><i class="fas fa-chart-line me-2"></i>Test Results</h4>
+                    <div id="test-results-container">
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-flask fa-3x mb-3"></i>
+                            <p>No tests run yet. Click "Run All Tests" to begin automated validation.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scraping Results -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h4><i class="fas fa-database me-2"></i>Scraping Results</h4>
+                    <div id="scraping-results-container">
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-spider fa-3x mb-3"></i>
+                            <p>No scraping operations completed. Enter a URL above to extract data.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Real-time status monitoring
+        let statusInterval;
+
+        function updateStatus() {
+            fetch('/api/browser_automation_status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('system-status').textContent = data.current_status || 'idle';
+                    document.getElementById('tests-count').textContent = data.last_test_count || 0;
+                    document.getElementById('scrapes-count').textContent = data.last_scrape_count || 0;
+                    document.getElementById('last-updated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+                })
+                .catch(error => {
+                    console.error('Status update error:', error);
+                    document.getElementById('system-status').textContent = 'Connection Error';
+                });
+        }
+
+        function runFullTests() {
+            const progressDiv = document.getElementById('test-progress');
+            const progressBar = progressDiv.querySelector('.progress-bar');
+            
+            progressDiv.style.display = 'block';
+            progressBar.style.width = '20%';
+            
+            fetch('/api/run_traxovo_tests')
+                .then(response => response.json())
+                .then(data => {
+                    progressBar.style.width = '100%';
+                    displayTestResults(data);
+                    setTimeout(() => {
+                        progressDiv.style.display = 'none';
+                        progressBar.style.width = '0%';
+                    }, 2000);
+                })
+                .catch(error => {
+                    console.error('Test error:', error);
+                    progressDiv.style.display = 'none';
+                    displayTestError(error);
+                });
+        }
+
+        function validateUploadSystem() {
+            fetch('/api/validate_upload_system')
+                .then(response => response.json())
+                .then(data => {
+                    displayTestResults({
+                        timestamp: data.timestamp,
+                        results: [{
+                            route: '/asi-analyzer (Upload Test)',
+                            status: data.status,
+                            upload_elements_found: data.upload_elements_found,
+                            asi_analyzer_functional: data.asi_analyzer_functional
+                        }]
+                    });
+                })
+                .catch(error => {
+                    console.error('Upload test error:', error);
+                    displayTestError(error);
+                });
+        }
+
+        function scrapeWebsite() {
+            const url = document.getElementById('scrape-url').value;
+            if (!url) {
+                alert('Please enter a URL to scrape');
+                return;
+            }
+
+            fetch('/api/scrape_website', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayScrapingResults(data);
+            })
+            .catch(error => {
+                console.error('Scraping error:', error);
+                displayScrapingError(error);
+            });
+        }
+
+        function scrapeCompetitor(url) {
+            document.getElementById('scrape-url').value = url;
+            scrapeWebsite();
+        }
+
+        function displayTestResults(data) {
+            const container = document.getElementById('test-results-container');
+            
+            let html = `
+                <div class="test-result-card">
+                    <h5><i class="fas fa-clock me-2"></i>Test Run: ${data.timestamp}</h5>
+                    <p><strong>Base URL:</strong> ${data.base_url || 'Local'}</p>
+                    <p><strong>Routes Tested:</strong> ${data.routes_tested || data.results?.length || 1}</p>
+                </div>
+            `;
+
+            if (data.results) {
+                data.results.forEach(result => {
+                    const statusIcon = result.status === 'pass' ? 'fas fa-check-circle text-success' : 'fas fa-times-circle text-danger';
+                    const cardClass = result.status === 'pass' ? 'test-result-card' : 'test-result-card failed-test';
+                    
+                    html += `
+                        <div class="${cardClass}">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6><i class="${statusIcon} me-2"></i>${result.route}</h6>
+                                    <small class="text-muted">${result.url || result.route}</small>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="badge bg-${result.status === 'pass' ? 'success' : 'danger'}">${result.status.toUpperCase()}</span>
+                                    ${result.response_time_ms ? `<br><small>${result.response_time_ms}ms</small>` : ''}
+                                </div>
+                            </div>
+                            ${result.error ? `<p class="text-danger mt-2"><small>Error: ${result.error}</small></p>` : ''}
+                        </div>
+                    `;
+                });
+            }
+
+            container.innerHTML = html;
+        }
+
+        function displayScrapingResults(data) {
+            const container = document.getElementById('scraping-results-container');
+            
+            let html = `
+                <div class="test-result-card">
+                    <h5><i class="fas fa-globe me-2"></i>Scraped: ${data.url}</h5>
+                    <p><strong>Page Title:</strong> ${data.page_title || 'Unknown'}</p>
+                    <p><strong>Timestamp:</strong> ${data.timestamp}</p>
+                </div>
+            `;
+
+            if (data.clean_text) {
+                html += `
+                    <div class="test-result-card">
+                        <h6><i class="fas fa-file-text me-2"></i>Extracted Text</h6>
+                        <div style="max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 1rem; border-radius: 5px;">
+                            <pre style="white-space: pre-wrap; font-size: 0.8rem;">${data.clean_text}</pre>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (data.extracted_data) {
+                if (data.extracted_data.links) {
+                    html += `
+                        <div class="test-result-card">
+                            <h6><i class="fas fa-link me-2"></i>Links Found (${data.extracted_data.links.length})</h6>
+                            <div class="row">
+                                ${data.extracted_data.links.slice(0, 6).map(link => `
+                                    <div class="col-md-6 mb-2">
+                                        <small><a href="${link}" target="_blank" class="text-truncate d-block">${link}</a></small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            if (data.error) {
+                html += `
+                    <div class="test-result-card failed-test">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Scraping Error</h6>
+                        <p class="text-danger">${data.error}</p>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function displayTestError(error) {
+            const container = document.getElementById('test-results-container');
+            container.innerHTML = `
+                <div class="test-result-card failed-test">
+                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Test Error</h5>
+                    <p class="text-danger">Failed to run tests: ${error.message || error}</p>
+                </div>
+            `;
+        }
+
+        function displayScrapingError(error) {
+            const container = document.getElementById('scraping-results-container');
+            container.innerHTML = `
+                <div class="test-result-card failed-test">
+                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Scraping Error</h5>
+                    <p class="text-danger">Failed to scrape website: ${error.message || error}</p>
+                </div>
+            `;
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus();
+            statusInterval = setInterval(updateStatus, 10000); // Update every 10 seconds
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (statusInterval) {
+                clearInterval(statusInterval);
+            }
+        });
+    </script>
+</body>
+</html>

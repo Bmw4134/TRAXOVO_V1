@@ -845,5 +845,49 @@ def api_browser_automation_status():
             'recommendation': 'Initialize browser automation module'
         })
 
+# ASI testing routes integration
+
+@app.route('/api/run_traxovo_tests')
+def api_run_traxovo_tests():
+    """Run comprehensive TRAXOVO system tests"""
+    try:
+        from asi_testing_automation import run_full_traxovo_test
+        results = run_full_traxovo_test()
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "failed"}), 500
+
+@app.route('/api/scrape_website', methods=['POST'])
+def api_scrape_website():
+    """ASI-enhanced web scraping endpoint"""
+    try:
+        data = request.get_json()
+        url = data.get('url')
+        if not url:
+            return jsonify({"error": "URL required"}), 400
+        
+        from asi_testing_automation import scrape_competitor_data
+        results = scrape_competitor_data(url)
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "failed"}), 500
+
+@app.route('/api/validate_upload_system')
+def api_validate_upload_system():
+    """Validate video upload functionality"""
+    try:
+        from asi_testing_automation import validate_upload_system
+        results = validate_upload_system()
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "failed"}), 500
+
+@app.route('/testing-dashboard')
+def testing_dashboard():
+    """ASI Testing Dashboard - Real-time automation monitoring"""
+    if require_auth():
+        return redirect(url_for('login'))
+    return render_template('testing_dashboard.html')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

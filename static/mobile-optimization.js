@@ -1,6 +1,6 @@
 /**
  * TRAXOVO Mobile Optimization Engine
- * Clean, optimized mobile performance and UI optimization
+ * Enterprise-grade mobile performance and UI optimization
  */
 
 class TRAXOVOMobileOptimizer {

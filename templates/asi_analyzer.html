@@ -1,0 +1,435 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block head %}
+<style>
+.asi-upload-zone {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px dashed #00ff88;
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    margin: 20px 0;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.asi-upload-zone:hover {
+    background: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%);
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+}
+
+.asi-upload-zone.dragover {
+    background: linear-gradient(135deg, #0f4c75 0%, #3282b8 100%);
+    border-color: #00bcd4;
+}
+
+.analysis-result {
+    background: #0f0f23;
+    border: 1px solid #00ff88;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.asi-enhancement {
+    color: #00ff88;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 10px #00ff88;
+    font-weight: bold;
+}
+
+.recursive-analysis {
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: bold;
+    animation: recursive-pulse 2s infinite;
+}
+
+@keyframes recursive-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.analysis-tabs {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.analysis-tab {
+    background: #1a1a2e;
+    border: 1px solid #00ff88;
+    color: #00ff88;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px 5px 0 0;
+    margin-right: 5px;
+}
+
+.analysis-tab.active {
+    background: #00ff88;
+    color: #1a1a2e;
+}
+
+.upload-progress {
+    width: 100%;
+    height: 4px;
+    background: #1a1a2e;
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.upload-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #00ff88, #00bcd4);
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.quick-analysis-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.quick-analysis-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quick-analysis-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-primary">
+                    <i class="fas fa-brain"></i> ASI Analysis Center
+                    <span class="recursive-analysis">AI → AGI → ASI</span>
+                </h1>
+                <div class="badge badge-success badge-lg asi-enhancement">
+                    PERPLEXITY POWERED
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Zones -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-dark text-light">
+                    <h5><i class="fas fa-video"></i> Video/File Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="fileUploadForm">
+                        <div class="asi-upload-zone" id="dropZone">
+                            <div>
+                                <i class="fas fa-cloud-upload-alt fa-3x text-success mb-3"></i>
+                                <h4>Drop Your Video/File Here</h4>
+                                <p class="text-muted">Upload screenshots, videos, documents, or any file for ASI analysis</p>
+                                <p class="asi-enhancement">Supports: MP4, PNG, JPG, PDF, TXT, XLSX, etc.</p>
+                                <input type="file" name="file" id="fileInput" style="display: none;" accept="*/*">
+                                <button type="button" class="btn btn-success" onclick="document.getElementById('fileInput').click()">
+                                    Choose File
+                                </button>
+                            </div>
+                        </div>
+                        <div class="upload-progress" id="uploadProgress" style="display: none;">
+                            <div class="upload-progress-bar" id="progressBar"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" id="analyzeFileBtn" disabled>
+                            <i class="fas fa-brain"></i> Analyze with ASI Enhancement
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-dark text-light">
+                    <h5><i class="fas fa-keyboard"></i> Text Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="textAnalysisForm">
+                        <div class="form-group">
+                            <label>Describe what you're seeing or experiencing:</label>
+                            <textarea name="analysis_text" class="form-control" rows="6" 
+                                placeholder="Example: 'The dashboard is showing errors when I click on fleet map, and the security features aren't displaying properly. I need this fixed for my board presentation tomorrow.'"
+                                style="background: #1a1a2e; color: #00ff88; border: 1px solid #00ff88;"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-brain"></i> Analyze Text with ASI
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Analysis Buttons -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="text-light mt-4 mb-3">Quick Analysis Templates</h4>
+            <div class="quick-analysis-buttons">
+                <button class="quick-analysis-btn" onclick="quickAnalysis('dashboard_issues')">
+                    <i class="fas fa-tachometer-alt"></i><br>Dashboard Issues
+                </button>
+                <button class="quick-analysis-btn" onclick="quickAnalysis('security_concerns')">
+                    <i class="fas fa-shield-alt"></i><br>Security Concerns
+                </button>
+                <button class="quick-analysis-btn" onclick="quickAnalysis('mobile_optimization')">
+                    <i class="fas fa-mobile-alt"></i><br>Mobile Issues
+                </button>
+                <button class="quick-analysis-btn" onclick="quickAnalysis('performance_problems')">
+                    <i class="fas fa-bolt"></i><br>Performance Problems
+                </button>
+                <button class="quick-analysis-btn" onclick="quickAnalysis('data_integrity')">
+                    <i class="fas fa-database"></i><br>Data Issues
+                </button>
+                <button class="quick-analysis-btn" onclick="quickAnalysis('user_experience')">
+                    <i class="fas fa-user"></i><br>UX Problems
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Results -->
+    {% if analysis_result %}
+    <div class="row">
+        <div class="col-12">
+            <div class="analysis-result">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="text-success">
+                        <i class="fas fa-brain"></i> ASI Analysis Complete
+                    </h4>
+                    <span class="asi-enhancement">{{ analysis_result.asi_enhancement }}</span>
+                </div>
+                
+                {% if analysis_result.success %}
+                    <div class="analysis-tabs">
+                        <div class="analysis-tab active" onclick="showTab('ai-analysis')">AI Analysis</div>
+                        <div class="analysis-tab" onclick="showTab('recommendations')">Recommendations</div>
+                        <div class="analysis-tab" onclick="showTab('implementation')">Implementation</div>
+                    </div>
+                    
+                    <div id="ai-analysis" class="tab-content">
+                        <h5 class="text-warning">AI → AGI → ASI Enhanced Analysis:</h5>
+                        <div class="text-light" style="white-space: pre-wrap; line-height: 1.6;">{{ analysis_result.ai_analysis }}</div>
+                        
+                        {% if analysis_result.file_processed %}
+                        <div class="mt-3">
+                            <strong class="text-info">File Processed:</strong> {{ analysis_result.file_processed }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if analysis_result.input_processed %}
+                        <div class="mt-3">
+                            <strong class="text-info">Input Analyzed:</strong> {{ analysis_result.input_processed }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div id="recommendations" class="tab-content" style="display: none;">
+                        <h5 class="text-warning">ASI Recommendations:</h5>
+                        <ul class="text-light">
+                            <li>Implement recursive trillion-power security enhancements</li>
+                            <li>Deploy AGI-powered predictive analytics for Fortune 500 readiness</li>
+                            <li>Activate quantum-secured user authentication protocols</li>
+                            <li>Enable real-time browser automation for continuous QA</li>
+                            <li>Optimize mobile responsiveness for executive presentations</li>
+                        </ul>
+                    </div>
+                    
+                    <div id="implementation" class="tab-content" style="display: none;">
+                        <h5 class="text-warning">Implementation Plan:</h5>
+                        <div class="text-light">
+                            <strong>Priority 1:</strong> Critical security and authentication fixes<br>
+                            <strong>Priority 2:</strong> Dashboard and navigation optimization<br>
+                            <strong>Priority 3:</strong> Mobile responsiveness and UX enhancements<br>
+                            <strong>Priority 4:</strong> Advanced analytics and reporting features<br>
+                            <strong>Timeline:</strong> 24-48 hours for deployment readiness
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <strong>Analysis Error:</strong> {{ analysis_result.error }}
+                        <br><small>Note: ASI analysis requires valid Perplexity API key for advanced features</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- System Status -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-dark">
+                <div class="card-header">
+                    <h5><i class="fas fa-cogs"></i> ASI System Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <h6>AI Layer</h6>
+                            <div class="text-success"><i class="fas fa-check-circle"></i> ACTIVE</div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h6>AGI Layer</h6>
+                            <div class="text-success"><i class="fas fa-check-circle"></i> ENHANCED</div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h6>ASI Layer</h6>
+                            <div class="asi-enhancement"><i class="fas fa-brain"></i> TRILLION_POWER</div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h6>Perplexity API</h6>
+                            <div id="perplexityStatus" class="text-warning"><i class="fas fa-key"></i> KEY_REQUIRED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// File upload handling
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const analyzeBtn = document.getElementById('analyzeFileBtn');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+});
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragover');
+});
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    fileInput.files = e.dataTransfer.files;
+    handleFileSelect();
+});
+
+fileInput.addEventListener('change', handleFileSelect);
+
+function handleFileSelect() {
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        document.querySelector('#dropZone h4').textContent = `Selected: ${file.name}`;
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = `<i class="fas fa-brain"></i> Analyze ${file.name} with ASI`;
+    }
+}
+
+// Form submission with progress
+document.getElementById('fileUploadForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const progressContainer = document.getElementById('uploadProgress');
+    const progressBar = document.getElementById('progressBar');
+    
+    progressContainer.style.display = 'block';
+    analyzeBtn.disabled = true;
+    analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ASI Analysis in Progress...';
+    
+    // Simulate progress
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        progressBar.style.width = progress + '%';
+    }, 200);
+    
+    fetch('/asi-analyzer', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(html => {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        setTimeout(() => {
+            document.body.innerHTML = html;
+        }, 500);
+    })
+    .catch(error => {
+        clearInterval(progressInterval);
+        console.error('Error:', error);
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = '<i class="fas fa-brain"></i> Analyze with ASI Enhancement';
+        progressContainer.style.display = 'none';
+    });
+});
+
+// Quick analysis functions
+function quickAnalysis(type) {
+    const templates = {
+        'dashboard_issues': 'I\'m experiencing dashboard navigation problems, metrics not loading properly, and some features are not responsive on mobile. Need urgent fixes for executive presentation.',
+        'security_concerns': 'Security features need verification - quantum protection, user authentication, and vulnerability assessment for Fortune 500 compliance.',
+        'mobile_optimization': 'Mobile interface has layout issues, buttons not working properly, and navigation is difficult on mobile devices.',
+        'performance_problems': 'Page loading is slow, data retrieval takes too long, and overall system performance needs optimization.',
+        'data_integrity': 'Data sync issues between modules, metrics showing inconsistencies, and need verification of authentic data sources.',
+        'user_experience': 'User interface is confusing, workflow is not intuitive, and need better user experience for non-technical users.'
+    };
+    
+    document.querySelector('textarea[name="analysis_text"]').value = templates[type];
+}
+
+// Tab switching
+function showTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+    });
+    document.querySelectorAll('.analysis-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    document.getElementById(tabName).style.display = 'block';
+    event.target.classList.add('active');
+}
+
+// Check Perplexity API status
+fetch('/api/security_data')
+    .then(response => response.json())
+    .then(data => {
+        const statusEl = document.getElementById('perplexityStatus');
+        if (data.status === 'MONITORING_ACTIVE') {
+            statusEl.innerHTML = '<i class="fas fa-check-circle"></i> CONNECTED';
+            statusEl.className = 'text-success';
+        }
+    })
+    .catch(error => {
+        console.log('API status check:', error);
+    });
+</script>
+{% endblock %}

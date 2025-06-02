@@ -1,4 +1,4 @@
-* TRAXOVO Dynamic Loading Controller
+/** TRAXOVO Dynamic Loading Controller
 * Manages loading states and animations across the platform
 */
 class LoadingController {

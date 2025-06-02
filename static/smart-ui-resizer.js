@@ -1,4 +1,4 @@
-* Smart UI Resizer - Automatic viewport optimization for TRAXOVO Fleet Management
+/** Smart UI Resizer - Automatic viewport optimization for TRAXOVO Fleet Management
 * Detects device type and optimizes UI/UX accordingly
 */
 class SmartUIResizer {

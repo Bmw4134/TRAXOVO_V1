@@ -1,4 +1,4 @@
-* Dashboard Charts and Visual Analytics
+/** Dashboard Charts and Visual Analytics
 * Creates interactive charts using authentic GAUGE data
 */
 class DashboardCharts {

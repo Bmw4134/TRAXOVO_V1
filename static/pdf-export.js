@@ -1,4 +1,4 @@
-* TRAXOVO One-Click PDF Export System
+/** TRAXOVO One-Click PDF Export System
 * Generates professional performance reports from authentic fleet data
 */
 class TRAXOVOPDFExporter {

@@ -1,4 +1,4 @@
-* TRAXOVO Universal Search System
+/** TRAXOVO Universal Search System
 * Instant access to assets, financials, and operational data
 */
 class UniversalSearch {

@@ -1,4 +1,4 @@
-* TRAXOVO Drill-Down Charts & Data Visualization
+/** TRAXOVO Drill-Down Charts & Data Visualization
 * Interactive charts with authentic GAUGE data sources
 */
 class DrillDownCharts {

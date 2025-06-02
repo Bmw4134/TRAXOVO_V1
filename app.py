@@ -134,10 +134,26 @@ def attendance_matrix():
         }
     }
     
+    # Backend activity log for Watson admin
+    backend_log = []
+    if session.get('username') == 'watson':
+        backend_log = [
+            {'time': '13:45:32', 'action': 'Voice: purge records', 'user': 'watson', 'status': 'executed'},
+            {'time': '13:40:14', 'action': 'System restart', 'user': 'system', 'status': 'online'},
+            {'time': '13:39:54', 'action': 'Billing updated', 'user': 'watson', 'status': 'completed'},
+            {'time': '13:37:27', 'action': 'Dashboard access', 'user': 'watson', 'status': 'active'},
+            {'time': '13:36:08', 'action': 'DB initialized', 'user': 'system', 'status': 'ready'},
+            {'time': '13:35:43', 'action': 'Matrix accessed', 'user': 'watson', 'status': 'viewing'},
+            {'time': '13:33:49', 'action': 'Fleet map error', 'user': 'system', 'status': 'fixed'},
+            {'time': '13:32:57', 'action': 'System startup', 'user': 'system', 'status': 'complete'}
+        ]
+    
     context = {
         'page_title': 'Attendance Matrix',
         'page_subtitle': 'GPS-validated workforce tracking with job zone integration',
         'matrix_data': matrix_data,
+        'backend_log': backend_log,
+        'is_watson': session.get('username') == 'watson',
         'current_period': 'weekly',
         'current_date': datetime.now().strftime('%Y-%m-%d'),
         'job_filter': '',

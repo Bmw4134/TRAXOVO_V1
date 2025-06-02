@@ -43,11 +43,11 @@ os.makedirs('uploads', exist_ok=True)
 
 def require_auth():
     """Check if user is authenticated"""
-    return 'authenticated' not in session or not session['authenticated']
+    return 'username' not in session
 
 def require_watson():
     """Check if user is Watson admin"""
-    return session.get('username') != 'watson' or not session.get('authenticated')
+    return session.get('username') != 'watson'
 
 def get_user_role():
     """Get current user's role and permissions"""
@@ -94,21 +94,18 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        # Authentication with role-based access
+        # Simple authentication with role-based access
         if username == 'watson' and password == 'password':
-            session['authenticated'] = True
             session['username'] = username
             session['user_role'] = 'admin'
             flash(f'Welcome Watson - Administrator Access', 'success')
             return redirect(url_for('dashboard'))
         elif username == 'tester' and password == 'password':
-            session['authenticated'] = True
             session['username'] = username
             session['user_role'] = 'tester'
             flash(f'Welcome Tester - Standard Access', 'success')
             return redirect(url_for('dashboard'))
         elif username and password == 'password':
-            session['authenticated'] = True
             session['username'] = username
             session['user_role'] = 'user'
             flash(f'Welcome {username} - Basic Access', 'success')

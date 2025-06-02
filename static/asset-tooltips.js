@@ -1,7 +1,4 @@
-/*
-* Elite Asset Tooltip System for TRAXOVO
-* Contextual hover tooltips showing authentic GAUGE asset metrics
-*/
+// TRAXOVO Asset Tooltip System - Authentic GAUGE Data Integration
 class AssetTooltipManager {
 constructor() {
 this.tooltip = null;

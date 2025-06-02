@@ -9,6 +9,7 @@ import asyncio
 import subprocess
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request, redirect, url_for, session, flash
+from high_value_api_integrations import integrate_high_value_apis
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -411,6 +412,9 @@ def logout():
     session.clear()
     flash('You have been logged out successfully', 'info')
     return redirect('/secure_login')
+
+# Initialize high-value API integrations
+integrate_high_value_apis(app)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

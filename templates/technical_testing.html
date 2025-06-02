@@ -16,17 +16,17 @@
         }
 
         body {
-            background: #0a0a0a;
+            background: #1a1a1a;
             color: #ffffff;
-            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-            line-height: 1.4;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
             overflow-x: hidden;
         }
 
         .main-header {
-            background: #111111;
-            border-bottom: 2px solid #333333;
-            padding: 12px 0;
+            background: #242424;
+            border-bottom: 1px solid #404040;
+            padding: 20px 0;
             position: relative;
         }
 
@@ -36,32 +36,31 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #ff4500, transparent);
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #d4a574, transparent);
         }
 
         .main-title {
-            font-size: 1.8rem;
-            font-weight: 400;
+            font-size: 2.2rem;
+            font-weight: 600;
             color: #ffffff;
-            text-align: left;
+            text-align: center;
             margin: 0;
-            padding-left: 20px;
             letter-spacing: 0.5px;
         }
 
         .main-title::before {
-            content: '> ';
-            color: #ff4500;
-            font-weight: bold;
+            content: '⚙ ';
+            color: #d4a574;
+            margin-right: 8px;
         }
 
         .subtitle {
-            color: #888888;
-            font-size: 0.9rem;
-            margin-top: 4px;
-            padding-left: 20px;
-            font-weight: 300;
+            color: #cccccc;
+            font-size: 1rem;
+            margin-top: 8px;
+            text-align: center;
+            font-weight: 400;
         }
 
         .container-fluid {
@@ -69,42 +68,50 @@
         }
 
         .panel {
-            background: #111111;
-            border: 1px solid #333333;
-            margin: 8px;
-            position: relative;
+            background: #2a2a2a;
+            border: 1px solid #404040;
+            margin: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
         .panel-header {
-            background: #1a1a1a;
-            border-bottom: 1px solid #333333;
-            padding: 8px 12px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #ffffff;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            background: linear-gradient(135deg, #d4a574 0%, #b8935f 100%);
+            color: #1a1a1a;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 8px 8px 0 0;
+            border-bottom: 1px solid #404040;
         }
 
         .panel-header::before {
-            content: '■ ';
-            color: #ff4500;
-            margin-right: 6px;
+            content: '● ';
+            color: #1a1a1a;
+            margin-right: 8px;
+            font-weight: bold;
         }
 
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            padding: 12px;
+            gap: 12px;
+            padding: 20px;
         }
 
         .metric-display {
-            background: #0a0a0a;
-            border: 1px solid #333333;
-            padding: 16px 12px;
+            background: #323232;
+            border: 1px solid #505050;
+            border-radius: 6px;
+            padding: 20px 16px;
             text-align: center;
             position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .metric-display:hover {
+            background: #3a3a3a;
+            border-color: #d4a574;
         }
 
         .metric-display::before {
@@ -113,8 +120,9 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 2px;
-            background: #ff4500;
+            height: 3px;
+            background: linear-gradient(90deg, #d4a574, #b8935f);
+            border-radius: 6px 6px 0 0;
         }
 
         .metric-value {
@@ -135,56 +143,65 @@
         .test-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            padding: 12px;
+            gap: 12px;
+            padding: 20px;
         }
 
         .test-btn {
-            background: #1a1a1a;
-            border: 1px solid #444444;
+            background: #323232;
+            border: 1px solid #505050;
             color: #ffffff;
-            padding: 12px 16px;
+            padding: 16px 20px;
             cursor: pointer;
             font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 400;
+            font-size: 0.9rem;
+            font-weight: 500;
             text-align: left;
-            transition: all 0.1s ease;
+            transition: all 0.2s ease;
             position: relative;
             outline: none;
+            border-radius: 6px;
         }
 
         .test-btn::before {
             content: '▶ ';
-            color: #ff4500;
-            margin-right: 8px;
+            color: #d4a574;
+            margin-right: 10px;
+            font-weight: bold;
         }
 
         .test-btn:hover {
-            background: #222222;
-            border-color: #ff4500;
+            background: #3a3a3a;
+            border-color: #d4a574;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(212, 165, 116, 0.15);
         }
 
         .test-btn:active {
-            background: #333333;
+            background: #404040;
+            transform: translateY(0);
         }
 
         .test-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .test-btn:disabled::before {
             content: '⏸ ';
+            color: #888888;
         }
 
         .terminal {
-            background: #000000;
-            border: 1px solid #333333;
-            padding: 12px;
-            font-family: inherit;
-            font-size: 0.8rem;
-            line-height: 1.4;
+            background: #1e1e1e;
+            border: 1px solid #505050;
+            border-radius: 6px;
+            padding: 16px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
             color: #ffffff;
             min-height: 200px;
             max-height: 400px;
@@ -193,48 +210,52 @@
         }
 
         .terminal::before {
-            content: 'root@traxovo:~# ';
-            color: #ff4500;
+            content: 'TRAXOVO@FLEET-SYS:~$ ';
+            color: #d4a574;
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            font-weight: bold;
         }
 
         .history-display {
-            background: #0a0a0a;
-            border: 1px solid #333333;
-            padding: 12px;
-            font-size: 0.8rem;
+            background: #2a2a2a;
+            border: 1px solid #505050;
+            border-radius: 6px;
+            padding: 16px;
+            font-size: 0.85rem;
             min-height: 200px;
             max-height: 300px;
             overflow-y: auto;
         }
 
-        .status-ok { color: #00ff00; }
-        .status-warn { color: #ffff00; }
-        .status-err { color: #ff0000; }
-        .status-info { color: #00ffff; }
+        .status-success { color: #4ade80; }
+        .status-warning { color: #fbbf24; }
+        .status-error { color: #f87171; }
+        .status-info { color: #60a5fa; }
 
         .system-indicator {
             position: fixed;
-            top: 12px;
-            right: 12px;
-            background: #000000;
-            border: 1px solid #333333;
-            padding: 6px 12px;
-            font-size: 0.75rem;
-            color: #ffffff;
+            top: 16px;
+            right: 16px;
+            background: linear-gradient(135deg, #d4a574, #b8935f);
+            color: #1a1a1a;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
             z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
         .system-indicator::before {
             content: '● ';
-            color: #00ff00;
-            animation: blink 2s infinite;
+            color: #1a1a1a;
+            animation: pulse 2s infinite;
         }
 
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.3; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
         .row {

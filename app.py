@@ -411,6 +411,41 @@ def api_autonomous_ux_analysis():
         logging.error(f"Autonomous UX analysis error: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/user/widget-preferences', methods=['GET', 'POST'])
+def api_widget_preferences():
+    """Handle widget customization preferences"""
+    if require_auth_check():
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    if request.method == 'POST':
+        try:
+            preferences = request.get_json()
+            user_id = session.get('user_id', 'default')
+            
+            # Store preferences in session for now (can be expanded to database)
+            session[f'widget_preferences_{user_id}'] = preferences
+            
+            return jsonify({
+                'success': True,
+                'message': 'Widget preferences saved successfully'
+            })
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': f'Failed to save preferences: {str(e)}'
+            }), 400
+    
+    else:  # GET request
+        user_id = session.get('user_id', 'default')
+        preferences = session.get(f'widget_preferences_{user_id}', {
+            'layout': 'grid-4x2',
+            'enabledWidgets': ['fleet-status', 'revenue-metrics', 'asset-utilization', 'driver-performance'],
+            'autoRefresh': True,
+            'refreshInterval': 30000
+        })
+        
+        return jsonify(preferences)
+
 @app.route('/api/master_deployment_audit')
 def api_master_deployment_audit():
     """Execute master deployment audit with all fused models"""

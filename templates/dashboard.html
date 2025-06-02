@@ -7,6 +7,7 @@
     <script src="{{ url_for('static', filename='emergency-fix.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='enterprise-ui.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='mobile-responsive.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='widget-customization.css') }}">
     <style>
         * {
             margin: 0;
@@ -686,7 +687,7 @@
         <!-- Executive KPI Banner -->
         <div class="executive-kpi-banner">
             <div class="kpi-grid">
-                <div class="kpi-card revenue-kpi" onclick="drillDownRevenue()">
+                <div class="kpi-card revenue-kpi" data-widget="revenue-metrics" onclick="drillDownRevenue()">
                     <div class="kpi-icon">💰</div>
                     <div class="kpi-content">
                         <div class="kpi-value" id="ytdRevenue">$2.1M</div>
@@ -694,7 +695,7 @@
                         <div class="kpi-trend positive">+8.2% vs Last Year</div>
                     </div>
                 </div>
-                <div class="kpi-card efficiency-kpi" onclick="drillDownEfficiency()">
+                <div class="kpi-card efficiency-kpi" data-widget="efficiency-trends" onclick="drillDownEfficiency()">
                     <div class="kpi-icon">⚡</div>
                     <div class="kpi-content">
                         <div class="kpi-value" id="fleetEfficiency">94.2%</div>
@@ -702,7 +703,7 @@
                         <div class="kpi-trend positive">+2.1% This Month</div>
                     </div>
                 </div>
-                <div class="kpi-card utilization-kpi" onclick="drillDownAssets()">
+                <div class="kpi-card utilization-kpi" data-widget="asset-utilization" onclick="drillDownAssets()">
                     <div class="kpi-icon">🚛</div>
                     <div class="kpi-content">
                         <div class="kpi-value" id="assetsActive">614/717</div>
@@ -710,7 +711,7 @@
                         <div class="kpi-trend positive" id="utilizationRate">85.6% Utilization</div>
                     </div>
                 </div>
-                <div class="kpi-card margin-kpi" onclick="drillDownMargin()">
+                <div class="kpi-card margin-kpi" data-widget="billing-summary" onclick="drillDownMargin()">
                     <div class="kpi-icon">📊</div>
                     <div class="kpi-content">
                         <div class="kpi-value" id="profitMargin">34.7%</div>
@@ -1331,5 +1332,8 @@
     
     <!-- Tour Guide Integration -->
     <script src="/static/tour-guide.js"></script>
+    
+    <!-- Widget Customization -->
+    <script src="{{ url_for('static', filename='widget-customization.js') }}"></script>
 </body>
 </html>

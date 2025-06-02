@@ -720,6 +720,14 @@ app.register_blueprint(internal_llm_bp)
 app.register_blueprint(agi_analytics_bp)
 app.register_blueprint(agi_quantum_bp)
 
+# Register AGI Workflow Automation
+from agi_workflow_automation import get_agi_workflow_automation
+agi_workflow = get_agi_workflow_automation()
+
+# Register AGI Enhanced Login System
+from agi_enhanced_login import agi_login_bp
+app.register_blueprint(agi_login_bp, url_prefix='/agi-auth')
+
 # Register AGI-Enhanced Idea Box
 from idea_box import idea_box_bp
 app.register_blueprint(idea_box_bp)

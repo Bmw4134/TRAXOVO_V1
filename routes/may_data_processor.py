@@ -18,14 +18,14 @@ logger = logging.getLogger(__name__)
 
 @may_processor_bp.route('/upload-may-week-data')
 def upload_may_week_data():
-    """Upload page specifically for May 23-27 data"""
-    target_dates = [
-        '2025-05-23',  # Friday
-        '2025-05-24',  # Saturday  
-        '2025-05-25',  # Sunday
-        '2025-05-26',  # Monday
-        '2025-05-27'   # Tuesday
-    ]
+    """Upload page for complete May 2025 monthly data (May 1-31)"""
+    # Generate all dates for May 2025
+    target_dates = []
+    for day in range(1, 32):
+        target_dates.append(f'2025-05-{day:02d}')
+    
+    # Business days for May 2025 (excluding weekends if needed)
+    business_days = [date for date in target_dates if datetime.strptime(date, '%Y-%m-%d').weekday() < 5]
     
     return render_template('may_week_uploader.html',
                          target_dates=target_dates,
@@ -337,8 +337,10 @@ def generate_may_reports(processed_files):
         monthly_update = {
             'month': 'May 2025',
             'new_records_added': len(all_may_data),
-            'date_range_covered': 'May 23-27, 2025',
-            'ready_for_monthly_report': True
+            'date_range_covered': 'May 1-31, 2025',
+            'ready_for_monthly_report': True,
+            'automation_ready': True,
+            'business_process_complete': True
         }
         
         # Save comprehensive May report

@@ -46,14 +46,14 @@ console.error('Failed to load tooltip data:', error);
 }
 bindEvents() {
 document.addEventListener('mouseenter', (e) => {
-const assetElement = e.target.closest('[data-asset-id]');
+const assetElement = e.target.parentElement&&e.target.parentElement.querySelector('[data-asset-id]');
 if (assetElement) {
 const assetId = assetElement.dataset.assetId;
 this.showTooltip(assetId, e);
 }
 }, true);
 document.addEventListener('mouseleave', (e) => {
-const assetElement = e.target.closest('[data-asset-id]');
+const assetElement = e.target.parentElement&&e.target.parentElement.querySelector('[data-asset-id]');
 if (assetElement) {
 this.hideTooltip();
 }

@@ -1,0 +1,47 @@
+You are a zero-regression, end-to-end LLM QA engineer with authority over this entire Replit dashboard project.
+
+TASK:
+Perform a full recursive sweep of **every file** and **every subfolder** in this project, inspecting for:
+- UI rendering loops
+- Component-level overlap or duplicate mounting
+- Re-imported logic causing doubled state hooks
+- Bloat caused by unnecessary logs, global states, oversized asset imports
+- Module overlap (e.g., two JobZone.js, miswired AssetManager.jsx, duplicate CSS or JS handlers)
+- Improper grid or flex layout logic causing infinite scroll
+
+RULES:
+1. **DO NOT** touch, reset, or overwrite any working business logic or mapping files created more than 2 days ago.
+2. **DO NOT** create placeholder, demo, or scaffold components.
+3. **DO NOT** install additional libraries, unless they resolve a specific error you’ve flagged.
+4. **DO NOT** merge duplicate modules — flag them in `/conflicts/modules.json` for manual review.
+
+EXECUTION:
+- Begin recursive inspection from the root level.
+- For each file:
+   - Check for duplicate imports
+   - Confirm no repeated logic from other modules (e.g., shared `useEffect` duplication)
+   - Annotate risk in a `comments.log` file and suggest a fix without implementing it automatically.
+- Inject **one-time-only** `SafeModeRoute.jsx` with toggles to disable visual render loops.
+- Inject loop breakers inside `App.jsx` and any grid/dashboard containers.
+
+OUTPUT:
+- Create `/QA_REPORT/dashboard_integrity.json` with:
+   - Detected module overlaps
+   - UI loop hotspots
+   - Layout/render breakage zones
+   - Suggested deduplication merge points (no merge yet)
+- Create `/FIX_READY/` folder with:
+   - Cleaned versions of bloated files (commented logs removed, restructured layout)
+   - `SafeModeRoute.jsx`
+   - `LoopBreaker.js`
+
+TRIGGERS:
+- Abort if any irreversible mutation is about to overwrite original mapping files.
+- Flag files >1MB or DOM renders exceeding 500 children.
+- DO NOT proceed to deployment until I approve patch.
+
+PRIMARY OBJECTIVE:
+Preserve existing working state, eliminate all duplication or layout corruption, and prepare clean diagnostic logs for my manual review. This must maintain **production integrity** without regression.
+
+CONFIRMATION MESSAGE:
+✅ “FULL FILE INSPECTION COMPLETE — SAFE PATCH SET PREPARED — AWAITING APPROVAL”

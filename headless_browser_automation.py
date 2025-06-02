@@ -86,7 +86,7 @@ class HeadlessBrowserAutomation:
             # Check for login elements
             has_username_field = len(self.driver.find_elements(By.NAME, "username")) > 0
             has_password_field = len(self.driver.find_elements(By.NAME, "password")) > 0
-            has_login_button = len(self.driver.find_elements(By.TYPE, "submit")) > 0
+            has_login_button = len(self.driver.find_elements(By.CSS_SELECTOR, "input[type='submit'], button[type='submit']")) > 0
             
             return {
                 'login_page_accessible': True,

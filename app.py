@@ -47,6 +47,37 @@ def require_watson():
     """Check if user is Watson admin"""
     return session.get('username') != 'watson' or not session.get('authenticated')
 
+def get_user_role():
+    """Get current user's role and permissions"""
+    username = session.get('username', '')
+    if username == 'watson':
+        return {
+            'role': 'admin',
+            'can_purge': True,
+            'can_access_admin': True,
+            'can_view_logs': True,
+            'can_upload': True,
+            'view_level': 'full'
+        }
+    elif username == 'tester':
+        return {
+            'role': 'tester', 
+            'can_purge': False,
+            'can_access_admin': False,
+            'can_view_logs': False,
+            'can_upload': True,
+            'view_level': 'standard'
+        }
+    else:
+        return {
+            'role': 'user',
+            'can_purge': False,
+            'can_access_admin': False,
+            'can_view_logs': False,
+            'can_upload': False,
+            'view_level': 'basic'
+        }
+
 @app.route('/')
 def index():
     """Index route - redirect to login or dashboard"""

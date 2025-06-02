@@ -99,7 +99,7 @@ def dashboard():
         'is_watson': session.get('username') == 'watson'
     }
     
-    return render_template('dashboard.html', **context)
+    return render_template('dashboard_with_sidebar.html', **context)
 
 @app.route('/attendance-matrix')
 def attendance_matrix():

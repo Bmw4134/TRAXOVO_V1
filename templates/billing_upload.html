@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing Data Upload - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .upload-zone {
+            border: 2px dashed #1e40af;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+        }
+        .upload-zone:hover {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+        .revenue-highlight {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .ragle-data {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="mb-4">Billing Data Upload - RAGLE Integration</h2>
+                
+                <div class="ragle-data">
+                    <h5>RAGLE Equipment Billing - $552,000 Payroll Data</h5>
+                    <p class="mb-0">Division 2, 3, and 4 data ready for processing • April data needs correction</p>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>Supported Files:</strong> RAGLE billing exports, payroll data (CSV, Excel), invoice reports
+                </div>
+
+                <form id="billingUploadForm" enctype="multipart/form-data">
+                    <div class="upload-zone" onclick="document.getElementById('billingFileInput').click()">
+                        <div class="mb-3">
+                            <i class="fas fa-file-invoice-dollar fa-3x text-primary"></i>
+                        </div>
+                        <h5>Upload RAGLE Billing & Payroll Data</h5>
+                        <p class="text-muted">Drag and drop your billing files here or click to browse</p>
+                        <input type="file" id="billingFileInput" multiple accept=".csv,.xlsx,.xls" style="display: none;">
+                    </div>
+
+                    <div id="billingFileList" class="file-list" style="display: none;">
+                        <h6>Selected Files:</h6>
+                        <div id="billingFileItems"></div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <label for="billingPeriod" class="form-label">Billing Period</label>
+                            <select id="billingPeriod" class="form-select">
+                                <option value="april-2025">April 2025 (Correction Needed)</option>
+                                <option value="may-2025">May 2025 (Full Month)</option>
+                                <option value="current-month">Current Month</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="division" class="form-label">Division</label>
+                            <select id="division" class="form-select">
+                                <option value="all">All Divisions</option>
+                                <option value="division-2">Division 2</option>
+                                <option value="division-3">Division 3</option>
+                                <option value="division-4">Division 4</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="button" class="btn btn-success btn-lg" onclick="processBillingFiles()">
+                            Process RAGLE Billing Data
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary ms-2" onclick="clearBillingFiles()">
+                            Clear Files
+                        </button>
+                    </div>
+                </form>
+
+                <div id="billingProcessingStatus" class="mt-4" style="display: none;">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6>Processing RAGLE Data</h6>
+                            <div class="progress mb-3">
+                                <div id="billingProgressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <div id="billingStatusMessages"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="billingResults" class="mt-4" style="display: none;">
+                    <div class="revenue-highlight">
+                        <h4 id="totalRevenue">$0</h4>
+                        <p>Total Revenue Processed</p>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>Invoices Processed</h6>
+                                    <h4 id="invoiceCount">0</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>Divisions Updated</h6>
+                                    <h4 id="divisionCount">0</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="/billing" class="btn btn-primary">View Billing Dashboard</a>
+                        <a href="/api/download-billing-report" class="btn btn-outline-secondary ms-2">Download Report</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedBillingFiles = [];
+
+        document.getElementById('billingFileInput').addEventListener('change', function(e) {
+            selectedBillingFiles = Array.from(e.target.files);
+            displayBillingFiles();
+        });
+
+        function displayBillingFiles() {
+            const fileList = document.getElementById('billingFileList');
+            const fileItems = document.getElementById('billingFileItems');
+            
+            if (selectedBillingFiles.length > 0) {
+                fileList.style.display = 'block';
+                fileItems.innerHTML = '';
+                
+                selectedBillingFiles.forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item d-flex justify-content-between align-items-center p-2 border-bottom';
+                    fileItem.innerHTML = `
+                        <span>${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeBillingFile(${index})">Remove</button>
+                    `;
+                    fileItems.appendChild(fileItem);
+                });
+            } else {
+                fileList.style.display = 'none';
+            }
+        }
+
+        function removeBillingFile(index) {
+            selectedBillingFiles.splice(index, 1);
+            displayBillingFiles();
+        }
+
+        function clearBillingFiles() {
+            selectedBillingFiles = [];
+            displayBillingFiles();
+            document.getElementById('billingFileInput').value = '';
+        }
+
+        async function processBillingFiles() {
+            if (selectedBillingFiles.length === 0) {
+                alert('Please select billing files to process');
+                return;
+            }
+
+            const formData = new FormData();
+            selectedBillingFiles.forEach(file => {
+                formData.append('files', file);
+            });
+            formData.append('billing_period', document.getElementById('billingPeriod').value);
+            formData.append('division', document.getElementById('division').value);
+
+            document.getElementById('billingProcessingStatus').style.display = 'block';
+            updateBillingProgress(25, 'Processing RAGLE billing data...');
+
+            try {
+                const response = await fetch('/api/process-billing-data', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                updateBillingProgress(75, 'Calculating revenue totals...');
+                
+                setTimeout(() => {
+                    if (result.success) {
+                        updateBillingProgress(100, 'RAGLE billing processing complete!');
+                        displayBillingResults(result);
+                    } else {
+                        updateBillingProgress(0, 'Error: ' + result.message);
+                    }
+                }, 1000);
+            } catch (error) {
+                updateBillingProgress(0, 'Error: ' + error.message);
+            }
+        }
+
+        function updateBillingProgress(percent, message) {
+            document.getElementById('billingProgressBar').style.width = percent + '%';
+            document.getElementById('billingStatusMessages').innerHTML = '<p>' + message + '</p>';
+        }
+
+        function displayBillingResults(result) {
+            const resultsDiv = document.getElementById('billingResults');
+            resultsDiv.style.display = 'block';
+            
+            document.getElementById('totalRevenue').textContent = result.total_revenue || '$0';
+            document.getElementById('invoiceCount').textContent = result.invoices_processed || 0;
+            document.getElementById('divisionCount').textContent = '3'; // Divisions 2, 3, 4
+        }
+    </script>
+</body>
+</html>

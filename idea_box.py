@@ -86,7 +86,11 @@ def analyze_idea_with_agi(idea):
             max_tokens=400
         )
         
-        analysis = json.loads(response.choices[0].message.content)
+        analysis_text = response.choices[0].message.content
+        if analysis_text:
+            analysis = json.loads(analysis_text)
+        else:
+            analysis = {'error': 'No analysis returned'}
         return analysis
         
     except Exception as e:

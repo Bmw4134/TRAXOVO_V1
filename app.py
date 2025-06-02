@@ -103,6 +103,11 @@ def login():
             session['user_role'] = 'admin'
             flash(f'Welcome Watson - Administrator Access', 'success')
             return redirect(url_for('dashboard'))
+        elif username == 'chris' and password == 'Chris@FM$1':
+            session['username'] = username
+            session['user_role'] = 'fleet_manager'
+            flash(f'Welcome Chris - Fleet Manager Access', 'success')
+            return redirect(url_for('dashboard'))
         elif username == 'tester' and password == 'password':
             session['username'] = username
             session['user_role'] = 'tester'
@@ -526,6 +531,10 @@ app.register_blueprint(stress_testing_bp)
 app.register_blueprint(quantum_security_bp)
 app.register_blueprint(quantum_admin_bp)
 app.register_blueprint(email_intelligence_bp)
+
+# Register AGI-Enhanced Idea Box
+from idea_box import idea_box_bp
+app.register_blueprint(idea_box_bp)
 
 # Create database tables
 with app.app_context():

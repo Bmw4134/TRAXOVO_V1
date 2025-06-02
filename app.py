@@ -5,17 +5,17 @@ TRAXOVO Fleet Intelligence Platform - Simplified Startup
 # AGI_ENHANCED - Added 2025-06-02
 class AGIEnhancement:
     """AGI intelligence layer for app.py"""
-    
+
     def __init__(self):
         self.intelligence_active = True
         self.reasoning_engine = True
         self.predictive_analytics = True
-        
+
     def analyze_patterns(self, data):
         """AGI pattern recognition"""
         if not self.intelligence_active:
             return data
-            
+
         # AGI-powered analysis
         enhanced_data = {
             'original': data,
@@ -24,7 +24,7 @@ class AGIEnhancement:
             'recommendations': self.recommend_actions(data)
         }
         return enhanced_data
-        
+
     def generate_insights(self, data):
         """Generate AGI insights"""
         return {
@@ -33,7 +33,7 @@ class AGIEnhancement:
             'optimization_potential': '23% improvement possible',
             'confidence_level': 0.92
         }
-        
+
     def predict_outcomes(self, data):
         """AGI predictive modeling"""
         return {
@@ -41,7 +41,7 @@ class AGIEnhancement:
             'medium_term': 'Growth trajectory positive',
             'long_term': 'Strategic optimization recommended'
         }
-        
+
     def recommend_actions(self, data):
         """AGI-powered recommendations"""
         return [
@@ -223,10 +223,10 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        
+
         # Debug log for credential validation
         print(f"Login attempt - Username: '{username}', Password: '{password}'")
-        
+
         # Simple authentication with role-based access - accept any watson password variation
         watson_passwords = ['Btpp@1513$!', 'Btpp@1513\\$!']
         if username == 'watson' and (password in watson_passwords or 'Btpp@1513' in password):
@@ -276,7 +276,7 @@ def login():
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid credentials', 'error')
-    
+
     return render_template('login.html')
 
 @app.route('/logout')
@@ -291,13 +291,13 @@ def dashboard():
     """Main TRAXOVO dashboard enhanced with AGI intelligence"""
     if require_auth():
         return redirect(url_for('login'))
-    
+
     # Authentic fleet metrics from GAUGE API and RAGLE data enhanced with AGI analysis
     try:
         from agi_analytics_engine import get_agi_analytics_engine
         agi_engine = get_agi_analytics_engine()
         agi_data = agi_engine.agi_financial_dashboard_data()
-        
+
         # Combine authentic metrics with AGI insights
         metrics = {
             'total_assets': 717,
@@ -339,7 +339,7 @@ def dashboard():
             'active_sites': 5,
             'maintenance_due': 23
         }
-    
+
     context = {
         'page_title': 'Fleet Intelligence Dashboard',
         'metrics': metrics,
@@ -347,7 +347,7 @@ def dashboard():
         'user_role': session.get('user_role', 'user'),
         'is_watson': session.get('username') == 'watson'
     }
-    
+
     return render_template('dashboard_with_sidebar.html', **context)
 
 @app.route('/attendance-matrix')
@@ -355,16 +355,16 @@ def attendance_matrix():
     """Attendance matrix page"""
     if require_auth():
         return redirect(url_for('login'))
-    
+
     # Get real attendance data
     attendance_records = get_sample_attendance_data()
-    
+
     # Calculate real summary statistics
     present_count = len([r for r in attendance_records if r['status'] == 'Present'])
     total_hours = sum(r['hours'] for r in attendance_records)
     pm_count = len([r for r in attendance_records if r['division'] == 'PM'])
     ej_count = len([r for r in attendance_records if r['division'] == 'EJ'])
-    
+
     matrix_data = {
         'records': attendance_records,
         'summary_stats': {
@@ -376,7 +376,7 @@ def attendance_matrix():
             'ej_division_count': ej_count
         }
     }
-    
+
     # Backend activity log for Watson admin
     backend_log = []
     if session.get('username') == 'watson':
@@ -390,7 +390,7 @@ def attendance_matrix():
             {'time': '13:33:49', 'action': 'Fleet map error', 'user': 'system', 'status': 'fixed'},
             {'time': '13:32:57', 'action': 'System startup', 'user': 'system', 'status': 'complete'}
         ]
-    
+
     context = {
         'page_title': 'Attendance Matrix',
         'page_subtitle': 'GPS-validated workforce tracking with job zone integration',
@@ -410,7 +410,7 @@ def attendance_matrix():
             {'id': 'equipment-staging', 'name': 'Equipment Staging'}
         ]
     }
-    
+
     return render_template('attendance_matrix.html', **context)
 
 @app.route('/user-dashboard')
@@ -418,7 +418,7 @@ def user_dashboard():
     """Standard user dashboard for admin/user accounts"""
     if require_auth():
         return redirect(url_for('login'))
-    
+
     # Authentic metrics for standard users
     metrics = {
         'total_assets': 717,
@@ -431,7 +431,7 @@ def user_dashboard():
         'maintenance_due': 23,
         'utilization': '87%'
     }
-    
+
     context = {
         'page_title': 'TRAXOVO Fleet Dashboard',
         'page_subtitle': 'Operational intelligence and fleet management',
@@ -439,7 +439,7 @@ def user_dashboard():
         'username': session.get('username', 'User'),
         'is_watson': False
     }
-    
+
     return render_template('dashboard_with_sidebar.html', **context)
 
 @app.route('/upload')
@@ -447,7 +447,7 @@ def upload():
     """File upload interface"""
     if require_auth():
         return redirect(url_for('login'))
-    
+
     return render_template('upload.html', page_title='Data Upload')
 
 @app.route('/safemode')
@@ -461,7 +461,7 @@ def safemode():
         'active_modules': 6,
         'system_health': 94.7
     }
-    
+
     return render_template('safemode.html',
                          page_title='SafeMode Diagnostics',
                          system_status=system_status)
@@ -471,32 +471,32 @@ def fleet_map():
     """Fleet map with authentic GAUGE API data"""
     if require_auth():
         return redirect(url_for('login'))
-    
+
     # Load authentic GAUGE API data
     try:
         import json
         with open('GAUGE API PULL 1045AM_05.15.2025.json', 'r') as f:
             gauge_data = json.load(f)
-        
+
         # Filter assets with valid GPS coordinates
         assets_with_gps = []
         for asset in gauge_data:
             if (asset.get('Latitude') and asset.get('Longitude') and 
                 asset.get('Latitude') != 0 and asset.get('Longitude') != 0):
                 assets_with_gps.append(asset)
-        
+
         # Count metrics from real data
         total_assets = len(gauge_data)
         active_assets = len([a for a in gauge_data if a.get('Active')])
         gps_enabled = len(assets_with_gps)
-        
+
     except Exception as e:
         logger.error(f"Failed to load GAUGE data: {e}")
         assets_with_gps = []
         total_assets = 717
         active_assets = 614
         gps_enabled = 586
-    
+
     # Ensure JSON serializable data with safe defaults
     serializable_assets = []
     for asset in assets_with_gps:
@@ -515,14 +515,14 @@ def fleet_map():
         except (ValueError, TypeError) as e:
             logger.warning(f"Skipping asset due to serialization error: {e}")
             continue
-    
+
     job_zones = [
         {'id': '2019-044', 'name': '2019-044 E Long Avenue', 'lat': 32.7767, 'lng': -96.7970},
         {'id': '2021-017', 'name': '2021-017 Plaza Drive', 'lat': 32.7831, 'lng': -96.8067},
         {'id': 'central-yard', 'name': 'Central Yard Operations', 'lat': 32.7767, 'lng': -96.7970},
         {'id': 'equipment-staging', 'name': 'Equipment Staging', 'lat': 32.7900, 'lng': -96.8100}
     ]
-    
+
     return render_template('fleet_map.html',
                          page_title='Fleet Map',
                          total_assets=total_assets,
@@ -537,7 +537,7 @@ def asset_manager():
     """Asset manager with authentic GAUGE data"""
     if require_auth():
         return redirect(url_for('login'))
-    
+
     return render_template('asset_manager.html', page_title='Asset Manager')
 
 @app.route('/watson-admin')
@@ -545,7 +545,7 @@ def watson_admin():
     """Watson-exclusive admin dashboard"""
     if require_watson():
         return redirect(url_for('login'))
-    
+
     context = {
         'page_title': 'Watson Administrative Control Center',
         'page_subtitle': 'Executive-level system control and analytics',
@@ -570,7 +570,7 @@ def watson_admin():
             'system_alerts': 0
         }
     }
-    
+
     return render_template('watson_admin_dashboard.html', **context)
 
 @app.route('/api/purge-records', methods=['POST'])
@@ -578,31 +578,31 @@ def api_purge_records():
     """Purge all records from the database - Watson admin only"""
     if require_auth():
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
-    
+
     # Require Watson admin for destructive operations
     if require_watson():
         return jsonify({'success': False, 'error': 'Administrative privileges required'}), 403
-    
+
     try:
         # Clear processed files directory
         import shutil
         if os.path.exists('uploads'):
             shutil.rmtree('uploads')
         os.makedirs('uploads', exist_ok=True)
-        
+
         # Clear any cached data files
         cache_files = ['processed_data.json', 'attendance_cache.json', 'billing_cache.json']
         for cache_file in cache_files:
             if os.path.exists(cache_file):
                 os.remove(cache_file)
-        
+
         logger.info("All records purged successfully")
         return jsonify({
             'success': True,
             'message': 'All records have been purged',
             'records_removed': 'All attendance and billing data'
         })
-        
+
     except Exception as e:
         logger.error(f"Purge error: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -612,19 +612,19 @@ def api_database_stats():
     """Get database statistics"""
     if require_auth():
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
-    
+
     try:
         # Count files in uploads directory
         upload_count = 0
         total_size = 0
-        
+
         if os.path.exists('uploads'):
             for root, dirs, files in os.walk('uploads'):
                 upload_count += len(files)
                 for file in files:
                     file_path = os.path.join(root, file)
                     total_size += os.path.getsize(file_path)
-        
+
         # Format size
         if total_size < 1024:
             size_str = f"{total_size} B"
@@ -632,14 +632,14 @@ def api_database_stats():
             size_str = f"{total_size / 1024:.1f} KB"
         else:
             size_str = f"{total_size / (1024 * 1024):.1f} MB"
-        
+
         return jsonify({
             'success': True,
             'total_records': upload_count,
             'size': size_str,
             'timestamp': datetime.now().isoformat()
         })
-        
+
     except Exception as e:
         logger.error(f"Database stats error: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -649,23 +649,23 @@ def api_upload_attendance():
     """Process uploaded attendance data files"""
     if require_auth():
         return jsonify({"error": "Authentication required"}), 401
-    
+
     try:
         uploaded_files = request.files.getlist('files')
         total_records = 0
-        
+
         for file in uploaded_files:
             if file.filename:
                 file_path = f"uploads/{file.filename}"
                 file.save(file_path)
                 total_records += 50  # Simulate processing
-        
+
         return jsonify({
             'success': True,
             'files_processed': len(uploaded_files),
             'records_processed': total_records
         })
-        
+
     except Exception as e:
         logger.error(f"Upload error: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -675,20 +675,20 @@ def api_fleet_assets():
     """API endpoint for fleet assets data"""
     if require_auth():
         return jsonify({"error": "Authentication required"}), 401
-    
+
     try:
         # Load authentic GAUGE data
         import json
         with open('GAUGE API PULL 1045AM_05.15.2025.json', 'r') as f:
             gauge_data = json.load(f)
-        
+
         return jsonify({
             'success': True,
             'total_assets': len(gauge_data),
             'active_assets': len([a for a in gauge_data if a.get('Active', False)]),
             'assets': gauge_data[:50]  # Return first 50 for performance
         })
-        
+
     except Exception as e:
         logger.error(f"Fleet assets API error: {e}")
         return jsonify({
@@ -712,20 +712,20 @@ def api_fleet_assets_alt():
     """Alternative fleet assets endpoint"""
     if require_auth():
         return jsonify({"error": "Authentication required"}), 401
-    
+
     try:
         # Load authentic GAUGE data
         import json
         with open('GAUGE API PULL 1045AM_05.15.2025.json', 'r') as f:
             gauge_data = json.load(f)
-        
+
         return jsonify({
             'success': True,
             'total_assets': len(gauge_data),
             'active_assets': len([a for a in gauge_data if a.get('Active', False)]),
             'assets': gauge_data[:50]  # Return first 50 for performance
         })
-        
+
     except Exception as e:
         logger.error(f"Fleet assets API error: {e}")
         return jsonify({
@@ -740,7 +740,7 @@ def api_simulated_testing_run():
     """Simulated testing endpoint"""
     if require_auth():
         return jsonify({"error": "Authentication required"}), 401
-    
+
     return jsonify({
         'test_results': {
             'dashboard_load': 'PASS',
@@ -757,7 +757,7 @@ def ai_intelligence_route():
     """AI Intelligence dashboard"""
     if require_auth():
         return redirect(url_for('login'))
-    
+
     return render_template('ai_intelligence.html', 
                          page_title='AI Intelligence Center',
                          username=session.get('username', 'User'))
@@ -767,7 +767,7 @@ def ai_intelligence():
     """AI Intelligence dashboard"""
     if require_auth():
         return redirect(url_for('login'))
-    
+
     return render_template('ai_intelligence.html', 
                          page_title='AI Intelligence Center',
                          username=session.get('username', 'User'))
@@ -777,7 +777,7 @@ def api_simulated_testing():
     """Simulated testing endpoint"""
     if require_auth():
         return jsonify({"error": "Authentication required"}), 401
-    
+
     return jsonify({
         'test_results': {
             'dashboard_load': 'PASS',
@@ -806,7 +806,7 @@ def get_sample_attendance_data():
             'end_time': '15:00' if i <= 44 else '15:00',
             'job_code': 'JOB-2019-044' if i <= 25 else 'JOB-2021-017'
         })
-    
+
     # EJ Division drivers (45 total from legacy mapping)
     ej_drivers = []
     for i in range(1, 46):
@@ -822,7 +822,7 @@ def get_sample_attendance_data():
             'end_time': '14:30' if i <= 43 else '13:30',
             'job_code': 'JOB-YARD-OPS' if i <= 20 else 'JOB-STAGING'
         })
-    
+
     return pm_drivers + ej_drivers
 
 # Import stress testing blueprint

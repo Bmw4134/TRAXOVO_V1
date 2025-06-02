@@ -64,6 +64,60 @@ def get_user_role():
             'can_upload': True,
             'view_level': 'full'
         }
+    elif username == 'troy':
+        return {
+            'role': 'vp_executive', 
+            'can_purge': False,
+            'can_access_admin': True,
+            'can_view_logs': True,
+            'can_upload': True,
+            'view_level': 'executive'
+        }
+    elif username == 'william':
+        return {
+            'role': 'controller',
+            'can_purge': False,
+            'can_access_admin': False,
+            'can_view_logs': True,
+            'can_upload': True,
+            'view_level': 'financial'
+        }
+    elif username == 'cooper':
+        return {
+            'role': 'sr_estimator',
+            'can_purge': False,
+            'can_access_admin': False,
+            'can_view_logs': False,
+            'can_upload': True,
+            'view_level': 'estimator'
+        }
+    elif username == 'sebastian':
+        return {
+            'role': 'controls_manager',
+            'can_purge': False,
+            'can_access_admin': False,
+            'can_view_logs': True,
+            'can_upload': True,
+            'view_level': 'controls'
+        }
+    elif username == 'chris':
+        return {
+            'role': 'fleet_manager',
+            'can_purge': False,
+            'can_access_admin': False,
+            'can_view_logs': True,
+            'can_upload': True,
+            'view_level': 'fleet'
+        }
+    elif username == 'demo':
+        return {
+            'role': 'demo_user',
+            'can_purge': False,
+            'can_access_admin': True,
+            'can_view_logs': True,
+            'can_upload': True,
+            'view_level': 'demo_full'
+        }
     elif username == 'tester':
         return {
             'role': 'tester', 
@@ -107,6 +161,31 @@ def login():
             session['username'] = username
             session['user_role'] = 'fleet_manager'
             flash(f'Welcome Chris - Fleet Manager Access', 'success')
+            return redirect(url_for('dashboard'))
+        elif username == 'cooper' and password == 'Cooper@Esoc$1!':
+            session['username'] = username
+            session['user_role'] = 'sr_estimator'
+            flash(f'Welcome Cooper - Senior Estimator Access', 'success')
+            return redirect(url_for('dashboard'))
+        elif username == 'sebastian' and password == 'Sebastian@Ctrl$1!':
+            session['username'] = username
+            session['user_role'] = 'controls_manager'
+            flash(f'Welcome Sebastian - Controls Manager Access', 'success')
+            return redirect(url_for('dashboard'))
+        elif username == 'william' and password == 'William@CPA$1!':
+            session['username'] = username
+            session['user_role'] = 'controller'
+            flash(f'Welcome William - Controller/CPA Access', 'success')
+            return redirect(url_for('dashboard'))
+        elif username == 'troy' and password == 'Troy@VP$1!':
+            session['username'] = username
+            session['user_role'] = 'vp_executive'
+            flash(f'Welcome Troy - VP Executive Access', 'success')
+            return redirect(url_for('dashboard'))
+        elif username == 'demo' and password == 'TRAXOVO@Demo$2025!':
+            session['username'] = username
+            session['user_role'] = 'demo_user'
+            flash(f'Welcome to TRAXOVO Demo - Full POC Access', 'success')
             return redirect(url_for('dashboard'))
         elif username == 'tester' and password == 'password':
             session['username'] = username

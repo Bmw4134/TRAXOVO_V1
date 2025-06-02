@@ -11,7 +11,7 @@ this.init();
 init() {
 this.applyTheme(this.currentTheme);
 document.addEventListener('click', (e) => {
-if (e.target.closest('#theme-toggle')) {
+if (e.target && (e.target.id === 'theme-toggle' || e.target.parentElement && e.target.parentElement.id === 'theme-toggle')) {
 this.toggleTheme();
 }
 });

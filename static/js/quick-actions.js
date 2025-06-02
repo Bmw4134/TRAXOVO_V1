@@ -102,7 +102,7 @@ this.closeMenu();
 }
 });
 document.addEventListener('click', (e) => {
-const actionLink = e.target.closest('[data-quick-action]');
+const actionLink = e.target.parentElement('[data-quick-action]');
 if (actionLink) {
 const actionId = actionLink.dataset.quickAction;
 this.recordActionUsage(actionId);

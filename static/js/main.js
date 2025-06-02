@@ -40,8 +40,12 @@ form.classList.add('was-validated');
 });
 function handleFileUploads(fileInputs) {
 fileInputs.forEach(function(input) {
-const fileDisplay = input.closest('.file-upload-wrapper').querySelector('.file-display');
-const dropZone = input.closest('.file-upload-wrapper');
+const wrapper = input.parentElement;
+while (wrapper && !wrapper.classList.contains('file-upload-wrapper')) {
+    wrapper = wrapper.parentElement;
+}
+const fileDisplay = wrapper ? wrapper.querySelector('.file-display') : null;
+const dropZone = wrapper;
 input.addEventListener('change', function() {
 if (input.files.length > 0) {
 const file = input.files[0];

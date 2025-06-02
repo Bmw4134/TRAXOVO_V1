@@ -43,7 +43,7 @@ window.location.href = this.getAttribute('href');
 function initCardAnimations() {
 const cards = document.querySelectorAll('.card:not(.hover-card)');
 cards.forEach(card => {
-if (!card.closest('.no-animation') &&
+if (!(card.parentElement && card.parentElement.classList.contains('no-animation')) &&
 !card.classList.contains('no-animation')) {
 card.classList.add('scale-transition');
 }
@@ -63,7 +63,10 @@ const href = link.getAttribute('href');
 if (href === currentPath ||
 (href !== '/' && currentPath.startsWith(href))) {
 link.classList.add('active');
-const dropdown = link.closest('.dropdown');
+let dropdown = link.parentElement;
+while (dropdown && !dropdown.classList.contains('dropdown')) {
+    dropdown = dropdown.parentElement;
+}
 if (dropdown) {
 const dropdownToggle = dropdown.querySelector('.dropdown-toggle');
 if (dropdownToggle) {

@@ -55,3 +55,6 @@ markupsafe
 sentence-transformers[cpu]
 supabase
 selenium
+cryptography
+joblib
+pyjwt

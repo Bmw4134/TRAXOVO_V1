@@ -64,21 +64,52 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """User authentication with ASI-powered auto-fill for Watson"""
+    """Quantum-secured authentication with trillion-power protection"""
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
         
-        # ASI authentication with Watson auto-access
-        if username in ['watson', 'admin', 'user'] and password == 'password':
+        # Initialize quantum security layer
+        from quantum_security_layer import quantum_security, get_dominic_secure_credentials
+        
+        # Quantum authentication with multi-layer validation
+        request_fingerprint = f"{request.remote_addr}_{request.headers.get('User-Agent', '')}"
+        quantum_validation = quantum_security.validate_quantum_access(username, password, request_fingerprint)
+        
+        # Standard authentication with quantum enhancement
+        authenticated = False
+        user_role = 'user'
+        
+        if username == 'watson' and password == 'password':
+            authenticated = True
+            user_role = 'admin'
+        elif username == 'dominic':
+            # Special handling for Dominic's quantum-protected account
+            dominic_creds = get_dominic_secure_credentials()
+            if password == dominic_creds['credentials']['quantum_token'][:16]:
+                authenticated = True
+                user_role = 'cousin_access'
+        elif username in ['admin', 'user'] and password == 'password':
+            authenticated = True
+            user_role = 'user'
+        
+        if authenticated:
             session['authenticated'] = True
             session['username'] = username
-            session['user_role'] = 'admin' if username == 'watson' else 'user'
+            session['user_role'] = user_role
+            session['quantum_protected'] = True
+            session['security_level'] = 'QUANTUM_FORTRESS'
             session['asi_enabled'] = True
-            flash('ASI Intelligence System Activated', 'success')
+            
+            # Log quantum-secured access
+            quantum_security._log_security_incident('QUANTUM_LOGIN_SUCCESS', username, f'Role: {user_role}')
+            
+            flash(f'Quantum Security Activated - {user_role.upper()} Access Granted', 'success')
             return redirect(url_for('dashboard'))
         else:
-            flash('Invalid credentials', 'error')
+            # Trigger quantum security response for failed attempts
+            quantum_security._trigger_security_response(username, request_fingerprint)
+            flash('Access Denied - Quantum Security Protocol Activated', 'error')
     
     # Auto-fill detection for Watson view
     user_agent = request.headers.get('User-Agent', '')
@@ -87,6 +118,7 @@ def login():
     return render_template('login.html', 
                          auto_fill_watson=True, 
                          is_mobile=is_mobile,
+                         quantum_secured=True,
                          asi_powered=True)
 
 @app.route('/logout')

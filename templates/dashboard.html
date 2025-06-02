@@ -736,6 +736,24 @@ class VisualASIDemo {
 
 // Initialize ASI Demo when page loads
 window.addEventListener('load', () => {
+    // Close any modal overlays that might be blocking the demo
+    setTimeout(() => {
+        const modals = document.querySelectorAll('.modal, .modal-backdrop, [role="dialog"]');
+        modals.forEach(modal => {
+            if (modal.style) modal.style.display = 'none';
+            if (modal.remove) modal.remove();
+        });
+        
+        // Close Bootstrap modals
+        if (window.bootstrap && bootstrap.Modal) {
+            const openModals = document.querySelectorAll('.modal.show');
+            openModals.forEach(modal => {
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) modalInstance.hide();
+            });
+        }
+    }, 500);
+    
     window.asiDemo = new VisualASIDemo();
     console.log('🚀 ASI Visual Automation Ready - Click the green button to start!');
 });

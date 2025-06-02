@@ -743,6 +743,55 @@ def api_watson_confidence_data():
             'error': str(e)
         })
 
+@app.route('/chris-fleet')
+def chris_fleet():
+    """Chris Fleet Manager Dashboard"""
+    if require_auth():
+        return redirect(url_for('login'))
+    
+    try:
+        from chris_fleet_manager import chris_fleet_dashboard
+        fleet_data = chris_fleet_dashboard()
+        
+        return render_template('chris_fleet.html',
+                             username=session.get('username'),
+                             user_role=session.get('user_role', 'user'),
+                             fleet_data=fleet_data['fleet_overview'],
+                             lifecycle_data=fleet_data['lifecycle_analysis'],
+                             page_title='Fleet Operations Center')
+    except Exception as e:
+        logging.error(f"Chris fleet dashboard error: {e}")
+        return redirect(url_for('dashboard'))
+
+@app.route('/api/fleet_overview')
+def api_fleet_overview():
+    """API endpoint for fleet overview data"""
+    try:
+        from chris_fleet_manager import get_chris_fleet_manager
+        manager = get_chris_fleet_manager()
+        fleet_data = manager.get_fleet_overview()
+        return jsonify(fleet_data)
+    except Exception as e:
+        return jsonify({
+            'total_assets': 0,
+            'active_assets': 0,
+            'fleet_health_score': 0,
+            'error': str(e)
+        })
+
+@app.route('/api/asset_lifecycle/<asset_id>')
+def api_asset_lifecycle(asset_id):
+    """API endpoint for specific asset lifecycle analysis"""
+    try:
+        from chris_fleet_manager import get_chris_fleet_manager
+        manager = get_chris_fleet_manager()
+        lifecycle_data = manager.get_asset_lifecycle_analysis(asset_id)
+        return jsonify(lifecycle_data)
+    except Exception as e:
+        return jsonify({
+            'error': f'Asset analysis unavailable: {str(e)}'
+        })
+
 @app.route('/api/asi_strategic_insight', methods=['POST'])
 def api_asi_strategic_insight():
     """ASI-powered strategic insights for Watson"""

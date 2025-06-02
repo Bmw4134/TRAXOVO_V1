@@ -159,7 +159,7 @@ def dashboard():
     metrics = get_authentic_metrics()
     username = session.get('username', 'User')
     
-    return render_template('dashboard.html', 
+    return render_template('dashboard_clean_executive.html', 
                          username=username,
                          metrics=metrics,
                          show_dev_log=session.get('is_admin', False),

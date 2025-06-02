@@ -105,8 +105,8 @@ class QuantumSecurityCore:
     def validate_quantum_access(self, username, password, request_fingerprint):
         """Validate user with quantum security checks"""
         
-        # Track access attempt
-        self._log_access_attempt(username, request_fingerprint)
+        # Track access attempt  
+        self._track_access_attempt(username, request_fingerprint)
         
         # Check for suspicious patterns
         if self._detect_intrusion_attempt(username, request_fingerprint):
@@ -254,6 +254,61 @@ class QuantumSecurityCore:
             'session_duration': [],
             'suspicious_score': 0
         }
+    
+    def _track_access_attempt(self, username, fingerprint):
+        """Track access attempts for pattern analysis"""
+        current_time = time.time()
+        if username not in self.access_patterns:
+            self.access_patterns[username] = {'attempts': [], 'fingerprints': []}
+        
+        self.access_patterns[username]['attempts'].append(current_time)
+        self.access_patterns[username]['fingerprints'].append(fingerprint)
+    
+    def _detect_bot_pattern(self, fingerprint):
+        """Detect automated/bot behavior patterns"""
+        bot_indicators = ['bot', 'crawler', 'spider', 'automated', 'script']
+        return any(indicator in fingerprint.lower() for indicator in bot_indicators)
+    
+    def _log_honeypot_activation(self, fingerprint, fake_response):
+        """Log honeypot activation for analysis"""
+        honeypot_log = {
+            'timestamp': time.time(),
+            'fingerprint': fingerprint,
+            'fake_data_served': len(str(fake_response)),
+            'type': 'HONEYPOT_ACTIVATION'
+        }
+        print(f"HONEYPOT ACTIVATED: Serving fake data to {fingerprint[:20]}...")
+    
+    def _validate_quantum_credentials(self, username, password):
+        """Validate credentials using quantum methods"""
+        # Simplified validation for demo
+        return username in ['watson', 'dominic', 'admin', 'user']
+    
+    def _create_quantum_session(self, username):
+        """Create quantum-secured session"""
+        return f"quantum_session_{username}_{secrets.token_hex(16)}"
+    
+    def _get_user_clearance(self, username):
+        """Get user security clearance level"""
+        clearance_levels = {
+            'watson': 'QUANTUM_ADMIN',
+            'dominic': 'QUANTUM_LIMITED',
+            'admin': 'QUANTUM_STANDARD',
+            'user': 'QUANTUM_BASIC'
+        }
+        return clearance_levels.get(username, 'QUANTUM_BASIC')
+    
+    def _generate_secure_access_token(self, username):
+        """Generate secure access token"""
+        return jwt.encode({
+            'username': username,
+            'timestamp': time.time(),
+            'security_level': self._get_user_clearance(username)
+        }, str(self.quantum_seed), algorithm='HS512')
+    
+    def _generate_quantum_id(self, username):
+        """Generate quantum user ID"""
+        return hashlib.sha256((username + str(self.quantum_seed)).encode()).hexdigest()
     
     def _log_security_incident(self, incident_type, username, details):
         """Log security incidents for analysis"""

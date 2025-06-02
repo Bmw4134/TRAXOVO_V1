@@ -423,8 +423,22 @@
         </div>
     </div>
 
-    <!-- Watson Admin Module (if Watson user) -->
+    <!-- Watson Organizational Ideas & ASI Controls (if Watson user) -->
     {% if is_watson %}
+    <div class="module-card" style="grid-column: span 2;">
+        <div class="module-header">
+            <i class="fas fa-lightbulb module-icon"></i>
+            <h3 class="module-title">Watson Organizational Ideas & ASI Controls</h3>
+            <span class="module-badge">Front-End Editable</span>
+        </div>
+        <div class="module-body">
+            <div id="watson-ideas-section">
+                <!-- Watson organizational ideas interface will load here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Watson Admin Module (if Watson user) -->
     <div class="module-card">
         <div class="module-header">
             <i class="fas fa-user-cog module-icon"></i>
@@ -458,6 +472,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="/static/watson-organizational-ideas.js"></script>
 <script>
 function drillDown(metric) {
     switch(metric) {

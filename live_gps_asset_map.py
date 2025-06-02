@@ -365,6 +365,11 @@ def gps_asset_map():
 @live_gps_bp.route('/api/live-assets')
 def api_live_assets():
     """API endpoint for live asset data"""
+    # Use session-based auth check from main app
+    from flask import session
+    if 'authenticated' not in session or not session['authenticated']:
+        return jsonify({"error": "Authentication required"}), 401
+    
     service = get_gps_service()
     assets = service.fetch_live_asset_data()
     
@@ -374,8 +379,8 @@ def api_live_assets():
         if asset.get('Latitude') and asset.get('Longitude'):
             map_data.append({
                 'id': asset.get('AssetIdentifier'),
-                'lat': asset.get('Latitude'),
-                'lng': asset.get('Longitude'),
+                'lat': float(asset.get('Latitude', 0)),
+                'lng': float(asset.get('Longitude', 0)),
                 'label': asset.get('Label', ''),
                 'active': asset.get('Active', False),
                 'location': asset.get('Location', ''),

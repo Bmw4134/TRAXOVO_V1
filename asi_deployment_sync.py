@@ -121,6 +121,50 @@ class ASIDeploymentSync:
         except Exception as e:
             return {"error": str(e)}
     
+    def _check_github_repository(self) -> Dict[str, Any]:
+        """Check GitHub repository status and connectivity"""
+        github_token = os.environ.get('GITHUB_TOKEN')
+        if not github_token:
+            return {
+                "exists": False,
+                "error": "GitHub token not configured",
+                "recommendation": "Set GITHUB_TOKEN environment variable"
+            }
+        
+        try:
+            # Check GitHub API connectivity
+            headers = {
+                'Authorization': f'token {github_token}',
+                'Accept': 'application/vnd.github.v3+json'
+            }
+            
+            # Test GitHub API access with user endpoint
+            response = requests.get('https://api.github.com/user', headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                user_data = response.json()
+                return {
+                    "exists": True,
+                    "connected": True,
+                    "user": user_data.get('login', 'Unknown'),
+                    "repository": "TRAXOVO-Intelligence-Platform",
+                    "branch": "main",
+                    "status": "ready_for_deployment"
+                }
+            else:
+                return {
+                    "exists": False,
+                    "error": f"GitHub API error: {response.status_code}",
+                    "recommendation": "Verify GitHub token permissions"
+                }
+                
+        except requests.RequestException as e:
+            return {
+                "exists": False,
+                "error": f"Connection failed: {str(e)}",
+                "recommendation": "Check network connectivity and token validity"
+            }
+    
     def _sync_code_to_github(self) -> Dict[str, Any]:
         """Sync current codebase to GitHub"""
         try:

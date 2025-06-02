@@ -882,6 +882,58 @@ def api_validate_upload_system():
     except Exception as e:
         return jsonify({"error": str(e), "status": "failed"}), 500
 
+@app.route('/api/github_sync_status')
+def api_github_sync_status():
+    """Get GitHub sync automation status"""
+    try:
+        from asi_deployment_sync import get_asi_deployment_sync
+        sync_engine = get_asi_deployment_sync()
+        
+        # Check GitHub connection and repository status
+        github_status = sync_engine._check_github_repository()
+        
+        return jsonify({
+            "github_connected": bool(os.environ.get('GITHUB_TOKEN')),
+            "repository_status": github_status,
+            "sync_ready": github_status.get('exists', False),
+            "last_sync": "not_implemented",
+            "pending_changes": True
+        })
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "failed"}), 500
+
+@app.route('/api/run_github_sync', methods=['POST'])
+def api_run_github_sync():
+    """Execute AI-powered GitHub synchronization"""
+    try:
+        data = request.get_json() or {}
+        sync_message = data.get('message', 'ASI Enhancement Deployment')
+        
+        from asi_deployment_sync import run_intelligent_deployment_sync
+        sync_results = run_intelligent_deployment_sync()
+        
+        return jsonify(sync_results)
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "failed"}), 500
+
+@app.route('/api/kaizen_enhancement_cycle')
+def api_kaizen_enhancement_cycle():
+    """Run Kaizen continuous improvement cycle"""
+    try:
+        from kaizen_intelligence_bridge import run_kaizen_enhancement_cycle
+        enhancement_results = run_kaizen_enhancement_cycle()
+        
+        return jsonify(enhancement_results)
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "failed"}), 500
+
+@app.route('/github-sync')
+def github_sync_dashboard():
+    """AI-Powered GitHub Sync Dashboard"""
+    if require_auth():
+        return redirect(url_for('login'))
+    return render_template('github_sync.html')
+
 @app.route('/testing-dashboard')
 def testing_dashboard():
     """ASI Testing Dashboard - Real-time automation monitoring"""

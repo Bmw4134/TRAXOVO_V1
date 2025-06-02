@@ -58,6 +58,7 @@ def get_agi_enhancement():
     """Get AGI enhancement instance"""
     return _agi_enhancement
 
+"""
 TRAXOVO Fleet Intelligence Platform - Simplified Startup
 """
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash

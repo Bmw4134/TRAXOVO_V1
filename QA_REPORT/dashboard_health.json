@@ -41,5 +41,35 @@
     "page_load": "Under 2 seconds",
     "api_response": "15086ms for fleet data",
     "worker_restarts": "4 workers reloaded after app.py changes"
+  },
+  "route_architecture_analysis": {
+    "total_blueprints_registered": 47,
+    "critical_issues_found": [
+      "Multiple overlapping route prefixes for driver reports",
+      "Duplicate blueprint registrations causing conflicts",
+      "Template inconsistencies across unified system"
+    ],
+    "active_route_conflicts": {
+      "driver_reports": [
+        "/driver-reports (daily_driver_complete)",
+        "/daily-reports (daily_driver_fixed)", 
+        "/working-reports (driver_reports_working)",
+        "/driver-dashboard (driver_reports_dashboard)"
+      ],
+      "attendance_routes": [
+        "/attendance (attendance_report)",
+        "/attendance (attendance_routes)",
+        "/daily-attendance (daily_attendance_routes)"
+      ]
+    },
+    "missing_route_handlers": [
+      "routes.react_upload - Import error likely",
+      "routes.enhanced_weekly_report - Module missing",
+      "routes.comprehensive_reports - Blueprint not found"
+    ],
+    "template_synchronization": {
+      "orphaned_templates": "Multiple templates reference non-existent routes",
+      "unified_system_status": "Partially implemented - needs consolidation"
+    }
   }
 }

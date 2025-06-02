@@ -285,6 +285,73 @@ def watson_admin():
     
     return render_template('watson_admin_dashboard.html', **context)
 
+@app.route('/api/purge-records', methods=['POST'])
+def api_purge_records():
+    """Purge all records from the database"""
+    if require_auth():
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        # Clear processed files directory
+        import shutil
+        if os.path.exists('uploads'):
+            shutil.rmtree('uploads')
+        os.makedirs('uploads', exist_ok=True)
+        
+        # Clear any cached data files
+        cache_files = ['processed_data.json', 'attendance_cache.json', 'billing_cache.json']
+        for cache_file in cache_files:
+            if os.path.exists(cache_file):
+                os.remove(cache_file)
+        
+        logger.info("All records purged successfully")
+        return jsonify({
+            'success': True,
+            'message': 'All records have been purged',
+            'records_removed': 'All attendance and billing data'
+        })
+        
+    except Exception as e:
+        logger.error(f"Purge error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/database-stats')
+def api_database_stats():
+    """Get database statistics"""
+    if require_auth():
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        # Count files in uploads directory
+        upload_count = 0
+        total_size = 0
+        
+        if os.path.exists('uploads'):
+            for root, dirs, files in os.walk('uploads'):
+                upload_count += len(files)
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    total_size += os.path.getsize(file_path)
+        
+        # Format size
+        if total_size < 1024:
+            size_str = f"{total_size} B"
+        elif total_size < 1024 * 1024:
+            size_str = f"{total_size / 1024:.1f} KB"
+        else:
+            size_str = f"{total_size / (1024 * 1024):.1f} MB"
+        
+        return jsonify({
+            'success': True,
+            'total_records': upload_count,
+            'size': size_str,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Database stats error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/upload-attendance', methods=['POST'])
 def api_upload_attendance():
     """Process uploaded attendance data files"""

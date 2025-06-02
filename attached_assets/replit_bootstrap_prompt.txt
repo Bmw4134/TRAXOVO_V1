@@ -1,6 +1,0 @@
-Replit, install all modules in this bundle and auto-initialize:
-- Register all modules into UI
-- Validate routes
-- Hook dashboard refresh
-- Show deployment readiness on boot
-- Begin live sync & Kaizen Agent briefing

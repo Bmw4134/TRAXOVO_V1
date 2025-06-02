@@ -1,4 +1,4 @@
-* TRAXORA Loading Animations
+/** TRAXORA Loading Animations
 * Construction-themed animated loading indicators
 */
 const loaderTypes = [

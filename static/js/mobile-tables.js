@@ -1,4 +1,4 @@
-* TRAXORA - Mobile-friendly table transformations
+/** TRAXORA - Mobile-friendly table transformations
 *
 * This script transforms tables into card views on mobile devices
 * for improved readability and usability.

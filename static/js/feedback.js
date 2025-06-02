@@ -1,4 +1,4 @@
-* TRAXORA Event-Driven Feedback System
+/** TRAXORA Event-Driven Feedback System
 *
 * This module provides smart, contextual feedback to users based on their actions.
 * It tracks user interactions, displays appropriate feedback, and helps build

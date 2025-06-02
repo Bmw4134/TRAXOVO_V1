@@ -1,4 +1,4 @@
-* TRAXORA Quick Actions System
+/** TRAXORA Quick Actions System
 *
 * This module manages the floating quick action button tray
 * that provides context-sensitive shortcuts based on user role and behavior.

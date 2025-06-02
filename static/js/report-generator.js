@@ -1,4 +1,4 @@
-* TRAXORA Report Generator
+/** TRAXORA Report Generator
 *
 * This script handles the report generator interface, including
 * selecting report types, configuring options, and generating

@@ -139,6 +139,11 @@ def index():
         return redirect('/dashboard')
     return redirect('/login')
 
+@app.route('/safemode')
+def safemode():
+    """Safe mode diagnostic interface"""
+    return render_template('safemode.html')
+
 @app.route('/dashboard')
 def dashboard():
     """Main dashboard"""

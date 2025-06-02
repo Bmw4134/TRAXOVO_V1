@@ -1,4 +1,4 @@
-* TRAXOVO Dashboard Layout Builder
+/** TRAXOVO Dashboard Layout Builder
 * Drag-and-drop personalized dashboard with dynamic hover animations
 */
 class DashboardLayoutBuilder {

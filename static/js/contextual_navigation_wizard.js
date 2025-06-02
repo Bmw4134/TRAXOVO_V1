@@ -1,4 +1,4 @@
-* TRAXOVO Contextual Navigation Wizard
+/** TRAXOVO Contextual Navigation Wizard
 * Intelligent navigation guidance based on user context and role
 */
 class ContextualNavigationWizard {

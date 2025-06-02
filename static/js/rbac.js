@@ -1,4 +1,4 @@
-* TRAXORA Role-Based Access Control
+/** TRAXORA Role-Based Access Control
 *
 * This module manages the visibility of navigation items and features
 * based on the user's role. It supports role-based permissions and

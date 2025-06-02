@@ -1,4 +1,4 @@
-* TRAXOVO Quick Onboarding Tour
+/** TRAXOVO Quick Onboarding Tour
 * Interactive guided tour for new users
 */
 class OnboardingTour {

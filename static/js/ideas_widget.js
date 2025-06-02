@@ -1,4 +1,4 @@
-* TRAXOVO Employee Ideas Widget
+/** TRAXOVO Employee Ideas Widget
 * Floating idea submission available on every page
 */
 class TRAXOVOIdeasWidget {

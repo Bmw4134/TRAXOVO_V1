@@ -1,4 +1,4 @@
-* TRAXORA Unified Navigation System
+/** TRAXORA Unified Navigation System
 *
 * This script provides synchronized navigation across all TRAXORA dashboard pages.
 * It maintains state across page loads and ensures a consistent user experience.

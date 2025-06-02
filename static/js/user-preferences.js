@@ -1,4 +1,4 @@
-* TRAXORA User Preferences System
+/** TRAXORA User Preferences System
 *
 * This module tracks and applies user preferences across the application,
 * creating a personalized experience based on past behavior.

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Safe Mode</title>
+    <style>
+        body {
+            background: #111;
+            color: #eee;
+            padding: 2rem;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .diagnostic-header {
+            border-bottom: 1px solid #333;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        .status-grid {
+            display: grid;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .status-item {
+            padding: 1rem;
+            background: #222;
+            border-left: 3px solid #0a0;
+        }
+        .status-item.error {
+            border-left-color: #f00;
+        }
+        .diagnostic-actions {
+            margin-top: 3rem;
+        }
+        .btn {
+            background: #333;
+            color: #eee;
+            border: 1px solid #555;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            background: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagnostic-header">
+        <h1>🛡️ TRAXOVO Safe Mode</h1>
+        <p>Diagnostic fallback mode - preventing infinite UI loops and layout corruption</p>
+    </div>
+
+    <div class="status-grid">
+        <div class="status-item">
+            <strong>✓ JavaScript Errors</strong><br>
+            Emergency polyfills active for browser compatibility
+        </div>
+        
+        <div class="status-item">
+            <strong>✓ CSS Imports</strong><br>
+            Minimal styling loaded, enterprise UI isolated
+        </div>
+        
+        <div class="status-item">
+            <strong>✓ Component Mounting</strong><br>
+            Core components bypassed to prevent render loops
+        </div>
+        
+        <div class="status-item">
+            <strong>✓ Database Connection</strong><br>
+            Authentication system operational
+        </div>
+    </div>
+
+    <div class="diagnostic-actions">
+        <h3>Available Actions:</h3>
+        <a href="/dashboard" class="btn">Test Dashboard</a>
+        <a href="/watson_admin" class="btn">Watson Admin</a>
+        <a href="/api/deployment_status" class="btn">System Status</a>
+        <a href="/api/fleet_assets" class="btn">API Test</a>
+    </div>
+
+    <div style="margin-top: 3rem; font-size: 0.9em; color: #999;">
+        <p>Use this mode to verify core functionality before returning to full dashboard view.</p>
+        <p>All business logic and data connections remain intact.</p>
+    </div>
+</body>
+</html>

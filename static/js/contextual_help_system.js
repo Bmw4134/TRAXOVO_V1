@@ -1,4 +1,4 @@
-* TRAXOVO Contextual Help Bubble System
+/** TRAXOVO Contextual Help Bubble System
 * Provides intuitive guidance and performance tooltips
 */
 class ContextualHelpSystem {

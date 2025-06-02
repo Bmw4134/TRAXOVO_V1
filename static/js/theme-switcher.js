@@ -1,4 +1,4 @@
-* TRAXORA Theme Switcher
+/** TRAXORA Theme Switcher
 *
 * This module manages the theme switching between light and dark modes.
 * It remembers user preferences and applies appropriate Bootstrap theme classes.

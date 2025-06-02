@@ -1,4 +1,4 @@
-* TRAXORA Intent Mapping System
+/** TRAXORA Intent Mapping System
 *
 * This module analyzes user behavior to determine likely intents and usage patterns.
 * It creates invisible tags for user actions and maps them to higher-level intents

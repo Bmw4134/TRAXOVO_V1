@@ -1,4 +1,4 @@
-* Regional Billing Exports JavaScript
+/** Regional Billing Exports JavaScript
 *
 * This script handles the generation of regional billing exports
 * through API endpoints and displays success/error messages.

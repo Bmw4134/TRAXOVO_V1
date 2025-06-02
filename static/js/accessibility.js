@@ -1,7 +1,8 @@
-* TRAXOVO Accessibility Enhancement Module
-* Provides comprehensive accessibility features including high contrast,
-* screen reader support, and keyboard navigation
-*/
+/**
+ * TRAXOVO Accessibility Enhancement Module
+ * Provides comprehensive accessibility features including high contrast,
+ * screen reader support, and keyboard navigation
+ */
 class TRAXOVOAccessibility {
 constructor() {
 this.settings = {

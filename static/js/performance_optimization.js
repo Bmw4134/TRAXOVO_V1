@@ -1,4 +1,4 @@
-* TRAXOVO Performance Optimization Engine
+/** TRAXOVO Performance Optimization Engine
 * Executive-grade user experience with instant response times
 */
 class TRAXOVOPerformanceEngine {

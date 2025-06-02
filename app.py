@@ -290,9 +290,13 @@ def watson_admin():
 
 @app.route('/api/purge-records', methods=['POST'])
 def api_purge_records():
-    """Purge all records from the database"""
+    """Purge all records from the database - Watson admin only"""
     if require_auth():
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    # Require Watson admin for destructive operations
+    if require_watson():
+        return jsonify({'success': False, 'error': 'Administrative privileges required'}), 403
     
     try:
         # Clear processed files directory

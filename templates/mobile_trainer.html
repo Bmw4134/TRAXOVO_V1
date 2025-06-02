@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Mobile Trainer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .mobile-header {
+            background: linear-gradient(135deg, #d4a574, #b8935f);
+            color: #1a1a1a;
+            padding: 20px 16px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .mobile-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .mobile-header p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .training-section {
+            padding: 20px 16px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #d4a574;
+        }
+
+        .interaction-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .interaction-card {
+            background: #2a2a2a;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 16px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .interaction-card:active {
+            transform: scale(0.98);
+            background: #323232;
+        }
+
+        .interaction-card.selected {
+            border-color: #d4a574;
+            background: #333333;
+        }
+
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            color: #cccccc;
+            margin-bottom: 12px;
+        }
+
+        .card-action {
+            background: #d4a574;
+            color: #1a1a1a;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: none;
+            width: 100%;
+        }
+
+        .feedback-section {
+            background: #252525;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .feedback-textarea {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 12px;
+            color: #ffffff;
+            font-size: 1rem;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .feedback-textarea:focus {
+            outline: none;
+            border-color: #d4a574;
+        }
+
+        .submit-feedback {
+            background: #d4a574;
+            color: #1a1a1a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .learning-progress {
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .progress-bar {
+            background: #404040;
+            border-radius: 10px;
+            height: 8px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #d4a574, #b8935f);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .status-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #d4a574;
+            color: #1a1a1a;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .quick-action {
+            background: #2a2a2a;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-action:active {
+            transform: scale(0.95);
+            background: #323232;
+        }
+
+        .action-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: #d4a574;
+        }
+
+        .action-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .device-info {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.8rem;
+            color: #999999;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-header">
+        <h1>TRAXOVO Mobile Trainer</h1>
+        <p>Train the AI to optimize your fleet management experience</p>
+    </div>
+
+    <div class="training-section">
+        <div class="section-title">Quick Actions</div>
+        <div class="quick-actions">
+            <div class="quick-action" onclick="recordGesture('double_tap')">
+                <div class="action-icon">👆</div>
+                <div class="action-label">Double Tap</div>
+            </div>
+            <div class="quick-action" onclick="recordGesture('long_press')">
+                <div class="action-icon">👇</div>
+                <div class="action-label">Long Press</div>
+            </div>
+            <div class="quick-action" onclick="recordGesture('swipe_left')">
+                <div class="action-icon">👈</div>
+                <div class="action-label">Swipe Left</div>
+            </div>
+            <div class="quick-action" onclick="recordGesture('swipe_right')">
+                <div class="action-icon">👉</div>
+                <div class="action-label">Swipe Right</div>
+            </div>
+        </div>
+
+        <div class="section-title">Interface Elements</div>
+        <div class="interaction-grid">
+            <div class="interaction-card" onclick="selectElement(this, 'navigation')">
+                <div class="card-title">Navigation Menu</div>
+                <div class="card-description">How easy is it to navigate between sections?</div>
+                <button class="card-action">Test Navigation</button>
+            </div>
+
+            <div class="interaction-card" onclick="selectElement(this, 'buttons')">
+                <div class="card-title">Button Interactions</div>
+                <div class="card-description">Are buttons responsive and clearly labeled?</div>
+                <button class="card-action">Test Buttons</button>
+            </div>
+
+            <div class="interaction-card" onclick="selectElement(this, 'data_tables')">
+                <div class="card-title">Data Tables</div>
+                <div class="card-description">How readable are the fleet data displays?</div>
+                <button class="card-action">Test Tables</button>
+            </div>
+
+            <div class="interaction-card" onclick="selectElement(this, 'forms')">
+                <div class="card-title">Form Inputs</div>
+                <div class="card-description">Are forms easy to fill on mobile?</div>
+                <button class="card-action">Test Forms</button>
+            </div>
+        </div>
+
+        <div class="feedback-section">
+            <div class="section-title">Your Feedback</div>
+            <textarea id="feedbackText" class="feedback-textarea" placeholder="Describe your experience with this element. What works well? What could be improved for fleet management tasks?"></textarea>
+            <button class="submit-feedback" onclick="submitFeedback()">Submit Training Data</button>
+        </div>
+
+        <div class="learning-progress">
+            <div class="section-title">Training Progress</div>
+            <div>Mobile Optimization: <span id="mobileProgress">0</span>%</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            <div style="margin-top: 12px; font-size: 0.9rem; color: #cccccc;">
+                <div>Interactions Recorded: <span id="interactionCount">0</span></div>
+                <div>Profile: <span id="currentProfile">Watson (Learning Mode)</span></div>
+            </div>
+        </div>
+
+        <div class="device-info">
+            <div><strong>Device Info:</strong></div>
+            <div id="deviceDetails">Loading device information...</div>
+        </div>
+    </div>
+
+    <div class="status-indicator" id="statusIndicator">Ready to Train</div>
+
+    <script>
+        let selectedElement = null;
+        let interactionCount = 0;
+        let currentProfile = 'watson'; // Default to Watson for reactive changes
+
+        // Device detection
+        function getDeviceInfo() {
+            const info = {
+                screen_size: `${window.screen.width}x${window.screen.height}`,
+                viewport_size: `${window.innerWidth}x${window.innerHeight}`,
+                user_agent: navigator.userAgent,
+                platform: navigator.platform,
+                touch_support: 'ontouchstart' in window,
+                orientation: window.orientation || 'unknown'
+            };
+            
+            document.getElementById('deviceDetails').innerHTML = `
+                Screen: ${info.screen_size}<br>
+                Viewport: ${info.viewport_size}<br>
+                Touch: ${info.touch_support ? 'Yes' : 'No'}<br>
+                Platform: ${info.platform}
+            `;
+            
+            return info;
+        }
+
+        function selectElement(card, elementType) {
+            // Remove previous selection
+            document.querySelectorAll('.interaction-card').forEach(c => {
+                c.classList.remove('selected');
+            });
+            
+            // Select current card
+            card.classList.add('selected');
+            selectedElement = elementType;
+            
+            updateStatus(`Selected: ${elementType.replace('_', ' ').toUpperCase()}`);
+        }
+
+        function recordGesture(gestureType) {
+            if (!selectedElement) {
+                updateStatus('Please select an element first');
+                return;
+            }
+
+            const deviceInfo = getDeviceInfo();
+            
+            fetch('/api/mobile_train', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    type: gestureType,
+                    element: selectedElement,
+                    feedback: `Gesture ${gestureType} on ${selectedElement}`,
+                    device_info: deviceInfo,
+                    profile: currentProfile
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    interactionCount++;
+                    updateProgress();
+                    updateStatus(`Recorded ${gestureType}`);
+                }
+            });
+        }
+
+        function submitFeedback() {
+            const feedbackText = document.getElementById('feedbackText').value;
+            
+            if (!feedbackText.trim()) {
+                updateStatus('Please enter feedback');
+                return;
+            }
+
+            if (!selectedElement) {
+                updateStatus('Please select an element first');
+                return;
+            }
+
+            const deviceInfo = getDeviceInfo();
+
+            fetch('/api/mobile_train', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    type: 'feedback',
+                    element: selectedElement,
+                    feedback: feedbackText,
+                    device_info: deviceInfo,
+                    profile: currentProfile
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    interactionCount++;
+                    updateProgress();
+                    updateStatus('Training data submitted');
+                    document.getElementById('feedbackText').value = '';
+                    
+                    // Update training progress if provided
+                    if (data.training_progress) {
+                        updateTrainingStats(data.training_progress);
+                    }
+                }
+            });
+        }
+
+        function updateProgress() {
+            const progress = Math.min((interactionCount * 10), 100);
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('mobileProgress').textContent = progress;
+            document.getElementById('interactionCount').textContent = interactionCount;
+        }
+
+        function updateStatus(message) {
+            document.getElementById('statusIndicator').textContent = message;
+            setTimeout(() => {
+                document.getElementById('statusIndicator').textContent = 'Ready to Train';
+            }, 3000);
+        }
+
+        function updateTrainingStats(stats) {
+            if (stats.mobile_progress) {
+                document.getElementById('progressBar').style.width = stats.mobile_progress + '%';
+                document.getElementById('mobileProgress').textContent = stats.mobile_progress;
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            getDeviceInfo();
+            updateProgress();
+        });
+
+        // Handle orientation changes
+        window.addEventListener('orientationchange', () => {
+            setTimeout(getDeviceInfo, 100);
+        });
+
+        // Touch event tracking for advanced gestures
+        let touchStartX, touchStartY, touchStartTime;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+        });
+
+        document.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const touchDuration = Date.now() - touchStartTime;
+            
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            
+            // Auto-detect gestures
+            if (touchDuration > 500 && distance < 10) {
+                // Long press
+                if (selectedElement) {
+                    recordGesture('auto_long_press');
+                }
+            } else if (distance > 50) {
+                // Swipe detection
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    if (deltaX > 0) {
+                        recordGesture('auto_swipe_right');
+                    } else {
+                        recordGesture('auto_swipe_left');
+                    }
+                } else {
+                    if (deltaY > 0) {
+                        recordGesture('auto_swipe_down');
+                    } else {
+                        recordGesture('auto_swipe_up');
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

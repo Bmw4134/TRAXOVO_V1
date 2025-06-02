@@ -59,6 +59,9 @@ def get_gauge_data():
 # Routes
 @app.route('/')
 def index():
+    # Development bypass - remove for production deployment
+    if os.environ.get('REPLIT_DEV_DOMAIN'):
+        return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
 
 @app.route('/login')
@@ -278,6 +281,138 @@ def api_watson_add_note():
     success = tracker.add_accountability_note(goal_id, note)
     
     return jsonify({"success": success})
+
+# User Profile Management routes
+@app.route('/profile')
+def user_profile():
+    """User profile management dashboard"""
+    return render_template('user_profile.html')
+
+@app.route('/api/profile/create', methods=['POST'])
+def api_create_profile():
+    """Create new user profile"""
+    from user_profile_system import get_user_profile_system
+    
+    data = request.get_json()
+    profile_system = get_user_profile_system()
+    result = profile_system.create_user_profile(data)
+    
+    return jsonify(result)
+
+@app.route('/api/profile/update', methods=['POST'])
+def api_update_profile():
+    """Update user profile"""
+    from user_profile_system import get_user_profile_system
+    
+    data = request.get_json()
+    user_id = data.get('user_id')
+    updates = data.get('updates', {})
+    
+    profile_system = get_user_profile_system()
+    result = profile_system.update_user_profile(user_id, updates)
+    
+    return jsonify(result)
+
+@app.route('/api/profile/reset_password', methods=['POST'])
+def api_initiate_password_reset():
+    """Initiate password reset process"""
+    from user_profile_system import get_user_profile_system
+    
+    data = request.get_json()
+    email = data.get('email')
+    
+    profile_system = get_user_profile_system()
+    result = profile_system.initiate_password_reset(email)
+    
+    return jsonify(result)
+
+@app.route('/reset_password')
+def reset_password_page():
+    """Password reset form page"""
+    token = request.args.get('token')
+    return render_template('reset_password.html', token=token)
+
+@app.route('/api/profile/complete_reset', methods=['POST'])
+def api_complete_password_reset():
+    """Complete password reset with new password"""
+    from user_profile_system import get_user_profile_system
+    
+    data = request.get_json()
+    token = data.get('token')
+    new_password = data.get('new_password')
+    
+    profile_system = get_user_profile_system()
+    result = profile_system.reset_password(token, new_password)
+    
+    return jsonify(result)
+
+@app.route('/api/profile/security_dashboard/<int:user_id>')
+def api_security_dashboard(user_id):
+    """Get user security dashboard"""
+    from user_profile_system import get_user_profile_system
+    
+    profile_system = get_user_profile_system()
+    result = profile_system.get_user_security_dashboard(user_id)
+    
+    return jsonify(result)
+
+# Mobile-Enhanced Puppeteer Training
+@app.route('/mobile_trainer')
+def mobile_trainer():
+    """Mobile-friendly Puppeteer training interface"""
+    return render_template('mobile_trainer.html')
+
+@app.route('/api/mobile_train', methods=['POST'])
+def api_mobile_train():
+    """Process mobile training interaction"""
+    from ux_learning_engine import get_ux_learning_engine
+    
+    data = request.get_json()
+    interaction_type = data.get('type')  # 'tap', 'scroll', 'gesture'
+    element = data.get('element')
+    feedback = data.get('feedback')
+    device_info = data.get('device_info', {})
+    
+    engine = get_ux_learning_engine()
+    
+    # Enhanced mobile learning context
+    mobile_context = {
+        'device_type': 'mobile',
+        'interaction_type': interaction_type,
+        'element': element,
+        'screen_size': device_info.get('screen_size'),
+        'user_agent': request.headers.get('User-Agent'),
+        'timestamp': datetime.now().isoformat()
+    }
+    
+    result = engine.learn_from_feedback(feedback, mobile_context)
+    
+    return jsonify({
+        "success": True,
+        "learned_preference": result,
+        "mobile_optimizations": engine.get_mobile_optimizations(),
+        "training_progress": engine.get_training_progress()
+    })
+
+@app.route('/api/domain_config')
+def api_domain_config():
+    """Get domain configuration for custom DNS setup"""
+    current_domain = os.environ.get('REPLIT_DEV_DOMAIN', 'localhost:5000')
+    
+    config = {
+        "current_domain": current_domain,
+        "is_development": bool(os.environ.get('REPLIT_DEV_DOMAIN')),
+        "custom_domain_ready": False,  # Will be true when Groundworks API is integrated
+        "dns_instructions": {
+            "A_record": "Add A record pointing to Replit's IP",
+            "CNAME_record": "Add CNAME record for www subdomain",
+            "verification": "Add TXT record for domain verification"
+        },
+        "ssl_status": "auto_managed",
+        "deployment_url": f"https://{current_domain}"
+    }
+    
+    return jsonify(config)
 
 # Create tables
 with app.app_context():

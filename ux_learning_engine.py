@@ -22,6 +22,28 @@ class UXLearningEngine:
         self.preference_scores = {}
         self.base_url = "http://localhost:5000"
         
+        # Profile-based permissions for deployment
+        self.profile_permissions = {
+            'watson': {'reactive_changes': True, 'data_collection': True},
+            'troy': {'reactive_changes': True, 'data_collection': True},
+            'william': {'reactive_changes': True, 'data_collection': True},
+            'chris': {'reactive_changes': False, 'data_collection': True},
+            'ammar': {'reactive_changes': False, 'data_collection': True},
+            'cooper': {'reactive_changes': False, 'data_collection': True},
+            'sebastian': {'reactive_changes': False, 'data_collection': True},
+            'brittany': {'reactive_changes': False, 'data_collection': True}
+        }
+        
+        # Deployment analytics tracking
+        self.deployment_analytics = {
+            'user_engagement': {},
+            'failure_points': {},
+            'click_through_rates': {},
+            'session_abandonment': {},
+            'feature_usage': {},
+            'mobile_interactions': {}
+        }
+        
     def analyze_interface_interactions(self, route: str = "/technical_testing") -> Dict[str, Any]:
         """
         Use Puppeteer to analyze interface interactions and user behavior

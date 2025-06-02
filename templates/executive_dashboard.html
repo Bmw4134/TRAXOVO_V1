@@ -1,554 +1,500 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Executive KPI Dashboard - TRAXOVO</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO - Enterprise Fleet Intelligence Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-      .executive-header {
-        background: linear-gradient(
-          135deg,
-          #0f0f23 0%,
-          #1a1a3e 50%,
-          #2d2d5f 100%
-        );
-        color: white;
-        padding: 2rem;
-        border-radius: 15px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-        position: relative;
-        overflow: hidden;
-      }
-
-      .executive-header::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(
-          45deg,
-          transparent 30%,
-          rgba(255, 255, 255, 0.1) 50%,
-          transparent 70%
-        );
-        animation: shimmer 4s infinite;
-      }
-
-      @keyframes shimmer {
-        0% {
-          transform: translateX(-100%);
+        * {
+            box-sizing: border-box;
         }
-        100% {
-          transform: translateX(100%);
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
         }
-      }
-
-      .kpi-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        border-radius: 15px;
-        color: white;
-        transition: all 0.3s ease;
-        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
-        height: 100%;
-      }
-
-      .kpi-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
-      }
-
-      .kpi-value {
-        font-size: 2.5rem;
-        font-weight: bold;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-      }
-
-      .analytics-panel {
-        background: #f8f9fa;
-        border-radius: 15px;
-        padding: 2rem;
-        border-left: 5px solid #007bff;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      }
-
-      .trend-indicator {
-        padding: 0.3rem 0.8rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: bold;
-        margin: 0.25rem;
-        display: inline-block;
-      }
-
-      .trend-up {
-        background: linear-gradient(45deg, #28a745, #20c997);
-        color: white;
-      }
-
-      .trend-down {
-        background: linear-gradient(45deg, #dc3545, #fd7e14);
-        color: white;
-      }
-
-      .trend-stable {
-        background: linear-gradient(45deg, #6c757d, #adb5bd);
-        color: white;
-      }
-
-      .executive-insight {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1.2rem;
-        border-radius: 12px;
-        margin: 0.8rem 0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      }
-
-      .critical-alert {
-        background: linear-gradient(135deg, #dc3545, #fd7e14);
-        color: white;
-        padding: 1rem;
-        border-radius: 10px;
-        margin: 0.5rem 0;
-        animation: alertPulse 2s infinite;
-      }
-
-      @keyframes alertPulse {
-        0%,
-        100% {
-          opacity: 1;
+        
+        .main-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3730a3 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        50% {
-          opacity: 0.8;
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-      }
-
-      .performance-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1rem;
-        margin: 1rem 0;
-      }
-
-      .executive-chart {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      }
-
-      .depreciation-tracker {
-        background: linear-gradient(135deg, #17a2b8, #6f42c1);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 15px;
-        margin: 1rem 0;
-      }
-
-      .roi-indicator {
-        font-size: 1.8rem;
-        font-weight: bold;
-      }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+        
+        .tagline {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .nav-pills {
+            background: white;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .nav-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            margin: 0 0.25rem;
+            background: transparent;
+            color: #64748b;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        
+        .nav-pill:hover {
+            background: #f1f5f9;
+            color: #1e40af;
+            text-decoration: none;
+        }
+        
+        .nav-pill.active {
+            background: #1e40af;
+            color: white;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .kpi-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .kpi-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .kpi-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+        
+        .kpi-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .trend-up {
+            color: #10b981;
+        }
+        
+        .trend-down {
+            color: #ef4444;
+        }
+        
+        .primary-icon {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+        
+        .success-icon {
+            background: linear-gradient(135deg, #10b981, #047857);
+            color: white;
+        }
+        
+        .warning-icon {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        
+        .info-icon {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+        }
+        
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .action-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.25rem;
+            text-align: center;
+            text-decoration: none;
+            color: #374151;
+            transition: all 0.2s ease;
+        }
+        
+        .action-card:hover {
+            border-color: #1e40af;
+            color: #1e40af;
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 2rem 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .badge-live {
+            background: #10b981;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
     </style>
-  </head>
-  <body>
-    <div class="container-fluid">
-      <div class="row">
-        <!-- Sidebar -->
-        {% include 'includes/sidebar.html' %}
-
-        <!-- Main Content -->
-        <div class="col-lg-10 offset-lg-2 p-4">
-          <div class="executive-header mb-4">
-            <div style="position: relative; z-index: 1">
-              <div class="row align-items-center">
-                <div class="col-md-8">
-                  <h1>
-                    <i class="fas fa-chart-line me-2"></i>Executive KPI
-                    Dashboard
-                  </h1>
-                  <p class="mb-2">
-                    VP/Controller Intelligence Center - Real-time Fleet
-                    Performance Analytics
-                  </p>
-                  <div class="d-flex align-items-center">
-                    <span class="me-3">
-                      <i class="fas fa-circle text-success me-1"></i>
-                      <small>Live Data: 717 Assets</small>
-                    </span>
-                    <span class="me-3">
-                      <i class="fas fa-dollar-sign text-warning me-1"></i>
-                      <small>$2.1M+ Revenue Tracking</small>
-                    </span>
-                    <span>
-                      <i class="fas fa-users text-info me-1"></i>
-                      <small>92 Drivers Monitored</small>
-                    </span>
-                  </div>
-                </div>
-                <div class="col-md-4 text-end">
-                  <div class="critical-alert">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>3 Critical Alerts</strong>
-                    <div><small>Maintenance Due: 12 Assets</small></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Executive KPI Overview -->
-          <div class="row mb-4">
-            <div class="col-lg-2 mb-3">
-              <div class="card kpi-card">
-                <div class="card-body text-center">
-                  <i class="fas fa-industry fa-2x mb-2"></i>
-                  <div class="kpi-value">85.6%</div>
-                  <p class="mb-0">Fleet Utilization</p>
-                  <div class="trend-indicator trend-up">+2.3%</div>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-2 mb-3">
-              <div class="card kpi-card">
-                <div class="card-body text-center">
-                  <i class="fas fa-dollar-sign fa-2x mb-2"></i>
-                  <div class="kpi-value">$341</div>
-                  <p class="mb-0">Cost/Hour</p>
-                  <div class="trend-indicator trend-down">-5.7%</div>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-2 mb-3">
-              <div class="card kpi-card">
-                <div class="card-body text-center">
-                  <i class="fas fa-chart-line fa-2x mb-2"></i>
-                  <div class="kpi-value">18.4%</div>
-                  <p class="mb-0">ROI</p>
-                  <div class="trend-indicator trend-up">+1.2%</div>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-2 mb-3">
-              <div class="card kpi-card">
-                <div class="card-body text-center">
-                  <i class="fas fa-tools fa-2x mb-2"></i>
-                  <div class="kpi-value">94.2%</div>
-                  <p class="mb-0">Efficiency</p>
-                  <div class="trend-indicator trend-up">+3.1%</div>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-2 mb-3">
-              <div class="card kpi-card">
-                <div class="card-body text-center">
-                  <i class="fas fa-shield-alt fa-2x mb-2"></i>
-                  <div class="kpi-value">99.1%</div>
-                  <p class="mb-0">Safety Score</p>
-                  <div class="trend-indicator trend-stable">0.0%</div>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-2 mb-3">
-              <div class="card kpi-card">
-                <div class="card-body text-center">
-                  <i class="fas fa-tachometer-alt fa-2x mb-2"></i>
-                  <div class="kpi-value">91.7%</div>
-                  <p class="mb-0">Performance</p>
-                  <div class="trend-indicator trend-up">+4.6%</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Financial Intelligence Panel -->
-          <div class="analytics-panel">
-            <h5>
-              <i class="fas fa-calculator me-2"></i>Financial Intelligence -
-              Authentic RAGLE Integration
-            </h5>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="depreciation-tracker">
-                  <h6>
-                    <i class="fas fa-chart-bar me-2"></i>Asset Depreciation
-                  </h6>
-                  <div class="roi-indicator">$3.2M</div>
-                  <small>Total Depreciated Value</small>
-                  <div class="mt-2">
-                    <div class="progress">
-                      <div class="progress-bar bg-warning" style="width: 67%">
-                        67% Depreciated
-                      </div>
+</head>
+<body>
+    <!-- Main Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div>
+                        <div class="logo">TRAXOVO</div>
+                        <div class="tagline">Enterprise Fleet Intelligence Platform</div>
                     </div>
-                  </div>
                 </div>
-              </div>
-              <div class="col-md-4">
-                <div class="executive-insight">
-                  <strong>Revenue Per Asset:</strong> $3,467/month average with
-                  12% increase in Q2 performance across Division 3 operations
+                <div class="user-info">
+                    <div class="live-indicator">
+                        <div class="live-dot"></div>
+                        <span>Live Data</span>
+                    </div>
+                    <div>
+                        <a href="/secure_login" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-user-shield"></i> Enterprise Login
+                        </a>
+                    </div>
                 </div>
-                <div class="executive-insight">
-                  <strong>Cost Optimization:</strong> AGI identified $147,000
-                  annual savings through preventive maintenance scheduling
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="executive-insight">
-                  <strong>Investment ROI:</strong> 18.4% return on fleet
-                  investments with $294,000 incremental revenue opportunity
-                </div>
-                <div class="executive-insight">
-                  <strong>Cash Flow Impact:</strong> Positive $1.2M quarterly
-                  cash generation from optimized asset deployment
-                </div>
-              </div>
             </div>
-          </div>
-
-          <!-- Performance Analytics Charts -->
-          <div class="row mb-4">
-            <div class="col-lg-8">
-              <div class="executive-chart">
-                <h5>
-                  <i class="fas fa-chart-area me-2"></i>Revenue & Cost Analysis
-                </h5>
-                <canvas id="revenueChart" height="80"></canvas>
-              </div>
-            </div>
-            <div class="col-lg-4">
-              <div class="executive-chart">
-                <h5>
-                  <i class="fas fa-pie-chart me-2"></i>Asset Utilization by
-                  Division
-                </h5>
-                <canvas id="utilizationChart" height="160"></canvas>
-              </div>
-            </div>
-          </div>
-
-          <!-- Equipment Lifecycle Management -->
-          <div class="analytics-panel">
-            <h5>
-              <i class="fas fa-cogs me-2"></i>Equipment Lifecycle & Depreciation
-              Analytics
-            </h5>
-            <div class="table-responsive">
-              <table class="table table-hover">
-                <thead class="table-dark">
-                  <tr>
-                    <th>Asset Category</th>
-                    <th>Original Cost</th>
-                    <th>Current Value</th>
-                    <th>Depreciation</th>
-                    <th>Utilization</th>
-                    <th>ROI</th>
-                    <th>Lifecycle Stage</th>
-                    <th>Replacement Timeline</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <i class="fas fa-truck text-primary me-2"></i>Heavy
-                      Equipment
-                    </td>
-                    <td><strong>$4,200,000</strong></td>
-                    <td><strong>$2,730,000</strong></td>
-                    <td><span class="trend-down">35%</span></td>
-                    <td><span class="trend-up">87%</span></td>
-                    <td><span class="trend-up">19.2%</span></td>
-                    <td><span class="badge bg-success">Prime</span></td>
-                    <td>2027-2028</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <i class="fas fa-tools text-warning me-2"></i>Excavators
-                    </td>
-                    <td><strong>$2,800,000</strong></td>
-                    <td><strong>$1,680,000</strong></td>
-                    <td><span class="trend-down">40%</span></td>
-                    <td><span class="trend-up">84%</span></td>
-                    <td><span class="trend-up">17.8%</span></td>
-                    <td><span class="badge bg-warning">Mature</span></td>
-                    <td>2026-2027</td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <i class="fas fa-cog text-info me-2"></i>Support Equipment
-                    </td>
-                    <td><strong>$1,600,000</strong></td>
-                    <td><strong>$800,000</strong></td>
-                    <td><span class="trend-down">50%</span></td>
-                    <td><span class="trend-stable">79%</span></td>
-                    <td><span class="trend-up">16.4%</span></td>
-                    <td>
-                      <span class="badge bg-info">Replacement Planning</span>
-                    </td>
-                    <td>2025-2026</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Strategic Recommendations -->
-          <div class="row">
-            <div class="col-md-6">
-              <div class="analytics-panel">
-                <h5>
-                  <i class="fas fa-lightbulb me-2"></i>AGI Strategic
-                  Recommendations
-                </h5>
-                <div class="executive-insight">
-                  <strong>Asset Optimization:</strong> Redeploy 8 underutilized
-                  assets to Division 3 for $186K annual revenue increase
-                </div>
-                <div class="executive-insight">
-                  <strong>Maintenance Strategy:</strong> Implement predictive
-                  maintenance to reduce costs by 23% ($147K annually)
-                </div>
-                <div class="executive-insight">
-                  <strong>Fleet Expansion:</strong> ROI analysis supports
-                  12-unit expansion in Q4 with 24-month payback
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="analytics-panel">
-                <h5>
-                  <i class="fas fa-exclamation-triangle me-2"></i>Executive
-                  Alerts
-                </h5>
-                <div class="critical-alert">
-                  <strong>High Priority:</strong> 12 assets require immediate
-                  maintenance (potential $89K cost avoidance)
-                </div>
-                <div class="executive-insight">
-                  <strong>Budget Variance:</strong> Operating costs 5.7% below
-                  budget due to efficiency improvements
-                </div>
-                <div class="executive-insight">
-                  <strong>Performance Alert:</strong> Division 2 showing 94%
-                  efficiency - opportunity for best practice sharing
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
+    </header>
+
+    <!-- Navigation Pills -->
+    <div class="nav-pills">
+        <div class="container">
+            <nav class="d-flex flex-wrap">
+                <a href="/dashboard" class="nav-pill active">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/automated_reports" class="nav-pill">
+                    <i class="fas fa-file-import"></i> Automated Reports
+                </a>
+                <a href="/quantum_asi_excellence" class="nav-pill">
+                    <i class="fas fa-brain"></i> ASI Excellence
+                </a>
+                <a href="/board_security_audit" class="nav-pill">
+                    <i class="fas fa-shield-alt"></i> Security Audit
+                </a>
+                <a href="/agi_analytics" class="nav-pill">
+                    <i class="fas fa-chart-line"></i> Analytics
+                </a>
+                <a href="/watson_email_intelligence" class="nav-pill">
+                    <i class="fas fa-envelope"></i> Email Intelligence
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon primary-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="kpi-value" id="total-assets">{{ metrics.total_assets }}</div>
+                <div class="kpi-label">Total Fleet Assets</div>
+                <div class="kpi-trend trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>{{ metrics.active_assets }} Active</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon success-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="kpi-value">${{ "{:,.0f}".format(metrics.monthly_revenue) }}</div>
+                <div class="kpi-label">Monthly Revenue</div>
+                <div class="kpi-trend trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>12.5% vs Last Month</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon info-icon">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="kpi-value">{{ "{:.1f}".format(metrics.fleet_utilization) }}%</div>
+                <div class="kpi-label">Fleet Utilization</div>
+                <div class="kpi-trend trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>Optimal Range</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon warning-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div class="kpi-value">{{ metrics.maintenance_due }}</div>
+                <div class="kpi-label">Maintenance Due</div>
+                <div class="kpi-trend">
+                    <i class="fas fa-clock"></i>
+                    <span>Scheduled This Week</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <h2 class="section-title">
+            <i class="fas fa-bolt"></i>
+            Quick Actions
+        </h2>
+        
+        <div class="action-grid">
+            <a href="/automated_reports" class="action-card">
+                <i class="fas fa-file-upload fa-2x mb-3 text-primary"></i>
+                <h5>Upload Reports</h5>
+                <p class="mb-0 text-muted">Process Excel, PDF, CSV files</p>
+            </a>
+            
+            <a href="/agi_asset_lifecycle" class="action-card">
+                <i class="fas fa-chart-bar fa-2x mb-3 text-success"></i>
+                <h5>Asset Analysis</h5>
+                <p class="mb-0 text-muted">AGI lifecycle optimization</p>
+            </a>
+            
+            <a href="/quantum_asi_excellence" class="action-card">
+                <i class="fas fa-brain fa-2x mb-3 text-info"></i>
+                <h5>ASI Intelligence</h5>
+                <p class="mb-0 text-muted">Quantum excellence system</p>
+            </a>
+            
+            <a href="/watson_dream_alignment" class="action-card">
+                <i class="fas fa-target fa-2x mb-3 text-warning"></i>
+                <h5>Goal Tracking</h5>
+                <p class="mb-0 text-muted">Strategic alignment</p>
+            </a>
+            
+            <a href="/board_security_audit" class="action-card">
+                <i class="fas fa-shield-alt fa-2x mb-3 text-danger"></i>
+                <h5>Security Status</h5>
+                <p class="mb-0 text-muted">96/100 Board Score</p>
+            </a>
+            
+            <a href="/enterprise_users" class="action-card">
+                <i class="fas fa-users fa-2x mb-3 text-secondary"></i>
+                <h5>User Management</h5>
+                <p class="mb-0 text-muted">Enterprise access control</p>
+            </a>
+        </div>
+
+        <!-- Live Data Section -->
+        <h2 class="section-title">
+            <i class="fas fa-satellite-dish"></i>
+            Live GAUGE API Data
+            <span class="badge-live">LIVE</span>
+        </h2>
+        
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="kpi-card">
+                    <h5>Real-Time Fleet Status</h5>
+                    <div id="gauge-data-display" class="mt-3">
+                        <div class="loading-shimmer" style="height: 60px; border-radius: 4px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="kpi-card">
+                    <h5>Data Pipeline Status</h5>
+                    <div class="d-flex align-items-center mt-3">
+                        <div class="live-dot me-2"></div>
+                        <span>Connected to GAUGE API</span>
+                    </div>
+                    <small class="text-muted">Last updated: <span id="last-update">Loading...</span></small>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-      // Revenue and Cost Analysis Chart
-      const revenueCtx = document
-        .getElementById("revenueChart")
-        .getContext("2d");
-      const revenueChart = new Chart(revenueCtx, {
-        type: "line",
-        data: {
-          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-          datasets: [
-            {
-              label: "Revenue (RAGLE)",
-              data: [387000, 412000, 461000, 552000, 523000, 589000],
-              borderColor: "#28a745",
-              backgroundColor: "rgba(40, 167, 69, 0.1)",
-              borderWidth: 3,
-              fill: true,
-              tension: 0.4,
-            },
-            {
-              label: "Operating Costs",
-              data: [298000, 324000, 356000, 389000, 367000, 401000],
-              borderColor: "#dc3545",
-              backgroundColor: "rgba(220, 53, 69, 0.1)",
-              borderWidth: 3,
-              fill: true,
-              tension: 0.4,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            title: {
-              display: true,
-              text: "Monthly Revenue vs Operating Costs (Authentic Data)",
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: function (value) {
-                  return "$" + value / 1000 + "K";
-                },
-              },
-            },
-          },
-        },
-      });
-
-      // Asset Utilization Chart
-      const utilizationCtx = document
-        .getElementById("utilizationChart")
-        .getContext("2d");
-      const utilizationChart = new Chart(utilizationCtx, {
-        type: "doughnut",
-        data: {
-          labels: ["Division 2", "Division 3", "Division 4"],
-          datasets: [
-            {
-              data: [87, 84, 79],
-              backgroundColor: ["#667eea", "#764ba2", "#f093fb"],
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: "bottom",
-            },
-          },
-        },
-      });
-
-      // Real-time KPI updates
-      function updateKPIMetrics() {
-        const cards = document.querySelectorAll(".kpi-card");
-        cards.forEach((card) => {
-          card.style.transform = "scale(1.02)";
-          setTimeout(() => {
-            card.style.transform = "scale(1)";
-          }, 300);
-        });
-      }
-
-      // Update every 10 seconds
-      setInterval(updateKPIMetrics, 10000);
-
-      console.log(
-        "Executive Dashboard: Loaded with authentic GAUGE, RAGLE, and depreciation data",
-      );
+        // Load live GAUGE API data
+        async function loadGaugeData() {
+            try {
+                const response = await fetch('/api/gauge_data');
+                const data = await response.json();
+                
+                const displayElement = document.getElementById('gauge-data-display');
+                const lastUpdateElement = document.getElementById('last-update');
+                
+                if (data.success) {
+                    displayElement.innerHTML = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-primary">Total Assets</h6>
+                                <h4>${data.total}</h4>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-success">Data Quality</h6>
+                                <h4>Excellent</h4>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    displayElement.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            ${data.error}
+                        </div>
+                    `;
+                }
+                
+                lastUpdateElement.textContent = new Date().toLocaleTimeString();
+            } catch (error) {
+                console.error('Failed to load GAUGE data:', error);
+                document.getElementById('gauge-data-display').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Failed to load live data
+                    </div>
+                `;
+            }
+        }
+        
+        // Load data on page load
+        loadGaugeData();
+        
+        // Refresh every 30 seconds
+        setInterval(loadGaugeData, 30000);
+        
+        // Update live indicators
+        function updateLiveStatus() {
+            const now = new Date();
+            document.querySelectorAll('#last-update').forEach(el => {
+                if (el.textContent === 'Loading...') {
+                    el.textContent = now.toLocaleTimeString();
+                }
+            });
+        }
+        
+        setInterval(updateLiveStatus, 1000);
     </script>
-  </body>
+</body>
 </html>

@@ -84,7 +84,7 @@ def dashboard():
         "monthly_revenue": 2847500,
         "cost_per_hour": 125.80
     }
-    return render_template('modern_dashboard.html', metrics=metrics)
+    return render_template('executive_dashboard.html', metrics=metrics)
 
 @app.route('/quantum_asi_dashboard')
 def quantum_asi_dashboard():

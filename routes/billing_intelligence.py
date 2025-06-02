@@ -205,7 +205,12 @@ class RAGLEBillingProcessor:
 
 @billing_bp.route('/billing')
 def billing_dashboard():
-    """Billing intelligence dashboard"""
+    """Redirect to master billing system"""
+    return redirect('/master-billing')
+
+@billing_bp.route('/billing-legacy')
+def billing_legacy():
+    """Legacy billing intelligence dashboard"""
     if require_auth():
         return redirect(url_for('login'))
     

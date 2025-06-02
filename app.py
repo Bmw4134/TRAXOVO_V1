@@ -92,10 +92,12 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        if username in ['watson', 'admin', 'user'] and password == 'password':
+        valid_users = {'watson': 'admin', 'tester': 'tester', 'user': 'user'}
+        if username in valid_users and password == 'password':
             session['authenticated'] = True
             session['username'] = username
-            flash('Login successful', 'success')
+            session['user_role'] = valid_users[username]
+            flash(f'Welcome {username} - {valid_users[username].title()} Access', 'success')
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid credentials', 'error')

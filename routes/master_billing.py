@@ -194,7 +194,8 @@ class MasterEquipmentBillingProcessor:
         """Safely sum numeric data"""
         try:
             numeric_series = pd.to_numeric(series, errors='coerce')
-            return float(numeric_series.sum())
+            total = numeric_series.sum()
+            return float(total) if not pd.isna(total) else 0.0
         except:
             return 0.0
     

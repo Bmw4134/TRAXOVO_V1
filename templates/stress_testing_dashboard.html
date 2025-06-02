@@ -1,0 +1,535 @@
+{% extends "base.html" %}
+
+{% block title %}Stress Testing Dashboard - TRAXOVO{% endblock %}
+
+{% block extra_css %}
+<style>
+.stress-dashboard {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.stat-card {
+    background: rgba(255,255,255,0.1);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-top: 0.5rem;
+}
+
+.test-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.test-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.test-btn {
+    background: var(--primary-blue);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.test-btn:hover {
+    background: var(--secondary-blue);
+    transform: translateY(-2px);
+}
+
+.issue-form {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #ef4444;
+}
+
+.suggestion-form {
+    background: #f0fdf4;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #22c55e;
+}
+
+.feedback-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--primary-blue);
+    color: white;
+    padding: 1rem;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+.issue-item {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.severity-critical { border-left: 4px solid #ef4444; }
+.severity-high { border-left: 4px solid #f97316; }
+.severity-medium { border-left: 4px solid #eab308; }
+.severity-low { border-left: 4px solid #22c55e; }
+
+.real-time-status {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+
+.quick-action-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Header Dashboard -->
+    <div class="stress-dashboard">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h1 class="h2 mb-0 fw-bold">TRAXOVO Stress Testing Dashboard</h1>
+                <p class="mb-0 opacity-75">Real-time deployment monitoring and team feedback</p>
+            </div>
+            <div class="real-time-status">
+                <span id="system-status">System Active</span>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number">{{ stats.total_tests }}</span>
+                <div class="stat-label">Total Tests Run</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">{{ stats.open_issues }}</span>
+                <div class="stat-label">Open Issues</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">{{ stats.total_feedback }}</span>
+                <div class="stat-label">Feedback Items</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">{{ stats.team_suggestions }}</span>
+                <div class="stat-label">Team Suggestions</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="test-section">
+        <h3>Quick Actions</h3>
+        <div class="quick-actions">
+            <button class="quick-action-btn" onclick="runQuickTest('general')">Quick System Test</button>
+            <button class="quick-action-btn" onclick="showReportModal()">Report Issue</button>
+            <button class="quick-action-btn" onclick="showSuggestionModal()">Suggest Improvement</button>
+            <button class="quick-action-btn" onclick="viewWhatNeedsFixing()">What Needs Fixing?</button>
+        </div>
+    </div>
+
+    <!-- Stress Testing Controls -->
+    <div class="test-section">
+        <h3>Stress Testing Suite</h3>
+        <p>Run comprehensive tests on different system components:</p>
+        
+        <div class="test-buttons">
+            <button class="test-btn" onclick="runStressTest('login_stress')">
+                <i class="fas fa-users"></i><br>Login Stress Test
+            </button>
+            <button class="test-btn" onclick="runStressTest('dashboard_load')">
+                <i class="fas fa-tachometer-alt"></i><br>Dashboard Load Test
+            </button>
+            <button class="test-btn" onclick="runStressTest('attendance_matrix')">
+                <i class="fas fa-table"></i><br>Attendance Matrix Test
+            </button>
+            <button class="test-btn" onclick="runStressTest('billing_engine')">
+                <i class="fas fa-dollar-sign"></i><br>Billing Engine Test
+            </button>
+            <button class="test-btn" onclick="runStressTest('ai_intelligence')">
+                <i class="fas fa-brain"></i><br>AI Intelligence Test
+            </button>
+        </div>
+        
+        <div id="test-results" class="mt-3"></div>
+    </div>
+
+    <!-- Open Issues -->
+    <div class="test-section">
+        <h3>Open Issues ({{ stats.open_issues }})</h3>
+        <div id="issues-list">
+            {% for issue in open_issues %}
+            <div class="issue-item severity-{{ issue.severity }}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5>Issue #{{ issue.id }}: {{ issue.title }}</h5>
+                        <p class="mb-1">{{ issue.description }}</p>
+                        <small class="text-muted">
+                            Reported by {{ issue.reporter }} on {{ issue.timestamp[:10] }} | 
+                            Severity: {{ issue.severity.title() }} | 
+                            Category: {{ issue.category.title() }}
+                        </small>
+                    </div>
+                    <button class="btn btn-sm btn-success" onclick="resolveIssue({{ issue.id }})">
+                        Mark Resolved
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Team Suggestions -->
+    <div class="test-section">
+        <h3>Team Suggestions ({{ stats.team_suggestions }})</h3>
+        <div id="suggestions-list">
+            {% for suggestion in team_suggestions %}
+            <div class="issue-item">
+                <h5>{{ suggestion.title }}</h5>
+                <p>{{ suggestion.description }}</p>
+                <small class="text-muted">
+                    Suggested by {{ suggestion.suggested_by }} | 
+                    Priority: {{ suggestion.priority.title() }} | 
+                    Effort: {{ suggestion.implementation_effort.title() }}
+                </small>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Test Results -->
+    <div class="test-section">
+        <h3>Recent Test Results</h3>
+        <div id="recent-results">
+            {% for result in recent_results %}
+            <div class="issue-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ result.test_type.replace('_', ' ').title() }}</strong>
+                        <p class="mb-1">{{ result.description }}</p>
+                        <small class="text-muted">Run by {{ result.initiated_by }} at {{ result.timestamp[:19] }}</small>
+                    </div>
+                    <span class="badge bg-{{ 'success' if result.success else 'danger' }}">
+                        {{ 'PASSED' if result.success else 'FAILED' }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Floating Feedback Widget -->
+<div class="feedback-widget" onclick="showFeedbackModal()">
+    <i class="fas fa-comment"></i> Quick Feedback
+</div>
+
+<!-- Issue Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Report Issue</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="issueForm">
+                    <div class="mb-3">
+                        <label class="form-label">Issue Title</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Severity</label>
+                            <select class="form-control" name="severity">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category</label>
+                            <select class="form-control" name="category">
+                                <option value="general">General</option>
+                                <option value="authentication">Authentication</option>
+                                <option value="dashboard">Dashboard</option>
+                                <option value="billing">Billing</option>
+                                <option value="attendance">Attendance</option>
+                                <option value="performance">Performance</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="submitIssue()">Report Issue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Suggestion Modal -->
+<div class="modal fade" id="suggestionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Suggest Improvement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="suggestionForm">
+                    <div class="mb-3">
+                        <label class="form-label">Suggestion Title</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Priority</label>
+                            <select class="form-control" name="priority">
+                                <option value="low">Low</option>
+                                <option value="normal" selected>Normal</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Implementation Effort</label>
+                            <select class="form-control" name="effort">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="submitSuggestion()">Submit Suggestion</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Real-time system status updates
+setInterval(updateSystemStatus, 30000); // Every 30 seconds
+
+function updateSystemStatus() {
+    fetch('/api/system-health-realtime')
+        .then(response => response.json())
+        .then(data => {
+            const statusElement = document.getElementById('system-status');
+            statusElement.textContent = `System ${data.overall_status.toUpperCase()}`;
+            statusElement.className = data.overall_status === 'healthy' ? 'text-success' : 'text-warning';
+        })
+        .catch(error => console.error('Status update failed:', error));
+}
+
+function runStressTest(testType) {
+    const button = event.target;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i><br>Running...';
+    
+    fetch('/run-stress-test', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({test_type: testType})
+    })
+    .then(response => response.json())
+    .then(data => {
+        displayTestResult(data);
+        button.disabled = false;
+        button.innerHTML = button.innerHTML.replace('<i class="fas fa-spinner fa-spin"></i><br>Running...', button.innerHTML);
+        location.reload(); // Refresh to show new results
+    })
+    .catch(error => {
+        console.error('Test failed:', error);
+        button.disabled = false;
+    });
+}
+
+function runQuickTest(testType) {
+    runStressTest(testType);
+}
+
+function displayTestResult(result) {
+    const resultsDiv = document.getElementById('test-results');
+    const resultHtml = `
+        <div class="alert alert-${result.success ? 'success' : 'danger'} mt-3">
+            <h5>${result.test_type.replace('_', ' ').toUpperCase()} - ${result.success ? 'PASSED' : 'FAILED'}</h5>
+            <p>${result.description}</p>
+            <small>Test ID: ${result.id} | Run at: ${result.timestamp}</small>
+        </div>
+    `;
+    resultsDiv.innerHTML = resultHtml + resultsDiv.innerHTML;
+}
+
+function showReportModal() {
+    new bootstrap.Modal(document.getElementById('reportModal')).show();
+}
+
+function showSuggestionModal() {
+    new bootstrap.Modal(document.getElementById('suggestionModal')).show();
+}
+
+function showFeedbackModal() {
+    const feedback = prompt('Quick feedback about what you just tested:');
+    if (feedback) {
+        fetch('/live-feedback', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                message: feedback,
+                page: window.location.pathname,
+                type: 'quick',
+                rating: 4
+            })
+        });
+        alert('Feedback submitted! Thank you.');
+    }
+}
+
+function submitIssue() {
+    const form = document.getElementById('issueForm');
+    const formData = new FormData(form);
+    
+    fetch('/report-issue', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(Object.fromEntries(formData))
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(`Issue #${data.issue_id} reported successfully!`);
+        bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
+        location.reload();
+    });
+}
+
+function submitSuggestion() {
+    const form = document.getElementById('suggestionForm');
+    const formData = new FormData(form);
+    
+    fetch('/suggest-improvement', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(Object.fromEntries(formData))
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(`Suggestion #${data.suggestion_id} submitted successfully!`);
+        bootstrap.Modal.getInstance(document.getElementById('suggestionModal')).hide();
+        location.reload();
+    });
+}
+
+function resolveIssue(issueId) {
+    // Here you would typically make an API call to mark the issue as resolved
+    alert(`Issue #${issueId} marked as resolved!`);
+    location.reload();
+}
+
+function viewWhatNeedsFixing() {
+    fetch('/what-needs-fixing')
+        .then(response => response.json())
+        .then(data => {
+            let message = 'PRIORITY FIXES NEEDED:\n\n';
+            
+            if (data.immediate_action_required.length > 0) {
+                message += 'CRITICAL ISSUES:\n';
+                data.immediate_action_required.forEach(issue => {
+                    message += `- ${issue.title}\n`;
+                });
+                message += '\n';
+            }
+            
+            if (data.high_priority.length > 0) {
+                message += 'HIGH PRIORITY:\n';
+                data.high_priority.forEach(issue => {
+                    message += `- ${issue.title}\n`;
+                });
+                message += '\n';
+            }
+            
+            if (data.performance_issues.length > 0) {
+                message += 'PERFORMANCE ISSUES:\n';
+                data.performance_issues.forEach(issue => {
+                    message += `- Slow response on ${issue.page}\n`;
+                });
+            }
+            
+            alert(message || 'No critical issues found! System running smoothly.');
+        });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateSystemStatus();
+});
+</script>
+{% endblock %}

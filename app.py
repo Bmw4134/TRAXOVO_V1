@@ -510,11 +510,19 @@ def get_sample_attendance_data():
     
     return pm_drivers + ej_drivers
 
+# Import stress testing blueprint
+from routes.stress_testing import stress_testing_bp
+
+# Initialize deployment monitoring
+from deployment_monitor import monitor
+monitor.init_app(app)
+
 # Register blueprints
 app.register_blueprint(billing_bp)
 app.register_blueprint(master_billing_bp)
 app.register_blueprint(admin_guide_bp)
 app.register_blueprint(ai_intelligence_bp)
+app.register_blueprint(stress_testing_bp)
 
 # Create database tables
 with app.app_context():

@@ -6,10 +6,11 @@ import os
 import json
 import requests
 from datetime import datetime
-from flask import Flask, render_template, jsonify, request, redirect, url_for, session
+from flask import Flask, render_template, jsonify, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from werkzeug.utils import secure_filename
 
 class Base(DeclarativeBase):
     pass
@@ -33,6 +34,16 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+
+# Import enterprise authentication and reporting systems
+try:
+    from secure_enterprise_auth import get_secure_auth
+    from automated_report_importer import get_report_importer
+    auth_system = get_secure_auth()
+    report_importer = get_report_importer()
+    enterprise_modules_available = True
+except ImportError:
+    enterprise_modules_available = False
 
 def get_gauge_data():
     """Fetch live data from GAUGE API using your credentials"""
@@ -217,6 +228,125 @@ def api_mobile_train():
 def user_profile():
     """User profile management dashboard"""
     return render_template('user_profile.html')
+
+# Secure Enterprise Authentication Routes
+@app.route('/secure_login', methods=['GET', 'POST'])
+def secure_login():
+    """Secure enterprise login with real credentials"""
+    if request.method == 'POST':
+        if not enterprise_modules_available:
+            return jsonify({"success": False, "error": "Enterprise authentication not available"})
+        
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        if not username or not password:
+            return jsonify({"success": False, "error": "Username and password required"})
+        
+        # Authenticate user
+        auth_result = auth_system.authenticate_user(username, password)
+        
+        if auth_result:
+            session['user_id'] = auth_result['user_id']
+            session['username'] = auth_result['username']
+            session['role'] = auth_result['role']
+            session['authenticated'] = True
+            
+            return jsonify({
+                "success": True, 
+                "redirect_url": "/dashboard",
+                "user_role": auth_result['role']
+            })
+        else:
+            return jsonify({"success": False, "error": "Invalid credentials"})
+    
+    # GET request - show secure login page
+    return render_template('secure_login.html')
+
+@app.route('/api/user_credentials')
+def get_user_credentials():
+    """API to get secure credentials for testing"""
+    if not enterprise_modules_available:
+        return jsonify({"error": "Enterprise authentication not available"})
+    
+    credentials = auth_system.get_user_credentials_for_testing()
+    return jsonify({
+        "credentials": credentials,
+        "note": "Secure enterprise credentials for production testing with Chris, boss, and VP"
+    })
+
+# Automated Report Import Routes
+@app.route('/automated_reports')
+def automated_reports():
+    """Automated report processing dashboard"""
+    if not enterprise_modules_available:
+        return redirect('/dashboard')
+    
+    username = session.get('username')
+    if not username:
+        return redirect('/secure_login')
+    
+    dashboard_data = report_importer.get_processing_dashboard()
+    return render_template('automated_reports.html', dashboard_data=dashboard_data)
+
+@app.route('/api/upload_report', methods=['POST'])
+def upload_report():
+    """API endpoint for report file upload"""
+    if not enterprise_modules_available:
+        return jsonify({"success": False, "error": "Report processing not available"})
+    
+    if not session.get('authenticated'):
+        return jsonify({"success": False, "error": "Authentication required"})
+    
+    if 'report_file' not in request.files:
+        return jsonify({"success": False, "error": "No file uploaded"})
+    
+    file = request.files['report_file']
+    report_type = request.form.get('report_type')
+    
+    if file.filename == '':
+        return jsonify({"success": False, "error": "No file selected"})
+    
+    if file:
+        filename = secure_filename(file.filename)
+        file_data = file.read()
+        
+        # Process the report
+        result = report_importer.queue_report_for_import(file_data, filename, report_type)
+        
+        if result.get('success'):
+            return jsonify({
+                "success": True,
+                "message": f"Report '{filename}' processed successfully",
+                "report_type": result.get('report_type'),
+                "data_points": result.get('data_points', 0),
+                "analytics": result.get('analytics', {}),
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": result.get('error', 'Processing failed')
+            })
+
+@app.route('/api/report_status')
+def get_report_status():
+    """Get current report processing status"""
+    if not enterprise_modules_available:
+        return jsonify({"error": "Report processing not available"})
+    
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"})
+    
+    dashboard_data = report_importer.get_processing_dashboard()
+    return jsonify(dashboard_data)
+
+@app.route('/logout')
+def logout():
+    """Secure logout"""
+    session.clear()
+    flash('You have been logged out successfully', 'info')
+    return redirect('/secure_login')
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

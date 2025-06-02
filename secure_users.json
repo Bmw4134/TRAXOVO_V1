@@ -1,0 +1,121 @@
+{
+  "users": [
+    {
+      "user_id": "watson_admin",
+      "username": "watson",
+      "email": "watson@ragleinc.com",
+      "first_name": "Watson",
+      "last_name": "AI",
+      "role": "SYSTEM_ADMIN",
+      "department": "TECHNOLOGY",
+      "organization": "RAGLE_INC",
+      "access_level": 10,
+      "permissions": {
+        "full_system_access": true,
+        "quantum_asi_access": true,
+        "security_admin": true,
+        "user_management": true,
+        "data_export": true,
+        "report_generation": true
+      },
+      "password_hash": "73663a791562c0416f1da5d1a0eec3b93b29ebf588f523d00c1de85fc3f51ac5bed4e64fc2c389c61ec7eef508ca5389597df98444fe9aa5d583f7230f88d79f",
+      "last_login": null,
+      "created_date": "2025-06-02T22:41:06.529178",
+      "active": true
+    },
+    {
+      "user_id": "chris_equipment",
+      "username": "chris",
+      "email": "chris@ragleinc.com",
+      "first_name": "Chris",
+      "last_name": "Equipment",
+      "role": "EQUIPMENT_LEAD",
+      "department": "EQUIPMENT",
+      "organization": "RAGLE_INC",
+      "access_level": 7,
+      "permissions": {
+        "equipment_access": true,
+        "fleet_management": true,
+        "maintenance_reports": true,
+        "asset_tracking": true,
+        "data_export": true,
+        "report_generation": true
+      },
+      "password_hash": "dbed871af238e764f04c1525ac7c592857f11e3f1e654a3f43da46a6560915b3a79151083fc4245a6fa60b36f7dedc7b1f1ae39035d1f10a388f5cbbc879d036",
+      "last_login": null,
+      "created_date": "2025-06-02T22:41:06.556624",
+      "active": true
+    },
+    {
+      "user_id": "vp_operations",
+      "username": "vpops",
+      "email": "vp.operations@ragleinc.com",
+      "first_name": "VP",
+      "last_name": "Operations",
+      "role": "VICE_PRESIDENT",
+      "department": "EXECUTIVE",
+      "organization": "RAGLE_INC",
+      "access_level": 9,
+      "permissions": {
+        "executive_dashboard": true,
+        "financial_reports": true,
+        "strategic_analytics": true,
+        "full_fleet_access": true,
+        "cross_department": true,
+        "data_export": true,
+        "report_generation": true
+      },
+      "password_hash": "d09d7f97224d338d9ee98339d5e6e481569973c950410677a303e206b10c4bae48d389f8528c648421f1f971b34124762183aa9756b09e7c021415d04693084f",
+      "last_login": null,
+      "created_date": "2025-06-02T22:41:06.586796",
+      "active": true
+    },
+    {
+      "user_id": "manager_ops",
+      "username": "manager",
+      "email": "manager@ragleinc.com",
+      "first_name": "Operations",
+      "last_name": "Manager",
+      "role": "OPERATIONS_MANAGER",
+      "department": "OPERATIONS",
+      "organization": "RAGLE_INC",
+      "access_level": 8,
+      "permissions": {
+        "operations_dashboard": true,
+        "team_management": true,
+        "operational_reports": true,
+        "fleet_monitoring": true,
+        "staff_analytics": true,
+        "data_export": true,
+        "report_generation": true
+      },
+      "password_hash": "e772a95c27217a285cff318e16ac753943864ba44c2d90a086bcfa3bf054e46d0ee8303554264d7cd385207941db45be08960b143f04754454dd1dca55da0839",
+      "last_login": null,
+      "created_date": "2025-06-02T22:41:06.619471",
+      "active": true
+    },
+    {
+      "user_id": "demo_user",
+      "username": "demo",
+      "email": "demo@ragleinc.com",
+      "first_name": "Demo",
+      "last_name": "User",
+      "role": "OPERATOR",
+      "department": "OPERATIONS",
+      "organization": "RAGLE_INC",
+      "access_level": 5,
+      "permissions": {
+        "basic_dashboard": true,
+        "view_reports": true,
+        "fleet_viewing": true,
+        "basic_analytics": true
+      },
+      "password_hash": "45607ad08ad2e1a347a9222bc716df7a6443f4aae85733e9c4719abf438bca29db14278312603feaac390994618b0bc130345bcf7ff4188f81c6249c78bc568c",
+      "last_login": null,
+      "created_date": "2025-06-02T22:41:06.645185",
+      "active": true
+    }
+  ],
+  "last_updated": "2025-06-02T22:41:06.645643",
+  "security_version": "1.0"
+}

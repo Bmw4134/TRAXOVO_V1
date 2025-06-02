@@ -1,0 +1,596 @@
+
+{% extends "base.html" %}
+
+{% block title %}ASI Intelligent Exports - TRAXOVO{% endblock %}
+
+{% block extra_css %}
+<style>
+.asi-dashboard {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.asi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.asi-badge {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.quantum-badge {
+    background: rgba(147, 51, 234, 0.2);
+    color: #9333ea;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.debug-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.debug-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.debug-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.debug-card h4 {
+    color: var(--primary-blue);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.debug-card .icon {
+    margin-right: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.health-score {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #10b981;
+    margin-bottom: 0.5rem;
+}
+
+.health-score.warning {
+    color: #f59e0b;
+}
+
+.health-score.critical {
+    color: #ef4444;
+}
+
+.recommendation-item {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    border-left: 4px solid var(--primary-blue);
+}
+
+.recommendation-item.high-priority {
+    border-left-color: #ef4444;
+}
+
+.recommendation-item.medium-priority {
+    border-left-color: #f59e0b;
+}
+
+.export-controls {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.export-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: end;
+}
+
+.quantum-button {
+    background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantum-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(147, 51, 234, 0.3);
+}
+
+.quantum-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.asi-button {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.asi-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+}
+
+.progress-container {
+    display: none;
+    margin-top: 1rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #059669);
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.recent-exports {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.export-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.export-item:last-child {
+    border-bottom: none;
+}
+
+.export-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.export-name {
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.export-details {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.download-btn {
+    background: var(--primary-blue);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.download-btn:hover {
+    background: var(--secondary-blue);
+}
+
+.optimization-panel {
+    background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-top: 2rem;
+}
+
+.optimization-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.optimization-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+@media (max-width: 768px) {
+    .asi-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .export-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .debug-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ASI Dashboard Header -->
+<div class="asi-dashboard">
+    <div class="asi-header">
+        <div>
+            <h1>🚀 ASI Intelligent Exports & Debugging Suite</h1>
+            <p>Quantum-enhanced debugging, optimization, and export intelligence</p>
+        </div>
+        <div>
+            <span class="asi-badge">ASI ACTIVE</span>
+            <span class="quantum-badge">QUANTUM OPTIMIZED</span>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <div class="text-center">
+                <div class="health-score">{{ debug_report.system_health.overall_score }}%</div>
+                <div>System Health</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <div class="health-score">{{ debug_report.asi_recommendations|length }}</div>
+                <div>ASI Recommendations</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <div class="health-score">{{ debug_report.export_performance.export_success_rate }}%</div>
+                <div>Export Success Rate</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center">
+                <div class="health-score">{{ debug_report.deployment_readiness.performance_score }}%</div>
+                <div>Performance Score</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Controls -->
+<div class="export-controls">
+    <h3>🔧 ASI Enhanced Export Controls</h3>
+    <form id="exportForm" class="export-form">
+        <div>
+            <label class="form-label">Export Type</label>
+            <select class="form-select" name="export_type" required>
+                <option value="dashboard_metrics">Dashboard Metrics</option>
+                <option value="system_health">System Health Report</option>
+                <option value="asi_analysis">ASI Analysis Report</option>
+            </select>
+        </div>
+        
+        <div>
+            <label class="form-label">Format</label>
+            <select class="form-select" name="format" required>
+                <option value="xlsx">Excel (XLSX)</option>
+                <option value="csv">CSV</option>
+                <option value="pdf">PDF Report</option>
+            </select>
+        </div>
+        
+        <div>
+            <label class="form-label">Options</label>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="include_debug" id="includeDebug">
+                <label class="form-check-label" for="includeDebug">
+                    Include Debug Data
+                </label>
+            </div>
+        </div>
+        
+        <div>
+            <button type="submit" class="quantum-button">
+                <i class="fas fa-rocket me-2"></i> Export with ASI Enhancement
+            </button>
+        </div>
+    </form>
+    
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <p id="progressText" class="mt-2 text-center">Processing...</p>
+    </div>
+</div>
+
+<!-- Debug Analysis Grid -->
+<div class="debug-grid">
+    <!-- System Health Card -->
+    <div class="debug-card">
+        <h4><i class="fas fa-heartbeat icon"></i>System Health</h4>
+        <div class="health-score">{{ debug_report.system_health.overall_score }}%</div>
+        <div class="mb-2">
+            <strong>Database:</strong> {{ debug_report.database_status.status|title }}<br>
+            <strong>Memory:</strong> {{ debug_report.memory_optimization.optimization_score }}% Optimized<br>
+            <strong>Response:</strong> {{ debug_report.database_status.response_time }}
+        </div>
+        {% if debug_report.system_health.issues %}
+        <div class="alert alert-warning">
+            <strong>Issues Found:</strong>
+            <ul class="mb-0">
+                {% for issue in debug_report.system_health.issues %}
+                <li>{{ issue }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- ASI Recommendations Card -->
+    <div class="debug-card">
+        <h4><i class="fas fa-brain icon"></i>ASI Recommendations</h4>
+        {% for rec in debug_report.asi_recommendations %}
+        <div class="recommendation-item {{ rec.priority|lower }}-priority">
+            <strong>{{ rec.category }}:</strong> {{ rec.recommendation }}<br>
+            <small><strong>Impact:</strong> {{ rec.impact }}</small>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Export Performance Card -->
+    <div class="debug-card">
+        <h4><i class="fas fa-download icon"></i>Export Performance</h4>
+        <div class="row">
+            <div class="col-6">
+                <strong>Success Rate:</strong><br>
+                <span class="health-score">{{ debug_report.export_performance.export_success_rate }}%</span>
+            </div>
+            <div class="col-6">
+                <strong>Recent Exports:</strong><br>
+                <span class="health-score">{{ debug_report.export_performance.recent_exports_count }}</span>
+            </div>
+        </div>
+        <div class="mt-2">
+            <strong>Optimization Potential:</strong> {{ debug_report.export_performance.asi_optimization_potential }}%
+        </div>
+    </div>
+    
+    <!-- Deployment Readiness Card -->
+    <div class="debug-card">
+        <h4><i class="fas fa-rocket icon"></i>Deployment Status</h4>
+        <div class="mb-2">
+            <strong>Overall:</strong> {{ debug_report.deployment_readiness.overall_readiness }}<br>
+            <strong>Performance:</strong> {{ debug_report.deployment_readiness.performance_score }}%<br>
+            <strong>Security:</strong> {{ debug_report.deployment_readiness.security_score }}%
+        </div>
+        <div class="health-score">{{ debug_report.deployment_readiness.asi_enhancement_score }}%</div>
+        <small>ASI Enhancement Score</small>
+    </div>
+</div>
+
+<!-- Recent Exports -->
+<div class="recent-exports">
+    <h3>📊 Recent Exports</h3>
+    {% if recent_exports %}
+    {% for export in recent_exports %}
+    <div class="export-item">
+        <div class="export-meta">
+            <div class="export-name">{{ export.name }}</div>
+            <div class="export-details">
+                {{ export.size_mb }} MB • {{ export.type }} • {{ export.created }}
+            </div>
+        </div>
+        <button class="download-btn" onclick="downloadFile('{{ export.name }}')">
+            <i class="fas fa-download"></i> Download
+        </button>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        No recent exports found. Generate your first ASI-enhanced export above!
+    </div>
+    {% endif %}
+</div>
+
+<!-- ASI Optimization Panel (Watson Only) -->
+{% if is_watson %}
+<div class="optimization-panel">
+    <h3>⚡ Quantum ASI Optimization Controls</h3>
+    <p>Advanced system optimization and enhancement controls</p>
+    
+    <div class="optimization-grid">
+        {% for optimization in debug_report.quantum_optimizations %}
+        <div class="optimization-item">
+            <i class="fas fa-cog me-2"></i>{{ optimization }}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="mt-3">
+        <button id="optimizeBtn" class="asi-button">
+            <i class="fas fa-magic me-2"></i> Apply ASI Optimizations
+        </button>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ASI Export Form Handler
+document.getElementById('exportForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const progressContainer = document.getElementById('progressContainer');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    
+    // Show progress
+    progressContainer.style.display = 'block';
+    progressText.textContent = 'Initializing ASI enhancement...';
+    
+    // Simulate progress
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        progressFill.style.width = progress + '%';
+        
+        if (progress < 30) {
+            progressText.textContent = 'Analyzing system state...';
+        } else if (progress < 60) {
+            progressText.textContent = 'Applying quantum optimizations...';
+        } else {
+            progressText.textContent = 'Generating enhanced export...';
+        }
+    }, 200);
+    
+    try {
+        const response = await fetch('/asi-exports/export-with-debug', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        clearInterval(progressInterval);
+        progressFill.style.width = '100%';
+        
+        if (result.success) {
+            progressText.textContent = '✅ Export completed with ASI enhancement!';
+            
+            setTimeout(() => {
+                // Trigger download
+                window.open(result.download_url, '_blank');
+                
+                // Hide progress and refresh page
+                progressContainer.style.display = 'none';
+                location.reload();
+            }, 1000);
+            
+        } else {
+            progressText.textContent = '❌ Export failed: ' + result.error;
+            console.error('Export failed:', result);
+        }
+        
+    } catch (error) {
+        clearInterval(progressInterval);
+        progressText.textContent = '❌ Network error occurred';
+        console.error('Export error:', error);
+    }
+});
+
+// Download file function
+function downloadFile(filename) {
+    window.open(`/asi-exports/download/${filename}`, '_blank');
+}
+
+// ASI Optimization Handler (Watson only)
+{% if is_watson %}
+document.getElementById('optimizeBtn')?.addEventListener('click', async function() {
+    this.disabled = true;
+    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Applying Optimizations...';
+    
+    try {
+        const response = await fetch('/asi-exports/optimize-system', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            this.innerHTML = '<i class="fas fa-check me-2"></i> Optimizations Applied!';
+            this.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            this.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i> Optimization Failed';
+            this.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+        }
+        
+    } catch (error) {
+        console.error('Optimization error:', error);
+        this.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i> Network Error';
+        this.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+    }
+    
+    this.disabled = false;
+});
+{% endif %}
+
+// Auto-refresh debug data every 30 seconds
+setInterval(async () => {
+    try {
+        const response = await fetch('/asi-exports/debug-analysis');
+        const debugData = await response.json();
+        console.log('🚀 ASI Debug Data Updated:', debugData);
+    } catch (error) {
+        console.error('Debug refresh error:', error);
+    }
+}, 30000);
+
+console.log('🚀 ASI Intelligent Exports Dashboard Loaded');
+console.log('⚡ Quantum debugging and optimization ready');
+</script>
+{% endblock %}

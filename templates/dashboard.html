@@ -1,201 +1,183 @@
-{% extends "base.html" %} {% block title %}Fleet Intelligence Dashboard -
-TRAXOVO{% endblock %} {% block extra_css %}
+{% extends "base.html" %}
+
+{% block title %}Fleet Intelligence Dashboard - TRAXOVO{% endblock %}
+
+{% block extra_css %}
 <style>
-  .executive-kpi {
-    background: linear-gradient(
-      135deg,
-      var(--primary-blue) 0%,
-      var(--secondary-blue) 100%
-    );
+.executive-kpi {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
     color: white;
     padding: 2rem;
     border-radius: 12px;
     margin-bottom: 2rem;
-  }
+}
 
-  .executive-header {
+.executive-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
-  }
+}
 
-  .status-badge {
+.status-badge {
     background: rgba(16, 185, 129, 0.2);
     color: #10b981;
     padding: 8px 16px;
     border-radius: 20px;
     font-size: 0.9rem;
     font-weight: 600;
-  }
+}
 
-  .kpi-grid {
+.kpi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.5rem;
     margin-top: 1.5rem;
-  }
+}
 
-  .kpi-card {
-    background: rgba(255, 255, 255, 0.1);
+.kpi-card {
+    background: rgba(255,255,255,0.1);
     padding: 1.5rem;
     border-radius: 8px;
     text-align: center;
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
     cursor: pointer;
-  }
+}
 
-  .kpi-card:hover {
-    background: rgba(255, 255, 255, 0.15);
+.kpi-card:hover {
+    background: rgba(255,255,255,0.15);
     transform: translateY(-2px);
-  }
+}
 
-  .kpi-number {
+.kpi-number {
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: white;
-  }
+}
 
-  .kpi-label {
+.kpi-label {
     opacity: 0.9;
     font-size: 0.875rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 0.5rem;
-  }
+}
 
-  .kpi-source {
+.kpi-source {
     font-size: 0.75rem;
     opacity: 0.7;
-  }
+}
 
-  .performance-indicator {
+.performance-indicator {
     display: inline-block;
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 600;
     margin-top: 0.5rem;
-  }
+}
 
-  .indicator-excellent {
-    background: #dcfce7;
-    color: #166534;
-  }
-  .indicator-good {
-    background: #fef3c7;
-    color: #92400e;
-  }
-  .indicator-active {
-    background: #dbeafe;
-    color: #1e40af;
-  }
+.indicator-excellent { background: #dcfce7; color: #166534; }
+.indicator-good { background: #fef3c7; color: #92400e; }
+.indicator-active { background: #dbeafe; color: #1e40af; }
 
-  .modules-grid {
+.modules-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
     margin-top: 2rem;
-  }
+}
 
-  .module-card {
+.module-card {
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: all 0.3s ease;
-  }
+}
 
-  .module-card:hover {
+.module-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  }
+}
 
-  .module-header {
-    background: linear-gradient(
-      135deg,
-      var(--primary-blue) 0%,
-      var(--secondary-blue) 100%
-    );
+.module-header {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
     color: white;
     padding: 1.25rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
+}
 
-  .module-icon {
+.module-icon {
     font-size: 1.5rem;
     margin-right: 0.75rem;
-  }
+}
 
-  .module-title {
+.module-title {
     font-size: 1.1rem;
     font-weight: 600;
     margin: 0;
     flex-grow: 1;
-  }
+}
 
-  .module-badge {
-    background: rgba(255, 255, 255, 0.2);
+.module-badge {
+    background: rgba(255,255,255,0.2);
     padding: 4px 8px;
     border-radius: 12px;
     font-size: 0.75rem;
-  }
+}
 
-  .module-body {
+.module-body {
     padding: 1.25rem;
-  }
+}
 
-  .module-description {
+.module-description {
     color: var(--dark-gray);
     font-size: 0.9rem;
     line-height: 1.4;
     margin-bottom: 1rem;
-  }
+}
 
-  .module-stats {
+.module-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     gap: 0.75rem;
     margin-bottom: 1.25rem;
-  }
+}
 
-  .stat-item {
+.stat-item {
     text-align: center;
     padding: 0.75rem;
     background: #f8fafc;
     border-radius: 6px;
-  }
+}
 
-  .stat-number {
+.stat-number {
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--primary-blue);
     display: block;
-  }
+}
 
-  .stat-label {
+.stat-label {
     font-size: 0.7rem;
     color: var(--dark-gray);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-  }
+}
 
-  .module-actions {
+.module-actions {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
-  }
+}
 
-  .action-btn {
-    background: linear-gradient(
-      135deg,
-      var(--primary-blue) 0%,
-      var(--secondary-blue) 100%
-    );
+.action-btn {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
     color: white;
     border: none;
     padding: 8px 16px;
@@ -206,360 +188,318 @@ TRAXOVO{% endblock %} {% block extra_css %}
     transition: all 0.2s ease;
     text-decoration: none;
     display: inline-block;
-  }
+}
 
-  .action-btn:hover {
+.action-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
     color: white;
     text-decoration: none;
-  }
+}
 
-  .action-btn.secondary {
+.action-btn.secondary {
     background: linear-gradient(135deg, var(--success-green) 0%, #10b981 100%);
-  }
+}
 
-  .action-btn.warning {
+.action-btn.warning {
     background: linear-gradient(135deg, var(--danger-red) 0%, #ef4444 100%);
-  }
+}
 
-  @media (max-width: 768px) {
+@media (max-width: 768px) {
     .executive-header {
-      flex-direction: column;
-      gap: 1rem;
-      text-align: center;
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
     }
-
+    
     .kpi-grid {
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     }
-
+    
     .modules-grid {
-      grid-template-columns: 1fr;
+        grid-template-columns: 1fr;
     }
-  }
+}
 </style>
-{% endblock %} {% block content %}
+{% endblock %}
+
+{% block content %}
 <!-- Executive KPI Banner -->
 <div class="executive-kpi" data-tour="fleet-overview">
-  <div class="executive-header">
-    <div>
-      <h1>Fleet Intelligence Dashboard</h1>
-      <p>Real-time fleet intelligence with authentic operational data</p>
+    <div class="executive-header">
+        <div>
+            <h1>Fleet Intelligence Dashboard</h1>
+            <p>Real-time fleet intelligence with authentic operational data</p>
+        </div>
+        <div>
+            <span class="status-badge">LIVE DATA</span>
+        </div>
     </div>
-    <div>
-      <span class="status-badge">LIVE DATA</span>
+    
+    <div class="kpi-grid">
+        <div class="kpi-card" onclick="drillDown('assets')">
+            <div class="kpi-number">{{ metrics.total_assets or 717 }}</div>
+            <div class="kpi-label">Fleet Assets</div>
+            <div class="kpi-source">GAUGE API Live</div>
+            <span class="performance-indicator indicator-excellent">Operational</span>
+        </div>
+        
+        <div class="kpi-card" onclick="drillDown('active-assets')">
+            <div class="kpi-number">{{ metrics.active_assets or 614 }}</div>
+            <div class="kpi-label">Active Assets</div>
+            <div class="kpi-source">{{ metrics.utilization_rate or 85.6 }}% Utilization</div>
+            <span class="performance-indicator indicator-excellent">Connected</span>
+        </div>
+        
+        <div class="kpi-card" onclick="drillDown('revenue')">
+            <div class="kpi-number">${{ "%.1fM" | format(metrics.ytd_revenue / 1000000) if metrics.ytd_revenue else "2.1M" }}</div>
+            <div class="kpi-label">YTD Revenue</div>
+            <div class="kpi-source">RAGLE Billing Data</div>
+            <span class="performance-indicator indicator-good">March + April</span>
+        </div>
+        
+        <div class="kpi-card" onclick="drillDown('drivers')">
+            <div class="kpi-number">{{ metrics.total_drivers or 92 }}</div>
+            <div class="kpi-label">Active Drivers</div>
+            <div class="kpi-source">Real-time Performance</div>
+            <span class="performance-indicator indicator-active">Tracking</span>
+        </div>
+        
+        <div class="kpi-card" onclick="drillDown('efficiency')">
+            <div class="kpi-number">{{ metrics.fleet_efficiency or 91.7 }}%</div>
+            <div class="kpi-label">Fleet Efficiency</div>
+            <div class="kpi-source">Analytics Engine</div>
+            <span class="performance-indicator indicator-excellent">Optimized</span>
+        </div>
     </div>
-  </div>
-
-  <div class="kpi-grid">
-    <div class="kpi-card" onclick="drillDown('assets')">
-      <div class="kpi-number">{{ metrics.total_assets or 717 }}</div>
-      <div class="kpi-label">Fleet Assets</div>
-      <div class="kpi-source">GAUGE API Live</div>
-      <span class="performance-indicator indicator-excellent">Operational</span>
-    </div>
-
-    <div class="kpi-card" onclick="drillDown('active-assets')">
-      <div class="kpi-number">{{ metrics.active_assets or 614 }}</div>
-      <div class="kpi-label">Active Assets</div>
-      <div class="kpi-source">
-        {{ metrics.utilization_rate or 85.6 }}% Utilization
-      </div>
-      <span class="performance-indicator indicator-excellent">Connected</span>
-    </div>
-
-    <div class="kpi-card" onclick="drillDown('revenue')">
-      <div class="kpi-number">
-        ${{ "%.1fM" | format(metrics.ytd_revenue / 1000000) if
-        metrics.ytd_revenue else "2.1M" }}
-      </div>
-      <div class="kpi-label">YTD Revenue</div>
-      <div class="kpi-source">RAGLE Billing Data</div>
-      <span class="performance-indicator indicator-good">March + April</span>
-    </div>
-
-    <div class="kpi-card" onclick="drillDown('drivers')">
-      <div class="kpi-number">{{ metrics.total_drivers or 92 }}</div>
-      <div class="kpi-label">Active Drivers</div>
-      <div class="kpi-source">Real-time Performance</div>
-      <span class="performance-indicator indicator-active">Tracking</span>
-    </div>
-
-    <div class="kpi-card" onclick="drillDown('efficiency')">
-      <div class="kpi-number">{{ metrics.fleet_efficiency or 91.7 }}%</div>
-      <div class="kpi-label">Fleet Efficiency</div>
-      <div class="kpi-source">Analytics Engine</div>
-      <span class="performance-indicator indicator-excellent">Optimized</span>
-    </div>
-  </div>
 </div>
 
 <!-- Modules Grid -->
 <div class="modules-grid">
-  <!-- Driver Attendance Module -->
-  <div class="module-card" data-tour="attendance-matrix">
-    <div class="module-header">
-      <i class="fas fa-users module-icon"></i>
-      <h3 class="module-title">Driver Attendance</h3>
-      <span class="module-badge">Real-time</span>
+    <!-- Driver Attendance Module -->
+    <div class="module-card" data-tour="attendance-matrix">
+        <div class="module-header">
+            <i class="fas fa-users module-icon"></i>
+            <h3 class="module-title">Driver Attendance</h3>
+            <span class="module-badge">Real-time</span>
+        </div>
+        <div class="module-body">
+            <p class="module-description">Monitor driver attendance, weekly calendar views, and process attendance data uploads from GAUGE reports and payroll systems.</p>
+            <div class="module-stats">
+                <div class="stat-item">
+                    <span class="stat-number">{{ metrics.total_drivers or 92 }}</span>
+                    <span class="stat-label">Drivers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ metrics.attendance_rate or 95 }}%</span>
+                    <span class="stat-label">On Time</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">23</span>
+                    <span class="stat-label">Late Starts</span>
+                </div>
+            </div>
+            <div class="module-actions">
+                <a href="/upload" class="action-btn secondary">Upload Data</a>
+                <a href="/attendance-matrix" class="action-btn">View Matrix</a>
+            </div>
+        </div>
     </div>
-    <div class="module-body">
-      <p class="module-description">
-        Monitor driver attendance, weekly calendar views, and process attendance
-        data uploads from GAUGE reports and payroll systems.
-      </p>
-      <div class="module-stats">
-        <div class="stat-item">
-          <span class="stat-number">{{ metrics.total_drivers or 92 }}</span>
-          <span class="stat-label">Drivers</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">{{ metrics.attendance_rate or 95 }}%</span>
-          <span class="stat-label">On Time</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">23</span>
-          <span class="stat-label">Late Starts</span>
-        </div>
-      </div>
-      <div class="module-actions">
-        <a href="/upload" class="action-btn secondary">Upload Data</a>
-        <a href="/attendance-matrix" class="action-btn">View Matrix</a>
-      </div>
-    </div>
-  </div>
 
-  <!-- Fleet Map Module -->
-  <div class="module-card">
-    <div class="module-header">
-      <i class="fas fa-map-marked-alt module-icon"></i>
-      <h3 class="module-title">Fleet Map</h3>
-      <span class="module-badge">GPS Live</span>
+    <!-- Fleet Map Module -->
+    <div class="module-card">
+        <div class="module-header">
+            <i class="fas fa-map-marked-alt module-icon"></i>
+            <h3 class="module-title">Fleet Map</h3>
+            <span class="module-badge">GPS Live</span>
+        </div>
+        <div class="module-body">
+            <p class="module-description">View all your equipment on an interactive map with real-time locations and status updates from your GAUGE system.</p>
+            <div class="module-stats">
+                <div class="stat-item">
+                    <span class="stat-number">{{ metrics.active_assets or 614 }}</span>
+                    <span class="stat-label">Tracked</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">98.2%</span>
+                    <span class="stat-label">GPS Coverage</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">12</span>
+                    <span class="stat-label">Geofences</span>
+                </div>
+            </div>
+            <div class="module-actions">
+                <a href="/fleet-map" class="action-btn">View Fleet Map</a>
+            </div>
+        </div>
     </div>
-    <div class="module-body">
-      <p class="module-description">
-        View all your equipment on an interactive map with real-time locations
-        and status updates from your GAUGE system.
-      </p>
-      <div class="module-stats">
-        <div class="stat-item">
-          <span class="stat-number">{{ metrics.active_assets or 614 }}</span>
-          <span class="stat-label">Tracked</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">98.2%</span>
-          <span class="stat-label">GPS Coverage</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">12</span>
-          <span class="stat-label">Geofences</span>
-        </div>
-      </div>
-      <div class="module-actions">
-        <a href="/fleet-map" class="action-btn">View Fleet Map</a>
-      </div>
-    </div>
-  </div>
 
-  <!-- Asset Manager Module -->
-  <div class="module-card">
-    <div class="module-header">
-      <i class="fas fa-tools module-icon"></i>
-      <h3 class="module-title">Asset Manager</h3>
-      <span class="module-badge">{{ metrics.total_assets or 717 }} Units</span>
+    <!-- Asset Manager Module -->
+    <div class="module-card">
+        <div class="module-header">
+            <i class="fas fa-tools module-icon"></i>
+            <h3 class="module-title">Asset Manager</h3>
+            <span class="module-badge">{{ metrics.total_assets or 717 }} Units</span>
+        </div>
+        <div class="module-body">
+            <p class="module-description">Complete asset lifecycle costing, depreciation schedules, and maintenance tracking for all GAUGE-connected equipment units.</p>
+            <div class="module-stats">
+                <div class="stat-item">
+                    <span class="stat-number">{{ metrics.active_assets or 614 }}</span>
+                    <span class="stat-label">Active</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ (metrics.total_assets or 717) - (metrics.active_assets or 614) }}</span>
+                    <span class="stat-label">Inactive</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">$4.2M</span>
+                    <span class="stat-label">Total Value</span>
+                </div>
+            </div>
+            <div class="module-actions">
+                <a href="/asset-manager" class="action-btn">Lifecycle Costing</a>
+            </div>
+        </div>
     </div>
-    <div class="module-body">
-      <p class="module-description">
-        Complete asset lifecycle costing, depreciation schedules, and
-        maintenance tracking for all GAUGE-connected equipment units.
-      </p>
-      <div class="module-stats">
-        <div class="stat-item">
-          <span class="stat-number">{{ metrics.active_assets or 614 }}</span>
-          <span class="stat-label">Active</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number"
-            >{{ (metrics.total_assets or 717) - (metrics.active_assets or 614)
-            }}</span
-          >
-          <span class="stat-label">Inactive</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">$4.2M</span>
-          <span class="stat-label">Total Value</span>
-        </div>
-      </div>
-      <div class="module-actions">
-        <a href="/asset-manager" class="action-btn">Lifecycle Costing</a>
-      </div>
-    </div>
-  </div>
 
-  <!-- Billing Intelligence Module -->
-  <div class="module-card" data-tour="billing-automation">
-    <div class="module-header">
-      <i class="fas fa-chart-line module-icon"></i>
-      <h3 class="module-title">Billing Intelligence</h3>
-      <span class="module-badge">RAGLE Integration</span>
+    <!-- Billing Intelligence Module -->
+    <div class="module-card" data-tour="billing-automation">
+        <div class="module-header">
+            <i class="fas fa-chart-line module-icon"></i>
+            <h3 class="module-title">Billing Intelligence</h3>
+            <span class="module-badge">RAGLE Integration</span>
+        </div>
+        <div class="module-body">
+            <p class="module-description">Revenue analytics and RAGLE integration with authentic billing data processing for Divisions 2, 3, and 4.</p>
+            <div class="module-stats">
+                <div class="stat-item">
+                    <span class="stat-number">${{ "%.0fK" | format(metrics.april_revenue / 1000) if metrics.april_revenue else "552K" }}</span>
+                    <span class="stat-label">April</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">${{ "%.0fK" | format(metrics.march_revenue / 1000) if metrics.march_revenue else "461K" }}</span>
+                    <span class="stat-label">March</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">Divisions</span>
+                </div>
+            </div>
+            <div class="module-actions">
+                <a href="/equipment-billing" class="action-btn warning">Upload RAGLE</a>
+                <a href="/billing" class="action-btn">View Reports</a>
+            </div>
+        </div>
     </div>
-    <div class="module-body">
-      <p class="module-description">
-        Revenue analytics and RAGLE integration with authentic billing data
-        processing for Divisions 2, 3, and 4.
-      </p>
-      <div class="module-stats">
-        <div class="stat-item">
-          <span class="stat-number"
-            >${{ "%.0fK" | format(metrics.april_revenue / 1000) if
-            metrics.april_revenue else "552K" }}</span
-          >
-          <span class="stat-label">April</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number"
-            >${{ "%.0fK" | format(metrics.march_revenue / 1000) if
-            metrics.march_revenue else "461K" }}</span
-          >
-          <span class="stat-label">March</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">3</span>
-          <span class="stat-label">Divisions</span>
-        </div>
-      </div>
-      <div class="module-actions">
-        <a href="/equipment-billing" class="action-btn warning">Upload RAGLE</a>
-        <a href="/billing" class="action-btn">View Reports</a>
-      </div>
-    </div>
-  </div>
 
-  <!-- Upload Center Module -->
-  <div class="module-card">
-    <div class="module-header">
-      <i class="fas fa-upload module-icon"></i>
-      <h3 class="module-title">Data Upload</h3>
-      <span class="module-badge">CSV/Excel</span>
+    <!-- Upload Center Module -->
+    <div class="module-card">
+        <div class="module-header">
+            <i class="fas fa-upload module-icon"></i>
+            <h3 class="module-title">Data Upload</h3>
+            <span class="module-badge">CSV/Excel</span>
+        </div>
+        <div class="module-body">
+            <p class="module-description">Upload GAUGE reports, driving history, activity detail, and RAGLE billing files for processing and analysis.</p>
+            <div class="module-stats">
+                <div class="stat-item">
+                    <span class="stat-number">5</span>
+                    <span class="stat-label">File Types</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">Auto</span>
+                    <span class="stat-label">Detection</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">Live</span>
+                    <span class="stat-label">Processing</span>
+                </div>
+            </div>
+            <div class="module-actions">
+                <a href="/upload" class="action-btn">Upload Files</a>
+            </div>
+        </div>
     </div>
-    <div class="module-body">
-      <p class="module-description">
-        Upload GAUGE reports, driving history, activity detail, and RAGLE
-        billing files for processing and analysis.
-      </p>
-      <div class="module-stats">
-        <div class="stat-item">
-          <span class="stat-number">5</span>
-          <span class="stat-label">File Types</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">Auto</span>
-          <span class="stat-label">Detection</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">Live</span>
-          <span class="stat-label">Processing</span>
-        </div>
-      </div>
-      <div class="module-actions">
-        <a href="/upload" class="action-btn">Upload Files</a>
-      </div>
-    </div>
-  </div>
 
-  <!-- Watson Organizational Ideas & ASI Controls (if Watson user) -->
-  {% if is_watson %}
-  <div class="module-card" style="grid-column: span 2">
-    <div class="module-header">
-      <i class="fas fa-lightbulb module-icon"></i>
-      <h3 class="module-title">Watson Organizational Ideas & ASI Controls</h3>
-      <span class="module-badge">Front-End Editable</span>
-    </div>
-    <div class="module-body">
-      <div id="watson-ideas-section">
-        <!-- Watson organizational ideas interface will load here -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Watson Admin Module (if Watson user) -->
-  <div class="module-card">
-    <div class="module-header">
-      <i class="fas fa-user-cog module-icon"></i>
-      <h3 class="module-title">Watson Admin</h3>
-      <span class="module-badge">Admin Only</span>
-    </div>
-    <div class="module-body">
-      <p class="module-description">
-        Administrative dashboard with system health monitoring, Kaizen
-        optimization, and development audit tools.
-      </p>
-      <div class="module-stats">
-        <div class="stat-item">
-          <span class="stat-number">6</span>
-          <span class="stat-label">Modules</span>
+    <!-- Watson Admin Module (if Watson user) -->
+    {% if is_watson %}
+    <div class="module-card">
+        <div class="module-header">
+            <i class="fas fa-user-cog module-icon"></i>
+            <h3 class="module-title">Watson Admin</h3>
+            <span class="module-badge">Admin Only</span>
         </div>
-        <div class="stat-item">
-          <span class="stat-number">94.7%</span>
-          <span class="stat-label">Health</span>
+        <div class="module-body">
+            <p class="module-description">Administrative dashboard with system health monitoring, Kaizen optimization, and development audit tools.</p>
+            <div class="module-stats">
+                <div class="stat-item">
+                    <span class="stat-number">6</span>
+                    <span class="stat-label">Modules</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">94.7%</span>
+                    <span class="stat-label">Health</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">23</span>
+                    <span class="stat-label">Optimizations</span>
+                </div>
+            </div>
+            <div class="module-actions">
+                <a href="/watson-admin" class="action-btn">Admin Panel</a>
+                <a href="/asi-exports" class="action-btn warning">ASI Exports</a>
+                <a href="/safemode" class="action-btn secondary">SafeMode</a>
+            </div>
         </div>
-        <div class="stat-item">
-          <span class="stat-number">23</span>
-          <span class="stat-label">Optimizations</span>
-        </div>
-      </div>
-      <div class="module-actions">
-        <a href="/watson-admin" class="action-btn">Admin Panel</a>
-        <a href="/safemode" class="action-btn secondary">SafeMode</a>
-      </div>
     </div>
-  </div>
-  {% endif %}
+    {% endif %}
 </div>
-{% endblock %} {% block extra_js %}
-<script src="/static/watson-organizational-ideas.js"></script>
+{% endblock %}
+
+{% block extra_js %}
 <script>
-  function drillDown(metric) {
-    switch (metric) {
-      case "assets":
-        window.location.href = "/asset-manager";
-        break;
-      case "active-assets":
-        window.location.href = "/fleet-map";
-        break;
-      case "revenue":
-        window.location.href = "/billing";
-        break;
-      case "drivers":
-        window.location.href = "/attendance-matrix";
-        break;
-      case "efficiency":
-        window.location.href = "/safemode";
-        break;
-      default:
-        console.log("Drill down for:", metric);
+function drillDown(metric) {
+    switch(metric) {
+        case 'assets':
+            window.location.href = '/asset-manager';
+            break;
+        case 'active-assets':
+            window.location.href = '/fleet-map';
+            break;
+        case 'revenue':
+            window.location.href = '/billing';
+            break;
+        case 'drivers':
+            window.location.href = '/attendance-matrix';
+            break;
+        case 'efficiency':
+            window.location.href = '/safemode';
+            break;
+        default:
+            console.log('Drill down for:', metric);
     }
-  }
+}
 
-  // Live data updates
-  setInterval(() => {
-    console.log("TRAXOVO: Dashboard metrics updated successfully");
-  }, 30000);
+// Live data updates
+setInterval(() => {
+    console.log('TRAXOVO: Dashboard metrics updated successfully');
+}, 30000);
 
-  // Visual ASI Automation Demo - Works on any browser
-  class VisualASIDemo {
+// Visual ASI Automation Demo - Works on any browser
+class VisualASIDemo {
     constructor() {
-      this.isRunning = false;
-      this.mouseElement = null;
-      this.createDemoButton();
-      this.createVisualMouse();
+        this.isRunning = false;
+        this.mouseElement = null;
+        this.createDemoButton();
+        this.createVisualMouse();
     }
-
+    
     createDemoButton() {
-      const button = document.createElement("button");
-      button.innerHTML = "🚀 Start ASI Automation Demo";
-      button.style.cssText = `
+        const button = document.createElement('button');
+        button.innerHTML = '🚀 Start ASI Automation Demo';
+        button.style.cssText = `
             position: fixed;
             top: 80px;
             right: 20px;
@@ -574,18 +514,18 @@ TRAXOVO{% endblock %} {% block extra_css %}
             box-shadow: 0 5px 20px rgba(40,167,69,0.4);
             transition: transform 0.2s ease;
         `;
-
-      button.onmouseover = () => (button.style.transform = "translateY(-2px)");
-      button.onmouseout = () => (button.style.transform = "translateY(0)");
-      button.onclick = () => this.startDemo();
-
-      document.body.appendChild(button);
+        
+        button.onmouseover = () => button.style.transform = 'translateY(-2px)';
+        button.onmouseout = () => button.style.transform = 'translateY(0)';
+        button.onclick = () => this.startDemo();
+        
+        document.body.appendChild(button);
     }
-
+    
     createVisualMouse() {
-      this.mouseElement = document.createElement("div");
-      this.mouseElement.innerHTML = "🖱️";
-      this.mouseElement.style.cssText = `
+        this.mouseElement = document.createElement('div');
+        this.mouseElement.innerHTML = '🖱️';
+        this.mouseElement.style.cssText = `
             position: fixed;
             font-size: 24px;
             z-index: 10000;
@@ -597,108 +537,102 @@ TRAXOVO{% endblock %} {% block extra_css %}
             box-shadow: 0 0 15px rgba(0,255,0,0.6);
             display: none;
         `;
-      document.body.appendChild(this.mouseElement);
+        document.body.appendChild(this.mouseElement);
     }
-
+    
     async startDemo() {
-      if (this.isRunning) return;
-      this.isRunning = true;
-      this.mouseElement.style.display = "block";
-
-      this.showNotification(
-        "ASI Automation Active",
-        "Testing TRAXOVO modules across all browsers...",
-      );
-
-      // Test Watson Confidence
-      await this.testElement(
-        ".confidence-metric",
-        "Testing Watson Confidence Engine...",
-      );
-
-      // Test Fleet Overview
-      await this.testElement(".fleet-card", "Validating Fleet Management...");
-
-      // Test Navigation
-      const navLinks = document.querySelectorAll(".nav-link");
-      for (let link of navLinks) {
-        await this.moveMouseToElement(link);
-        this.highlightElement(link);
-        await this.delay(800);
-      }
-
-      // Test API endpoints
-      await this.testAPIEndpoints();
-
-      // Show final status
-      this.showFinalStatus();
-
-      this.isRunning = false;
-      setTimeout(() => {
-        this.mouseElement.style.display = "none";
-      }, 2000);
-    }
-
-    async testElement(selector, message) {
-      this.showStatus(message);
-      const element = document.querySelector(selector);
-      if (element) {
-        await this.moveMouseToElement(element);
-        this.highlightElement(element);
-        await this.delay(1000);
-      }
-    }
-
-    async testAPIEndpoints() {
-      const endpoints = [
-        { url: "/api/fleet_overview", name: "Fleet Data" },
-        { url: "/api/watson_confidence_data", name: "Watson Analytics" },
-        { url: "/api/github_sync_status", name: "GitHub Integration" },
-      ];
-
-      for (let endpoint of endpoints) {
-        this.showStatus(`Testing ${endpoint.name}...`);
-        try {
-          const response = await fetch(endpoint.url);
-          const data = await response.json();
-          this.showStatus(`✅ ${endpoint.name} - Validated`);
-          console.log(`ASI Test Result for ${endpoint.name}:`, data);
-        } catch (error) {
-          this.showStatus(`⚠️ ${endpoint.name} - ${error.message}`);
+        if (this.isRunning) return;
+        this.isRunning = true;
+        this.mouseElement.style.display = 'block';
+        
+        this.showNotification('ASI Automation Active', 'Testing TRAXOVO modules across all browsers...');
+        
+        // Test Watson Confidence
+        await this.testElement('.confidence-metric', 'Testing Watson Confidence Engine...');
+        
+        // Test Fleet Overview
+        await this.testElement('.fleet-card', 'Validating Fleet Management...');
+        
+        // Test Navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        for (let link of navLinks) {
+            await this.moveMouseToElement(link);
+            this.highlightElement(link);
+            await this.delay(800);
         }
-        await this.delay(1000);
-      }
+        
+        // Test API endpoints
+        await this.testAPIEndpoints();
+        
+        // Show final status
+        this.showFinalStatus();
+        
+        this.isRunning = false;
+        setTimeout(() => {
+            this.mouseElement.style.display = 'none';
+        }, 2000);
     }
-
+    
+    async testElement(selector, message) {
+        this.showStatus(message);
+        const element = document.querySelector(selector);
+        if (element) {
+            await this.moveMouseToElement(element);
+            this.highlightElement(element);
+            await this.delay(1000);
+        }
+    }
+    
+    async testAPIEndpoints() {
+        const endpoints = [
+            { url: '/api/fleet_overview', name: 'Fleet Data' },
+            { url: '/api/watson_confidence_data', name: 'Watson Analytics' },
+            { url: '/api/github_sync_status', name: 'GitHub Integration' }
+        ];
+        
+        for (let endpoint of endpoints) {
+            this.showStatus(`Testing ${endpoint.name}...`);
+            try {
+                const response = await fetch(endpoint.url);
+                const data = await response.json();
+                this.showStatus(`✅ ${endpoint.name} - Validated`);
+                console.log(`ASI Test Result for ${endpoint.name}:`, data);
+            } catch (error) {
+                this.showStatus(`⚠️ ${endpoint.name} - ${error.message}`);
+            }
+            await this.delay(1000);
+        }
+    }
+    
     async moveMouseToElement(element) {
-      const rect = element.getBoundingClientRect();
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
-
-      this.mouseElement.style.left = x + "px";
-      this.mouseElement.style.top = y + "px";
-
-      return new Promise((resolve) => setTimeout(resolve, 500));
+        const rect = element.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        
+        this.mouseElement.style.left = x + 'px';
+        this.mouseElement.style.top = y + 'px';
+        
+        return new Promise(resolve => setTimeout(resolve, 500));
     }
-
+    
     highlightElement(element) {
-      const originalStyles = {
-        border: element.style.border,
-        boxShadow: element.style.boxShadow,
-      };
-
-      element.style.border = "3px solid #00ff00";
-      element.style.boxShadow = "0 0 20px rgba(0,255,0,0.6)";
-
-      setTimeout(() => {
-        element.style.border = originalStyles.border;
-        element.style.boxShadow = originalStyles.boxShadow;
-      }, 1500);
+        const originalStyles = {
+            border: element.style.border,
+            boxShadow: element.style.boxShadow
+        };
+        
+        element.style.border = '3px solid #00ff00';
+        element.style.boxShadow = '0 0 20px rgba(0,255,0,0.6)';
+        
+        setTimeout(() => {
+            element.style.border = originalStyles.border;
+            element.style.boxShadow = originalStyles.boxShadow;
+        }, 1500);
     }
-
+    
     showNotification(title, message) {
-      const notification = document.createElement("div");
-      notification.style.cssText = `
+        const notification = document.createElement('div');
+        notification.style.cssText = `
             position: fixed;
             top: 50%;
             left: 50%;
@@ -714,37 +648,37 @@ TRAXOVO{% endblock %} {% block extra_css %}
             box-shadow: 0 0 40px rgba(0,255,0,0.4);
             backdrop-filter: blur(10px);
         `;
-
-      notification.innerHTML = `
+        
+        notification.innerHTML = `
             <h2>${title}</h2>
             <p style="margin: 20px 0;">${message}</p>
             <div style="width: 100%; height: 6px; background: #333; border-radius: 3px; margin-top: 20px;">
                 <div style="width: 0%; height: 100%; background: linear-gradient(90deg, #00ff00, #00ccff); border-radius: 3px; animation: progress 4s ease-in-out forwards;"></div>
             </div>
         `;
-
-      const style = document.createElement("style");
-      style.textContent = `
+        
+        const style = document.createElement('style');
+        style.textContent = `
             @keyframes progress {
                 to { width: 100%; }
             }
         `;
-      document.head.appendChild(style);
-
-      document.body.appendChild(notification);
-
-      setTimeout(() => {
-        notification.remove();
-        style.remove();
-      }, 4000);
+        document.head.appendChild(style);
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+            style.remove();
+        }, 4000);
     }
-
+    
     showStatus(message) {
-      let statusBar = document.getElementById("asi-status-bar");
-      if (!statusBar) {
-        statusBar = document.createElement("div");
-        statusBar.id = "asi-status-bar";
-        statusBar.style.cssText = `
+        let statusBar = document.getElementById('asi-status-bar');
+        if (!statusBar) {
+            statusBar = document.createElement('div');
+            statusBar.id = 'asi-status-bar';
+            statusBar.style.cssText = `
                 position: fixed;
                 bottom: 30px;
                 left: 30px;
@@ -758,14 +692,14 @@ TRAXOVO{% endblock %} {% block extra_css %}
                 box-shadow: 0 0 20px rgba(0,255,0,0.3);
                 backdrop-filter: blur(5px);
             `;
-        document.body.appendChild(statusBar);
-      }
-      statusBar.textContent = message;
+            document.body.appendChild(statusBar);
+        }
+        statusBar.textContent = message;
     }
-
+    
     showFinalStatus() {
-      const finalStatus = document.createElement("div");
-      finalStatus.style.cssText = `
+        const finalStatus = document.createElement('div');
+        finalStatus.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
@@ -778,8 +712,8 @@ TRAXOVO{% endblock %} {% block extra_css %}
             max-width: 350px;
             font-family: 'Segoe UI', sans-serif;
         `;
-
-      finalStatus.innerHTML = `
+        
+        finalStatus.innerHTML = `
             <h4>🎯 ASI Validation Complete</h4>
             <p>✅ Watson Confidence: 89.2%</p>
             <p>✅ Fleet Management: Active</p>
@@ -788,45 +722,41 @@ TRAXOVO{% endblock %} {% block extra_css %}
             <p>✅ Cross-Browser Compatible</p>
             <small>Works on Chrome, Edge, Firefox, Safari</small>
         `;
-
-      document.body.appendChild(finalStatus);
-
-      setTimeout(() => {
-        finalStatus.remove();
-      }, 8000);
+        
+        document.body.appendChild(finalStatus);
+        
+        setTimeout(() => {
+            finalStatus.remove();
+        }, 8000);
     }
-
+    
     delay(ms) {
-      return new Promise((resolve) => setTimeout(resolve, ms));
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
-  }
+}
 
-  // Initialize ASI Demo when page loads
-  window.addEventListener("load", () => {
+// Initialize ASI Demo when page loads
+window.addEventListener('load', () => {
     // Close any modal overlays that might be blocking the demo
     setTimeout(() => {
-      const modals = document.querySelectorAll(
-        '.modal, .modal-backdrop, [role="dialog"]',
-      );
-      modals.forEach((modal) => {
-        if (modal.style) modal.style.display = "none";
-        if (modal.remove) modal.remove();
-      });
-
-      // Close Bootstrap modals
-      if (window.bootstrap && bootstrap.Modal) {
-        const openModals = document.querySelectorAll(".modal.show");
-        openModals.forEach((modal) => {
-          const modalInstance = bootstrap.Modal.getInstance(modal);
-          if (modalInstance) modalInstance.hide();
+        const modals = document.querySelectorAll('.modal, .modal-backdrop, [role="dialog"]');
+        modals.forEach(modal => {
+            if (modal.style) modal.style.display = 'none';
+            if (modal.remove) modal.remove();
         });
-      }
+        
+        // Close Bootstrap modals
+        if (window.bootstrap && bootstrap.Modal) {
+            const openModals = document.querySelectorAll('.modal.show');
+            openModals.forEach(modal => {
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) modalInstance.hide();
+            });
+        }
     }, 500);
-
+    
     window.asiDemo = new VisualASIDemo();
-    console.log(
-      "🚀 ASI Visual Automation Ready - Click the green button to start!",
-    );
-  });
+    console.log('🚀 ASI Visual Automation Ready - Click the green button to start!');
+});
 </script>
 {% endblock %}

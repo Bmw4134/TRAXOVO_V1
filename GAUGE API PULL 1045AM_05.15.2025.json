@@ -1,0 +1,18 @@
+{
+  "ReportParameters": [
+    {
+      "Values": ["05/01/2025"],
+      "Company": "Ragle Texas"
+    }
+  ],
+  "AssetData": [
+    {
+      "AssetID": "RT001",
+      "AssetName": "CAT 320 Excavator",
+      "Status": "Active",
+      "Location": "Site A",
+      "HoursToday": 8.5,
+      "FuelLevel": 75
+    }
+  ]
+}

@@ -31,49 +31,8 @@
             };
     }
     
-    // Override console errors for smooth operation
-    var originalError = console.error;
-    console.error = function() {
-        if (arguments[0] && arguments[0].includes && arguments[0].includes('closest')) {
-            return; // Suppress closest errors
-        }
-        originalError.apply(console, arguments);
-    };
-    
-    // Emergency DOM ready handler
-    function emergencyDOMFix() {
-        // Fix any broken event handlers
-        var brokenElements = document.querySelectorAll('[onclick*="closest"]');
-        brokenElements.forEach(function(el) {
-            el.onclick = null; // Remove broken handlers
-        });
-        
-        // Ensure all buttons work
-        var buttons = document.querySelectorAll('button, .btn');
-        buttons.forEach(function(btn) {
-            if (!btn.onclick && !btn.getAttribute('data-fixed')) {
-                btn.setAttribute('data-fixed', 'true');
-                btn.style.cursor = 'pointer';
-            }
-        });
-    }
-    
-    // Execute immediately and on DOM ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', emergencyDOMFix);
-    } else {
-        emergencyDOMFix();
-    }
-    
-    // Fix any remaining issues every 5 seconds
-    setInterval(function() {
-        var errors = document.querySelectorAll('.error, [data-error]');
-        if (errors.length === 0) {
-            // Clear the interval if no errors
-            return;
-        }
-        emergencyDOMFix();
-    }, 5000);
+    // Minimal error handling - don't interfere with legitimate functionality
+    console.log('TRAXOVO Compatibility Layer Active');
     
     console.log('TRAXOVO Emergency Fix Active - JavaScript errors suppressed');
 })();

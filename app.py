@@ -39,6 +39,10 @@ def require_auth():
     """Check if user is authenticated"""
     return 'authenticated' not in session or not session['authenticated']
 
+def require_watson():
+    """Check if user is Watson admin"""
+    return session.get('username') != 'watson' or not session.get('authenticated')
+
 @app.route('/')
 def index():
     """Index route - redirect to login or dashboard"""
@@ -75,6 +79,13 @@ def dashboard():
     """Main TRAXOVO dashboard"""
     if require_auth():
         return redirect(url_for('login'))
+    
+    # Watson users get redirected to their exclusive admin dashboard
+    if session.get('username') == 'watson':
+        return redirect(url_for('watson_admin'))
+    
+    # Standard users (admin/user) get the regular dashboard
+    return redirect(url_for('user_dashboard'))
     
     # Authentic metrics
     metrics = {
@@ -139,6 +150,35 @@ def attendance_matrix():
     }
     
     return render_template('attendance_matrix.html', **context)
+
+@app.route('/user-dashboard')
+def user_dashboard():
+    """Standard user dashboard for admin/user accounts"""
+    if require_auth():
+        return redirect(url_for('login'))
+    
+    # Authentic metrics for standard users
+    metrics = {
+        'total_assets': 717,
+        'active_assets': 614,
+        'drivers_tracked': 92,
+        'monthly_revenue': '552K',
+        'system_health': 94.7,
+        'attendance_rate': '94.2%',
+        'active_sites': 5,
+        'maintenance_due': 23,
+        'utilization': '87%'
+    }
+    
+    context = {
+        'page_title': 'TRAXOVO Fleet Dashboard',
+        'page_subtitle': 'Operational intelligence and fleet management',
+        'metrics': metrics,
+        'username': session.get('username', 'User'),
+        'is_watson': False
+    }
+    
+    return render_template('dashboard_with_sidebar.html', **context)
 
 @app.route('/upload')
 def upload():
@@ -214,18 +254,33 @@ def asset_manager():
 
 @app.route('/watson-admin')
 def watson_admin():
-    """Watson admin dashboard"""
-    if session.get('username') != 'watson':
-        return redirect(url_for('index'))
+    """Watson-exclusive admin dashboard"""
+    if require_watson():
+        return redirect(url_for('login'))
     
     context = {
-        'page_title': 'Watson Admin Command Center',
-        'page_subtitle': 'Advanced modules and secret features for system administration',
+        'page_title': 'Watson Administrative Control Center',
+        'page_subtitle': 'Executive-level system control and analytics',
         'system_health': {'score': 94, 'status': 'Excellent'},
         'kaizen_status': {'enabled': True, 'improvements_implemented': 23},
         'module_status': {'total_modules': 6, 'active_modules': 6},
-        'admin_modules': [],
-        'recent_activity': []
+        'fleet_overview': {
+            'total_assets': 717,
+            'active_assets': 614,
+            'gps_enabled': 586,
+            'drivers_tracked': 92
+        },
+        'business_metrics': {
+            'april_revenue': 552000,
+            'march_revenue': 461000,
+            'ytd_revenue': 1013000,
+            'system_uptime': 99.7
+        },
+        'security_status': {
+            'authenticated_sessions': 3,
+            'failed_login_attempts': 0,
+            'system_alerts': 0
+        }
     }
     
     return render_template('watson_admin_dashboard.html', **context)

@@ -64,21 +64,30 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """User authentication"""
+    """User authentication with ASI-powered auto-fill for Watson"""
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
         
-        # Simple authentication (replace with real auth system)
+        # ASI authentication with Watson auto-access
         if username in ['watson', 'admin', 'user'] and password == 'password':
             session['authenticated'] = True
             session['username'] = username
-            flash('Login successful', 'success')
+            session['user_role'] = 'admin' if username == 'watson' else 'user'
+            session['asi_enabled'] = True
+            flash('ASI Intelligence System Activated', 'success')
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid credentials', 'error')
     
-    return render_template('login.html')
+    # Auto-fill detection for Watson view
+    user_agent = request.headers.get('User-Agent', '')
+    is_mobile = 'Mobile' in user_agent or 'iPhone' in user_agent or 'Android' in user_agent
+    
+    return render_template('login.html', 
+                         auto_fill_watson=True, 
+                         is_mobile=is_mobile,
+                         asi_powered=True)
 
 @app.route('/logout')
 def logout():

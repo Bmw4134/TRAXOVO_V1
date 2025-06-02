@@ -120,6 +120,7 @@ def api_gauge_data_route():
 
 # Import ASI Excellence Module
 from asi_excellence_module import get_asi_excellence_engine, initialize_asi_excellence, get_leadership_metrics
+from autonomous_testing_engine import get_testing_engine
 
 @app.route('/asi_excellence')
 def asi_excellence_dashboard():
@@ -148,6 +149,27 @@ def api_asi_status():
         "game_changing_features": engine._get_game_changing_features(),
         "timestamp": datetime.now().isoformat()
     })
+
+@app.route('/api/system_metrics')
+def api_system_metrics():
+    """Get real system performance metrics"""
+    testing_engine = get_testing_engine()
+    metrics = testing_engine.get_system_metrics()
+    return jsonify(metrics)
+
+@app.route('/api/test_history')
+def api_test_history():
+    """Get history of executed tests"""
+    testing_engine = get_testing_engine()
+    history = testing_engine.get_test_history()
+    return jsonify(history)
+
+@app.route('/api/execute_real_test/<test_type>')
+def api_execute_real_test(test_type):
+    """Execute real system test with actual operations"""
+    testing_engine = get_testing_engine()
+    result = testing_engine.execute_real_system_test(test_type)
+    return jsonify(result)
 
 # Create tables
 with app.app_context():

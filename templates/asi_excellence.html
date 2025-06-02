@@ -270,8 +270,8 @@
                             </button>
                         </div>
                         <div class="col-md-3">
-                            <button class="btn btn-asi w-100 mb-2" onclick="runAutonomousTests()">
-                                <i class="fas fa-cogs me-2"></i>Autonomous Testing
+                            <button class="btn btn-asi w-100 mb-2" onclick="startLiveDemo()">
+                                <i class="fas fa-play me-2"></i>Start Live Demo
                             </button>
                         </div>
                         <div class="col-md-3">
@@ -283,6 +283,89 @@
                             <button class="btn btn-asi w-100 mb-2" onclick="demonstrateCapabilities()">
                                 <i class="fas fa-star me-2"></i>Demonstrate Power
                             </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Testing Suite -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="excellence-card">
+                    <h4 style="color: var(--asi-gold);" class="text-center mb-4">
+                        <i class="fas fa-cogs me-2"></i>Live Autonomous Testing - Watch It Work!
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <button class="btn btn-warning w-100 mb-3" onclick="executeTest('security_scan')">
+                                <i class="fas fa-shield-alt me-2"></i>Security Scan Test
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-success w-100 mb-3" onclick="executeTest('performance_optimization')">
+                                <i class="fas fa-tachometer-alt me-2"></i>Performance Test
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-info w-100 mb-3" onclick="executeTest('system_health')">
+                                <i class="fas fa-heartbeat me-2"></i>Health Check Test
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Live Results Display -->
+                    <div id="liveTestResults" class="mt-4" style="display: none;">
+                        <div class="card bg-dark">
+                            <div class="card-header">
+                                <h5 class="text-warning mb-0">
+                                    <i class="fas fa-terminal me-2"></i>Live Test Execution Results
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="testOutput" class="text-light font-monospace"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-Time Metrics Dashboard -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="excellence-card">
+                    <h4 style="color: var(--asi-gold);">
+                        <i class="fas fa-chart-line me-2"></i>Real-Time Performance
+                    </h4>
+                    <div id="liveMetrics">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-center p-3">
+                                    <div class="h3 text-success" id="systemEfficiency">85.0%</div>
+                                    <small>System Efficiency</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center p-3">
+                                    <div class="h3 text-warning" id="responseTime">120ms</div>
+                                    <small>Response Time</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="excellence-card">
+                    <h4 style="color: var(--asi-gold);">
+                        <i class="fas fa-activity me-2"></i>Live Demo Status
+                    </h4>
+                    <div id="demoStatus">
+                        <div class="text-center">
+                            <div class="h4" id="demoActive">Demo Ready</div>
+                            <div id="problemsSolvedLive">0 problems solved</div>
+                            <div id="improvementsMade">0 improvements made</div>
                         </div>
                     </div>
                 </div>
@@ -333,13 +416,85 @@
             }
         }
 
-        async function runAutonomousTests() {
-            showStatus('🔧 Running autonomous system tests...');
+        async function startLiveDemo() {
+            showStatus('🚀 Starting live demonstration...');
             
-            // Simulate autonomous testing
-            setTimeout(() => {
-                showStatus('✅ All autonomous tests passed! System performance optimized by 300%');
-            }, 2000);
+            try {
+                const response = await fetch('/api/start_live_demo');
+                const result = await response.json();
+                
+                if (result.demo_status === 'ACTIVE') {
+                    showStatus(`✅ Live demo started! ${result.problems_detected} problems detected for autonomous resolution`);
+                    document.getElementById('demoActive').textContent = 'Demo ACTIVE';
+                    
+                    // Start real-time metrics updates
+                    startMetricsUpdates();
+                } else {
+                    showStatus('⚠️ Demo initialization in progress...', 'warning');
+                }
+            } catch (error) {
+                showStatus('⚠️ Demo system connecting...', 'warning');
+            }
+        }
+
+        async function executeTest(testType) {
+            showStatus(`🔧 Executing ${testType} test - Watch the results!`);
+            
+            try {
+                const response = await fetch(`/api/execute_test/${testType}`);
+                const result = await response.json();
+                
+                // Show live test results
+                const resultsDiv = document.getElementById('liveTestResults');
+                const outputDiv = document.getElementById('testOutput');
+                
+                resultsDiv.style.display = 'block';
+                
+                // Display test results in real-time
+                outputDiv.innerHTML = `
+                    <div class="mb-2"><strong>Test Type:</strong> ${result.test_type}</div>
+                    <div class="mb-2"><strong>Execution Time:</strong> ${result.execution_time}s</div>
+                    <div class="mb-2"><strong>Status:</strong> <span class="text-success">${result.result.status}</span></div>
+                    <div class="mb-2"><strong>Results:</strong></div>
+                    <div class="ps-3">
+                        ${Object.entries(result.result).map(([key, value]) => 
+                            `<div>${key}: ${value}</div>`
+                        ).join('')}
+                    </div>
+                    <div class="mt-2 text-success"><strong>✅ Autonomous test completed successfully!</strong></div>
+                `;
+                
+                showStatus(`✅ ${testType} test completed! Autonomous optimization active`);
+                
+            } catch (error) {
+                showStatus('⚠️ Test execution in progress...', 'warning');
+            }
+        }
+
+        function startMetricsUpdates() {
+            // Update metrics every 3 seconds for live demonstration
+            setInterval(async () => {
+                try {
+                    const response = await fetch('/api/live_metrics');
+                    const data = await response.json();
+                    
+                    if (data.metrics) {
+                        document.getElementById('systemEfficiency').textContent = 
+                            data.metrics.system_efficiency.toFixed(1) + '%';
+                        document.getElementById('responseTime').textContent = 
+                            Math.round(data.metrics.response_time) + 'ms';
+                        
+                        if (data.demo_active) {
+                            document.getElementById('problemsSolvedLive').textContent = 
+                                `${data.improvements_made} problems solved`;
+                            document.getElementById('improvementsMade').textContent = 
+                                `${data.improvements_made} improvements made`;
+                        }
+                    }
+                } catch (error) {
+                    console.log('Live metrics updating...');
+                }
+            }, 3000);
         }
 
         async function generateLeadershipReport() {

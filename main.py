@@ -116,6 +116,17 @@ def fleet_map():
                          total_assets=717,
                          active_assets=614)
 
+@app.route('/gps-map')
+def gps_map():
+    """GPS Asset Map with React component"""
+    if require_auth():
+        return redirect(url_for('login'))
+    
+    return render_template('gps_asset_map.html',
+                         page_title='GPS Asset Map',
+                         total_assets=717,
+                         active_assets=614)
+
 @app.route('/asset-manager')
 def asset_manager():
     """Asset management dashboard"""
@@ -162,6 +173,32 @@ def api_fleet_assets():
     # Return authentic GAUGE data structure
     assets_data = load_gauge_api_data()
     return jsonify(assets_data)
+
+@app.route('/api/live-assets')
+def api_live_assets():
+    """API endpoint for GPS React component"""
+    if require_auth():
+        return jsonify({"error": "Authentication required"}), 401
+    
+    # Load authentic GAUGE data and format for GPS map
+    gauge_data = load_gauge_api_data()
+    
+    # Transform GAUGE format to GPS map format
+    gps_assets = []
+    for asset in gauge_data:
+        if asset.get('Latitude') and asset.get('Longitude'):
+            gps_assets.append({
+                'id': asset.get('AssetIdentifier', 'Unknown'),
+                'lat': float(asset.get('Latitude', 0)),
+                'lng': float(asset.get('Longitude', 0)),
+                'label': asset.get('Label', ''),
+                'active': asset.get('Active', False),
+                'location': asset.get('Location', ''),
+                'category': asset.get('AssetCategory', 'Unknown'),
+                'hours': asset.get('Engine1Hours', 0)
+            })
+    
+    return jsonify(gps_assets)
 
 @app.route('/api/upload-attendance', methods=['POST'])
 def api_upload_attendance():

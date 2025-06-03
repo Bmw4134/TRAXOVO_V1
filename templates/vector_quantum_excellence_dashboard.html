@@ -658,18 +658,22 @@
             addMetricToFeed(`Mobile quick action: ${action} activated`);
         }
         
-        // Force mobile refresh synchronization
-        function forceMobileSync() {
-            if (window.DeviceMotionEvent || window.DeviceOrientationEvent) {
-                // Mobile device detected - force cache clear
-                if ('caches' in window) {
-                    caches.keys().then(names => {
-                        names.forEach(name => caches.delete(name));
-                    });
-                }
-                // Force reload from server
-                window.location.reload(true);
+        // Force complete synchronization
+        function forceCompleteSync() {
+            // Clear all storage
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Clear service worker cache
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => caches.delete(name));
+                });
             }
+            
+            // Clear browser cache by adding timestamp
+            const timestamp = Date.now();
+            window.location.href = window.location.pathname + '?sync=' + timestamp;
         }
         
         // Initialize

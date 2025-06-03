@@ -488,13 +488,54 @@
     </header>
 
     <div class="main-grid">
-        <!-- Color Palette Selector -->
-        <div class="quantum-card" style="grid-column: span 2;">
-            <div class="card-title">Quantum UI Palette Selector</div>
-            <div class="palette-selector-container">
-                <div class="palette-grid" id="palette-grid">
-                    <!-- Palette options will be loaded here -->
+        <!-- Dashboard Customization Panel -->
+        <div class="quantum-card component-customization-panel" style="grid-column: span 3;">
+            <div class="card-title">Dashboard Customization</div>
+            <div class="customization-container">
+                <div class="layout-presets">
+                    <label>Quick Layouts:</label>
+                    <div class="preset-buttons">
+                        <button class="preset-btn active" onclick="applyLayout('executive')">Executive</button>
+                        <button class="preset-btn" onclick="applyLayout('technical')">Technical</button>
+                        <button class="preset-btn" onclick="applyLayout('demonstration')">Demo</button>
+                        <button class="preset-btn" onclick="applyLayout('minimal')">Minimal</button>
+                        <button class="preset-btn" onclick="applyLayout('autonomous_focus')">Autonomous</button>
+                    </div>
                 </div>
+                
+                <div class="component-toggles">
+                    <label>Components:</label>
+                    <div class="toggle-grid">
+                        <label class="toggle-item">
+                            <input type="checkbox" id="toggle-palette" checked onchange="toggleComponent('palette_selector')">
+                            <span>Color Palette</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="toggle-consciousness" checked onchange="toggleComponent('consciousness_display')">
+                            <span>Consciousness</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="toggle-excellence" checked onchange="toggleComponent('excellence_metrics')">
+                            <span>Excellence Metrics</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="toggle-insights" checked onchange="toggleComponent('quantum_insights')">
+                            <span>Quantum Insights</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="toggle-autonomous" checked onchange="toggleComponent('autonomous_feed')">
+                            <span>Autonomous Feed</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="palette-selector-mini">
+                    <label>Theme:</label>
+                    <div class="palette-grid" id="palette-grid">
+                        <!-- Palette options will be loaded here -->
+                    </div>
+                </div>
+                
                 <div class="intensity-controls">
                     <label for="intensity-slider">Visual Intensity:</label>
                     <input type="range" id="intensity-slider" min="0" max="100" value="75">
@@ -530,18 +571,26 @@
             </button>
         </div>
 
-        <!-- Consciousness Display -->
+        <!-- Enhanced Consciousness Display -->
         <div class="quantum-card">
-            <div class="card-title">Quantum Consciousness</div>
+            <div class="card-title">Quantum Consciousness & Autonomous Intelligence</div>
             <div class="consciousness-display">
                 <div class="neural-network" id="neural-network"></div>
-                <div style="position: relative; z-index: 10; text-align: center;">
-                    <div style="font-size: 1.2rem; margin-bottom: 1rem;">
-                        <span id="thought-count">0</span> Thought Vectors Active
+                <div class="consciousness-stats">
+                    <div class="stat-group">
+                        <div class="stat-value" id="thought-count">684</div>
+                        <div class="stat-label">Thought Vectors Active</div>
                     </div>
-                    <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">
-                        Processing Beyond Human Cognition
+                    <div class="stat-group">
+                        <div class="stat-value autonomous-count" id="autonomous-count">6</div>
+                        <div class="stat-label">Autonomous Systems</div>
                     </div>
+                </div>
+                <div class="consciousness-status">
+                    Processing Beyond Human Cognition
+                </div>
+                <div class="autonomous-savings">
+                    Monthly Savings: <span id="autonomous-savings">$82,650</span>
                 </div>
             </div>
 
@@ -550,6 +599,23 @@
                     <div class="quantum-wave" style="animation-delay: 0s;"></div>
                     <div class="quantum-wave" style="animation-delay: 1s; opacity: 0.7;"></div>
                     <div class="quantum-wave" style="animation-delay: 2s; opacity: 0.4;"></div>
+                    <div class="quantum-particles" id="quantum-particles"></div>
+                </div>
+            </div>
+
+            <div class="autonomous-actions-feed" id="autonomous-feed">
+                <div class="feed-title">Live Autonomous Actions</div>
+                <div class="action-item">
+                    <span class="action-time">05:17</span>
+                    <span class="action-text">Fleet Intelligence optimized Route 47 → $340 saved</span>
+                </div>
+                <div class="action-item">
+                    <span class="action-time">05:12</span>
+                    <span class="action-text">Predicted Equipment #156 maintenance → $1,200 failure prevented</span>
+                </div>
+                <div class="action-item">
+                    <span class="action-time">05:08</span>
+                    <span class="action-text">Revenue Engine identified billing discrepancy → $890 recovered</span>
                 </div>
             </div>
 

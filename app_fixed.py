@@ -721,5 +721,13 @@ integrate_quantum_search(app)
 from quantum_color_palette_selector import integrate_quantum_palette_routes
 integrate_quantum_palette_routes(app)
 
+# Integrate dashboard customizer routes
+from quantum_dashboard_customizer import integrate_dashboard_customizer_routes
+integrate_dashboard_customizer_routes(app)
+
+# Integrate KPI builder routes
+from quantum_kpi_builder import integrate_kpi_builder_routes
+integrate_kpi_builder_routes(app)
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

@@ -638,7 +638,7 @@
         }
         
         function viewFleetMap() {
-            window.location.href = '/fleet_map';
+            window.location.href = '/qq_map';
         }
         
         function systemDiagnostics() {
@@ -663,6 +663,13 @@
             // Load module statuses immediately
             setTimeout(loadIntegratedData, 1000);
             
+            // Load individual module data for status indicators
+            setTimeout(() => {
+                openAttendanceMatrix();
+                openBillingProcessor();
+                openAssetIntelligence();
+            }, 2000);
+            
             // Update metrics every 30 seconds
             setInterval(updateMetrics, 30000);
             
@@ -671,7 +678,8 @@
             
             console.log('TRAXOVO Vector Quantum Excellence Dashboard initialized');
             addMetricToFeed('Vector Quantum Excellence Dashboard fully operational');
-            addMetricToFeed('Loading all QQ modules with authentic data connections');
+            addMetricToFeed('Loading all QQ modules with authentic GAUGE data connections');
+            addMetricToFeed('Ragle Texas operational data processing active');
         });
     </script>
 </body>

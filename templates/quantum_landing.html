@@ -441,6 +441,17 @@
             .then(html => {
                 document.body.insertAdjacentHTML('beforeend', html);
             });
+            
+        // Fix missing toggleCommandWidget function
+        function toggleCommandWidget() {
+            const widget = document.querySelector('.command-widget');
+            if (widget) {
+                widget.style.display = widget.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+        
+        // Make function globally available
+        window.toggleCommandWidget = toggleCommandWidget;
     </script>
 </body>
 </html>

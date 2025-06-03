@@ -252,6 +252,13 @@
         <button class="quantum-button secondary" onclick="showModal('quantum')">Analyze Quantum State</button>
         <button class="quantum-button tertiary" onclick="showModal('excellence')">Optimize Excellence</button>
     </div>
+    
+    <div class="action-buttons">
+        <button class="quantum-button" onclick="navigateTo('/qq_map')">Fleet Map</button>
+        <button class="quantum-button secondary" onclick="navigateTo('/attendance-matrix')">Attendance Matrix</button>
+        <button class="quantum-button tertiary" onclick="navigateTo('/billion-dollar-excellence')">Billion Dollar Excellence</button>
+        <button class="quantum-button" onclick="navigateTo('/asset-manager')">Asset Manager</button>
+    </div>
 
     <!-- Modals -->
     <div id="futureModal" class="modal">
@@ -340,9 +347,13 @@
         updateMetrics();
         setInterval(updateMetrics, 3000);
         
-        // Navigation
+        // Navigation functions
         function goHome() {
             window.location.href = '/';
+        }
+        
+        function navigateTo(path) {
+            window.location.href = path;
         }
         
         // Add click listener to title for navigation

@@ -109,7 +109,7 @@ class QQUnifiedAuth:
             },
             {
                 'username': 'chris',
-                'password': 'Chris2025',
+                'password': 'Chris123!',
                 'user_type': 'executive',
                 'access_level': 'executive'
             }

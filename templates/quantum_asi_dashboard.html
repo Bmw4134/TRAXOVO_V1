@@ -549,6 +549,175 @@
             margin-bottom: 5px;
         }
 
+        /* Drill-down Modal Styles */
+        .drill-down-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(0, 20, 40, 0.95), rgba(20, 40, 80, 0.95));
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .modal-header h2 {
+            color: #00ffff;
+            font-size: 1.5rem;
+            margin: 0;
+            text-transform: capitalize;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 0, 0, 0.2);
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .metric-overview {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .current-value .label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .current-value .value {
+            color: #00ffff;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .breakdown-section, .recommendations-section, .achievements-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .breakdown-section h3, .recommendations-section h3, .achievements-section h3 {
+            color: #ffffff;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+            padding-bottom: 0.5rem;
+        }
+
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .breakdown-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .breakdown-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            text-transform: capitalize;
+        }
+
+        .breakdown-value {
+            color: #00ffff;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .recommendations-list, .achievements-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendations-list li, .achievements-list li {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            border-left: 3px solid #00ffff;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .achievements-list li {
+            border-left-color: #00ff00;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .export-btn, .process-btn {
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border: none;
+            color: #000000;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .process-btn {
+            background: linear-gradient(45deg, #ff00ff, #8000ff);
+            color: #ffffff;
+        }
+
+        .export-btn:hover, .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+        }
+
         .toggle-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -1144,7 +1313,134 @@
         }
 
         function analyzeQuantumState() {
-            alert('Quantum State Analysis:\n\n• Superposition: ACTIVE\n• Entanglement: COHERENT\n• Consciousness: TRANSCENDENT\n• Processing: BEYOND HUMAN LIMITS');
+            drillDown('quantum_coherence');
+        }
+
+        async function drillDown(category) {
+            try {
+                const response = await fetch(`/api/qqasiagiai/drill_down/${category}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert(`Error: ${data.error}`);
+                    return;
+                }
+                
+                showDrillDownModal(category, data);
+                
+            } catch (error) {
+                console.error('Drill-down error:', error);
+                alert(`Analyzing ${category} with QQASIAGIAI intelligence...`);
+            }
+        }
+        
+        function showDrillDownModal(category, data) {
+            const modal = document.createElement('div');
+            modal.className = 'drill-down-modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>${data.title || category.replace('_', ' ').toUpperCase()}</h2>
+                        <button class="close-btn" onclick="this.closest('.drill-down-modal').remove()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="metric-overview">
+                            <div class="current-value">
+                                <span class="label">Current Value:</span>
+                                <span class="value">${(data.current_value * 100).toFixed(1)}%</span>
+                            </div>
+                        </div>
+                        
+                        ${data.breakdown ? `
+                        <div class="breakdown-section">
+                            <h3>Performance Breakdown</h3>
+                            <div class="breakdown-grid">
+                                ${Object.entries(data.breakdown).map(([key, value]) => `
+                                    <div class="breakdown-item">
+                                        <span class="breakdown-label">${key.replace(/_/g, ' ')}</span>
+                                        <span class="breakdown-value">${(value * 100).toFixed(1)}%</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        ${data.recommendations ? `
+                        <div class="recommendations-section">
+                            <h3>AI Recommendations</h3>
+                            <ul class="recommendations-list">
+                                ${data.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
+                        
+                        ${data.achievements ? `
+                        <div class="achievements-section">
+                            <h3>Current Achievements</h3>
+                            <ul class="achievements-list">
+                                ${data.achievements.map(achievement => `<li>✓ ${achievement}</li>`).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
+                        
+                        <div class="modal-actions">
+                            <button class="export-btn" onclick="exportReport('${category}')">
+                                📄 Export PDF Report
+                            </button>
+                            <button class="process-btn" onclick="processData('${category}')">
+                                🔄 Process Latest Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        async function exportReport(reportType) {
+            try {
+                const response = await fetch(`/api/qqasiagiai/export_report/${reportType}`);
+                
+                if (response.headers.get('content-type') === 'application/pdf') {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `TRAXOVO_${reportType}_report.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    
+                    alert('PDF report downloaded successfully!');
+                } else {
+                    const error = await response.json();
+                    alert(`Export error: ${error.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Error exporting report. Please try again.');
+            }
+        }
+        
+        async function processData(dataType) {
+            try {
+                const response = await fetch(`/api/qqasiagiai/process_data/${dataType}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                
+                if (result.error) {
+                    alert(`Processing error: ${result.error}`);
+                } else {
+                    alert(`Data processing complete!\nRecords processed: ${result.records_processed || 'N/A'}\nStatus: ${result.status}`);
+                    loadASIData();
+                }
+            } catch (error) {
+                console.error('Processing error:', error);
+                alert('Error processing data. Please try again.');
+            }
         }
 
         function optimizeExcellence() {

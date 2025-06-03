@@ -10,7 +10,7 @@ import subprocess
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request, redirect, url_for, session, flash
 from high_value_api_integrations import integrate_high_value_apis
-from deployment_automation_engine import integrate_deployment_automation
+# Deployment automation integrated via blueprint
 from floating_master_command import integrate_master_command
 from watson_email_intelligence import integrate_watson_email
 from asi_routing_engine import integrate_asi_routing
@@ -872,7 +872,7 @@ def admin_access():
 
 # Initialize high-value API integrations and deployment automation
 integrate_high_value_apis(app)
-integrate_deployment_automation(app)
+# Deployment automation registered via blueprint above
 integrate_master_command(app)
 integrate_watson_email(app)
 integrate_asi_routing(app)
@@ -902,6 +902,14 @@ app.register_blueprint(secure_credentials, url_prefix='/credentials')
 # Register secure QQ credential uploader
 from secure_qq_credential_uploader import secure_credential_uploader
 app.register_blueprint(secure_credential_uploader, url_prefix='/credentials')
+
+# Register quantum password vault
+from quantum_password_vault import quantum_vault
+app.register_blueprint(quantum_vault, url_prefix='/vault')
+
+# Register deployment automation engine
+from deployment_automation_engine import deployment_automation
+app.register_blueprint(deployment_automation, url_prefix='/deploy')
 
 # Register autonomous deployment puppeteer
 from autonomous_deployment_puppeteer import autonomous_deployment

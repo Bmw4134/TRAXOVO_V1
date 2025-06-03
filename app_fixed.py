@@ -97,7 +97,12 @@ def get_gauge_data():
 
 @app.route('/')
 def index():
-    return redirect(url_for('dashboard'))
+    return render_template('quantum_landing.html')
+
+@app.route('/landing')
+def quantum_landing():
+    """Quantum ASI Landing Page"""
+    return render_template('quantum_landing.html')
 
 @app.route('/login')
 def login():
@@ -437,6 +442,19 @@ def master_overlay():
     """Serve floating master command overlay"""
     return render_template('floating_master_overlay.html')
 
+@app.route('/role_command_widget')
+def role_command_widget():
+    """Serve personalized role-based command widget"""
+    from role_based_command_widget import get_role_widget
+    
+    widget_generator = get_role_widget()
+    user_role = widget_generator.get_user_role_from_session(session)
+    username = session.get('username', 'Executive User')
+    
+    widget_html = widget_generator.generate_widget_html(user_role, username)
+    
+    return widget_html
+
 @app.route('/agi_analytics_dashboard')
 def agi_analytics_dashboard():
     """AGI Analytics Engine Dashboard"""
@@ -444,7 +462,37 @@ def agi_analytics_dashboard():
 
 @app.route('/agi_analytics')
 def agi_analytics():
-    """AGI Analytics - Quantum Enhanced Pipeline"""
+    """Quantum ASI→AGI→AI Analytics Pipeline"""
+    return render_template('agi_analytics_dashboard.html')
+
+@app.route('/agi_asset_lifecycle')
+def agi_asset_lifecycle():
+    """Quantum ASI Asset Lifecycle Management"""
+    return render_template('agi_asset_lifecycle.html')
+
+@app.route('/quantum_asi_excellence')
+def quantum_asi_excellence():
+    """Quantum ASI Excellence Dashboard"""
+    return render_template('quantum_asi_dashboard.html')
+
+@app.route('/watson_dream_alignment')
+def watson_dream_alignment():
+    """Watson Goal Alignment System"""
+    return render_template('watson_goals_dashboard.html')
+
+@app.route('/enterprise_users')
+def enterprise_users():
+    """Enterprise User Management"""
+    return render_template('user_profile.html')
+
+@app.route('/fleet_management')
+def fleet_management():
+    """Fleet Management Dashboard"""
+    return render_template('executive_dashboard.html')
+
+@app.route('/predictive_analytics')
+def predictive_analytics():
+    """Predictive Analytics Dashboard"""
     return render_template('agi_analytics_dashboard.html')
 
 @app.route('/board_security_audit')

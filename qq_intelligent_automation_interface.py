@@ -647,6 +647,15 @@ def create_automation_interface_template():
             <button class="close-btn" onclick="closeAutomation()">&times;</button>
         </div>
         
+        <div class="sandbox-toggle">
+            <div class="sandbox-switch" id="sandboxSwitch" onclick="toggleSandboxMode()"></div>
+            <span class="sandbox-label">Sandbox Mode</span>
+        </div>
+        
+        <div id="sandboxIndicator" class="sandbox-mode" style="display: none;">
+            🧪 Sandbox Mode Active - Testing environment with no live changes
+        </div>
+        
         <div class="automation-prompt">
             What process can I automate for you today?
         </div>
@@ -671,6 +680,8 @@ Examples:
     </div>
 
     <script>
+        let sandboxMode = false;
+        
         // Show automation interface after login
         function showAutomationInterface() {
             document.getElementById('automationInterface').style.display = 'block';
@@ -678,6 +689,22 @@ Examples:
         
         function closeAutomation() {
             document.getElementById('automationInterface').style.display = 'none';
+        }
+        
+        function toggleSandboxMode() {
+            sandboxMode = !sandboxMode;
+            const switchElement = document.getElementById('sandboxSwitch');
+            const indicator = document.getElementById('sandboxIndicator');
+            
+            if (sandboxMode) {
+                switchElement.classList.add('active');
+                indicator.style.display = 'block';
+                showResult('🧪 Sandbox Mode Enabled - Safe testing environment active', 'success');
+            } else {
+                switchElement.classList.remove('active');
+                indicator.style.display = 'none';
+                showResult('🔧 Live Mode Enabled - Automations will affect production', 'warning');
+            }
         }
         
         function analyzeAutomation() {

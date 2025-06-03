@@ -545,6 +545,33 @@ def api_quantum_login_analytics():
             "error": str(e)
         })
 
+@app.route('/quantum_puppeteer')
+def quantum_puppeteer():
+    """Quantum Puppeteer Enhancement Dashboard"""
+    return render_template('quantum_puppeteer_dashboard.html')
+
+@app.route('/api/quantum_puppeteer_status')
+def api_quantum_puppeteer_status():
+    """API endpoint for quantum puppeteer status and automation data"""
+    try:
+        from quantum_puppeteer_enhancement import get_quantum_puppeteer_engine
+        engine = get_quantum_puppeteer_engine()
+        
+        return jsonify({
+            "success": True,
+            "ui_repair": engine.quantum_ui_repair(),
+            "performance": engine.quantum_performance_optimization(),
+            "automation": engine.quantum_automation_suite(),
+            "deployment": engine.quantum_deployment_validation(),
+            "insights": engine.generate_quantum_insights(),
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
+
 @app.route('/api/quantum_data_integration')
 def api_quantum_data_integration():
     """API endpoint for quantum data integration status across all sources"""

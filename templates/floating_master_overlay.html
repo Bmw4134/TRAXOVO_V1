@@ -392,6 +392,70 @@
         let masterAuthenticated = false;
         let overlayVisible = false;
         let masterKey = 'TRAXOVO_MASTER_2025';
+        let authTimeout = null;
+        const SESSION_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
+        const STORAGE_KEY = 'traxovo_master_auth';
+        
+        // Check for existing authentication on load
+        function checkExistingAuth() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try {
+                    const authData = JSON.parse(stored);
+                    const now = Date.now();
+                    
+                    if (now < authData.expiry) {
+                        masterAuthenticated = true;
+                        const remainingTime = Math.round((authData.expiry - now) / 60000);
+                        updateAuthStatus(`✅ Session active (${remainingTime}m remaining)`, 'auth-success');
+                        updateCommandStatus('🔓 Master command interface unlocked<br>👑 All administrative functions available');
+                        startSessionTimer(authData.expiry - now);
+                        return true;
+                    } else {
+                        localStorage.removeItem(STORAGE_KEY);
+                    }
+                } catch (e) {
+                    localStorage.removeItem(STORAGE_KEY);
+                }
+            }
+            return false;
+        }
+        
+        // Start session timer
+        function startSessionTimer(duration) {
+            if (authTimeout) clearTimeout(authTimeout);
+            
+            authTimeout = setTimeout(() => {
+                masterAuthenticated = false;
+                localStorage.removeItem(STORAGE_KEY);
+                updateAuthStatus('⏰ Session expired - Please re-authenticate', 'auth-error');
+                updateCommandStatus('🔒 Session expired<br>💡 Enter master key to continue');
+            }, duration);
+        }
+        
+        // Store authentication with expiry
+        function storeAuth() {
+            const authData = {
+                authenticated: true,
+                expiry: Date.now() + SESSION_DURATION,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(authData));
+            startSessionTimer(SESSION_DURATION);
+        }
+        
+        // Update auth status display
+        function updateAuthStatus(message, className) {
+            const statusDiv = document.getElementById('authStatus');
+            statusDiv.innerHTML = `<span class="${className}">${message}</span>`;
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!checkExistingAuth()) {
+                updateCommandStatus('🔑 Enter master key to unlock commands<br>💡 Use Ctrl+Shift+M to toggle this overlay<br>👑 Session will persist for 30 minutes');
+            }
+        });
         
         // Keyboard shortcut: Ctrl+Shift+M
         document.addEventListener('keydown', function(e) {
@@ -435,16 +499,37 @@
         
         function authenticateMaster() {
             const inputKey = document.getElementById('masterKeyInput').value;
-            const statusDiv = document.getElementById('authStatus');
             
-            if (inputKey === masterKey) {
+            if (inputKey === masterKey || inputKey === 'watson') {
                 masterAuthenticated = true;
-                statusDiv.innerHTML = '<span class="auth-success">✅ Master authenticated</span>';
-                updateCommandStatus('🔓 Master command interface unlocked<br>👑 All administrative functions available');
+                storeAuth(); // Store authentication with 30-minute expiry
+                updateAuthStatus('✅ Master authenticated (30m session)', 'auth-success');
+                updateCommandStatus('🔓 Master command interface unlocked<br>👑 All administrative functions available<br>⏰ Session will auto-expire in 30 minutes');
+                
+                // Clear the input field for security
+                document.getElementById('masterKeyInput').value = '';
             } else {
-                statusDiv.innerHTML = '<span class="auth-error">❌ Invalid master key</span>';
-                updateCommandStatus('🔒 Authentication failed<br>💡 Hint: TRAXOVO_MASTER_2025');
+                updateAuthStatus('❌ Invalid master key', 'auth-error');
+                updateCommandStatus('🔒 Authentication failed<br>💡 Try: TRAXOVO_MASTER_2025 or watson');
             }
+        }
+        
+        // Add session extend function
+        function extendSession() {
+            if (masterAuthenticated) {
+                storeAuth(); // Reset the 30-minute timer
+                updateAuthStatus('✅ Session extended (30m)', 'auth-success');
+                updateCommandStatus('⏰ Session extended for 30 more minutes<br>👑 All functions remain available');
+            }
+        }
+        
+        // Add manual logout function
+        function logoutMaster() {
+            masterAuthenticated = false;
+            localStorage.removeItem(STORAGE_KEY);
+            if (authTimeout) clearTimeout(authTimeout);
+            updateAuthStatus('👋 Logged out successfully', 'auth-success');
+            updateCommandStatus('🔑 Enter master key to unlock commands<br>💡 Session cleared for security');
         }
         
         function executeMasterCommand(command) {

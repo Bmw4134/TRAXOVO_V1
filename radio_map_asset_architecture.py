@@ -43,55 +43,52 @@ class RadioMapAssetEngine:
             except Exception as e:
                 print(f"Error loading GAUGE data: {e}")
     
-    def generate_radio_grid_mapping(self) -> Dict[str, Any]:
-        """Generate radio frequency grid mapping for assets"""
+    def generate_dynamic_google_earth_mapping(self) -> Dict[str, Any]:
+        """Generate Google Earth-style interactive mapping for assets"""
         
-        # Create 4x4 grid like in your screenshots
-        grid_size = 4
-        frequency_bands = {
-            'VHF_LOW': {'range': '30-88 MHz', 'assets': []},
-            'VHF_HIGH': {'range': '88-174 MHz', 'assets': []},
-            'UHF': {'range': '300-3000 MHz', 'assets': []},
-            'MICROWAVE': {'range': '1-300 GHz', 'assets': []}
-        }
+        # Extract GPS coordinates from authentic GAUGE data
+        mapped_assets = []
+        coverage_zones = {}
         
-        # Generate grid coordinates and assign assets
-        grid_map = {}
-        asset_count = 0
+        if self.authentic_data and 'raw_data' in self.authentic_data:
+            for asset in self.authentic_data['raw_data']:
+                lat = asset.get('Latitude')
+                lng = asset.get('Longitude')
+                
+                if lat and lng and lat != 0 and lng != 0:
+                    mapped_asset = {
+                        'asset_id': asset.get('Asset_No', 'Unknown'),
+                        'coordinates': {'lat': lat, 'lng': lng},
+                        'status': asset.get('Active', False),
+                        'description': asset.get('Description', ''),
+                        'model': asset.get('Model', ''),
+                        'make': asset.get('Make', ''),
+                        'location_zone': self._calculate_zone_from_coordinates(lat, lng),
+                        'coverage_radius': self._calculate_coverage_radius(asset),
+                        'operational_efficiency': self._calculate_efficiency_score(asset)
+                    }
+                    mapped_assets.append(mapped_asset)
         
-        for row in range(grid_size):
-            for col in range(grid_size):
-                grid_id = f"{row}.{col}"
-                
-                # Calculate frequency allocation based on position
-                frequency_score = (row * grid_size + col) / (grid_size * grid_size)
-                coverage_strength = round(0.15 + (frequency_score * 0.85), 2)
-                
-                # Assign asset characteristics based on grid position
-                asset_characteristics = self._generate_asset_characteristics(row, col, coverage_strength)
-                
-                grid_map[grid_id] = {
-                    'position': {'row': row, 'col': col},
-                    'frequency_score': frequency_score,
-                    'coverage_strength': coverage_strength,
-                    'asset_density': asset_characteristics['density'],
-                    'operational_status': asset_characteristics['status'],
-                    'maintenance_priority': asset_characteristics['priority'],
-                    'cost_efficiency': asset_characteristics['efficiency']
-                }
-                
-                asset_count += asset_characteristics['density']
-        
-        # Map to frequency bands
-        self.asset_grid = grid_map
-        self.frequency_bands = frequency_bands
+        # Create dynamic coverage zones
+        coverage_zones = self._create_coverage_zones(mapped_assets)
         
         return {
-            'grid_mapping': grid_map,
-            'frequency_bands': frequency_bands,
-            'total_assets': asset_count,
-            'grid_size': f"{grid_size}x{grid_size}",
-            'coverage_analysis': self._analyze_coverage_patterns()
+            'interactive_map': {
+                'center_coordinates': {'lat': 30.2672, 'lng': -97.7431},  # Austin, TX
+                'zoom_level': 11,
+                'theme': 'dark_professional'
+            },
+            'mapped_assets': mapped_assets,
+            'coverage_zones': coverage_zones,
+            'total_mapped': len(mapped_assets),
+            'map_features': {
+                'clustering': True,
+                'heatmap': True,
+                'real_time_updates': True,
+                'asset_filtering': True,
+                'export_capabilities': True
+            },
+            'performance_metrics': self._calculate_map_performance_metrics(mapped_assets)
         }
     
     def _generate_asset_characteristics(self, row: int, col: int, coverage: float) -> Dict[str, Any]:

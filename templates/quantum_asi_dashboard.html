@@ -1454,6 +1454,79 @@
             }, 2000);
         }
 
+        // Layout Management Functions
+        function applyLayout(layoutType) {
+            console.log(`Applying ${layoutType} layout`);
+            
+            const layouts = {
+                'executive': {
+                    'consciousness_display': true,
+                    'excellence_metrics': true,
+                    'quantum_insights': false,
+                    'autonomous_feed': true,
+                    'palette_selector': false
+                },
+                'technical': {
+                    'consciousness_display': true,
+                    'excellence_metrics': true,
+                    'quantum_insights': true,
+                    'autonomous_feed': true,
+                    'palette_selector': true
+                },
+                'minimal': {
+                    'consciousness_display': true,
+                    'excellence_metrics': false,
+                    'quantum_insights': false,
+                    'autonomous_feed': false,
+                    'palette_selector': false
+                },
+                'autonomous_focus': {
+                    'consciousness_display': true,
+                    'excellence_metrics': false,
+                    'quantum_insights': false,
+                    'autonomous_feed': true,
+                    'palette_selector': false
+                }
+            };
+            
+            const layout = layouts[layoutType];
+            if (layout) {
+                Object.keys(layout).forEach(componentId => {
+                    const element = document.getElementById(componentId);
+                    if (element) {
+                        element.style.display = layout[componentId] ? 'block' : 'none';
+                    }
+                });
+                
+                // Update active layout button
+                document.querySelectorAll('.layout-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event?.target?.classList.add('active');
+            }
+        }
+        
+        function switchPalette(paletteId) {
+            switchColorPalette(paletteId);
+        }
+        
+        function updateIntensity(value) {
+            document.getElementById('intensity-value').textContent = value + '%';
+            applyIntensityAdjustment(value / 100);
+        }
+        
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        function toggleCompactMode() {
+            document.body.classList.toggle('compact-mode');
+        }
+
         // Color Palette Selector Functions
         let currentPalette = 'classic_quantum';
         

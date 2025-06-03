@@ -7,9 +7,11 @@ import os
 import json
 import time
 import subprocess
+import sqlite3
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 import logging
+from playwright.sync_api import sync_playwright
 
 class QQAutonomousDevelopmentEngine:
     """Autonomous development engine using chat history patterns"""
@@ -19,6 +21,8 @@ class QQAutonomousDevelopmentEngine:
         self.broken_modules = []
         self.restoration_queue = []
         self.qq_enhancements = {}
+        self.scraper_db = 'qq_chatgpt_scraper.db'
+        self.initialize_scraper_database()
         
     def _analyze_complete_chat_history(self) -> Dict[str, Any]:
         """Analyze 100+ hours of development chat history"""
@@ -251,6 +255,451 @@ class QQAutonomousDevelopmentEngine:
         readiness_score = sum(readiness_factors.values())
         
         return round(readiness_score * 100, 1)
+    
+    def initialize_scraper_database(self):
+        """Initialize ChatGPT scraper database"""
+        conn = sqlite3.connect(self.scraper_db)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS chat_sessions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT UNIQUE,
+                conversation_title TEXT,
+                date_scraped TIMESTAMP,
+                total_messages INTEGER,
+                traxovo_related BOOLEAN,
+                content TEXT,
+                extracted_insights TEXT,
+                technical_details TEXT,
+                decisions_made TEXT
+            )
+        ''')
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS consolidated_insights (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                insight_type TEXT,
+                content TEXT,
+                source_conversation TEXT,
+                relevance_score FLOAT,
+                implementation_status TEXT,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        conn.commit()
+        conn.close()
+    
+    def scrape_selected_chatgpt_conversations(self) -> Dict[str, Any]:
+        """
+        Visual ChatGPT conversation selector with TRAXOVO overlay interface
+        User clicks specific conversations for targeted scraping
+        """
+        logging.info("Starting visual ChatGPT conversation selection...")
+        
+        scraped_data = {
+            'conversations': [],
+            'selected_conversations': 0,
+            'technical_insights': [],
+            'decisions_extracted': [],
+            'consolidation_status': 'in_progress'
+        }
+        
+        try:
+            with sync_playwright() as p:
+                browser = p.chromium.launch(
+                    headless=False, 
+                    slow_mo=500,
+                    args=['--start-maximized']
+                )
+                context = browser.new_context(
+                    viewport={'width': 1920, 'height': 1080}
+                )
+                page = context.new_page()
+                
+                # Navigate to ChatGPT
+                logging.info("Opening ChatGPT with TRAXOVO selection interface...")
+                page.goto('https://chat.openai.com')
+                page.wait_for_load_state('networkidle')
+                
+                # Inject TRAXOVO-branded selection interface
+                self._inject_traxovo_conversation_selector(page)
+                
+                # Wait for user selections
+                selected_conversations = self._wait_for_user_selections(page)
+                
+                # Scrape selected conversations
+                for conv_data in selected_conversations:
+                    conversation_content = self._scrape_conversation_content(page, conv_data)
+                    if conversation_content:
+                        scraped_data['conversations'].append(conversation_content)
+                        scraped_data['selected_conversations'] += 1
+                        
+                        # Extract technical insights
+                        insights = self._extract_technical_insights(conversation_content)
+                        scraped_data['technical_insights'].extend(insights)
+                        
+                        # Extract decisions
+                        decisions = self._extract_implementation_decisions(conversation_content)
+                        scraped_data['decisions_extracted'].extend(decisions)
+                
+                browser.close()
+                scraped_data['consolidation_status'] = 'completed'
+                
+        except Exception as e:
+            logging.error(f"Visual scraping failed: {e}")
+            scraped_data['consolidation_status'] = 'failed'
+            scraped_data['fallback_mode'] = True
+        
+        # Store results
+        self._store_scraped_data(scraped_data)
+        
+        return scraped_data
+    
+    def _inject_traxovo_conversation_selector(self, page):
+        """Inject TRAXOVO-branded visual conversation selector"""
+        traxovo_selector_script = """
+        // TRAXOVO Chat Selection Interface
+        const traxovoOverlay = document.createElement('div');
+        traxovoOverlay.id = 'traxovo-chat-selector';
+        traxovoOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 350px;
+            height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #00ff88;
+            z-index: 999999;
+            padding: 20px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            border-left: 3px solid #00ff88;
+            box-shadow: -5px 0 20px rgba(0, 255, 136, 0.3);
+        `;
+        
+        traxovoOverlay.innerHTML = `
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 style="color: #00ff88; margin: 0; font-size: 18px; text-shadow: 0 0 10px #00ff88;">
+                    🚀 TRAXOVO
+                </h2>
+                <p style="color: #88ffaa; margin: 5px 0; font-size: 12px;">
+                    QQ Chat Consolidation Engine
+                </p>
+            </div>
+            
+            <div style="background: rgba(0, 255, 136, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <p style="color: #00ff88; margin: 0; font-size: 14px; font-weight: bold;">
+                    SELECTION MODE ACTIVE
+                </p>
+                <p style="color: #aaffcc; margin: 5px 0 0 0; font-size: 11px;">
+                    Ctrl/Cmd + Click conversations to select
+                </p>
+            </div>
+            
+            <div id="selection-stats" style="background: rgba(0, 255, 136, 0.05); padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                <div style="color: #00ff88; font-size: 12px;">Selected: <span id="count">0</span></div>
+                <div style="color: #88ffaa; font-size: 10px;">TRAXOVO-related conversations</div>
+            </div>
+            
+            <button id="traxovo-scrape-btn" style="
+                background: linear-gradient(45deg, #00ff88, #00cc66);
+                color: #000;
+                padding: 12px;
+                border: none;
+                border-radius: 6px;
+                width: 100%;
+                font-weight: bold;
+                font-size: 14px;
+                cursor: pointer;
+                margin-bottom: 15px;
+                transition: all 0.3s;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            ">🔄 CONSOLIDATE SELECTED</button>
+            
+            <div id="selected-conversations" style="max-height: 400px; overflow-y: auto;"></div>
+        `;
+        
+        document.body.appendChild(traxovoOverlay);
+        
+        // Selection tracking
+        window.traxovoSelectedConversations = [];
+        
+        // Enhanced conversation detection and selection
+        function setupConversationSelection() {
+            const conversationSelectors = [
+                'nav a[href*="/c/"]',
+                '[data-testid*="conversation"]',
+                '.conversation-item',
+                'a[href*="chat.openai.com/c/"]'
+            ];
+            
+            conversationSelectors.forEach(selector => {
+                const conversations = document.querySelectorAll(selector);
+                conversations.forEach((conv, index) => {
+                    if (conv.href && conv.href.includes('/c/')) {
+                        conv.style.transition = 'all 0.3s ease';
+                        conv.style.position = 'relative';
+                        
+                        conv.addEventListener('click', (e) => {
+                            if (e.ctrlKey || e.metaKey) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                
+                                const convUrl = conv.href;
+                                const convTitle = conv.textContent.trim();
+                                
+                                const isSelected = window.traxovoSelectedConversations.some(c => c.url === convUrl);
+                                
+                                if (isSelected) {
+                                    // Deselect
+                                    window.traxovoSelectedConversations = window.traxovoSelectedConversations.filter(c => c.url !== convUrl);
+                                    conv.style.border = 'none';
+                                    conv.style.boxShadow = 'none';
+                                } else {
+                                    // Select
+                                    window.traxovoSelectedConversations.push({
+                                        title: convTitle,
+                                        url: convUrl,
+                                        timestamp: new Date().toISOString()
+                                    });
+                                    conv.style.border = '2px solid #00ff88';
+                                    conv.style.boxShadow = '0 0 10px rgba(0, 255, 136, 0.5)';
+                                    conv.style.backgroundColor = 'rgba(0, 255, 136, 0.1)';
+                                }
+                                
+                                // Update interface
+                                document.getElementById('count').textContent = window.traxovoSelectedConversations.length;
+                                
+                                const listDiv = document.getElementById('selected-conversations');
+                                listDiv.innerHTML = window.traxovoSelectedConversations.map((c, i) => 
+                                    `<div style="
+                                        margin: 8px 0; 
+                                        padding: 8px; 
+                                        background: rgba(0,255,136,0.15); 
+                                        border-radius: 4px;
+                                        border-left: 3px solid #00ff88;
+                                        font-size: 11px;
+                                    ">
+                                        <div style="color: #00ff88; font-weight: bold;">${i + 1}. ${c.title.substring(0, 35)}...</div>
+                                        <div style="color: #88ffaa; font-size: 9px; margin-top: 2px;">Selected for consolidation</div>
+                                    </div>`
+                                ).join('');
+                            }
+                        });
+                    }
+                });
+            });
+        }
+        
+        // Initial setup
+        setupConversationSelection();
+        
+        // Re-setup on DOM changes
+        const observer = new MutationObserver(setupConversationSelection);
+        observer.observe(document.body, { childList: true, subtree: true });
+        
+        // Scrape button functionality
+        document.getElementById('traxovo-scrape-btn').addEventListener('click', () => {
+            window.traxovoScrapeReady = true;
+            window.traxovoScrapeData = window.traxovoSelectedConversations;
+            
+            // Visual feedback
+            document.getElementById('traxovo-scrape-btn').style.background = 'linear-gradient(45deg, #ff6600, #ff4400)';
+            document.getElementById('traxovo-scrape-btn').textContent = '⚡ CONSOLIDATING...';
+        });
+        
+        // Instructions overlay
+        const instructions = document.createElement('div');
+        instructions.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #00ff88;
+            padding: 25px;
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            z-index: 999999;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+        `;
+        instructions.innerHTML = `
+            <h3 style="color: #00ff88; margin: 0 0 15px 0; text-shadow: 0 0 10px #00ff88;">
+                🚀 TRAXOVO CHAT CONSOLIDATION
+            </h3>
+            <p style="color: #88ffaa; margin: 0 0 10px 0; font-size: 14px;">
+                Hold <strong>Ctrl/Cmd</strong> and click conversations to select
+            </p>
+            <p style="color: #aaffcc; margin: 0 0 15px 0; font-size: 12px;">
+                Selected conversations will have green borders
+            </p>
+            <p style="color: #00ff88; margin: 0 0 20px 0; font-size: 13px; font-weight: bold;">
+                Focus on TRAXOVO technical discussions
+            </p>
+            <button onclick="this.parentElement.remove()" style="
+                background: linear-gradient(45deg, #ff6600, #ff4400);
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: bold;
+                text-transform: uppercase;
+            ">Start Selection</button>
+        `;
+        document.body.appendChild(instructions);
+        """
+        
+        page.evaluate(traxovo_selector_script)
+    
+    def _wait_for_user_selections(self, page) -> List[Dict[str, Any]]:
+        """Wait for user to select conversations through TRAXOVO interface"""
+        logging.info("Waiting for user conversation selections...")
+        
+        while True:
+            try:
+                scrape_ready = page.evaluate('window.traxovoScrapeReady')
+                if scrape_ready:
+                    selected_data = page.evaluate('window.traxovoScrapeData')
+                    logging.info(f"User selected {len(selected_data)} conversations for consolidation")
+                    return selected_data
+                time.sleep(1)
+            except:
+                time.sleep(1)
+                continue
+    
+    def _scrape_conversation_content(self, page, conversation: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Scrape content from individual conversation"""
+        try:
+            page.goto(conversation['url'])
+            page.wait_for_selector('[data-testid*="conversation"], .message', timeout=10000)
+            
+            # Extract all messages
+            messages = []
+            message_selectors = [
+                '[data-testid*="conversation"]',
+                '.message',
+                '[data-message-author-role]',
+                '.prose'
+            ]
+            
+            for selector in message_selectors:
+                elements = page.query_selector_all(selector)
+                for element in elements:
+                    content = element.text_content()
+                    if content and len(content.strip()) > 10:
+                        messages.append({
+                            'content': content.strip(),
+                            'timestamp': datetime.now().isoformat()
+                        })
+            
+            return {
+                'title': conversation['title'],
+                'url': conversation['url'],
+                'messages': messages,
+                'message_count': len(messages),
+                'full_content': ' '.join([msg['content'] for msg in messages]),
+                'scraped_at': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            logging.warning(f"Could not scrape conversation {conversation['title']}: {e}")
+            return None
+    
+    def _extract_technical_insights(self, conversation_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Extract technical insights from conversation"""
+        insights = []
+        content = conversation_data['full_content'].lower()
+        
+        # TRAXOVO-specific technical patterns
+        technical_patterns = {
+            'api_integration': ['gauge api', 'api integration', 'endpoints', 'authentication'],
+            'dashboard_features': ['dashboard', 'quantum', 'consciousness', 'visualization'],
+            'mobile_optimization': ['mobile', 'responsive', 'touch', 'viewport'],
+            'data_processing': ['database', 'postgresql', 'data integration', 'real-time'],
+            'deployment': ['deployment', 'production', 'gunicorn', 'replit'],
+            'authentication': ['login', 'credentials', 'security', 'session'],
+            'ui_enhancements': ['interface', 'styling', 'components', 'user experience']
+        }
+        
+        for category, keywords in technical_patterns.items():
+            for keyword in keywords:
+                if keyword in content:
+                    insights.append({
+                        'category': category,
+                        'keyword': keyword,
+                        'source': conversation_data['title'],
+                        'relevance_score': 0.9 if 'traxovo' in content else 0.7
+                    })
+        
+        return insights
+    
+    def _extract_implementation_decisions(self, conversation_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Extract implementation decisions from conversation"""
+        decisions = []
+        content = conversation_data['full_content'].lower()
+        
+        # Decision indicators
+        decision_patterns = [
+            'implemented', 'created', 'added', 'configured', 'deployed',
+            'chose to use', 'decided to', 'will implement', 'requirement',
+            'specification', 'design choice', 'architecture decision'
+        ]
+        
+        for pattern in decision_patterns:
+            if pattern in content:
+                decisions.append({
+                    'pattern': pattern,
+                    'context': conversation_data['title'],
+                    'implementation_status': 'identified',
+                    'priority': 'high' if 'critical' in content or 'urgent' in content else 'medium'
+                })
+        
+        return decisions
+    
+    def _store_scraped_data(self, scraped_data: Dict[str, Any]):
+        """Store scraped data in database"""
+        conn = sqlite3.connect(self.scraper_db)
+        cursor = conn.cursor()
+        
+        # Store conversations
+        for conv in scraped_data['conversations']:
+            cursor.execute('''
+                INSERT OR REPLACE INTO chat_sessions 
+                (session_id, conversation_title, total_messages, traxovo_related, content)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (
+                conv['url'],
+                conv['title'],
+                conv['message_count'],
+                'traxovo' in conv['full_content'].lower(),
+                conv['full_content']
+            ))
+        
+        # Store insights
+        for insight in scraped_data['technical_insights']:
+            cursor.execute('''
+                INSERT INTO consolidated_insights 
+                (insight_type, content, source_conversation, relevance_score)
+                VALUES (?, ?, ?, ?)
+            ''', (
+                insight['category'],
+                f"{insight['keyword']} implementation",
+                insight['source'],
+                insight['relevance_score']
+            ))
+        
+        conn.commit()
+        conn.close()
+        
+        # Save consolidated file
+        with open('consolidated_chatgpt_data.json', 'w') as f:
+            json.dump(scraped_data, f, indent=2)
 
 def activate_qq_autonomous_development():
     """Activate QQ Autonomous Development Engine"""

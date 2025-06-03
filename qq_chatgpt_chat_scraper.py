@@ -70,68 +70,245 @@ class ChatGPTChatScraper:
         conn.commit()
         conn.close()
     
-    def scrape_chatgpt_conversations(self, days_back: int = 14) -> Dict[str, Any]:
+    def scrape_selected_conversations(self, conversation_urls: List[str] = None) -> Dict[str, Any]:
         """
-        Scrape ChatGPT conversations from the last specified days
-        Uses playwright to automate browser interaction
+        Selective ChatGPT conversation scraping with visual interface
+        User clicks on specific conversations to target for scraping
         """
-        logger.info(f"Starting ChatGPT conversation scraping for last {days_back} days...")
+        logger.info("Starting selective ChatGPT conversation scraping...")
         
         scraped_data = {
             'conversations': [],
             'total_messages': 0,
-            'traxovo_conversations': 0,
+            'selected_conversations': 0,
             'technical_insights': [],
-            'decisions_extracted': []
+            'decisions_extracted': [],
+            'user_selections': []
         }
         
         try:
             with sync_playwright() as p:
-                # Launch browser in headed mode for user authentication
-                browser = p.chromium.launch(headless=False, slow_mo=1000)
+                # Launch browser in headed mode with debugging tools
+                browser = p.chromium.launch(
+                    headless=False, 
+                    slow_mo=500,
+                    args=['--start-maximized', '--disable-web-security']
+                )
                 context = browser.new_context(
-                    viewport={'width': 1280, 'height': 720},
+                    viewport={'width': 1920, 'height': 1080},
                     user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
                 )
                 page = context.new_page()
                 
                 # Navigate to ChatGPT
-                logger.info("Navigating to ChatGPT...")
+                logger.info("Opening ChatGPT with visual selection interface...")
                 page.goto('https://chat.openai.com')
                 
-                # Wait for user to authenticate
-                logger.info("Waiting for user authentication...")
-                page.wait_for_selector('[data-testid="conversation-turn"]', timeout=60000)
+                # Wait for page load and authentication
+                page.wait_for_load_state('networkidle')
                 
-                # Get conversation history
-                conversations = self._extract_conversation_list(page)
+                # Inject selection interface
+                self._inject_conversation_selector(page)
                 
-                for conv in conversations:
-                    if self._is_within_timeframe(conv.get('date'), days_back):
-                        conversation_data = self._scrape_conversation_content(page, conv)
-                        if conversation_data:
-                            scraped_data['conversations'].append(conversation_data)
-                            scraped_data['total_messages'] += conversation_data['message_count']
-                            
-                            if self._is_traxovo_related(conversation_data['content']):
-                                scraped_data['traxovo_conversations'] += 1
-                                insights = self._extract_technical_insights(conversation_data)
-                                scraped_data['technical_insights'].extend(insights)
-                                
-                                decisions = self._extract_decisions(conversation_data)
-                                scraped_data['decisions_extracted'].extend(decisions)
+                # Wait for user to make selections
+                logger.info("Please select the conversations you want to scrape by clicking on them...")
+                logger.info("Click the 'SCRAPE SELECTED' button when ready")
+                
+                # Wait for user interaction
+                selected_conversations = self._wait_for_user_selections(page)
+                
+                # Scrape selected conversations
+                for conv_data in selected_conversations:
+                    conversation_content = self._scrape_conversation_content(page, conv_data)
+                    if conversation_content:
+                        scraped_data['conversations'].append(conversation_content)
+                        scraped_data['total_messages'] += conversation_content['message_count']
+                        scraped_data['selected_conversations'] += 1
+                        
+                        # Extract insights and decisions
+                        insights = self._extract_technical_insights(conversation_content)
+                        scraped_data['technical_insights'].extend(insights)
+                        
+                        decisions = self._extract_decisions(conversation_content)
+                        scraped_data['decisions_extracted'].extend(decisions)
                 
                 browser.close()
                 
         except Exception as e:
-            logger.error(f"Error during ChatGPT scraping: {e}")
-            # Fallback to manual data input prompt
-            return self._prompt_manual_data_input()
+            logger.error(f"Error during selective scraping: {e}")
+            return self._create_manual_selection_interface()
         
         # Store scraped data
         self._store_scraped_data(scraped_data)
         
         return scraped_data
+    
+    def _inject_conversation_selector(self, page):
+        """Inject visual conversation selection interface"""
+        selection_script = """
+        // Create selection interface overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'traxovo-selector';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            z-index: 10000;
+            padding: 20px;
+            overflow-y: auto;
+            font-family: monospace;
+        `;
+        
+        overlay.innerHTML = `
+            <h3>TRAXOVO Chat Selector</h3>
+            <p>Click conversations to select for scraping</p>
+            <div id="selected-count">Selected: 0</div>
+            <button id="scrape-btn" style="
+                background: #00ff00;
+                color: black;
+                padding: 10px;
+                border: none;
+                margin: 10px 0;
+                cursor: pointer;
+                width: 100%;
+                font-weight: bold;
+            ">SCRAPE SELECTED</button>
+            <div id="selected-list"></div>
+        `;
+        
+        document.body.appendChild(overlay);
+        
+        // Track selected conversations
+        window.selectedConversations = [];
+        
+        // Add click handlers to conversation elements
+        function addSelectionHandlers() {
+            const conversations = document.querySelectorAll('[data-testid*="conversation"], .conversation-item, nav a');
+            conversations.forEach((conv, index) => {
+                if (conv.href && conv.href.includes('/c/')) {
+                    conv.style.border = '2px solid transparent';
+                    conv.style.transition = 'border 0.3s';
+                    
+                    conv.addEventListener('click', (e) => {
+                        if (e.ctrlKey || e.metaKey) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            const isSelected = window.selectedConversations.some(c => c.url === conv.href);
+                            
+                            if (isSelected) {
+                                // Deselect
+                                window.selectedConversations = window.selectedConversations.filter(c => c.url !== conv.href);
+                                conv.style.border = '2px solid transparent';
+                            } else {
+                                // Select
+                                window.selectedConversations.push({
+                                    title: conv.textContent.trim(),
+                                    url: conv.href,
+                                    element: conv
+                                });
+                                conv.style.border = '2px solid #00ff00';
+                            }
+                            
+                            // Update counter
+                            document.getElementById('selected-count').textContent = `Selected: ${window.selectedConversations.length}`;
+                            
+                            // Update list
+                            const listDiv = document.getElementById('selected-list');
+                            listDiv.innerHTML = window.selectedConversations.map(c => 
+                                `<div style="margin: 5px 0; padding: 5px; background: rgba(0,255,0,0.2);">
+                                    ${c.title.substring(0, 30)}...
+                                </div>`
+                            ).join('');
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Initial setup
+        addSelectionHandlers();
+        
+        // Re-setup on DOM changes
+        const observer = new MutationObserver(addSelectionHandlers);
+        observer.observe(document.body, { childList: true, subtree: true });
+        
+        // Handle scrape button
+        document.getElementById('scrape-btn').addEventListener('click', () => {
+            window.scrapeReady = true;
+            window.scrapeData = window.selectedConversations;
+        });
+        
+        // Instructions
+        const instructions = document.createElement('div');
+        instructions.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+            padding: 20px;
+            border: 2px solid #00ff00;
+            z-index: 10001;
+            font-family: monospace;
+            text-align: center;
+        `;
+        instructions.innerHTML = `
+            <h3>TRAXOVO Selection Mode</h3>
+            <p>Hold Ctrl/Cmd and click conversations to select</p>
+            <p>Selected conversations will have green borders</p>
+            <p>Click SCRAPE SELECTED when ready</p>
+            <button onclick="this.parentElement.remove()" style="
+                background: #ff0000;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                margin-top: 10px;
+                cursor: pointer;
+            ">Got It</button>
+        `;
+        document.body.appendChild(instructions);
+        """
+        
+        page.evaluate(selection_script)
+    
+    def _wait_for_user_selections(self, page) -> List[Dict[str, Any]]:
+        """Wait for user to select conversations and click scrape button"""
+        logger.info("Waiting for user selections...")
+        
+        # Wait for scrape button click
+        while True:
+            try:
+                scrape_ready = page.evaluate('window.scrapeReady')
+                if scrape_ready:
+                    selected_data = page.evaluate('window.scrapeData')
+                    logger.info(f"User selected {len(selected_data)} conversations for scraping")
+                    return selected_data
+                time.sleep(1)
+            except:
+                time.sleep(1)
+                continue
+    
+    def _create_manual_selection_interface(self) -> Dict[str, Any]:
+        """Create manual selection interface if automated fails"""
+        return {
+            'manual_mode': True,
+            'instructions': [
+                'Automated selection failed - using manual mode',
+                'Please provide conversation URLs or titles manually',
+                'Copy and paste specific ChatGPT conversation URLs',
+                'Focus on TRAXOVO-related technical discussions'
+            ],
+            'conversation_input_format': {
+                'example': 'https://chat.openai.com/c/conversation-id',
+                'required_fields': ['url', 'title', 'relevance_to_traxovo']
+            }
+        }
     
     def _extract_conversation_list(self, page) -> List[Dict[str, Any]]:
         """Extract list of conversations from ChatGPT sidebar"""

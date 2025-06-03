@@ -14,6 +14,8 @@ from deployment_automation_engine import integrate_deployment_automation
 from floating_master_command import integrate_master_command
 from watson_email_intelligence import integrate_watson_email
 from asi_routing_engine import integrate_asi_routing
+from autonomous_deployment_engine import integrate_autonomous_engine
+from gauge_automation_engine import integrate_gauge_automation
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -441,6 +443,8 @@ integrate_deployment_automation(app)
 integrate_master_command(app)
 integrate_watson_email(app)
 integrate_asi_routing(app)
+integrate_autonomous_engine(app)
+integrate_gauge_automation(app)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

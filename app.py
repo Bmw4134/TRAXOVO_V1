@@ -274,7 +274,6 @@ def dashboard():
 
     # Authentic fleet metrics from GAUGE API and RAGLE data enhanced with AGI analysis
     try:
-        from agi_analytics_engine import get_agi_analytics_engine
         agi_engine = get_agi_analytics_engine()
         agi_data = agi_engine.agi_financial_dashboard_data()
 

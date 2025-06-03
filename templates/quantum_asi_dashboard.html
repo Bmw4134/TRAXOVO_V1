@@ -1422,25 +1422,8 @@
         }
 
         async function activateExcellenceMode() {
-            try {
-                const response = await fetch('/api/activate_excellence_mode', { method: 'POST' });
-                const result = await response.json();
-                
-                alert(`Excellence Mode Activated!\nASI Level: ${result.asi_level}\nPerformance Boost: ${result.performance_boost}`);
-                
-                // Refresh data
-                await loadASIData();
-            } catch (error) {
-                alert('Excellence Mode Activated! ASI operating at maximum capacity.');
-                // Simulate excellence boost
-                asiData.excellence_metrics = {
-                    quantum_coherence: 0.95,
-                    asi_advancement: 0.92,
-                    future_readiness: 0.88,
-                    breakthrough_potential: 0.96
-                };
-                updateDisplay();
-            }
+            // Redirect to static results page instead of popup
+            window.location.href = '/excellence_results?mode=activate';
         }
 
         async function generatePrediction() {

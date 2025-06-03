@@ -188,7 +188,7 @@ def quantum_dashboard():
     fort_worth_assets = get_fort_worth_assets()
     active_assets = [a for a in fort_worth_assets if a['status'] == 'Active']
     
-    return render_template('quantum_dashboard.html',
+    return render_template('quantum_dashboard_corporate.html',
         consciousness_metrics=consciousness_metrics,
         thought_vectors=thought_vectors,
         fort_worth_assets=active_assets,

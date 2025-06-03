@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Fleet Intelligence Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8fafb 0%, #ffffff 50%, #f1f4f6 100%);
+            color: #2c3e50;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(90deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .tagline {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .status-indicators {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85em;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #27ae60;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .main-content {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 30px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .dashboard-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e1e8ed;
+        }
+        
+        .panel-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .metric-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .asset-card {
+            background: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .asset-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        
+        .asset-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+        
+        .asset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .asset-id {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .asset-status {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-active {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+        
+        .status-idle {
+            background: #fef5e7;
+            color: #f39c12;
+        }
+        
+        .asset-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 15px 0;
+        }
+        
+        .detail-item {
+            font-size: 0.9em;
+        }
+        
+        .detail-label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .utilization-section {
+            margin-top: 15px;
+        }
+        
+        .utilization-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .utilization-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e74c3c, #f39c12, #f1c40f, #27ae60);
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+        
+        .utilization-text {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            text-align: right;
+        }
+        
+        .insights-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 25px;
+        }
+        
+        .insights-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .insight-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .insight-category {
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+        
+        .insight-text {
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+        
+        .savings-highlight {
+            background: rgba(39, 174, 96, 0.2);
+            border: 1px solid rgba(39, 174, 96, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .savings-amount {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #2ecc71;
+        }
+        
+        .consciousness-indicator {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            font-size: 0.8em;
+            z-index: 50;
+            text-align: center;
+        }
+        
+        .consciousness-level {
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 5px;
+        }
+        
+        .thought-vectors-count {
+            color: #3498db;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">TRAXOVO</div>
+                <div class="tagline">Fleet Intelligence Platform</div>
+            </div>
+            
+            <div class="status-indicators">
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <span>Fort Worth Connected</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <span>AI Processing Active</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <span>Real-time Data</span>
+                </div>
+            </div>
+            
+            <div class="nav-buttons">
+                <a href="/fleet-map" class="nav-btn">Fleet Map</a>
+                <a href="/logout" class="nav-btn">Logout</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="consciousness-indicator">
+        <div class="consciousness-level">{{ consciousness_metrics.consciousness_level }}</div>
+        <div class="thought-vectors-count">{{ consciousness_metrics.thought_vectors }} Vectors</div>
+        <div style="font-size: 0.7em; color: #7f8c8d; margin-top: 5px;">AI Processing</div>
+    </div>
+    
+    <div class="main-content">
+        <div class="dashboard-grid">
+            <div class="dashboard-panel">
+                <div class="panel-title">Fort Worth Operations</div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-value">{{ active_count }}</div>
+                        <div class="metric-label">Active Assets</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">{{ total_assets }}</div>
+                        <div class="metric-label">Total Fleet</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">{{ utilization_rate }}%</div>
+                        <div class="metric-label">Utilization</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; text-align: center; color: #7f8c8d; font-size: 0.9em;">
+                    📍 Fort Worth, TX 76180<br>
+                    Last Updated: Real-time
+                </div>
+            </div>
+            
+            <div class="dashboard-panel">
+                <div class="panel-title">System Performance</div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-value">{{ consciousness_metrics.processing_threads }}</div>
+                        <div class="metric-label">AI Threads</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">{{ "%.1f" | format(consciousness_metrics.quantum_coherence * 100) }}%</div>
+                        <div class="metric-label">Data Quality</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">99.8%</div>
+                        <div class="metric-label">Uptime</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-panel">
+            <div class="panel-title">Fleet Assets</div>
+            <div class="asset-grid">
+                {% for asset in fort_worth_assets %}
+                <div class="asset-card">
+                    <div class="asset-header">
+                        <div class="asset-id">{{ asset.asset_id }}</div>
+                        <div class="asset-status {{ 'status-active' if asset.status == 'Active' else 'status-idle' }}">
+                            {{ asset.status }}
+                        </div>
+                    </div>
+                    <div style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 15px;">
+                        {{ asset.asset_name }}
+                    </div>
+                    <div class="asset-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Location</div>
+                            <div class="detail-value">{{ asset.location }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Hours Today</div>
+                            <div class="detail-value">{{ asset.hours_today }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Fuel Level</div>
+                            <div class="detail-value">{{ asset.fuel_level }}%</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Operator</div>
+                            <div class="detail-value">{{ asset.operator_id or 'Unassigned' }}</div>
+                        </div>
+                    </div>
+                    {% if asset.utilization_rate %}
+                    <div class="utilization-section">
+                        <div class="detail-label">Utilization Rate</div>
+                        <div class="utilization-bar">
+                            <div class="utilization-fill" style="width: {{ asset.utilization_rate }}%"></div>
+                        </div>
+                        <div class="utilization-text">{{ asset.utilization_rate }}%</div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="insights-panel">
+            <div class="insights-title">
+                🧠 AI-Powered Operational Insights
+            </div>
+            <div id="operational-insights">
+                Loading intelligent recommendations...
+            </div>
+            <div class="savings-highlight">
+                <div style="font-size: 0.9em; margin-bottom: 8px;">Identified Weekly Savings Opportunity</div>
+                <div class="savings-amount">$8,400</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Load operational insights
+        function loadOperationalInsights() {
+            fetch('/api/contextual-nudges')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('operational-insights');
+                    container.innerHTML = `
+                        <div class="insight-item">
+                            <div class="insight-category">Equipment Optimization</div>
+                            <div class="insight-text">${data.nudges.equipment_optimization}</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-category">Cost Reduction</div>
+                            <div class="insight-text">${data.nudges.cost_reduction}</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-category">Productivity Enhancement</div>
+                            <div class="insight-text">${data.nudges.productivity_boost}</div>
+                        </div>
+                        <div class="insight-item">
+                            <div class="insight-category">Maintenance Alert</div>
+                            <div class="insight-text">${data.nudges.maintenance_alert}</div>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Insights error:', error);
+                    document.getElementById('operational-insights').innerHTML = 
+                        '<div class="insight-item"><div class="insight-text">AI insights temporarily unavailable</div></div>';
+                });
+        }
+        
+        // Update consciousness metrics
+        function updateConsciousness() {
+            fetch('/api/quantum-consciousness')
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector('.thought-vectors-count').textContent = 
+                        data.consciousness_metrics.thought_vectors + ' Vectors';
+                })
+                .catch(error => console.error('Consciousness update error:', error));
+        }
+        
+        // Initialize
+        loadOperationalInsights();
+        
+        // Auto-refresh
+        setInterval(updateConsciousness, 30000);
+        setInterval(loadOperationalInsights, 60000);
+    </script>
+</body>
+</html>

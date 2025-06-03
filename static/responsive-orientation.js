@@ -1,360 +1,179 @@
 /**
- * Real-time Responsive Orientation Handler
- * Handles portrait/landscape transitions with immediate scaling and layout corrections
+ * Responsive Orientation Handler for Quantum ASI Dashboard
+ * Handles dynamic scaling and layout optimization for portrait/landscape
  */
 
-class ResponsiveOrientationManager {
+class ResponsiveOrientationHandler {
     constructor() {
         this.currentOrientation = this.getOrientation();
-        this.isTransitioning = false;
+        this.resizeTimeout = null;
         this.init();
     }
 
     init() {
         // Listen for orientation changes
-        window.addEventListener('orientationchange', this.handleOrientationChange.bind(this));
-        window.addEventListener('resize', this.handleResize.bind(this));
-        
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => this.handleOrientationChange(), 100);
+        });
+
+        // Listen for resize events (covers desktop and mobile)
+        window.addEventListener('resize', () => {
+            clearTimeout(this.resizeTimeout);
+            this.resizeTimeout = setTimeout(() => this.handleResize(), 250);
+        });
+
         // Initial setup
-        this.applyOrientationStyles();
-        
-        // Force layout recalculation after initial load
-        setTimeout(() => {
-            this.forceLayoutRecalculation();
-        }, 100);
+        this.optimizeLayout();
+        this.setupViewportMeta();
     }
 
     getOrientation() {
-        if (screen.orientation) {
-            return screen.orientation.angle === 0 || screen.orientation.angle === 180 ? 'portrait' : 'landscape';
-        }
         return window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
     }
 
     handleOrientationChange() {
-        if (this.isTransitioning) return;
-        
-        this.isTransitioning = true;
-        
-        // Small delay to let browser handle the orientation change
-        setTimeout(() => {
-            const newOrientation = this.getOrientation();
-            
-            if (newOrientation !== this.currentOrientation) {
-                this.currentOrientation = newOrientation;
-                this.applyOrientationStyles();
-                this.adjustModuleLayouts();
-                this.recalculateDashboardElements();
-            }
-            
-            this.isTransitioning = false;
-        }, 150);
+        const newOrientation = this.getOrientation();
+        if (newOrientation !== this.currentOrientation) {
+            this.currentOrientation = newOrientation;
+            this.optimizeLayout();
+            this.triggerLayoutUpdate();
+        }
     }
 
     handleResize() {
-        if (!this.isTransitioning) {
-            this.adjustModuleLayouts();
-        }
+        this.optimizeLayout();
+        this.adjustGridSpacing();
     }
 
-    applyOrientationStyles() {
+    optimizeLayout() {
         const body = document.body;
+        const isPortrait = this.currentOrientation === 'portrait';
+        const isMobile = window.innerWidth <= 768;
+        const isLandscapeShort = this.currentOrientation === 'landscape' && window.innerHeight <= 600;
+
+        // Apply responsive classes
+        body.classList.toggle('orientation-portrait', isPortrait);
+        body.classList.toggle('orientation-landscape', !isPortrait);
+        body.classList.toggle('mobile-device', isMobile);
+        body.classList.toggle('landscape-short', isLandscapeShort);
+
+        // Optimize grid layout
+        this.optimizeGridLayout();
         
-        // Remove existing orientation classes
-        body.classList.remove('orientation-portrait', 'orientation-landscape');
+        // Adjust consciousness display
+        this.adjustConsciousnessDisplay();
         
-        // Add current orientation class
-        body.classList.add(`orientation-${this.currentOrientation}`);
-        
-        // Apply orientation-specific CSS
-        this.injectOrientationCSS();
+        // Optimize metrics display
+        this.optimizeMetricsDisplay();
     }
 
-    injectOrientationCSS() {
-        let existingStyle = document.getElementById('orientation-styles');
-        if (existingStyle) {
-            existingStyle.remove();
-        }
+    optimizeGridLayout() {
+        const mainGrid = document.querySelector('.main-grid');
+        if (!mainGrid) return;
 
-        const style = document.createElement('style');
-        style.id = 'orientation-styles';
-        
-        if (this.currentOrientation === 'landscape') {
-            style.textContent = `
-                /* Landscape Mode Optimizations */
-                .enterprise-sidebar {
-                    width: 240px !important;
-                    font-size: 0.9rem;
-                }
-                
-                .main-content {
-                    margin-left: 240px !important;
-                    padding: 15px !important;
-                }
-                
-                .dashboard-header {
-                    padding: 20px !important;
-                    margin-bottom: 20px !important;
-                }
-                
-                .dashboard-header h1 {
-                    font-size: 1.8rem !important;
-                }
-                
-                .metric-value {
-                    font-size: 2rem !important;
-                }
-                
-                .row {
-                    margin: 0 -8px !important;
-                }
-                
-                .col-md-3, .col-md-4, .col-md-6, .col-md-8, .col-md-12 {
-                    padding: 0 8px !important;
-                }
-                
-                .devops-card, .goal-card, .security-card, .inspection-card, .stat-card {
-                    padding: 15px !important;
-                    margin-bottom: 15px !important;
-                }
-                
-                .audit-panel, .system-panel, .progress-panel, .insight-panel {
-                    padding: 18px !important;
-                    margin-bottom: 15px !important;
-                }
-                
-                /* Master Command Overlay Landscape */
-                #masterCommandOverlay {
-                    width: 320px !important;
-                    max-height: 70vh !important;
-                }
-                
-                /* Navigation adjustments */
-                .nav-link {
-                    padding: 8px 15px !important;
-                    font-size: 0.85rem !important;
-                }
-                
-                .nav-section-title {
-                    font-size: 0.7rem !important;
-                    padding: 8px 15px 3px !important;
-                }
-            `;
+        const isMobile = window.innerWidth <= 768;
+        const isTablet = window.innerWidth > 768 && window.innerWidth <= 1024;
+        const isLandscapeShort = this.currentOrientation === 'landscape' && window.innerHeight <= 600;
+
+        if (isMobile) {
+            mainGrid.style.gridTemplateColumns = '1fr';
+            mainGrid.style.gap = '1rem';
+        } else if (isTablet) {
+            mainGrid.style.gridTemplateColumns = '1fr 1fr';
+            mainGrid.style.gap = '1.5rem';
+        } else if (isLandscapeShort) {
+            mainGrid.style.gridTemplateColumns = '1fr 2fr 1fr';
+            mainGrid.style.gap = '1rem';
         } else {
-            style.textContent = `
-                /* Portrait Mode Optimizations */
-                .enterprise-sidebar {
-                    width: 280px !important;
-                    font-size: 1rem;
-                }
-                
-                .main-content {
-                    margin-left: 280px !important;
-                    padding: 20px !important;
-                }
-                
-                .dashboard-header {
-                    padding: 30px !important;
-                    margin-bottom: 30px !important;
-                }
-                
-                .dashboard-header h1 {
-                    font-size: 2.2rem !important;
-                }
-                
-                .metric-value {
-                    font-size: 2.5rem !important;
-                }
-                
-                .row {
-                    margin: 0 -12px !important;
-                }
-                
-                .col-md-3, .col-md-4, .col-md-6, .col-md-8, .col-md-12 {
-                    padding: 0 12px !important;
-                }
-                
-                .devops-card, .goal-card, .security-card, .inspection-card, .stat-card {
-                    padding: 25px !important;
-                    margin-bottom: 20px !important;
-                }
-                
-                .audit-panel, .system-panel, .progress-panel, .insight-panel {
-                    padding: 25px !important;
-                    margin-bottom: 20px !important;
-                }
-                
-                /* Master Command Overlay Portrait */
-                #masterCommandOverlay {
-                    width: 380px !important;
-                    max-height: 80vh !important;
-                }
-                
-                /* Navigation normal */
-                .nav-link {
-                    padding: 12px 20px !important;
-                    font-size: 1rem !important;
-                }
-                
-                .nav-section-title {
-                    font-size: 0.75rem !important;
-                    padding: 10px 20px 5px !important;
-                }
-            `;
-        }
-        
-        document.head.appendChild(style);
-    }
-
-    adjustModuleLayouts() {
-        // Adjust card layouts based on orientation
-        this.adjustCardLayouts();
-        
-        // Adjust quantum dashboard elements
-        this.adjustQuantumDashboard();
-        
-        // Adjust master command overlay
-        this.adjustMasterCommand();
-        
-        // Adjust charts and visualizations
-        this.adjustVisualizations();
-    }
-
-    adjustCardLayouts() {
-        const cards = document.querySelectorAll('.devops-card, .goal-card, .security-card, .inspection-card, .stat-card');
-        
-        cards.forEach(card => {
-            if (this.currentOrientation === 'landscape') {
-                card.style.minHeight = '120px';
-                const metricValue = card.querySelector('.metric-value');
-                if (metricValue) {
-                    metricValue.style.fontSize = '1.8rem';
-                }
-            } else {
-                card.style.minHeight = '150px';
-                const metricValue = card.querySelector('.metric-value');
-                if (metricValue) {
-                    metricValue.style.fontSize = '2.5rem';
-                }
-            }
-        });
-    }
-
-    adjustQuantumDashboard() {
-        const quantumElements = document.querySelectorAll('.quantum-metric, .consciousness-display');
-        
-        quantumElements.forEach(element => {
-            if (this.currentOrientation === 'landscape') {
-                element.style.transform = 'scale(0.9)';
-                element.style.transformOrigin = 'center';
-            } else {
-                element.style.transform = 'scale(1)';
-            }
-        });
-    }
-
-    adjustMasterCommand() {
-        const masterCommand = document.getElementById('masterCommandOverlay');
-        if (masterCommand) {
-            if (this.currentOrientation === 'landscape') {
-                masterCommand.style.fontSize = '0.9rem';
-                masterCommand.classList.add('landscape-mode');
-            } else {
-                masterCommand.style.fontSize = '1rem';
-                masterCommand.classList.remove('landscape-mode');
-            }
+            mainGrid.style.gridTemplateColumns = '1fr 2fr 1fr';
+            mainGrid.style.gap = '2rem';
         }
     }
 
-    adjustVisualizations() {
-        // Force redraw of any charts or visualizations
-        const visualElements = document.querySelectorAll('canvas, svg, .chart-container');
-        
-        visualElements.forEach(element => {
-            // Trigger resize event for chart libraries
-            const resizeEvent = new Event('resize');
-            window.dispatchEvent(resizeEvent);
-        });
-    }
+    adjustConsciousnessDisplay() {
+        const consciousnessDisplay = document.querySelector('.consciousness-display');
+        if (!consciousnessDisplay) return;
 
-    recalculateDashboardElements() {
-        // Force browser to recalculate layout
-        this.forceLayoutRecalculation();
-        
-        // Update any dynamic positioning
-        this.updateDynamicPositioning();
-    }
+        const isMobile = window.innerWidth <= 768;
+        const isLandscapeShort = this.currentOrientation === 'landscape' && window.innerHeight <= 600;
 
-    forceLayoutRecalculation() {
-        const mainContent = document.querySelector('.main-content');
-        if (mainContent) {
-            const display = mainContent.style.display;
-            mainContent.style.display = 'none';
-            mainContent.offsetHeight; // Force reflow
-            mainContent.style.display = display;
+        if (isMobile) {
+            consciousnessDisplay.style.height = '250px';
+        } else if (isLandscapeShort) {
+            consciousnessDisplay.style.height = '200px';
+        } else {
+            consciousnessDisplay.style.height = '400px';
         }
     }
 
-    updateDynamicPositioning() {
-        // Update any absolutely positioned elements
-        const floatingElements = document.querySelectorAll('.floating-element, .overlay');
-        
-        floatingElements.forEach(element => {
-            const rect = element.getBoundingClientRect();
-            if (rect.right > window.innerWidth || rect.bottom > window.innerHeight) {
-                element.style.position = 'fixed';
-                element.style.right = '20px';
-                element.style.top = '20px';
-            }
-        });
+    optimizeMetricsDisplay() {
+        const excellenceMetrics = document.querySelector('.excellence-metrics');
+        if (!excellenceMetrics) return;
+
+        const isMobile = window.innerWidth <= 768;
+        const isLandscapeShort = this.currentOrientation === 'landscape' && window.innerHeight <= 600;
+
+        if (isMobile) {
+            excellenceMetrics.style.gridTemplateColumns = '1fr';
+        } else if (isLandscapeShort) {
+            excellenceMetrics.style.gridTemplateColumns = '1fr 1fr 1fr 1fr';
+        } else {
+            excellenceMetrics.style.gridTemplateColumns = '1fr 1fr';
+        }
     }
 
-    // Public method to manually trigger orientation adjustment
-    refreshLayout() {
-        this.applyOrientationStyles();
-        this.adjustModuleLayouts();
-        this.recalculateDashboardElements();
+    adjustGridSpacing() {
+        const decisionMatrix = document.querySelector('.decision-matrix');
+        if (!decisionMatrix) return;
+
+        const isMobile = window.innerWidth <= 768;
+        const isLandscapeShort = this.currentOrientation === 'landscape' && window.innerHeight <= 600;
+
+        if (isMobile) {
+            decisionMatrix.style.gridTemplateColumns = 'repeat(3, 1fr)';
+            decisionMatrix.style.gap = '0.5rem';
+        } else if (isLandscapeShort) {
+            decisionMatrix.style.gridTemplateColumns = 'repeat(6, 1fr)';
+            decisionMatrix.style.gap = '0.3rem';
+        } else {
+            decisionMatrix.style.gridTemplateColumns = 'repeat(4, 1fr)';
+            decisionMatrix.style.gap = '1rem';
+        }
+    }
+
+    triggerLayoutUpdate() {
+        // Trigger any chart or visualization updates
+        const event = new CustomEvent('orientationChanged', {
+            detail: {
+                orientation: this.currentOrientation,
+                width: window.innerWidth,
+                height: window.innerHeight
+            }
+        });
+        window.dispatchEvent(event);
+    }
+
+    setupViewportMeta() {
+        // Ensure proper viewport meta tag
+        let viewport = document.querySelector('meta[name="viewport"]');
+        if (!viewport) {
+            viewport = document.createElement('meta');
+            viewport.name = 'viewport';
+            document.head.appendChild(viewport);
+        }
+        viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+    }
+
+    // Public method to manually trigger layout optimization
+    refresh() {
+        this.optimizeLayout();
     }
 }
 
-// Initialize responsive orientation manager
-document.addEventListener('DOMContentLoaded', function() {
-    window.responsiveManager = new ResponsiveOrientationManager();
-    
-    // Add CSS for smooth transitions
-    const transitionStyle = document.createElement('style');
-    transitionStyle.textContent = `
-        .enterprise-sidebar,
-        .main-content,
-        .dashboard-header,
-        .devops-card,
-        .goal-card,
-        .security-card,
-        .inspection-card,
-        .stat-card,
-        .audit-panel,
-        .system-panel,
-        .progress-panel,
-        .insight-panel {
-            transition: all 0.3s ease-in-out !important;
-        }
-        
-        .orientation-landscape .enterprise-sidebar {
-            transform: translateX(0);
-        }
-        
-        .orientation-portrait .enterprise-sidebar {
-            transform: translateX(0);
-        }
-        
-        /* Prevent flash during orientation change */
-        body.orientation-transitioning * {
-            transition: none !important;
-        }
-    `;
-    
-    document.head.appendChild(transitionStyle);
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    window.responsiveHandler = new ResponsiveOrientationHandler();
 });
 
 // Export for global access
-window.ResponsiveOrientationManager = ResponsiveOrientationManager;
+window.ResponsiveOrientationHandler = ResponsiveOrientationHandler;

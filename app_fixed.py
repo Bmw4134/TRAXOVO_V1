@@ -989,6 +989,14 @@ integrate_quantum_search(app)
 from watson_analytics_module import integrate_watson_analytics
 watson_analytics_engine = integrate_watson_analytics(app)
 
+# Integrate Watson personal automation
+from watson_personal_automation import integrate_watson_automation
+watson_automation_manager = integrate_watson_automation(app)
+
+# Integrate quantum dynamic drill-down system
+from quantum_dynamic_drill_down import integrate_quantum_drill_down
+quantum_drill_engine = integrate_quantum_drill_down(app)
+
 # Integrate quantum color palette routes
 from quantum_color_palette_selector import integrate_quantum_palette_routes
 integrate_quantum_palette_routes(app)

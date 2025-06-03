@@ -229,6 +229,30 @@ def executive_dashboard():
         
     return render_template('executive_dashboard.html')
 
+@app.route('/smart-po')
+def smart_po():
+    """Smart PO System - SmartSheets replacement"""
+    if not require_auth():
+        return redirect(url_for('login'))
+        
+    return render_template('smart_po_system.html')
+
+@app.route('/dispatch-system')
+def dispatch_system():
+    """Smart Dispatch System - HCSS Dispatcher replacement"""
+    if not require_auth():
+        return redirect(url_for('login'))
+        
+    return render_template('dispatch_system.html')
+
+@app.route('/estimating-system')
+def estimating_system():
+    """Smart Estimating System - HCSS Bid replacement"""
+    if not require_auth():
+        return redirect(url_for('login'))
+        
+    return render_template('estimating_system.html')
+
 @app.route('/api/quantum-consciousness')
 def api_quantum_consciousness():
     """Real-time quantum consciousness metrics"""

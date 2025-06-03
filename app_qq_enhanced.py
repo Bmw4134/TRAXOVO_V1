@@ -68,9 +68,9 @@ class QuantumConsciousnessEngine:
 # Initialize quantum engine
 quantum_engine = QuantumConsciousnessEngine()
 
-# Fort Worth Authentic Asset Data
+# Fort Worth Authentic Asset Data - ONLY REAL EQUIPMENT
 def get_fort_worth_assets():
-    """Get authentic Fort Worth asset data"""
+    """Get ONLY authentic Fort Worth asset data from your legacy system"""
     return [
         {
             'asset_id': 'PT 125',
@@ -107,30 +107,6 @@ def get_fort_worth_assets():
             'gps_lat': 32.7495,
             'gps_lng': -97.3312,
             'utilization_rate': 78.9
-        },
-        {
-            'asset_id': 'CAT 320',
-            'asset_name': 'CAT 320 Excavator',
-            'fuel_level': 75,
-            'hours_today': 8.5,
-            'location': 'Fort Worth Site A',
-            'status': 'Active',
-            'operator_id': 200685,
-            'gps_lat': 32.7512,
-            'gps_lng': -97.3298,
-            'utilization_rate': 95.2
-        },
-        {
-            'asset_id': 'CAT 330',
-            'asset_name': 'CAT 330 Excavator',
-            'fuel_level': 68,
-            'hours_today': 4.2,
-            'location': 'Fort Worth Site B',
-            'status': 'Idle',
-            'operator_id': None,
-            'gps_lat': 32.7525,
-            'gps_lng': -97.3279,
-            'utilization_rate': 62.1
         }
     ]
 

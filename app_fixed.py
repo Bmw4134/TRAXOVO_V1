@@ -505,6 +505,11 @@ def puppeteer_control_center():
     """Puppeteer Control Center - Easy Access Automation Hub"""
     return render_template('puppeteer_control_center.html')
 
+@app.route('/system_demonstration')
+def system_demonstration():
+    """Complete System Demonstration - Quantum ASI→AGI→AI Proof Dashboard"""
+    return render_template('system_demonstration.html')
+
 @app.route('/admin_access')
 def admin_access():
     """Direct admin access - bypasses login for development"""

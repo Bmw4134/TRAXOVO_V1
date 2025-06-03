@@ -557,6 +557,11 @@ def api_puppeteer_analyze():
         logging.error(f"Puppeteer analysis error: {e}")
         return jsonify({'error': 'Analysis unavailable'}), 500
 
+@app.route('/dashboard-customizer')
+def dashboard_customizer():
+    """Personalized dashboard customization center - React SPA"""
+    return render_template('react_spa.html')
+
 # Equipment Management Module Routes
 @app.route('/equipment-lifecycle')
 def equipment_lifecycle_dashboard():

@@ -292,7 +292,7 @@ class QQAutomationInterface:
             conn.close()
             
             # Actually implement the automation
-            implementation_result = self._execute_automation_implementation(automation, request_id)
+            implementation_result = self._execute_automation_implementation(automation, request_id or 0)
             
             # Update status
             conn = sqlite3.connect(self.automation_db)
@@ -494,6 +494,58 @@ def create_automation_interface_template():
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+        }
+        
+        .sandbox-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .sandbox-switch {
+            position: relative;
+            width: 40px;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .sandbox-switch.active {
+            background: #ff9500;
+        }
+        
+        .sandbox-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .sandbox-switch.active::after {
+            transform: translateX(20px);
+        }
+        
+        .sandbox-label {
+            font-size: 12px;
+            color: #ff9500;
+        }
+        
+        .sandbox-mode {
+            background: rgba(255, 149, 0, 0.1);
+            border: 1px solid #ff9500;
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 10px;
+            font-size: 11px;
+            color: #ff9500;
         }
         
         .automation-title {

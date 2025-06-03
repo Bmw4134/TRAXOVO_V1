@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRAXOVO Enhanced Fleet Map</title>
+    <title>TRAXOVO QQ Bleeding-Edge Asset Tracking</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
@@ -304,15 +304,17 @@
         <div class="map-header">
             <div class="header-content">
                 <div class="logo-section">
-                    <div class="logo">TRAXOVO</div>
+                    <div class="logo">TRAXOVO QQ</div>
                     <div class="location-info">
                         📍 Fort Worth, TX Fleet Operations<br>
-                        <span style="font-size: 12px; color: #bdc3c7;">Real-time Asset Tracking</span>
+                        <span style="font-size: 12px; color: #bdc3c7;">QQ Bleeding-Edge Asset Intelligence</span>
                     </div>
                 </div>
                 <div class="map-controls">
                     <button class="control-btn" onclick="centerOnFleet()">Center Fleet</button>
-                    <button class="control-btn" onclick="toggleTracking()">Live Track</button>
+                    <button class="control-btn" onclick="toggleTracking()">QQ Live Track</button>
+                    <button class="control-btn" onclick="togglePredictiveMode()">AI Predict</button>
+                    <button class="control-btn" onclick="showHeatmap()">Heat Map</button>
                     <button class="control-btn" onclick="showAllAssets()">Show All</button>
                     <button class="control-btn" onclick="window.location.href='/quantum-dashboard'">Dashboard</button>
                 </div>
@@ -374,6 +376,9 @@
 
         let assetsData = [];
         let liveTracking = false;
+        let predictiveMode = false;
+        let heatmapLayer = null;
+        let predictionMarkers = [];
 
         // Custom icon function
         function createAssetIcon(status, type) {

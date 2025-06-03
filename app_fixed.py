@@ -12,6 +12,8 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for, s
 from high_value_api_integrations import integrate_high_value_apis
 from deployment_automation_engine import integrate_deployment_automation
 from floating_master_command import integrate_master_command
+from watson_email_intelligence import integrate_watson_email
+from asi_routing_engine import integrate_asi_routing
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -418,6 +420,16 @@ def master_overlay():
     """Serve floating master command overlay"""
     return render_template('floating_master_overlay.html')
 
+@app.route('/agi_analytics_dashboard')
+def agi_analytics_dashboard():
+    """AGI Analytics Engine Dashboard"""
+    return render_template('agi_analytics_dashboard.html')
+
+@app.route('/board_security_audit')
+def board_security_audit():
+    """Board Security Audit Dashboard"""
+    return render_template('board_security_audit.html')
+
 @app.route('/admin_access')
 def admin_access():
     """Direct admin access - bypasses login for development"""
@@ -427,6 +439,8 @@ def admin_access():
 integrate_high_value_apis(app)
 integrate_deployment_automation(app)
 integrate_master_command(app)
+integrate_watson_email(app)
+integrate_asi_routing(app)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

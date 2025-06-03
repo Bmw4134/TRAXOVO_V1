@@ -19,6 +19,7 @@ from gauge_automation_engine import integrate_gauge_automation
 from quantum_search_engine import integrate_quantum_search
 from qqasiagiai_core_architecture import get_qqasiagiai_core
 from quantum_pdf_export_engine import get_pdf_exporter
+from gamified_learning_overlay import gamified_learning
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix

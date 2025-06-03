@@ -147,7 +147,7 @@ const QuantumDashboard = () => {
             stats={[
               { value: '614', label: 'Active' },
               { value: '87%', label: 'Utilization' },
-              { value: '$946K', label: 'YTD Value' }
+              { value: '$2.0M', label: 'YTD Value' }
             ]}
           />
 
@@ -158,7 +158,7 @@ const QuantumDashboard = () => {
             link="/executive-dashboard"
             badge="Real-time"
             stats={[
-              { value: '$946K', label: 'YTD Revenue' },
+              { value: '$2.0M', label: 'YTD Revenue' },
               { value: '87.5%', label: 'Efficiency' },
               { value: '$103K', label: 'AI Savings' }
             ]}

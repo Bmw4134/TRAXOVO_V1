@@ -59,8 +59,61 @@ def qq_executive_dashboard():
 
 @app.route('/quantum_asi_dashboard')
 def quantum_asi_dashboard():
-    """Quantum ASI Dashboard"""
+    """Quantum ASI Dashboard with Contextual Productivity Nudges"""
     return render_template('quantum_asi_dashboard.html')
+
+@app.route('/api/contextual-nudges')
+def api_contextual_nudges():
+    """API endpoint for contextual productivity nudges"""
+    try:
+        from contextual_productivity_nudges import get_active_nudges, get_productivity_metrics
+        
+        nudges = get_active_nudges(limit=5)
+        metrics = get_productivity_metrics()
+        
+        return jsonify({
+            'status': 'success',
+            'nudges': nudges,
+            'metrics': metrics,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/execute-nudge-action', methods=['POST'])
+def api_execute_nudge_action():
+    """API endpoint to execute nudge actions"""
+    try:
+        from contextual_productivity_nudges import execute_nudge_action
+        
+        data = request.get_json()
+        nudge_id = data.get('nudge_id')
+        action_type = data.get('action_type')
+        
+        if not nudge_id or not action_type:
+            return jsonify({'status': 'error', 'message': 'Missing nudge_id or action_type'}), 400
+        
+        result = execute_nudge_action(nudge_id, action_type)
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/execute-kaizen-sweep', methods=['POST'])
+def api_execute_kaizen_sweep():
+    """API endpoint to execute Kaizen Quantum Sweep"""
+    try:
+        from qq_kaizen_quantum_asi_sweep import execute_kaizen_quantum_sweep
+        
+        result = execute_kaizen_quantum_sweep()
+        return jsonify({
+            'status': 'success',
+            'sweep_results': result,
+            'message': 'Kaizen Quantum Sweep completed successfully'
+        })
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/automated_reports')
 def automated_reports():

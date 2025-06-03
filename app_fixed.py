@@ -21,6 +21,7 @@ from qqasiagiai_core_architecture import get_qqasiagiai_core
 from quantum_pdf_export_engine import get_pdf_exporter
 from gamified_learning_overlay import gamified_learning
 from quantum_ui_overlay_fix import quantum_ui_fix
+from quantum_future_widgets import quantum_future
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -907,6 +908,9 @@ app.register_blueprint(codebase_intelligence, url_prefix='/codebase')
 
 # Register quantum UI overlay fix system
 app.register_blueprint(quantum_ui_fix, url_prefix='/ui-fix')
+
+# Register quantum future widgets system
+app.register_blueprint(quantum_future, url_prefix='/future')
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

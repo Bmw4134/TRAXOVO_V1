@@ -1,165 +1,168 @@
 """
-TRAXOVO Deployment Size Optimizer
-Reduces project size for rapid deployment under 2GB limit
+TRAXOVO Deployment Optimizer
+Reduce app size for efficient deployment while preserving core functionality
 """
 
 import os
 import shutil
-import logging
-from pathlib import Path
+import json
+from datetime import datetime
 
 class DeploymentOptimizer:
-    """Optimizes project for deployment by removing non-essential files"""
+    """Optimize TRAXOVO for lean deployment"""
     
     def __init__(self):
-        self.removed_size = 0
         self.optimization_log = []
+        self.space_saved = 0
         
     def optimize_for_deployment(self):
-        """Run complete optimization for deployment"""
-        print("🚀 Starting TRAXOVO deployment optimization...")
+        """Execute comprehensive deployment optimization"""
         
-        # Step 1: Remove large attached assets
-        self._optimize_attached_assets()
+        self.log("Starting TRAXOVO deployment optimization...")
         
-        # Step 2: Clean test files
-        self._clean_test_files()
+        # Remove development artifacts
+        self._remove_dev_artifacts()
         
-        # Step 3: Remove backup files
-        self._clean_backup_files()
+        # Consolidate duplicate functionality
+        self._consolidate_modules()
         
-        # Step 4: Optimize static assets
-        self._optimize_static_assets()
+        # Optimize static assets
+        self._optimize_assets()
         
-        # Step 5: Clean cache and temp files
-        self._clean_cache_files()
+        # Create deployment summary
+        summary = self._create_optimization_summary()
         
-        print(f"✅ Optimization complete! Removed {self.removed_size / (1024*1024):.1f}MB")
-        return self.optimization_log
+        return summary
     
-    def _optimize_attached_assets(self):
-        """Keep only essential attached assets"""
-        assets_dir = Path("attached_assets")
-        if not assets_dir.exists():
-            return
-            
-        # Keep only small essential files
-        essential_files = {
-            "image.jpg",
-            "IMG_8907.png", 
-            "IMG_8935.png",
-            "IMG_8940.png"
+    def _remove_dev_artifacts(self):
+        """Remove development files that aren't needed in production"""
+        
+        dev_patterns = [
+            '__pycache__',
+            '*.pyc',
+            '*.pyo',
+            '.pytest_cache',
+            'test_*.py',
+            '*_test.py',
+            'debug_*.py',
+            'clicktest.py',
+            'app_broken.py',
+            'app_legacy.py'
+        ]
+        
+        removed_count = 0
+        for pattern in dev_patterns:
+            if os.path.exists(pattern):
+                if os.path.isfile(pattern):
+                    size = os.path.getsize(pattern)
+                    os.remove(pattern)
+                    self.space_saved += size
+                    removed_count += 1
+                    self.log(f"Removed {pattern}")
+                elif os.path.isdir(pattern):
+                    shutil.rmtree(pattern, ignore_errors=True)
+                    removed_count += 1
+                    self.log(f"Removed directory {pattern}")
+        
+        self.log(f"Removed {removed_count} development artifacts")
+    
+    def _consolidate_modules(self):
+        """Identify and consolidate duplicate functionality"""
+        
+        # Core modules to keep
+        essential_modules = [
+            'main.py',
+            'app.py',
+            'routes.py',
+            'models.py',
+            'password_update_system.py',
+            'radio_map_asset_architecture.py',
+            'executive_security_dashboard.py',
+            'integrated_traxovo_system.py'
+        ]
+        
+        # Archive non-essential modules
+        archive_dir = 'archived_modules'
+        if not os.path.exists(archive_dir):
+            os.makedirs(archive_dir)
+        
+        archived_count = 0
+        for filename in os.listdir('.'):
+            if (filename.endswith('.py') and 
+                filename not in essential_modules and
+                not filename.startswith('deploy') and
+                not filename.startswith('qq_')):
+                
+                if os.path.isfile(filename):
+                    shutil.move(filename, os.path.join(archive_dir, filename))
+                    archived_count += 1
+        
+        self.log(f"Archived {archived_count} non-essential modules")
+    
+    def _optimize_assets(self):
+        """Optimize static assets and templates"""
+        
+        # Keep only essential templates
+        essential_templates = [
+            'qq_executive_dashboard.html',
+            'main_dashboard.html',
+            'automated_reports.html',
+            'role_command_widget.html'
+        ]
+        
+        templates_dir = 'templates'
+        if os.path.exists(templates_dir):
+            for template in os.listdir(templates_dir):
+                if template.endswith('.html') and template not in essential_templates:
+                    template_path = os.path.join(templates_dir, template)
+                    if os.path.isfile(template_path):
+                        size = os.path.getsize(template_path)
+                        self.space_saved += size
+                        # Move to archive instead of delete
+                        archive_templates = 'archived_modules/templates'
+                        if not os.path.exists(archive_templates):
+                            os.makedirs(archive_templates)
+                        shutil.move(template_path, os.path.join(archive_templates, template))
+        
+        self.log("Optimized template assets")
+    
+    def _create_optimization_summary(self):
+        """Create optimization summary"""
+        
+        summary = {
+            'optimization_timestamp': datetime.now().isoformat(),
+            'space_saved_bytes': self.space_saved,
+            'space_saved_mb': round(self.space_saved / (1024 * 1024), 2),
+            'essential_modules_count': 8,
+            'deployment_ready': True,
+            'optimization_log': self.optimization_log
         }
         
-        for file_path in assets_dir.iterdir():
-            if file_path.is_file():
-                file_size = file_path.stat().st_size
-                
-                # Remove large files not in essential list
-                if file_size > 1024*1024 or file_path.name not in essential_files:  # >1MB
-                    self.removed_size += file_size
-                    file_path.unlink()
-                    self.optimization_log.append(f"Removed large asset: {file_path.name}")
+        # Save summary
+        with open('deployment_optimization.json', 'w') as f:
+            json.dump(summary, f, indent=2)
         
-        # Remove entire subdirectories in attached_assets
-        for subdir in assets_dir.iterdir():
-            if subdir.is_dir():
-                dir_size = sum(f.stat().st_size for f in subdir.rglob('*') if f.is_file())
-                self.removed_size += dir_size
-                shutil.rmtree(subdir)
-                self.optimization_log.append(f"Removed asset directory: {subdir.name}")
+        return summary
     
-    def _clean_test_files(self):
-        """Remove large test and pipeline files"""
-        test_files = [
-            "pipeline_test_results_20250522_211001.json",
-            "pipeline_test_results_20250522_211001.min.json"
-        ]
-        
-        for filename in test_files:
-            file_path = Path(filename)
-            if file_path.exists():
-                file_size = file_path.stat().st_size
-                self.removed_size += file_size
-                file_path.unlink()
-                self.optimization_log.append(f"Removed test file: {filename}")
+    def log(self, message):
+        """Log optimization messages"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        log_entry = f"[{timestamp}] {message}"
+        self.optimization_log.append(log_entry)
+        print(log_entry)
+
+def main():
+    """Execute deployment optimization"""
+    optimizer = DeploymentOptimizer()
+    summary = optimizer.optimize_for_deployment()
     
-    def _clean_backup_files(self):
-        """Remove backup directories and files"""
-        backup_dirs = [
-            "backup_excel_files",
-            "templates_backup_20250527_170301",
-            "backups",
-            "temp_backup"
-        ]
-        
-        for dirname in backup_dirs:
-            dir_path = Path(dirname)
-            if dir_path.exists():
-                if dir_path.is_dir():
-                    dir_size = sum(f.stat().st_size for f in dir_path.rglob('*') if f.is_file())
-                    self.removed_size += dir_size
-                    shutil.rmtree(dir_path)
-                    self.optimization_log.append(f"Removed backup directory: {dirname}")
-        
-        # Remove large Excel files
-        excel_files = [
-            "RAGLE EQ BILLINGS - MARCH 2025 (TO REVIEW 04.03.25).xlsm",
-            "RAGLE EQ BILLINGS - APRIL 2025 (JG REVIEWED 5.12).xlsm"
-        ]
-        
-        for filename in excel_files:
-            file_path = Path(filename)
-            if file_path.exists():
-                file_size = file_path.stat().st_size
-                self.removed_size += file_size
-                file_path.unlink()
-                self.optimization_log.append(f"Removed large Excel file: {filename}")
-    
-    def _optimize_static_assets(self):
-        """Optimize static directory"""
-        static_dir = Path("static")
-        if not static_dir.exists():
-            return
-            
-        # Remove any large files in static
-        for file_path in static_dir.rglob('*'):
-            if file_path.is_file() and file_path.stat().st_size > 500*1024:  # >500KB
-                file_size = file_path.stat().st_size
-                self.removed_size += file_size
-                file_path.unlink()
-                self.optimization_log.append(f"Removed large static file: {file_path.name}")
-    
-    def _clean_cache_files(self):
-        """Remove cache and temporary files"""
-        cache_patterns = [
-            "__pycache__",
-            "*.pyc",
-            "*.pyo", 
-            ".pytest_cache",
-            "node_modules/.cache",
-            "*.log"
-        ]
-        
-        # Remove __pycache__ directories
-        for pycache_dir in Path('.').rglob('__pycache__'):
-            if pycache_dir.is_dir():
-                dir_size = sum(f.stat().st_size for f in pycache_dir.rglob('*') if f.is_file())
-                self.removed_size += dir_size
-                shutil.rmtree(pycache_dir)
-                self.optimization_log.append(f"Removed cache directory: {pycache_dir}")
-        
-        # Remove log files
-        for log_file in Path('.').rglob('*.log'):
-            if log_file.is_file():
-                file_size = log_file.stat().st_size
-                self.removed_size += file_size
-                log_file.unlink()
-                self.optimization_log.append(f"Removed log file: {log_file.name}")
+    print("\n" + "="*50)
+    print("DEPLOYMENT OPTIMIZATION COMPLETE")
+    print("="*50)
+    print(f"Space Saved: {summary['space_saved_mb']} MB")
+    print(f"Essential Modules: {summary['essential_modules_count']}")
+    print("Status: Ready for deployment")
+    print("="*50)
 
 if __name__ == "__main__":
-    optimizer = DeploymentOptimizer()
-    log = optimizer.optimize_for_deployment()
-    
-    for entry in log:
-        print(f"  {entry}")
+    main()

@@ -74,7 +74,7 @@ class RadioMapAssetEngine:
         
         return {
             'interactive_map': {
-                'center_coordinates': {'lat': 30.2672, 'lng': -97.7431},  # Austin, TX
+                'center_coordinates': {'lat': 32.7508, 'lng': -97.3307},  # Fort Worth, TX 76180
                 'zoom_level': 11,
                 'theme': 'dark_professional'
             },

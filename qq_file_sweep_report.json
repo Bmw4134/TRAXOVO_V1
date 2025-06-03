@@ -1,0 +1,112 @@
+{
+  "analysis_timestamp": "2025-06-03T09:15:57.755324",
+  "total_python_files": 41,
+  "core_files": 24,
+  "safe_to_remove": 13,
+  "redundant_files": 0,
+  "dependency_chains": 10,
+  "file_details": {
+    "core_files": [
+      "main.py",
+      "qq_enhanced_billing_processor.py",
+      "asi_agi_ai_ml_quantum_cost_module.py",
+      "qq_sprint_missing_endpoints.py",
+      "app.py",
+      "asi_excellence_module.py",
+      "qq_enhanced_attendance_matrix.py",
+      "qq_daily_task_assistant.py",
+      "qq_enhanced_deployment_optimizer.py",
+      "qq_hyper_quantum_debug_suite.py",
+      "qq_autonomous_qa_qc_auditing_suite.py",
+      "routes.py",
+      "quantum_data_integration.py",
+      "qq_deployment_orchestrator.py",
+      "models.py",
+      "qq_intelligent_file_sweep.py",
+      "qq_sms_integration.py",
+      "executive_security_dashboard.py",
+      "quantum_workflow_automation_pipeline.py",
+      "qq_excellence_vector_deployment_module.py",
+      "qq_realtime_console_monitor.py",
+      "radio_map_asset_architecture.py",
+      "qq_codebase_intelligence_engine.py",
+      "quantum_asi_excellence.py"
+    ],
+    "safe_to_remove": [
+      "deployment_size_optimizer.py",
+      "deployment_audit_system.py",
+      "deployment_ready_reports.py",
+      "deploy_traxovo.py",
+      "simple_deployment_optimizer.py",
+      "deployment_readiness_check.py",
+      "qqasiagiai_core_architecture.py",
+      "deployment_test_users.py",
+      "deployment_optimizer.py",
+      "deploy.py",
+      "gauge_api.py",
+      "deployment_monitor.py",
+      "deployment_automation_engine.py"
+    ],
+    "redundant_files": [],
+    "dependency_graph": {
+      "models.py": [
+        "app.py"
+      ],
+      "routes.py": [
+        "password_update_system.py",
+        "integrated_traxovo_system.py",
+        "radio_map_asset_architecture.py",
+        "app.py",
+        "executive_security_dashboard.py"
+      ],
+      "password_update_system.py": [
+        "app.py"
+      ],
+      "integrated_traxovo_system.py": [
+        "radio_map_asset_architecture.py",
+        "executive_security_dashboard.py"
+      ],
+      "app_clean.py": [
+        "routes_clean.py",
+        "models.py"
+      ],
+      "routes_clean.py": [
+        "password_update_system.py",
+        "app_clean.py",
+        "radio_map_asset_architecture.py",
+        "executive_security_dashboard.py",
+        "quantum_asi_excellence.py"
+      ],
+      "deployment_audit_system.py": [
+        "main.py"
+      ],
+      "deploy_traxovo.py": [
+        "main.py",
+        "password_update_system.py",
+        "radio_map_asset_architecture.py",
+        "routes.py"
+      ],
+      "qq_enhanced_attendance_matrix.py": [
+        "qq_enhanced_billing_processor.py"
+      ],
+      "main.py": [
+        "app.py"
+      ]
+    },
+    "usage_stats": {
+      "app.py": 4,
+      "password_update_system.py": 3,
+      "radio_map_asset_architecture.py": 5,
+      "integrated_traxovo_system.py": 1,
+      "executive_security_dashboard.py": 3,
+      "routes_clean.py": 1,
+      "models.py": 1,
+      "app_clean.py": 1,
+      "quantum_asi_excellence.py": 2,
+      "main.py": 3,
+      "routes.py": 1,
+      "qq_enhanced_billing_processor.py": 1,
+      "templates/qq_executive_dashboard.html": 5
+    }
+  }
+}

@@ -9,7 +9,6 @@ deploymentTarget = "cloudrun"
 run = ["sh", "-c", "python app.py"]
 
 [workflows]
-runButton = "Start TRAXOVO Fixed"
 
 [[workflows.workflow]]
 name = "Project"

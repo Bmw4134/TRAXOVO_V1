@@ -42,13 +42,14 @@
 
         .quantum-logo {
             font-size: 2rem;
-            font-weight: 900;
+            font-weight: 800;
             background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
             background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             animation: quantum-glow 3s ease-in-out infinite;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
         }
 
         .asi-status {
@@ -240,13 +241,18 @@
         }
 
         .breakthrough-button {
-            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff0080);
+            background-size: 300% 300%;
+            animation: gradient-shift 3s ease infinite;
             border: none;
             color: white;
-            padding: 1rem 2rem;
-            border-radius: 25px;
-            font-size: 1.1rem;
-            font-weight: 700;
+            padding: 1.2rem 2.5rem;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.5), 0 0 60px rgba(0, 255, 255, 0.3);
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
@@ -385,6 +391,21 @@
     </header>
 
     <div class="main-grid">
+        <!-- Color Palette Selector -->
+        <div class="quantum-card" style="grid-column: span 2;">
+            <div class="card-title">Quantum UI Palette Selector</div>
+            <div class="palette-selector-container">
+                <div class="palette-grid" id="palette-grid">
+                    <!-- Palette options will be loaded here -->
+                </div>
+                <div class="intensity-controls">
+                    <label for="intensity-slider">Visual Intensity:</label>
+                    <input type="range" id="intensity-slider" min="0" max="100" value="75">
+                    <span id="intensity-value">75%</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Excellence Metrics -->
         <div class="quantum-card">
             <div class="card-title">Excellence Metrics</div>

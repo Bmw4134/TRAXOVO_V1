@@ -717,5 +717,9 @@ integrate_asi_routing(app)
 integrate_gauge_automation(app)
 integrate_quantum_search(app)
 
+# Integrate quantum color palette routes
+from quantum_color_palette_selector import integrate_quantum_palette_routes
+integrate_quantum_palette_routes(app)
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

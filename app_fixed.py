@@ -418,6 +418,11 @@ def master_overlay():
     """Serve floating master command overlay"""
     return render_template('floating_master_overlay.html')
 
+@app.route('/admin_access')
+def admin_access():
+    """Direct admin access - bypasses login for development"""
+    return redirect('/dashboard')
+
 # Initialize high-value API integrations and deployment automation
 integrate_high_value_apis(app)
 integrate_deployment_automation(app)

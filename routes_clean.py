@@ -41,11 +41,9 @@ def qq_executive_dashboard():
 @app.route('/quantum_asi_dashboard')
 def quantum_asi_dashboard():
     """Quantum ASI Dashboard"""
-    try:
-        from quantum_asi_excellence import render_quantum_asi_dashboard
-        return render_quantum_asi_dashboard()
-    except ImportError:
-        return render_template('qq_executive_dashboard.html')
+    from quantum_asi_excellence import get_quantum_asi_excellence_engine
+    engine = get_quantum_asi_excellence_engine()
+    return engine.render_quantum_asi_dashboard()
 
 @app.route('/radio_map_dashboard')
 def radio_map_dashboard():

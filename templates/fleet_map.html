@@ -310,6 +310,172 @@
     backdrop-filter: blur(10px) !important;
 }
 
+/* QQ Excellence Popup Styling */
+.qq-excellence-popup {
+    background: linear-gradient(135deg, rgba(10, 10, 30, 0.95), rgba(20, 20, 50, 0.95));
+    border: 2px solid #00ffff;
+    border-radius: 15px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90vw;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-shadow: 0 20px 60px rgba(0, 255, 255, 0.3);
+    backdrop-filter: blur(15px);
+    position: relative;
+    overflow: hidden;
+}
+
+.qq-excellence-popup::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+    animation: excellenceScan 3s infinite;
+}
+
+.popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.asset-name {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.asset-status {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-active {
+    background: linear-gradient(45deg, #00ff00, #00cc00);
+    color: white;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+}
+
+.status-inactive {
+    background: linear-gradient(45deg, #ff6b6b, #cc5555);
+    color: white;
+    box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+}
+
+.excellence-score {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 255, 255, 0.05));
+    border-radius: 10px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.excellence-value {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+.excellence-label {
+    font-size: 1rem;
+    color: #88ccff;
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.qq-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.qq-metric {
+    background: linear-gradient(135deg, rgba(0, 100, 200, 0.2), rgba(0, 150, 255, 0.1));
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.qq-metric:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+    border-color: #00ffff;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00ffff;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    color: #88ccff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.asi-insights {
+    background: linear-gradient(135deg, rgba(50, 0, 100, 0.3), rgba(100, 0, 150, 0.2));
+    border: 1px solid rgba(150, 0, 255, 0.3);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.insight-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    padding: 0.8rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    border-left: 3px solid #00ffff;
+}
+
+.insight-item:last-child {
+    margin-bottom: 0;
+}
+
+.insight-type {
+    background: linear-gradient(45deg, #00ffff, #0088cc);
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 15px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-right: 1rem;
+    min-width: fit-content;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3); }
+    to { text-shadow: 0 0 20px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.5); }
+}
+
 .map-loading {
     position: absolute;
     top: 50%;

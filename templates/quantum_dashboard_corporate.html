@@ -351,6 +351,41 @@
             color: #3498db;
             font-weight: 600;
         }
+        
+        .module-card {
+            background: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: #2c3e50;
+        }
+        
+        .module-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.2);
+            border-color: #3498db;
+        }
+        
+        .module-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .module-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .module-desc {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            line-height: 1.3;
+        }
     </style>
 </head>
 <body>
@@ -378,6 +413,9 @@
             
             <div class="nav-buttons">
                 <a href="/fleet-map" class="nav-btn">Fleet Map</a>
+                <a href="/attendance-matrix" class="nav-btn">Attendance</a>
+                <a href="/asset-manager" class="nav-btn">Assets</a>
+                <a href="/executive-dashboard" class="nav-btn">Executive</a>
                 <a href="/logout" class="nav-btn">Logout</a>
             </div>
         </div>
@@ -488,6 +526,54 @@
             <div class="savings-highlight">
                 <div style="font-size: 0.9em; margin-bottom: 8px;">Identified Weekly Savings Opportunity</div>
                 <div class="savings-amount">$8,400</div>
+            </div>
+        </div>
+        
+        <div class="dashboard-panel" style="margin-top: 25px;">
+            <div class="panel-title">TRAXOVO Platform Modules</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                <a href="/fleet-map" style="text-decoration: none;">
+                    <div class="module-card">
+                        <div class="module-icon">🗺️</div>
+                        <div class="module-name">Fleet Map</div>
+                        <div class="module-desc">Real-time GPS tracking and asset locations</div>
+                    </div>
+                </a>
+                <a href="/attendance-matrix" style="text-decoration: none;">
+                    <div class="module-card">
+                        <div class="module-icon">👥</div>
+                        <div class="module-name">Attendance Matrix</div>
+                        <div class="module-desc">Workforce tracking and scheduling</div>
+                    </div>
+                </a>
+                <a href="/asset-manager" style="text-decoration: none;">
+                    <div class="module-card">
+                        <div class="module-icon">🏗️</div>
+                        <div class="module-name">Asset Manager</div>
+                        <div class="module-desc">Equipment inventory and maintenance</div>
+                    </div>
+                </a>
+                <a href="/executive-dashboard" style="text-decoration: none;">
+                    <div class="module-card">
+                        <div class="module-icon">📊</div>
+                        <div class="module-name">Executive Dashboard</div>
+                        <div class="module-desc">Leadership metrics and KPIs</div>
+                    </div>
+                </a>
+                <a href="/billion-dollar-excellence" style="text-decoration: none;">
+                    <div class="module-card">
+                        <div class="module-icon">💎</div>
+                        <div class="module-name">Excellence Module</div>
+                        <div class="module-desc">Billion-dollar optimization engine</div>
+                    </div>
+                </a>
+                <a href="/watson-admin" style="text-decoration: none;">
+                    <div class="module-card">
+                        <div class="module-icon">🔧</div>
+                        <div class="module-name">Watson Admin</div>
+                        <div class="module-desc">System administration and controls</div>
+                    </div>
+                </a>
             </div>
         </div>
     </div>

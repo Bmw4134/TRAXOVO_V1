@@ -205,6 +205,30 @@ def fleet_map():
     
     return render_template('fleet_map_qq.html')
 
+@app.route('/attendance-matrix')
+def attendance_matrix():
+    """Attendance matrix page"""
+    if not require_auth():
+        return redirect(url_for('login'))
+    
+    return render_template('attendance_matrix.html')
+
+@app.route('/asset-manager') 
+def asset_manager():
+    """Asset manager with authentic GAUGE data"""
+    if not require_auth():
+        return redirect(url_for('login'))
+        
+    return render_template('asset_manager.html')
+
+@app.route('/executive-dashboard')
+def executive_dashboard():
+    """Executive dashboard for Troy and William"""
+    if not require_auth():
+        return redirect(url_for('login'))
+        
+    return render_template('executive_dashboard.html')
+
 @app.route('/api/quantum-consciousness')
 def api_quantum_consciousness():
     """Real-time quantum consciousness metrics"""

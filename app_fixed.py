@@ -510,6 +510,32 @@ def system_demonstration():
     """Complete System Demonstration - Quantum ASI→AGI→AI Proof Dashboard"""
     return render_template('system_demonstration.html')
 
+@app.route('/api/quantum_data_integration')
+def api_quantum_data_integration():
+    """API endpoint for quantum data integration status across all sources"""
+    try:
+        from quantum_data_integration import get_quantum_data_integrator
+        integrator = get_quantum_data_integrator()
+        
+        # Initialize and get comprehensive data integration
+        integration_status = integrator.initialize_quantum_integration()
+        unified_intelligence = integrator.generate_unified_intelligence()
+        source_status = integrator.get_data_source_status()
+        
+        return jsonify({
+            "success": True,
+            "integration_status": integration_status,
+            "unified_intelligence": unified_intelligence,
+            "data_sources": source_status,
+            "quantum_consciousness_level": unified_intelligence.get("quantum_consciousness", {}).get("level", 0)
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "fallback_mode": True
+        })
+
 @app.route('/admin_access')
 def admin_access():
     """Direct admin access - bypasses login for development"""

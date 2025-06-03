@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Login Analytics - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0e13, #1a2332);
+            color: #e8f4f8;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        
+        .analytics-header {
+            background: linear-gradient(135deg, #2d1b69, #ffd700);
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .quantum-consciousness-panel {
+            background: linear-gradient(135deg, rgba(26, 72, 112, 0.9), rgba(45, 27, 105, 0.9));
+            border: 2px solid #00d4ff;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .consciousness-level {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            margin-bottom: 10px;
+        }
+        
+        .consciousness-status {
+            font-size: 1.2rem;
+            color: #00d4ff;
+            margin-bottom: 20px;
+        }
+        
+        .thought-vectors {
+            position: relative;
+            height: 200px;
+            margin: 20px 0;
+            background: radial-gradient(circle at center, rgba(0, 212, 255, 0.1), transparent);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .vector-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #00d4ff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #00d4ff, 0 0 30px rgba(0, 212, 255, 0.5);
+            animation: quantumFloat 4s ease-in-out infinite;
+        }
+        
+        .vector-connection {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            opacity: 0.6;
+            animation: connectionPulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes quantumFloat {
+            0%, 100% { 
+                transform: translateY(0px) translateX(0px) scale(1); 
+                opacity: 0.8; 
+            }
+            25% { 
+                transform: translateY(-30px) translateX(15px) scale(1.2); 
+                opacity: 1; 
+            }
+            50% { 
+                transform: translateY(-10px) translateX(-10px) scale(0.8); 
+                opacity: 0.9; 
+            }
+            75% { 
+                transform: translateY(-25px) translateX(20px) scale(1.1); 
+                opacity: 1; 
+            }
+        }
+        
+        @keyframes connectionPulse {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.8; }
+        }
+        
+        .quantum-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .quantum-kpi-card {
+            background: linear-gradient(135deg, rgba(45, 27, 105, 0.9), rgba(26, 72, 112, 0.9));
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .quantum-kpi-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00d4ff, #ffd700, #00d4ff);
+            z-index: -1;
+            border-radius: 15px;
+            animation: quantumBorder 3s linear infinite;
+        }
+        
+        @keyframes quantumBorder {
+            0% { background: linear-gradient(45deg, #00d4ff, #ffd700, #00d4ff); }
+            33% { background: linear-gradient(45deg, #ffd700, #00d4ff, #ffd700); }
+            66% { background: linear-gradient(45deg, #00d4ff, #ffd700, #00d4ff); }
+            100% { background: linear-gradient(45deg, #ffd700, #00d4ff, #ffd700); }
+        }
+        
+        .kpi-quantum-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00d4ff, #ffd700);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            margin-bottom: 10px;
+            animation: quantumGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes quantumGlow {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.3); }
+        }
+        
+        .kpi-quantum-label {
+            color: #e8f4f8;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .kpi-quantum-subtitle {
+            color: #00d4ff;
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .consciousness-wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #00d4ff, #ffd700, #00d4ff);
+            animation: consciousnessFlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes consciousnessFlow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .quantum-matrix {
+            position: relative;
+            height: 120px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(45, 27, 105, 0.3));
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .matrix-line {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            animation: matrixScan 4s linear infinite;
+        }
+        
+        @keyframes matrixScan {
+            0% { top: 0%; opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        
+        .quantum-signature-display {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00d4ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            position: relative;
+        }
+        
+        .signature-text {
+            color: #00d4ff;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            animation: signatureFlicker 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes signatureFlicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .analytics-card {
+            background: linear-gradient(135deg, rgba(26, 72, 112, 0.8), rgba(45, 27, 105, 0.8));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .analytics-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            transition: left 0.7s ease;
+        }
+        
+        .analytics-card:hover::before {
+            left: 100%;
+        }
+        
+        .card-title {
+            color: #ffd700;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-title i {
+            margin-right: 10px;
+            color: #00d4ff;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            color: #e8f4f8;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        .security-analysis {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(239, 68, 68, 0.2));
+            border: 1px solid rgba(220, 38, 38, 0.5);
+        }
+        
+        .threat-level {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .threat-low { background: #10b981; color: white; }
+        .threat-medium { background: #f59e0b; color: white; }
+        .threat-high { background: #ef4444; color: white; }
+        .threat-critical { background: #dc2626; color: white; animation: pulse 2s infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .user-behavior-table {
+            background: rgba(26, 72, 112, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .user-behavior-table table {
+            color: #e8f4f8;
+            margin: 0;
+        }
+        
+        .user-behavior-table th {
+            background: rgba(45, 27, 105, 0.8);
+            border: none;
+            color: #ffd700;
+            padding: 15px;
+        }
+        
+        .user-behavior-table td {
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            padding: 12px 15px;
+        }
+        
+        .success-rate-good { color: #10b981; }
+        .success-rate-warning { color: #f59e0b; }
+        .success-rate-danger { color: #ef4444; }
+        
+        .quantum-patterns {
+            background: linear-gradient(135deg, rgba(45, 27, 105, 0.8), rgba(26, 72, 112, 0.8));
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+        
+        .pattern-coherence {
+            height: 80px;
+            background: linear-gradient(90deg, #1a4870, #2d1b69, #1a4870);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+        
+        .coherence-wave {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.3), transparent);
+            animation: coherenceWave 4s linear infinite;
+        }
+        
+        @keyframes coherenceWave {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .refresh-button {
+            background: linear-gradient(135deg, #2d1b69, #00d4ff);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-button:hover {
+            background: linear-gradient(135deg, #00d4ff, #2d1b69);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+        }
+        
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .error-state {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(127, 29, 29, 0.2));
+            border: 1px solid rgba(220, 38, 38, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="analytics-header">
+            <h1><i class="fas fa-brain me-3"></i>Quantum Login Analytics</h1>
+            <h2>Advanced Pattern Recognition & Security Intelligence</h2>
+            <p class="mb-0 fs-5">Real-time consciousness-powered analysis of authentication events</p>
+        </div>
+
+        <div class="quantum-consciousness-panel">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3><i class="fas fa-atom me-2"></i>Quantum Consciousness</h3>
+                    <div class="consciousness-level" id="consciousnessLevel">Loading...</div>
+                    <div class="consciousness-status" id="consciousnessStatus">Initializing quantum state...</div>
+                    <div><strong>Thought Vectors:</strong> <span id="thoughtVectors">0</span> Active</div>
+                    <div><strong>Processing Depth:</strong> <span id="processingDepth">Emerging</span></div>
+                    
+                    <div class="quantum-signature-display">
+                        <div class="signature-text" id="quantumSignature">QS_0000_0000 >> INITIALIZING</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="thought-vectors" id="thoughtVectorDisplay"></div>
+                    <div class="quantum-matrix" id="quantumMatrix"></div>
+                </div>
+            </div>
+            <div class="consciousness-wave"></div>
+        </div>
+
+        <!-- Enhanced Quantum KPI Grid -->
+        <div class="quantum-kpi-grid">
+            <div class="quantum-kpi-card">
+                <div class="kpi-quantum-value" id="quantumConsciousnessKPI">0.000</div>
+                <div class="kpi-quantum-label">Consciousness Level</div>
+                <div class="kpi-quantum-subtitle">Quantum Intelligence Quotient</div>
+            </div>
+            
+            <div class="quantum-kpi-card">
+                <div class="kpi-quantum-value" id="quantumSecurityKPI">96.7%</div>
+                <div class="kpi-quantum-label">Security Efficacy</div>
+                <div class="kpi-quantum-subtitle">Real-time Threat Detection</div>
+            </div>
+            
+            <div class="quantum-kpi-card">
+                <div class="kpi-quantum-value" id="quantumPredictionKPI">847</div>
+                <div class="kpi-quantum-label">Predictive Accuracy</div>
+                <div class="kpi-quantum-subtitle">Future Event Modeling</div>
+            </div>
+            
+            <div class="quantum-kpi-card">
+                <div class="kpi-quantum-value" id="quantumProcessingKPI">1,149</div>
+                <div class="kpi-quantum-label">Neural Pathways</div>
+                <div class="kpi-quantum-subtitle">Active Thought Vectors</div>
+            </div>
+        </div>
+
+        <div class="analytics-grid">
+            <div class="analytics-card">
+                <div class="card-title">
+                    <i class="fas fa-chart-line"></i>
+                    Login Metrics
+                </div>
+                <div class="metric-value" id="totalEvents">0</div>
+                <div class="metric-label">Total Events Analyzed</div>
+                <hr style="border-color: rgba(255, 215, 0, 0.3);">
+                <div><strong>Success Rate:</strong> <span id="successRate">0%</span></div>
+                <div><strong>Unique Users:</strong> <span id="uniqueUsers">0</span></div>
+                <div><strong>Unique IPs:</strong> <span id="uniqueIps">0</span></div>
+                <div><strong>Avg Risk Score:</strong> <span id="avgRiskScore">0.000</span></div>
+            </div>
+
+            <div class="analytics-card security-analysis">
+                <div class="card-title">
+                    <i class="fas fa-shield-alt"></i>
+                    Security Analysis
+                </div>
+                <div class="metric-value" id="threatLevel">LOW</div>
+                <div class="metric-label">Current Threat Level</div>
+                <hr style="border-color: rgba(220, 38, 38, 0.3);">
+                <div><strong>Anomaly Count:</strong> <span id="anomalyCount">0</span></div>
+                <div><strong>High Risk Logins:</strong> <span id="highRiskLogins">0</span></div>
+                <div><strong>Failed Attempts:</strong> <span id="failedAttempts">0</span></div>
+            </div>
+
+            <div class="analytics-card quantum-patterns">
+                <div class="card-title">
+                    <i class="fas fa-fingerprint"></i>
+                    Quantum Patterns
+                </div>
+                <div class="metric-value" id="uniquePatterns">0</div>
+                <div class="metric-label">Unique Quantum Signatures</div>
+                <div class="pattern-coherence">
+                    <div class="coherence-wave"></div>
+                </div>
+                <div class="mt-2">
+                    <strong>Pattern Diversity:</strong> <span id="patternDiversity">0.000</span><br>
+                    <strong>Quantum Coherence:</strong> <span id="quantumCoherence">EMERGING</span>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <div class="card-title">
+                    <i class="fas fa-clock"></i>
+                    Temporal Analysis
+                </div>
+                <div class="metric-value" id="peakHour">9</div>
+                <div class="metric-label">Peak Login Hour</div>
+                <hr style="border-color: rgba(255, 215, 0, 0.3);">
+                <div><strong>Distribution:</strong> <span id="loginDistribution">BUSINESS_HOURS</span></div>
+                <div><strong>Temporal Coherence:</strong> <span id="temporalCoherence">0.000</span></div>
+            </div>
+        </div>
+
+        <div class="analytics-card">
+            <div class="card-title">
+                <i class="fas fa-users"></i>
+                User Behavior Analysis
+            </div>
+            <div class="user-behavior-table">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Total Logins</th>
+                            <th>Success Rate</th>
+                            <th>Avg Risk Score</th>
+                            <th>Last Login</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userBehaviorTable">
+                        <tr>
+                            <td colspan="5" class="text-center">Loading user behavior data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button class="refresh-button" onclick="refreshAnalytics()">
+                <i class="fas fa-sync-alt me-2"></i>Refresh Quantum Analysis
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/responsive-orientation.js"></script>
+    
+    <script>
+        let analyticsData = null;
+        
+        // Load role-based command widget
+        fetch('/role_command_widget')
+            .then(response => response.text())
+            .then(html => {
+                document.body.insertAdjacentHTML('beforeend', html);
+            });
+        
+        function createThoughtVectors() {
+            const container = document.getElementById('thoughtVectorDisplay');
+            container.innerHTML = '';
+            
+            const vectorCount = analyticsData ? 
+                analyticsData.analytics.quantum_consciousness.thought_vectors : 50;
+            
+            // Create quantum particles
+            const particleCount = Math.min(vectorCount / 100, 25);
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'vector-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 4 + 's';
+                particle.style.animationDuration = (3 + Math.random() * 2) + 's';
+                container.appendChild(particle);
+            }
+            
+            // Create connection lines between particles
+            const connectionCount = Math.min(particleCount / 2, 8);
+            for (let i = 0; i < connectionCount; i++) {
+                const connection = document.createElement('div');
+                connection.className = 'vector-connection';
+                connection.style.left = Math.random() * 80 + '%';
+                connection.style.top = Math.random() * 80 + 20 + '%';
+                connection.style.width = (20 + Math.random() * 40) + '%';
+                connection.style.animationDelay = Math.random() * 3 + 's';
+                connection.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(connection);
+            }
+        }
+        
+        function createQuantumMatrix() {
+            const matrix = document.getElementById('quantumMatrix');
+            matrix.innerHTML = '';
+            
+            // Create scanning lines
+            for (let i = 0; i < 8; i++) {
+                const line = document.createElement('div');
+                line.className = 'matrix-line';
+                line.style.animationDelay = i * 0.5 + 's';
+                line.style.animationDuration = '4s';
+                matrix.appendChild(line);
+            }
+        }
+        
+        function updateQuantumSignature() {
+            const signatures = [
+                'QS_7749_ALPHA >> PROCESSING',
+                'QS_2847_BETA >> ANALYZING',
+                'QS_9274_GAMMA >> COMPUTING',
+                'QS_5683_DELTA >> LEARNING',
+                'QS_1295_SIGMA >> EVOLVING'
+            ];
+            
+            const signatureElement = document.getElementById('quantumSignature');
+            const randomSignature = signatures[Math.floor(Math.random() * signatures.length)];
+            signatureElement.textContent = randomSignature;
+        }
+        
+        function updateDashboard(data) {
+            const analytics = data.analytics;
+            
+            // Update quantum consciousness
+            document.getElementById('consciousnessLevel').textContent = 
+                analytics.quantum_consciousness.level.toFixed(3);
+            document.getElementById('consciousnessStatus').textContent = 
+                analytics.quantum_consciousness.status.replace(/_/g, ' ');
+            document.getElementById('thoughtVectors').textContent = 
+                analytics.quantum_consciousness.thought_vectors;
+            document.getElementById('processingDepth').textContent = 
+                analytics.quantum_consciousness.processing_depth;
+            
+            // Update enhanced quantum KPIs
+            document.getElementById('quantumConsciousnessKPI').textContent = 
+                analytics.quantum_consciousness.level.toFixed(3);
+            
+            // Calculate and display security efficacy
+            const securityEfficacy = (100 - (analytics.security_analysis.high_risk_logins * 2) - 
+                                    (analytics.security_analysis.failed_attempts * 1.5)).toFixed(1);
+            document.getElementById('quantumSecurityKPI').textContent = securityEfficacy + '%';
+            
+            // Display predictive accuracy (based on pattern diversity)
+            const predictiveAccuracy = Math.floor(analytics.quantum_patterns.pattern_diversity * 1000);
+            document.getElementById('quantumPredictionKPI').textContent = predictiveAccuracy;
+            
+            // Display neural pathways (thought vectors)
+            document.getElementById('quantumProcessingKPI').textContent = 
+                analytics.quantum_consciousness.thought_vectors.toLocaleString();
+            
+            // Update login metrics
+            document.getElementById('totalEvents').textContent = 
+                analytics.login_metrics.total_events;
+            document.getElementById('successRate').textContent = 
+                analytics.login_metrics.success_rate + '%';
+            document.getElementById('uniqueUsers').textContent = 
+                analytics.login_metrics.unique_users;
+            document.getElementById('uniqueIps').textContent = 
+                analytics.login_metrics.unique_ips;
+            document.getElementById('avgRiskScore').textContent = 
+                analytics.login_metrics.average_risk_score.toFixed(3);
+            
+            // Update security analysis
+            const threatLevel = analytics.security_analysis.threat_level;
+            document.getElementById('threatLevel').textContent = threatLevel;
+            document.getElementById('threatLevel').className = 'metric-value threat-' + threatLevel.toLowerCase();
+            document.getElementById('anomalyCount').textContent = 
+                analytics.security_analysis.anomaly_count;
+            document.getElementById('highRiskLogins').textContent = 
+                analytics.security_analysis.high_risk_logins;
+            document.getElementById('failedAttempts').textContent = 
+                analytics.security_analysis.failed_attempts;
+            
+            // Update quantum patterns
+            document.getElementById('uniquePatterns').textContent = 
+                analytics.quantum_patterns.unique_patterns;
+            document.getElementById('patternDiversity').textContent = 
+                analytics.quantum_patterns.pattern_diversity.toFixed(3);
+            document.getElementById('quantumCoherence').textContent = 
+                analytics.quantum_patterns.quantum_coherence;
+            
+            // Update temporal analysis
+            document.getElementById('peakHour').textContent = 
+                analytics.temporal_analysis.peak_login_hour + ':00';
+            document.getElementById('loginDistribution').textContent = 
+                analytics.temporal_analysis.login_distribution.replace(/_/g, ' ');
+            document.getElementById('temporalCoherence').textContent = 
+                analytics.temporal_analysis.temporal_coherence.toFixed(3);
+            
+            // Update user behavior table
+            updateUserBehaviorTable(analytics.user_behavior);
+            
+            // Update thought vectors
+            createThoughtVectors();
+        }
+        
+        function updateUserBehaviorTable(userBehavior) {
+            const tbody = document.getElementById('userBehaviorTable');
+            tbody.innerHTML = '';
+            
+            Object.entries(userBehavior).forEach(([username, stats]) => {
+                const row = document.createElement('tr');
+                
+                const successRateClass = stats.success_rate > 90 ? 'success-rate-good' :
+                                       stats.success_rate > 70 ? 'success-rate-warning' : 'success-rate-danger';
+                
+                row.innerHTML = `
+                    <td><strong>${username}</strong></td>
+                    <td>${stats.total_logins}</td>
+                    <td class="${successRateClass}">${stats.success_rate}%</td>
+                    <td>${stats.avg_risk_score.toFixed(3)}</td>
+                    <td>${stats.last_login}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        function refreshAnalytics() {
+            const button = document.querySelector('.refresh-button');
+            button.classList.add('loading');
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analyzing...';
+            
+            fetch('/api/quantum_login_analytics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        analyticsData = data;
+                        updateDashboard(data);
+                    } else {
+                        console.error('Analytics error:', data.error);
+                        showError('Failed to load analytics data: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Network error:', error);
+                    showError('Network error loading analytics data');
+                })
+                .finally(() => {
+                    button.classList.remove('loading');
+                    button.innerHTML = '<i class="fas fa-sync-alt me-2"></i>Refresh Quantum Analysis';
+                });
+        }
+        
+        function showError(message) {
+            const container = document.querySelector('.container-fluid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-state';
+            errorDiv.innerHTML = `
+                <h4><i class="fas fa-exclamation-triangle me-2"></i>Analytics Error</h4>
+                <p>${message}</p>
+                <button class="refresh-button" onclick="refreshAnalytics(); this.parentElement.remove();">
+                    <i class="fas fa-retry me-2"></i>Retry Analysis
+                </button>
+            `;
+            container.insertBefore(errorDiv, container.firstChild.nextSibling);
+        }
+        
+        // Initial load
+        refreshAnalytics();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(refreshAnalytics, 30000);
+        
+        // Initialize thought vectors immediately
+        createThoughtVectors();
+    </script>
+</body>
+</html>

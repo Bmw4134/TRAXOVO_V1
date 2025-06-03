@@ -520,6 +520,31 @@ def executive_handoff():
     """Executive Handoff - ROI Demonstration for Troy & William"""
     return render_template('executive_handoff.html')
 
+@app.route('/quantum_login_analytics')
+def quantum_login_analytics():
+    """Quantum-Powered Login Analytics Dashboard"""
+    return render_template('quantum_login_analytics.html')
+
+@app.route('/api/quantum_login_analytics')
+def api_quantum_login_analytics():
+    """API endpoint for quantum login analytics data"""
+    try:
+        from quantum_login_analytics import get_quantum_login_analytics
+        analytics = get_quantum_login_analytics()
+        
+        dashboard_data = analytics.get_quantum_analytics_dashboard()
+        
+        return jsonify({
+            "success": True,
+            "analytics": dashboard_data,
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
+
 @app.route('/api/quantum_data_integration')
 def api_quantum_data_integration():
     """API endpoint for quantum data integration status across all sources"""
@@ -627,8 +652,10 @@ def api_user_credentials():
             "troy": "Troy@VP$1!",
             "william": "William@CPA$1!",
             "jose": "Jose@WTX$1!",
+            "james": "James@View$1!",
             "admin": "admin",
-            "executive": "executive"
+            "executive": "executive",
+            "viewer": "viewer"
         },
         "roles": {
             "watson": "Executive Admin - Full System Access",
@@ -636,8 +663,10 @@ def api_user_credentials():
             "troy": "VP - Executive Dashboard Access",
             "william": "Controller - Financial Reports Access",
             "jose": "Senior PM - Project Management Access",
+            "james": "View Only - Dashboard Access",
             "admin": "System Administrator",
-            "executive": "Executive Level Access"
+            "executive": "Executive Level Access",
+            "viewer": "Read Only Access"
         }
     })
 

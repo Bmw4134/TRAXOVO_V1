@@ -7,7 +7,6 @@ packages = ["cairo", "cargo", "ffmpeg-full", "freetype", "geckodriver", "ghostsc
 [deployment]
 deploymentTarget = "cloudrun"
 run = ["sh", "-c", "python app.py"]
-build = ["sh", "-c", "pip install -r requirements.txt"]
 
 [workflows]
 runButton = "Start TRAXOVO Fixed"

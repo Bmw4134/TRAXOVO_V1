@@ -69,26 +69,7 @@ from datetime import datetime
 import os
 import logging
 
-# Routes will be imported after app initialization to avoid circular imports
-from internal_llm_system import internal_llm_bp
-from agi_analytics_engine import agi_analytics_bp
-from agi_quantum_deployment_sweep import agi_quantum_bp
-from routes.basic_routes import basic_bp
-from routes.asset_manager import asset_manager_bp
-from asi_enhanced_debugger import asi_debug_bp
-from routes.downloads import downloads_bp
-from routes.asi_intelligent_exports import asi_exports_bp
-
-# Import AGI-enhanced data access modules
-try:
-    from agi_data_integration import agi_asset_lookup, agi_search
-    from agi_module_enhancer import run_agi_enhancement
-except ImportError:
-    # Fallback functions if AGI modules not available
-    def agi_asset_lookup(asset_id):
-        return None
-    def agi_search(query):
-        return []
+# Core routes will be imported after app initialization
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)

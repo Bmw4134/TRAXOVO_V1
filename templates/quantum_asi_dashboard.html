@@ -299,6 +299,103 @@
             50% { background-position: 100% 50%; }
         }
 
+        .palette-selector-container {
+            padding: 1rem;
+        }
+
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .palette-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .palette-option:hover {
+            border-color: rgba(0, 255, 255, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 255, 255, 0.2);
+        }
+
+        .palette-option.active {
+            border-color: #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .palette-preview {
+            display: flex;
+            height: 40px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .palette-color {
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+
+        .palette-name {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+
+        .palette-description {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .intensity-controls {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .intensity-controls label {
+            color: #ffffff;
+            font-weight: 600;
+            min-width: 120px;
+        }
+
+        #intensity-slider {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        #intensity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        #intensity-value {
+            color: #00ffff;
+            font-weight: 700;
+            min-width: 50px;
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(1.2); }
@@ -644,11 +741,185 @@
             }, 2000);
         }
 
+        // Color Palette Selector Functions
+        let currentPalette = 'classic_quantum';
+        
+        async function initializePaletteSelector() {
+            try {
+                const response = await fetch('/api/quantum_palettes');
+                const data = await response.json();
+                
+                const paletteGrid = document.getElementById('palette-grid');
+                paletteGrid.innerHTML = '';
+                
+                Object.entries(data.palettes).forEach(([id, palette]) => {
+                    const paletteOption = createPaletteOption(id, palette);
+                    paletteGrid.appendChild(paletteOption);
+                });
+                
+                // Set active palette
+                currentPalette = data.current;
+                updateActivePalette();
+                
+            } catch (error) {
+                console.log('Loading default palette options');
+                loadDefaultPalettes();
+            }
+            
+            // Initialize intensity slider
+            const intensitySlider = document.getElementById('intensity-slider');
+            const intensityValue = document.getElementById('intensity-value');
+            
+            intensitySlider.addEventListener('input', (e) => {
+                const value = e.target.value;
+                intensityValue.textContent = value + '%';
+                applyIntensityAdjustment(value / 100);
+            });
+        }
+        
+        function createPaletteOption(id, palette) {
+            const option = document.createElement('div');
+            option.className = 'palette-option';
+            option.dataset.paletteId = id;
+            
+            const preview = document.createElement('div');
+            preview.className = 'palette-preview';
+            
+            palette.primary_colors.forEach(color => {
+                const colorDiv = document.createElement('div');
+                colorDiv.className = 'palette-color';
+                colorDiv.style.backgroundColor = color;
+                preview.appendChild(colorDiv);
+            });
+            
+            const name = document.createElement('div');
+            name.className = 'palette-name';
+            name.textContent = palette.name;
+            
+            const description = document.createElement('div');
+            description.className = 'palette-description';
+            description.textContent = palette.description;
+            
+            option.appendChild(preview);
+            option.appendChild(name);
+            option.appendChild(description);
+            
+            option.addEventListener('click', () => switchPalette(id));
+            
+            return option;
+        }
+        
+        function loadDefaultPalettes() {
+            const defaultPalettes = {
+                'classic_quantum': {
+                    name: 'Classic Quantum',
+                    description: 'Original rainbow quantum effects',
+                    primary_colors: ['#00ffff', '#ff00ff', '#ffff00']
+                },
+                'professional_quantum': {
+                    name: 'Professional',
+                    description: 'Executive presentation ready',
+                    primary_colors: ['#3498db', '#9b59b6', '#2ecc71']
+                },
+                'cyberpunk': {
+                    name: 'Cyberpunk',
+                    description: 'High-tech neon aesthetic',
+                    primary_colors: ['#ff0080', '#00ff80', '#8000ff']
+                }
+            };
+            
+            const paletteGrid = document.getElementById('palette-grid');
+            Object.entries(defaultPalettes).forEach(([id, palette]) => {
+                const paletteOption = createPaletteOption(id, palette);
+                paletteGrid.appendChild(paletteOption);
+            });
+        }
+        
+        async function switchPalette(paletteId) {
+            try {
+                const response = await fetch('/api/quantum_palette/set', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ palette_name: paletteId })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    currentPalette = paletteId;
+                    updateActivePalette();
+                    applyPaletteToUI(result.palette);
+                }
+            } catch (error) {
+                console.log('Switching to', paletteId, 'palette');
+                currentPalette = paletteId;
+                updateActivePalette();
+                applyDefaultPalette(paletteId);
+            }
+        }
+        
+        function updateActivePalette() {
+            document.querySelectorAll('.palette-option').forEach(option => {
+                option.classList.remove('active');
+                if (option.dataset.paletteId === currentPalette) {
+                    option.classList.add('active');
+                }
+            });
+        }
+        
+        function applyPaletteToUI(palette) {
+            const root = document.documentElement;
+            
+            // Update CSS custom properties
+            root.style.setProperty('--quantum-primary-1', palette.primary_colors[0]);
+            root.style.setProperty('--quantum-primary-2', palette.primary_colors[1]);
+            root.style.setProperty('--quantum-primary-3', palette.primary_colors[2]);
+            
+            // Update gradients and backgrounds
+            const quantumCards = document.querySelectorAll('.quantum-card');
+            quantumCards.forEach(card => {
+                card.style.background = `linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)`;
+                card.style.borderColor = palette.primary_colors[0] + '40';
+            });
+            
+            // Update quantum logo colors
+            const logo = document.querySelector('.quantum-logo');
+            if (logo) {
+                logo.style.background = `linear-gradient(45deg, ${palette.primary_colors.join(', ')})`;
+                logo.style.webkitBackgroundClip = 'text';
+                logo.style.webkitTextFillColor = 'transparent';
+            }
+        }
+        
+        function applyDefaultPalette(paletteId) {
+            const palettes = {
+                'classic_quantum': ['#00ffff', '#ff00ff', '#ffff00'],
+                'professional_quantum': ['#3498db', '#9b59b6', '#2ecc71'],
+                'cyberpunk': ['#ff0080', '#00ff80', '#8000ff']
+            };
+            
+            const colors = palettes[paletteId] || palettes['classic_quantum'];
+            applyPaletteToUI({ primary_colors: colors });
+        }
+        
+        function applyIntensityAdjustment(intensity) {
+            const root = document.documentElement;
+            root.style.setProperty('--quantum-intensity', intensity);
+            
+            // Adjust glow effects
+            const glowElements = document.querySelectorAll('.quantum-card, .breakthrough-button, .quantum-logo');
+            glowElements.forEach(element => {
+                element.style.filter = `brightness(${0.8 + (intensity * 0.4)}) saturate(${0.7 + (intensity * 0.6)})`;
+            });
+        }
+
         // Initialize and auto-refresh
         loadASIData();
         setInterval(loadASIData, 5000);
         setInterval(generateThoughtVectors, 3000);
         setInterval(updateDecisionMatrix, 2000);
+        
+        // Initialize palette selector when page loads
+        document.addEventListener('DOMContentLoaded', initializePaletteSelector);
     </script>
 </body>
 </html>

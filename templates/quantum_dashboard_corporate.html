@@ -1598,6 +1598,86 @@ Examples:
         // Auto-refresh
         setInterval(updateConsciousness, 30000);
         setInterval(loadOperationalInsights, 60000);
+        
+        // QQ Automation Interface Functions
+        function showAutomationInterface() {
+            document.getElementById('automationInterface').style.display = 'block';
+        }
+        
+        function closeAutomation() {
+            document.getElementById('automationInterface').style.display = 'none';
+        }
+        
+        function analyzeAutomation() {
+            const request = document.getElementById('automationRequest').value;
+            if (!request.trim()) {
+                showResult('Please describe the process you want to automate', 'error');
+                return;
+            }
+            
+            showResult('Analyzing automation request...', 'processing');
+            
+            fetch('/api/analyze-automation', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({request: request})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.can_implement) {
+                    showResult(`✓ Can implement: ${data.recommendation.recommended_automation.name}`, 'success');
+                    showResult(`Complexity: ${data.recommendation.complexity} | Time: ${data.recommendation.total_time}`, 'success');
+                } else {
+                    showResult(`Cannot implement: ${data.recommendation.reason}`, 'error');
+                }
+            })
+            .catch(error => showResult('Analysis failed: ' + error, 'error'));
+        }
+        
+        function implementAutomation() {
+            const request = document.getElementById('automationRequest').value;
+            if (!request.trim()) {
+                showResult('Please describe the process first', 'error');
+                return;
+            }
+            
+            showResult('Implementing automation...', 'processing');
+            
+            fetch('/api/implement-automation', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({request: request})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showResult(`✓ ${data.message}`, 'success');
+                    if (data.details) {
+                        showResult(data.details, 'success');
+                    }
+                } else {
+                    showResult(`✗ ${data.message}`, 'error');
+                }
+            })
+            .catch(error => showResult('Implementation failed: ' + error, 'error'));
+        }
+        
+        function showResult(message, type) {
+            const resultsDiv = document.getElementById('automationResults');
+            resultsDiv.style.display = 'block';
+            
+            const resultItem = document.createElement('div');
+            resultItem.className = `result-item ${type}`;
+            resultItem.textContent = message;
+            
+            resultsDiv.appendChild(resultItem);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        // Show automation interface 3 seconds after page load
+        setTimeout(function() {
+            showAutomationInterface();
+        }, 3000);
     </script>
 </body>
 </html>

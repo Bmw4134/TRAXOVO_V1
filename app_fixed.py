@@ -14,7 +14,7 @@ from deployment_automation_engine import integrate_deployment_automation
 from floating_master_command import integrate_master_command
 from watson_email_intelligence import integrate_watson_email
 from asi_routing_engine import integrate_asi_routing
-from autonomous_deployment_engine import integrate_autonomous_engine
+# from autonomous_deployment_engine import integrate_autonomous_engine
 from gauge_automation_engine import integrate_gauge_automation
 from quantum_search_engine import integrate_quantum_search
 from flask_sqlalchemy import SQLAlchemy
@@ -587,7 +587,7 @@ integrate_deployment_automation(app)
 integrate_master_command(app)
 integrate_watson_email(app)
 integrate_asi_routing(app)
-integrate_autonomous_engine(app)
+# integrate_autonomous_engine(app)
 integrate_gauge_automation(app)
 integrate_quantum_search(app)
 

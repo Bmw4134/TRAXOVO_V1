@@ -123,7 +123,7 @@ def dashboard():
 @app.route('/quantum_asi_dashboard')
 def quantum_asi_dashboard():
     """Watson-only Quantum ASI Excellence Dashboard"""
-    return render_template('quantum_asi_professional.html')
+    return render_template('quantum_asi_dashboard.html')
 
 @app.route('/quantum_asi_professional')  
 def quantum_asi_professional():

@@ -808,3 +808,29 @@ def get_sample_attendance_data():
     # PM Division drivers (47 total from legacy mapping)
     pm_drivers = []
     for i in range(1, 48):
+        pm_drivers.append({
+            'driver_id': f'PM-{i:03}',
+            'name': f'PM Driver {i}',
+            'division': 'PM',
+            'job_zone': '2019-044',
+            'status': 'Present' if i % 2 == 0 else 'Absent',
+            'hours': 8 if i % 3 == 0 else 0
+        })
+
+    # EJ Division drivers (45 total from legacy reports)
+    ej_drivers = []
+    for i in range(1, 46):
+        ej_drivers.append({
+            'driver_id': f'EJ-{i:03}',
+            'name': f'EJ Driver {i}',
+            'division': 'EJ',
+            'job_zone': '2021-017',
+            'status': 'Present' if i % 3 == 0 else 'Absent',
+            'hours': 8 if i % 2 == 0 else 0
+        })
+
+    return pm_drivers + ej_drivers
+
+# Bind Flask app to 0.0.0.0:5000 for deployment
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=False)

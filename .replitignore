@@ -1,0 +1,16 @@
+
+# Large data files
+attached_assets/
+backup_excel_files/
+templates_backup_*
+RAGLE*.xlsm
+*.log
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+pipeline_test_results_*.json
+# Keep only essential files in attached_assets
+!attached_assets/IMG_8907.png
+!attached_assets/IMG_8935.png
+!attached_assets/IMG_8940.png

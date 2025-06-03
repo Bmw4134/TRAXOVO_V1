@@ -169,7 +169,7 @@ def login():
         else:
             flash('Quantum authentication failed')
     
-    return render_template('login_quantum.html')
+    return render_template('login_corporate.html')
 
 @app.route('/logout')
 def logout():

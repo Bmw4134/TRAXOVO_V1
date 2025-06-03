@@ -814,22 +814,31 @@
             }
             
             setupTouchInteractions() {
-                document.querySelectorAll('.module-card, .asset-card, .nav-btn').forEach(el => {
-                    el.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
-                    el.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
+                document.addEventListener('DOMContentLoaded', () => {
+                    const elements = document.querySelectorAll('.module-card, .asset-card, .nav-btn');
+                    elements.forEach(el => {
+                        if (el) {
+                            el.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
+                            el.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
+                        }
+                    });
                 });
             }
             
             handleTouchStart(e) {
+                if (!e.currentTarget) return;
                 this.touchStart = Date.now();
                 e.currentTarget.style.transform = 'scale(0.95)';
                 e.currentTarget.style.transition = 'transform 0.1s ease';
             }
             
             handleTouchEnd(e) {
+                if (!e.currentTarget) return;
                 setTimeout(() => {
-                    e.currentTarget.style.transform = '';
-                    e.currentTarget.style.transition = 'all 0.3s ease';
+                    if (e.currentTarget) {
+                        e.currentTarget.style.transform = '';
+                        e.currentTarget.style.transition = 'all 0.3s ease';
+                    }
                 }, 100);
             }
             

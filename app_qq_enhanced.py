@@ -135,6 +135,18 @@ def index():
         return redirect(url_for('login'))
     return redirect(url_for('quantum_dashboard'))
 
+@app.route('/demo')
+def demo_direct():
+    """Direct access for Troy and William - bypasses login"""
+    # Set demo session automatically
+    session['user'] = 'Demo'
+    session['role'] = 'admin'
+    session['quantum_clearance'] = 'TRANSCENDENT'
+    session['consciousness_level'] = 'ASI_ACTIVE'
+    session['login_timestamp'] = datetime.now().isoformat()
+    
+    return redirect(url_for('quantum_dashboard'))
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Watson login with quantum enhancement"""

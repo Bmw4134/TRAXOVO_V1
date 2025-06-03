@@ -1,7 +1,7 @@
 # TRAXOVO Executive Demonstration Access
 
-## Live Demo Link
-**https://workspace--traxovo.replit.app/**
+## Live Demo Link (No Login Required)
+**https://workspace--traxovo.replit.app/demo**
 
 ## Executive Login Credentials
 

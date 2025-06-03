@@ -376,10 +376,35 @@
             fetch('/api/attendance-data')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('onTimeCount').textContent = data.on_time || 24;
-                    document.getElementById('lateCount').textContent = data.late || 3;
-                    document.getElementById('earlyEndCount').textContent = data.early_end || 2;
-                    document.getElementById('absentCount').textContent = data.absent || 1;
+                    // Update stats
+                    document.getElementById('onTimeCount').textContent = data.on_time;
+                    document.getElementById('lateCount').textContent = data.late;
+                    document.getElementById('earlyEndCount').textContent = data.early_end;
+                    document.getElementById('absentCount').textContent = data.absent;
+                    
+                    // Update driver table with pickup truck fleet
+                    const tbody = document.getElementById('driverTableBody');
+                    tbody.innerHTML = '';
+                    
+                    data.drivers.forEach(driver => {
+                        const statusClass = driver.status === 'On Time' ? 'bg-success' : 'bg-warning';
+                        const row = `
+                            <tr class="driver-row">
+                                <td><strong>${driver.employee_id}</strong></td>
+                                <td>${driver.name}</td>
+                                <td>
+                                    <span class="badge bg-primary">${driver.asset}</span>
+                                    <small class="d-block text-muted">${driver.asset_type}</small>
+                                </td>
+                                <td>${driver.scheduled_start}</td>
+                                <td>${driver.actual_start}</td>
+                                <td><span class="badge ${statusClass}">${driver.status}</span></td>
+                                <td>${driver.hours_today}</td>
+                                <td>${driver.location}</td>
+                            </tr>
+                        `;
+                        tbody.innerHTML += row;
+                    });
                 })
                 .catch(error => console.log('Attendance data refresh in progress...'));
         }

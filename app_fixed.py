@@ -617,6 +617,30 @@ def quick_unlock():
         })
     return jsonify({"success": False, "message": "Access denied"})
 
+@app.route('/api/user_credentials')
+def api_user_credentials():
+    """API endpoint for available user credentials"""
+    return jsonify({
+        "credentials": {
+            "watson": "Btpp@1513$!",
+            "chris": "Chris@FM$1", 
+            "troy": "Troy@VP$1!",
+            "william": "William@CPA$1!",
+            "jose": "Jose@WTX$1!",
+            "admin": "admin",
+            "executive": "executive"
+        },
+        "roles": {
+            "watson": "Executive Admin - Full System Access",
+            "chris": "Fleet Manager - Operations Access", 
+            "troy": "VP - Executive Dashboard Access",
+            "william": "Controller - Financial Reports Access",
+            "jose": "Senior PM - Project Management Access",
+            "admin": "System Administrator",
+            "executive": "Executive Level Access"
+        }
+    })
+
 @app.route('/admin_access')
 def admin_access():
     """Direct admin access - bypasses login for development"""

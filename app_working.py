@@ -272,17 +272,21 @@ def api_asset_intelligence():
             }
         })
 
+@app.route('/qq_map')
+def qq_enhanced_map():
+    """QQ Enhanced Asset Tracking Map using authentic GAUGE data"""
+    return render_template('qq_enhanced_asset_map.html')
+
+@app.route('/api/qq-map-data')
+def api_qq_map_data():
+    """QQ enhanced map data with authentic GAUGE integration"""
+    from authentic_fleet_data_processor import get_authentic_fleet_data
+    return jsonify(get_authentic_fleet_data())
+
 @app.route('/fleet_map')
 def fleet_map():
-    """Fleet map with Fort Worth coordinates"""
-    return jsonify({
-        'center': {'lat': 32.7508, 'lng': -97.3307},
-        'assets': [
-            {'id': 'CAT320-01', 'lat': 32.7508, 'lng': -97.3307, 'status': 'active'},
-            {'id': 'DOZ-07', 'lat': 32.7520, 'lng': -97.3290, 'status': 'idle'},
-            {'id': 'TRK-15', 'lat': 32.7495, 'lng': -97.3315, 'status': 'maintenance'}
-        ]
-    })
+    """Redirect to QQ enhanced map"""
+    return redirect('/qq_map')
 
 @app.route('/health')
 def health():

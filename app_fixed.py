@@ -433,6 +433,11 @@ def board_security_audit():
     """Board Security Audit Dashboard"""
     return render_template('board_security_audit.html')
 
+@app.route('/puppeteer_control_center')
+def puppeteer_control_center():
+    """Puppeteer Control Center - Easy Access Automation Hub"""
+    return render_template('puppeteer_control_center.html')
+
 @app.route('/admin_access')
 def admin_access():
     """Direct admin access - bypasses login for development"""

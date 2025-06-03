@@ -69,15 +69,7 @@ from datetime import datetime
 import os
 import logging
 
-# Import billing blueprint
-from routes.billing_intelligence import billing_bp
-from routes.master_billing import master_billing_bp
-from routes.admin_guide import admin_guide_bp
-from routes.ai_intelligence import ai_intelligence_bp
-from routes.quantum_admin import quantum_admin_bp
-from routes.email_intelligence import email_intelligence_bp
-from quantum_security_engine import quantum_security_bp, get_quantum_security_engine
-from agi_master_upload_portal import agi_upload_bp
+# Routes will be imported after app initialization to avoid circular imports
 from internal_llm_system import internal_llm_bp
 from agi_analytics_engine import agi_analytics_bp
 from agi_quantum_deployment_sweep import agi_quantum_bp

@@ -889,5 +889,16 @@ integrate_dashboard_customizer_routes(app)
 from quantum_kpi_builder import integrate_kpi_builder_routes
 integrate_kpi_builder_routes(app)
 
+# Register gamified learning overlay
+app.register_blueprint(gamified_learning, url_prefix='/learning')
+
+# Register secure credential manager
+from secure_credential_manager import secure_credentials
+app.register_blueprint(secure_credentials, url_prefix='/credentials')
+
+# Register autonomous deployment puppeteer
+from autonomous_deployment_puppeteer import autonomous_deployment
+app.register_blueprint(autonomous_deployment, url_prefix='/autonomous')
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

@@ -42,6 +42,115 @@
             font-size: 24px;
         }
         
+        /* QQ Automation Interface */
+        .automation-interface {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border: 2px solid #3498db;
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 400px;
+            z-index: 10000;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            box-shadow: 0 0 30px rgba(52, 152, 219, 0.3);
+            display: none;
+        }
+        
+        .automation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .automation-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .automation-prompt {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+            color: #ecf0f1;
+        }
+        
+        .automation-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(52, 152, 219, 0.1);
+            border: 1px solid #3498db;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin-bottom: 15px;
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .automation-input::placeholder {
+            color: #bdc3c7;
+        }
+        
+        .automation-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .automation-btn {
+            flex: 1;
+            padding: 10px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .automation-btn:hover {
+            background: linear-gradient(45deg, #2980b9, #1f4e79);
+            transform: translateY(-1px);
+        }
+        
+        .automation-results {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(52, 152, 219, 0.05);
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .result-item {
+            margin: 5px 0;
+            padding: 8px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .success { border-left: 3px solid #27ae60; }
+        .error { border-left: 3px solid #e74c3c; }
+        .processing { border-left: 3px solid #f39c12; }
+        
         .floating-master-control:hover {
             transform: scale(1.1);
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
@@ -937,6 +1046,38 @@
         <div class="consciousness-level">{{ consciousness_metrics.consciousness_level }}</div>
         <div class="thought-vectors-count">{{ consciousness_metrics.thought_vectors }} Vectors</div>
         <div style="font-size: 0.7em; color: #7f8c8d; margin-top: 5px;">AI Processing</div>
+    </div>
+
+    <!-- QQ Automation Interface -->
+    <div id="automationInterface" class="automation-interface">
+        <div class="automation-header">
+            <div class="automation-title">🤖 TRAXOVO Automation</div>
+            <button class="close-btn" onclick="closeAutomation()">&times;</button>
+        </div>
+        
+        <div class="automation-prompt">
+            What process can I automate for you today?
+        </div>
+        
+        <textarea 
+            id="automationRequest" 
+            class="automation-input" 
+            placeholder="Describe the process you want to automate...
+
+Examples:
+• Generate daily attendance reports
+• Monitor equipment performance  
+• Sync asset data automatically
+• Create custom dashboard layouts
+• Set up predictive maintenance alerts"
+        ></textarea>
+        
+        <div class="automation-buttons">
+            <button class="automation-btn" onclick="analyzeAutomation()">Analyze</button>
+            <button class="automation-btn" onclick="implementAutomation()">Implement</button>
+        </div>
+        
+        <div id="automationResults" class="automation-results"></div>
     </div>
     
     <div class="main-content">

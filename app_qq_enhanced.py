@@ -762,3 +762,54 @@ with app.app_context():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
+# QQ Intelligent Automation Interface
+from qq_intelligent_automation_interface import QQAutomationInterface
+
+automation_interface = QQAutomationInterface()
+
+@app.route("/api/analyze-automation", methods=["POST"])
+def analyze_automation_request():
+    """Analyze automation request using AI"""
+    try:
+        data = request.get_json()
+        user_request = data.get("request", "")
+        
+        if not user_request:
+            return jsonify({"error": "No request provided"}), 400
+        
+        analysis = automation_interface.analyze_automation_request(user_request)
+        return jsonify(analysis)
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/implement-automation", methods=["POST"])
+def implement_automation_request():
+    """Actually implement the requested automation"""
+    try:
+        data = request.get_json()
+        user_request = data.get("request", "")
+        user_id = session.get("user_id", "anonymous")
+        
+        if not user_request:
+            return jsonify({"error": "No request provided"}), 400
+        
+        analysis = automation_interface.analyze_automation_request(user_request)
+        result = automation_interface.implement_automation(analysis, user_id)
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/automation-history")
+def get_automation_history():
+    """Get user automation history"""
+    try:
+        user_id = session.get("user_id", "anonymous")
+        history = automation_interface.get_user_automation_history(user_id)
+        return jsonify({"history": history})
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+

@@ -997,6 +997,14 @@ watson_automation_manager = integrate_watson_automation(app)
 from quantum_dynamic_drill_down import integrate_quantum_drill_down
 quantum_drill_engine = integrate_quantum_drill_down(app)
 
+# Integrate Dynamic Quantum Insight Explorer
+from dynamic_quantum_insight_explorer import integrate_quantum_insight_explorer
+quantum_insight_engine = integrate_quantum_insight_explorer(app)
+
+# Integrate Watson Workspace Intelligence
+from watson_workspace_intelligence import integrate_watson_workspace_intelligence
+watson_workspace_engine = integrate_watson_workspace_intelligence(app)
+
 # Integrate quantum color palette routes
 from quantum_color_palette_selector import integrate_quantum_palette_routes
 integrate_quantum_palette_routes(app)

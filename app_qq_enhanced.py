@@ -203,11 +203,11 @@ def quantum_dashboard():
 
 @app.route('/fleet-map')
 def fleet_map():
-    """QQ Enhanced Fleet Map"""
+    """Enhanced Interactive Fleet Map - Override all existing asset tracking maps"""
     if not require_auth():
         return redirect(url_for('login'))
     
-    return render_template('fleet_map_qq.html')
+    return render_template('enhanced_fleet_map.html')
 
 @app.route('/attendance-matrix')
 def attendance_matrix():

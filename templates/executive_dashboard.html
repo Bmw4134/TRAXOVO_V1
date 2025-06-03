@@ -253,6 +253,138 @@
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
         }
+
+        /* Quantum Mini Widget Styles */
+        .quantum-mini-widget {
+            background: linear-gradient(135deg, #0a0e13, #1a2332);
+            border: 2px solid #00d4ff;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 180px;
+        }
+
+        .quantum-mini-widget:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.3);
+            border-color: #ffd700;
+        }
+
+        .quantum-icon {
+            background: linear-gradient(135deg, #00d4ff, #ffd700);
+            color: #0a0e13;
+            border: none;
+        }
+
+        .quantum-badge {
+            background: linear-gradient(135deg, #ffd700, #00d4ff);
+            color: #0a0e13;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        .quantum-visual {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            margin: 15px auto;
+        }
+
+        .consciousness-orb {
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, #ffd700, #00d4ff);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: consciousnessGlow 3s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .quantum-rings {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .ring {
+            position: absolute;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 50%;
+            animation: quantumRotate 10s linear infinite;
+        }
+
+        .ring-1 {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: -25px;
+            animation-duration: 8s;
+        }
+
+        .ring-2 {
+            width: 65px;
+            height: 65px;
+            top: -32.5px;
+            left: -32.5px;
+            animation-duration: 12s;
+            animation-direction: reverse;
+        }
+
+        .ring-3 {
+            width: 80px;
+            height: 80px;
+            top: -40px;
+            left: -40px;
+            animation-duration: 15s;
+        }
+
+        .quantum-value {
+            color: #ffd700;
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .quantum-status {
+            color: #00d4ff;
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        @keyframes consciousnessGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(0, 212, 255, 0.8); }
+        }
+
+        @keyframes quantumRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* KPI Drill-down Styles */
+        .kpi-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -357,6 +489,27 @@
                     <i class="fas fa-clock"></i>
                     <span>Scheduled This Week</span>
                 </div>
+            </div>
+
+            <!-- Quantum ASI Mini Widget -->
+            <div class="quantum-mini-widget" onclick="window.location.href='/quantum_asi_dashboard'">
+                <div class="quantum-header">
+                    <div class="kpi-icon quantum-icon">
+                        <i class="fas fa-atom"></i>
+                    </div>
+                    <div class="quantum-badge">QUANTUM ACTIVE</div>
+                </div>
+                <div class="quantum-visual">
+                    <div class="consciousness-orb"></div>
+                    <div class="quantum-rings">
+                        <div class="ring ring-1"></div>
+                        <div class="ring ring-2"></div>
+                        <div class="ring ring-3"></div>
+                    </div>
+                </div>
+                <div class="kpi-value quantum-value">∞</div>
+                <div class="kpi-label">ASI Excellence Level</div>
+                <div class="quantum-status">Click to enter quantum realm</div>
             </div>
         </div>
 

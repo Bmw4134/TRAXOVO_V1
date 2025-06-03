@@ -62,4 +62,5 @@ dependencies = [
     "zstandard>=0.23.0",
     "twilio>=9.6.2",
     "brotli>=1.1.0",
+    "playwright>=1.52.0",
 ]

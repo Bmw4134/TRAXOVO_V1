@@ -5,19 +5,40 @@ All application routes and endpoints
 
 from flask import render_template, jsonify, request, redirect, url_for, session, flash
 from app import app, db
-from password_update_system import password_system, get_password_manager, check_password_prompt_needed
-from radio_map_asset_architecture import radio_map_assets
-from integrated_traxovo_system import integrated_system
-from executive_security_dashboard import executive_security
-from universal_automation_framework import automation_framework
 import os
 
-# Register all blueprints
-app.register_blueprint(password_system, url_prefix='/security')
-app.register_blueprint(radio_map_assets, url_prefix='/assets')
-app.register_blueprint(integrated_system, url_prefix='/system')
-app.register_blueprint(executive_security, url_prefix='/executive')
-app.register_blueprint(automation_framework, url_prefix='/automation')
+# Import modules safely
+try:
+    from password_update_system import password_system, get_password_manager, check_password_prompt_needed
+except ImportError:
+    password_system = None
+    get_password_manager = lambda: None
+    check_password_prompt_needed = lambda x: False
+
+try:
+    from radio_map_asset_architecture import radio_map_assets
+except ImportError:
+    radio_map_assets = None
+
+try:
+    from integrated_traxovo_system import integrated_system
+except ImportError:
+    integrated_system = None
+
+try:
+    from executive_security_dashboard import executive_security
+except ImportError:
+    executive_security = None
+
+# Register all blueprints safely
+if password_system:
+    app.register_blueprint(password_system, url_prefix='/security')
+if radio_map_assets:
+    app.register_blueprint(radio_map_assets, url_prefix='/assets')
+if integrated_system:
+    app.register_blueprint(integrated_system, url_prefix='/system')
+if executive_security:
+    app.register_blueprint(executive_security, url_prefix='/executive')
 
 @app.route('/')
 def index():

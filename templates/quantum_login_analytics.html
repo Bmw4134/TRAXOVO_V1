@@ -685,8 +685,10 @@
             // Update user behavior table
             updateUserBehaviorTable(analytics.user_behavior);
             
-            // Update thought vectors
+            // Update thought vectors and quantum matrix
             createThoughtVectors();
+            createQuantumMatrix();
+            updateQuantumSignature();
         }
         
         function updateUserBehaviorTable(userBehavior) {

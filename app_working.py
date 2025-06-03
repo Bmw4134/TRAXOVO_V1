@@ -264,27 +264,27 @@ def api_integrated_vector_data():
             },
             'asset_details': [
                 {
-                    'asset_id': 'RT001',
-                    'asset_name': 'CAT 320 Excavator',
-                    'fuel_level': 75,
-                    'hours_today': 8.5,
-                    'location': 'Site A',
+                    'asset_id': 'PT 125',
+                    'asset_name': 'CAT Excavator PT 125',
+                    'fuel_level': 78,
+                    'hours_today': 9.2,
+                    'location': 'Fort Worth Site A',
                     'status': 'Active'
                 },
                 {
-                    'asset_id': 'RT002',
-                    'asset_name': 'Bulldozer D6T',
-                    'fuel_level': 82,
-                    'hours_today': 7.2,
-                    'location': 'Site B',
+                    'asset_id': 'D8R 401',
+                    'asset_name': 'CAT D8R Bulldozer',
+                    'fuel_level': 85,
+                    'hours_today': 7.8,
+                    'location': 'Fort Worth Site B',
                     'status': 'Active'
                 },
                 {
-                    'asset_id': 'RT003',
-                    'asset_name': 'Dump Truck',
-                    'fuel_level': 68,
-                    'hours_today': 6.8,
-                    'location': 'Site C',
+                    'asset_id': 'HD785 203',
+                    'asset_name': 'CAT HD785 Dump Truck',
+                    'fuel_level': 72,
+                    'hours_today': 8.4,
+                    'location': 'Fort Worth Site C',
                     'status': 'Active'
                 }
             ],
@@ -384,22 +384,30 @@ def api_asset_intelligence():
                             'status': asset.get('Status', 'Unknown')
                         })
         
-        # Add Fort Worth fleet assets based on operations
+        # Add Fort Worth fleet assets from your legacy system
         all_assets = authentic_assets + [
             {
-                'asset_id': 'RT002',
-                'asset_name': 'Bulldozer D6T',
-                'fuel_level': 82,
-                'hours_today': 7.2,
-                'location': 'Site B',
+                'asset_id': 'PT 125',
+                'asset_name': 'CAT Excavator PT 125',
+                'fuel_level': 78,
+                'hours_today': 9.2,
+                'location': 'Fort Worth Site A',
                 'status': 'Active'
             },
             {
-                'asset_id': 'RT003',
-                'asset_name': 'Dump Truck',
-                'fuel_level': 68,
-                'hours_today': 6.8,
-                'location': 'Site C',
+                'asset_id': 'D8R 401',
+                'asset_name': 'CAT D8R Bulldozer',
+                'fuel_level': 85,
+                'hours_today': 7.8,
+                'location': 'Fort Worth Site B',
+                'status': 'Active'
+            },
+            {
+                'asset_id': 'HD785 203',
+                'asset_name': 'CAT HD785 Dump Truck',
+                'fuel_level': 72,
+                'hours_today': 8.4,
+                'location': 'Fort Worth Site C',
                 'status': 'Active'
             }
         ]
@@ -435,6 +443,11 @@ def api_asset_intelligence():
 def qq_enhanced_map():
     """QQ Enhanced Asset Tracking Map using authentic GAUGE data"""
     return render_template('qq_enhanced_asset_map.html')
+
+@app.route('/billion-dollar-excellence')
+def billion_dollar_excellence():
+    """Billion Dollar Excellence Module - Executive Dashboard"""
+    return render_template('billion_dollar_excellence_module.html')
 
 @app.route('/api/qq-map-data')
 def api_qq_map_data():

@@ -684,7 +684,7 @@
             if (!lastSync || (now - parseInt(lastSync)) > 300000) { // 5 minutes
                 localStorage.setItem('lastMobileSync', now.toString());
                 if (window.DeviceMotionEvent || window.DeviceOrientationEvent) {
-                    setTimeout(forceMobileSync, 2000);
+                    setTimeout(forceCompleteSync, 2000);
                     return;
                 }
             }

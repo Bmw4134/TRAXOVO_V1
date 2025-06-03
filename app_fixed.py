@@ -442,6 +442,11 @@ def agi_analytics_dashboard():
     """AGI Analytics Engine Dashboard"""
     return render_template('agi_analytics_dashboard.html')
 
+@app.route('/agi_analytics')
+def agi_analytics():
+    """AGI Analytics - Quantum Enhanced Pipeline"""
+    return render_template('agi_analytics_dashboard.html')
+
 @app.route('/board_security_audit')
 def board_security_audit():
     """Board Security Audit Dashboard"""

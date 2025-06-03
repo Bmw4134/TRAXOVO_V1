@@ -4,7 +4,7 @@ All application routes and endpoints
 """
 
 from flask import render_template, jsonify, request, redirect, url_for, session, flash
-from app import app, db
+from app_core import app, db
 import os
 
 # Import modules safely

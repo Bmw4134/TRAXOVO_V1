@@ -413,6 +413,11 @@ def logout():
     flash('You have been logged out successfully', 'info')
     return redirect('/secure_login')
 
+@app.route('/master_overlay')
+def master_overlay():
+    """Serve floating master command overlay"""
+    return render_template('floating_master_overlay.html')
+
 # Initialize high-value API integrations and deployment automation
 integrate_high_value_apis(app)
 integrate_deployment_automation(app)

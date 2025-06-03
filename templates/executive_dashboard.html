@@ -513,7 +513,7 @@
     <script>
         // Only load master command in development environment
         if (window.location.hostname.includes('replit.dev') || window.location.search.includes('debug=true')) {
-            fetch('/templates/floating_master_overlay.html')
+            fetch('/master_overlay')
                 .then(response => response.text())
                 .then(html => {
                     const tempDiv = document.createElement('div');

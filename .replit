@@ -9,6 +9,7 @@ deploymentTarget = "cloudrun"
 run = ["sh", "-c", "python app.py"]
 
 [workflows]
+runButton = "Run Clean App"
 
 [[workflows.workflow]]
 name = "Project"
@@ -190,6 +191,15 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python app.py"
+
+[[workflows.workflow]]
+name = "Run Clean App"
+author = 42738758
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
 
 [[ports]]
 localPort = 5000

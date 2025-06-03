@@ -113,9 +113,9 @@ def get_complete_asset_inventory():
 # Routes
 @app.route('/')
 def index():
-    """Index route - redirect to login or dashboard"""
+    """Index route - redirect to login or quantum dashboard"""
     if 'user_id' in session:
-        return render_template('vector_quantum_excellence_dashboard.html')
+        return redirect(url_for('quantum_asi_dashboard'))
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -129,7 +129,7 @@ def login():
             session['user_id'] = 'watson'
             session['role'] = 'watson'
             session['username'] = 'Watson'
-            return redirect(url_for('index'))
+            return redirect(url_for('quantum_asi_dashboard'))
         else:
             flash('Invalid credentials')
     
@@ -158,10 +158,10 @@ def vector_quantum_excellence():
 
 @app.route('/quantum_asi_dashboard')
 def quantum_asi_dashboard():
-    """Quantum ASI Dashboard with Contextual Productivity Nudges"""
+    """Quantum ASI Excellence - The beautiful interface you had working"""
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    return render_template('quantum_asi_dashboard.html')
+    return render_template('quantum_asi_excellence.html')
 
 @app.route('/fleet-map')
 def fleet_map():

@@ -4,7 +4,7 @@ All quantum functionality preserved, all errors resolved
 """
 
 import os
-from flask import Flask, render_template, jsonify, request, redirect, url_for, session, flash
+from flask import Flask, render_template, jsonify, request, redirect, url_for, session, flash, make_response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -56,7 +56,12 @@ with app.app_context():
 @app.route('/')
 def index():
     """Main dashboard - Vector Quantum Excellence"""
-    return render_template('vector_quantum_excellence_dashboard.html')
+    # Force no-cache headers for mobile sync
+    response = make_response(render_template('vector_quantum_excellence_dashboard.html'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @app.route('/vector_quantum_excellence')
 def vector_quantum_excellence():

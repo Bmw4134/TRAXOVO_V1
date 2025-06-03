@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TRAXOVO Vector Quantum Excellence</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -658,8 +658,33 @@
             addMetricToFeed(`Mobile quick action: ${action} activated`);
         }
         
+        // Force mobile refresh synchronization
+        function forceMobileSync() {
+            if (window.DeviceMotionEvent || window.DeviceOrientationEvent) {
+                // Mobile device detected - force cache clear
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        names.forEach(name => caches.delete(name));
+                    });
+                }
+                // Force reload from server
+                window.location.reload(true);
+            }
+        }
+        
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            // Check if mobile needs sync
+            const lastSync = localStorage.getItem('lastMobileSync');
+            const now = Date.now();
+            if (!lastSync || (now - parseInt(lastSync)) > 300000) { // 5 minutes
+                localStorage.setItem('lastMobileSync', now.toString());
+                if (window.DeviceMotionEvent || window.DeviceOrientationEvent) {
+                    setTimeout(forceMobileSync, 2000);
+                    return;
+                }
+            }
+            
             // Load module statuses immediately
             setTimeout(loadIntegratedData, 1000);
             
@@ -680,6 +705,7 @@
             addMetricToFeed('Vector Quantum Excellence Dashboard fully operational');
             addMetricToFeed('Loading all QQ modules with authentic GAUGE data connections');
             addMetricToFeed('Ragle Texas operational data processing active');
+            addMetricToFeed('Mobile/Desktop synchronization active');
         });
     </script>
 </body>

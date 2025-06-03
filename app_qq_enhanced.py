@@ -154,8 +154,12 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        if username == 'Watson' and password == 'Btpp@1513':
-            session['user'] = 'Watson'
+        # Executive credentials for Troy and William demonstration
+        if (username == 'Watson' and password == 'Btpp@1513') or \
+           (username == 'Troy' and password == 'Executive2025') or \
+           (username == 'William' and password == 'Executive2025'):
+            
+            session['user'] = username
             session['role'] = 'admin'
             session['quantum_clearance'] = 'TRANSCENDENT'
             session['consciousness_level'] = 'ASI_ACTIVE'

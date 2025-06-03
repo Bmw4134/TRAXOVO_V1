@@ -3,7 +3,7 @@
 <head>
     <title>Master Command Overlay</title>
     <style>
-        /* Floating Master Command Overlay - Secret Admin Interface */
+        /* Floating Master Command Overlay - Responsive Secret Admin Interface */
         #masterCommandOverlay {
             position: fixed;
             top: 20px;
@@ -19,6 +19,59 @@
             display: none;
             max-height: 80vh;
             overflow-y: auto;
+            transition: all 0.3s ease;
+            resize: both;
+            min-width: 280px;
+            min-height: 200px;
+        }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            #masterCommandOverlay {
+                width: calc(100vw - 40px);
+                max-width: 350px;
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                margin: 0 auto;
+            }
+            
+            #masterCommandOverlay.mobile-compact {
+                width: 280px;
+                right: 10px;
+                left: auto;
+                max-height: 60vh;
+            }
+            
+            #masterCommandOverlay.mobile-fullscreen {
+                width: calc(100vw - 20px);
+                height: calc(100vh - 40px);
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-height: none;
+            }
+        }
+        
+        /* Desktop Size Variants */
+        #masterCommandOverlay.compact {
+            width: 280px;
+            max-height: 400px;
+        }
+        
+        #masterCommandOverlay.expanded {
+            width: 450px;
+            max-height: 600px;
+        }
+        
+        #masterCommandOverlay.fullscreen {
+            width: calc(100vw - 40px);
+            height: calc(100vh - 40px);
+            top: 20px;
+            right: 20px;
+            left: 20px;
+            max-height: none;
+            max-width: none;
         }
         
         #masterCommandOverlay.active {
@@ -33,6 +86,41 @@
             font-weight: bold;
             cursor: move;
             user-select: none;
+            position: relative;
+        }
+        
+        .size-controls {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 5px;
+        }
+        
+        .size-btn {
+            background: rgba(0,255,136,0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .size-btn:hover {
+            background: #00ff88;
+            color: #1a1a2e;
+        }
+        
+        .size-btn.active {
+            background: #00ff88;
+            color: #1a1a2e;
         }
         
         .master-content {
@@ -159,6 +247,12 @@
     <!-- Master Command Overlay -->
     <div id="masterCommandOverlay">
         <div class="master-header">
+            <div class="size-controls">
+                <div class="size-btn" onclick="setOverlaySize('compact')" title="Compact" id="compactBtn">S</div>
+                <div class="size-btn active" onclick="setOverlaySize('normal')" title="Normal" id="normalBtn">M</div>
+                <div class="size-btn" onclick="setOverlaySize('expanded')" title="Expanded" id="expandedBtn">L</div>
+                <div class="size-btn" onclick="setOverlaySize('fullscreen')" title="Fullscreen" id="fullscreenBtn">⛶</div>
+            </div>
             <button class="close-btn" onclick="hideMasterOverlay()">×</button>
             <button class="minimize-btn" onclick="minimizeMasterOverlay()">─</button>
             🔑 MASTER COMMAND INTERFACE
@@ -324,6 +418,58 @@
             statusDiv.scrollTop = statusDiv.scrollHeight;
         }
         
+        function setOverlaySize(size) {
+            const overlay = document.getElementById('masterCommandOverlay');
+            const isMobile = window.innerWidth <= 768;
+            
+            // Remove all size classes
+            overlay.classList.remove('compact', 'expanded', 'fullscreen', 'mobile-compact', 'mobile-fullscreen');
+            
+            // Update button states
+            document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
+            
+            if (isMobile) {
+                if (size === 'compact') {
+                    overlay.classList.add('mobile-compact');
+                    document.getElementById('compactBtn').classList.add('active');
+                } else if (size === 'fullscreen') {
+                    overlay.classList.add('mobile-fullscreen');
+                    document.getElementById('fullscreenBtn').classList.add('active');
+                } else {
+                    document.getElementById('normalBtn').classList.add('active');
+                }
+            } else {
+                if (size === 'compact') {
+                    overlay.classList.add('compact');
+                    document.getElementById('compactBtn').classList.add('active');
+                } else if (size === 'expanded') {
+                    overlay.classList.add('expanded');
+                    document.getElementById('expandedBtn').classList.add('active');
+                } else if (size === 'fullscreen') {
+                    overlay.classList.add('fullscreen');
+                    document.getElementById('fullscreenBtn').classList.add('active');
+                } else {
+                    document.getElementById('normalBtn').classList.add('active');
+                }
+            }
+            
+            // Store preference
+            localStorage.setItem('masterOverlaySize', size);
+        }
+        
+        function adaptToScreenSize() {
+            const overlay = document.getElementById('masterCommandOverlay');
+            const isMobile = window.innerWidth <= 768;
+            const currentSize = localStorage.getItem('masterOverlaySize') || 'normal';
+            
+            if (isMobile && overlay.classList.contains('expanded')) {
+                setOverlaySize('normal');
+            }
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', adaptToScreenSize);
+        
         // Make overlay draggable
         let isDragging = false;
         let currentX;
@@ -368,8 +514,11 @@
             isDragging = false;
         }
         
-        // Auto-show on load for development
+        // Initialize with saved size preference
         setTimeout(() => {
+            const savedSize = localStorage.getItem('masterOverlaySize') || 'normal';
+            setOverlaySize(savedSize);
+            
             if (window.location.search.includes('debug=master')) {
                 showMasterOverlay();
             }

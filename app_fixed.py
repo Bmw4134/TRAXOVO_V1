@@ -22,6 +22,7 @@ from quantum_pdf_export_engine import get_pdf_exporter
 from gamified_learning_overlay import gamified_learning
 from quantum_ui_overlay_fix import quantum_ui_fix
 from quantum_future_widgets import quantum_future
+from intelligent_puppeteer_learner import intelligent_puppeteer
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -898,6 +899,10 @@ app.register_blueprint(gamified_learning, url_prefix='/learning')
 from secure_credential_manager import secure_credentials
 app.register_blueprint(secure_credentials, url_prefix='/credentials')
 
+# Register secure QQ credential uploader
+from secure_qq_credential_uploader import secure_credential_uploader
+app.register_blueprint(secure_credential_uploader, url_prefix='/credentials')
+
 # Register autonomous deployment puppeteer
 from autonomous_deployment_puppeteer import autonomous_deployment
 app.register_blueprint(autonomous_deployment, url_prefix='/autonomous')
@@ -911,6 +916,15 @@ app.register_blueprint(quantum_ui_fix, url_prefix='/ui-fix')
 
 # Register quantum future widgets system
 app.register_blueprint(quantum_future, url_prefix='/future')
+
+# Register intelligent puppeteer learner
+app.register_blueprint(intelligent_puppeteer, url_prefix='/learner')
+
+# Integrate QQ Sprint missing endpoints
+from qq_sprint_missing_endpoints import integrate_missing_endpoints
+integrate_missing_endpoints(app)
+
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

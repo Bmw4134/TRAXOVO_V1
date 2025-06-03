@@ -900,5 +900,9 @@ app.register_blueprint(secure_credentials, url_prefix='/credentials')
 from autonomous_deployment_puppeteer import autonomous_deployment
 app.register_blueprint(autonomous_deployment, url_prefix='/autonomous')
 
+# Register QQ codebase intelligence engine
+from qq_codebase_intelligence_engine import codebase_intelligence
+app.register_blueprint(codebase_intelligence, url_prefix='/codebase')
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

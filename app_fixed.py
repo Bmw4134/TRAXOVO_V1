@@ -510,6 +510,16 @@ def system_demonstration():
     """Complete System Demonstration - Quantum ASI→AGI→AI Proof Dashboard"""
     return render_template('system_demonstration.html')
 
+@app.route('/quantum_data_drill_down')
+def quantum_data_drill_down():
+    """Quantum Data Intelligence - Executive Drill-Down Dashboard"""
+    return render_template('quantum_data_drill_down.html')
+
+@app.route('/executive_handoff')
+def executive_handoff():
+    """Executive Handoff - ROI Demonstration for Troy & William"""
+    return render_template('executive_handoff.html')
+
 @app.route('/api/quantum_data_integration')
 def api_quantum_data_integration():
     """API endpoint for quantum data integration status across all sources"""
@@ -534,6 +544,36 @@ def api_quantum_data_integration():
             "success": False,
             "error": str(e),
             "fallback_mode": True
+        })
+
+@app.route('/api/intelligent_scraper')
+def api_intelligent_scraper():
+    """API endpoint for intelligent web scraping of daily reporting sites"""
+    try:
+        from intelligent_web_scraper import get_intelligent_scraper
+        scraper = get_intelligent_scraper()
+        
+        # Run async scraping in sync context
+        import asyncio
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        
+        scraping_results = loop.run_until_complete(scraper.scrape_all_configured_sites())
+        
+        return jsonify({
+            "success": True,
+            "scraping_results": scraping_results,
+            "total_data_sources": scraping_results["total_sites"],
+            "successful_extractions": scraping_results["successful_scrapes"]
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "demonstration_mode": True
         })
 
 @app.route('/admin_access')

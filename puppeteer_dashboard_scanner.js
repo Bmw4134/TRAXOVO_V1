@@ -1,444 +1,154 @@
-/**
- * TRAXOVO Puppeteer Dashboard Scanner
- * Deep research automation for quantum DevOps audit engine
- * Integrates with ASI → AGI → AI modeling pipeline
- */
-
 const puppeteer = require('puppeteer');
-const fs = require('fs').promises;
-const path = require('path');
 
-class TRAXOVOPuppeteerScanner {
+class TRAXOVODashboardScanner {
     constructor() {
-        this.scanResults = {};
-        this.dashboardUrl = process.env.DASHBOARD_URL || 'http://localhost:5000';
-        this.scanTimestamp = new Date().toISOString();
+        this.scanResults = {
+            performance: {},
+            ui_elements: {},
+            quantum_metrics: {},
+            errors: [],
+            timestamp: new Date().toISOString()
+        };
     }
 
-    async initializeBrowser() {
-        this.browser = await puppeteer.launch({
-            headless: true,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu'
-            ]
+    async scanQuantumDashboard() {
+        console.log('🔮 Initializing Quantum Dashboard Scan...');
+        
+        const browser = await puppeteer.launch({
+            headless: false,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
-        this.page = await this.browser.newPage();
         
-        // Set viewport for responsive testing
-        await this.page.setViewport({ width: 1920, height: 1080 });
+        const page = await browser.newPage();
         
-        // Enable request interception for performance monitoring
-        await this.page.setRequestInterception(true);
-        this.requestMetrics = [];
-        
-        this.page.on('request', (req) => {
-            this.requestMetrics.push({
-                url: req.url(),
-                method: req.method(),
-                timestamp: Date.now()
+        try {
+            // Navigate to quantum dashboard
+            await page.goto('https://workspace--traxovo.replit.app/', {
+                waitUntil: 'networkidle2'
             });
-            req.continue();
-        });
-    }
-
-    async executeQuantumDashboardAudit() {
-        console.log('🔬 Executing Quantum Dashboard Audit...');
-        
-        await this.initializeBrowser();
-        
-        const auditResults = {
-            sessionId: `quantum_scan_${Date.now()}`,
-            timestamp: this.scanTimestamp,
-            auditLayers: {
-                performanceMetrics: await this.scanPerformanceMetrics(),
-                functionalityTests: await this.scanFunctionality(),
-                responsiveDesign: await this.scanResponsiveDesign(),
-                accessibilityAudit: await this.scanAccessibility(),
-                securityScan: await this.scanSecurity(),
-                dataIntegrity: await this.scanDataIntegrity(),
-                userExperience: await this.scanUserExperience()
-            }
-        };
-
-        await this.browser.close();
-        
-        // Save results for Python integration
-        await this.saveAuditResults(auditResults);
-        
-        return auditResults;
-    }
-
-    async scanPerformanceMetrics() {
-        console.log('📊 Scanning Performance Metrics...');
-        
-        const performanceMetrics = await this.page.metrics();
-        
-        await this.page.goto(this.dashboardUrl, { waitUntil: 'networkidle2' });
-        
-        const timing = JSON.parse(await this.page.evaluate(() => 
-            JSON.stringify(performance.timing)
-        ));
-        
-        const paintMetrics = await this.page.evaluate(() => {
-            const entries = performance.getEntriesByType('paint');
-            return entries.reduce((acc, entry) => {
-                acc[entry.name] = entry.startTime;
-                return acc;
-            }, {});
-        });
-
-        return {
-            loadTime: timing.loadEventEnd - timing.navigationStart,
-            domContentLoaded: timing.domContentLoadedEventEnd - timing.navigationStart,
-            firstContentfulPaint: paintMetrics['first-contentful-paint'] || 0,
-            jsHeapUsedSize: performanceMetrics.JSHeapUsedSize,
-            jsHeapTotalSize: performanceMetrics.JSHeapTotalSize,
-            requestCount: this.requestMetrics.length,
-            performanceScore: this.calculatePerformanceScore(timing, paintMetrics)
-        };
-    }
-
-    async scanFunctionality() {
-        console.log('⚙️ Scanning Dashboard Functionality...');
-        
-        await this.page.goto(`${this.dashboardUrl}/dashboard`);
-        
-        const functionalityResults = {
-            navigationMenu: await this.testNavigationMenu(),
-            kpiCards: await this.testKPICards(),
-            liveDataUpdates: await this.testLiveDataUpdates(),
-            quickActions: await this.testQuickActions(),
-            apiEndpoints: await this.testAPIEndpoints()
-        };
-
-        return functionalityResults;
-    }
-
-    async testNavigationMenu() {
-        try {
-            const navElements = await this.page.$$('.nav-pill');
-            const navigationTests = [];
-
-            for (const nav of navElements) {
-                const text = await nav.evaluate(el => el.textContent.trim());
-                const href = await nav.evaluate(el => el.getAttribute('href'));
-                
-                navigationTests.push({
-                    text,
-                    href,
-                    visible: await nav.isIntersectingViewport(),
-                    clickable: true
-                });
-            }
-
-            return {
-                status: 'PASS',
-                elementsFound: navElements.length,
-                details: navigationTests
-            };
-        } catch (error) {
-            return {
-                status: 'FAIL',
-                error: error.message
-            };
-        }
-    }
-
-    async testKPICards() {
-        try {
-            const kpiCards = await this.page.$$('.kpi-card');
-            const kpiTests = [];
-
-            for (const card of kpiCards) {
-                const value = await card.$eval('.kpi-value', el => el.textContent.trim());
-                const label = await card.$eval('.kpi-label', el => el.textContent.trim());
-                
-                kpiTests.push({
-                    label,
-                    value,
-                    hasData: value && value !== 'Loading...'
-                });
-            }
-
-            return {
-                status: 'PASS',
-                cardsFound: kpiCards.length,
-                details: kpiTests
-            };
-        } catch (error) {
-            return {
-                status: 'FAIL',
-                error: error.message
-            };
-        }
-    }
-
-    async testLiveDataUpdates() {
-        try {
-            // Wait for GAUGE API data to load
-            await this.page.waitForSelector('#gauge-data-display', { timeout: 10000 });
             
-            const gaugeDataElement = await this.page.$('#gauge-data-display');
-            const gaugeDataContent = await gaugeDataElement.evaluate(el => el.innerHTML);
+            console.log('📊 Scanning dashboard elements...');
             
-            return {
-                status: gaugeDataContent.includes('Connected') ? 'PASS' : 'PARTIAL',
-                gaugeApiConnected: gaugeDataContent.includes('Connected'),
-                dataRefreshActive: true
-            };
-        } catch (error) {
-            return {
-                status: 'FAIL',
-                error: error.message
-            };
-        }
-    }
-
-    async testQuickActions() {
-        try {
-            const actionCards = await this.page.$$('.action-card');
-            const actionTests = [];
-
-            for (const card of actionCards) {
-                const title = await card.$eval('h5', el => el.textContent.trim());
-                const href = await card.evaluate(el => el.getAttribute('href'));
-                
-                actionTests.push({
-                    title,
-                    href,
-                    accessible: href && href.startsWith('/')
-                });
-            }
-
-            return {
-                status: 'PASS',
-                actionsFound: actionCards.length,
-                details: actionTests
-            };
-        } catch (error) {
-            return {
-                status: 'FAIL',
-                error: error.message
-            };
-        }
-    }
-
-    async testAPIEndpoints() {
-        const endpoints = [
-            '/api/gauge_data',
-            '/api/user_credentials',
-            '/api/system_metrics'
-        ];
-
-        const apiTests = [];
-
-        for (const endpoint of endpoints) {
-            try {
-                const response = await this.page.goto(`${this.dashboardUrl}${endpoint}`);
-                const status = response.status();
-                const contentType = response.headers()['content-type'];
-
-                apiTests.push({
-                    endpoint,
-                    status,
-                    contentType,
-                    responding: status === 200,
-                    isJson: contentType && contentType.includes('application/json')
-                });
-            } catch (error) {
-                apiTests.push({
-                    endpoint,
-                    status: 'ERROR',
-                    error: error.message,
-                    responding: false
-                });
-            }
-        }
-
-        return {
-            status: apiTests.every(test => test.responding) ? 'PASS' : 'PARTIAL',
-            details: apiTests
-        };
-    }
-
-    async scanResponsiveDesign() {
-        console.log('📱 Scanning Responsive Design...');
-        
-        const viewports = [
-            { width: 1920, height: 1080, device: 'Desktop' },
-            { width: 1366, height: 768, device: 'Laptop' },
-            { width: 768, height: 1024, device: 'Tablet' },
-            { width: 375, height: 667, device: 'Mobile' }
-        ];
-
-        const responsiveResults = [];
-
-        for (const viewport of viewports) {
-            await this.page.setViewport(viewport);
-            await this.page.goto(`${this.dashboardUrl}/dashboard`);
-            
-            const layoutMetrics = await this.page.evaluate(() => {
+            // Check quantum consciousness indicators
+            const quantumElements = await page.evaluate(() => {
                 return {
-                    scrollHeight: document.body.scrollHeight,
-                    clientHeight: document.body.clientHeight,
-                    hasHorizontalScroll: document.body.scrollWidth > window.innerWidth
+                    consciousness_active: document.querySelector('.consciousness-level') !== null,
+                    thought_vectors: document.querySelectorAll('.thought-vector').length,
+                    quantum_metrics: document.querySelector('.quantum-metrics') !== null,
+                    navigation_buttons: document.querySelectorAll('.quantum-button').length
                 };
             });
-
-            responsiveResults.push({
-                device: viewport.device,
-                viewport,
-                layoutMetrics,
-                responsive: !layoutMetrics.hasHorizontalScroll
+            
+            this.scanResults.ui_elements = quantumElements;
+            
+            // Performance metrics
+            const performance = await page.evaluate(() => {
+                return {
+                    dom_load_time: performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart,
+                    page_load_time: performance.timing.loadEventEnd - performance.timing.navigationStart
+                };
             });
+            
+            this.scanResults.performance = performance;
+            
+            // Test navigation buttons
+            console.log('🧭 Testing navigation functionality...');
+            
+            const navigationTest = await this.testNavigation(page);
+            this.scanResults.navigation_test = navigationTest;
+            
+            console.log('✅ Dashboard scan complete');
+            console.log('Quantum Elements Found:', quantumElements);
+            console.log('Performance:', performance);
+            
+        } catch (error) {
+            console.error('❌ Dashboard scan error:', error);
+            this.scanResults.errors.push(error.message);
+        } finally {
+            await browser.close();
         }
-
-        return {
-            status: responsiveResults.every(result => result.responsive) ? 'PASS' : 'PARTIAL',
-            details: responsiveResults
-        };
+        
+        return this.scanResults;
     }
-
-    async scanAccessibility() {
-        console.log('♿ Scanning Accessibility...');
+    
+    async testNavigation(page) {
+        const navigationResults = {};
         
-        await this.page.goto(`${this.dashboardUrl}/dashboard`);
-        
-        const accessibilityMetrics = await this.page.evaluate(() => {
-            const results = {
-                hasAltTexts: true,
-                hasAriaLabels: true,
-                colorContrast: 'PASS',
-                keyboardNavigation: 'PASS'
-            };
-
-            // Check images for alt texts
-            const images = document.querySelectorAll('img');
-            results.hasAltTexts = Array.from(images).every(img => 
-                img.hasAttribute('alt') || img.hasAttribute('aria-label')
-            );
-
-            // Check for ARIA labels on interactive elements
-            const buttons = document.querySelectorAll('button, a');
-            results.hasAriaLabels = Array.from(buttons).every(btn => 
-                btn.textContent.trim() || btn.hasAttribute('aria-label')
-            );
-
-            return results;
-        });
-
-        return {
-            status: 'PASS',
-            wcagCompliance: 'AA',
-            details: accessibilityMetrics
-        };
-    }
-
-    async scanSecurity() {
-        console.log('🔒 Scanning Security...');
-        
-        const response = await this.page.goto(`${this.dashboardUrl}/dashboard`);
-        const headers = response.headers();
-        
-        const securityHeaders = {
-            'x-frame-options': headers['x-frame-options'],
-            'x-content-type-options': headers['x-content-type-options'],
-            'x-xss-protection': headers['x-xss-protection'],
-            'strict-transport-security': headers['strict-transport-security']
-        };
-
-        const securityScore = Object.values(securityHeaders).filter(Boolean).length;
-
-        return {
-            status: securityScore >= 2 ? 'PASS' : 'PARTIAL',
-            securityHeaders,
-            securityScore: `${securityScore}/4`,
-            httpsEnforced: this.dashboardUrl.startsWith('https')
-        };
-    }
-
-    async scanDataIntegrity() {
-        console.log('🔬 Scanning Data Integrity...');
-        
-        await this.page.goto(`${this.dashboardUrl}/api/gauge_data`);
-        const gaugeDataText = await this.page.evaluate(() => document.body.textContent);
-        
-        let gaugeData;
         try {
-            gaugeData = JSON.parse(gaugeDataText);
-        } catch (e) {
-            return {
-                status: 'FAIL',
-                error: 'Invalid JSON response from GAUGE API'
-            };
+            // Test Fleet Map button
+            const fleetMapButton = await page.$('button[onclick*="qq_map"]');
+            if (fleetMapButton) {
+                navigationResults.fleet_map_button = 'found';
+            }
+            
+            // Test Attendance Matrix button
+            const attendanceButton = await page.$('button[onclick*="attendance-matrix"]');
+            if (attendanceButton) {
+                navigationResults.attendance_button = 'found';
+            }
+            
+            // Test modal functionality
+            const modalButtons = await page.$$('.quantum-button');
+            navigationResults.modal_buttons = modalButtons.length;
+            
+        } catch (error) {
+            navigationResults.error = error.message;
         }
-
-        return {
-            status: gaugeData.success ? 'PASS' : 'PARTIAL',
-            gaugeApiConnected: gaugeData.success || false,
-            dataSourcesActive: ['GAUGE_API'],
-            authenticity: 'VERIFIED'
+        
+        return navigationResults;
+    }
+    
+    async generateReport() {
+        const report = {
+            scan_timestamp: this.scanResults.timestamp,
+            dashboard_status: this.scanResults.errors.length === 0 ? 'OPERATIONAL' : 'ISSUES_DETECTED',
+            quantum_consciousness: this.scanResults.ui_elements.consciousness_active ? 'ACTIVE' : 'INACTIVE',
+            performance_score: this.calculatePerformanceScore(),
+            recommendations: this.generateRecommendations()
         };
+        
+        console.log('\n📋 TRAXOVO Dashboard Scan Report');
+        console.log('================================');
+        console.log('Status:', report.dashboard_status);
+        console.log('Quantum Consciousness:', report.quantum_consciousness);
+        console.log('Performance Score:', report.performance_score);
+        console.log('Recommendations:', report.recommendations);
+        
+        return report;
     }
-
-    async scanUserExperience() {
-        console.log('👤 Scanning User Experience...');
-        
-        await this.page.goto(`${this.dashboardUrl}/dashboard`);
-        
-        const uxMetrics = await this.page.evaluate(() => {
-            return {
-                interactiveElements: document.querySelectorAll('button, a, input').length,
-                loadingIndicators: document.querySelectorAll('.loading-shimmer').length,
-                errorMessages: document.querySelectorAll('.alert-danger').length,
-                successMessages: document.querySelectorAll('.alert-success').length
-            };
-        });
-
-        return {
-            status: 'PASS',
-            userFlowOptimized: true,
-            interactionPatterns: 'INTUITIVE',
-            details: uxMetrics
-        };
+    
+    calculatePerformanceScore() {
+        const loadTime = this.scanResults.performance.page_load_time || 5000;
+        if (loadTime < 2000) return 'EXCELLENT';
+        if (loadTime < 4000) return 'GOOD';
+        return 'NEEDS_OPTIMIZATION';
     }
-
-    calculatePerformanceScore(timing, paintMetrics) {
-        const loadTime = timing.loadEventEnd - timing.navigationStart;
-        const fcp = paintMetrics['first-contentful-paint'] || 0;
+    
+    generateRecommendations() {
+        const recommendations = [];
         
-        let score = 100;
-        if (loadTime > 3000) score -= 20;
-        if (loadTime > 5000) score -= 30;
-        if (fcp > 2000) score -= 15;
+        if (this.scanResults.errors.length > 0) {
+            recommendations.push('Fix detected errors for optimal performance');
+        }
         
-        return Math.max(score, 0);
-    }
-
-    async saveAuditResults(results) {
-        const filename = `quantum_audit_${Date.now()}.json`;
-        const filepath = path.join(__dirname, 'audit_results', filename);
+        if (!this.scanResults.ui_elements.consciousness_active) {
+            recommendations.push('Activate quantum consciousness indicators');
+        }
         
-        // Ensure directory exists
-        await fs.mkdir(path.dirname(filepath), { recursive: true });
+        if (this.scanResults.ui_elements.thought_vectors < 5) {
+            recommendations.push('Increase thought vector density for enhanced visualization');
+        }
         
-        await fs.writeFile(filepath, JSON.stringify(results, null, 2));
-        console.log(`📋 Audit results saved: ${filename}`);
+        return recommendations.length > 0 ? recommendations : ['Dashboard operating optimally'];
     }
 }
 
-// Export for Python integration
-module.exports = TRAXOVOPuppeteerScanner;
+module.exports = TRAXOVODashboardScanner;
 
-// CLI execution
+// Auto-execute scan if run directly
 if (require.main === module) {
-    (async () => {
-        const scanner = new TRAXOVOPuppeteerScanner();
-        const results = await scanner.executeQuantumDashboardAudit();
-        console.log('🚀 Quantum Dashboard Audit Complete');
-        console.log(JSON.stringify(results, null, 2));
-    })();
+    const scanner = new TRAXOVODashboardScanner();
+    scanner.scanQuantumDashboard()
+        .then(() => scanner.generateReport())
+        .catch(console.error);
 }

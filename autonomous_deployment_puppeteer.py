@@ -8,12 +8,17 @@ import time
 import asyncio
 import threading
 from datetime import datetime, timedelta
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, render_template
 from secure_credential_manager import get_credential_manager
 import subprocess
 import json
 import requests
-from qqasiagiai_core_architecture import get_qqasiagiai_core
+try:
+    from qqasiagiai_core_architecture import get_qqasiagiai_core
+except ImportError:
+    # Fallback if module not available
+    def get_qqasiagiai_core():
+        return None
 
 class AutonomousDeploymentPuppeteer:
     """

@@ -16,6 +16,7 @@ from watson_email_intelligence import integrate_watson_email
 from asi_routing_engine import integrate_asi_routing
 from autonomous_deployment_engine import integrate_autonomous_engine
 from gauge_automation_engine import integrate_gauge_automation
+from quantum_search_engine import integrate_quantum_search
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -445,6 +446,7 @@ integrate_watson_email(app)
 integrate_asi_routing(app)
 integrate_autonomous_engine(app)
 integrate_gauge_automation(app)
+integrate_quantum_search(app)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

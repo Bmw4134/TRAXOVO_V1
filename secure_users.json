@@ -19,7 +19,7 @@
         "report_generation": true
       },
       "password_hash": "73663a791562c0416f1da5d1a0eec3b93b29ebf588f523d00c1de85fc3f51ac5bed4e64fc2c389c61ec7eef508ca5389597df98444fe9aa5d583f7230f88d79f",
-      "last_login": "2025-06-03T00:32:15.848129",
+      "last_login": "2025-06-03T01:11:37.690671",
       "created_date": "2025-06-02T22:41:06.529178",
       "active": true
     },
@@ -116,6 +116,6 @@
       "active": true
     }
   ],
-  "last_updated": "2025-06-03T00:32:15.848680",
+  "last_updated": "2025-06-03T01:11:37.694527",
   "security_version": "1.0"
 }

@@ -20,7 +20,7 @@ from quantum_search_engine import integrate_quantum_search
 from qqasiagiai_core_architecture import get_qqasiagiai_core
 from quantum_pdf_export_engine import get_pdf_exporter
 from gamified_learning_overlay import gamified_learning
-from qq_codebase_intelligence_engine import integrate_codebase_intelligence
+from quantum_ui_overlay_fix import quantum_ui_fix
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -904,6 +904,9 @@ app.register_blueprint(autonomous_deployment, url_prefix='/autonomous')
 # Register QQ codebase intelligence engine
 from qq_codebase_intelligence_engine import codebase_intelligence
 app.register_blueprint(codebase_intelligence, url_prefix='/codebase')
+
+# Register quantum UI overlay fix system
+app.register_blueprint(quantum_ui_fix, url_prefix='/ui-fix')
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

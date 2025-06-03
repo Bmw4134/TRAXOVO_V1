@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
 from app_restored import app
 
 if __name__ == "__main__":
-    print("TRAXOVO Ready - Watson Password: Btpp@1513")
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="0.0.0.0", port=5000, debug=True)

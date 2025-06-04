@@ -376,6 +376,37 @@
             </div>
         </div>
 
+        <!-- Simulated Issues and Critical Paths Row -->
+        <div class="row">
+            <!-- Simulated Issues Card -->
+            <div class="col-lg-6">
+                <div class="complexity-card">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-bug me-2"></i>Simulated Deployment Issues
+                        </h5>
+                        <div id="simulatedIssuesList">
+                            <!-- Simulated issues will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Critical Paths Card -->
+            <div class="col-lg-6">
+                <div class="complexity-card">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-route me-2"></i>Critical Deployment Paths
+                        </h5>
+                        <div id="criticalPathsList">
+                            <!-- Critical paths will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Large Files Analysis -->
         <div class="row">
             <div class="col-12">
@@ -542,6 +573,10 @@
             updateRecommendations(data.recommendations || []);
             updateBottlenecks(data.bottlenecks || []);
             updateLargestFiles(data.largest_files || []);
+            
+            // Update simulated issues and critical paths
+            updateSimulatedIssues(data.simulated_issues || []);
+            updateCriticalPaths(data.critical_paths || []);
         }
 
         function updateOptimizationStatus(optimizationStatus) {
@@ -646,6 +681,65 @@
                         <small class="text-muted ms-2">${file.type}</small>
                     </span>
                     <span class="badge bg-secondary">${file.size_mb.toFixed(2)} MB</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateSimulatedIssues(simulatedIssues) {
+            const container = document.getElementById('simulatedIssuesList');
+            container.innerHTML = '';
+
+            if (simulatedIssues.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted">No deployment issues detected</div>';
+                return;
+            }
+
+            simulatedIssues.forEach(issue => {
+                const div = document.createElement('div');
+                div.className = 'bottleneck-item';
+                const severityColor = issue.severity === 'CRITICAL' ? '#dc3545' : 
+                                    issue.severity === 'HIGH' ? '#fd7e14' : '#ffc107';
+                div.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-weight: bold; color: ${severityColor};">${issue.type}</span>
+                        <span class="badge" style="background: ${severityColor}20; color: ${severityColor};">${issue.likelihood}% likely</span>
+                    </div>
+                    <div style="font-size: 0.9em; margin-bottom: 6px;">${issue.description}</div>
+                    <div style="font-size: 0.8em; color: #88ffaa;"><strong>Fix:</strong> ${issue.potential_fix}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateCriticalPaths(criticalPaths) {
+            const container = document.getElementById('criticalPathsList');
+            container.innerHTML = '';
+
+            if (criticalPaths.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted">No critical paths identified</div>';
+                return;
+            }
+
+            criticalPaths.forEach(path => {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                const riskColor = path.risk_score > 70 ? '#dc3545' : 
+                                path.risk_score > 40 ? '#fd7e14' : '#198754';
+                div.innerHTML = `
+                    <div>
+                        <div style="font-weight: bold; margin-bottom: 8px;">
+                            <i class="fas fa-route me-2"></i>${path.path}
+                            <span class="badge ms-2" style="background: ${riskColor}20; color: ${riskColor};">Risk: ${path.risk_score}/100</span>
+                        </div>
+                        <div style="font-size: 0.9em; margin-bottom: 6px;">
+                            <strong>Components:</strong> ${path.components.slice(0, 3).join(', ')}${path.components.length > 3 ? '...' : ''}
+                        </div>
+                        <div style="font-size: 0.8em; color: #a8b2d1;">
+                            <strong>Est. Time:</strong> ${Math.round(path.estimated_time)}s | 
+                            <strong>Failure Points:</strong> ${path.failure_points.join(', ')}
+                        </div>
+                    </div>
                 `;
                 container.appendChild(div);
             });

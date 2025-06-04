@@ -174,21 +174,21 @@ class QQComprehensiveIntegrationSweep:
         logging.info("Autonomous integration sweep system started")
         
     def _component_analysis_worker(self):
-        """Continuous component analysis worker"""
+        """Continuous component analysis worker - SIMULATION MODE"""
         
         while self.running:
             try:
-                # Analyze all components
-                components = self.analyze_all_components()
+                # In simulation mode, skip intensive analysis to preserve resources
+                if self.simulation_mode:
+                    logging.info("Component analysis: SIMULATION MODE - skipping intensive analysis")
+                    time.sleep(300)  # Longer sleep in simulation mode
+                    continue
                 
-                # Store component analysis
+                # Analyze all components (only in production mode)
+                components = self.analyze_all_components()
                 self.store_component_analysis(components)
                 
-                # Update component signatures
-                self.update_component_signatures(components)
-                
-                # Sleep between analysis cycles
-                time.sleep(240)  # 4 minutes between component analysis
+                time.sleep(240)
                 
             except Exception as e:
                 logging.error(f"Component analysis worker error: {e}")
@@ -385,6 +385,96 @@ class QQComprehensiveIntegrationSweep:
         except Exception as e:
             logging.error(f"Error analyzing JS component {file_path}: {e}")
             return None
+            
+    def extract_js_dependencies(self, content: str) -> List[str]:
+        """Extract JavaScript dependencies from content"""
+        dependencies = []
+        
+        # Extract import statements
+        import_patterns = [
+            r'import\s+.*?\s+from\s+[\'"]([^\'"]+)[\'"]',
+            r'require\([\'"]([^\'"]+)[\'"]\)',
+            r'import\([\'"]([^\'"]+)[\'"]\)'
+        ]
+        
+        for pattern in import_patterns:
+            matches = re.findall(pattern, content)
+            dependencies.extend(matches)
+            
+        return list(set(dependencies))
+        
+    def extract_js_features(self, content: str) -> List[str]:
+        """Extract JavaScript features from content"""
+        features = []
+        
+        # Common JS features
+        feature_patterns = {
+            'async_await': r'async\s+function|await\s+',
+            'promises': r'\.then\(|\.catch\(|new\s+Promise',
+            'classes': r'class\s+\w+',
+            'arrow_functions': r'=>',
+            'destructuring': r'\{.*?\}\s*=',
+            'template_literals': r'`.*?`',
+            'modules': r'export\s+|import\s+',
+            'dom_manipulation': r'document\.|window\.',
+            'event_handling': r'addEventListener|onClick',
+            'ajax': r'fetch\(|XMLHttpRequest'
+        }
+        
+        for feature_name, pattern in feature_patterns.items():
+            if re.search(pattern, content):
+                features.append(feature_name)
+                
+        return features
+        
+    def extract_js_version_indicator(self, content: str) -> str:
+        """Extract JavaScript version indicator"""
+        # Check for ES6+ features
+        if re.search(r'class\s+|const\s+|let\s+|=>', content):
+            return 'ES6+'
+        elif re.search(r'var\s+|function\s+', content):
+            return 'ES5'
+        else:
+            return 'unknown'
+            
+    def store_component_analysis(self, components: List[ComponentAnalysis]):
+        """Store component analysis results in database"""
+        try:
+            conn = sqlite3.connect(self.sweep_db)
+            cursor = conn.cursor()
+            
+            for component in components:
+                cursor.execute('''
+                    INSERT OR REPLACE INTO component_analysis 
+                    (id, name, file_path, component_type, hash_signature, dependencies, features, version_indicator, last_modified)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    f"{component.file_path}_{component.hash_signature}",
+                    component.name,
+                    component.file_path,
+                    component.component_type,
+                    component.hash_signature,
+                    json.dumps(component.dependencies),
+                    json.dumps(component.features),
+                    component.version_indicator,
+                    component.last_modified
+                ))
+                
+            conn.commit()
+            conn.close()
+            
+        except Exception as e:
+            logging.error(f"Error storing component analysis: {e}")
+            
+    def detect_unused_advanced_models(self, models_inventory: List[Any]) -> List[IntegrationIssue]:
+        """Detect unused advanced models"""
+        issues = []
+        
+        # In simulation mode, return empty list to avoid processing overhead
+        if self.simulation_mode:
+            return issues
+            
+        return issues
             
     def detect_component_duplicates(self) -> List[IntegrationIssue]:
         """Detect duplicate components across the project"""

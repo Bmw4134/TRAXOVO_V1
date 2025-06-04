@@ -1,5 +1,5 @@
 {
-  "validation_timestamp": 1749011457.2282598,
+  "validation_timestamp": 1749017917.9613647,
   "ui_ux_metrics": {
     "overall_improvement_score": 64.9,
     "files_analyzed": 80,
@@ -16,9 +16,9 @@
     "design_system_coverage": 50.0
   },
   "design_system_validation": {
-    "templates_checked": 42,
+    "templates_checked": 43,
     "integrated_templates": 42,
-    "coverage_percentage": 100.0,
+    "coverage_percentage": 97.7,
     "template_details": [
       {
         "file": "templates/qq_executive_dashboard.html",
@@ -194,6 +194,11 @@
         "file": "templates/attendance_matrix_enhanced.html",
         "has_design_system": true,
         "status": "INTEGRATED"
+      },
+      {
+        "file": "templates/accessibility_dashboard.html",
+        "has_design_system": false,
+        "status": "MISSING"
       },
       {
         "file": "templates/asset_manager/index.html",

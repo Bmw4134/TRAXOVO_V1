@@ -1,0 +1,62 @@
+To execute a QQ-ASI sweep across TRAX-OVO for final deployment, we are operating under the “fact-check + validation” modality using your Kaizen GPT infrastructure. Here’s a precise summary of what’s enforced and what must now be verified:
+
+⸻
+
+✅ ALREADY IN PLACE (From Loaded Patches)
+
+System Component	Description	Source
+🔍 Self-Diff Engine	Tracks file changes and evolution context	￼
+🧬 Prompt Fingerprinting	Detects overlaps and reduces prompt drift	￼
+🧪 LLM Sanity Harness	Validates types, values, and schema integrity	￼
+🧭 Dev Compass	Enforces architectural “true north”	￼
+⏱ Session Auditor	Tracks file touches + session logs	￼
+🎯 Goal Tracker	Links prompts to user goals + tracks progress	￼
+🧱 Replit Agent + Scaffolding	Automates dependency setup and routing	
+🔐 Strict Mode	All outputs enforced schema-wise	￼
+📡 API Sync	Remote sync stub (Supabase/Firebase-compatible)	￼
+
+
+⸻
+
+🚨 CRITICAL FACT-CHECK & DEPLOYMENT BLOCKERS
+
+To ensure TRAX-OVO is deployment-ready tonight, these must be immediately verified and corrected:
+	1.	🚦 Routing Path Integrity
+	•	Confirm that all route endpoints in TRAX-OVO respond, are authenticated (if needed), and return structured results that match llm_test.py schema expectations.
+	•	🛠 Run simulated GET/POSTs across all UI-bound endpoints using a script or Postman test suite.
+	2.	🧠 Prompt→Goal Linkage Gaps
+	•	Validate goal_tracker.json links each prompt accurately to current dashboard features.
+	•	Red flag if features were scaffolded but not formally tied to any prompt→goal mapping.
+	3.	📉 Missing Visual Validation
+	•	Ensure Replit-native plots (Plotly, Matplotlib) are rendered for all data insights.
+	•	Data modules without visuals need hooks or logs.
+	4.	🛡 Sanitization & Secrets Audit
+	•	Verify all inputs are sanitized, especially anything interacting with shell, file paths, or auth.
+	•	Confirm secrets are stored using Replit Secrets, not hardcoded.
+	5.	🧪 strict_mode Output Validator Coverage
+	•	Ensure every function, especially those generating responses or data packets, is covered by the validate_output() check defined in kaizen_gpt_strict_patch.py.
+	6.	📘 Dev Compass Drift
+	•	Compare current TRAX-OVO behavior against dev_compass.md. Look for divergence from UX/feature priorities.
+
+⸻
+
+🚀 Deployment CheckList
+
+Checkpoint	Pass/Fail	Action Required
+Routes respond with correct data	❓	Test all routes
+Prompt→goal mapping complete	❓	Match prompt fingerprints with goals
+Charts rendered for data modules	❓	Add/verify visual hooks
+Input sanitization across inputs	❓	Audit all input handling logic
+Secrets scoped in Replit secrets	❓	Re-check for hardcoded tokens
+Output validation in strict mode	❓	Add validation decorators where missing
+Diff + Fingerprint logs match	✅	Check diff_watcher.py and fingerprints
+API Sync test (dev -> prod)	❓	Run one POST call to remote sync
+
+
+⸻
+
+Do you want me to generate:
+	•	A one-shot test harness that fires off these verifications?
+	•	A report scaffold logging all route/schema/goal issues live?
+
+Let me know before you sleep—I can run through it all automatically while you rest.

@@ -13,6 +13,14 @@ from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 import json
 
+# QQ AI Accessibility Enhancer
+try:
+    from qq_ai_accessibility_enhancer import get_qq_accessibility_enhancer, analyze_page_accessibility, apply_ai_enhancements, get_accessibility_dashboard_data
+    QQ_ACCESSIBILITY_AVAILABLE = True
+except ImportError:
+    QQ_ACCESSIBILITY_AVAILABLE = False
+    logging.warning("QQ AI Accessibility Enhancer not available")
+
 # QQ Mobile Optimization Module
 try:
     from qq_mobile_optimization_module import get_qq_mobile_optimizer, optimize_mobile_interface, get_mobile_status

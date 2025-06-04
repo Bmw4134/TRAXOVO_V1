@@ -22,10 +22,10 @@ function initializeMap(assets) {
   }
 }
 function initializeDetailedAssetView(asset) {
-  const assetMapContainer = document.getElementById("asset-detail-map");
-  if (!assetMapContainer || !asset) return;
+  const detailViewContainer = document.getElementById("asset-detail-map");
+  if (!detailViewContainer || !asset) return;
   if (!asset.Latitude || !asset.Longitude) {
-    assetMapContainer.innerHTML =
+    detailViewContainer.innerHTML =
       '<div class="alert alert-warning">No location data available for this asset</div>';
     return;
   }

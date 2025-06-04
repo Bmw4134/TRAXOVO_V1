@@ -1,13 +1,4 @@
 {
-  "scanned": 1749009014.5665832,
-  "results": [
-    {
-      "file": "static/js/map.js",
-      "hits": [
-        "assetMap"
-      ],
-      "hash": "f0e2cb2a975b8e815a3c9dfc49adc9ff6550789915711042f7891461bfbde2be",
-      "timestamp": 1749009022.479578
-    }
-  ]
+  "scanned": 1749009099.0201778,
+  "results": []
 }

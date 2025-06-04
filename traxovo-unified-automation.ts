@@ -171,7 +171,7 @@ export class TraxovoUnifiedAutomation {
 
   async initialize(): Promise<void> {
     if (!this.browser) {
-      this.browser = await puppeteer.launch({
+      this.browser = await chromium.launch({
         headless: false,
         args: [
           '--no-sandbox',

@@ -734,6 +734,28 @@ def transcendent_vector_matrix():
     consciousness_metrics = quantum_engine.get_consciousness_metrics()
     return render_template('transcendent_vector_matrix.html', consciousness_metrics=consciousness_metrics)
 
+@app.route('/asi-excellence-fleet-map')
+def asi_excellence_fleet_map():
+    """ASI Excellence Fleet Map - Bleeding-edge asset visualization with legacy mapping"""
+    try:
+        # Get authentic Fort Worth asset data
+        fort_worth_data = get_fort_worth_assets()
+        
+        # Calculate metrics
+        total_assets = len(fort_worth_data)
+        active_assets = len([asset for asset in fort_worth_data if asset.get('status') == 'Active'])
+        
+        return render_template('asi_excellence_fleet_map.html', 
+                             total_assets=total_assets,
+                             active_assets=active_assets,
+                             assets=fort_worth_data)
+    except Exception as e:
+        logging.error(f"ASI Excellence Fleet Map error: {e}")
+        return render_template('asi_excellence_fleet_map.html', 
+                             total_assets=0,
+                             active_assets=0,
+                             assets=[])
+
 @app.route('/dashboard-customizer')
 def dashboard_customizer():
     """Personalized dashboard customization center - React SPA"""

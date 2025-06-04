@@ -1,0 +1,308 @@
+/* TRAXOVO Uniform Scaling System */
+/* Ensures consistent visual scaling across all UX components */
+
+:root {
+    /* Base scaling variables */
+    --scale-factor: 1;
+    --font-scale: 1;
+    --spacing-scale: 1;
+    --component-scale: 1;
+    
+    /* Breakpoint variables */
+    --bp-mobile: 480px;
+    --bp-tablet: 768px;
+    --bp-laptop: 1024px;
+    --bp-desktop: 1200px;
+    --bp-large: 1400px;
+}
+
+/* Universal scaling classes */
+.traxovo-scale {
+    transform: scale(var(--scale-factor));
+    transform-origin: center;
+    transition: transform 0.3s ease;
+}
+
+.traxovo-font-scale {
+    font-size: calc(1rem * var(--font-scale));
+}
+
+.traxovo-spacing-scale {
+    padding: calc(1rem * var(--spacing-scale));
+    margin: calc(0.5rem * var(--spacing-scale));
+}
+
+/* Responsive scaling breakpoints */
+@media (max-width: 480px) {
+    :root {
+        --scale-factor: 0.75;
+        --font-scale: 0.8;
+        --spacing-scale: 0.7;
+        --component-scale: 0.8;
+    }
+    
+    .traxovo-container {
+        max-width: 100vw;
+        padding: 10px;
+    }
+    
+    .traxovo-title {
+        font-size: clamp(1.2rem, 4vw, 2rem);
+    }
+    
+    .traxovo-subtitle {
+        font-size: clamp(0.9rem, 3vw, 1.2rem);
+    }
+    
+    .traxovo-button {
+        padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px);
+        font-size: clamp(0.8rem, 2.5vw, 1rem);
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    :root {
+        --scale-factor: 0.85;
+        --font-scale: 0.9;
+        --spacing-scale: 0.8;
+        --component-scale: 0.9;
+    }
+    
+    .traxovo-container {
+        max-width: 100vw;
+        padding: 15px;
+    }
+    
+    .traxovo-title {
+        font-size: clamp(1.5rem, 5vw, 2.5rem);
+    }
+    
+    .traxovo-subtitle {
+        font-size: clamp(1rem, 3.5vw, 1.5rem);
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    :root {
+        --scale-factor: 0.95;
+        --font-scale: 0.95;
+        --spacing-scale: 0.9;
+        --component-scale: 0.95;
+    }
+    
+    .traxovo-container {
+        max-width: 95vw;
+        padding: 20px;
+    }
+    
+    .traxovo-title {
+        font-size: clamp(2rem, 6vw, 3rem);
+    }
+}
+
+@media (min-width: 1025px) and (max-width: 1200px) {
+    :root {
+        --scale-factor: 1;
+        --font-scale: 1;
+        --spacing-scale: 1;
+        --component-scale: 1;
+    }
+    
+    .traxovo-container {
+        max-width: 90vw;
+        padding: 25px;
+    }
+}
+
+@media (min-width: 1201px) and (max-width: 1400px) {
+    :root {
+        --scale-factor: 1.05;
+        --font-scale: 1.05;
+        --spacing-scale: 1.1;
+        --component-scale: 1.05;
+    }
+    
+    .traxovo-container {
+        max-width: 85vw;
+        padding: 30px;
+    }
+}
+
+@media (min-width: 1401px) {
+    :root {
+        --scale-factor: 1.1;
+        --font-scale: 1.1;
+        --spacing-scale: 1.2;
+        --component-scale: 1.1;
+    }
+    
+    .traxovo-container {
+        max-width: 80vw;
+        padding: 35px;
+    }
+}
+
+/* Component-specific scaling */
+.traxovo-card {
+    transform: scale(var(--component-scale));
+    margin: calc(10px * var(--spacing-scale));
+    padding: calc(20px * var(--spacing-scale));
+}
+
+.traxovo-grid {
+    gap: calc(20px * var(--spacing-scale));
+    padding: calc(15px * var(--spacing-scale));
+}
+
+.traxovo-metric {
+    font-size: calc(1.2rem * var(--font-scale));
+    padding: calc(12px * var(--spacing-scale));
+}
+
+.traxovo-visualization {
+    width: calc(400px * var(--component-scale));
+    height: calc(400px * var(--component-scale));
+    max-width: 90vw;
+    max-height: 70vh;
+}
+
+/* Vector Matrix specific scaling */
+.vector-matrix-uniform {
+    width: clamp(200px, 60vw, 500px);
+    height: clamp(200px, 60vw, 500px);
+    margin: 0 auto;
+}
+
+.vector-number-uniform {
+    font-size: clamp(2rem, 8vw, 6rem);
+    line-height: 1.2;
+}
+
+.vector-label-uniform {
+    font-size: clamp(1rem, 3vw, 1.8rem);
+}
+
+/* Navigation uniform scaling */
+.nav-buttons-uniform {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: clamp(5px, 1vw, 15px);
+    flex-wrap: wrap;
+    z-index: 1100;
+}
+
+.nav-btn-uniform {
+    padding: clamp(8px, 2vw, 15px) clamp(12px, 3vw, 25px);
+    font-size: clamp(0.8rem, 2.5vw, 1.1rem);
+    border-radius: clamp(5px, 1vw, 10px);
+    white-space: nowrap;
+}
+
+/* Grid system uniform scaling */
+.traxovo-grid-responsive {
+    display: grid;
+    gap: clamp(10px, 2vw, 30px);
+    padding: clamp(10px, 2vw, 30px);
+}
+
+.traxovo-grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(clamp(250px, 40vw, 400px), 1fr));
+}
+
+.traxovo-grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 30vw, 300px), 1fr));
+}
+
+.traxovo-grid-4 {
+    grid-template-columns: repeat(auto-fit, minmax(clamp(150px, 25vw, 250px), 1fr));
+}
+
+/* Text scaling system */
+.text-hero {
+    font-size: clamp(2rem, 8vw, 5rem);
+    line-height: 1.1;
+}
+
+.text-title {
+    font-size: clamp(1.5rem, 6vw, 3rem);
+    line-height: 1.2;
+}
+
+.text-subtitle {
+    font-size: clamp(1rem, 4vw, 1.8rem);
+    line-height: 1.3;
+}
+
+.text-body {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    line-height: 1.5;
+}
+
+.text-caption {
+    font-size: clamp(0.7rem, 2vw, 0.9rem);
+    line-height: 1.4;
+}
+
+/* Interactive element scaling */
+.interactive-scale {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.interactive-scale:hover {
+    transform: scale(calc(var(--component-scale) * 1.05));
+}
+
+.interactive-scale:active {
+    transform: scale(calc(var(--component-scale) * 0.98));
+}
+
+/* Animation scaling */
+@keyframes pulse-uniform {
+    0%, 100% { 
+        transform: scale(var(--component-scale)); 
+        opacity: 1; 
+    }
+    50% { 
+        transform: scale(calc(var(--component-scale) * 1.05)); 
+        opacity: 0.8; 
+    }
+}
+
+.pulse-animation {
+    animation: pulse-uniform 2s ease-in-out infinite;
+}
+
+/* Ensure all TRAXOVO components use uniform scaling */
+.traxovo-component {
+    transform: scale(var(--component-scale));
+    font-size: calc(1rem * var(--font-scale));
+    padding: calc(1rem * var(--spacing-scale));
+    margin: calc(0.5rem * var(--spacing-scale));
+}
+
+/* Safe area support for mobile devices */
+@supports (padding: max(0px)) {
+    .traxovo-safe-area {
+        padding-top: max(env(safe-area-inset-top), 20px);
+        padding-bottom: max(env(safe-area-inset-bottom), 20px);
+        padding-left: max(env(safe-area-inset-left), 20px);
+        padding-right: max(env(safe-area-inset-right), 20px);
+    }
+}
+
+/* Print scaling */
+@media print {
+    :root {
+        --scale-factor: 0.8;
+        --font-scale: 0.9;
+        --spacing-scale: 0.7;
+        --component-scale: 0.8;
+    }
+    
+    .traxovo-visualization {
+        max-width: 100%;
+        max-height: 70vh;
+    }
+}

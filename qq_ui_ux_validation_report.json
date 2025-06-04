@@ -1,5 +1,5 @@
 {
-  "validation_timestamp": 1749052155.9771035,
+  "validation_timestamp": 1749052463.557542,
   "ui_ux_metrics": {
     "overall_improvement_score": 64.9,
     "files_analyzed": 80,
@@ -16,9 +16,9 @@
     "design_system_coverage": 50.0
   },
   "design_system_validation": {
-    "templates_checked": 45,
+    "templates_checked": 47,
     "integrated_templates": 42,
-    "coverage_percentage": 93.3,
+    "coverage_percentage": 89.4,
     "template_details": [
       {
         "file": "templates/qq_executive_dashboard.html",
@@ -207,6 +207,16 @@
       },
       {
         "file": "templates/deployment_complexity_visualizer.html",
+        "has_design_system": false,
+        "status": "MISSING"
+      },
+      {
+        "file": "templates/asi_excellence_fleet_map.html",
+        "has_design_system": false,
+        "status": "MISSING"
+      },
+      {
+        "file": "templates/transcendent_vector_matrix.html",
         "has_design_system": false,
         "status": "MISSING"
       },

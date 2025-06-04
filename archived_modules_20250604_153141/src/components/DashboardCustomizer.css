@@ -1,0 +1,372 @@
+.dashboard-customizer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.customizer-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  margin: 20px;
+}
+
+.customizer-header {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left h2 {
+  color: #2c3e50;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.header-left p {
+  color: #7f8c8d;
+  margin: 0;
+}
+
+.customizer-content {
+  display: flex;
+  gap: 20px;
+  min-height: 600px;
+}
+
+.widget-palette {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 20px;
+  width: 300px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.widget-palette h4 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.widget-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.widget-item {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.widget-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.widget-item i {
+  font-size: 1.2em;
+}
+
+.dashboard-preview {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(auto-fit, 80px);
+  gap: 15px;
+  min-height: 500px;
+  padding: 20px;
+  border: 2px dashed #e9ecef;
+  border-radius: 10px;
+  background: #f8f9fa;
+}
+
+.widget-preview {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.widget-preview:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.widget-preview.dragging {
+  transform: rotate(5deg);
+  z-index: 1000;
+  opacity: 0.9;
+}
+
+.widget-header {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.widget-header h5 {
+  margin: 0;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.widget-controls {
+  display: flex;
+  gap: 5px;
+}
+
+.widget-controls .btn {
+  padding: 2px 6px;
+  font-size: 0.8em;
+}
+
+.widget-content {
+  padding: 15px;
+  height: calc(100% - 50px);
+  overflow: hidden;
+}
+
+.widget-demo-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.metric {
+  text-align: center;
+}
+
+.metric .value {
+  display: block;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.metric .label {
+  display: block;
+  font-size: 0.8em;
+  color: #7f8c8d;
+  margin-top: 2px;
+}
+
+.alert-item {
+  padding: 8px 12px;
+  border-radius: 5px;
+  margin: 5px 0;
+  font-size: 0.85em;
+}
+
+.alert-item.critical {
+  background: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+}
+
+.alert-item.warning {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+}
+
+.dashboard-selector {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 20px;
+  margin-top: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-selector h4 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.dashboard-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dashboard-item {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashboard-item:hover {
+  border-color: #667eea;
+  background: #f0f8ff;
+}
+
+.dashboard-item.active {
+  border-color: #667eea;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+}
+
+.dashboard-item .badge {
+  font-size: 0.7em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .customizer-content {
+    flex-direction: column;
+  }
+  
+  .widget-palette {
+    width: 100%;
+    order: 2;
+  }
+  
+  .dashboard-preview {
+    order: 1;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(auto-fit, 60px);
+  }
+  
+  .customizer-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .header-right {
+    display: flex;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(4, 1fr);
+    padding: 10px;
+  }
+  
+  .widget-preview {
+    min-height: 120px;
+  }
+  
+  .metric .value {
+    font-size: 1.2em;
+  }
+  
+  .widget-header h5 {
+    font-size: 0.8em;
+  }
+}
+
+/* Animation Effects */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.widget-preview {
+  animation: slideIn 0.3s ease-out;
+}
+
+.widget-item {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .dashboard-customizer {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  }
+  
+  .customizer-header,
+  .widget-palette,
+  .dashboard-preview,
+  .dashboard-selector {
+    background: rgba(52, 73, 94, 0.95);
+    color: #ecf0f1;
+  }
+  
+  .header-left h2,
+  .widget-palette h4,
+  .dashboard-selector h4 {
+    color: #ecf0f1;
+  }
+  
+  .header-left p {
+    color: #bdc3c7;
+  }
+  
+  .dashboard-grid {
+    background: #34495e;
+    border-color: #2c3e50;
+  }
+  
+  .widget-preview {
+    background: #2c3e50;
+    color: #ecf0f1;
+  }
+  
+  .metric .value {
+    color: #ecf0f1;
+  }
+  
+  .metric .label {
+    color: #bdc3c7;
+  }
+}

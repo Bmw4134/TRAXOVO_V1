@@ -1,0 +1,337 @@
+/* QQ AI-Powered Accessibility Enhancements */
+/* Auto-generated and maintained by AI Accessibility Enhancer */
+
+/* High Contrast Mode */
+.accessibility-high-contrast {
+    --primary-color: #000000;
+    --secondary-color: #ffffff;
+    --accent-color: #ffff00;
+    --text-color: #000000;
+    --bg-color: #ffffff;
+    --border-color: #000000;
+}
+
+.accessibility-high-contrast * {
+    background-color: var(--bg-color) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Enhanced Focus Indicators */
+.accessibility-enhanced *:focus {
+    outline: 3px solid #2563eb !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
+    border-radius: 4px !important;
+}
+
+/* Skip Links */
+.accessibility-skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #2563eb;
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 10000;
+    font-weight: bold;
+}
+
+.accessibility-skip-link:focus {
+    top: 6px;
+}
+
+/* Font Scaling */
+.accessibility-font-large {
+    font-size: 1.25em !important;
+}
+
+.accessibility-font-xlarge {
+    font-size: 1.5em !important;
+}
+
+.accessibility-font-xxlarge {
+    font-size: 1.75em !important;
+}
+
+/* Color Contrast Enhancements */
+.accessibility-contrast-enhanced .nav-link {
+    color: #1a365d !important;
+    background: #ffffff !important;
+    border: 1px solid #1a365d !important;
+}
+
+.accessibility-contrast-enhanced .btn-primary {
+    color: #ffffff !important;
+    background: #2563eb !important;
+    border: 2px solid #1e40af !important;
+}
+
+.accessibility-contrast-enhanced .text-muted {
+    color: #374151 !important;
+}
+
+.accessibility-contrast-enhanced .card {
+    border: 2px solid #374151 !important;
+}
+
+/* Keyboard Navigation Enhancements */
+.accessibility-keyboard-nav .btn,
+.accessibility-keyboard-nav .form-control,
+.accessibility-keyboard-nav .nav-link,
+.accessibility-keyboard-nav [tabindex] {
+    position: relative;
+}
+
+.accessibility-keyboard-nav .btn:focus::after,
+.accessibility-keyboard-nav .form-control:focus::after,
+.accessibility-keyboard-nav .nav-link:focus::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border: 2px solid #2563eb;
+    border-radius: 6px;
+    pointer-events: none;
+}
+
+/* Screen Reader Enhancements */
+.accessibility-sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.accessibility-sr-description {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+/* Motion Reduction */
+@media (prefers-reduced-motion: reduce) {
+    .accessibility-motion-reduced * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Accessibility Toolbar */
+.accessibility-toolbar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    background: #1f2937;
+    color: white;
+    padding: 12px;
+    border-radius: 0 0 0 8px;
+    z-index: 9999;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.accessibility-toolbar button {
+    background: #374151;
+    color: white;
+    border: 1px solid #6b7280;
+    padding: 6px 12px;
+    margin: 2px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.accessibility-toolbar button:hover {
+    background: #4b5563;
+}
+
+.accessibility-toolbar button:focus {
+    outline: 2px solid #60a5fa;
+    outline-offset: 2px;
+}
+
+.accessibility-toolbar button.active {
+    background: #2563eb;
+    border-color: #3b82f6;
+}
+
+/* ARIA Live Regions */
+.accessibility-live-region {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+/* Form Enhancements */
+.accessibility-enhanced .form-group {
+    margin-bottom: 20px;
+}
+
+.accessibility-enhanced .form-label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.accessibility-enhanced .form-control {
+    border: 2px solid #6b7280;
+    padding: 12px;
+    font-size: 16px;
+}
+
+.accessibility-enhanced .form-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.accessibility-enhanced .form-control[aria-invalid="true"] {
+    border-color: #dc2626;
+}
+
+.accessibility-enhanced .form-error {
+    color: #dc2626;
+    font-size: 14px;
+    margin-top: 4px;
+    display: block;
+}
+
+/* Table Enhancements */
+.accessibility-enhanced table {
+    border-collapse: collapse;
+    width: 100%;
+    border: 2px solid #374151;
+}
+
+.accessibility-enhanced th,
+.accessibility-enhanced td {
+    border: 1px solid #6b7280;
+    padding: 12px;
+    text-align: left;
+}
+
+.accessibility-enhanced th {
+    background: #f3f4f6;
+    font-weight: bold;
+}
+
+.accessibility-enhanced caption {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+/* Button Enhancements */
+.accessibility-enhanced .btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.accessibility-enhanced .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.accessibility-enhanced .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Link Enhancements */
+.accessibility-enhanced a {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.accessibility-enhanced a:hover {
+    text-decoration-thickness: 2px;
+}
+
+.accessibility-enhanced a:focus {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Image Enhancements */
+.accessibility-enhanced img {
+    max-width: 100%;
+    height: auto;
+}
+
+.accessibility-enhanced img[alt=""] {
+    opacity: 0.7;
+}
+
+/* Responsive Design Enhancements */
+@media (max-width: 768px) {
+    .accessibility-enhanced {
+        font-size: 18px;
+        line-height: 1.6;
+    }
+    
+    .accessibility-enhanced .btn {
+        min-height: 48px;
+        font-size: 18px;
+    }
+    
+    .accessibility-enhanced .form-control {
+        font-size: 18px;
+        padding: 14px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .accessibility-dark-mode {
+        --primary-color: #ffffff;
+        --secondary-color: #1f2937;
+        --accent-color: #60a5fa;
+        --text-color: #ffffff;
+        --bg-color: #1f2937;
+        --border-color: #4b5563;
+    }
+    
+    .accessibility-dark-mode * {
+        background-color: var(--bg-color) !important;
+        color: var(--text-color) !important;
+        border-color: var(--border-color) !important;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .accessibility-toolbar,
+    .accessibility-skip-link {
+        display: none !important;
+    }
+    
+    .accessibility-enhanced a {
+        text-decoration: underline !important;
+    }
+    
+    .accessibility-enhanced a[href^="http"]:after {
+        content: " (" attr(href) ")";
+        font-size: 12px;
+        color: #666;
+    }
+}

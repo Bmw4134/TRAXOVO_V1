@@ -1,0 +1,729 @@
+"""
+Equipment Analytics Processor for TRAXOVO
+Processes uploaded equipment files for billing and utilization analysis
+"""
+
+import pandas as pd
+import os
+import json
+import logging
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional
+
+logger = logging.getLogger(__name__)
+
+class EquipmentAnalyticsProcessor:
+    def __init__(self):
+        self.data_dir = 'attached_assets'
+        self.equipment_master = None
+        self.equipment_categories = None
+        self.usage_detail = None
+        self.cost_analysis = None
+        self.service_codes = None
+        self.work_orders = None
+        self.equipment_history = None
+
+    def load_all_equipment_data(self):
+        """Load all equipment-related files"""
+        files_map = {
+            'equipment_master': 'EQ LIST ALL DETAILS SELECTED 052925.xlsx',
+            'equipment_categories': 'EQ CATEGORIES CONDENSED LIST 05.29.2025.xlsx',
+            'usage_detail': 'EQUIPMENT USAGE DETAIL 010125-053125.xlsx',
+            'cost_analysis': 'USAGE VS. COST ANALYSIS 010125-053125.xlsx',
+            'service_codes': 'CURRENT EQ SERVICE-EXPENSE CODE LIST 052925.xlsx',
+            'work_orders': 'WORK ORDER DETAIL REPORT 01.01.2020-05.31.2025.xlsx',
+            'equipment_history': 'Equipment Detail History Report_01.01.2020-05.31.2025.xlsx',
+            'fleet_utilization': 'FleetUtilization (2).xlsx'
+        }
+
+        results = {}
+
+        for data_type, filename in files_map.items():
+            filepath = os.path.join(self.data_dir, filename)
+            if os.path.exists(filepath):
+                try:
+                    # Try multiple sheet reading strategies
+                    df = self._load_excel_file(filepath)
+                    if df is not None:
+                        setattr(self, data_type, df)
+                        results[data_type] = {
+                            'loaded': True,
+                            'rows': len(df),
+                            'columns': list(df.columns)[:10]  # First 10 columns
+                        }
+                        logger.info(f"Loaded {filename}: {len(df)} rows")
+                    else:
+                        results[data_type] = {'loaded': False, 'error': 'Failed to parse Excel file'}
+                except Exception as e:
+                    logger.error(f"Error loading {filename}: {str(e)}")
+                    results[data_type] = {'loaded': False, 'error': str(e)}
+            else:
+                results[data_type] = {'loaded': False, 'error': 'File not found'}
+
+        return results
+
+    def _load_excel_file(self, filepath):
+        """Load Excel file with multiple fallback strategies"""
+        # Special handling for Fleet Utilization reports
+        if 'FleetUtilization' in filepath:
+            return self._load_fleet_utilization_file(filepath)
+
+        try:
+            # Strategy 1: Try loading first sheet
+            df = pd.read_excel(filepath, sheet_name=0)
+            if not df.empty:
+                return self._clean_dataframe(df)
+        except:
+            pass
+
+        try:
+            # Strategy 2: Try loading all sheets and find the largest
+            excel_file = pd.ExcelFile(filepath)
+            largest_df = None
+            max_rows = 0
+
+            for sheet_name in excel_file.sheet_names:
+                try:
+                    df = pd.read_excel(filepath, sheet_name=sheet_name)
+                    if len(df) > max_rows:
+                        max_rows = len(df)
+                        largest_df = df
+                except:
+                    continue
+
+            if largest_df is not None:
+                return self._clean_dataframe(largest_df)
+        except:
+            pass
+
+        try:
+            # Strategy 3: Try with different engines
+            df = pd.read_excel(filepath, engine='openpyxl')
+            return self._clean_dataframe(df)
+        except:
+            pass
+
+        return None
+
+    def _load_fleet_utilization_file(self, filepath):
+        """Special handler for Fleet Utilization reports with Report Parameters sheet"""
+        try:
+            logger.info(f"Loading Fleet Utilization report: {filepath}")
+
+            # Load the Fleet Utilization sheet (skip Report Parameters)
+            df = pd.read_excel(filepath, sheet_name='Fleet Utilization', engine='openpyxl')
+
+            if df.empty:
+                logger.warning("Fleet Utilization sheet is empty")
+                return None
+
+            # Handle the specific structure:
+            # Row 0: Start Date, 1/1/2025, ...
+            # Row 1: End Date, 5/31/2025, ...  
+            # Row 2: Asset, Sub-Company, ... (headers)
+            # Row 3+: Actual data
+
+            if len(df) < 3:
+                logger.warning("Fleet Utilization sheet has insufficient rows")
+                return None
+
+            # Extract headers from row 2 (index 1)
+            headers = df.iloc[1].fillna('Unknown')
+
+            # Extract data starting from row 3 (index 2)
+            data_df = df.iloc[2:].reset_index(drop=True)
+            data_df.columns = headers
+
+            # Clean up the dataframe
+            cleaned_df = self._clean_dataframe(data_df)
+
+            logger.info(f"Successfully loaded Fleet Utilization: {len(cleaned_df)} rows")
+            return cleaned_df
+
+        except Exception as e:
+            logger.error(f"Error loading Fleet Utilization file {filepath}: {str(e)}")
+            # Fallback to generic loading
+            try:
+                df = pd.read_excel(filepath, sheet_name=1, engine='openpyxl')  # Try second sheet
+                return self._clean_dataframe(df) if not df.empty else None
+            except:
+                return None
+
+    def _clean_dataframe(self, df):
+        """Clean and standardize dataframe"""
+        # Remove completely empty rows and columns
+        df = df.dropna(how='all').dropna(axis=1, how='all')
+
+        # Clean column names
+        df.columns = [str(col).strip().replace('\n', ' ').replace('\r', '') for col in df.columns]
+
+        # Remove rows where all values are NaN or empty strings
+        df = df[~df.apply(lambda row: row.astype(str).str.strip().eq('').all(), axis=1)]
+
+        return df
+
+    def generate_utilization_analysis(self):
+        """Generate comprehensive utilization analysis"""
+        if self.usage_detail is None or self.equipment_master is None:
+            return {'error': 'Required data not loaded'}
+
+        analysis = {
+            'summary': {},
+            'by_category': {},
+            'by_equipment': [],
+            'trends': {},
+            'recommendations': []
+        }
+
+        # Summary metrics
+        total_equipment = len(self.equipment_master) if self.equipment_master is not None else 0
+
+        # Usage analysis
+        if self.usage_detail is not None:
+            usage_df = self.usage_detail
+
+            # Find hour/usage columns
+            hour_columns = [col for col in usage_df.columns if any(term in col.lower() for term in ['hour', 'hrs', 'usage', 'time'])]
+            cost_columns = [col for col in usage_df.columns if any(term in col.lower() for term in ['cost', 'amount', 'revenue', 'billing'])]
+
+            if hour_columns:
+                hour_col = hour_columns[0]
+                total_hours = usage_df[hour_col].sum() if pd.api.types.is_numeric_dtype(usage_df[hour_col]) else 0
+                avg_hours_per_unit = total_hours / len(usage_df) if len(usage_df) > 0 else 0
+
+                analysis['summary'].update({
+                    'total_hours': total_hours,
+                    'average_hours_per_unit': round(avg_hours_per_unit, 2),
+                    'active_equipment_count': len(usage_df[usage_df[hour_col] > 0]) if pd.api.types.is_numeric_dtype(usage_df[hour_col]) else 0
+                })
+
+            if cost_columns:
+                cost_col = cost_columns[0]
+                total_cost = usage_df[cost_col].sum() if pd.api.types.is_numeric_dtype(usage_df[cost_col]) else 0
+
+                analysis['summary'].update({
+                    'total_cost': total_cost,
+                    'average_cost_per_unit': round(total_cost / len(usage_df), 2) if len(usage_df) > 0 else 0
+                })
+
+        analysis['summary']['total_equipment'] = total_equipment
+        analysis['summary']['utilization_rate'] = round((analysis['summary'].get('active_equipment_count', 0) / total_equipment * 100), 2) if total_equipment > 0 else 0
+
+        return analysis
+
+    def generate_cost_efficiency_report(self):
+        """Generate cost efficiency analysis"""
+        if self.cost_analysis is None:
+            return {'error': 'Cost analysis data not loaded'}
+
+        cost_df = self.cost_analysis
+
+        # Find relevant columns
+        equipment_cols = [col for col in cost_df.columns if any(term in col.lower() for term in ['equipment', 'asset', 'unit', 'id'])]
+        usage_cols = [col for col in cost_df.columns if any(term in col.lower() for term in ['hour', 'usage', 'time'])]
+        cost_cols = [col for col in cost_df.columns if any(term in col.lower() for term in ['cost', 'expense', 'amount'])]
+        revenue_cols = [col for col in cost_df.columns if any(term in col.lower() for term in ['revenue', 'billing', 'income'])]
+
+        report = {
+            'efficiency_metrics': {},
+            'top_performers': [],
+            'underperformers': [],
+            'category_analysis': {}
+        }
+
+        if equipment_cols and usage_cols and cost_cols:
+            equipment_col = equipment_cols[0]
+            usage_col = usage_cols[0]
+            cost_col = cost_cols[0]
+
+            # Calculate cost per hour
+            cost_df['cost_per_hour'] = cost_df[cost_col] / cost_df[usage_col]
+            cost_df['cost_per_hour'] = cost_df['cost_per_hour'].replace([float('inf'), -float('inf')], 0)
+
+            # Efficiency metrics
+            avg_cost_per_hour = cost_df['cost_per_hour'].mean()
+            median_cost_per_hour = cost_df['cost_per_hour'].median()
+
+            report['efficiency_metrics'] = {
+                'average_cost_per_hour': round(avg_cost_per_hour, 2),
+                'median_cost_per_hour': round(median_cost_per_hour, 2),
+                'total_units_analyzed': len(cost_df)
+            }
+
+            # Top performers (lowest cost per hour with significant usage)
+            significant_usage = cost_df[cost_df[usage_col] > cost_df[usage_col].quantile(0.25)]
+            top_performers = significant_usage.nsmallest(10, 'cost_per_hour')
+
+            report['top_performers'] = [
+                {
+                    'equipment': row[equipment_col],
+                    'cost_per_hour': round(row['cost_per_hour'], 2),
+                    'total_hours': row[usage_col],
+                    'total_cost': row[cost_col]
+                }
+                for _, row in top_performers.iterrows()
+            ]
+
+            # Underperformers (high cost per hour)
+            underperformers = cost_df.nlargest(10, 'cost_per_hour')
+
+            report['underperformers'] = [
+                {
+                    'equipment': row[equipment_col],
+                    'cost_per_hour': round(row['cost_per_hour'], 2),
+                    'total_hours': row[usage_col],
+                    'total_cost': row[cost_col]
+                }
+                for _, row in underperformers.iterrows()
+            ]
+
+        return report
+
+    def generate_billing_optimization_recommendations(self):
+        """Generate billing optimization recommendations"""
+        recommendations = []
+
+        # Load utilization analysis
+        utilization = self.generate_utilization_analysis()
+        cost_efficiency = self.generate_cost_efficiency_report()
+
+        if 'summary' in utilization:
+            util_rate = utilization['summary'].get('utilization_rate', 0)
+
+            if util_rate < 70:
+                recommendations.append({
+                    'type': 'utilization',
+                    'priority': 'high',
+                    'title': 'Low Fleet Utilization Detected',
+                    'description': f'Current utilization rate is {util_rate}%. Consider redistributing idle equipment or adjusting fleet size.',
+                    'potential_savings': 'Up to 15% reduction in carrying costs'
+                })
+
+            if util_rate > 95:
+                recommendations.append({
+                    'type': 'capacity',
+                    'priority': 'medium',
+                    'title': 'High Utilization - Capacity Constraint Risk',
+                    'description': f'Utilization rate is {util_rate}%. Consider expanding fleet or optimizing scheduling to prevent bottlenecks.',
+                    'potential_impact': 'Prevent revenue loss from unmet demand'
+                })
+
+        if 'underperformers' in cost_efficiency and cost_efficiency['underperformers']:
+            recommendations.append({
+                'type': 'maintenance',
+                'priority': 'high',
+                'title': 'High-Cost Equipment Review Needed',
+                'description': f'{len(cost_efficiency["underperformers"])} units showing high cost per hour. Review maintenance schedules and consider replacement.',
+                'equipment_list': [item['equipment'] for item in cost_efficiency['underperformers'][:5]]
+            })
+
+        return recommendations
+
+    def generate_maintenance_analytics(self):
+        """Generate maintenance analytics from work orders and equipment history"""
+        if self.work_orders is None and self.equipment_history is None:
+            return {'error': 'No maintenance data loaded'}
+
+        analytics = {
+            'maintenance_summary': {},
+            'work_order_trends': {},
+            'equipment_reliability': {},
+            'cost_trends': {}
+        }
+
+        # Analyze work orders
+        if self.work_orders is not None:
+            wo_df = self.work_orders
+
+            # Find relevant columns
+            date_cols = [col for col in wo_df.columns if any(term in col.lower() for term in ['date', 'created', 'completed'])]
+            cost_cols = [col for col in wo_df.columns if any(term in col.lower() for term in ['cost', 'amount', 'total', 'price'])]
+            equipment_cols = [col for col in wo_df.columns if any(term in col.lower() for term in ['equipment', 'asset', 'unit'])]
+
+            analytics['maintenance_summary'] = {
+                'total_work_orders': len(wo_df),
+                'unique_equipment': len(wo_df[equipment_cols[0]].unique()) if equipment_cols else 0,
+                'total_maintenance_cost': wo_df[cost_cols[0]].sum() if cost_cols and pd.api.types.is_numeric_dtype(wo_df[cost_cols[0]]) else 0,
+                'average_cost_per_order': wo_df[cost_cols[0]].mean() if cost_cols and pd.api.types.is_numeric_dtype(wo_df[cost_cols[0]]) else 0
+            }
+
+        # Analyze equipment history
+        if self.equipment_history is not None:
+            hist_df = self.equipment_history
+
+            # Calculate reliability metrics
+            if len(hist_df) > 0:
+                analytics['equipment_reliability'] = {
+                    'total_records': len(hist_df),
+                    'equipment_tracked': len(hist_df.iloc[:, 0].unique()) if len(hist_df.columns) > 0 else 0,
+                    'data_coverage_years': 5.4  # Based on file date range
+                }
+
+        return analytics
+
+    def generate_predictive_maintenance_insights(self):
+        """Generate predictive maintenance recommendations"""
+        insights = []
+
+        # Analyze work order patterns
+        if self.work_orders is not None:
+            wo_df = self.work_orders
+
+            # Find high-maintenance equipment
+            equipment_cols = [col for col in wo_df.columns if any(term in col.lower() for term in ['equipment', 'asset', 'unit'])]
+            if equipment_cols:
+                equipment_col = equipment_cols[0]
+                maintenance_frequency = wo_df[equipment_col].value_counts()
+
+                high_maintenance = maintenance_frequency.head(10)
+
+                for equipment, count in high_maintenance.items():
+                    if count > 5:  # Equipment with more than 5 work orders
+                        insights.append({
+                            'type': 'high_maintenance',
+                            'equipment': equipment,
+                            'work_orders': count,
+                            'recommendation': f'Consider preventive maintenance schedule or replacement evaluation for {equipment}',
+                            'priority': 'high' if count > 10 else 'medium'
+                        })
+
+        # Generate cost-based insights
+        if self.cost_analysis is not None:
+            cost_df = self.cost_analysis
+            cost_cols = [col for col in cost_df.columns if any(term in col.lower() for term in ['cost', 'expense'])]
+
+            if cost_cols:
+                cost_col = cost_cols[0]
+                high_cost_threshold = cost_df[cost_col].quantile(0.9) if pd.api.types.is_numeric_dtype(cost_df[cost_col]) else 0
+
+                insights.append({
+                    'type': 'cost_optimization',
+                    'recommendation': f'Monitor equipment with costs above ${high_cost_threshold:,.0f} for potential replacement',
+                    'affected_count': len(cost_df[cost_df[cost_col] > high_cost_threshold]) if pd.api.types.is_numeric_dtype(cost_df[cost_col]) else 0,
+                    'priority': 'medium'
+                })
+
+        return insights
+
+    def export_analytics_dashboard_data(self):
+        """Export data for dashboard integration"""
+        dashboard_data = {
+            'timestamp': datetime.now().isoformat(),
+            'utilization_analysis': self.generate_utilization_analysis(),
+            'cost_efficiency': self.generate_cost_efficiency_report(),
+            'maintenance_analytics': self.generate_maintenance_analytics(),
+            'predictive_insights': self.generate_predictive_maintenance_insights(),
+            'recommendations': self.generate_billing_optimization_recommendations(),
+            'data_sources': {
+                'equipment_master_loaded': self.equipment_master is not None,
+                'usage_detail_loaded': self.usage_detail is not None,
+                'cost_analysis_loaded': self.cost_analysis is not None,
+                'categories_loaded': self.equipment_categories is not None,
+                'service_codes_loaded': self.service_codes is not None,
+                'work_orders_loaded': self.work_orders is not None,
+                'equipment_history_loaded': self.equipment_history is not None
+            }
+        }
+
+        # Save to exports directory
+        os.makedirs('exports/analytics', exist_ok=True)
+        output_file = f'exports/analytics/equipment_analytics_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+
+        with open(output_file, 'w') as f:
+            json.dump(dashboard_data, f, indent=2, default=str)
+
+        return dashboard_data, output_file
+
+    def process_fleet_utilization_report(self, file_path):
+        """
+        Process Fleet Utilization report from Gauge telematics
+        Handles the 2-sheet structure with first sheet being fluff
+
+        Args:
+            file_path (str): Path to the Fleet Utilization Excel file
+
+        Returns:
+            dict: Processed utilization data since Gauge telematics inception
+        """
+        try:
+            logger.info(f"Processing Fleet Utilization report (since Gauge inception): {file_path}")
+
+            # Read the Excel file - skip first sheet (fluff) and use second sheet
+            xl_file = pd.ExcelFile(file_path)
+            sheet_names = xl_file.sheet_names
+
+            logger.info(f"Found sheets: {sheet_names}")
+
+            # Use the second sheet (actual Fleet Utilization data)
+            if len(sheet_names) >= 2:
+                data_sheet = sheet_names[1]  # Second sheet contains real data
+                logger.info(f"Using Fleet Utilization data sheet: {data_sheet}")
+            else:
+                data_sheet = sheet_names[0]  # Fallback to first sheet
+                logger.warning(f"Only one sheet found, using: {data_sheet}")
+
+            # Read the Fleet Utilization data sheet
+            df = pd.read_excel(file_path, sheet_name=data_sheet)
+
+            # Handle potential header rows - look for actual data start
+            header_row = 0
+            for i in range(min(5, len(df))):
+                if any('asset' in str(col).lower() for col in df.iloc[i] if pd.notna(col)):
+                    header_row = i
+                    break
+
+            if header_row > 0:
+                df.columns = df.iloc[header_row]
+                df = df.iloc[header_row + 1:].reset_index(drop=True)
+
+            # Initialize utilization data structure
+            utilization_data = {
+                'total_assets': 0,
+                'active_assets': 0,
+                'idle_assets': 0,
+                'total_hours': 0,
+                'avg_utilization': 0,
+                'asset_details': [],
+                'summary_by_category': {},
+                'top_performers': [],
+                'underutilized_assets': [],
+                'time_period': 'Since Gauge Telematics Inception',
+                'report_date': datetime.now().strftime('%Y-%m-%d'),
+                'data_source': 'Gauge Fleet Utilization Report'
+            }
+
+            # Identify columns dynamically
+            asset_col = None
+            utilization_col = None
+            hours_col = None
+            status_col = None
+
+            for col in df.columns:
+                col_str = str(col).lower().strip()
+                if any(keyword in col_str for keyword in ['asset', 'equipment', 'unit', 'vehicle']):
+                    asset_col = col
+                elif any(keyword in col_str for keyword in ['util', 'efficiency', 'usage']):
+                    utilization_col = col
+                elif any(keyword in col_str for keyword in ['hours', 'time', 'runtime']):
+                    hours_col = col
+                elif any(keyword in col_str for keyword in ['status', 'state', 'condition']):
+                    status_col = col
+
+            logger.info(f"Column mapping - Asset: {asset_col}, Utilization: {utilization_col}, "
+                       f"Hours: {hours_col}, Status: {status_col}")
+
+            if not asset_col:
+                logger.error("Could not identify asset column in Fleet Utilization report")
+                return utilization_data
+
+            # Process each asset record
+            valid_assets = 0
+            for _, row in df.iterrows():
+                try:
+                    # Extract asset ID
+                    asset_id = str(row[asset_col]).strip() if pd.notna(row[asset_col]) else None
+                    if not asset_id or asset_id.lower() in ['nan', '', 'total', 'summary']:
+                        continue
+
+                    # Clean asset ID (remove extra descriptions)
+                    if ' - ' in asset_id:
+                        asset_id = asset_id.split(' - ')[0].strip()
+
+                    # Extract utilization percentage
+                    utilization_pct = 0
+                    if utilization_col and pd.notna(row[utilization_col]):
+                        util_val = row[utilization_col]
+                        if isinstance(util_val, str):
+                            util_val = util_val.replace('%', '').replace(',', '').strip()
+                        try:
+                            utilization_pct = float(util_val)
+                            # Ensure percentage is in proper range
+                            if utilization_pct > 100:
+                                utilization_pct = 100
+                            elif utilization_pct < 0:
+                                utilization_pct = 0
+                        except (ValueError, TypeError):
+                            utilization_pct = 0
+
+                    # Extract hours
+                    hours = 0
+                    if hours_col and pd.notna(row[hours_col]):
+                        try:
+                            hours_val = str(row[hours_col]).replace(',', '').strip()
+                            hours = float(hours_val)
+                        except (ValueError, TypeError):
+                            hours = 0
+
+                    # Extract status
+                    status = 'Unknown'
+                    if status_col and pd.notna(row[status_col]):
+                        status = str(row[status_col]).strip()
+                    else:
+                        # Determine status based on utilization
+                        if utilization_pct > 50:
+                            status = 'High Usage'
+                        elif utilization_pct > 20:
+                            status = 'Moderate Usage'
+                        elif utilization_pct > 5:
+                            status = 'Low Usage'
+                        else:
+                            status = 'Idle'
+
+                    # Categorize asset by ID pattern
+                    category = categorize_asset_by_id(asset_id)
+
+                    asset_detail = {
+                        'asset_id': asset_id,
+                        'category': category,
+                        'utilization_percentage': utilization_pct,
+                        'hours': hours,
+                        'status': status,
+                        'efficiency_rating': get_efficiency_rating(utilization_pct),
+                        'is_active': utilization_pct > 0 or hours > 0
+                    }
+
+                    utilization_data['asset_details'].append(asset_detail)
+                    valid_assets += 1
+                    utilization_data['total_hours'] += hours
+
+                    if asset_detail['is_active']:
+                        utilization_data['active_assets'] += 1
+                    else:
+                        utilization_data['idle_assets'] += 1
+
+                    # Update category summary
+                    if category not in utilization_data['summary_by_category']:
+                        utilization_data['summary_by_category'][category] = {
+                            'count': 0,
+                            'total_hours': 0,
+                            'avg_utilization': 0,
+                            'active_count': 0,
+                            'top_asset': None,
+                            'top_utilization': 0
+                        }
+
+                    cat_data = utilization_data['summary_by_category'][category]
+                    cat_data['count'] += 1
+                    cat_data['total_hours'] += hours
+
+                    if asset_detail['is_active']:
+                        cat_data['active_count'] += 1
+
+                    # Track top performer in category
+                    if utilization_pct > cat_data['top_utilization']:
+                        cat_data['top_utilization'] = utilization_pct
+                        cat_data['top_asset'] = asset_id
+
+                except Exception as e:
+                    logger.error(f"Error processing asset row: {e}")
+                    continue
+
+            utilization_data['total_assets'] = valid_assets
+
+            # Calculate overall averages
+            if valid_assets > 0:
+                total_utilization = sum([asset['utilization_percentage'] for asset in utilization_data['asset_details']])
+                utilization_data['avg_utilization'] = total_utilization / valid_assets
+
+            # Calculate category averages and identify top/bottom performers
+            for category, cat_data in utilization_data['summary_by_category'].items():
+                if cat_data['count'] > 0:
+                    category_assets = [asset for asset in utilization_data['asset_details'] if asset['category'] == category]
+                    total_cat_util = sum([asset['utilization_percentage'] for asset in category_assets])
+                    cat_data['avg_utilization'] = total_cat_util / cat_data['count']
+
+            # Identify top performers (>75% utilization)
+            utilization_data['top_performers'] = [
+                asset for asset in utilization_data['asset_details'] 
+                if asset['utilization_percentage'] > 75
+            ]
+            utilization_data['top_performers'].sort(key=lambda x: x['utilization_percentage'], reverse=True)
+
+            # Identify underutilized assets (<25% utilization)
+            utilization_data['underutilized_assets'] = [
+                asset for asset in utilization_data['asset_details'] 
+                if asset['utilization_percentage'] < 25 and asset['utilization_percentage'] > 0
+            ]
+            utilization_data['underutilized_assets'].sort(key=lambda x: x['utilization_percentage'])
+
+            logger.info(f"✅ Fleet Utilization processed successfully:")
+            logger.info(f"   📊 {utilization_data['total_assets']} total assets")
+            logger.info(f"   🟢 {utilization_data['active_assets']} active assets") 
+            logger.info(f"   🔴 {utilization_data['idle_assets']} idle assets")
+            logger.info(f"   ⚡ {utilization_data['avg_utilization']:.1f}% average utilization")
+            logger.info(f"   🏆 {len(utilization_data['top_performers'])} top performers (>75%)")
+            logger.info(f"   ⚠️  {len(utilization_data['underutilized_assets'])} underutilized (<25%)")
+
+            return utilization_data
+
+        except Exception as e:
+            logger.error(f"❌ Error processing Fleet Utilization report: {e}")
+            return {
+                'error': str(e),
+                'total_assets': 0,
+                'active_assets': 0,
+                'idle_assets': 0,
+                'total_hours': 0,
+                'avg_utilization': 0,
+                'asset_details': [],
+                'summary_by_category': {},
+                'top_performers': [],
+                'underutilized_assets': [],
+                'time_period': 'Since Gauge Telematics Inception',
+                'report_date': datetime.now().strftime('%Y-%m-%d'),
+                'data_source': 'Gauge Fleet Utilization Report'
+            }
+
+def categorize_asset_by_id(asset_id):
+    """Categorize asset based on ID pattern"""
+    asset_id_upper = asset_id.upper()
+
+    if any(prefix in asset_id_upper for prefix in ['EX', 'EXCAVATOR']):
+        return 'Excavator'
+    elif any(prefix in asset_id_upper for prefix in ['BH', 'BM', 'BACKHOE']):
+        return 'Backhoe'
+    elif any(prefix in asset_id_upper for prefix in ['DT', 'TD', 'DOZER']):
+        return 'Dozer'
+    elif any(prefix in asset_id_upper for prefix in ['CL', 'COMPACTOR']):
+        return 'Compactor'
+    elif any(prefix in asset_id_upper for prefix in ['TR', 'TRUCK']):
+        return 'Truck'
+    elif any(prefix in asset_id_upper for prefix in ['LD', 'LOADER']):
+        return 'Loader'
+    elif any(prefix in asset_id_upper for prefix in ['GR', 'GRADER']):
+        return 'Grader'
+    elif any(prefix in asset_id_upper for prefix in ['SK', 'SKID']):
+        return 'Skid Steer'
+    else:
+        return 'Other Equipment'
+
+def get_efficiency_rating(utilization_pct):
+    """Get efficiency rating based on utilization percentage"""
+    if utilization_pct >= 80:
+        return 'Excellent'
+    elif utilization_pct >= 60:
+        return 'Good'
+    elif utilization_pct >= 40:
+        return 'Fair'
+    elif utilization_pct >= 20:
+        return 'Poor'
+    else:
+        return 'Critical'
+
+def get_equipment_analytics_processor():
+    """Factory function to get processor instance"""
+    processor = EquipmentAnalyticsProcessor()
+    processor.load_all_equipment_data()
+    return processor
+
+if __name__ == "__main__":
+    # Test the processor
+    processor = EquipmentAnalyticsProcessor()
+    load_results = processor.load_all_equipment_data()
+
+    print("Load Results:")
+    for data_type, result in load_results.items():
+        print(f"  {data_type}: {result}")
+
+    dashboard_data, output_file = processor.export_analytics_dashboard_data()
+    print(f"\nDashboard data exported to: {output_file}")

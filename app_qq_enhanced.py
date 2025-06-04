@@ -79,57 +79,36 @@ quantum_engine = QuantumConsciousnessEngine()
 
 # Fort Worth Authentic Asset Data - ACTUAL EQUIPMENT IDs
 def get_fort_worth_assets():
-    """Get authentic Fort Worth asset data from your actual system"""
-    return [
-        {
-            'asset_id': 'D-26',
-            'asset_name': 'D-26 Dozer',
-            'fuel_level': 78,
-            'hours_today': 6.4,
-            'location': 'Fort Worth Site A',
-            'status': 'Active',
-            'operator_id': 200847,
-            'gps_lat': 32.7508,
-            'gps_lng': -97.3307,
-            'utilization_rate': 89.2
-        },
-        {
-            'asset_id': 'EX-81', 
-            'asset_name': 'EX-81 Excavator',
-            'fuel_level': 85,
-            'hours_today': 7.1,
-            'location': 'Fort Worth Site B',
-            'status': 'Active',
-            'operator_id': 200923,
-            'gps_lat': 32.7521,
-            'gps_lng': -97.3285,
-            'utilization_rate': 94.7
-        },
-        {
-            'asset_id': 'PT-252',
-            'asset_name': 'PT-252 Power Unit', 
-            'fuel_level': 92,
-            'hours_today': 5.8,
-            'location': 'Fort Worth Site C',
-            'status': 'Active',
-            'operator_id': 200756,
-            'gps_lat': 32.7495,
-            'gps_lng': -97.3312,
-            'utilization_rate': 82.3
-        },
-        {
-            'asset_id': 'ET-35',
-            'asset_name': 'ET-35 Equipment Trailer', 
-            'fuel_level': 65,
-            'hours_today': 4.2,
-            'location': 'Fort Worth Yard',
-            'status': 'Active',
-            'operator_id': 200684,
-            'gps_lat': 32.7489,
-            'gps_lng': -97.3325,
-            'utilization_rate': 76.8
-        }
-    ]
+    """Get authentic Fort Worth asset data from GAUGE API"""
+    try:
+        from authentic_fleet_data_processor import get_authentic_fort_worth_assets
+        authentic_assets = get_authentic_fort_worth_assets()
+        
+        # Convert to expected format for backward compatibility
+        converted_assets = []
+        for asset in authentic_assets:
+            converted_asset = {
+                'asset_id': asset['asset_id'],
+                'asset_name': asset['asset_name'],
+                'fuel_level': asset['fuel_level'],
+                'hours_today': asset['engine_hours'],
+                'location': asset['current_location'],
+                'status': asset['operational_status'],
+                'operator_id': asset['operator_id'],
+                'gps_lat': asset['gps_latitude'],
+                'gps_lng': asset['gps_longitude'],
+                'utilization_rate': asset['utilization_rate'],
+                'fort_worth_zone': asset['fort_worth_zone'],
+                'maintenance_status': asset['maintenance_status']
+            }
+            converted_assets.append(converted_asset)
+            
+        return converted_assets
+        
+    except Exception as e:
+        print(f"GAUGE API connection issue: {e}")
+        # Return empty list to avoid legacy data display
+        return []
 
 # Authentication helper
 def require_auth():
@@ -282,21 +261,26 @@ def api_quantum_consciousness():
 
 @app.route('/api/fort-worth-assets')
 def api_fort_worth_assets():
-    """Authentic Fort Worth asset data"""
+    """Authentic Fort Worth asset data from GAUGE API"""
     try:
-        assets = get_fort_worth_assets()
-        active_assets = [a for a in assets if a['status'] == 'Active']
+        from authentic_fleet_data_processor import get_authentic_map_data
+        map_data = get_authentic_map_data()
+        
+        # Extract assets for compatibility
+        assets = map_data.get('assets', [])
+        active_assets = [a for a in assets if a.get('operational_status') == 'Active']
         
         return jsonify({
             'fort_worth_data': {
-                'total_assets': len(assets),
-                'active_assets': len(active_assets),
-                'utilization_rate': round(sum(a['utilization_rate'] for a in active_assets) / len(active_assets), 1) if active_assets else 0,
-                'location_center': {'lat': 32.7508, 'lng': -97.3307}
+                'total_assets': map_data.get('total_assets', 0),
+                'active_assets': map_data.get('active_assets', 0),
+                'utilization_rate': round(sum(a.get('utilization_rate', 0) for a in active_assets) / len(active_assets), 1) if active_assets else 0,
+                'location_center': map_data.get('center', {'lat': 32.7508, 'lng': -97.3307}),
+                'fort_worth_zones': map_data.get('fort_worth_zones', [])
             },
             'assets': assets,
-            'data_source': 'authentic_ragle_texas',
-            'last_updated': datetime.now().isoformat()
+            'data_source': map_data.get('data_source', 'GAUGE_API_AUTHENTIC'),
+            'last_updated': map_data.get('last_updated', datetime.now().isoformat())
         })
     except Exception as e:
         logging.error(f"Asset data error: {e}")

@@ -110,9 +110,7 @@ function addDataSourceIndicators() {
       const indicator = document.createElement("div");
       indicator.className = "data-source-indicator";
       indicator.style.cssText = `
-position: absolute;
-top: 8px;
-left: 8px;
+display: flex; align-items: center; justify-content: center;
 width: 8px;
 height: 8px;
 border-radius: 50%;

@@ -131,9 +131,7 @@
   z-index: 9999 !important;
 }
 .skip-link {
-  position: absolute;
-  top: -40px;
-  left: 6px;
+  display: flex; align-items: center; justify-content: center;
   background-color: #000000;
   color: #ffffff;
   padding: 8px;

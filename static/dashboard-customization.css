@@ -1,5 +1,5 @@
 .dashboard-customization-toolbar {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, var(--traxovo-gray-50) 0%, #e9ecef 100%);
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 25px;
@@ -28,7 +28,7 @@
   margin: 0;
 }
 .dashboard-customizing {
-  background: #f8f9fa;
+  background: var(--traxovo-gray-50);
 }
 .dashboard-customizing .metric-card,
 .dashboard-customizing .chart-container,
@@ -40,7 +40,7 @@
 .dashboard-customizing .metric-card:hover,
 .dashboard-customizing .chart-container:hover,
 .dashboard-customizing .widget:hover {
-  border-color: #007bff;
+  border-color: var(--traxovo-primary);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
 }
@@ -48,9 +48,9 @@
   position: absolute;
   top: -15px;
   right: -15px;
-  z-index: 1000;
+  z-index: var(--z-dropdown);
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   align-items: center;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -78,7 +78,7 @@
   font-size: 12px;
 }
 .widget-drag-handle {
-  background: #6c757d;
+  background: var(--traxovo-gray-500);
   color: white;
   width: 32px;
   height: 32px;
@@ -94,7 +94,7 @@
   cursor: grabbing;
 }
 .widget-selected {
-  border: 3px solid #007bff !important;
+  border: 3px solid var(--traxovo-primary) !important;
   background: rgba(0, 123, 255, 0.05);
   transform: scale(1.02);
   z-index: 10;
@@ -106,7 +106,7 @@
 .widget-ghost {
   opacity: 0.5;
   background: #e9ecef;
-  border: 2px dashed #6c757d;
+  border: 2px dashed var(--traxovo-gray-500);
 }
 .widget-chosen {
   transform: rotate(2deg);
@@ -114,13 +114,13 @@
 }
 .widget-drag {
   transform: rotate(5deg);
-  z-index: 1000;
+  z-index: var(--z-dropdown);
 }
 .dashboard-notification {
   position: fixed;
   top: 20px;
   right: 20px;
-  z-index: 9999;
+  z-index: var(--z-dropdown)9;
   min-width: 300px;
   opacity: 0;
   transform: translateX(100%);
@@ -210,11 +210,9 @@
 }
 .widget-selected::before {
   content: attr(data-size);
-  position: absolute;
-  top: -25px;
-  left: 50%;
+  display: flex; align-items: center; justify-content: center;
   transform: translateX(-50%);
-  background: #007bff;
+  background: var(--traxovo-primary);
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
@@ -226,7 +224,7 @@
 .customization-controls .btn {
   border-radius: 8px;
   font-weight: 500;
-  padding: 8px 16px;
+  padding: var(--space-sm) 16px;
   transition: all 0.3s ease;
 }
 .customization-controls .btn:hover {
@@ -234,11 +232,11 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 .customization-controls .btn-primary {
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  background: linear-gradient(135deg, var(--traxovo-primary) 0%, #0056b3 100%);
   border: none;
 }
 .customization-controls .btn-success {
-  background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+  background: linear-gradient(135deg, var(--traxovo-success) 0%, #1e7e34 100%);
   border: none;
 }
 .widget-loading {
@@ -247,9 +245,7 @@
 }
 .widget-loading::before {
   content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
+  display: flex; align-items: center; justify-content: center;
   width: 100%;
   height: 100%;
   background: linear-gradient(

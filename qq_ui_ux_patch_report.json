@@ -1,0 +1,670 @@
+{
+  "patch_timestamp": 1749009289.4590445,
+  "total_files_patched": 87,
+  "patch_summary": {
+    "design_system_injections": 40,
+    "color_scheme_fixes": 43,
+    "spacing_fixes": 23,
+    "z_index_fixes": 11,
+    "positioning_fixes": 18
+  },
+  "patches_applied": [
+    {
+      "file": "templates/qq_executive_dashboard.html",
+      "clashes_fixed": [
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/password_prompt.html",
+      "clashes_fixed": [
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/500.html",
+      "clashes_fixed": [
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/quantum_asi_dashboard.html",
+      "clashes_fixed": [
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/404.html",
+      "clashes_fixed": [
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/qq_enhanced_asset_map.html",
+      "clashes_fixed": [
+        "overlapping_positioning",
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/vector_quantum_excellence_dashboard.html",
+      "clashes_fixed": [
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/quantum_asi_excellence.html",
+      "clashes_fixed": [
+        "overlapping_positioning",
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/quantum_dashboard.html",
+      "clashes_fixed": [
+        "potential_z_index_conflicts",
+        "overlapping_positioning",
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/login_corporate.html",
+      "clashes_fixed": [
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/attendance_matrix.html",
+      "clashes_fixed": [
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/asset_manager.html",
+      "clashes_fixed": [
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/puppeteer_control_center.html",
+      "clashes_fixed": [
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/dashboard_customizer.html",
+      "clashes_fixed": [
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/react_spa.html",
+      "clashes_fixed": [
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/enhanced_fleet_map.html",
+      "clashes_fixed": [
+        "potential_z_index_conflicts",
+        "overlapping_positioning",
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/quantum_dashboard_corporate.html",
+      "clashes_fixed": [
+        "potential_z_index_conflicts",
+        "overlapping_positioning",
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/asset_manager/index.html",
+      "clashes_fixed": [
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/loading-animations.css",
+      "clashes_fixed": [
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/universal-search.css",
+      "clashes_fixed": [
+        "overlapping_positioning",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/drill-down-charts.css",
+      "clashes_fixed": [
+        "overlapping_positioning",
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/dashboard-customization.css",
+      "clashes_fixed": [
+        "potential_z_index_conflicts",
+        "overlapping_positioning",
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/mobile-responsive.css",
+      "clashes_fixed": [
+        "inconsistent_spacing_detected"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/enterprise-ui.css",
+      "clashes_fixed": [
+        "overlapping_positioning",
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/widget-customization.css",
+      "clashes_fixed": [
+        "overlapping_positioning",
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/professional-dashboard.css",
+      "clashes_fixed": [
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/css/themes.css",
+      "clashes_fixed": [
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/css/light-theme.css",
+      "clashes_fixed": [
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/css/custom-light.css",
+      "clashes_fixed": [
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/css/custom.css",
+      "clashes_fixed": [
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/css/neutral-theme.css",
+      "clashes_fixed": [
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/css/reports.css",
+      "clashes_fixed": [
+        "overlapping_positioning",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/css/map_style.css",
+      "clashes_fixed": [
+        "potential_z_index_conflicts",
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/css/accessibility.css",
+      "clashes_fixed": [
+        "overlapping_positioning",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/css/mobile_responsive_fix.css",
+      "clashes_fixed": [
+        "potential_z_index_conflicts"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/css/dashboard-drill-downs.css",
+      "clashes_fixed": [
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/css/traxovo-loading-animations.css",
+      "clashes_fixed": [
+        "overlapping_positioning",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/css/mobile-display-fixes.css",
+      "clashes_fixed": [
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/css/qq-ez-mobile-mode.css",
+      "clashes_fixed": [
+        "inconsistent_spacing_detected"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/css/drag-drop-dashboard.css",
+      "clashes_fixed": [
+        "potential_z_index_conflicts",
+        "overlapping_positioning",
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/enterprise-sidebar.js",
+      "clashes_fixed": [
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/pdf-export.js",
+      "clashes_fixed": [
+        "overlapping_positioning",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/onboarding-tour.js",
+      "clashes_fixed": [
+        "potential_z_index_conflicts",
+        "overlapping_positioning",
+        "inconsistent_spacing_detected",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/visual-automation-demo.js",
+      "clashes_fixed": [
+        "potential_z_index_conflicts",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/js/kaizen_ui_enhancements.js",
+      "clashes_fixed": [
+        "overlapping_positioning"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/js/dashboard_layout_builder.js",
+      "clashes_fixed": [
+        "potential_z_index_conflicts",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "static/js/contextual_help_system.js",
+      "clashes_fixed": [
+        "potential_z_index_conflicts",
+        "overlapping_positioning",
+        "color_scheme_inconsistency"
+      ],
+      "status": "patched"
+    },
+    {
+      "file": "templates/qq_executive_dashboard.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/password_prompt.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/500.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/quantum_asi_dashboard.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/404.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/login.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/dashboard_with_sidebar.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/fleet_map.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/qq_enhanced_asset_map.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/contextual_productivity_nudges.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/vector_quantum_excellence_dashboard.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/billion_dollar_excellence_module.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/quantum_asi_excellence.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/qq_enhanced_map.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/billion_dollar_excellence.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/login_quantum.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/quantum_dashboard.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/smart_po_system.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/login_corporate.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/fleet_map_qq.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/attendance_matrix.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/asset_manager.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/dispatch_system.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/estimating_system.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/executive_dashboard.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/equipment_lifecycle_dashboard.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/predictive_maintenance_dashboard.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/heavy_civil_market_dashboard.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/puppeteer_control_center.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/dashboard_customizer.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/react_spa.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/enhanced_fleet_map.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/quantum_dashboard_corporate.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/asset_manager/index.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/executive_dashboard/index.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/dispatch_system/index.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/estimating_system/index.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/equipment_lifecycle/index.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/predictive_maintenance/index.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    },
+    {
+      "file": "templates/heavy_civil_market/index.html",
+      "clashes_fixed": [
+        "design_system_import_added"
+      ],
+      "status": "design_system_injected"
+    }
+  ]
+}

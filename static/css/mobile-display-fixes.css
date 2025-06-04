@@ -141,7 +141,7 @@ body {
     }
     
     th, td {
-        padding: 8px 6px !important;
+        padding: var(--space-sm) 6px !important;
         white-space: nowrap !important;
     }
 }
@@ -406,7 +406,7 @@ textarea {
 
     .message-box {
         margin: 0 auto !important;
-        padding: 8px !important;
+        padding: var(--space-sm) !important;
         font-size: 15px !important;
     }
 

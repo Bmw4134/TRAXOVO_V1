@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAXOVO - Page Not Found</title>
@@ -18,7 +19,7 @@
         }
         h1 { color: #1e3c72; margin-bottom: 20px; font-size: 32px; }
         .error-code { 
-            background: #f8f9fa; color: #1e3c72; padding: 8px 16px;
+            background: var(--traxovo-gray-50); color: #1e3c72; padding: 8px 16px;
             border-radius: 20px; font-size: 14px; display: inline-block; margin-bottom: 20px;
         }
         p { color: #666; line-height: 1.6; margin-bottom: 30px; }

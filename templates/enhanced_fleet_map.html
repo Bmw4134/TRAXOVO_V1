@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAXOVO QQ Bleeding-Edge Asset Tracking</title>
@@ -34,14 +35,12 @@
         }
 
         .map-header {
-            position: absolute;
-            top: 0;
-            left: 0;
+            display: flex; align-items: center; justify-content: center;
             right: 0;
             background: linear-gradient(135deg, rgba(44, 62, 80, 0.95), rgba(52, 73, 94, 0.95));
             backdrop-filter: blur(10px);
             padding: 15px 20px;
-            z-index: 1000;
+            z-index: var(--z-dropdown);
             border-bottom: 2px solid #3498db;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
         }
@@ -79,7 +78,7 @@
             background: linear-gradient(45deg, #3498db, #2980b9);
             border: none;
             color: white;
-            padding: 8px 16px;
+            padding: var(--space-sm) 16px;
             border-radius: 6px;
             cursor: pointer;
             font-size: 12px;
@@ -101,7 +100,7 @@
             backdrop-filter: blur(10px);
             border-radius: 12px;
             border: 2px solid #3498db;
-            z-index: 999;
+            z-index: var(--z-dropdown);
             overflow: hidden;
             box-shadow: 0 0 30px rgba(52, 152, 219, 0.3);
         }
@@ -730,7 +729,7 @@
                 color: white;
                 padding: 12px 20px;
                 border-radius: 6px;
-                z-index: 10000;
+                z-index: var(--z-dropdown)0;
                 animation: slideIn 0.3s ease;
             `;
             

@@ -50,7 +50,7 @@ class EnterpriseSidebar {
                     <i class="icon">📈</i> Executive Intelligence
                 </a>
                 <div class="sidebar-divider"></div>
-                <a href="/watson-admin" class="sidebar-link admin-only" style="color: #ffc107;">
+                <a href="/watson-admin" class="sidebar-link admin-only" style="color: var(--traxovo-warning);">
                     <i class="icon">⚙️</i> Watson Admin
                 </a>
                 <a href="/logout" class="sidebar-link logout-link">

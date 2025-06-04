@@ -20,7 +20,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
+    padding: var(--space-md) 20px;
     background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
     color: white;
     border-radius: 12px 12px 0 0;
@@ -69,14 +69,14 @@
 
 .widget-items {
     display: grid;
-    gap: 8px;
+    gap: var(--space-sm);
 }
 
 .widget-item {
     display: flex;
     align-items: center;
     padding: 12px 16px;
-    background: #f8f9fa;
+    background: var(--traxovo-gray-50);
     border: 1px solid #e9ecef;
     border-radius: 8px;
     cursor: grab;
@@ -191,7 +191,7 @@
     opacity: 0.7;
     transform: rotate(3deg) scale(1.02);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
+    z-index: var(--z-dropdown);
 }
 
 .dashboard-widget.refreshing {
@@ -225,8 +225,8 @@
 }
 
 .widget-header {
-    padding: 16px 20px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: var(--space-md) 20px;
+    background: linear-gradient(135deg, var(--traxovo-gray-50) 0%, #e9ecef 100%);
     border-bottom: 1px solid #e1e5e9;
     display: flex;
     align-items: center;
@@ -297,13 +297,13 @@
 /* Widget Content Styles */
 .fleet-stats, .attendance-grid {
     display: grid;
-    gap: 16px;
+    gap: var(--space-md);
 }
 
 .stat-item {
     text-align: center;
-    padding: 16px;
-    background: #f8f9fa;
+    padding: var(--space-md);
+    background: var(--traxovo-gray-50);
     border-radius: 8px;
     border: 1px solid #e9ecef;
 }
@@ -334,7 +334,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    background: #f8f9fa;
+    background: var(--traxovo-gray-50);
     border-radius: 8px;
     border-left: 4px solid #3498db;
 }
@@ -376,7 +376,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
+    padding: var(--space-sm) 0;
     border-bottom: 1px solid #f0f0f0;
 }
 
@@ -444,7 +444,7 @@
     bottom: 20px;
     right: 20px;
     display: flex;
-    gap: 8px;
+    gap: var(--space-sm);
     z-index: 1400;
 }
 
@@ -529,7 +529,7 @@
 }
 
 .modal-body {
-    padding: 24px;
+    padding: var(--space-lg);
 }
 
 .config-option {
@@ -562,7 +562,7 @@
 
 .modal-footer {
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--traxovo-gray-50);
     display: flex;
     justify-content: flex-end;
     gap: 12px;
@@ -607,7 +607,7 @@
     background: white;
     border: 2px solid #3498db;
     border-radius: 8px;
-    padding: 8px 12px;
+    padding: var(--space-sm) 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     display: none;
 }
@@ -652,7 +652,7 @@
     
     .drop-zone-container {
         grid-template-columns: 1fr;
-        gap: 16px;
+        gap: var(--space-md);
     }
     
     .layout-controls {
@@ -662,7 +662,7 @@
     }
     
     .layout-btn {
-        padding: 8px 12px;
+        padding: var(--space-sm) 12px;
         font-size: 11px;
     }
     
@@ -697,7 +697,7 @@
     }
     
     .widget-content {
-        padding: 16px;
+        padding: var(--space-md);
     }
     
     .widget-header {

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TRAXOVO Vector Quantum Excellence</title>
@@ -167,7 +168,7 @@
         
         .metric-item {
             background: rgba(15, 20, 25, 0.6); border-radius: 8px; 
-            padding: 12px; margin: 8px 0;
+            padding: 12px; margin: var(--space-sm) 0;
             border-left: 3px solid #4299e1;
         }
         

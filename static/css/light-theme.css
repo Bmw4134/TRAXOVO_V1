@@ -11,7 +11,7 @@ body {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
 }
 .card-header {
-  background-color: #f8f9fa !important;
+  background-color: var(--traxovo-gray-50) !important;
   border-bottom: 1px solid #e0e0e0 !important;
 }
 .table {
@@ -22,28 +22,28 @@ body {
   background-color: #f9f9f9 !important;
 }
 .footer {
-  background-color: #f8f9fa !important;
-  color: #6c757d !important;
+  background-color: var(--traxovo-gray-50) !important;
+  color: var(--traxovo-gray-500) !important;
   border-top: 1px solid #e0e0e0 !important;
 }
 .badge-success,
 .bg-success {
-  background-color: #28a745 !important;
+  background-color: var(--traxovo-success) !important;
   color: white !important;
 }
 .badge-warning,
 .bg-warning {
-  background-color: #ffc107 !important;
+  background-color: var(--traxovo-warning) !important;
   color: #212529 !important;
 }
 .badge-danger,
 .bg-danger {
-  background-color: #dc3545 !important;
+  background-color: var(--traxovo-error) !important;
   color: white !important;
 }
 .badge-info,
 .bg-info {
-  background-color: #17a2b8 !important;
+  background-color: var(--traxovo-info) !important;
   color: white !important;
 }
 h1,
@@ -55,7 +55,7 @@ h6 {
   color: #212529 !important;
 }
 .text-muted {
-  color: #6c757d !important;
+  color: var(--traxovo-gray-500) !important;
 }
 .table-dark {
   background-color: #ffffff !important;
@@ -90,19 +90,19 @@ h6 {
   color: #ffffff !important;
 }
 .btn-outline-info {
-  color: #17a2b8 !important;
-  border-color: #17a2b8 !important;
+  color: var(--traxovo-info) !important;
+  border-color: var(--traxovo-info) !important;
 }
 .btn-outline-info:hover {
-  background-color: #17a2b8 !important;
+  background-color: var(--traxovo-info) !important;
   color: #ffffff !important;
 }
 .btn-outline-secondary {
-  color: #6c757d !important;
-  border-color: #6c757d !important;
+  color: var(--traxovo-gray-500) !important;
+  border-color: var(--traxovo-gray-500) !important;
 }
 .btn-outline-secondary:hover {
-  background-color: #6c757d !important;
+  background-color: var(--traxovo-gray-500) !important;
   color: #ffffff !important;
 }
 .dropdown-menu {
@@ -114,7 +114,7 @@ h6 {
 }
 .dropdown-item:hover,
 .dropdown-item:focus {
-  background-color: #f8f9fa !important;
+  background-color: var(--traxovo-gray-50) !important;
   color: #16181b !important;
 }
 .form-control {

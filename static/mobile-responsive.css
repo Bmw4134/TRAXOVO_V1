@@ -43,7 +43,7 @@ body {
 @media (max-width: 768px) {
   .container,
   .container-fluid {
-    padding: 8px 12px;
+    padding: var(--space-sm) 12px;
     margin: 0;
     max-width: 100vw;
     overflow-x: hidden;
@@ -73,7 +73,7 @@ body {
   }
 
   .features-list li {
-    padding: 8px 0;
+    padding: var(--space-sm) 0;
     font-size: 14px;
     word-wrap: break-word;
   }
@@ -190,13 +190,13 @@ body {
 
   /* Mobile header improvements */
   .navbar {
-    padding: 8px 12px;
+    padding: var(--space-sm) 12px;
     min-height: 56px;
   }
 
   .navbar-toggler {
     border: none;
-    padding: 8px;
+    padding: var(--space-sm);
     border-radius: 6px;
   }
 
@@ -216,7 +216,7 @@ body {
   /* Table improvements */
   .table th,
   .table td {
-    padding: 8px 6px;
+    padding: var(--space-sm) 6px;
     font-size: 13px;
   }
 
@@ -276,7 +276,7 @@ body {
   }
 
   .metric-card {
-    padding: 8px 12px;
+    padding: var(--space-sm) 12px;
     min-height: 70px;
   }
 

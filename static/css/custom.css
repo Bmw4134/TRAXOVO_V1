@@ -4,7 +4,7 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 .card-header {
-  background-color: #f8f9fa;
+  background-color: var(--traxovo-gray-50);
   color: #212529;
   border-bottom: 1px solid #e9ecef;
 }
@@ -19,7 +19,7 @@
   background-color: rgba(0, 0, 0, 0.05);
 }
 .table th {
-  background-color: #f8f9fa;
+  background-color: var(--traxovo-gray-50);
   color: #212529;
   border-color: #e9ecef;
 }
@@ -33,7 +33,7 @@
   border: 1px solid #dee2e6;
 }
 .pm-table th {
-  background-color: #f8f9fa;
+  background-color: var(--traxovo-gray-50);
   color: #212529;
   font-weight: 600;
 }
@@ -57,7 +57,7 @@
   background-color: #ffffff;
 }
 .report-view-content th {
-  background-color: #f8f9fa;
+  background-color: var(--traxovo-gray-50);
   color: #212529;
   padding: 12px 15px;
   font-weight: bold;
@@ -77,7 +77,7 @@
   background-color: #ffffff;
 }
 .driver-report-table th {
-  background-color: #f8f9fa;
+  background-color: var(--traxovo-gray-50);
   color: #212529;
   padding: 15px;
   font-weight: 600;
@@ -100,13 +100,13 @@
   background-color: rgba(13, 110, 253, 0.1);
 }
 .driver-report-table tbody.late-start-row tr {
-  border-left: 3px solid #dc3545;
+  border-left: 3px solid var(--traxovo-error);
 }
 .driver-report-table tbody.early-end-row tr {
-  border-left: 3px solid #ffc107;
+  border-left: 3px solid var(--traxovo-warning);
 }
 .driver-report-table tbody.not-on-job-row tr {
-  border-left: 3px solid #6c757d;
+  border-left: 3px solid var(--traxovo-gray-500);
 }
 .driver-report-table tbody.late-start-row {
   background-color: rgba(220, 53, 69, 0.05);
@@ -118,18 +118,18 @@
   background-color: rgba(108, 117, 125, 0.05);
 }
 .late-start-row {
-  border-left: 3px solid #dc3545;
+  border-left: 3px solid var(--traxovo-error);
 }
 .early-end-row {
-  border-left: 3px solid #ffc107;
+  border-left: 3px solid var(--traxovo-warning);
 }
 .not-on-job-row {
-  border-left: 3px solid #6c757d;
+  border-left: 3px solid var(--traxovo-gray-500);
 }
 .form-control {
-  background-color: #343a40;
+  background-color: var(--traxovo-gray-800);
   color: #e9ecef;
-  border-color: #6c757d;
+  border-color: var(--traxovo-gray-500);
 }
 .form-control:focus {
   background-color: #454d55;
@@ -144,8 +144,8 @@
   border-color: #198754;
 }
 .btn-danger {
-  background-color: #dc3545;
-  border-color: #dc3545;
+  background-color: var(--traxovo-error);
+  border-color: var(--traxovo-error);
 }
 .btn-info {
   background-color: #0dcaf0;
@@ -153,8 +153,8 @@
   color: #000;
 }
 .btn-warning {
-  background-color: #ffc107;
-  border-color: #ffc107;
+  background-color: var(--traxovo-warning);
+  border-color: var(--traxovo-warning);
   color: #000;
 }
 body {
@@ -166,10 +166,10 @@ h3,
 h4,
 h5,
 h6 {
-  color: #f8f9fa;
+  color: var(--traxovo-gray-50);
 }
 .report-table th {
-  background-color: #343a40;
+  background-color: var(--traxovo-gray-800);
   color: white;
 }
 .report-table td {
@@ -177,13 +177,13 @@ h6 {
   color: #ffffff;
 }
 .report-view-content {
-  background-color: #f8f9fa;
+  background-color: var(--traxovo-gray-50);
   color: #212529;
   padding: 15px;
   border-radius: 5px;
 }
 pre {
-  background-color: #f8f9fa;
+  background-color: var(--traxovo-gray-50);
   color: #212529;
   padding: 15px;
   border-radius: 5px;
@@ -191,7 +191,7 @@ pre {
   font-family: monospace;
 }
 .tab-content {
-  background-color: #f8f9fa;
+  background-color: var(--traxovo-gray-50);
   color: #212529;
   border-radius: 0 0 5px 5px;
   padding: 15px;
@@ -213,5 +213,5 @@ pre {
   border-left: 4px solid #198754;
 }
 .region-wtx {
-  border-left: 4px solid #dc3545;
+  border-left: 4px solid var(--traxovo-error);
 }

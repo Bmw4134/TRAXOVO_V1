@@ -20,9 +20,7 @@
 }
 
 .loading-backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
+    display: flex; align-items: center; justify-content: center;
     width: 100%;
     height: 100%;
     background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
@@ -147,9 +145,7 @@
     height: 40px;
     background: #3498db;
     border-radius: 6px;
-    position: absolute;
-    top: -35px;
-    left: 10px;
+    display: flex; align-items: center; justify-content: center;
     border: 2px solid #2980b9;
 }
 
@@ -279,9 +275,7 @@
 }
 
 .cargo {
-    position: absolute;
-    top: -15px;
-    left: 5px;
+    display: flex; align-items: center; justify-content: center;
     right: 5px;
     height: 20px;
 }
@@ -402,9 +396,7 @@
     height: 35px;
     background: #3498db;
     border-radius: 4px;
-    position: absolute;
-    top: -30px;
-    left: 20px;
+    display: flex; align-items: center; justify-content: center;
     border: 2px solid #2980b9;
 }
 
@@ -663,9 +655,7 @@
     width: 14px;
     height: 8px;
     background: #f39c12;
-    position: absolute;
-    top: -6px;
-    left: -1px;
+    display: flex; align-items: center; justify-content: center;
     border-radius: 50%;
 }
 
@@ -762,9 +752,7 @@
 }
 
 .drum-stripes {
-    position: absolute;
-    top: 50%;
-    left: 50%;
+    display: flex; align-items: center; justify-content: center;
     transform: translate(-50%, -50%);
     width: 40px;
     height: 40px;
@@ -795,9 +783,7 @@
 }
 
 .concrete-flow {
-    position: absolute;
-    top: 100%;
-    left: 50%;
+    display: flex; align-items: center; justify-content: center;
     transform: translateX(-50%);
 }
 

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -89,16 +90,16 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            z-index: 999998;
+            z-index: var(--z-dropdown)998;
             background: rgba(0, 0, 0, 0.8);
             color: white;
-            border: 2px solid #007bff;
+            border: 2px solid var(--traxovo-primary);
             border-radius: 8px;
             padding: 10px 15px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--space-sm);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-size: 14px;
             font-weight: 500;
@@ -134,14 +135,14 @@
                 display: none;
             }
             .qq-fullscreen-toggle-btn {
-                padding: 8px;
+                padding: var(--space-sm);
             }
         }
         
         /* Fullscreen mode adjustments */
         .qq-fullscreen-mode .qq-fullscreen-toggle-btn {
             background: rgba(220, 53, 69, 0.8);
-            border-color: #dc3545;
+            border-color: var(--traxovo-error);
         }
         
         .qq-fullscreen-mode .qq-fullscreen-toggle-btn:hover {
@@ -168,7 +169,7 @@
             background: linear-gradient(45deg, #667eea, #764ba2);
             border-radius: 50%;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            z-index: 9999;
+            z-index: var(--z-dropdown)9;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
@@ -188,7 +189,7 @@
             background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             border-radius: 12px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            z-index: 9998;
+            z-index: var(--z-dropdown)8;
             overflow: hidden;
             transform: translateX(350px);
             transition: all 0.3s ease;
@@ -360,7 +361,7 @@
             color: white;
             font-size: 20px;
             cursor: pointer;
-            z-index: 9999;
+            z-index: var(--z-dropdown)9;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
@@ -413,7 +414,7 @@
             border-radius: 15px;
             padding: 15px;
             max-width: 380px;
-            z-index: 10000;
+            z-index: var(--z-dropdown)0;
             color: white;
             font-family: 'Segoe UI', sans-serif;
             box-shadow: 0 0 30px rgba(52, 152, 219, 0.3);
@@ -448,11 +449,11 @@
             }
             
             .header {
-                z-index: 10000 !important;
+                z-index: var(--z-dropdown)0 !important;
             }
             
             .consciousness-indicator {
-                z-index: 10500 !important;
+                z-index: var(--z-modal)0 !important;
             }
         }
         
@@ -593,7 +594,7 @@
         
         .result-item {
             margin: 5px 0;
-            padding: 8px;
+            padding: var(--space-sm);
             background: rgba(52, 152, 219, 0.1);
             border-radius: 4px;
             font-size: 12px;
@@ -623,7 +624,7 @@
                 right: 75px !important;
                 top: 15px !important;
                 font-size: 12px !important;
-                padding: 8px 12px !important;
+                padding: var(--space-sm) 12px !important;
                 z-index: 19000;
             }
         }
@@ -654,7 +655,7 @@
             backdrop-filter: blur(15px);
             border-radius: 15px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-            z-index: 9998;
+            z-index: var(--z-dropdown)8;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-20px);
@@ -686,7 +687,7 @@
         }
         
         .master-nav-item {
-            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            background: linear-gradient(45deg, var(--traxovo-gray-50), #e9ecef);
             border: none;
             border-radius: 8px;
             padding: 12px 8px;
@@ -707,16 +708,16 @@
         
         .master-quick-actions {
             display: flex;
-            gap: 8px;
+            gap: var(--space-sm);
             margin-top: 15px;
         }
         
         .quick-action-btn {
             flex: 1;
-            background: linear-gradient(45deg, #28a745, #20c997);
+            background: linear-gradient(45deg, var(--traxovo-success), #20c997);
             border: none;
             border-radius: 6px;
-            padding: 8px 4px;
+            padding: var(--space-sm) 4px;
             color: white;
             font-size: 11px;
             cursor: pointer;
@@ -730,10 +731,10 @@
         .master-status-indicator {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--space-sm);
             margin-top: 15px;
-            padding: 8px;
-            background: #f8f9fa;
+            padding: var(--space-sm);
+            background: var(--traxovo-gray-50);
             border-radius: 6px;
             font-size: 11px;
         }
@@ -742,7 +743,7 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #28a745;
+            background: var(--traxovo-success);
         }
         
         /* Mobile Navigation Fixes */
@@ -800,8 +801,8 @@
         .status-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
+            gap: var(--space-sm);
+            padding: var(--space-sm) 12px;
             background: rgba(255,255,255,0.1);
             border-radius: 20px;
         }
@@ -869,7 +870,7 @@
             }
             
             .nav-btn {
-                padding: 8px 16px;
+                padding: var(--space-sm) 16px;
                 font-size: 12px;
                 min-height: 44px;
                 min-width: 44px;
@@ -886,7 +887,7 @@
             padding: 12px 20px;
             border-radius: 25px;
             font-size: 0.85em;
-            z-index: 1000;
+            z-index: var(--z-dropdown);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
             animation: quantumPulse 3s infinite;
@@ -965,7 +966,7 @@
         
         .metric-item {
             padding: 15px;
-            background: #f8f9fa;
+            background: var(--traxovo-gray-50);
             border-radius: 8px;
             border-left: 4px solid #3498db;
         }
@@ -1078,7 +1079,7 @@
             background: #ecf0f1;
             border-radius: 4px;
             overflow: hidden;
-            margin: 8px 0;
+            margin: var(--space-sm) 0;
         }
         
         .utilization-fill {
@@ -1252,7 +1253,7 @@
             
             .master-nav-grid {
                 grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
+                gap: var(--space-sm);
             }
             
             .master-nav-item {
@@ -1282,7 +1283,7 @@
             
             .asset-details {
                 grid-template-columns: 1fr;
-                gap: 8px;
+                gap: var(--space-sm);
             }
             
             .consciousness-indicator {
@@ -1340,7 +1341,7 @@
             
             .status-indicators {
                 flex-direction: column;
-                gap: 8px;
+                gap: var(--space-sm);
             }
             
             .status-item {
@@ -1952,7 +1953,7 @@ Examples:
                     padding: 15px 25px;
                     border-radius: 8px;
                     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-                    z-index: 10001;
+                    z-index: var(--z-dropdown)1;
                     font-weight: 600;
                 `;
                 feedback.innerHTML = '<i class="fas fa-check-circle"></i> Action initiated! Thank you for improving productivity.';
@@ -2152,7 +2153,7 @@ Examples:
                 const modal = document.createElement('div');
                 modal.style.cssText = `
                     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                    background: rgba(0,0,0,0.9); z-index: 1000; display: flex;
+                    background: rgba(0,0,0,0.9); z-index: var(--z-dropdown); display: flex;
                     align-items: center; justify-content: center; color: white;
                     font-family: 'Courier New', monospace;
                 `;
@@ -2582,13 +2583,13 @@ Examples:
                 position: fixed;
                 top: 20px;
                 left: 20px;
-                z-index: 1000;
+                z-index: var(--z-dropdown);
                 background: rgba(0, 0, 0, 0.8);
                 padding: 15px;
                 border-radius: 8px;
                 display: flex;
                 flex-wrap: wrap;
-                gap: 8px;
+                gap: var(--space-sm);
                 max-width: 300px;
             `;
             
@@ -2602,7 +2603,7 @@ Examples:
                     background: #3498db;
                     color: white;
                     border: none;
-                    padding: 8px 12px;
+                    padding: var(--space-sm) 12px;
                     border-radius: 4px;
                     cursor: pointer;
                     font-size: 12px;
@@ -2621,7 +2622,7 @@ Examples:
                 background: #e74c3c;
                 color: white;
                 border: none;
-                padding: 8px 10px;
+                padding: var(--space-sm) 10px;
                 border-radius: 4px;
                 cursor: pointer;
                 font-size: 12px;

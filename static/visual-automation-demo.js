@@ -17,7 +17,7 @@ class VisualASIDemo {
     this.mouseElement.style.cssText = `
             position: fixed;
             font-size: 20px;
-            z-index: 10000;
+            z-index: var(--z-dropdown)0;
             pointer-events: none;
             transition: all 0.3s ease;
             background: rgba(0,255,0,0.2);
@@ -100,12 +100,12 @@ class VisualASIDemo {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: linear-gradient(135deg, #28a745, #20c997);
+            background: linear-gradient(135deg, var(--traxovo-success), #20c997);
             color: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            z-index: 9999;
+            z-index: var(--z-dropdown)9;
             max-width: 300px;
             font-family: 'Segoe UI', sans-serif;
         `;
@@ -160,7 +160,7 @@ class VisualASIDemo {
             padding: 30px;
             border-radius: 15px;
             border: 2px solid #00ff00;
-            z-index: 10001;
+            z-index: var(--z-dropdown)1;
             text-align: center;
             font-family: 'Courier New', monospace;
             box-shadow: 0 0 30px rgba(0,255,0,0.3);
@@ -211,7 +211,7 @@ class VisualASIDemo {
             padding: 10px 20px;
             border-radius: 5px;
             font-family: 'Courier New', monospace;
-            z-index: 9998;
+            z-index: var(--z-dropdown)8;
             border: 1px solid #00ff00;
         `;
     document.body.appendChild(statusBar);
@@ -242,13 +242,13 @@ function addDemoButton() {
         position: fixed;
         top: 100px;
         right: 20px;
-        background: linear-gradient(135deg, #007bff, #0056b3);
+        background: linear-gradient(135deg, var(--traxovo-primary), #0056b3);
         color: white;
         border: none;
         padding: 12px 20px;
         border-radius: 8px;
         cursor: pointer;
-        z-index: 9999;
+        z-index: var(--z-dropdown)9;
         font-weight: bold;
         box-shadow: 0 4px 15px rgba(0,123,255,0.3);
     `;

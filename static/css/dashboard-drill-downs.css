@@ -1,7 +1,7 @@
 /* TRAXOVO Dashboard Drill-Down Analytics Styling */
 
 .drilldown-analytics-container {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: linear-gradient(135deg, var(--traxovo-gray-50) 0%, #e9ecef 100%);
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     margin: 20px 0;
@@ -22,7 +22,7 @@
 .drilldown-breadcrumbs {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-sm);
 }
 
 .breadcrumb {
@@ -55,14 +55,14 @@
 
 .drilldown-controls {
     display: flex;
-    gap: 8px;
+    gap: var(--space-sm);
 }
 
 .drilldown-controls button {
     background: rgba(255, 255, 255, 0.1);
     border: none;
     color: white;
-    padding: 8px 12px;
+    padding: var(--space-sm) 12px;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -104,7 +104,7 @@
 }
 
 .chart-header {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: linear-gradient(135deg, var(--traxovo-gray-50) 0%, #e9ecef 100%);
     padding: 15px 20px;
     border-bottom: 2px solid #dee2e6;
     display: flex;
@@ -121,7 +121,7 @@
 
 .chart-actions {
     display: flex;
-    gap: 8px;
+    gap: var(--space-sm);
 }
 
 .chart-actions button {
@@ -151,7 +151,7 @@
 }
 
 .chart-insights {
-    background: #f8f9fa;
+    background: var(--traxovo-gray-50);
     border-top: 1px solid #dee2e6;
     padding: 15px 20px;
 }
@@ -164,7 +164,7 @@
 
 .insight-item {
     background: white;
-    padding: 8px 12px;
+    padding: var(--space-sm) 12px;
     border-radius: 6px;
     font-size: 13px;
     color: #2c3e50;
@@ -228,7 +228,7 @@
     border-radius: 6px;
     font-size: 12px;
     overflow-x: auto;
-    margin: 8px 0 0 0;
+    margin: var(--space-sm) 0 0 0;
     border-left: 3px solid #3498db;
 }
 
@@ -274,7 +274,7 @@
     
     .insights-content {
         flex-direction: column;
-        gap: 8px;
+        gap: var(--space-sm);
     }
     
     .insight-item {
@@ -329,7 +329,7 @@
     justify-content: center;
     align-items: center;
     height: 200px;
-    color: #6c757d;
+    color: var(--traxovo-gray-500);
 }
 
 .drilldown-loading::after {

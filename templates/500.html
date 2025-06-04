@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAXOVO - System Error</title>
@@ -16,9 +17,9 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1); max-width: 600px; width: 100%;
             text-align: center;
         }
-        h1 { color: #dc3545; margin-bottom: 20px; font-size: 28px; }
+        h1 { color: var(--traxovo-error); margin-bottom: 20px; font-size: 28px; }
         .error-code { 
-            background: #f8f9fa; color: #dc3545; padding: 8px 16px;
+            background: var(--traxovo-gray-50); color: var(--traxovo-error); padding: 8px 16px;
             border-radius: 20px; font-size: 14px; display: inline-block; margin-bottom: 20px;
         }
         p { color: #666; line-height: 1.6; margin-bottom: 30px; }

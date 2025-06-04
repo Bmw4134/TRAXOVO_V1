@@ -20,7 +20,7 @@ class DashboardLayoutBuilder {
     const editButton = document.createElement("button");
     editButton.className = "btn btn-outline-primary position-fixed";
     editButton.style.cssText =
-      "top: 20px; right: 20px; z-index: 1050; border-radius: 50px;";
+      "top: 20px; right: 20px; z-index: var(--z-modal); border-radius: 50px;";
     editButton.innerHTML =
       '<i class="fas fa-edit me-2"></i>Customize Dashboard';
     editButton.onclick = () => this.toggleEditMode();
@@ -47,8 +47,8 @@ class DashboardLayoutBuilder {
       "widget-catalog position-fixed bg-white shadow-lg rounded";
     catalog.style.cssText = `
 left: 20px; top: 80px; width: 300px; max-height: 80vh;
-overflow-y: auto; z-index: 1040; display: none;
-border: 2px solid #007bff; padding: 20px;
+overflow-y: auto; z-index: var(--z-modal-backdrop); display: none;
+border: 2px solid var(--traxovo-primary); padding: 20px;
 `;
     catalog.innerHTML = `
 <h5 class="mb-3"><i class="fas fa-puzzle-piece me-2"></i>Widget Catalog</h5>
@@ -291,7 +291,7 @@ transform: translateY(-3px);
 box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 .dashboard-edit-mode .hover-card {
-border: 2px dashed #007bff;
+border: 2px dashed var(--traxovo-primary);
 position: relative;
 }
 .dashboard-edit-mode .hover-card::after {
@@ -299,23 +299,23 @@ content: "⋮⋮";
 position: absolute;
 top: 10px;
 right: 10px;
-color: #007bff;
+color: var(--traxovo-primary);
 font-size: 18px;
 font-weight: bold;
 }
 .widget-item:hover {
-background: #f8f9fa;
-border-color: #007bff !important;
+background: var(--traxovo-gray-50);
+border-color: var(--traxovo-primary) !important;
 }
 .drop-zone-highlight {
 background: rgba(0,123,255,0.1) !important;
-border: 2px dashed #007bff !important;
+border: 2px dashed var(--traxovo-primary) !important;
 }
 .utilization-gauge .gauge-circle {
 width: 80px;
 height: 80px;
 border-radius: 50%;
-background: conic-gradient(#28a745 0deg 308deg, #e9ecef 308deg 360deg);
+background: conic-gradient(var(--traxovo-success) 0deg 308deg, #e9ecef 308deg 360deg);
 display: flex;
 align-items: center;
 justify-content: center;
@@ -458,7 +458,7 @@ opacity: 0;
     const notification = document.createElement("div");
     notification.className = `alert alert-${type} alert-dismissible position-fixed`;
     notification.style.cssText =
-      "top: 20px; left: 50%; transform: translateX(-50%); z-index: 1060; min-width: 300px;";
+      "top: 20px; left: 50%; transform: translateX(-50%); z-index: var(--z-popover); min-width: 300px;";
     notification.innerHTML = `
 ${message}
 <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>

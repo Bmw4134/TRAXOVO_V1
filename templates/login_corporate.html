@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAXOVO - Fleet Intelligence Platform</title>
@@ -59,7 +60,7 @@
         input[type="text"], input[type="password"] {
             width: 100%;
             padding: 12px 15px;
-            background: #f8f9fa;
+            background: var(--traxovo-gray-50);
             border: 1px solid #e1e8ed;
             border-radius: 8px;
             color: #2c3e50;
@@ -94,7 +95,7 @@
         }
         
         .credentials-info {
-            background: #f8f9fa;
+            background: var(--traxovo-gray-50);
             border: 1px solid #e1e8ed;
             border-radius: 8px;
             padding: 15px;

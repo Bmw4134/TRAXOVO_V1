@@ -2,7 +2,7 @@
   .navbar {
     position: sticky;
     top: 0;
-    z-index: 1030;
+    z-index: var(--z-fixed);
     padding: 0.5rem 1rem;
     background: white !important;
     border-bottom: 1px solid #dee2e6;
@@ -10,7 +10,7 @@
   .navbar-toggler {
     border: none;
     padding: 0.25rem 0.5rem;
-    z-index: 1040;
+    z-index: var(--z-modal-backdrop);
     position: relative;
   }
   .navbar-toggler:focus {

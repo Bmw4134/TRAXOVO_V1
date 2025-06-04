@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAXOVO Quantum ASI Excellence</title>
@@ -314,7 +315,7 @@
                 <div class="asset-card">
                     <div class="asset-id">{{ asset.asset_id }}</div>
                     <div>{{ asset.asset_name }}</div>
-                    <div style="margin: 8px 0;">
+                    <div style="margin: var(--space-sm) 0;">
                         <span class="asset-status {{ 'status-active' if asset.status == 'Active' else 'status-idle' }}">
                             {{ asset.status }}
                         </span>

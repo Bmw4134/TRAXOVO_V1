@@ -82,7 +82,7 @@ class TRAXOVOOnboardingTour {
                     width: 100%;
                     height: 100%;
                     background: rgba(0, 0, 0, 0.7);
-                    z-index: 9999;
+                    z-index: var(--z-dropdown)9;
                     pointer-events: none;
                 }
                 
@@ -104,7 +104,7 @@ class TRAXOVOOnboardingTour {
                     max-width: 350px;
                     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
                                 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                    z-index: 10001;
+                    z-index: var(--z-dropdown)1;
                     pointer-events: auto;
                     border: 1px solid #e5e7eb;
                 }
@@ -113,7 +113,7 @@ class TRAXOVOOnboardingTour {
                 @media (max-width: 768px) {
                     .onboarding-tooltip {
                         max-width: 300px;
-                        padding: 16px;
+                        padding: var(--space-md);
                         font-size: 14px;
                         margin: 10px;
                     }
@@ -131,7 +131,7 @@ class TRAXOVOOnboardingTour {
                     
                     .onboarding-buttons {
                         flex-direction: column;
-                        gap: 8px;
+                        gap: var(--space-sm);
                     }
                     
                     .onboarding-btn {
@@ -195,11 +195,11 @@ class TRAXOVOOnboardingTour {
                 
                 .onboarding-buttons {
                     display: flex;
-                    gap: 8px;
+                    gap: var(--space-sm);
                 }
                 
                 .onboarding-btn {
-                    padding: 8px 16px;
+                    padding: var(--space-sm) 16px;
                     border-radius: 6px;
                     border: 1px solid #d1d5db;
                     background: white;
@@ -404,10 +404,10 @@ class TRAXOVOOnboardingTour {
             right: 20px;
             background: #10b981;
             color: white;
-            padding: 16px 24px;
+            padding: var(--space-md) 24px;
             border-radius: 8px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            z-index: 10000;
+            z-index: var(--z-dropdown)0;
             font-weight: 500;
             animation: slideIn 0.3s ease;
         `;
@@ -466,7 +466,7 @@ function addTourRestartButton() {
   restartBtn.innerHTML = "🎯 Restart Tour";
   restartBtn.className = "btn btn-sm btn-outline-primary";
   restartBtn.style.cssText =
-    "position: fixed; bottom: 20px; right: 20px; z-index: 1000;";
+    "position: fixed; bottom: 20px; right: 20px; z-index: var(--z-dropdown);";
   restartBtn.onclick = () => {
     tour.reset();
     setTimeout(() => tour.start(), 500);

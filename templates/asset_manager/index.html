@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -50,7 +51,7 @@
         .metric-item {
             text-align: center;
             padding: 10px;
-            background: #f8f9fa;
+            background: var(--traxovo-gray-50);
             border-radius: 8px;
         }
         .metric-value {

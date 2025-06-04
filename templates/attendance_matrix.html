@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -133,7 +134,7 @@
             transition: all 0.3s ease;
         }
         .driver-row:hover {
-            background: #f8f9fa;
+            background: var(--traxovo-gray-50);
             transform: translateX(5px);
         }
         

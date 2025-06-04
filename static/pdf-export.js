@@ -55,7 +55,7 @@ position: absolute;
 top: 15px;
 right: 15px;
 z-index: 1000;
-background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+background: linear-gradient(135deg, var(--traxovo-error) 0%, #b02a37 100%);
 border: none;
 color: white;
 border-radius: 8px;
@@ -343,7 +343,7 @@ margin-right: 15px;
     modal.className = "export-progress-modal";
     modal.innerHTML = `
 <div class="modal-backdrop" style="background: rgba(0,0,0,0.5); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;">
-<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; text-align: center; min-width: 300px;">
+<div style="display: flex; align-items: center; justify-content: center; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; text-align: center; min-width: 300px;">
 <div class="spinner-border text-primary mb-3"></div>
 <h5>Exporting Report</h5>
 <p class="progress-message">${message}</p>

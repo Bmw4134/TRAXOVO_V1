@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>QQ Enhanced Asset Tracking Map - TRAXOVO</title>
@@ -107,7 +108,7 @@
         
         .metric-item {
             display: flex; justify-content: space-between;
-            margin: 10px 0; padding: 8px 0;
+            margin: 10px 0; padding: var(--space-sm) 0;
             border-bottom: 1px solid rgba(66, 153, 225, 0.2);
         }
         

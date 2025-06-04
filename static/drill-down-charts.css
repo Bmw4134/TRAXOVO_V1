@@ -34,9 +34,7 @@
   justify-content: center;
 }
 .modal-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
+  display: flex; align-items: center; justify-content: center;
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.7);
@@ -101,7 +99,7 @@
 }
 .chart-section {
   padding: 30px;
-  background: #f8f9fa;
+  background: var(--traxovo-gray-50);
   border-bottom: 1px solid #e9ecef;
 }
 .chart-container {
@@ -144,7 +142,7 @@
   border-bottom: 1px solid #f2f2f7;
 }
 .breakdown-table th {
-  background: #f8f9fa;
+  background: var(--traxovo-gray-50);
   font-weight: 600;
   color: #1c1c1e;
   font-size: 14px;
@@ -154,13 +152,13 @@
   font-size: 14px;
 }
 .breakdown-table tr:hover {
-  background: #f8f9fa;
+  background: var(--traxovo-gray-50);
 }
 .data-verification {
   background: #e7f5ff;
   border: 1px solid #74c0fc;
   border-radius: 8px;
-  padding: 16px;
+  padding: var(--space-md);
   font-size: 14px;
 }
 .data-verification strong {
@@ -183,7 +181,7 @@
     margin: 20px;
   }
   .modal-header {
-    padding: 16px;
+    padding: var(--space-md);
   }
   .modal-header h2 {
     font-size: 18px;
@@ -198,7 +196,7 @@
   }
   .breakdown-table th,
   .breakdown-table td {
-    padding: 8px 12px;
+    padding: var(--space-sm) 12px;
     font-size: 13px;
   }
   .drill-down-btn {

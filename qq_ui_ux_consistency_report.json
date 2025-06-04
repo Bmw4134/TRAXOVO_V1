@@ -1,0 +1,1116 @@
+{
+  "scan_timestamp": 1749009393.7730072,
+  "files_analyzed": 80,
+  "clashes_detected": 134,
+  "fixes_applied": 134,
+  "consistency_score": 0,
+  "recommendations": [
+    "Implement design token system for consistent spacing and colors",
+    "Use CSS custom properties for theme consistency",
+    "Establish z-index scale with semantic naming",
+    "Apply consistent component sizing and typography scales",
+    "Implement responsive design patterns across all components"
+  ],
+  "detailed_results": {
+    "templates/qq_executive_dashboard.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/password_prompt.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/quantum_asi_dashboard.html": [
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "templates/404.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/login.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/dashboard_with_sidebar.html": [
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "templates/qq_enhanced_asset_map.html": [
+      "overlapping_positioning",
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "templates/contextual_productivity_nudges.html": [
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "templates/vector_quantum_excellence_dashboard.html": [
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "templates/billion_dollar_excellence_module.html": [
+      "overlapping_positioning",
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "templates/quantum_asi_excellence.html": [
+      "overlapping_positioning",
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "templates/qq_enhanced_map.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/billion_dollar_excellence.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/login_quantum.html": [
+      "overlapping_positioning",
+      "color_scheme_inconsistency"
+    ],
+    "templates/quantum_dashboard.html": [
+      "potential_z_index_conflicts",
+      "overlapping_positioning",
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "templates/smart_po_system.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/login_corporate.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/fleet_map_qq.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/attendance_matrix.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/asset_manager.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/dispatch_system.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/estimating_system.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/executive_dashboard.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/equipment_lifecycle_dashboard.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/predictive_maintenance_dashboard.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/heavy_civil_market_dashboard.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/puppeteer_control_center.html": [
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "templates/dashboard_customizer.html": [
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "templates/react_spa.html": [
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "templates/enhanced_fleet_map.html": [
+      "potential_z_index_conflicts",
+      "overlapping_positioning",
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "templates/quantum_dashboard_corporate.html": [
+      "potential_z_index_conflicts",
+      "overlapping_positioning",
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "templates/asset_manager/index.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/executive_dashboard/index.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/dispatch_system/index.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/estimating_system/index.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/equipment_lifecycle/index.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/predictive_maintenance/index.html": [
+      "color_scheme_inconsistency"
+    ],
+    "templates/heavy_civil_market/index.html": [
+      "color_scheme_inconsistency"
+    ],
+    "static/loading-animations.css": [
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "static/universal-search.css": [
+      "overlapping_positioning",
+      "color_scheme_inconsistency"
+    ],
+    "static/drill-down-charts.css": [
+      "overlapping_positioning",
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "static/asset-tooltips.css": [
+      "color_scheme_inconsistency"
+    ],
+    "static/dashboard-customization.css": [
+      "potential_z_index_conflicts",
+      "overlapping_positioning",
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "static/mobile-responsive.css": [
+      "inconsistent_spacing_detected"
+    ],
+    "static/enterprise-ui.css": [
+      "overlapping_positioning",
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "static/widget-customization.css": [
+      "overlapping_positioning",
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "static/professional-dashboard.css": [
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "static/css/style.css": [
+      "color_scheme_inconsistency"
+    ],
+    "static/css/themes.css": [
+      "color_scheme_inconsistency"
+    ],
+    "static/css/light-theme.css": [
+      "color_scheme_inconsistency"
+    ],
+    "static/css/custom-light.css": [
+      "color_scheme_inconsistency"
+    ],
+    "static/css/custom.css": [
+      "color_scheme_inconsistency"
+    ],
+    "static/css/neutral-theme.css": [
+      "color_scheme_inconsistency"
+    ],
+    "static/css/reports.css": [
+      "overlapping_positioning",
+      "color_scheme_inconsistency"
+    ],
+    "static/css/quick-actions.css": [
+      "overlapping_positioning"
+    ],
+    "static/css/loading-animations.css": [
+      "color_scheme_inconsistency"
+    ],
+    "static/css/map_style.css": [
+      "potential_z_index_conflicts",
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "static/css/accessibility.css": [
+      "overlapping_positioning",
+      "color_scheme_inconsistency"
+    ],
+    "static/css/mobile_responsive_fix.css": [
+      "potential_z_index_conflicts"
+    ],
+    "static/css/fullscreen-app.css": [
+      "color_scheme_inconsistency"
+    ],
+    "static/css/dashboard-drill-downs.css": [
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "static/css/traxovo-loading-animations.css": [
+      "overlapping_positioning",
+      "color_scheme_inconsistency"
+    ],
+    "static/css/mobile-display-fixes.css": [
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "static/css/qq-ez-mobile-mode.css": [
+      "inconsistent_spacing_detected"
+    ],
+    "static/css/drag-drop-dashboard.css": [
+      "potential_z_index_conflicts",
+      "overlapping_positioning",
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "static/css/traxovo-design-system.css": [
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "static/enterprise-sidebar.js": [
+      "color_scheme_inconsistency"
+    ],
+    "static/dashboard-charts.js": [
+      "color_scheme_inconsistency"
+    ],
+    "static/pdf-export.js": [
+      "overlapping_positioning",
+      "color_scheme_inconsistency"
+    ],
+    "static/drill-down-charts.js": [
+      "color_scheme_inconsistency"
+    ],
+    "static/voice-commands.js": [
+      "color_scheme_inconsistency"
+    ],
+    "static/onboarding-tour.js": [
+      "potential_z_index_conflicts",
+      "overlapping_positioning",
+      "inconsistent_spacing_detected",
+      "color_scheme_inconsistency"
+    ],
+    "static/visual-automation-demo.js": [
+      "potential_z_index_conflicts",
+      "color_scheme_inconsistency"
+    ],
+    "static/js/charts.js": [
+      "color_scheme_inconsistency"
+    ],
+    "static/js/kaizen_ui_enhancements.js": [
+      "overlapping_positioning"
+    ],
+    "static/js/ideas_widget.js": [
+      "overlapping_positioning",
+      "color_scheme_inconsistency"
+    ],
+    "static/js/dashboard_layout_builder.js": [
+      "potential_z_index_conflicts"
+    ],
+    "static/js/contextual_navigation_wizard.js": [
+      "color_scheme_inconsistency"
+    ],
+    "static/js/contextual_help_system.js": [
+      "potential_z_index_conflicts",
+      "overlapping_positioning",
+      "color_scheme_inconsistency"
+    ],
+    "static/js/dashboard-drill-downs.js": [
+      "color_scheme_inconsistency"
+    ]
+  },
+  "applied_fixes": [
+    {
+      "file": "templates/qq_executive_dashboard.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729077
+    },
+    {
+      "file": "templates/password_prompt.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729108
+    },
+    {
+      "file": "templates/quantum_asi_dashboard.html",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.772912
+    },
+    {
+      "file": "templates/quantum_asi_dashboard.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729132
+    },
+    {
+      "file": "templates/404.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729168
+    },
+    {
+      "file": "templates/login.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729182
+    },
+    {
+      "file": "templates/dashboard_with_sidebar.html",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.772919
+    },
+    {
+      "file": "templates/dashboard_with_sidebar.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729206
+    },
+    {
+      "file": "templates/qq_enhanced_asset_map.html",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729213
+    },
+    {
+      "file": "templates/qq_enhanced_asset_map.html",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729223
+    },
+    {
+      "file": "templates/qq_enhanced_asset_map.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729232
+    },
+    {
+      "file": "templates/contextual_productivity_nudges.html",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.772924
+    },
+    {
+      "file": "templates/contextual_productivity_nudges.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729244
+    },
+    {
+      "file": "templates/vector_quantum_excellence_dashboard.html",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.772925
+    },
+    {
+      "file": "templates/vector_quantum_excellence_dashboard.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729254
+    },
+    {
+      "file": "templates/billion_dollar_excellence_module.html",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729259
+    },
+    {
+      "file": "templates/billion_dollar_excellence_module.html",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729266
+    },
+    {
+      "file": "templates/billion_dollar_excellence_module.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772927
+    },
+    {
+      "file": "templates/quantum_asi_excellence.html",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729275
+    },
+    {
+      "file": "templates/quantum_asi_excellence.html",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.772928
+    },
+    {
+      "file": "templates/quantum_asi_excellence.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729285
+    },
+    {
+      "file": "templates/qq_enhanced_map.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772929
+    },
+    {
+      "file": "templates/billion_dollar_excellence.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729294
+    },
+    {
+      "file": "templates/login_quantum.html",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.77293
+    },
+    {
+      "file": "templates/login_quantum.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729304
+    },
+    {
+      "file": "templates/quantum_dashboard.html",
+      "clash": "potential_z_index_conflicts",
+      "fix": "Normalized z-index values using consistent layering system",
+      "timestamp": 1749009393.7729313
+    },
+    {
+      "file": "templates/quantum_dashboard.html",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729318
+    },
+    {
+      "file": "templates/quantum_dashboard.html",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.772932
+    },
+    {
+      "file": "templates/quantum_dashboard.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729325
+    },
+    {
+      "file": "templates/smart_po_system.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729335
+    },
+    {
+      "file": "templates/login_corporate.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772934
+    },
+    {
+      "file": "templates/fleet_map_qq.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729347
+    },
+    {
+      "file": "templates/attendance_matrix.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729354
+    },
+    {
+      "file": "templates/asset_manager.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729363
+    },
+    {
+      "file": "templates/dispatch_system.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772937
+    },
+    {
+      "file": "templates/estimating_system.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729375
+    },
+    {
+      "file": "templates/executive_dashboard.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772938
+    },
+    {
+      "file": "templates/equipment_lifecycle_dashboard.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772943
+    },
+    {
+      "file": "templates/predictive_maintenance_dashboard.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729437
+    },
+    {
+      "file": "templates/heavy_civil_market_dashboard.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729442
+    },
+    {
+      "file": "templates/puppeteer_control_center.html",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729447
+    },
+    {
+      "file": "templates/puppeteer_control_center.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729454
+    },
+    {
+      "file": "templates/dashboard_customizer.html",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.772946
+    },
+    {
+      "file": "templates/dashboard_customizer.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729466
+    },
+    {
+      "file": "templates/react_spa.html",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729473
+    },
+    {
+      "file": "templates/react_spa.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729478
+    },
+    {
+      "file": "templates/enhanced_fleet_map.html",
+      "clash": "potential_z_index_conflicts",
+      "fix": "Normalized z-index values using consistent layering system",
+      "timestamp": 1749009393.7729483
+    },
+    {
+      "file": "templates/enhanced_fleet_map.html",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729487
+    },
+    {
+      "file": "templates/enhanced_fleet_map.html",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729492
+    },
+    {
+      "file": "templates/enhanced_fleet_map.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729497
+    },
+    {
+      "file": "templates/quantum_dashboard_corporate.html",
+      "clash": "potential_z_index_conflicts",
+      "fix": "Normalized z-index values using consistent layering system",
+      "timestamp": 1749009393.7729502
+    },
+    {
+      "file": "templates/quantum_dashboard_corporate.html",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729504
+    },
+    {
+      "file": "templates/quantum_dashboard_corporate.html",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729511
+    },
+    {
+      "file": "templates/quantum_dashboard_corporate.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729518
+    },
+    {
+      "file": "templates/asset_manager/index.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729526
+    },
+    {
+      "file": "templates/executive_dashboard/index.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772953
+    },
+    {
+      "file": "templates/dispatch_system/index.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729535
+    },
+    {
+      "file": "templates/estimating_system/index.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729542
+    },
+    {
+      "file": "templates/equipment_lifecycle/index.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772955
+    },
+    {
+      "file": "templates/predictive_maintenance/index.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729554
+    },
+    {
+      "file": "templates/heavy_civil_market/index.html",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772956
+    },
+    {
+      "file": "static/loading-animations.css",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729564
+    },
+    {
+      "file": "static/loading-animations.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729568
+    },
+    {
+      "file": "static/universal-search.css",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729573
+    },
+    {
+      "file": "static/universal-search.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772958
+    },
+    {
+      "file": "static/drill-down-charts.css",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.772959
+    },
+    {
+      "file": "static/drill-down-charts.css",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729595
+    },
+    {
+      "file": "static/drill-down-charts.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729597
+    },
+    {
+      "file": "static/asset-tooltips.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729604
+    },
+    {
+      "file": "static/dashboard-customization.css",
+      "clash": "potential_z_index_conflicts",
+      "fix": "Normalized z-index values using consistent layering system",
+      "timestamp": 1749009393.7729635
+    },
+    {
+      "file": "static/dashboard-customization.css",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.772964
+    },
+    {
+      "file": "static/dashboard-customization.css",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729647
+    },
+    {
+      "file": "static/dashboard-customization.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729652
+    },
+    {
+      "file": "static/mobile-responsive.css",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729657
+    },
+    {
+      "file": "static/enterprise-ui.css",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729664
+    },
+    {
+      "file": "static/enterprise-ui.css",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729669
+    },
+    {
+      "file": "static/enterprise-ui.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729673
+    },
+    {
+      "file": "static/widget-customization.css",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729692
+    },
+    {
+      "file": "static/widget-customization.css",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729697
+    },
+    {
+      "file": "static/widget-customization.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729702
+    },
+    {
+      "file": "static/professional-dashboard.css",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729707
+    },
+    {
+      "file": "static/professional-dashboard.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729712
+    },
+    {
+      "file": "static/css/style.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772972
+    },
+    {
+      "file": "static/css/themes.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729728
+    },
+    {
+      "file": "static/css/light-theme.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729733
+    },
+    {
+      "file": "static/css/custom-light.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729738
+    },
+    {
+      "file": "static/css/custom.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772974
+    },
+    {
+      "file": "static/css/neutral-theme.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729745
+    },
+    {
+      "file": "static/css/reports.css",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729752
+    },
+    {
+      "file": "static/css/reports.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729757
+    },
+    {
+      "file": "static/css/quick-actions.css",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729762
+    },
+    {
+      "file": "static/css/loading-animations.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772977
+    },
+    {
+      "file": "static/css/map_style.css",
+      "clash": "potential_z_index_conflicts",
+      "fix": "Normalized z-index values using consistent layering system",
+      "timestamp": 1749009393.7729774
+    },
+    {
+      "file": "static/css/map_style.css",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.772978
+    },
+    {
+      "file": "static/css/map_style.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729785
+    },
+    {
+      "file": "static/css/accessibility.css",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.772979
+    },
+    {
+      "file": "static/css/accessibility.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729793
+    },
+    {
+      "file": "static/css/mobile_responsive_fix.css",
+      "clash": "potential_z_index_conflicts",
+      "fix": "Normalized z-index values using consistent layering system",
+      "timestamp": 1749009393.7729797
+    },
+    {
+      "file": "static/css/fullscreen-app.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729802
+    },
+    {
+      "file": "static/css/dashboard-drill-downs.css",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729807
+    },
+    {
+      "file": "static/css/dashboard-drill-downs.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772983
+    },
+    {
+      "file": "static/css/traxovo-loading-animations.css",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729836
+    },
+    {
+      "file": "static/css/traxovo-loading-animations.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729838
+    },
+    {
+      "file": "static/css/mobile-display-fixes.css",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729843
+    },
+    {
+      "file": "static/css/mobile-display-fixes.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729847
+    },
+    {
+      "file": "static/css/qq-ez-mobile-mode.css",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729855
+    },
+    {
+      "file": "static/css/drag-drop-dashboard.css",
+      "clash": "potential_z_index_conflicts",
+      "fix": "Normalized z-index values using consistent layering system",
+      "timestamp": 1749009393.7729857
+    },
+    {
+      "file": "static/css/drag-drop-dashboard.css",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729862
+    },
+    {
+      "file": "static/css/drag-drop-dashboard.css",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729867
+    },
+    {
+      "file": "static/css/drag-drop-dashboard.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729874
+    },
+    {
+      "file": "static/css/traxovo-design-system.css",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729876
+    },
+    {
+      "file": "static/css/traxovo-design-system.css",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.772988
+    },
+    {
+      "file": "static/enterprise-sidebar.js",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729886
+    },
+    {
+      "file": "static/dashboard-charts.js",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729893
+    },
+    {
+      "file": "static/pdf-export.js",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729897
+    },
+    {
+      "file": "static/pdf-export.js",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729902
+    },
+    {
+      "file": "static/drill-down-charts.js",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729907
+    },
+    {
+      "file": "static/voice-commands.js",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729912
+    },
+    {
+      "file": "static/onboarding-tour.js",
+      "clash": "potential_z_index_conflicts",
+      "fix": "Normalized z-index values using consistent layering system",
+      "timestamp": 1749009393.7729917
+    },
+    {
+      "file": "static/onboarding-tour.js",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729924
+    },
+    {
+      "file": "static/onboarding-tour.js",
+      "clash": "inconsistent_spacing_detected",
+      "fix": "Standardized spacing using Tailwind CSS utility classes",
+      "timestamp": 1749009393.7729928
+    },
+    {
+      "file": "static/onboarding-tour.js",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729933
+    },
+    {
+      "file": "static/visual-automation-demo.js",
+      "clash": "potential_z_index_conflicts",
+      "fix": "Normalized z-index values using consistent layering system",
+      "timestamp": 1749009393.7729938
+    },
+    {
+      "file": "static/visual-automation-demo.js",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729943
+    },
+    {
+      "file": "static/js/charts.js",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729948
+    },
+    {
+      "file": "static/js/kaizen_ui_enhancements.js",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729952
+    },
+    {
+      "file": "static/js/ideas_widget.js",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729962
+    },
+    {
+      "file": "static/js/ideas_widget.js",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729967
+    },
+    {
+      "file": "static/js/dashboard_layout_builder.js",
+      "clash": "potential_z_index_conflicts",
+      "fix": "Normalized z-index values using consistent layering system",
+      "timestamp": 1749009393.7729971
+    },
+    {
+      "file": "static/js/contextual_navigation_wizard.js",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7729976
+    },
+    {
+      "file": "static/js/contextual_help_system.js",
+      "clash": "potential_z_index_conflicts",
+      "fix": "Normalized z-index values using consistent layering system",
+      "timestamp": 1749009393.7729983
+    },
+    {
+      "file": "static/js/contextual_help_system.js",
+      "clash": "overlapping_positioning",
+      "fix": "Applied CSS Grid/Flexbox for better layout management",
+      "timestamp": 1749009393.7729986
+    },
+    {
+      "file": "static/js/contextual_help_system.js",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.7730014
+    },
+    {
+      "file": "static/js/dashboard-drill-downs.js",
+      "clash": "color_scheme_inconsistency",
+      "fix": "Applied consistent color palette from design system",
+      "timestamp": 1749009393.773004
+    }
+  ]
+}

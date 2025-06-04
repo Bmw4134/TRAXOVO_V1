@@ -4,21 +4,21 @@
     color 0.3s ease;
 }
 .theme-default {
-  --gradient-start: #f8f9fa;
+  --gradient-start: var(--traxovo-gray-50);
   --gradient-end: #e9ecef;
   --navbar-bg: #3a5a78;
   --navbar-text: #ffffff;
   --card-bg: #ffffff;
-  --card-header: #f8f9fa;
+  --card-header: var(--traxovo-gray-50);
   --text-color: #495057;
-  --text-muted: #6c757d;
+  --text-muted: var(--traxovo-gray-500);
   --link-color: #0d6efd;
   --border-color: #dee2e6;
   --highlight-color: #3a5a78;
-  --success-color: #28a745;
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
-  --info-color: #17a2b8;
+  --success-color: var(--traxovo-success);
+  --warning-color: var(--traxovo-warning);
+  --danger-color: var(--traxovo-error);
+  --info-color: var(--traxovo-info);
 }
 .theme-mint {
   --gradient-start: #f0f7f4;
@@ -32,10 +32,10 @@
   --link-color: #2c7d6e;
   --border-color: #d0e6dd;
   --highlight-color: #2c7d6e;
-  --success-color: #28a745;
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
-  --info-color: #17a2b8;
+  --success-color: var(--traxovo-success);
+  --warning-color: var(--traxovo-warning);
+  --danger-color: var(--traxovo-error);
+  --info-color: var(--traxovo-info);
 }
 .theme-slate {
   --gradient-start: #f2f3f8;
@@ -45,14 +45,14 @@
   --card-bg: #ffffff;
   --card-header: #f2f3f8;
   --text-color: #3a4355;
-  --text-muted: #6c757d;
+  --text-muted: var(--traxovo-gray-500);
   --link-color: #424c5f;
   --border-color: #d8dbe5;
   --highlight-color: #424c5f;
-  --success-color: #28a745;
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
-  --info-color: #17a2b8;
+  --success-color: var(--traxovo-success);
+  --warning-color: var(--traxovo-warning);
+  --danger-color: var(--traxovo-error);
+  --info-color: var(--traxovo-info);
 }
 .theme-sunset {
   --gradient-start: #fdf6f0;
@@ -66,10 +66,10 @@
   --link-color: #d25f36;
   --border-color: #f3d9c7;
   --highlight-color: #d25f36;
-  --success-color: #28a745;
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
-  --info-color: #17a2b8;
+  --success-color: var(--traxovo-success);
+  --warning-color: var(--traxovo-warning);
+  --danger-color: var(--traxovo-error);
+  --info-color: var(--traxovo-info);
 }
 .theme-lavender {
   --gradient-start: #f6f5fa;
@@ -83,10 +83,10 @@
   --link-color: #6b5ca5;
   --border-color: #e0dcf0;
   --highlight-color: #6b5ca5;
-  --success-color: #28a745;
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
-  --info-color: #17a2b8;
+  --success-color: var(--traxovo-success);
+  --warning-color: var(--traxovo-warning);
+  --danger-color: var(--traxovo-error);
+  --info-color: var(--traxovo-info);
 }
 body {
   background: linear-gradient(

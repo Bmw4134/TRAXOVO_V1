@@ -1,5 +1,5 @@
 {
-  "validation_timestamp": 1749010332.3721905,
+  "validation_timestamp": 1749010745.2076485,
   "ui_ux_metrics": {
     "overall_improvement_score": 64.9,
     "files_analyzed": 80,
@@ -16,8 +16,8 @@
     "design_system_coverage": 50.0
   },
   "design_system_validation": {
-    "templates_checked": 40,
-    "integrated_templates": 40,
+    "templates_checked": 42,
+    "integrated_templates": 42,
     "coverage_percentage": 100.0,
     "template_details": [
       {
@@ -182,6 +182,16 @@
       },
       {
         "file": "templates/quantum_dashboard_corporate.html",
+        "has_design_system": true,
+        "status": "INTEGRATED"
+      },
+      {
+        "file": "templates/upload_attendance_enhanced.html",
+        "has_design_system": true,
+        "status": "INTEGRATED"
+      },
+      {
+        "file": "templates/attendance_matrix_enhanced.html",
         "has_design_system": true,
         "status": "INTEGRATED"
       },

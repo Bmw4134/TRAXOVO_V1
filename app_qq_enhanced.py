@@ -192,7 +192,7 @@ def get_fort_worth_assets():
             'timestamp': datetime.now().isoformat()
         }
         
-        logging.info(f"Asset Analysis: {status_analysis['total_assets']} total, {status_analysis['active_count']} active, {status_analysis['inactive_count']} inactive")
+        logging.info(f"Asset Analysis: {fort_worth_status_analysis['total_assets']} total, {fort_worth_status_analysis['active_count']} active, {fort_worth_status_analysis['inactive_count']} inactive")
         
         return active_assets
         

@@ -8,6 +8,8 @@ import json
 import os
 from datetime import datetime
 from personalized_dashboard_customization import create_dashboard_routes
+from failure_analysis_dashboard import create_failure_analysis_routes
+from master_brain_integration import create_master_brain_routes
 
 app = Flask(__name__)
 
@@ -344,8 +346,10 @@ def download_package(filename):
     except Exception as e:
         abort(404)
 
-# Initialize dashboard customization routes
+# Initialize all intelligence system routes
 create_dashboard_routes(app)
+create_failure_analysis_routes(app)
+create_master_brain_routes(app)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

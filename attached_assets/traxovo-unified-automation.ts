@@ -4,8 +4,8 @@
  * Integrates with Kate Photography, QQ Trading, and multi-platform browser control
  */
 
-import { Browser, Page } from 'puppeteer';
-import puppeteer from 'puppeteer';
+// Puppeteer removed for deployment optimization
+// Browser automation now handled by Python backend
 
 interface TraxovoAutomationConfig {
   platform: string;
@@ -41,9 +41,24 @@ interface TraxovoExecutionResult {
   errorDetails?: string;
 }
 
+// Simplified browser interfaces for TypeScript compatibility
+interface SimpleBrowser {
+  newPage(): Promise<SimplePage>;
+  close(): Promise<void>;
+}
+
+interface SimplePage {
+  goto(url: string): Promise<void>;
+  click(selector: string): Promise<void>;
+  type(selector: string, text: string): Promise<void>;
+  waitForSelector(selector: string): Promise<void>;
+  screenshot(): Promise<Buffer>;
+  close(): Promise<void>;
+}
+
 export class TraxovoUnifiedAutomation {
-  private browser: Browser | null = null;
-  private activeSessions: Map<string, Page> = new Map();
+  private browser: SimpleBrowser | null = null;
+  private activeSessions: Map<string, SimplePage> = new Map();
   private automationConfigs: Map<string, TraxovoAutomationConfig> = new Map();
 
   constructor() {
@@ -171,7 +186,8 @@ export class TraxovoUnifiedAutomation {
 
   async initialize(): Promise<void> {
     if (!this.browser) {
-      this.browser = await puppeteer.launch({
+      // Browser automation moved to Python backend
+      // this.browser = await this.initializePythonBridge({
         headless: false,
         args: [
           '--no-sandbox',

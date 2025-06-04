@@ -21,6 +21,14 @@ except ImportError:
     QQ_ACCESSIBILITY_AVAILABLE = False
     logging.warning("QQ AI Accessibility Enhancer not available")
 
+# QQ Quantum Trading Intelligence
+try:
+    from qq_quantum_trading_intelligence import get_quantum_trading_engine, run_trading_cycle, get_trading_dashboard_data
+    QQ_TRADING_AVAILABLE = True
+except ImportError:
+    QQ_TRADING_AVAILABLE = False
+    logging.warning("QQ Quantum Trading Intelligence not available")
+
 # QQ Mobile Optimization Module
 try:
     from qq_mobile_optimization_module import get_qq_mobile_optimizer, optimize_mobile_interface, get_mobile_status
@@ -1393,5 +1401,44 @@ def api_accessibility_dashboard_data():
         
     except Exception as e:
         logging.error(f"Accessibility dashboard data error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/trading-intelligence')
+def trading_intelligence():
+    """Quantum Trading Intelligence Dashboard"""
+    if not require_auth():
+        return redirect(url_for('login'))
+    
+    return render_template('trading_intelligence_dashboard.html')
+
+@app.route('/api/trading-cycle', methods=['POST'])
+def api_trading_cycle():
+    """Execute trading cycle"""
+    if not QQ_TRADING_AVAILABLE:
+        return jsonify({'error': 'Trading intelligence not available'}), 500
+    
+    try:
+        data = request.get_json() or {}
+        symbols = data.get('symbols', ['BTCUSDT', 'ETHUSDT'])
+        
+        cycle_results = run_trading_cycle(symbols)
+        return jsonify(cycle_results)
+        
+    except Exception as e:
+        logging.error(f"Trading cycle error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/trading-dashboard-data')
+def api_trading_dashboard_data():
+    """Get trading dashboard data"""
+    if not QQ_TRADING_AVAILABLE:
+        return jsonify({'error': 'Trading intelligence not available'}), 500
+    
+    try:
+        dashboard_data = get_trading_dashboard_data()
+        return jsonify(dashboard_data)
+        
+    except Exception as e:
+        logging.error(f"Trading dashboard data error: {e}")
         return jsonify({'error': str(e)}), 500
 

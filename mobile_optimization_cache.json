@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "cache_duration": 3600,
+  "intelligent_invalidation": true,
+  "optimization_results": {},
+  "learned_patterns": {},
+  "auto_optimization": true
+}

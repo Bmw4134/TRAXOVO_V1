@@ -198,11 +198,11 @@ def fleet_map():
 
 @app.route('/attendance-matrix')
 def attendance_matrix():
-    """Attendance matrix page"""
+    """Enhanced attendance matrix with authentic Fort Worth data"""
     if not require_auth():
         return redirect(url_for('login'))
     
-    return render_template('attendance_matrix.html')
+    return render_template('attendance_matrix_enhanced.html')
 
 @app.route('/asset-manager') 
 def asset_manager():
@@ -975,6 +975,62 @@ def system_integrity_check():
     except Exception as e:
         logging.error(f"System integrity check error: {e}")
         return jsonify({'error': 'Integrity check failed'}), 500
+
+
+
+@app.route('/upload-attendance')
+def upload_attendance():
+    """Intelligent attendance upload with error recovery"""
+    return render_template('upload_attendance_enhanced.html')
+
+@app.route('/api/upload-file', methods=['POST'])
+def api_upload_file():
+    """Intelligent file upload with automation pipeline"""
+    try:
+        from qq_intelligent_automation_pipeline import start_intelligent_session, process_file_with_intelligence
+        
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file provided'}), 400
+            
+        file = request.files['file']
+        file_type = request.form.get('type', 'attendance')
+        
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+            
+        # Start intelligent session
+        session_id = start_intelligent_session('web_user')
+        
+        # Save uploaded file temporarily
+        import tempfile
+        import os
+        
+        temp_dir = tempfile.mkdtemp()
+        file_path = os.path.join(temp_dir, file.filename)
+        file.save(file_path)
+        
+        # Process with intelligence
+        result = process_file_with_intelligence(file_path, session_id, file_type)
+        
+        # Clean up
+        os.remove(file_path)
+        os.rmdir(temp_dir)
+        
+        return jsonify({
+            'success': True,
+            'session_id': session_id,
+            'result': result,
+            'processing_status': result.get('processing_status'),
+            'intelligence_applied': result.get('intelligence_analysis', {}).get('requires_action', False),
+            'recovery_actions': result.get('recovery_actions', [])
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'recovery_suggestions': ['verify_file_format', 'check_file_size', 'retry_upload']
+        }), 500
 
 @app.route("/api/contextual-nudges")
 def get_contextual_nudges():

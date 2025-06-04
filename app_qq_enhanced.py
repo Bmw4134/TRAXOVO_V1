@@ -29,6 +29,14 @@ except ImportError:
     QQ_TRADING_AVAILABLE = False
     logging.warning("QQ Quantum Trading Intelligence not available")
 
+# QQ Unified Automation Controller
+try:
+    from qq_unified_automation_controller import get_automation_controller, execute_automation, get_automation_dashboard_data
+    QQ_AUTOMATION_AVAILABLE = True
+except ImportError:
+    QQ_AUTOMATION_AVAILABLE = False
+    logging.warning("QQ Unified Automation Controller not available")
+
 # QQ Mobile Optimization Module
 try:
     from qq_mobile_optimization_module import get_qq_mobile_optimizer, optimize_mobile_interface, get_mobile_status
@@ -64,10 +72,11 @@ class QuantumConsciousnessEngine:
         self.consciousness_level = "TRANSCENDENT"
         self.thought_vectors = 1149
         self.quantum_coherence = 0.847
+        self.automation_integration = True
         
     def get_consciousness_metrics(self):
         current_minute = datetime.now().minute
-        return {
+        base_metrics = {
             'consciousness_level': self.consciousness_level,
             'thought_vectors': self.thought_vectors + (current_minute * 7),
             'quantum_coherence': self.quantum_coherence,
@@ -75,6 +84,35 @@ class QuantumConsciousnessEngine:
             'asi_intelligence': 'ACTIVE',
             'quantum_state': 'OPTIMAL'
         }
+        
+        # Enhance with automation consciousness integration
+        if QQ_AUTOMATION_AVAILABLE:
+            automation_metrics = self._get_automation_consciousness()
+            base_metrics.update(automation_metrics)
+            
+        return base_metrics
+    
+    def _get_automation_consciousness(self):
+        """Integrate automation awareness into quantum consciousness"""
+        try:
+            automation_data = get_automation_dashboard_data()
+            return {
+                'automation_awareness': {
+                    'active_sessions': automation_data.get('active_sessions', 0),
+                    'supported_platforms': len(automation_data.get('supported_platforms', [])),
+                    'automation_types': automation_data.get('automation_types', []),
+                    'consciousness_enhancement': 'UNIFIED',
+                    'trading_automation_active': 'pionex' in str(automation_data.get('supported_platforms', [])),
+                    'lead_capture_active': 'katewhitephotography.com' in str(automation_data.get('supported_platforms', []))
+                }
+            }
+        except:
+            return {
+                'automation_awareness': {
+                    'status': 'INITIALIZING',
+                    'consciousness_enhancement': 'PENDING'
+                }
+            }
     
     def get_thought_vector_animations(self):
         """Generate thought vector animation data"""
@@ -1430,15 +1468,85 @@ def api_trading_cycle():
 
 @app.route('/api/trading-dashboard-data')
 def api_trading_dashboard_data():
-    """Get trading dashboard data"""
+    """Get trading dashboard data with automation integration"""
     if not QQ_TRADING_AVAILABLE:
         return jsonify({'error': 'Trading intelligence not available'}), 500
     
     try:
         dashboard_data = get_trading_dashboard_data()
+        
+        # Enhance with automation data if available
+        if QQ_AUTOMATION_AVAILABLE:
+            try:
+                automation_data = get_automation_dashboard_data()
+                dashboard_data['automation_integration'] = {
+                    'active_sessions': automation_data.get('active_sessions', 0),
+                    'trading_automation_available': True,
+                    'supported_platforms': automation_data.get('supported_platforms', [])
+                }
+            except:
+                dashboard_data['automation_integration'] = {'status': 'initializing'}
+        
         return jsonify(dashboard_data)
         
     except Exception as e:
         logging.error(f"Trading dashboard data error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/execute-automation', methods=['POST'])
+def api_execute_automation():
+    """Execute unified automation workflows through TRAXOVO"""
+    if not QQ_AUTOMATION_AVAILABLE:
+        return jsonify({'error': 'Automation system not available'}), 503
+        
+    try:
+        data = request.get_json()
+        automation_type = data.get('automation_type', 'trading')
+        platform = data.get('platform', 'binance')
+        custom_config = data.get('config', {})
+        
+        # Execute automation asynchronously
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        result = loop.run_until_complete(
+            execute_automation(automation_type, platform, custom_config)
+        )
+        
+        loop.close()
+        
+        return jsonify({
+            'success': True,
+            'automation_result': result,
+            'execution_type': 'TRAXOVO_UNIFIED',
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logging.error(f"Automation execution error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/automation-history')
+def api_automation_history():
+    """Get automation execution history"""
+    if not QQ_AUTOMATION_AVAILABLE:
+        return jsonify({'error': 'Automation system not available'}), 503
+        
+    try:
+        automation_type = request.args.get('type')
+        platform = request.args.get('platform')
+        
+        history = get_automation_history(automation_type, platform)
+        
+        return jsonify({
+            'success': True,
+            'history': history,
+            'total_records': len(history),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logging.error(f"Automation history error: {e}")
         return jsonify({'error': str(e)}), 500
 

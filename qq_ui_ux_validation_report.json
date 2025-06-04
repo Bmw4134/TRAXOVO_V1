@@ -1,5 +1,5 @@
 {
-  "validation_timestamp": 1749018434.3544571,
+  "validation_timestamp": 1749020623.322994,
   "ui_ux_metrics": {
     "overall_improvement_score": 64.9,
     "files_analyzed": 80,
@@ -16,9 +16,9 @@
     "design_system_coverage": 50.0
   },
   "design_system_validation": {
-    "templates_checked": 43,
+    "templates_checked": 44,
     "integrated_templates": 42,
-    "coverage_percentage": 97.7,
+    "coverage_percentage": 95.5,
     "template_details": [
       {
         "file": "templates/qq_executive_dashboard.html",
@@ -97,11 +97,6 @@
       },
       {
         "file": "templates/login_quantum.html",
-        "has_design_system": true,
-        "status": "INTEGRATED"
-      },
-      {
-        "file": "templates/quantum_dashboard.html",
         "has_design_system": true,
         "status": "INTEGRATED"
       },
@@ -199,6 +194,16 @@
         "file": "templates/accessibility_dashboard.html",
         "has_design_system": false,
         "status": "MISSING"
+      },
+      {
+        "file": "templates/trading_intelligence_dashboard.html",
+        "has_design_system": false,
+        "status": "MISSING"
+      },
+      {
+        "file": "templates/quantum_dashboard.html",
+        "has_design_system": true,
+        "status": "INTEGRATED"
       },
       {
         "file": "templates/asset_manager/index.html",

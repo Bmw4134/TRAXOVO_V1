@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment Complexity Visualizer - TRAXOVO</title>
+    
+    <!-- Core TRAXOVO Styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@4.0.0/dist/chart.umd.js" rel="preload">
+    
+    <style>
+        :root {
+            --primary-purple: #6f42c1;
+            --quantum-blue: #0d6efd;
+            --success-green: #198754;
+            --warning-orange: #fd7e14;
+            --danger-red: #dc3545;
+            --dark-bg: #1a1a2e;
+            --card-bg: #16213e;
+            --text-primary: #ffffff;
+            --text-secondary: #a8b2d1;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #0f3460 100%);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+        }
+
+        .complexity-dashboard {
+            padding: 2rem;
+        }
+
+        .complexity-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .complexity-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(111, 66, 193, 0.15);
+            border-color: var(--primary-purple);
+        }
+
+        .complexity-header {
+            background: linear-gradient(45deg, var(--primary-purple), var(--quantum-blue));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px 12px 0 0;
+            margin: -1px -1px 0 -1px;
+        }
+
+        .complexity-score {
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .score-low { color: var(--success-green); }
+        .score-medium { color: var(--warning-orange); }
+        .score-high { color: var(--danger-red); }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .metric-item:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 1rem 0;
+        }
+
+        .optimization-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0.25rem;
+        }
+
+        .badge-active {
+            background: rgba(25, 135, 84, 0.2);
+            color: var(--success-green);
+            border: 1px solid var(--success-green);
+        }
+
+        .badge-inactive {
+            background: rgba(220, 53, 69, 0.2);
+            color: var(--danger-red);
+            border: 1px solid var(--danger-red);
+        }
+
+        .recommendations-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendations-list li {
+            background: rgba(111, 66, 193, 0.1);
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-purple);
+        }
+
+        .bottleneck-item {
+            background: rgba(220, 53, 69, 0.1);
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid var(--danger-red);
+        }
+
+        .real-time-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: var(--success-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .file-size-chart {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            margin: 0.25rem 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+        }
+
+        .deployment-timeline {
+            background: linear-gradient(90deg, var(--success-green) 0%, var(--warning-orange) 50%, var(--danger-red) 100%);
+            height: 20px;
+            border-radius: 10px;
+            position: relative;
+            margin: 1rem 0;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            top: -5px;
+            width: 30px;
+            height: 30px;
+            background: var(--text-primary);
+            border-radius: 50%;
+            border: 3px solid var(--primary-purple);
+        }
+
+        .refresh-btn {
+            background: linear-gradient(45deg, var(--primary-purple), var(--quantum-blue));
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(111, 66, 193, 0.3);
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .mobile-responsive {
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .complexity-dashboard {
+                padding: 1rem;
+            }
+            
+            .complexity-score {
+                font-size: 2rem;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid complexity-dashboard">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="complexity-card">
+                    <div class="complexity-header">
+                        <h1 class="mb-0">
+                            <i class="fas fa-rocket me-2"></i>
+                            One-Click Deployment Complexity Visualizer
+                            <span class="real-time-indicator ms-2"></span>
+                        </h1>
+                        <p class="mb-0 mt-2">Real-time analysis of deployment complexity and optimization opportunities</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Metrics Row -->
+        <div class="row">
+            <!-- Complexity Score Card -->
+            <div class="col-lg-4 col-md-6">
+                <div class="complexity-card">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-gauge-high me-2"></i>Complexity Score
+                        </h5>
+                        <div class="complexity-score" id="complexityScore">--</div>
+                        <div class="text-center">
+                            <span class="badge" id="complexityLevel">Analyzing...</span>
+                        </div>
+                        <div class="deployment-timeline">
+                            <div class="timeline-marker" id="timelineMarker" style="left: 50%;"></div>
+                        </div>
+                        <div class="text-center">
+                            <small class="text-muted">Estimated Deployment: <span id="deploymentTime">-- seconds</span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Analysis Card -->
+            <div class="col-lg-4 col-md-6">
+                <div class="complexity-card">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-file-code me-2"></i>Project Structure
+                        </h5>
+                        <div class="metric-item">
+                            <span class="metric-label">Python Files</span>
+                            <span class="metric-value" id="pythonFiles">--</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Template Files</span>
+                            <span class="metric-value" id="templateFiles">--</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Static Files</span>
+                            <span class="metric-value" id="staticFiles">--</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Total Size</span>
+                            <span class="metric-value" id="totalSize">-- MB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optimization Status Card -->
+            <div class="col-lg-4 col-md-6">
+                <div class="complexity-card">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-cogs me-2"></i>Optimization Status
+                        </h5>
+                        <div id="optimizationBadges">
+                            <!-- Optimization badges will be populated dynamically -->
+                        </div>
+                        <div class="mt-3">
+                            <div class="metric-item">
+                                <span class="metric-label">Optimization Score</span>
+                                <span class="metric-value" id="optimizationScore">--%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row">
+            <!-- File Distribution Chart -->
+            <div class="col-lg-6">
+                <div class="complexity-card">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-chart-pie me-2"></i>File Distribution
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="fileDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deployment Timeline Chart -->
+            <div class="col-lg-6">
+                <div class="complexity-card">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-chart-line me-2"></i>Complexity Trend
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="complexityTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations and Bottlenecks Row -->
+        <div class="row">
+            <!-- Recommendations Card -->
+            <div class="col-lg-6">
+                <div class="complexity-card">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-lightbulb me-2"></i>Optimization Recommendations
+                        </h5>
+                        <ul class="recommendations-list" id="recommendationsList">
+                            <!-- Recommendations will be populated dynamically -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottlenecks Card -->
+            <div class="col-lg-6">
+                <div class="complexity-card">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Deployment Bottlenecks
+                        </h5>
+                        <div id="bottlenecksList">
+                            <!-- Bottlenecks will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Large Files Analysis -->
+        <div class="row">
+            <div class="col-12">
+                <div class="complexity-card">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-file-archive me-2"></i>Largest Files Analysis
+                        </h5>
+                        <div class="file-size-chart" id="largestFilesList">
+                            <!-- Large files will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <button class="refresh-btn" onclick="refreshAnalysis()">
+                    <i class="fas fa-sync-alt me-2"></i>Refresh Analysis
+                </button>
+                <div class="loading-spinner" id="loadingSpinner">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    <p class="mt-2">Analyzing deployment complexity...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        let fileDistributionChart;
+        let complexityTrendChart;
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            loadComplexityAnalysis();
+            
+            // Auto-refresh every 5 minutes
+            setInterval(loadComplexityAnalysis, 300000);
+        });
+
+        function initializeCharts() {
+            // File Distribution Pie Chart
+            const fileCtx = document.getElementById('fileDistributionChart').getContext('2d');
+            fileDistributionChart = new Chart(fileCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Python Files', 'Templates', 'Static Files', 'Other'],
+                    datasets: [{
+                        data: [0, 0, 0, 0],
+                        backgroundColor: ['#6f42c1', '#0d6efd', '#198754', '#fd7e14'],
+                        borderWidth: 2,
+                        borderColor: '#1a1a2e'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#ffffff' }
+                        }
+                    }
+                }
+            });
+
+            // Complexity Trend Line Chart
+            const trendCtx = document.getElementById('complexityTrendChart').getContext('2d');
+            complexityTrendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Complexity Score',
+                        data: [],
+                        borderColor: '#6f42c1',
+                        backgroundColor: 'rgba(111, 66, 193, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#ffffff' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { color: '#a8b2d1' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#a8b2d1' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function loadComplexityAnalysis() {
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/api/deployment-complexity-analysis');
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    updateDashboard(result.data);
+                } else {
+                    console.error('Analysis failed:', result.error);
+                    showError('Failed to load complexity analysis');
+                }
+            } catch (error) {
+                console.error('Error loading analysis:', error);
+                showError('Connection error - please try again');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function updateDashboard(data) {
+            // Update complexity score
+            const score = data.complexity_overview?.score || 0;
+            const level = data.complexity_overview?.level || 'UNKNOWN';
+            const deploymentTime = data.complexity_overview?.deployment_time || 0;
+
+            document.getElementById('complexityScore').textContent = Math.round(score);
+            document.getElementById('complexityLevel').textContent = level;
+            document.getElementById('complexityLevel').className = `badge ${getScoreClass(score)}`;
+            document.getElementById('deploymentTime').textContent = deploymentTime;
+
+            // Update timeline marker position
+            const timelinePosition = Math.min(Math.max(score, 0), 100);
+            document.getElementById('timelineMarker').style.left = timelinePosition + '%';
+
+            // Update file breakdown
+            const fileBreakdown = data.file_breakdown || {};
+            document.getElementById('pythonFiles').textContent = fileBreakdown.python_files || 0;
+            document.getElementById('templateFiles').textContent = fileBreakdown.template_files || 0;
+            document.getElementById('staticFiles').textContent = fileBreakdown.static_files || 0;
+            document.getElementById('totalSize').textContent = (fileBreakdown.total_size_mb || 0).toFixed(1);
+
+            // Update optimization status
+            updateOptimizationStatus(data.optimization_status || {});
+
+            // Update charts
+            updateFileDistributionChart(fileBreakdown);
+            updateComplexityTrendChart(score);
+
+            // Update recommendations and bottlenecks
+            updateRecommendations(data.recommendations || []);
+            updateBottlenecks(data.bottlenecks || []);
+            updateLargestFiles(data.largest_files || []);
+        }
+
+        function updateOptimizationStatus(optimizationStatus) {
+            const score = optimizationStatus.optimization_score || 0;
+            document.getElementById('optimizationScore').textContent = Math.round(score) + '%';
+
+            const badgesContainer = document.getElementById('optimizationBadges');
+            badgesContainer.innerHTML = '';
+
+            const optimizations = [
+                { key: 'production_engine_active', label: 'Production Engine' },
+                { key: 'build_stabilization_active', label: 'Build Stabilization' },
+                { key: 'asi_excellence_active', label: 'ASI Excellence' },
+                { key: 'lazy_loading_enabled', label: 'Lazy Loading' },
+                { key: 'caching_enabled', label: 'Caching' },
+                { key: 'compression_enabled', label: 'Compression' }
+            ];
+
+            optimizations.forEach(opt => {
+                const isActive = optimizationStatus[opt.key] || false;
+                const badge = document.createElement('span');
+                badge.className = `optimization-badge ${isActive ? 'badge-active' : 'badge-inactive'}`;
+                badge.innerHTML = `<i class="fas ${isActive ? 'fa-check' : 'fa-times'} me-1"></i>${opt.label}`;
+                badgesContainer.appendChild(badge);
+            });
+        }
+
+        function updateFileDistributionChart(fileBreakdown) {
+            const data = [
+                fileBreakdown.python_files || 0,
+                fileBreakdown.template_files || 0,
+                fileBreakdown.static_files || 0,
+                10 // Other files estimate
+            ];
+            
+            fileDistributionChart.data.datasets[0].data = data;
+            fileDistributionChart.update();
+        }
+
+        function updateComplexityTrendChart(newScore) {
+            const now = new Date().toLocaleTimeString();
+            
+            if (complexityTrendChart.data.labels.length > 10) {
+                complexityTrendChart.data.labels.shift();
+                complexityTrendChart.data.datasets[0].data.shift();
+            }
+            
+            complexityTrendChart.data.labels.push(now);
+            complexityTrendChart.data.datasets[0].data.push(newScore);
+            complexityTrendChart.update();
+        }
+
+        function updateRecommendations(recommendations) {
+            const list = document.getElementById('recommendationsList');
+            list.innerHTML = '';
+
+            if (recommendations.length === 0) {
+                list.innerHTML = '<li class="text-center text-muted">No recommendations available</li>';
+                return;
+            }
+
+            recommendations.forEach(rec => {
+                const li = document.createElement('li');
+                li.innerHTML = `<i class="fas fa-arrow-right me-2"></i>${rec}`;
+                list.appendChild(li);
+            });
+        }
+
+        function updateBottlenecks(bottlenecks) {
+            const container = document.getElementById('bottlenecksList');
+            container.innerHTML = '';
+
+            if (bottlenecks.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted">No bottlenecks detected</div>';
+                return;
+            }
+
+            bottlenecks.forEach(bottleneck => {
+                const div = document.createElement('div');
+                div.className = 'bottleneck-item';
+                div.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${bottleneck}`;
+                container.appendChild(div);
+            });
+        }
+
+        function updateLargestFiles(largestFiles) {
+            const container = document.getElementById('largestFilesList');
+            container.innerHTML = '';
+
+            if (largestFiles.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted">No large files detected</div>';
+                return;
+            }
+
+            largestFiles.forEach(file => {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.innerHTML = `
+                    <span>
+                        <i class="fas fa-file me-2"></i>
+                        ${file.path.split('/').pop()}
+                        <small class="text-muted ms-2">${file.type}</small>
+                    </span>
+                    <span class="badge bg-secondary">${file.size_mb.toFixed(2)} MB</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function getScoreClass(score) {
+            if (score < 30) return 'badge-active';
+            if (score < 60) return 'bg-warning';
+            return 'badge-inactive';
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingSpinner').style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            // Simple error display - you could enhance this with a proper notification system
+            console.error(message);
+        }
+
+        function refreshAnalysis() {
+            loadComplexityAnalysis();
+        }
+
+        // Mobile responsiveness enhancements
+        window.addEventListener('resize', function() {
+            if (fileDistributionChart) fileDistributionChart.resize();
+            if (complexityTrendChart) complexityTrendChart.resize();
+        });
+    </script>
+</body>
+</html>

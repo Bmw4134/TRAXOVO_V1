@@ -356,6 +356,14 @@ def estimating_system():
         
     return render_template('estimating_system.html')
 
+@app.route('/deployment-complexity-visualizer')
+def deployment_complexity_visualizer():
+    """One-Click Deployment Complexity Visualizer Dashboard"""
+    if not require_auth():
+        return redirect(url_for('login'))
+        
+    return render_template('deployment_complexity_visualizer.html')
+
 @app.route('/api/quantum-consciousness')
 def api_quantum_consciousness():
     """Real-time quantum consciousness metrics with ASI Excellence error prevention"""
@@ -1665,6 +1673,66 @@ def api_automation_history():
     except Exception as e:
         logging.error(f"Automation history error: {e}")
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/deployment-complexity-analysis')
+def api_deployment_complexity_analysis():
+    """Get deployment complexity analysis data"""
+    try:
+        from qq_deployment_complexity_visualizer import get_deployment_visualization_data
+        
+        viz_data = get_deployment_visualization_data()
+        
+        return jsonify({
+            'status': 'success',
+            'data': viz_data,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except ImportError:
+        return jsonify({
+            'status': 'error',
+            'error': 'Deployment complexity analyzer not available',
+            'timestamp': datetime.now().isoformat()
+        }), 500
+    except Exception as e:
+        logging.error(f"Deployment complexity analysis error: {e}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/deployment-optimization-recommendations')
+def api_deployment_optimization_recommendations():
+    """Get deployment optimization recommendations"""
+    try:
+        from qq_deployment_complexity_visualizer import analyze_deployment_complexity
+        
+        analysis = analyze_deployment_complexity()
+        
+        return jsonify({
+            'status': 'success',
+            'complexity_score': analysis.get('complexity_score', 50),
+            'deployment_readiness': analysis.get('deployment_readiness', {}),
+            'optimization_status': analysis.get('optimization_status', {}),
+            'recommendations': analysis.get('deployment_readiness', {}).get('recommendations', []),
+            'bottlenecks': analysis.get('deployment_readiness', {}).get('bottlenecks', []),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except ImportError:
+        return jsonify({
+            'status': 'error',
+            'error': 'Deployment analyzer not available',
+            'timestamp': datetime.now().isoformat()
+        }), 500
+    except Exception as e:
+        logging.error(f"Deployment optimization recommendations error: {e}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5001, debug=True)

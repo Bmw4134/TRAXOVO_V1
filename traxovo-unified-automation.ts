@@ -5,7 +5,7 @@
  */
 
 import { Browser, Page } from 'puppeteer';
-import puppeteer from 'puppeteer';
+// puppeteer removed
 
 interface TraxovoAutomationConfig {
   platform: string;

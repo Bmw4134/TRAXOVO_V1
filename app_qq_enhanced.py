@@ -1338,3 +1338,60 @@ def get_master_system_status_endpoint():
         logging.error(f"Master system status error: {e}")
         return jsonify({'error': 'Status unavailable'}), 500
 
+@app.route('/accessibility-dashboard')
+def accessibility_dashboard():
+    """AI-Powered Accessibility Enhancement Dashboard"""
+    if not require_auth():
+        return redirect(url_for('login'))
+    
+    return render_template('accessibility_dashboard.html')
+
+@app.route('/api/analyze-accessibility', methods=['POST'])
+def api_analyze_accessibility():
+    """Analyze page accessibility using AI"""
+    if not QQ_ACCESSIBILITY_AVAILABLE:
+        return jsonify({'error': 'Accessibility enhancer not available'}), 500
+    
+    try:
+        data = request.get_json()
+        page_html = data.get('html', '')
+        page_url = data.get('url', 'unknown')
+        
+        analysis_result = analyze_page_accessibility(page_html, page_url)
+        return jsonify(analysis_result)
+        
+    except Exception as e:
+        logging.error(f"Accessibility analysis error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/apply-accessibility-fixes', methods=['POST'])
+def api_apply_accessibility_fixes():
+    """Apply AI-powered accessibility enhancements"""
+    if not QQ_ACCESSIBILITY_AVAILABLE:
+        return jsonify({'error': 'Accessibility enhancer not available'}), 500
+    
+    try:
+        data = request.get_json() or {}
+        enhancement_types = data.get('enhancement_types')
+        
+        enhancement_result = apply_ai_enhancements(enhancement_types)
+        return jsonify(enhancement_result)
+        
+    except Exception as e:
+        logging.error(f"Accessibility enhancement error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/accessibility-dashboard-data')
+def api_accessibility_dashboard_data():
+    """Get accessibility dashboard data"""
+    if not QQ_ACCESSIBILITY_AVAILABLE:
+        return jsonify({'error': 'Accessibility enhancer not available'}), 500
+    
+    try:
+        dashboard_data = get_accessibility_dashboard_data()
+        return jsonify(dashboard_data)
+        
+    except Exception as e:
+        logging.error(f"Accessibility dashboard data error: {e}")
+        return jsonify({'error': str(e)}), 500
+

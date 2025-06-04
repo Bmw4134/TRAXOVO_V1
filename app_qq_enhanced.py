@@ -791,6 +791,27 @@ def api_qq_patch():
             "message": f"Fix application failed: {str(e)}"
         }), 500
 
+@app.route('/api/ui-ux-validation')
+def api_ui_ux_validation():
+    """UI/UX validation dashboard metrics"""
+    try:
+        from qq_ui_ux_validation_dashboard import UIUXValidationDashboard
+        dashboard = UIUXValidationDashboard()
+        validation_data = dashboard.get_dashboard_data()
+        
+        return jsonify({
+            "status": validation_data["status"],
+            "improvement_score": validation_data["improvement_score"],
+            "files_processed": validation_data["files_processed"],
+            "design_system_coverage": validation_data["design_system_coverage"],
+            "quality_improvements": validation_data["quality_summary"],
+            "recommendations": validation_data["next_actions"],
+            "timestamp": validation_data["timestamp"]
+        })
+    except Exception as e:
+        logging.error(f"UI/UX validation error: {e}")
+        return jsonify({'error': 'UI/UX validation unavailable'}), 500
+
 @app.route('/health')
 def health_check():
     """Health check for Troy/William demo"""

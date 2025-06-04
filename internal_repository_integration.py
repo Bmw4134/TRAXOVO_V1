@@ -431,6 +431,19 @@ ENHANCED_MAIN_TEMPLATE = '''
                     <span>🚀</span> Full QQ Package
                 </div>
             </div>
+            
+            <div class="command-section">
+                <h4>GitHub DWC Sync</h4>
+                <div class="command-item" onclick="openGitHubSync()">
+                    <span>🔄</span> GitHub Sync Interface
+                </div>
+                <div class="command-item" onclick="quickSyncToDWC()">
+                    <span>⚡</span> Quick Sync to DWC
+                </div>
+                <div class="command-item" onclick="autoConfigureDWC()">
+                    <span>🚀</span> Auto-Configure DWC
+                </div>
+            </div>
         </div>
     </div>
 
@@ -515,6 +528,86 @@ ENHANCED_MAIN_TEMPLATE = '''
             link.href = '/download/TRAXOVO_Remix_QQ_Intelligence_Complete.zip';
             link.download = 'TRAXOVO_Universal_Components.zip';
             link.click();
+        }
+        
+        function openGitHubSync() {
+            window.open('/github-sync', '_blank');
+        }
+        
+        async function quickSyncToDWC() {
+            const userRepo = prompt('Enter your DWC GitHub repository URL:', 'https://github.com/your-username/your-dwc-repo.git');
+            
+            if (!userRepo) return;
+            
+            try {
+                // Configure repository
+                const configResponse = await fetch('/api/github-sync/configure', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        repository_url: userRepo,
+                        branch_name: 'main'
+                    })
+                });
+                
+                const configResult = await configResponse.json();
+                
+                if (configResult.configuration_status === 'success') {
+                    // Execute sync
+                    const syncResponse = await fetch('/api/github-sync/execute', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            commit_message: 'TRAXOVO Intelligence Platform - Complete System Sync'
+                        })
+                    });
+                    
+                    const syncResult = await syncResponse.json();
+                    
+                    if (syncResult.status === 'success') {
+                        alert(`Successfully synced to DWC repository!\n\nFiles processed: ${syncResult.files_processed}\nCommit: ${syncResult.commit_hash}`);
+                    } else {
+                        alert(`Sync failed: ${syncResult.error || 'Unknown error'}`);
+                    }
+                } else {
+                    alert(`Repository configuration failed: ${configResult.error || 'Unknown error'}`);
+                }
+                
+            } catch (error) {
+                alert(`Sync error: ${error.message}`);
+            }
+        }
+        
+        async function autoConfigureDWC() {
+            const confirmed = confirm('Auto-configure DWC repository with TRAXOVO Intelligence Platform?\n\nThis will:\n- Set up Git repository\n- Configure branch settings\n- Prepare all files for sync\n- Generate README and deployment guides');
+            
+            if (!confirmed) return;
+            
+            const userRepo = prompt('Enter your DWC GitHub repository URL:', 'https://github.com/your-username/your-dwc-repo.git');
+            
+            if (!userRepo) return;
+            
+            try {
+                const response = await fetch('/api/github-sync/configure', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        repository_url: userRepo,
+                        branch_name: 'main'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.configuration_status === 'success') {
+                    alert(`DWC Repository auto-configured successfully!\n\nSteps completed:\n${result.steps_completed.map(step => '✓ ' + step.replace('_', ' ')).join('\n')}\n\nNext: Use "Quick Sync to DWC" to deploy your platform`);
+                } else {
+                    alert(`Auto-configuration failed: ${result.error || 'Unknown error'}`);
+                }
+                
+            } catch (error) {
+                alert(`Configuration error: ${error.message}`);
+            }
         }
         
         function loadRepositoryStatus() {

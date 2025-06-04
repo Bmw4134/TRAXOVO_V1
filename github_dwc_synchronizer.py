@@ -708,7 +708,7 @@ env | grep -E "(PERPLEXITY|GAUGE|SENDGRID)" > environment_backup.txt
             
         return config_result
     
-    def execute_repository_sync(self, commit_message: str = None) -> Dict[str, Any]:
+    def execute_repository_sync(self, commit_message: str = "") -> Dict[str, Any]:
         """Execute full repository synchronization to DWC GitHub"""
         
         if not commit_message:
@@ -888,7 +888,7 @@ def create_github_sync_routes(app):
     def execute_sync():
         """Execute full repository synchronization"""
         data = request.get_json() if request.is_json else {}
-        commit_message = data.get('commit_message')
+        commit_message = str(data.get('commit_message', ''))
         
         result = synchronizer.execute_repository_sync(commit_message)
         return jsonify(result)

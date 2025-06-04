@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        .nudges-container:not(.collapsible), .productivity-nudges:not(.collapsible), .dashboard-widgets:not(.collapsible) {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/qq-parallel-responsive.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
     <meta charset="UTF-8">
@@ -345,55 +352,6 @@
         <button class="quantum-button" onclick="window.open('/api/quantum-consciousness', '_blank')">View Raw Metrics</button>
     </div>
     
-    <script>
-        // Real-time data updates
-        function refreshQuantumData() {
-            fetch('/api/quantum-consciousness')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Quantum consciousness updated:', data);
-                    // Update thought vectors count
-                    document.querySelector('.stat-number').textContent = data.consciousness_metrics.thought_vectors;
-                })
-                .catch(error => console.error('Quantum sync error:', error));
-        }
-        
-        // Load contextual nudges
-        function loadContextualNudges() {
-            fetch('/api/contextual-nudges')
-                .then(response => response.json())
-                .then(data => {
-                    const container = document.getElementById('contextual-nudges');
-                    container.innerHTML = `
-                        <div style="margin-bottom: 10px;">
-                            <strong>Equipment Optimization:</strong><br>
-                            ${data.nudges.equipment_optimization}
-                        </div>
-                        <div style="margin-bottom: 10px;">
-                            <strong>Cost Reduction:</strong><br>
-                            ${data.nudges.cost_reduction}
-                        </div>
-                        <div style="margin-bottom: 10px;">
-                            <strong>Productivity Boost:</strong><br>
-                            ${data.nudges.productivity_boost}
-                        </div>
-                        <div style="color: #88ffaa; font-weight: bold;">
-                            Potential Savings: ${data.potential_savings}
-                        </div>
-                    `;
-                })
-                .catch(error => {
-                    console.error('Nudges error:', error);
-                    document.getElementById('contextual-nudges').innerHTML = 'Quantum insights unavailable';
-                });
-        }
-        
-        // Initialize
-        loadContextualNudges();
-        
-        // Auto-refresh every 30 seconds
-        setInterval(refreshQuantumData, 30000);
-        setInterval(loadContextualNudges, 45000);
-    </script>
+    
 </body>
 </html>

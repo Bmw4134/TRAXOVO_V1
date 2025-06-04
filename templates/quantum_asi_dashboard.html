@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        .nudges-container:not(.collapsible), .productivity-nudges:not(.collapsible), .dashboard-widgets:not(.collapsible) {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/qq-parallel-responsive.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
     <meta charset="UTF-8">
@@ -94,11 +101,7 @@
         </div>
         
         <div class="main-content">
-            <div class="productivity-nudges">
-                <div class="nudge-header">
-                    <span class="nudge-icon">🧠</span>
-                    Contextual Productivity Nudges
-                </div>
+            
                 
                 <div class="nudge-card" id="nudge-1">
                     <div class="nudge-title">Asset Utilization Optimization</div>

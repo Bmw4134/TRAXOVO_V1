@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        .nudges-container:not(.collapsible), .productivity-nudges:not(.collapsible), .dashboard-widgets:not(.collapsible) {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/qq-parallel-responsive.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
     <meta charset="UTF-8">
@@ -198,9 +205,7 @@
 <body>
     <a href="/" class="back-btn">← Dashboard</a>
     
-    <div class="nudges-container">
-        <div class="nudges-header">
-            <div class="nudges-title">Contextual Productivity Nudges</div>
+    
             <div class="nudges-subtitle">AI-powered recommendations based on Fort Worth operations data</div>
             
             <div class="metrics-row" id="metricsRow">
@@ -256,137 +261,6 @@
         </div>
     </div>
     
-    <script>
-        // Load nudges data
-        function loadNudgesData() {
-            fetch('/api/contextual-nudges')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Nudges data loaded:', data);
-                    if (data.status === 'success') {
-                        updateMetrics(data.metrics || {});
-                        displayNudges(data.nudges || []);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading nudges:', error);
-                    displayDefaultNudges();
-                });
-        }
-        
-        function updateMetrics(metrics) {
-            document.getElementById('productivityScore').textContent = (metrics.productivity_score || 94.8).toFixed(1) + '%';
-            document.getElementById('activeNudges').textContent = metrics.active_nudges_count || 3;
-            document.getElementById('potentialSavings').textContent = '$' + (metrics.total_potential_savings || 2390).toLocaleString();
-            document.getElementById('quantumCoherence').textContent = (metrics.quantum_coherence || 99.7).toFixed(1) + '%';
-        }
-        
-        function displayNudges(nudges) {
-            const grid = document.getElementById('nudgesGrid');
-            grid.innerHTML = '';
-            
-            nudges.forEach(nudge => {
-                const card = createNudgeCard(nudge);
-                grid.appendChild(card);
-            });
-        }
-        
-        function createNudgeCard(nudge) {
-            const card = document.createElement('div');
-            card.className = 'nudge-card';
-            
-            const priorityClass = nudge.urgency_level === 'high' ? 'priority-high' : 
-                                 nudge.urgency_level === 'medium' ? 'priority-medium' : 'priority-low';
-            
-            card.innerHTML = `
-                <div class="nudge-priority ${priorityClass}">${nudge.urgency_level.toUpperCase()}</div>
-                <div class="nudge-title">${nudge.title}</div>
-                <div class="nudge-description">${nudge.description}</div>
-                <div class="nudge-impact">
-                    <div class="impact-value">$${nudge.estimated_impact.toLocaleString()} Impact</div>
-                    <div class="nudge-category">${nudge.category}</div>
-                </div>
-                <div class="nudge-actions">
-                    <button class="action-btn btn-primary" onclick="executeNudge('${nudge.id}', 'implement')">
-                        Implement
-                    </button>
-                    <button class="action-btn btn-secondary" onclick="executeNudge('${nudge.id}', 'schedule')">
-                        Schedule Later
-                    </button>
-                </div>
-            `;
-            
-            return card;
-        }
-        
-        function displayDefaultNudges() {
-            const defaultNudges = [
-                {
-                    id: 'default_1',
-                    title: 'Asset Utilization Optimization',
-                    description: 'Fort Worth fleet showing 23% idle time. Consider redistributing CAT 320 excavator from Site A to maximize productivity.',
-                    priority: 4,
-                    category: 'efficiency',
-                    estimated_impact: 850,
-                    urgency_level: 'medium'
-                },
-                {
-                    id: 'default_2',
-                    title: 'Maintenance Window Opportunity',
-                    description: 'Equipment downtime predicted between 2-4 PM today. Schedule preventive maintenance for maximum efficiency.',
-                    priority: 5,
-                    category: 'maintenance',
-                    estimated_impact: 1200,
-                    urgency_level: 'high'
-                },
-                {
-                    id: 'default_3',
-                    title: 'Route Optimization Savings',
-                    description: 'ASI analysis indicates route optimization could save $340 in fuel costs today.',
-                    priority: 4,
-                    category: 'cost_savings',
-                    estimated_impact: 340,
-                    urgency_level: 'medium'
-                }
-            ];
-            
-            displayNudges(defaultNudges);
-        }
-        
-        function executeNudge(nudgeId, action) {
-            fetch('/api/execute-nudge-action', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    nudge_id: nudgeId,
-                    action_type: action
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Nudge action executed:', data);
-                if (data.status === 'success') {
-                    alert(`Action "${action}" executed successfully for nudge: ${nudgeId}`);
-                    loadNudgesData(); // Refresh the data
-                }
-            })
-            .catch(error => {
-                console.error('Error executing nudge action:', error);
-                alert('Action recorded - system will process in the next cycle');
-            });
-        }
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            loadNudgesData();
-            
-            // Refresh data every 2 minutes
-            setInterval(loadNudgesData, 120000);
-            
-            console.log('Contextual Productivity Nudges dashboard initialized');
-        });
-    </script>
+    
 </body>
 </html>

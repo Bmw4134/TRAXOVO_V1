@@ -1,0 +1,13 @@
+{
+  "scanned": 1749008880.549635,
+  "results": [
+    {
+      "file": "static/js/map.js",
+      "hits": [
+        "assetMap"
+      ],
+      "hash": "fb4aa4a3b455fa9beb8a5a1c7939a8268bdab93fc44e5501157ca180db0ccb7d",
+      "timestamp": 1749008888.108875
+    }
+  ]
+}

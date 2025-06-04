@@ -128,8 +128,16 @@ class QuantumConsciousnessEngine:
             })
         return vectors
 
-# Initialize quantum engine
+# Initialize quantum engine with ASI Excellence enhancements
 quantum_engine = QuantumConsciousnessEngine()
+
+# Apply ASI Excellence visual fixes
+try:
+    from qq_asi_excellence_visual_fix import patch_quantum_engine_with_asi
+    patch_quantum_engine_with_asi(quantum_engine)
+    logging.info("QQ ASI Excellence: Visual analysis error fixes applied")
+except ImportError:
+    logging.warning("ASI Excellence module not available - using standard quantum engine")
 
 # Fort Worth Authentic Asset Data with Unified Status Analysis
 def get_fort_worth_assets():
@@ -340,17 +348,75 @@ def estimating_system():
 
 @app.route('/api/quantum-consciousness')
 def api_quantum_consciousness():
-    """Real-time quantum consciousness metrics"""
+    """Real-time quantum consciousness metrics with ASI Excellence error prevention"""
     try:
-        return jsonify({
-            'consciousness_metrics': quantum_engine.get_consciousness_metrics(),
-            'thought_vectors': quantum_engine.get_thought_vector_animations(),
+        consciousness_metrics = quantum_engine.get_consciousness_metrics()
+        thought_vectors = quantum_engine.get_thought_vector_animations()
+        
+        # Ensure all data is JSON serializable
+        response_data = {
+            'consciousness_metrics': consciousness_metrics,
+            'thought_vectors': thought_vectors,
             'timestamp': datetime.now().isoformat(),
-            'quantum_state': 'OPTIMAL'
-        })
+            'quantum_state': 'OPTIMAL',
+            'asi_enhanced': True,
+            'error_prevention_active': True
+        }
+        
+        # Validate JSON before returning
+        import json
+        json.dumps(response_data)  # This will raise an exception if not valid JSON
+        
+        return jsonify(response_data)
+        
+    except json.JSONDecodeError as e:
+        logging.error(f"JSON encoding error in quantum consciousness: {e}")
+        # Return ASI Excellence fallback
+        try:
+            from qq_asi_excellence_visual_fix import apply_asi_visual_fixes
+            fallback_data = apply_asi_visual_fixes()
+            return jsonify(fallback_data)
+        except:
+            return jsonify({
+                'error': 'Quantum processing temporarily unavailable',
+                'fallback_active': True,
+                'timestamp': datetime.now().isoformat()
+            }), 500
     except Exception as e:
         logging.error(f"Quantum consciousness error: {e}")
-        return jsonify({'error': 'Quantum processing unavailable'}), 500
+        return jsonify({
+            'error': 'Quantum processing unavailable',
+            'error_type': str(type(e).__name__),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/asi-excellence-status')
+def api_asi_excellence_status():
+    """Get ASI Excellence visual fix status"""
+    try:
+        from qq_asi_excellence_visual_fix import get_asi_excellence_visual_fix
+        
+        asi_fix = get_asi_excellence_visual_fix()
+        status_data = {
+            'asi_monitoring_active': asi_fix.active_monitoring,
+            'errors_detected': asi_fix.error_count,
+            'fixes_applied': asi_fix.fixes_applied,
+            'error_patterns_monitored': list(asi_fix.error_patterns.keys()),
+            'fix_strategies_available': len(asi_fix.fix_strategies),
+            'enhanced_visual_data': asi_fix.get_asi_enhanced_visual_data(),
+            'status': 'ACTIVE',
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        return jsonify(status_data)
+        
+    except Exception as e:
+        logging.error(f"ASI Excellence status error: {e}")
+        return jsonify({
+            'status': 'ERROR',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
 
 @app.route('/api/fort-worth-assets')
 def api_fort_worth_assets():

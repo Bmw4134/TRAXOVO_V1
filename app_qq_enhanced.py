@@ -734,6 +734,12 @@ def transcendent_vector_matrix():
     consciousness_metrics = quantum_engine.get_consciousness_metrics()
     return render_template('transcendent_vector_matrix.html', consciousness_metrics=consciousness_metrics)
 
+@app.route('/enhanced-vector-intelligence')
+def enhanced_vector_intelligence():
+    """Enhanced Vector Intelligence Dashboard - Advanced multi-dimensional analysis"""
+    consciousness_metrics = quantum_engine.get_consciousness_metrics()
+    return render_template('enhanced_vector_intelligence_dashboard.html', consciousness_metrics=consciousness_metrics)
+
 @app.route('/asi-excellence-fleet-map')
 def asi_excellence_fleet_map():
     """ASI Excellence Fleet Map - Bleeding-edge asset visualization with legacy mapping"""

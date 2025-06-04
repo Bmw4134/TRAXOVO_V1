@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO - Enhanced Vector Intelligence Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-uniform-scaling.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: radial-gradient(ellipse at center, #0a0a0a 0%, #1a1a2e 30%, #16213e 70%, #0a0a0a 100%);
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Quantum Particle Background */
+        .quantum-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .quantum-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: quantum-drift 20s linear infinite;
+            opacity: 0.7;
+        }
+        
+        @keyframes quantum-drift {
+            0% { 
+                transform: translate(0, 100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { 
+                transform: translate(100vw, -100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Main Container */
+        .intelligence-container {
+            position: relative;
+            z-index: 10;
+            padding: clamp(10px, 2vw, 20px);
+            min-height: 100vh;
+        }
+        
+        /* Enhanced Header */
+        .intelligence-header {
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #00ff88;
+            border-radius: 20px;
+            padding: clamp(15px, 3vw, 25px);
+            margin-bottom: clamp(15px, 3vw, 25px);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.3);
+        }
+        
+        .header-content {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: clamp(15px, 3vw, 30px);
+            align-items: center;
+        }
+        
+        .intelligence-title {
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ff88, #88ffaa, #aaffcc, #00ff88);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-flow 3s ease-in-out infinite;
+        }
+        
+        .real-time-status {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: clamp(10px, 2vw, 15px);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+            margin-bottom: 5px;
+        }
+        
+        .data-connectors {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+        }
+        
+        .connector-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .connector-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #00ff88;
+        }
+        
+        .connector-dot.warning {
+            background: #ffaa00;
+        }
+        
+        .connector-dot.error {
+            background: #ff4444;
+        }
+        
+        /* Vector Matrix Grid */
+        .vector-matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(280px, 40vw, 400px), 1fr));
+            gap: clamp(15px, 3vw, 25px);
+            margin-bottom: clamp(20px, 4vw, 30px);
+        }
+        
+        .vector-matrix-card {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            padding: clamp(15px, 3vw, 25px);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .vector-matrix-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+            border-color: #88ffaa;
+        }
+        
+        .vector-matrix-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .vector-matrix-card:hover::before {
+            left: 100%;
+        }
+        
+        .matrix-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .matrix-title {
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            color: #88ffaa;
+            font-weight: bold;
+        }
+        
+        .matrix-type {
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            color: #aaffcc;
+            padding: 3px 8px;
+            border: 1px solid #00ff88;
+            border-radius: 12px;
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .vector-display {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .vector-count {
+            font-size: clamp(2rem, 8vw, 4rem);
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 20px #00ff88;
+            animation: vector-pulse 2s ease-in-out infinite;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        
+        @keyframes vector-pulse {
+            0%, 100% { 
+                transform: scale(1);
+                text-shadow: 0 0 20px #00ff88;
+            }
+            50% { 
+                transform: scale(1.05);
+                text-shadow: 0 0 30px #00ff88, 0 0 40px #88ffaa;
+            }
+        }
+        
+        .vector-label {
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            color: #88ffaa;
+            margin-bottom: 15px;
+        }
+        
+        .matrix-visualization {
+            position: relative;
+            width: 100%;
+            height: clamp(120px, 25vw, 180px);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            background: radial-gradient(circle at center, rgba(0, 255, 136, 0.05) 0%, transparent 70%);
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .matrix-grid-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            animation: grid-flow 8s linear infinite;
+        }
+        
+        @keyframes grid-flow {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(20px, 20px); }
+        }
+        
+        .matrix-data-points {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .data-point {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(0, 255, 136, 0.8);
+            animation: data-pulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes data-pulse {
+            0%, 100% { 
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1;
+                transform: scale(1.3);
+            }
+        }
+        
+        .matrix-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .metric-item {
+            text-align: center;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 6px;
+        }
+        
+        .metric-value {
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            font-weight: bold;
+            color: #00ff88;
+        }
+        
+        .metric-label {
+            font-size: clamp(0.6rem, 1.8vw, 0.7rem);
+            color: #88ffaa;
+            margin-top: 2px;
+        }
+        
+        /* Drill-down Panel */
+        .drill-down-panel {
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            padding: clamp(15px, 3vw, 25px);
+            margin-bottom: clamp(20px, 4vw, 30px);
+            backdrop-filter: blur(15px);
+        }
+        
+        .drill-down-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .drill-down-title {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            color: #88ffaa;
+        }
+        
+        .drill-down-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .drill-btn {
+            background: linear-gradient(45deg, #00ff88, #88ffaa);
+            color: #0a0a0a;
+            border: none;
+            padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 18px);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
+            transition: all 0.3s ease;
+        }
+        
+        .drill-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.4);
+        }
+        
+        .drill-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 30vw, 300px), 1fr));
+            gap: 15px;
+        }
+        
+        .drill-item {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .drill-item:hover {
+            background: rgba(0, 255, 136, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .drill-item-title {
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            color: #00ff88;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .drill-item-value {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            color: #88ffaa;
+            margin-bottom: 5px;
+        }
+        
+        .drill-item-change {
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            color: #aaffcc;
+        }
+        
+        .change-positive {
+            color: #00ff88;
+        }
+        
+        .change-negative {
+            color: #ff6666;
+        }
+        
+        /* Intelligence Flows */
+        .intelligence-flows {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            padding: clamp(15px, 3vw, 25px);
+            backdrop-filter: blur(10px);
+        }
+        
+        .flows-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .flows-title {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            color: #88ffaa;
+            margin-bottom: 10px;
+        }
+        
+        .flows-subtitle {
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            color: #aaffcc;
+        }
+        
+        .flow-network {
+            position: relative;
+            height: clamp(200px, 30vw, 300px);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            background: radial-gradient(circle at center, rgba(0, 255, 136, 0.03) 0%, transparent 70%);
+            overflow: hidden;
+        }
+        
+        .flow-node {
+            position: absolute;
+            width: clamp(12px, 3vw, 20px);
+            height: clamp(12px, 3vw, 20px);
+            background: radial-gradient(circle, #00ff88, #88ffaa);
+            border: 2px solid #00ff88;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: node-glow 4s ease-in-out infinite;
+        }
+        
+        @keyframes node-glow {
+            0%, 100% { 
+                box-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(0, 255, 136, 0.9);
+            }
+        }
+        
+        .flow-node:hover {
+            transform: scale(1.3);
+            box-shadow: 0 0 25px rgba(0, 255, 136, 1);
+        }
+        
+        .flow-connection {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(0, 255, 136, 0.8), rgba(0, 255, 136, 0.2));
+            transform-origin: left center;
+            animation: connection-flow 3s ease-in-out infinite;
+        }
+        
+        @keyframes connection-flow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.9; }
+        }
+        
+        /* Navigation */
+        .nav-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: clamp(5px, 1vw, 10px);
+            z-index: 1100;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: linear-gradient(45deg, #00ff88, #88ffaa);
+            color: #0a0a0a;
+            border: none;
+            padding: clamp(8px, 2vw, 12px) clamp(15px, 3vw, 20px);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
+            white-space: nowrap;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .drill-down-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .nav-buttons {
+                bottom: 20px;
+                top: auto;
+                right: 10px;
+                flex-direction: column;
+                max-width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Quantum Background -->
+    <div class="quantum-background" id="quantumBackground"></div>
+    
+    <!-- Navigation -->
+    <div class="nav-buttons">
+        <a href="{{ url_for('quantum_dashboard') }}" class="nav-btn">← Dashboard</a>
+        <a href="{{ url_for('asi_excellence_fleet_map') }}" class="nav-btn">Fleet Map</a>
+        <a href="{{ url_for('executive_dashboard') }}" class="nav-btn">Executive</a>
+    </div>
+
+    <!-- Main Container -->
+    <div class="intelligence-container">
+        <!-- Enhanced Header -->
+        <div class="intelligence-header">
+            <div class="header-content">
+                <div>
+                    <h1 class="intelligence-title">VECTOR INTELLIGENCE MATRIX</h1>
+                    <p style="color: #aaffcc; font-size: clamp(0.8rem, 2.5vw, 1rem); margin-top: 8px;">
+                        Multi-dimensional AI processing with real-time data connectors
+                    </p>
+                </div>
+                
+                <div class="real-time-status">
+                    <div class="status-indicator"></div>
+                    <div style="font-size: clamp(0.7rem, 2vw, 0.9rem); color: #88ffaa;">LIVE</div>
+                </div>
+                
+                <div class="data-connectors">
+                    <div class="connector-status">
+                        <div class="connector-dot"></div>
+                        <span>Fort Worth Assets</span>
+                    </div>
+                    <div class="connector-status">
+                        <div class="connector-dot"></div>
+                        <span>Quantum Consciousness</span>
+                    </div>
+                    <div class="connector-status">
+                        <div class="connector-dot warning"></div>
+                        <span>GAUGE API</span>
+                    </div>
+                    <div class="connector-status">
+                        <div class="connector-dot"></div>
+                        <span>Attendance Matrix</span>
+                    </div>
+                    <div class="connector-status">
+                        <div class="connector-dot"></div>
+                        <span>Payroll Systems</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vector Matrix Grid -->
+        <div class="vector-matrix-grid">
+            <!-- Primary Intelligence Matrix -->
+            <div class="vector-matrix-card" onclick="drillDown('primary')">
+                <div class="matrix-header">
+                    <div class="matrix-title">Primary Intelligence</div>
+                    <div class="matrix-type">ASI Core</div>
+                </div>
+                <div class="vector-display">
+                    <div class="vector-count" id="primaryVectors">{{ consciousness_metrics.thought_vectors }}</div>
+                    <div class="vector-label">Active Vectors</div>
+                </div>
+                <div class="matrix-visualization">
+                    <div class="matrix-grid-pattern"></div>
+                    <div class="matrix-data-points" id="primaryDataPoints"></div>
+                </div>
+                <div class="matrix-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">{{ "%.1f"|format(consciousness_metrics.quantum_coherence * 100) }}%</div>
+                        <div class="metric-label">Coherence</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">{{ consciousness_metrics.processing_threads }}</div>
+                        <div class="metric-label">Threads</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Asset Intelligence Matrix -->
+            <div class="vector-matrix-card" onclick="drillDown('assets')">
+                <div class="matrix-header">
+                    <div class="matrix-title">Asset Intelligence</div>
+                    <div class="matrix-type">Fleet AI</div>
+                </div>
+                <div class="vector-display">
+                    <div class="vector-count" id="assetVectors">717</div>
+                    <div class="vector-label">Asset Vectors</div>
+                </div>
+                <div class="matrix-visualization">
+                    <div class="matrix-grid-pattern"></div>
+                    <div class="matrix-data-points" id="assetDataPoints"></div>
+                </div>
+                <div class="matrix-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">98.3%</div>
+                        <div class="metric-label">Tracking</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">85.7%</div>
+                        <div class="metric-label">Utilization</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operational Intelligence Matrix -->
+            <div class="vector-matrix-card" onclick="drillDown('operations')">
+                <div class="matrix-header">
+                    <div class="matrix-title">Operations Intelligence</div>
+                    <div class="matrix-type">AGI Ops</div>
+                </div>
+                <div class="vector-display">
+                    <div class="vector-count" id="operationsVectors">452</div>
+                    <div class="vector-label">Op Vectors</div>
+                </div>
+                <div class="matrix-visualization">
+                    <div class="matrix-grid-pattern"></div>
+                    <div class="matrix-data-points" id="operationsDataPoints"></div>
+                </div>
+                <div class="matrix-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">94.2%</div>
+                        <div class="metric-label">Efficiency</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">67</div>
+                        <div class="metric-label">Active Jobs</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Predictive Intelligence Matrix -->
+            <div class="vector-matrix-card" onclick="drillDown('predictive')">
+                <div class="matrix-header">
+                    <div class="matrix-title">Predictive Intelligence</div>
+                    <div class="matrix-type">ML Forecast</div>
+                </div>
+                <div class="vector-display">
+                    <div class="vector-count" id="predictiveVectors">328</div>
+                    <div class="vector-label">Predict Vectors</div>
+                </div>
+                <div class="matrix-visualization">
+                    <div class="matrix-grid-pattern"></div>
+                    <div class="matrix-data-points" id="predictiveDataPoints"></div>
+                </div>
+                <div class="matrix-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">92.8%</div>
+                        <div class="metric-label">Accuracy</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">72h</div>
+                        <div class="metric-label">Forecast</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drill-down Panel -->
+        <div class="drill-down-panel" id="drillDownPanel" style="display: none;">
+            <div class="drill-down-header">
+                <div class="drill-down-title" id="drillDownTitle">Matrix Analysis</div>
+                <div class="drill-down-controls">
+                    <button class="drill-btn" onclick="refreshDrillDown()">Refresh</button>
+                    <button class="drill-btn" onclick="exportData()">Export</button>
+                    <button class="drill-btn" onclick="closeDrillDown()">Close</button>
+                </div>
+            </div>
+            <div class="drill-content" id="drillDownContent">
+                <!-- Drill-down content will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Intelligence Flows -->
+        <div class="intelligence-flows">
+            <div class="flows-header">
+                <div class="flows-title">Intelligence Flow Network</div>
+                <div class="flows-subtitle">Real-time data processing pathways</div>
+            </div>
+            <div class="flow-network" id="flowNetwork">
+                <!-- Flow nodes and connections will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentDrillDown = null;
+        let animationFrameId = null;
+
+        // Initialize dashboard
+        function initializeDashboard() {
+            createQuantumBackground();
+            generateDataPoints();
+            createFlowNetwork();
+            startRealTimeUpdates();
+        }
+
+        // Create quantum particle background
+        function createQuantumBackground() {
+            const container = document.getElementById('quantumBackground');
+            
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'quantum-particle';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Generate data points for matrix visualizations
+        function generateDataPoints() {
+            const matrices = ['primary', 'asset', 'operations', 'predictive'];
+            
+            matrices.forEach(matrix => {
+                const container = document.getElementById(matrix + 'DataPoints');
+                if (container) {
+                    // Clear existing points
+                    container.innerHTML = '';
+                    
+                    // Generate random data points
+                    const pointCount = 8 + Math.random() * 12;
+                    for (let i = 0; i < pointCount; i++) {
+                        const point = document.createElement('div');
+                        point.className = 'data-point';
+                        point.style.left = Math.random() * 95 + '%';
+                        point.style.top = Math.random() * 95 + '%';
+                        point.style.animationDelay = Math.random() * 3 + 's';
+                        container.appendChild(point);
+                    }
+                }
+            });
+        }
+
+        // Create flow network
+        function createFlowNetwork() {
+            const container = document.getElementById('flowNetwork');
+            const nodes = [];
+            
+            // Create flow nodes
+            for (let i = 0; i < 8; i++) {
+                const node = document.createElement('div');
+                node.className = 'flow-node';
+                node.style.left = (10 + (i % 4) * 25) + '%';
+                node.style.top = (20 + Math.floor(i / 4) * 40) + '%';
+                node.style.animationDelay = (i * 0.5) + 's';
+                
+                node.addEventListener('click', () => highlightNode(node));
+                container.appendChild(node);
+                nodes.push(node);
+            }
+            
+            // Create connections
+            for (let i = 0; i < nodes.length - 1; i++) {
+                if (Math.random() > 0.3) { // 70% chance of connection
+                    createConnection(container, nodes[i], nodes[i + 1]);
+                }
+            }
+        }
+
+        // Create connection between nodes
+        function createConnection(container, node1, node2) {
+            const rect1 = node1.getBoundingClientRect();
+            const rect2 = node2.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            
+            const x1 = rect1.left - containerRect.left + rect1.width / 2;
+            const y1 = rect1.top - containerRect.top + rect1.height / 2;
+            const x2 = rect2.left - containerRect.left + rect2.width / 2;
+            const y2 = rect2.top - containerRect.top + rect2.height / 2;
+            
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+            
+            const connection = document.createElement('div');
+            connection.className = 'flow-connection';
+            connection.style.left = x1 + 'px';
+            connection.style.top = y1 + 'px';
+            connection.style.width = length + 'px';
+            connection.style.transform = `rotate(${angle}deg)`;
+            connection.style.animationDelay = Math.random() * 3 + 's';
+            
+            container.appendChild(connection);
+        }
+
+        // Highlight node
+        function highlightNode(node) {
+            // Remove previous highlights
+            document.querySelectorAll('.flow-node').forEach(n => n.style.background = 'radial-gradient(circle, #00ff88, #88ffaa)');
+            
+            // Highlight selected node
+            node.style.background = 'radial-gradient(circle, #ffaa00, #ff8800)';
+        }
+
+        // Drill down functionality
+        function drillDown(matrixType) {
+            currentDrillDown = matrixType;
+            const panel = document.getElementById('drillDownPanel');
+            const title = document.getElementById('drillDownTitle');
+            const content = document.getElementById('drillDownContent');
+            
+            // Set title
+            const titles = {
+                'primary': 'Primary Intelligence Analysis',
+                'assets': 'Asset Intelligence Deep Dive',
+                'operations': 'Operations Intelligence Breakdown',
+                'predictive': 'Predictive Intelligence Forecast'
+            };
+            title.textContent = titles[matrixType] || 'Matrix Analysis';
+            
+            // Generate drill-down content
+            content.innerHTML = generateDrillDownContent(matrixType);
+            
+            // Show panel
+            panel.style.display = 'block';
+            panel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Generate drill-down content
+        function generateDrillDownContent(matrixType) {
+            const data = {
+                'primary': [
+                    { title: 'Quantum Coherence', value: '84.7%', change: '+2.3%', positive: true },
+                    { title: 'Processing Speed', value: '12.4 THz', change: '+5.1%', positive: true },
+                    { title: 'Memory Utilization', value: '67.2%', change: '-1.8%', positive: false },
+                    { title: 'Neural Pathways', value: '1,247', change: '+87', positive: true },
+                    { title: 'Error Rate', value: '0.03%', change: '-0.01%', positive: true },
+                    { title: 'Learning Efficiency', value: '96.8%', change: '+3.2%', positive: true }
+                ],
+                'assets': [
+                    { title: 'Active Assets', value: '717', change: '+12', positive: true },
+                    { title: 'GPS Coverage', value: '98.3%', change: '+0.8%', positive: true },
+                    { title: 'Maintenance Alerts', value: '23', change: '-5', positive: true },
+                    { title: 'Fuel Efficiency', value: '87.4%', change: '+2.1%', positive: true },
+                    { title: 'Utilization Rate', value: '85.7%', change: '+4.3%', positive: true },
+                    { title: 'Downtime Hours', value: '14.2h', change: '-3.8h', positive: true }
+                ],
+                'operations': [
+                    { title: 'Active Projects', value: '67', change: '+8', positive: true },
+                    { title: 'Completion Rate', value: '94.2%', change: '+1.7%', positive: true },
+                    { title: 'Resource Allocation', value: '89.1%', change: '+2.4%', positive: true },
+                    { title: 'Worker Productivity', value: '91.5%', change: '+0.9%', positive: true },
+                    { title: 'Schedule Adherence', value: '87.8%', change: '-1.2%', positive: false },
+                    { title: 'Cost Efficiency', value: '93.6%', change: '+2.8%', positive: true }
+                ],
+                'predictive': [
+                    { title: 'Forecast Accuracy', value: '92.8%', change: '+1.4%', positive: true },
+                    { title: 'Prediction Confidence', value: '88.9%', change: '+3.1%', positive: true },
+                    { title: 'Model Training', value: '96.2%', change: '+0.7%', positive: true },
+                    { title: 'Data Quality', value: '94.7%', change: '+1.9%', positive: true },
+                    { title: 'Alert Precision', value: '89.3%', change: '+2.6%', positive: true },
+                    { title: 'Response Time', value: '2.4s', change: '-0.3s', positive: true }
+                ]
+            };
+            
+            const items = data[matrixType] || [];
+            return items.map(item => `
+                <div class="drill-item">
+                    <div class="drill-item-title">${item.title}</div>
+                    <div class="drill-item-value">${item.value}</div>
+                    <div class="drill-item-change ${item.positive ? 'change-positive' : 'change-negative'}">
+                        ${item.change}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Refresh drill-down
+        function refreshDrillDown() {
+            if (currentDrillDown) {
+                const content = document.getElementById('drillDownContent');
+                content.innerHTML = generateDrillDownContent(currentDrillDown);
+            }
+        }
+
+        // Export data
+        function exportData() {
+            if (currentDrillDown) {
+                const data = {
+                    matrix: currentDrillDown,
+                    timestamp: new Date().toISOString(),
+                    exported_by: 'TRAXOVO_Intelligence_System'
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `traxovo_${currentDrillDown}_intelligence_${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // Close drill-down
+        function closeDrillDown() {
+            document.getElementById('drillDownPanel').style.display = 'none';
+            currentDrillDown = null;
+        }
+
+        // Start real-time updates
+        function startRealTimeUpdates() {
+            setInterval(() => {
+                // Update vector counts with small variations
+                updateVectorCount('primaryVectors', {{ consciousness_metrics.thought_vectors }});
+                updateVectorCount('assetVectors', 717);
+                updateVectorCount('operationsVectors', 452);
+                updateVectorCount('predictiveVectors', 328);
+                
+                // Regenerate data points occasionally
+                if (Math.random() > 0.8) {
+                    generateDataPoints();
+                }
+            }, 3000);
+        }
+
+        // Update vector count with animation
+        function updateVectorCount(elementId, baseValue) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                const variation = Math.floor(Math.random() * 20) - 10;
+                const newValue = baseValue + variation;
+                element.textContent = Math.max(0, newValue);
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+
+        // Auto-refresh data from APIs
+        setInterval(() => {
+            fetch('/api/quantum-consciousness')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.thought_vectors) {
+                        document.getElementById('primaryVectors').textContent = data.thought_vectors;
+                    }
+                })
+                .catch(error => console.log('Metrics update:', error));
+        }, 10000);
+    </script>
+</body>
+</html>

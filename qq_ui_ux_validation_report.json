@@ -1,5 +1,5 @@
 {
-  "validation_timestamp": 1749059343.420818,
+  "validation_timestamp": 1749065699.0967975,
   "ui_ux_metrics": {
     "overall_improvement_score": 64.9,
     "files_analyzed": 80,
@@ -16,9 +16,9 @@
     "design_system_coverage": 50.0
   },
   "design_system_validation": {
-    "templates_checked": 48,
+    "templates_checked": 49,
     "integrated_templates": 42,
-    "coverage_percentage": 87.5,
+    "coverage_percentage": 85.7,
     "template_details": [
       {
         "file": "templates/qq_executive_dashboard.html",
@@ -222,6 +222,11 @@
       },
       {
         "file": "templates/enhanced_vector_intelligence_dashboard.html",
+        "has_design_system": false,
+        "status": "MISSING"
+      },
+      {
+        "file": "templates/interactive_quantum_evolution_dashboard.html",
         "has_design_system": false,
         "status": "MISSING"
       },

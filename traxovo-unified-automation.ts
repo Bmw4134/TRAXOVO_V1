@@ -4,8 +4,8 @@
  * Integrates with Kate Photography, QQ Trading, and multi-platform browser control
  */
 
-import { Browser, Page } from 'puppeteer';
-import puppeteer from 'puppeteer';
+import { Browser, Page } from 'playwright';
+import { chromium } from 'playwright';
 
 interface TraxovoAutomationConfig {
   platform: string;

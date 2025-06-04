@@ -1,0 +1,86 @@
+
+/* TRAXOVO QQ EZ Mobile Mode - Drop-in Mobile Fixes */
+html, body { 
+    max-width: 100% !important; 
+    overflow-x: hidden !important; 
+}
+
+.agent-chatbox, 
+.message-box, 
+input[type="text"], 
+textarea {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    font-size: 16px !important;
+}
+
+@media screen and (max-width: 600px) {
+    .agent-chatbox { 
+        padding: 10px !important; 
+        font-size: 15px !important; 
+        line-height: 1.4 !important; 
+    }
+    
+    .message-box { 
+        margin: 0 auto !important; 
+        padding: 8px !important; 
+        font-size: 15px !important; 
+    }
+    
+    .input-wrapper, 
+    .reply-box {
+        padding: 10px !important; 
+        position: fixed !important; 
+        bottom: 0 !important;
+        width: 100% !important; 
+        background: #fff !important; 
+        z-index: 1000 !important;
+        box-sizing: border-box !important;
+    }
+    
+    .loader-animation { 
+        animation: none !important; 
+    }
+    
+    /* TRAXOVO Dashboard Mobile Enhancements */
+    .dashboard-main,
+    .quantum-dashboard {
+        padding: 5px !important;
+        margin: 0 !important;
+    }
+    
+    .widget,
+    .metric-card {
+        margin-bottom: 10px !important;
+        padding: 10px !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Loading Animation Demo Button Mobile Fix */
+    #loading-animation-demos {
+        flex-direction: column !important;
+        gap: 5px !important;
+        max-width: calc(100vw - 20px) !important;
+    }
+    
+    #loading-animation-demos button {
+        font-size: 12px !important;
+        padding: 8px !important;
+        margin: 2px 0 !important;
+    }
+}
+
+/* Mobile Diagnostic Panel Enhancements */
+#mobile-diagnostic-panel {
+    font-size: 11px !important;
+    max-width: 180px !important;
+    bottom: 10px !important;
+    right: 10px !important;
+}
+
+/* QQ Fullscreen Mobile Override */
+@media screen and (max-width: 768px) {
+    .qq-fullscreen-mode {
+        padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0) !important;
+    }
+}

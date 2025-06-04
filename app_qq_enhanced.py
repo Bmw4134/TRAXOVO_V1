@@ -13,6 +13,14 @@ from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 import json
 
+# QQ Mobile Optimization Module
+try:
+    from qq_mobile_optimization_module import get_qq_mobile_optimizer, optimize_mobile_interface, get_mobile_status
+    QQ_MOBILE_AVAILABLE = True
+except ImportError:
+    QQ_MOBILE_AVAILABLE = False
+    logging.warning("QQ Mobile Optimization Module not available")
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 

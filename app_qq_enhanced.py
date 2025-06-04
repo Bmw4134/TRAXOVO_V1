@@ -773,6 +773,7 @@ from qq_comprehensive_autonomous_integration_sweep import initialize_integration
 from qq_traxovo_reconstruction_agent import initialize_reconstruction_agent
 from qq_contextual_productivity_nudges import initialize_contextual_nudges
 from qq_universal_fullscreen_app_experience import initialize_universal_fullscreen, get_universal_fullscreen_status
+from qq_master_zone_payroll_system import initialize_qq_master_zone_payroll, get_master_system_status
 
 automation_interface = QQAutomationInterface()
 
@@ -795,6 +796,13 @@ try:
 except Exception as e:
     logging.error(f"Universal fullscreen initialization error: {e}")
     universal_fullscreen = None
+
+# Initialize QQ Master Zone and Payroll System
+try:
+    qq_master_zone_payroll = initialize_qq_master_zone_payroll()
+except Exception as e:
+    logging.error(f"QQ Master Zone Payroll initialization error: {e}")
+    qq_master_zone_payroll = None
 
 print("TRAXOVO Reconstruction Agent: ACTIVE - Preserving system state")
 print("QQ Kaizen Genius Elite Autonomous Audit System: ACTIVE")
@@ -1098,4 +1106,118 @@ def serve_pwa_manifest():
     except Exception as e:
         logging.error(f"Manifest error: {e}")
         return jsonify({'error': 'Manifest unavailable'}), 500
+
+@app.route("/api/attendance/log", methods=["POST"])
+def log_attendance():
+    """Log attendance with zone and payroll tracking"""
+    try:
+        data = request.get_json()
+        user = data.get("user")
+        clock_in = data.get("clock_in")
+        clock_out = data.get("clock_out")
+        zone_name = data.get("zone_name")
+        lat = data.get("lat")
+        lon = data.get("lon")
+        shift_type = data.get("shift_type", "regular")
+        
+        if not all([user, clock_in, clock_out, zone_name, lat, lon]):
+            return jsonify({"error": "Missing required fields"}), 400
+        
+        if 'qq_master_zone_payroll' in globals() and qq_master_zone_payroll:
+            result = qq_master_zone_payroll.log_attendance(
+                user, clock_in, clock_out, zone_name, lat, lon, shift_type
+            )
+            return jsonify(result)
+        else:
+            return jsonify({"error": "Zone payroll system not initialized"}), 503
+            
+    except Exception as e:
+        logging.error(f"Attendance logging error: {e}")
+        return jsonify({'error': 'Attendance logging failed'}), 500
+
+@app.route("/api/attendance/user/<user_id>")
+def get_user_attendance_summary(user_id):
+    """Get attendance summary for specific user"""
+    try:
+        days = request.args.get('days', 30, type=int)
+        
+        if 'qq_master_zone_payroll' in globals() and qq_master_zone_payroll:
+            summary = qq_master_zone_payroll.get_user_attendance_summary(user_id, days)
+            return jsonify(summary)
+        else:
+            return jsonify({"error": "Zone payroll system not initialized"}), 503
+            
+    except Exception as e:
+        logging.error(f"User attendance summary error: {e}")
+        return jsonify({'error': 'Summary unavailable'}), 500
+
+@app.route("/api/zones/utilization")
+def get_zone_utilization():
+    """Get zone utilization report for Fort Worth operations"""
+    try:
+        if 'qq_master_zone_payroll' in globals() and qq_master_zone_payroll:
+            report = qq_master_zone_payroll.get_zone_utilization_report()
+            return jsonify(report)
+        else:
+            return jsonify({"error": "Zone payroll system not initialized"}), 503
+            
+    except Exception as e:
+        logging.error(f"Zone utilization error: {e}")
+        return jsonify({'error': 'Utilization report unavailable'}), 500
+
+@app.route("/api/zones/normalize", methods=["POST"])
+def normalize_zone():
+    """Normalize and register a new zone"""
+    try:
+        data = request.get_json()
+        name = data.get("name")
+        lat = data.get("lat")
+        lon = data.get("lon")
+        zone_type = data.get("zone_type", "construction")
+        
+        if not all([name, lat, lon]):
+            return jsonify({"error": "Missing required fields"}), 400
+        
+        if 'qq_master_zone_payroll' in globals() and qq_master_zone_payroll:
+            zone_id = qq_master_zone_payroll.normalize_zone(name, lat, lon, zone_type)
+            return jsonify({
+                "status": "success",
+                "zone_id": zone_id,
+                "name": name,
+                "coordinates": {"lat": lat, "lon": lon},
+                "type": zone_type
+            })
+        else:
+            return jsonify({"error": "Zone payroll system not initialized"}), 503
+            
+    except Exception as e:
+        logging.error(f"Zone normalization error: {e}")
+        return jsonify({'error': 'Zone normalization failed'}), 500
+
+@app.route("/api/payroll/rates/<zone_id>")
+def get_zone_rates(zone_id):
+    """Get payroll rates for specific zone"""
+    try:
+        user = request.args.get('user', 'default')
+        
+        if 'qq_master_zone_payroll' in globals() and qq_master_zone_payroll:
+            rates = qq_master_zone_payroll.get_rate_for_user_zone(user, zone_id)
+            return jsonify(rates)
+        else:
+            return jsonify({"error": "Zone payroll system not initialized"}), 503
+            
+    except Exception as e:
+        logging.error(f"Zone rates error: {e}")
+        return jsonify({'error': 'Rates unavailable'}), 500
+
+@app.route("/api/master-system/status")
+def get_master_system_status_endpoint():
+    """Get QQ Master Zone and Payroll System status"""
+    try:
+        status = get_master_system_status()
+        return jsonify(status)
+        
+    except Exception as e:
+        logging.error(f"Master system status error: {e}")
+        return jsonify({'error': 'Status unavailable'}), 500
 

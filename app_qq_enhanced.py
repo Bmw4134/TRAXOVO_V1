@@ -790,7 +790,11 @@ reconstruction_agent = initialize_reconstruction_agent()
 contextual_nudges = initialize_contextual_nudges()
 
 # Initialize Universal Fullscreen App Experience System
-universal_fullscreen = initialize_universal_fullscreen()
+try:
+    universal_fullscreen = initialize_universal_fullscreen()
+except Exception as e:
+    logging.error(f"Universal fullscreen initialization error: {e}")
+    universal_fullscreen = None
 
 print("TRAXOVO Reconstruction Agent: ACTIVE - Preserving system state")
 print("QQ Kaizen Genius Elite Autonomous Audit System: ACTIVE")

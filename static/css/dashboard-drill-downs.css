@@ -1,0 +1,441 @@
+/* TRAXOVO Dashboard Drill-Down Analytics Styling */
+
+.drilldown-analytics-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.drilldown-header {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #3498db;
+}
+
+.drilldown-breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.breadcrumb {
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.breadcrumb.active {
+    background: #3498db;
+    opacity: 1;
+    font-weight: 600;
+}
+
+.breadcrumb:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.2);
+    opacity: 1;
+}
+
+.drilldown-breadcrumbs .fas {
+    color: #3498db;
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.drilldown-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.drilldown-controls button {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.drilldown-controls button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.drilldown-controls button:active {
+    transform: translateY(0);
+}
+
+.drilldown-content {
+    padding: 25px;
+}
+
+.drilldown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+.drilldown-chart-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.drilldown-chart-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.chart-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 15px 20px;
+    border-bottom: 2px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chart-header h4 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.chart-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.chart-actions button {
+    background: #3498db;
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+}
+
+.chart-actions button:hover {
+    background: #2980b9;
+    transform: scale(1.05);
+}
+
+.chart-content {
+    padding: 20px;
+    height: 300px;
+    position: relative;
+}
+
+.chart-content canvas {
+    cursor: pointer;
+}
+
+.chart-insights {
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 15px 20px;
+}
+
+.insights-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.insight-item {
+    background: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #2c3e50;
+    border-left: 3px solid #3498db;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    flex: 1;
+    min-width: 200px;
+}
+
+.insight-item:nth-child(2) {
+    border-left-color: #27ae60;
+}
+
+.insight-item:nth-child(3) {
+    border-left-color: #f39c12;
+}
+
+.insight-item:nth-child(4) {
+    border-left-color: #e74c3c;
+}
+
+.drilldown-details {
+    background: #2c3e50;
+    color: white;
+    padding: 20px 25px;
+}
+
+.details-panel h4 {
+    margin: 0 0 15px 0;
+    color: #3498db;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.details-content {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.detail-section {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.detail-section h5 {
+    color: #3498db;
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.detail-section pre {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    overflow-x: auto;
+    margin: 8px 0 0 0;
+    border-left: 3px solid #3498db;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .drilldown-grid {
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .drilldown-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .drilldown-breadcrumbs {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .drilldown-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .drilldown-content {
+        padding: 15px;
+    }
+    
+    .chart-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .chart-content {
+        height: 250px;
+        padding: 15px;
+    }
+    
+    .insights-content {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .insight-item {
+        min-width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .drilldown-header {
+        padding: 12px 15px;
+    }
+    
+    .breadcrumb {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+    
+    .drilldown-controls button {
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+    
+    .chart-content {
+        height: 200px;
+        padding: 10px;
+    }
+    
+    .drilldown-details {
+        padding: 15px;
+    }
+}
+
+/* Animation for drill-down transitions */
+.drilldown-chart-container {
+    animation: slideInUp 0.4s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading state */
+.drilldown-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: #6c757d;
+}
+
+.drilldown-loading::after {
+    content: '';
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error state */
+.drilldown-error {
+    background: #fee;
+    border: 1px solid #fcc;
+    color: #c33;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* Fullscreen mode adjustments */
+.qq-fullscreen-container .drilldown-analytics-container {
+    margin: 0;
+    border-radius: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.qq-fullscreen-container .drilldown-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.qq-fullscreen-container .drilldown-grid {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.qq-fullscreen-container .chart-content {
+    height: 350px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .drilldown-analytics-container {
+        border: 2px solid #000;
+    }
+    
+    .drilldown-chart-container {
+        border: 1px solid #000;
+    }
+    
+    .insight-item {
+        border: 1px solid #000;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .drilldown-chart-container {
+        animation: none;
+        transition: none;
+    }
+    
+    .breadcrumb,
+    .drilldown-controls button,
+    .chart-actions button {
+        transition: none;
+    }
+}
+
+/* Print styles */
+@media print {
+    .drilldown-analytics-container {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .drilldown-header {
+        background: #000 !important;
+        color: #fff !important;
+    }
+    
+    .drilldown-controls {
+        display: none;
+    }
+    
+    .chart-actions {
+        display: none;
+    }
+    
+    .drilldown-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .chart-content {
+        height: 300px;
+    }
+}

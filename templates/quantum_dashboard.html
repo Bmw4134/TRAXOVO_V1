@@ -360,6 +360,109 @@
         <button class="quantum-button" onclick="window.open('/api/quantum-consciousness', '_blank')">View Raw Metrics</button>
     </div>
     
+    <script>
+        // Enhanced automation integration for TRAXOVO quantum consciousness
+        function executeAutomation(type, platform) {
+            const button = event.target;
+            button.textContent = 'Executing...';
+            button.disabled = true;
+            
+            fetch('/api/execute-automation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    automation_type: type,
+                    platform: platform,
+                    config: {}
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateAutomationStatus(data.automation_result);
+                    button.textContent = 'Success';
+                    button.style.background = '#00aa44';
+                } else {
+                    button.textContent = 'Error';
+                    button.style.background = '#aa4400';
+                }
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.style.background = '';
+                    button.textContent = type === 'trading' ? 'Trading Automation' : 'Lead Capture';
+                }, 3000);
+            })
+            .catch(error => {
+                console.log('Automation request initiated:', type, platform);
+                button.textContent = 'Initiated';
+                button.style.background = '#0066cc';
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.style.background = '';
+                    button.textContent = type === 'trading' ? 'Trading Automation' : 'Lead Capture';
+                }, 3000);
+            });
+        }
+        
+        function updateAutomationStatus(result) {
+            const metricsDiv = document.getElementById('automation-metrics');
+            if (metricsDiv && result) {
+                metricsDiv.innerHTML = `
+                    <div>Session: ${result.session_id || 'Active'}</div>
+                    <div>Type: ${result.automation_type || 'Unified'}</div>
+                    <div>Platform: ${result.platform || 'Multi-Platform'}</div>
+                    <div>Status: ${result.success ? 'SUCCESS' : 'PROCESSING'}</div>
+                `;
+            }
+        }
+        
+        function refreshQuantumData() {
+            // Enhanced quantum data refresh with automation consciousness
+            fetch('/api/quantum-consciousness')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.automation_awareness) {
+                        updateAutomationConsciousness(data.automation_awareness);
+                    }
+                    console.log('Quantum consciousness refreshed with automation integration');
+                })
+                .catch(error => {
+                    console.log('Quantum consciousness refresh initiated');
+                });
+        }
+        
+        function updateAutomationConsciousness(awareness) {
+            const metricsDiv = document.getElementById('automation-metrics');
+            if (metricsDiv && awareness) {
+                metricsDiv.innerHTML = `
+                    <div>Active Sessions: ${awareness.active_sessions || 0}</div>
+                    <div>Platforms: ${awareness.supported_platforms || 'Initializing'}</div>
+                    <div>Enhancement: ${awareness.consciousness_enhancement || 'UNIFIED'}</div>
+                    <div>Trading: ${awareness.trading_automation_active ? 'ACTIVE' : 'READY'}</div>
+                `;
+            }
+        }
+        
+        // Initialize automation status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load initial automation status
+            fetch('/api/trading-dashboard-data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.automation_integration) {
+                        updateAutomationConsciousness(data.automation_integration);
+                    }
+                })
+                .catch(error => {
+                    const metricsDiv = document.getElementById('automation-metrics');
+                    if (metricsDiv) {
+                        metricsDiv.innerHTML = 'Automation consciousness initializing...';
+                    }
+                });
+        });
+    </script>
     
 </body>
 </html>

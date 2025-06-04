@@ -2563,6 +2563,82 @@ Examples:
         setTimeout(function() {
             showAutomationInterface();
         }, 3000);
+        
+        // TRAXOVO Loading Animations Demo Functions
+        function demoLoadingAnimation(type) {
+            if (window.traxovoLoadingAnimations) {
+                window.traxovoLoadingAnimations.showAnimation(type);
+                setTimeout(() => {
+                    window.traxovoLoadingAnimations.hideAnimation();
+                }, 4000);
+            }
+        }
+        
+        // Add loading animation demo buttons
+        function addLoadingAnimationDemos() {
+            const demoContainer = document.createElement('div');
+            demoContainer.id = 'loading-animation-demos';
+            demoContainer.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1000;
+                background: rgba(0, 0, 0, 0.8);
+                padding: 15px;
+                border-radius: 8px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                max-width: 300px;
+            `;
+            
+            const animationTypes = ['excavator', 'dumptruck', 'bulldozer', 'crane', 'workercrew', 'concrete'];
+            const buttonLabels = ['Excavator', 'Dump Truck', 'Bulldozer', 'Crane', 'Worker Crew', 'Concrete Mixer'];
+            
+            animationTypes.forEach((type, index) => {
+                const button = document.createElement('button');
+                button.textContent = buttonLabels[index];
+                button.style.cssText = `
+                    background: #3498db;
+                    color: white;
+                    border: none;
+                    padding: 8px 12px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    transition: background 0.3s;
+                `;
+                button.onmouseover = () => button.style.background = '#2980b9';
+                button.onmouseout = () => button.style.background = '#3498db';
+                button.onclick = () => demoLoadingAnimation(type);
+                demoContainer.appendChild(button);
+            });
+            
+            // Add hide button
+            const hideButton = document.createElement('button');
+            hideButton.textContent = '✕';
+            hideButton.style.cssText = `
+                background: #e74c3c;
+                color: white;
+                border: none;
+                padding: 8px 10px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 12px;
+                margin-left: auto;
+            `;
+            hideButton.onclick = () => demoContainer.remove();
+            demoContainer.appendChild(hideButton);
+            
+            document.body.appendChild(demoContainer);
+        }
+        
+        // Add demo buttons after loading animations are initialized
+        setTimeout(addLoadingAnimationDemos, 1000);
     </script>
+    
+    <!-- TRAXOVO Playful Loading Animations -->
+    <link rel="stylesheet" href="/static/css/traxovo-loading-animations.css">
+    <script src="/static/js/traxovo-loading-animations.js"></script>
 </body>
 </html>

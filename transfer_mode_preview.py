@@ -3,10 +3,11 @@ QQ Intelligence Transfer Mode Preview
 Minimal preview showing available intelligence packages
 """
 
-from flask import Flask, render_template_string, jsonify
+from flask import Flask, render_template_string, jsonify, send_file, abort
 import json
 import os
 from datetime import datetime
+from personalized_dashboard_customization import create_dashboard_routes
 
 app = Flask(__name__)
 
@@ -259,23 +260,15 @@ TRANSFER_TEMPLATE = '''
     <script>
         function downloadPackage(type) {
             const packages = {
-                'universal': 'QQ_Full_Intelligence_Transfer_20250604_152854.zip',
-                'remix': 'TRAXOVO_Remix_QQ_Intelligence_Complete.zip',
-                'extractor': 'universal_component_extractor.py'
+                'universal': '/download/QQ_Full_Intelligence_Transfer_20250604_152854.zip',
+                'remix': '/download/TRAXOVO_Remix_QQ_Intelligence_Complete.zip',
+                'extractor': '/download/universal_component_extractor.py'
             };
             
-            const filename = packages[type];
-            if (filename) {
-                // Create download link
-                const link = document.createElement('a');
-                link.href = filename;
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                // Show download initiated message
-                alert(`Download initiated: ${filename}`);
+            const downloadUrl = packages[type];
+            if (downloadUrl) {
+                // Direct download
+                window.location.href = downloadUrl;
             }
         }
 
@@ -339,6 +332,20 @@ def consciousness_metrics():
         },
         "timestamp": datetime.now().isoformat()
     })
+
+@app.route('/download/<filename>')
+def download_package(filename):
+    """Download QQ intelligence packages"""
+    try:
+        if os.path.exists(filename):
+            return send_file(filename, as_attachment=True)
+        else:
+            abort(404)
+    except Exception as e:
+        abort(404)
+
+# Initialize dashboard customization routes
+create_dashboard_routes(app)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -811,6 +811,18 @@ def heavy_civil_market_dashboard():
     """Heavy civil market research dashboard"""
     return render_template('heavy_civil_market_dashboard.html')
 
+@app.route('/interactive-quantum-evolution')
+def interactive_quantum_evolution():
+    """Interactive Quantum Evolution Dashboard with autonomous learning visualization"""
+    consciousness_engine = QuantumConsciousnessEngine()
+    consciousness_metrics = consciousness_engine.get_consciousness_metrics()
+    
+    return render_template('interactive_quantum_evolution_dashboard.html',
+        consciousness_metrics=consciousness_metrics,
+        evolution_active=True,
+        system_learning=True
+    )
+
 # Equipment Management API Endpoints
 @app.route('/api/lifecycle-analysis')
 def api_lifecycle_analysis():

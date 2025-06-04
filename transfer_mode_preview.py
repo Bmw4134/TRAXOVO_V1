@@ -10,6 +10,8 @@ from datetime import datetime
 from personalized_dashboard_customization import create_dashboard_routes
 from failure_analysis_dashboard import create_failure_analysis_routes
 from master_brain_integration import create_master_brain_routes
+from internal_repository_integration import create_internal_integration_routes
+from bare_bones_inspector import create_inspector_routes
 
 app = Flask(__name__)
 
@@ -350,6 +352,15 @@ def download_package(filename):
 create_dashboard_routes(app)
 create_failure_analysis_routes(app)
 create_master_brain_routes(app)
+create_internal_integration_routes(app)
+create_inspector_routes(app)
+
+# Enhanced main route with complete integration
+@app.route('/master-control')
+def master_control():
+    """Enhanced master control interface with all systems integrated"""
+    from internal_repository_integration import ENHANCED_MAIN_TEMPLATE
+    return render_template_string(ENHANCED_MAIN_TEMPLATE)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -187,13 +187,13 @@ class PersonalizedDashboardCustomizer:
         
         if dashboard_id:
             cursor.execute('''
-                SELECT layout_config, widget_settings, dashboard_name, updated_at
+                SELECT layout_config, dashboard_name, updated_at
                 FROM user_dashboards 
                 WHERE user_id = ? AND id = ? AND is_active = 1
             ''', (user_id, dashboard_id.replace('dashboard_', '')))
         else:
             cursor.execute('''
-                SELECT layout_config, widget_settings, dashboard_name, updated_at
+                SELECT layout_config, dashboard_name, updated_at
                 FROM user_dashboards 
                 WHERE user_id = ? AND is_active = 1
                 ORDER BY updated_at DESC LIMIT 1
@@ -203,7 +203,8 @@ class PersonalizedDashboardCustomizer:
         conn.close()
         
         if result:
-            layout_config, widget_settings, name, updated_at = result
+            layout_config, name, updated_at = result
+            widget_settings = '[]'  # Default empty widget settings
             return {
                 "dashboard_name": name,
                 "layout_config": json.loads(layout_config),

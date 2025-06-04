@@ -525,7 +525,7 @@ def puppeteer_control():
 def api_puppeteer_analyze():
     """Analyze user navigation patterns with puppeteer intelligence"""
     try:
-        data = request.json
+        data = request.json or {}
         console_logs = data.get('console_logs', [])
         
         # Simulate intelligent puppeteer analysis

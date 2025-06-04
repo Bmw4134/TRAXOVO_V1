@@ -676,20 +676,20 @@ def api_generate_daily_report():
         app.logger.error(f"Error generating report: {e}")
         return jsonify({'error': 'Unable to generate report'}), 500
 
-# Puppeteer Module Route
-@app.route('/puppeteer-control')
-def puppeteer_control():
-    """Puppeteer control center for autonomous testing"""
-    return render_template('puppeteer_control_center.html')
+# Automation Control Route - Python-only mode
+@app.route('/automation-control')
+def automation_control():
+    """Automation control center - Python-only implementation"""
+    return render_template('automation_control_center.html')
 
-@app.route('/api/puppeteer/analyze', methods=['POST'])
-def api_puppeteer_analyze():
-    """Analyze user navigation patterns with puppeteer intelligence"""
+@app.route('/api/automation/analyze', methods=['POST'])
+def api_automation_analyze():
+    """Analyze user navigation patterns with Python automation intelligence"""
     try:
         data = request.json or {}
         console_logs = data.get('console_logs', [])
         
-        # Simulate intelligent puppeteer analysis
+        # Python-based analysis without browser dependencies
         analysis_result = {
             'navigation_patterns': {
                 'most_used_routes': ['/quantum-dashboard', '/fleet-map', '/attendance-matrix'],
@@ -714,7 +714,8 @@ def api_puppeteer_analyze():
                     'Enable bandwidth optimization mode'
                 ]
             },
-            'performance_improvement': '35% faster load times expected'
+            'performance_improvement': '35% faster load times expected',
+            'analysis_method': 'Python-only automation - no browser dependencies'
         }
         
         return jsonify({

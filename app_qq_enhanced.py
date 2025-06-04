@@ -81,8 +81,8 @@ quantum_engine = QuantumConsciousnessEngine()
 def get_fort_worth_assets():
     """Get authentic Fort Worth asset data from GAUGE API"""
     try:
-        from authentic_fleet_data_processor import get_authentic_fort_worth_assets
-        authentic_assets = get_authentic_fort_worth_assets()
+        from qq_asset_location_fix import qq_asset_fix
+        authentic_assets = qq_asset_fix.get_authentic_assets()
         
         # Convert to expected format for backward compatibility
         converted_assets = []
@@ -107,7 +107,6 @@ def get_fort_worth_assets():
         
     except Exception as e:
         print(f"GAUGE API connection issue: {e}")
-        # Return empty list to avoid legacy data display
         return []
 
 # Authentication helper

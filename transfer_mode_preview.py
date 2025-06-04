@@ -292,8 +292,9 @@ TRANSFER_TEMPLATE = '''
 
 @app.route('/')
 def transfer_mode_preview():
-    """Transfer mode preview interface"""
-    return render_template_string(TRANSFER_TEMPLATE)
+    """Transfer mode preview interface with floating widget"""
+    from internal_repository_integration import ENHANCED_MAIN_TEMPLATE
+    return render_template_string(ENHANCED_MAIN_TEMPLATE)
 
 @app.route('/api/transfer-status')
 def transfer_status():

@@ -772,6 +772,7 @@ from qq_intelligent_fullscreen_override_system import initialize_fullscreen_syst
 from qq_comprehensive_autonomous_integration_sweep import initialize_integration_sweep, get_integration_sweep_status
 from qq_traxovo_reconstruction_agent import initialize_reconstruction_agent
 from qq_contextual_productivity_nudges import initialize_contextual_nudges
+from qq_universal_fullscreen_app_experience import initialize_universal_fullscreen, get_universal_fullscreen_status
 
 automation_interface = QQAutomationInterface()
 
@@ -788,10 +789,14 @@ reconstruction_agent = initialize_reconstruction_agent()
 # Initialize Contextual Productivity Nudges System
 contextual_nudges = initialize_contextual_nudges()
 
+# Initialize Universal Fullscreen App Experience System
+universal_fullscreen = initialize_universal_fullscreen()
+
 print("TRAXOVO Reconstruction Agent: ACTIVE - Preserving system state")
 print("QQ Kaizen Genius Elite Autonomous Audit System: ACTIVE")
 print("QQ Visual Scaling Optimizer: ACTIVE - All device optimization")
 print("QQ Intelligent Fullscreen System: ACTIVE - iPhone & all device scaling")
+print("Universal Fullscreen App Experience: ACTIVE - Native app-like experience")
 print("Contextual Productivity Nudges: ACTIVE - Fort Worth operational intelligence")
 print("Diff Watcher: ACTIVE - Monitoring file integrity")
 print("Session Monitor: ACTIVE - Tracking user patterns")
@@ -1019,4 +1024,74 @@ def get_productivity_insights():
     except Exception as e:
         logging.error(f"Productivity insights error: {e}")
         return jsonify({'error': 'Insights unavailable'}), 500
+
+@app.route("/api/fullscreen-status")
+def get_fullscreen_status():
+    """Get universal fullscreen system status"""
+    try:
+        if 'universal_fullscreen' in globals() and universal_fullscreen:
+            status = get_universal_fullscreen_status()
+            return jsonify(status)
+        else:
+            return jsonify({"system_status": "NOT_INITIALIZED"}), 503
+            
+    except Exception as e:
+        logging.error(f"Fullscreen status error: {e}")
+        return jsonify({'error': 'Status unavailable'}), 500
+
+@app.route("/api/fullscreen-analytics", methods=["POST"])
+def record_fullscreen_analytics():
+    """Record fullscreen usage analytics"""
+    try:
+        data = request.get_json()
+        action = data.get("action")
+        module = data.get("module")
+        device_type = data.get("device_type")
+        user_id = session.get("user_id", "anonymous")
+        
+        # Store analytics data (implementation would use actual database)
+        analytics_data = {
+            "user_id": user_id,
+            "action": action,
+            "module": module,
+            "device_type": device_type,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        return jsonify({"status": "recorded", "data": analytics_data})
+        
+    except Exception as e:
+        logging.error(f"Fullscreen analytics error: {e}")
+        return jsonify({'error': 'Analytics recording failed'}), 500
+
+@app.route("/static/manifest.json")
+def serve_pwa_manifest():
+    """Serve PWA manifest for app-like experience"""
+    try:
+        # Return the generated manifest
+        manifest = {
+            "name": "TRAXOVO Fleet Intelligence",
+            "short_name": "TRAXOVO",
+            "description": "Advanced construction fleet management platform",
+            "start_url": "/quantum-dashboard",
+            "display": "standalone",
+            "orientation": "any",
+            "theme_color": "#3498db",
+            "background_color": "#2c3e50",
+            "scope": "/",
+            "icons": [
+                {
+                    "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiBmaWxsPSIjMzQ5OGRiIi8+CjxwYXRoIGQ9Ik0xMjggMTI4SDM4NFYzODRIMTI4VjEyOFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==",
+                    "sizes": "512x512",
+                    "type": "image/png",
+                    "purpose": "any maskable"
+                }
+            ]
+        }
+        
+        return jsonify(manifest)
+        
+    except Exception as e:
+        logging.error(f"Manifest error: {e}")
+        return jsonify({'error': 'Manifest unavailable'}), 500
 

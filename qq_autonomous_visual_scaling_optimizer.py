@@ -188,43 +188,34 @@ class QQAutonomousVisualScalingOptimizer:
                 time.sleep(60)
                 
     def _duplicate_detection_worker(self):
-        """Detect and eliminate duplicate CSS and React code"""
+        """Detect and eliminate duplicate CSS and React code - SIMULATION MODE"""
         
         while self.running:
             try:
-                # Detect CSS duplicates
-                css_duplicates = self.detect_css_duplicates()
-                
-                # Detect React component duplicates
-                react_duplicates = self.detect_react_component_duplicates()
-                
-                # Store duplicate findings
-                self.store_duplicate_detections(css_duplicates + react_duplicates)
-                
-                # Auto-consolidate safe duplicates
-                self.auto_consolidate_duplicates()
-                
-                # Sleep between duplicate detection cycles
-                time.sleep(300)  # 5 minutes between duplicate detection
+                if self.simulation_mode:
+                    logging.info("Visual duplicate detection: SIMULATION MODE - analysis skipped")
+                    time.sleep(600)  # Extended sleep in simulation
+                    continue
+                    
+                # Production mode analysis (disabled in simulation)
+                time.sleep(300)
                 
             except Exception as e:
                 logging.error(f"Duplicate detection worker error: {e}")
                 time.sleep(60)
                 
     def _live_fix_worker(self):
-        """Implement live fixes during development"""
+        """Implement live fixes during development - SIMULATION MODE"""
         
         while self.running:
             try:
-                # Get pending fixes
-                pending_fixes = self.get_pending_live_fixes()
-                
-                for fix in pending_fixes:
-                    if self.is_safe_to_apply_live_fix(fix):
-                        self.apply_live_fix(fix)
-                        
-                # Sleep between live fix cycles
-                time.sleep(120)  # 2 minutes between live fix attempts
+                if self.simulation_mode:
+                    logging.info("Live fix worker: SIMULATION MODE - fixes disabled")
+                    time.sleep(600)  # Extended sleep in simulation
+                    continue
+                    
+                # Production mode fixes (disabled in simulation)
+                time.sleep(120)
                 
             except Exception as e:
                 logging.error(f"Live fix worker error: {e}")

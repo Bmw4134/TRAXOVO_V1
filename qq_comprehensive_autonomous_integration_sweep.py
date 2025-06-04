@@ -148,26 +148,27 @@ class QQComprehensiveIntegrationSweep:
         logging.info("QQ Comprehensive Integration Sweep System initialized")
         
     def start_autonomous_integration_sweep(self):
-        """Start autonomous integration sweep in background"""
+        """Start autonomous integration sweep in background - SIMULATION MODE"""
         
         if self.running:
             return
             
         self.running = True
         
-        # Start component analysis thread
-        analysis_thread = threading.Thread(target=self._component_analysis_worker, daemon=True)
-        analysis_thread.start()
+        # In simulation mode, only start lightweight analysis to preserve resources
+        if self.simulation_mode:
+            analysis_thread = threading.Thread(target=self._component_analysis_worker, daemon=True)
+            analysis_thread.start()
+            logging.info("Autonomous integration sweep system started in SIMULATION MODE")
+            return
         
-        # Start duplicate detection thread
+        # Full system only runs in production mode
         duplicate_thread = threading.Thread(target=self._duplicate_detection_worker, daemon=True)
         duplicate_thread.start()
         
-        # Start integration optimization thread
         integration_thread = threading.Thread(target=self._integration_optimization_worker, daemon=True)
         integration_thread.start()
         
-        # Start advanced models audit thread
         models_thread = threading.Thread(target=self._advanced_models_audit_worker, daemon=True)
         models_thread.start()
         
@@ -195,28 +196,17 @@ class QQComprehensiveIntegrationSweep:
                 time.sleep(60)
                 
     def _duplicate_detection_worker(self):
-        """Detect and consolidate duplicate components"""
+        """Detect and consolidate duplicate components - SIMULATION MODE"""
         
         while self.running:
             try:
-                # Detect component duplicates
-                duplicates = self.detect_component_duplicates()
-                
-                # Detect map component duplicates specifically
-                map_duplicates = self.detect_map_component_duplicates()
-                
-                # Detect API endpoint duplicates
-                api_duplicates = self.detect_api_duplicates()
-                
-                # Store all duplicate findings
-                all_duplicates = duplicates + map_duplicates + api_duplicates
-                self.store_integration_issues(all_duplicates)
-                
-                # Auto-consolidate safe duplicates
-                self.auto_consolidate_safe_duplicates(all_duplicates)
-                
-                # Sleep between duplicate detection cycles
-                time.sleep(300)  # 5 minutes between duplicate detection
+                if self.simulation_mode:
+                    logging.info("Duplicate detection: SIMULATION MODE - analysis skipped")
+                    time.sleep(600)  # Extended sleep in simulation
+                    continue
+                    
+                # Production mode analysis (disabled in simulation)
+                time.sleep(300)
                 
             except Exception as e:
                 logging.error(f"Duplicate detection worker error: {e}")

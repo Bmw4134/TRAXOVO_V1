@@ -1,5 +1,5 @@
 {
-  "validation_timestamp": 1749024221.3078647,
+  "validation_timestamp": 1749028134.7858176,
   "ui_ux_metrics": {
     "overall_improvement_score": 64.9,
     "files_analyzed": 80,
@@ -16,9 +16,9 @@
     "design_system_coverage": 50.0
   },
   "design_system_validation": {
-    "templates_checked": 44,
+    "templates_checked": 45,
     "integrated_templates": 42,
-    "coverage_percentage": 95.5,
+    "coverage_percentage": 93.3,
     "template_details": [
       {
         "file": "templates/qq_executive_dashboard.html",
@@ -204,6 +204,11 @@
         "file": "templates/quantum_dashboard.html",
         "has_design_system": true,
         "status": "INTEGRATED"
+      },
+      {
+        "file": "templates/deployment_complexity_visualizer.html",
+        "has_design_system": false,
+        "status": "MISSING"
       },
       {
         "file": "templates/asset_manager/index.html",

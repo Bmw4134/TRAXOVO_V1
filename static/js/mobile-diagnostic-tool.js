@@ -440,14 +440,34 @@
         }
         
         runRealTimeMonitoring() {
-            setInterval(() => {
+            let stableCount = 0;
+            const monitoringInterval = setInterval(() => {
+                const previousIssueCount = this.issues.length;
                 this.detectDevice();
                 this.runDiagnostic();
                 
                 if (this.issues.length > 0) {
                     this.applyFixes();
                 }
-            }, 10000); // Check every 10 seconds
+                
+                // If issues are stable for 3 checks, reduce monitoring frequency
+                if (this.issues.length === previousIssueCount) {
+                    stableCount++;
+                    if (stableCount >= 3) {
+                        clearInterval(monitoringInterval);
+                        // Switch to less frequent monitoring
+                        setInterval(() => {
+                            this.runDiagnostic();
+                            if (this.issues.length > 0) {
+                                this.applyFixes();
+                            }
+                        }, 30000); // Check every 30 seconds instead
+                        console.log('Mobile Diagnostic: Switched to optimized monitoring');
+                    }
+                } else {
+                    stableCount = 0;
+                }
+            }, 10000); // Initial check every 10 seconds
         }
         
         getDiagnosticReport() {

@@ -21,7 +21,7 @@ function initializeMap(assets) {
       .catch((error) => console.error("Error fetching asset data:", error));
   }
 }
-function initializeAssetMap(asset) {
+function initializeDetailedAssetView(asset) {
   const assetMapContainer = document.getElementById("asset-detail-map");
   if (!assetMapContainer || !asset) return;
   if (!asset.Latitude || !asset.Longitude) {
@@ -29,7 +29,7 @@ function initializeAssetMap(asset) {
       '<div class="alert alert-warning">No location data available for this asset</div>';
     return;
   }
-  const assetMap = L.map("asset-detail-map").setView(
+  const detailMap = L.map("asset-detail-map").setView(
     [asset.Latitude, asset.Longitude],
     14,
   );
@@ -37,7 +37,7 @@ function initializeAssetMap(asset) {
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 18,
-  }).addTo(assetMap);
+  }).addTo(detailMap);
   const markerIcon = L.divIcon({
     html: `<div class="marker-icon ${asset.Active ? "active" : "inactive"}">${asset.AssetIdentifier}</div>`,
     className: "",
@@ -45,7 +45,7 @@ function initializeAssetMap(asset) {
   });
   const marker = L.marker([asset.Latitude, asset.Longitude], {
     icon: markerIcon,
-  }).addTo(assetMap).bindPopup(`
+  }).addTo(detailMap).bindPopup(`
 <strong>${asset.Label || asset.AssetIdentifier}</strong><br>
 Status: ${asset.Active ? "Active" : "Inactive"}<br>
 Location: ${asset.Location || "Unknown"}<br>

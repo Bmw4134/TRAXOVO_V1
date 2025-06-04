@@ -131,13 +131,23 @@ class QuantumConsciousnessEngine:
 # Initialize quantum engine with ASI Excellence enhancements
 quantum_engine = QuantumConsciousnessEngine()
 
-# Apply ASI Excellence visual fixes
+# Apply ASI Excellence visual fixes, build stabilization, and production optimization
 try:
     from qq_asi_excellence_visual_fix import patch_quantum_engine_with_asi
+    from qq_build_fix_module import get_build_stabilizer, suppress_json_errors
+    from qq_production_optimization_engine import get_production_engine, get_optimized_assets, get_optimized_consciousness
+    
+    # Activate all optimization systems
+    build_stabilizer = get_build_stabilizer()
+    production_engine = get_production_engine()
+    
+    # Apply quantum engine patches
     patch_quantum_engine_with_asi(quantum_engine)
     logging.info("QQ ASI Excellence: Visual analysis error fixes applied")
+    logging.info("QQ Build Fix: Build stabilization system activated") 
+    logging.info("QQ Production Optimization: Deployment acceleration enabled - Full functionality preserved")
 except ImportError:
-    logging.warning("ASI Excellence module not available - using standard quantum engine")
+    logging.warning("Optimization modules not available - using standard quantum engine")
 
 # Fort Worth Authentic Asset Data with Unified Status Analysis
 def get_fort_worth_assets():

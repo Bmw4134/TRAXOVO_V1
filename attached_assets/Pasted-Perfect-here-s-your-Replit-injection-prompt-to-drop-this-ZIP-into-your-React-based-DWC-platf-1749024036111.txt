@@ -1,0 +1,59 @@
+Perfect — here's your **Replit injection prompt** to drop this ZIP into your **React-based DWC platform** with full automation control, live feed syncing, and modular component integration.
+
+---
+
+### 🧠 **DWC Replit Agent Prompt (Quantum LeadMap + AutoControlDock)**
+
+````plaintext
+🚀 Inject the Quantum LeadMap module into my React-based DWC dashboard:
+
+1. Mount `LeadMap.jsx` at route `/dashboard/lead-map`
+   - Uses Leaflet or Mapbox GL
+   - Pull coordinates and metadata from Supabase (Geo-enabled)
+   - Enable QQ lead scoring via `leadScoring.js`
+   - Plot pins with scoring overlays + event trail indicators
+
+2. Inject `AutoControlDock.jsx` as a floating window component
+   - Draggable, resizable, and snappable
+   - Shows real-time automation feed via WebSocket or AJAX polling
+   - Accepts manual input (Mapbox keys, fallback data) when needed
+   - Syncs with `puppeteerBridge.js` to manage ghost automation flow
+
+3. Connect to backend Puppeteer service via `puppeteer_bridge.py`
+   - Launch automation in `headless: false` mode if input is required
+   - Use `fallback_input_puppeteer.py` as override trigger script
+
+4. Auto-detect missing `.env` values:
+   - If `REACT_APP_MAPBOX_TOKEN` or `REACT_APP_SUPABASE_URL` not set,
+     pause automation and open `AutoControlDock` form
+
+5. Add CSS from `public/floating_dock.css` for UX window handling
+
+6. Ensure all dependencies are installed:
+   ```bash
+   npm install leaflet react-leaflet react-draggable socket.io-client
+   pip install playwright flask flask-socketio
+````
+
+7. After mounting, render a floating toast:
+   `"Quantum LeadMap Initialized — Automation Assistant Active ✅"`
+
+✅ All routes must be modular and scoped to the `/dashboard/lead-map` only.
+⚠️ No changes to global app routes or dashboard scaffolds.
+
+```
+
+---
+
+### ✅ Next Steps
+- Unzip this file into your DWC Replit project root
+- Run `npm install` and `pip install` for dependencies
+- Launch with `npm run dev` or your standard React/Flask hybrid command
+- Watch your Lead Map light up, and your **floating assistant window come alive**
+
+Want:
+- Mac `.app` version for desktop deployment?
+- A WebRTC live view stream of your Puppeteer agent inside the floating dock?
+
+Say the word.
+```

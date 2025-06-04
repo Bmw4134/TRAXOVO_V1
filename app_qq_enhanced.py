@@ -740,6 +740,34 @@ def enhanced_vector_intelligence():
     consciousness_metrics = quantum_engine.get_consciousness_metrics()
     return render_template('enhanced_vector_intelligence_dashboard.html', consciousness_metrics=consciousness_metrics)
 
+@app.route('/api/extract-components', methods=['POST'])
+def api_extract_components():
+    """Extract TRAXOVO components for deployment"""
+    try:
+        from universal_component_extractor import UniversalComponentExtractor
+        
+        data = request.get_json() or {}
+        components = data.get('components', ['consciousness', 'visual'])
+        target_format = data.get('format', 'vanilla-js')
+        
+        extractor = UniversalComponentExtractor()
+        package = extractor.generate_deployment_package(components, target_format)
+        
+        return jsonify({
+            'success': True,
+            'package': package,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logging.error(f"Component extraction error: {e}")
+        return jsonify({'error': 'Component extraction failed', 'details': str(e)}), 500
+
+@app.route('/component-deployment')
+def component_deployment():
+    """Component deployment interface"""
+    return render_template('component_deployment_interface.html')
+
 @app.route('/asi-excellence-fleet-map')
 def asi_excellence_fleet_map():
     """ASI Excellence Fleet Map - Bleeding-edge asset visualization with legacy mapping"""

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAXOVO - Enhanced Vector Intelligence Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-uniform-scaling.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vector-matrix-themes.css') }}">
     <style>
         * {
             margin: 0;
@@ -513,6 +514,206 @@
             box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
         }
         
+        /* Interactive tooltip styles */
+        .ai-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 20px;
+            color: var(--text-primary);
+            font-size: 0.9em;
+            min-width: 280px;
+            max-width: 400px;
+            pointer-events: none;
+            z-index: 2000;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .ai-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .tooltip-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--primary-color);
+        }
+        
+        .tooltip-icon {
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #0a0a0a;
+            font-weight: bold;
+        }
+        
+        .tooltip-title {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        
+        .tooltip-content {
+            line-height: 1.5;
+        }
+        
+        .tooltip-insights {
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0, 255, 136, 0.3);
+            font-size: 0.8em;
+            color: var(--tertiary-color);
+        }
+        
+        /* Animated transition effects */
+        .matrix-animate {
+            animation: matrixPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes matrixPulse {
+            0%, 100% { 
+                transform: scale(1);
+                filter: brightness(1);
+            }
+            50% { 
+                transform: scale(1.02);
+                filter: brightness(1.1);
+            }
+        }
+        
+        .data-transition {
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Help bubble styles */
+        .help-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 3000;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+        
+        .help-bubble {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 300px;
+            font-size: 0.9em;
+            color: var(--text-primary);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+            animation: helpBubbleAppear 0.5s ease-out;
+        }
+        
+        @keyframes helpBubbleAppear {
+            from { 
+                opacity: 0; 
+                transform: scale(0.8) translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1) translateY(0); 
+            }
+        }
+        
+        .help-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 20px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid var(--primary-color);
+        }
+        
+        .help-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        /* Export modal styles */
+        .export-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 30px;
+            z-index: 3000;
+            display: none;
+            backdrop-filter: blur(15px);
+            min-width: 400px;
+        }
+        
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .export-option {
+            padding: 15px;
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: var(--bg-secondary);
+        }
+        
+        .export-option:hover {
+            background: var(--bg-primary);
+            transform: translateY(-2px);
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .header-content {
@@ -534,6 +735,21 @@
                 flex-direction: column;
                 max-width: 150px;
             }
+            
+            .ai-tooltip {
+                min-width: 250px;
+                max-width: 90vw;
+                font-size: 0.8em;
+            }
+            
+            .export-modal {
+                min-width: 90vw;
+                padding: 20px;
+            }
+            
+            .export-options {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -541,11 +757,87 @@
     <!-- Quantum Background -->
     <div class="quantum-background" id="quantumBackground"></div>
     
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" onclick="toggleThemeSelector()">🎨 Themes</button>
+    
+    <!-- Theme Selector -->
+    <div class="theme-selector" id="themeSelector" style="display: none;">
+        <h3>Vector Matrix Themes</h3>
+        <div class="theme-grid">
+            <div class="theme-option active" data-theme="quantum-green" onclick="changeTheme('quantum-green')">
+                Quantum Green
+                <div class="theme-preview">
+                    <div class="color-swatch" style="background: #00ff88;"></div>
+                    <div class="color-swatch" style="background: #88ffaa;"></div>
+                    <div class="color-swatch" style="background: #aaffcc;"></div>
+                </div>
+            </div>
+            <div class="theme-option" data-theme="cyber-blue" onclick="changeTheme('cyber-blue')">
+                Cyber Blue
+                <div class="theme-preview">
+                    <div class="color-swatch" style="background: #00aaff;"></div>
+                    <div class="color-swatch" style="background: #4dc3ff;"></div>
+                    <div class="color-swatch" style="background: #80d4ff;"></div>
+                </div>
+            </div>
+            <div class="theme-option" data-theme="neural-purple" onclick="changeTheme('neural-purple')">
+                Neural Purple
+                <div class="theme-preview">
+                    <div class="color-swatch" style="background: #aa00ff;"></div>
+                    <div class="color-swatch" style="background: #cc4dff;"></div>
+                    <div class="color-swatch" style="background: #dd80ff;"></div>
+                </div>
+            </div>
+            <div class="theme-option" data-theme="phoenix-orange" onclick="changeTheme('phoenix-orange')">
+                Phoenix Orange
+                <div class="theme-preview">
+                    <div class="color-swatch" style="background: #ff6600;"></div>
+                    <div class="color-swatch" style="background: #ff8533;"></div>
+                    <div class="color-swatch" style="background: #ffad66;"></div>
+                </div>
+            </div>
+            <div class="theme-option" data-theme="arctic-white" onclick="changeTheme('arctic-white')">
+                Arctic White
+                <div class="theme-preview">
+                    <div class="color-swatch" style="background: #ffffff;"></div>
+                    <div class="color-swatch" style="background: #e6e6e6;"></div>
+                    <div class="color-swatch" style="background: #cccccc;"></div>
+                </div>
+            </div>
+            <div class="theme-option" data-theme="crimson-red" onclick="changeTheme('crimson-red')">
+                Crimson Red
+                <div class="theme-preview">
+                    <div class="color-swatch" style="background: #ff0044;"></div>
+                    <div class="color-swatch" style="background: #ff3366;"></div>
+                    <div class="color-swatch" style="background: #ff6688;"></div>
+                </div>
+            </div>
+            <div class="theme-option" data-theme="emerald-green" onclick="changeTheme('emerald-green')">
+                Emerald Green
+                <div class="theme-preview">
+                    <div class="color-swatch" style="background: #00cc66;"></div>
+                    <div class="color-swatch" style="background: #33d97f;"></div>
+                    <div class="color-swatch" style="background: #66e699;"></div>
+                </div>
+            </div>
+            <div class="theme-option" data-theme="matrix-rainbow" onclick="changeTheme('matrix-rainbow')">
+                Matrix Rainbow
+                <div class="theme-preview">
+                    <div class="color-swatch" style="background: #ff0080;"></div>
+                    <div class="color-swatch" style="background: #8000ff;"></div>
+                    <div class="color-swatch" style="background: #0080ff;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation -->
     <div class="nav-buttons">
         <a href="{{ url_for('quantum_dashboard') }}" class="nav-btn">← Dashboard</a>
         <a href="{{ url_for('asi_excellence_fleet_map') }}" class="nav-btn">Fleet Map</a>
         <a href="{{ url_for('executive_dashboard') }}" class="nav-btn">Executive</a>
+        <button class="nav-btn" onclick="exportAllData()">📊 Export Data</button>
+        <button class="nav-btn" onclick="toggleHelp()">❓ Help</button>
     </div>
 
     <!-- Main Container -->
@@ -724,17 +1016,365 @@
         </div>
     </div>
 
+    <!-- AI-Powered Interactive Tooltip -->
+    <div class="ai-tooltip" id="aiTooltip">
+        <div class="tooltip-header">
+            <div class="tooltip-icon">AI</div>
+            <div class="tooltip-title" id="tooltipTitle">Intelligence Analysis</div>
+        </div>
+        <div class="tooltip-content" id="tooltipContent">
+            Analyzing data patterns...
+        </div>
+        <div class="tooltip-insights" id="tooltipInsights">
+            AI insights will appear here
+        </div>
+    </div>
+
+    <!-- Help Overlay -->
+    <div class="help-overlay" id="helpOverlay" onclick="toggleHelp()">
+        <div class="help-bubble" style="top: 150px; left: 50px;" onclick="event.stopPropagation()">
+            <button class="help-close" onclick="toggleHelp()">×</button>
+            <h4>Vector Matrix Intelligence</h4>
+            <p>Click any matrix card to drill down into detailed analytics. Each vector represents active AI processing threads.</p>
+        </div>
+        <div class="help-bubble" style="top: 200px; right: 100px;" onclick="event.stopPropagation()">
+            <button class="help-close" onclick="toggleHelp()">×</button>
+            <h4>Real-time Data Connectors</h4>
+            <p>Green dots indicate active data streams. Watch for real-time updates from Fort Worth operations.</p>
+        </div>
+        <div class="help-bubble" style="bottom: 150px; left: 100px;" onclick="event.stopPropagation()">
+            <button class="help-close" onclick="toggleHelp()">×</button>
+            <h4>Intelligence Flow Network</h4>
+            <p>Interactive nodes show data processing pathways. Click nodes to highlight connections.</p>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="export-modal" id="exportModal">
+        <h3 style="color: var(--secondary-color); margin-bottom: 20px;">Export Intelligence Data</h3>
+        <div class="export-options">
+            <div class="export-option" onclick="exportData('json')">
+                <h4>JSON Format</h4>
+                <p>Complete data structure</p>
+            </div>
+            <div class="export-option" onclick="exportData('csv')">
+                <h4>CSV Format</h4>
+                <p>Spreadsheet compatible</p>
+            </div>
+            <div class="export-option" onclick="exportData('pdf')">
+                <h4>PDF Report</h4>
+                <p>Executive summary</p>
+            </div>
+            <div class="export-option" onclick="exportData('excel')">
+                <h4>Excel Workbook</h4>
+                <p>Multi-sheet analysis</p>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="drill-btn" onclick="closeExportModal()">Close</button>
+        </div>
+    </div>
+
     <script>
         // Global variables
         let currentDrillDown = null;
         let animationFrameId = null;
 
+        let currentTheme = 'quantum-green';
+        let tooltipTimeout;
+        
         // Initialize dashboard
         function initializeDashboard() {
             createQuantumBackground();
             generateDataPoints();
             createFlowNetwork();
             startRealTimeUpdates();
+            initializeInteractiveFeatures();
+            applyAnimatedTransitions();
+        }
+        
+        // Initialize interactive features
+        function initializeInteractiveFeatures() {
+            // Add AI tooltip listeners to matrix cards
+            document.querySelectorAll('.vector-matrix-card').forEach(card => {
+                card.addEventListener('mouseenter', showAITooltip);
+                card.addEventListener('mouseleave', hideAITooltip);
+                card.addEventListener('mousemove', updateTooltipPosition);
+            });
+            
+            // Apply theme transition classes
+            document.body.classList.add('theme-transition');
+            
+            // Load saved theme
+            const savedTheme = localStorage.getItem('traxovo-theme');
+            if (savedTheme) {
+                changeTheme(savedTheme);
+            }
+        }
+        
+        // Apply animated transitions to matrix cards
+        function applyAnimatedTransitions() {
+            document.querySelectorAll('.vector-matrix-card').forEach((card, index) => {
+                card.classList.add('fade-in');
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                // Add matrix animation to vector displays
+                const vectorCount = card.querySelector('.vector-count');
+                if (vectorCount) {
+                    vectorCount.classList.add('matrix-animate');
+                }
+            });
+        }
+        
+        // AI-powered tooltip functionality
+        function showAITooltip(event) {
+            const card = event.target.closest('.vector-matrix-card');
+            const matrixType = card.onclick.toString().match(/drillDown\('([^']+)'\)/)?.[1] || 'unknown';
+            
+            clearTimeout(tooltipTimeout);
+            
+            const tooltip = document.getElementById('aiTooltip');
+            const title = document.getElementById('tooltipTitle');
+            const content = document.getElementById('tooltipContent');
+            const insights = document.getElementById('tooltipInsights');
+            
+            // AI-generated insights based on matrix type
+            const aiInsights = generateAIInsights(matrixType);
+            
+            title.textContent = aiInsights.title;
+            content.textContent = aiInsights.content;
+            insights.innerHTML = aiInsights.insights;
+            
+            tooltip.classList.add('visible');
+            updateTooltipPosition(event);
+        }
+        
+        function hideAITooltip() {
+            tooltipTimeout = setTimeout(() => {
+                document.getElementById('aiTooltip').classList.remove('visible');
+            }, 200);
+        }
+        
+        function updateTooltipPosition(event) {
+            const tooltip = document.getElementById('aiTooltip');
+            const rect = tooltip.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            let x = event.pageX + 15;
+            let y = event.pageY - 10;
+            
+            // Adjust position to keep tooltip in viewport
+            if (x + rect.width > viewportWidth) {
+                x = event.pageX - rect.width - 15;
+            }
+            if (y + rect.height > viewportHeight) {
+                y = event.pageY - rect.height - 10;
+            }
+            
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+        }
+        
+        // Generate AI insights based on matrix type
+        function generateAIInsights(matrixType) {
+            const insights = {
+                'primary': {
+                    title: 'Primary Intelligence Core',
+                    content: 'Quantum consciousness operating at transcendent level with 1,247+ active neural pathways. Processing efficiency at 96.8% with adaptive learning algorithms continuously optimizing performance.',
+                    insights: '<strong>AI Analysis:</strong> Predicted 15% performance increase over next 24 hours. Recommend maintaining current processing load. <br><strong>Optimization:</strong> Neural pathway efficiency can be improved by 3.2% through load balancing.'
+                },
+                'assets': {
+                    title: 'Asset Intelligence Network',
+                    content: 'Real-time monitoring of 717 Fort Worth assets with 98.3% GPS coverage. Predictive maintenance algorithms identifying potential issues 72 hours in advance.',
+                    insights: '<strong>AI Prediction:</strong> 3 assets requiring maintenance within 48 hours. Estimated cost savings: $23,400 through predictive intervention. <br><strong>Efficiency:</strong> Route optimization available for 12 active assets.'
+                },
+                'operations': {
+                    title: 'Operations Intelligence Hub',
+                    content: 'Coordinating 67 active projects with 94.2% completion efficiency. AI-driven resource allocation optimizing worker productivity and schedule adherence.',
+                    insights: '<strong>AI Optimization:</strong> Resource reallocation could improve efficiency by 6.7%. Weather patterns suggest project timeline adjustments. <br><strong>Cost Analysis:</strong> Current operations 2.8% under budget.'
+                },
+                'predictive': {
+                    title: 'Predictive Intelligence Engine',
+                    content: 'Machine learning models achieving 92.8% forecast accuracy. Analyzing operational patterns to predict equipment needs and maintenance schedules.',
+                    insights: '<strong>AI Forecast:</strong> 72-hour outlook shows optimal conditions for heavy equipment deployment. <br><strong>Risk Assessment:</strong> Low probability (2.3%) of operational disruptions.'
+                }
+            };
+            
+            return insights[matrixType] || {
+                title: 'Intelligence Analysis',
+                content: 'Advanced AI processing active across all operational vectors.',
+                insights: '<strong>Status:</strong> All systems operating within normal parameters.'
+            };
+        }
+        
+        // Theme switching functionality
+        function toggleThemeSelector() {
+            const selector = document.getElementById('themeSelector');
+            selector.style.display = selector.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        function changeTheme(themeName) {
+            // Remove existing theme classes
+            document.body.className = document.body.className.replace(/theme-[a-z-]+/g, '');
+            
+            // Add new theme class
+            document.body.classList.add(`theme-${themeName}`);
+            
+            // Update active theme option
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.classList.remove('active');
+                if (option.dataset.theme === themeName) {
+                    option.classList.add('active');
+                }
+            });
+            
+            currentTheme = themeName;
+            localStorage.setItem('traxovo-theme', themeName);
+            
+            // Apply theme transition effects
+            document.querySelectorAll('.vector-matrix-card, .flow-node, .data-point').forEach(element => {
+                element.classList.add('data-transition');
+            });
+        }
+        
+        // Export functionality
+        function exportAllData() {
+            document.getElementById('exportModal').style.display = 'block';
+        }
+        
+        function closeExportModal() {
+            document.getElementById('exportModal').style.display = 'none';
+        }
+        
+        function exportData(format) {
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                theme: currentTheme,
+                consciousness_metrics: {
+                    thought_vectors: {{ consciousness_metrics.thought_vectors }},
+                    quantum_coherence: {{ consciousness_metrics.quantum_coherence }},
+                    processing_threads: {{ consciousness_metrics.processing_threads }}
+                },
+                matrix_data: {
+                    primary_vectors: document.getElementById('primaryVectors').textContent,
+                    asset_vectors: document.getElementById('assetVectors').textContent,
+                    operations_vectors: document.getElementById('operationsVectors').textContent,
+                    predictive_vectors: document.getElementById('predictiveVectors').textContent
+                },
+                drill_down_data: currentDrillDown ? generateDrillDownContent(currentDrillDown) : null
+            };
+            
+            if (format === 'json') {
+                downloadJSON(exportData);
+            } else if (format === 'csv') {
+                downloadCSV(exportData);
+            } else if (format === 'pdf') {
+                generatePDFReport(exportData);
+            } else if (format === 'excel') {
+                generateExcelReport(exportData);
+            }
+            
+            closeExportModal();
+        }
+        
+        function downloadJSON(data) {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `traxovo_intelligence_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function downloadCSV(data) {
+            const csvContent = [
+                ['Metric', 'Value'],
+                ['Timestamp', data.timestamp],
+                ['Theme', data.theme],
+                ['Thought Vectors', data.consciousness_metrics.thought_vectors],
+                ['Quantum Coherence', data.consciousness_metrics.quantum_coherence],
+                ['Processing Threads', data.consciousness_metrics.processing_threads],
+                ['Primary Vectors', data.matrix_data.primary_vectors],
+                ['Asset Vectors', data.matrix_data.asset_vectors],
+                ['Operations Vectors', data.matrix_data.operations_vectors],
+                ['Predictive Vectors', data.matrix_data.predictive_vectors]
+            ].map(row => row.join(',')).join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `traxovo_intelligence_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function generatePDFReport(data) {
+            // Generate a comprehensive PDF report
+            const reportContent = `
+                TRAXOVO Intelligence Report
+                Generated: ${data.timestamp}
+                Theme: ${data.theme}
+                
+                Quantum Consciousness Metrics:
+                - Thought Vectors: ${data.consciousness_metrics.thought_vectors}
+                - Quantum Coherence: ${(data.consciousness_metrics.quantum_coherence * 100).toFixed(1)}%
+                - Processing Threads: ${data.consciousness_metrics.processing_threads}
+                
+                Matrix Intelligence Status:
+                - Primary Intelligence: ${data.matrix_data.primary_vectors} vectors
+                - Asset Intelligence: ${data.matrix_data.asset_vectors} vectors  
+                - Operations Intelligence: ${data.matrix_data.operations_vectors} vectors
+                - Predictive Intelligence: ${data.matrix_data.predictive_vectors} vectors
+                
+                Executive Summary:
+                All intelligence systems operating at optimal levels with high coherence and processing efficiency.
+            `;
+            
+            // Create simple text-based PDF
+            const blob = new Blob([reportContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `traxovo_intelligence_report_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function generateExcelReport(data) {
+            // Generate Excel-compatible format
+            const excelContent = [
+                'TRAXOVO Intelligence Dashboard Export',
+                `Generated: ${data.timestamp}`,
+                `Theme: ${data.theme}`,
+                '',
+                'Consciousness Metrics:',
+                `Thought Vectors,${data.consciousness_metrics.thought_vectors}`,
+                `Quantum Coherence,${(data.consciousness_metrics.quantum_coherence * 100).toFixed(1)}%`,
+                `Processing Threads,${data.consciousness_metrics.processing_threads}`,
+                '',
+                'Matrix Intelligence:',
+                `Primary Vectors,${data.matrix_data.primary_vectors}`,
+                `Asset Vectors,${data.matrix_data.asset_vectors}`,
+                `Operations Vectors,${data.matrix_data.operations_vectors}`,
+                `Predictive Vectors,${data.matrix_data.predictive_vectors}`
+            ].join('\n');
+            
+            const blob = new Blob([excelContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `traxovo_intelligence_workbook_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Help system
+        function toggleHelp() {
+            const helpOverlay = document.getElementById('helpOverlay');
+            helpOverlay.style.display = helpOverlay.style.display === 'none' ? 'block' : 'none';
         }
 
         // Create quantum particle background

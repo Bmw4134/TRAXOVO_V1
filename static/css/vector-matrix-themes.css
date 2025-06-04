@@ -1,0 +1,410 @@
+/* TRAXOVO Vector Matrix Color Themes */
+/* Customizable color schemes for vector intelligence visualizations */
+
+:root {
+    /* Default Theme - Quantum Green */
+    --primary-color: #00ff88;
+    --secondary-color: #88ffaa;
+    --tertiary-color: #aaffcc;
+    --bg-primary: rgba(0, 255, 136, 0.1);
+    --bg-secondary: rgba(0, 255, 136, 0.05);
+    --shadow-color: rgba(0, 255, 136, 0.3);
+    --glow-color: rgba(0, 255, 136, 0.6);
+    --text-primary: #00ff88;
+    --text-secondary: #88ffaa;
+    --text-tertiary: #aaffcc;
+}
+
+/* Theme: Quantum Green (Default) */
+.theme-quantum-green {
+    --primary-color: #00ff88;
+    --secondary-color: #88ffaa;
+    --tertiary-color: #aaffcc;
+    --bg-primary: rgba(0, 255, 136, 0.1);
+    --bg-secondary: rgba(0, 255, 136, 0.05);
+    --shadow-color: rgba(0, 255, 136, 0.3);
+    --glow-color: rgba(0, 255, 136, 0.6);
+    --text-primary: #00ff88;
+    --text-secondary: #88ffaa;
+    --text-tertiary: #aaffcc;
+    --gradient: linear-gradient(45deg, #00ff88, #88ffaa, #aaffcc);
+}
+
+/* Theme: Cyber Blue */
+.theme-cyber-blue {
+    --primary-color: #00aaff;
+    --secondary-color: #4dc3ff;
+    --tertiary-color: #80d4ff;
+    --bg-primary: rgba(0, 170, 255, 0.1);
+    --bg-secondary: rgba(0, 170, 255, 0.05);
+    --shadow-color: rgba(0, 170, 255, 0.3);
+    --glow-color: rgba(0, 170, 255, 0.6);
+    --text-primary: #00aaff;
+    --text-secondary: #4dc3ff;
+    --text-tertiary: #80d4ff;
+    --gradient: linear-gradient(45deg, #00aaff, #4dc3ff, #80d4ff);
+}
+
+/* Theme: Neural Purple */
+.theme-neural-purple {
+    --primary-color: #aa00ff;
+    --secondary-color: #cc4dff;
+    --tertiary-color: #dd80ff;
+    --bg-primary: rgba(170, 0, 255, 0.1);
+    --bg-secondary: rgba(170, 0, 255, 0.05);
+    --shadow-color: rgba(170, 0, 255, 0.3);
+    --glow-color: rgba(170, 0, 255, 0.6);
+    --text-primary: #aa00ff;
+    --text-secondary: #cc4dff;
+    --text-tertiary: #dd80ff;
+    --gradient: linear-gradient(45deg, #aa00ff, #cc4dff, #dd80ff);
+}
+
+/* Theme: Phoenix Orange */
+.theme-phoenix-orange {
+    --primary-color: #ff6600;
+    --secondary-color: #ff8533;
+    --tertiary-color: #ffad66;
+    --bg-primary: rgba(255, 102, 0, 0.1);
+    --bg-secondary: rgba(255, 102, 0, 0.05);
+    --shadow-color: rgba(255, 102, 0, 0.3);
+    --glow-color: rgba(255, 102, 0, 0.6);
+    --text-primary: #ff6600;
+    --text-secondary: #ff8533;
+    --text-tertiary: #ffad66;
+    --gradient: linear-gradient(45deg, #ff6600, #ff8533, #ffad66);
+}
+
+/* Theme: Arctic White */
+.theme-arctic-white {
+    --primary-color: #ffffff;
+    --secondary-color: #e6e6e6;
+    --tertiary-color: #cccccc;
+    --bg-primary: rgba(255, 255, 255, 0.1);
+    --bg-secondary: rgba(255, 255, 255, 0.05);
+    --shadow-color: rgba(255, 255, 255, 0.3);
+    --glow-color: rgba(255, 255, 255, 0.6);
+    --text-primary: #ffffff;
+    --text-secondary: #e6e6e6;
+    --text-tertiary: #cccccc;
+    --gradient: linear-gradient(45deg, #ffffff, #e6e6e6, #cccccc);
+}
+
+/* Theme: Crimson Red */
+.theme-crimson-red {
+    --primary-color: #ff0044;
+    --secondary-color: #ff3366;
+    --tertiary-color: #ff6688;
+    --bg-primary: rgba(255, 0, 68, 0.1);
+    --bg-secondary: rgba(255, 0, 68, 0.05);
+    --shadow-color: rgba(255, 0, 68, 0.3);
+    --glow-color: rgba(255, 0, 68, 0.6);
+    --text-primary: #ff0044;
+    --text-secondary: #ff3366;
+    --text-tertiary: #ff6688;
+    --gradient: linear-gradient(45deg, #ff0044, #ff3366, #ff6688);
+}
+
+/* Theme: Golden Yellow */
+.theme-golden-yellow {
+    --primary-color: #ffcc00;
+    --secondary-color: #ffdd33;
+    --tertiary-color: #ffee66;
+    --bg-primary: rgba(255, 204, 0, 0.1);
+    --bg-secondary: rgba(255, 204, 0, 0.05);
+    --shadow-color: rgba(255, 204, 0, 0.3);
+    --glow-color: rgba(255, 204, 0, 0.6);
+    --text-primary: #ffcc00;
+    --text-secondary: #ffdd33;
+    --text-tertiary: #ffee66;
+    --gradient: linear-gradient(45deg, #ffcc00, #ffdd33, #ffee66);
+}
+
+/* Theme: Deep Ocean */
+.theme-deep-ocean {
+    --primary-color: #0066cc;
+    --secondary-color: #3385d9;
+    --tertiary-color: #66a3e6;
+    --bg-primary: rgba(0, 102, 204, 0.1);
+    --bg-secondary: rgba(0, 102, 204, 0.05);
+    --shadow-color: rgba(0, 102, 204, 0.3);
+    --glow-color: rgba(0, 102, 204, 0.6);
+    --text-primary: #0066cc;
+    --text-secondary: #3385d9;
+    --text-tertiary: #66a3e6;
+    --gradient: linear-gradient(45deg, #0066cc, #3385d9, #66a3e6);
+}
+
+/* Theme: Emerald Green */
+.theme-emerald-green {
+    --primary-color: #00cc66;
+    --secondary-color: #33d97f;
+    --tertiary-color: #66e699;
+    --bg-primary: rgba(0, 204, 102, 0.1);
+    --bg-secondary: rgba(0, 204, 102, 0.05);
+    --shadow-color: rgba(0, 204, 102, 0.3);
+    --glow-color: rgba(0, 204, 102, 0.6);
+    --text-primary: #00cc66;
+    --text-secondary: #33d97f;
+    --text-tertiary: #66e699;
+    --gradient: linear-gradient(45deg, #00cc66, #33d97f, #66e699);
+}
+
+/* Theme: Matrix Rainbow */
+.theme-matrix-rainbow {
+    --primary-color: #ff0080;
+    --secondary-color: #8000ff;
+    --tertiary-color: #0080ff;
+    --bg-primary: rgba(255, 0, 128, 0.1);
+    --bg-secondary: rgba(128, 0, 255, 0.05);
+    --shadow-color: rgba(0, 128, 255, 0.3);
+    --glow-color: rgba(255, 0, 128, 0.6);
+    --text-primary: #ff0080;
+    --text-secondary: #8000ff;
+    --text-tertiary: #0080ff;
+    --gradient: linear-gradient(45deg, #ff0080, #8000ff, #0080ff, #00ff80, #ff8000);
+}
+
+/* Universal theme application */
+.vector-matrix-card {
+    border-color: var(--primary-color);
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.vector-matrix-card:hover {
+    box-shadow: 0 10px 30px var(--shadow-color);
+    border-color: var(--secondary-color);
+}
+
+.vector-count {
+    color: var(--primary-color);
+    text-shadow: 0 0 20px var(--glow-color);
+}
+
+.vector-label {
+    color: var(--secondary-color);
+}
+
+.matrix-title {
+    color: var(--secondary-color);
+}
+
+.matrix-type {
+    border-color: var(--primary-color);
+    background: var(--bg-primary);
+    color: var(--tertiary-color);
+}
+
+.data-point {
+    background: var(--primary-color);
+    box-shadow: 0 0 8px var(--glow-color);
+}
+
+.matrix-grid-pattern {
+    background-image: 
+        linear-gradient(var(--bg-primary) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bg-primary) 1px, transparent 1px);
+}
+
+.metric-value {
+    color: var(--primary-color);
+}
+
+.metric-label {
+    color: var(--secondary-color);
+}
+
+.intelligence-title {
+    background: var(--gradient);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.connector-dot {
+    background: var(--primary-color);
+}
+
+.status-indicator {
+    background: var(--primary-color);
+}
+
+.drill-item:hover {
+    background: var(--bg-primary);
+}
+
+.drill-item-title {
+    color: var(--primary-color);
+}
+
+.drill-item-value {
+    color: var(--secondary-color);
+}
+
+.flow-node {
+    background: radial-gradient(circle, var(--primary-color), var(--secondary-color));
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px var(--glow-color);
+}
+
+.flow-connection {
+    background: linear-gradient(90deg, var(--glow-color), var(--bg-secondary));
+}
+
+.quantum-particle {
+    background: var(--primary-color);
+}
+
+.nav-btn {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+}
+
+.drill-btn {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+}
+
+/* Theme selector styling */
+.theme-selector {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid var(--primary-color);
+    border-radius: 10px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    z-index: 1200;
+    max-height: 400px;
+    overflow-y: auto;
+    min-width: 200px;
+}
+
+.theme-selector.collapsed {
+    padding: 10px;
+}
+
+.theme-selector h3 {
+    color: var(--secondary-color);
+    margin-bottom: 10px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.theme-option {
+    padding: 8px;
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+    background: var(--bg-secondary);
+}
+
+.theme-option:hover {
+    background: var(--bg-primary);
+    transform: translateY(-1px);
+}
+
+.theme-option.active {
+    background: var(--primary-color);
+    color: #0a0a0a;
+    font-weight: bold;
+}
+
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 180px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    color: #0a0a0a;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.8rem;
+    z-index: 1300;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px var(--shadow-color);
+}
+
+/* Responsive theme selector */
+@media (max-width: 768px) {
+    .theme-selector {
+        top: auto;
+        bottom: 80px;
+        right: 10px;
+        max-width: 180px;
+    }
+    
+    .theme-toggle {
+        top: auto;
+        bottom: 20px;
+        right: 200px;
+        padding: 8px 12px;
+        font-size: 0.7rem;
+    }
+    
+    .theme-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Custom theme preview swatches */
+.theme-preview {
+    display: flex;
+    gap: 3px;
+    margin-top: 4px;
+    justify-content: center;
+}
+
+.color-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Animation for theme transitions */
+.theme-transition {
+    transition: 
+        color 0.5s ease,
+        background-color 0.5s ease,
+        border-color 0.5s ease,
+        box-shadow 0.5s ease,
+        text-shadow 0.5s ease;
+}
+
+/* Apply transition to themed elements */
+.vector-matrix-card,
+.vector-count,
+.vector-label,
+.matrix-title,
+.data-point,
+.metric-value,
+.metric-label,
+.intelligence-title,
+.connector-dot,
+.status-indicator,
+.flow-node,
+.nav-btn,
+.drill-btn {
+    transition: 
+        color 0.5s ease,
+        background 0.5s ease,
+        border-color 0.5s ease,
+        box-shadow 0.5s ease,
+        text-shadow 0.5s ease;
+}

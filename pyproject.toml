@@ -64,4 +64,5 @@ dependencies = [
     "brotli>=1.1.0",
     "playwright>=1.52.0",
     "opencv-python>=4.11.0.86",
+    "websockets>=14.2",
 ]

@@ -32534,5 +32534,245 @@
     "zone_id": "cae9752c6bdf2d0340f7b97b58657e6fdf4acd6055d8c4f64edadcc770b9138a",
     "duration": 32165,
     "hash": "54231d3abb1ced0856957611cea8e28ec230e43534e1e5ee6d2250b41d5da787"
+  },
+  {
+    "user": "alice_rodriguez",
+    "clock_in": 1749081837,
+    "clock_out": 1749107822,
+    "zone_id": "b3e2efb69397d7a9fb46784d5ccf4344151b6d24251dd458ba4ed8ae0efeb29d",
+    "duration": 25985,
+    "hash": "b89c3718adfd571117ed8362af6fbde6d6bc73cd74c578b77a778cde8172c0bb"
+  },
+  {
+    "user": "bob_johnson",
+    "clock_in": 1749078220,
+    "clock_out": 1749109872,
+    "zone_id": "b3e2efb69397d7a9fb46784d5ccf4344151b6d24251dd458ba4ed8ae0efeb29d",
+    "duration": 31652,
+    "hash": "0c806136c07e29c35aa04ee1e6dfb52776c4fc4435ab1113f8d10f73697d5e77"
+  },
+  {
+    "user": "carlos_martinez",
+    "clock_in": 1749080096,
+    "clock_out": 1749115915,
+    "zone_id": "d277a92bff6bf4b20992945ff73690719969796f34de9feacfe3c7ec8136d745",
+    "duration": 35819,
+    "hash": "f8bbacc3216afa5144bb70c7512287c65626315194c981a0e47ae25ef0d3ef72"
+  },
+  {
+    "user": "diana_smith",
+    "clock_in": 1749082017,
+    "clock_out": 1749114616,
+    "zone_id": "b3e2efb69397d7a9fb46784d5ccf4344151b6d24251dd458ba4ed8ae0efeb29d",
+    "duration": 32599,
+    "hash": "afc08a45294d4c16ee72382b70c340d0465a54cf6c6bb29c7c0cb159276aa7c6"
+  },
+  {
+    "user": "eric_wilson",
+    "clock_in": 1749083630,
+    "clock_out": 1749119150,
+    "zone_id": "d277a92bff6bf4b20992945ff73690719969796f34de9feacfe3c7ec8136d745",
+    "duration": 35520,
+    "hash": "a4d3d01db0936fb6eb800b2c63c23f4bf435204cc473dec37a7cf36377c9bb22"
+  },
+  {
+    "user": "bob_johnson",
+    "clock_in": 1748998159,
+    "clock_out": 1749031634,
+    "zone_id": "fb6f8c7c0a34366a2dffdaf834c5eabe5b42de8e2443fc97a0f03c54bc3841af",
+    "duration": 33475,
+    "hash": "f06c4a4e545609ae6752bb3481df33414c49e3dfea4785e8ed3a0276ea4c4aca"
+  },
+  {
+    "user": "carlos_martinez",
+    "clock_in": 1748996893,
+    "clock_out": 1749026739,
+    "zone_id": "cae9752c6bdf2d0340f7b97b58657e6fdf4acd6055d8c4f64edadcc770b9138a",
+    "duration": 29846,
+    "hash": "75c22089ad7e06b871589c7996071d14c4a72855771ecb83eb2946a7d04a9858"
+  },
+  {
+    "user": "diana_smith",
+    "clock_in": 1748993757,
+    "clock_out": 1749027725,
+    "zone_id": "b3e2efb69397d7a9fb46784d5ccf4344151b6d24251dd458ba4ed8ae0efeb29d",
+    "duration": 33968,
+    "hash": "845049b927946ddeb194427a1e3c7e37a25565aa716473a169a0d330a85cfe0d"
+  },
+  {
+    "user": "eric_wilson",
+    "clock_in": 1748994153,
+    "clock_out": 1749024968,
+    "zone_id": "d277a92bff6bf4b20992945ff73690719969796f34de9feacfe3c7ec8136d745",
+    "duration": 30815,
+    "hash": "2a85772c271385eade4a809c16a577bf471c4add20df8f2552cd4dedf38edc6c"
+  },
+  {
+    "user": "alice_rodriguez",
+    "clock_in": 1748907790,
+    "clock_out": 1748942687,
+    "zone_id": "cae9752c6bdf2d0340f7b97b58657e6fdf4acd6055d8c4f64edadcc770b9138a",
+    "duration": 34897,
+    "hash": "326739f58e76c55dd8f6a34846791b75a50a588983554d9f44596b0f8397e525"
+  },
+  {
+    "user": "bob_johnson",
+    "clock_in": 1748911002,
+    "clock_out": 1748936387,
+    "zone_id": "cae9752c6bdf2d0340f7b97b58657e6fdf4acd6055d8c4f64edadcc770b9138a",
+    "duration": 25385,
+    "hash": "eca52a84bc15579a9ea94e77aaf7c2d0ed6a5a19f58bc1e8d653a156080702d5"
+  },
+  {
+    "user": "carlos_martinez",
+    "clock_in": 1748904606,
+    "clock_out": 1748936284,
+    "zone_id": "d277a92bff6bf4b20992945ff73690719969796f34de9feacfe3c7ec8136d745",
+    "duration": 31678,
+    "hash": "a6c7d297c64af3457f41832e22d5cbff8e7173851e5666e245ec72083cc41283"
+  },
+  {
+    "user": "diana_smith",
+    "clock_in": 1748908390,
+    "clock_out": 1748940765,
+    "zone_id": "cae9752c6bdf2d0340f7b97b58657e6fdf4acd6055d8c4f64edadcc770b9138a",
+    "duration": 32375,
+    "hash": "166789c88483fde70cf06c565968c150c007c9c619c3c033359e79039cfc1ce7"
+  },
+  {
+    "user": "eric_wilson",
+    "clock_in": 1748909316,
+    "clock_out": 1748944340,
+    "zone_id": "d277a92bff6bf4b20992945ff73690719969796f34de9feacfe3c7ec8136d745",
+    "duration": 35024,
+    "hash": "f85da8d30d2b56c778f4c5b0dad988419ebd8f3d81cf317bb4482591655f830b"
+  },
+  {
+    "user": "alice_rodriguez",
+    "clock_in": 1748822702,
+    "clock_out": 1748857365,
+    "zone_id": "d277a92bff6bf4b20992945ff73690719969796f34de9feacfe3c7ec8136d745",
+    "duration": 34663,
+    "hash": "a6565d2d04bf92fb9415cd25dd3b4bb919a6e2ee5625f520b2556cfa51ddef2e"
+  },
+  {
+    "user": "bob_johnson",
+    "clock_in": 1748820244,
+    "clock_out": 1748855129,
+    "zone_id": "fb6f8c7c0a34366a2dffdaf834c5eabe5b42de8e2443fc97a0f03c54bc3841af",
+    "duration": 34885,
+    "hash": "22e2a7a85da3d89e7233a29304e03105186742fabbe4eab4cd0219380910fec2"
+  },
+  {
+    "user": "diana_smith",
+    "clock_in": 1748819849,
+    "clock_out": 1748847412,
+    "zone_id": "b3e2efb69397d7a9fb46784d5ccf4344151b6d24251dd458ba4ed8ae0efeb29d",
+    "duration": 27563,
+    "hash": "cf43588ce4f2b1800c225fd64ec6fbc0c19c856308b9ae7071f2d0e9c29c9ae0"
+  },
+  {
+    "user": "eric_wilson",
+    "clock_in": 1748818811,
+    "clock_out": 1748844158,
+    "zone_id": "b3e2efb69397d7a9fb46784d5ccf4344151b6d24251dd458ba4ed8ae0efeb29d",
+    "duration": 25347,
+    "hash": "ae1ad615c0bbeebd241a5e6747bf1081070bcbb98eec18d2b641b80a434bb82d"
+  },
+  {
+    "user": "alice_rodriguez",
+    "clock_in": 1748738288,
+    "clock_out": 1748763709,
+    "zone_id": "cae9752c6bdf2d0340f7b97b58657e6fdf4acd6055d8c4f64edadcc770b9138a",
+    "duration": 25421,
+    "hash": "23033a717f1299d8f4bd8f06204217b4e83cf3938b336b65bc645b118054fa37"
+  },
+  {
+    "user": "bob_johnson",
+    "clock_in": 1748737046,
+    "clock_out": 1748762334,
+    "zone_id": "fb6f8c7c0a34366a2dffdaf834c5eabe5b42de8e2443fc97a0f03c54bc3841af",
+    "duration": 25288,
+    "hash": "7b874378eab481a085020409e37fe14e998b358b690ccd5cc98ebbfed3155081"
+  },
+  {
+    "user": "carlos_martinez",
+    "clock_in": 1748736929,
+    "clock_out": 1748767082,
+    "zone_id": "cae9752c6bdf2d0340f7b97b58657e6fdf4acd6055d8c4f64edadcc770b9138a",
+    "duration": 30153,
+    "hash": "be1cc9954ff5addd415508fecbf4a1c54af979d0ee370875a59579b8b0f71c4e"
+  },
+  {
+    "user": "diana_smith",
+    "clock_in": 1748732481,
+    "clock_out": 1748764719,
+    "zone_id": "fb6f8c7c0a34366a2dffdaf834c5eabe5b42de8e2443fc97a0f03c54bc3841af",
+    "duration": 32238,
+    "hash": "1ed492e9789a5e5e511aced0e015210f27ce29a34a8ea90fe6a918e8325c8969"
+  },
+  {
+    "user": "bob_johnson",
+    "clock_in": 1748649800,
+    "clock_out": 1748678595,
+    "zone_id": "b3e2efb69397d7a9fb46784d5ccf4344151b6d24251dd458ba4ed8ae0efeb29d",
+    "duration": 28795,
+    "hash": "5b3f498196f7a027415f3742e1a72edde39d904d5fd39ed0577c041df8e79677"
+  },
+  {
+    "user": "carlos_martinez",
+    "clock_in": 1748652022,
+    "clock_out": 1748687793,
+    "zone_id": "cae9752c6bdf2d0340f7b97b58657e6fdf4acd6055d8c4f64edadcc770b9138a",
+    "duration": 35771,
+    "hash": "167d14f140bbd80dbd13fb6754183939dbcbc030ae556489872a3603ad983c3c"
+  },
+  {
+    "user": "diana_smith",
+    "clock_in": 1748651638,
+    "clock_out": 1748684931,
+    "zone_id": "fb6f8c7c0a34366a2dffdaf834c5eabe5b42de8e2443fc97a0f03c54bc3841af",
+    "duration": 33293,
+    "hash": "f5e13db6a64adf7aeb3bc4faf9d51fcac02227a3b9032add3e26b7fd1c525318"
+  },
+  {
+    "user": "alice_rodriguez",
+    "clock_in": 1748565844,
+    "clock_out": 1748592175,
+    "zone_id": "fb6f8c7c0a34366a2dffdaf834c5eabe5b42de8e2443fc97a0f03c54bc3841af",
+    "duration": 26331,
+    "hash": "0e312480620fe35d4070b2bee49c48e351761b88f87bec34c53b46cff4ebfabc"
+  },
+  {
+    "user": "bob_johnson",
+    "clock_in": 1748566137,
+    "clock_out": 1748593366,
+    "zone_id": "fb6f8c7c0a34366a2dffdaf834c5eabe5b42de8e2443fc97a0f03c54bc3841af",
+    "duration": 27229,
+    "hash": "cae45941f40f716635303e42bc2a79ee6ff3a414e7b63c0a7608a267e9216b98"
+  },
+  {
+    "user": "carlos_martinez",
+    "clock_in": 1748564237,
+    "clock_out": 1748594506,
+    "zone_id": "b3e2efb69397d7a9fb46784d5ccf4344151b6d24251dd458ba4ed8ae0efeb29d",
+    "duration": 30269,
+    "hash": "ece40810074a925ce795207a62c0e7aeef0f7912706ec76e5d948485c0123ac7"
+  },
+  {
+    "user": "diana_smith",
+    "clock_in": 1748563846,
+    "clock_out": 1748594131,
+    "zone_id": "b3e2efb69397d7a9fb46784d5ccf4344151b6d24251dd458ba4ed8ae0efeb29d",
+    "duration": 30285,
+    "hash": "cfc80e9de8abfe508afcf43e42431dad3a531738dbe4e553a2b9a28e94816123"
+  },
+  {
+    "user": "eric_wilson",
+    "clock_in": 1748563590,
+    "clock_out": 1748597985,
+    "zone_id": "fb6f8c7c0a34366a2dffdaf834c5eabe5b42de8e2443fc97a0f03c54bc3841af",
+    "duration": 34395,
+    "hash": "f85ba52d14d49aa6ba8e2a4dea62922a5f39561474a7a8b1a034b1f216baee6b"
   }
 ]

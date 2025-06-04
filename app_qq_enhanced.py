@@ -131,11 +131,13 @@ class QuantumConsciousnessEngine:
 # Initialize quantum engine
 quantum_engine = QuantumConsciousnessEngine()
 
-# Fort Worth Authentic Asset Data - ACTUAL EQUIPMENT IDs
+# Fort Worth Authentic Asset Data with Unified Status Analysis
 def get_fort_worth_assets():
-    """Get authentic Fort Worth asset data from GAUGE API"""
+    """Get authentic Fort Worth asset data with comprehensive active/inactive analysis"""
     try:
         from qq_asset_location_fix import qq_asset_fix
+        from qq_unified_asset_status_analyzer import get_asset_status_analyzer, get_active_assets_only
+        
         authentic_assets = qq_asset_fix.get_authentic_assets()
         
         # Convert to expected format for backward compatibility
@@ -156,12 +158,50 @@ def get_fort_worth_assets():
                 'maintenance_status': asset['maintenance_status']
             }
             converted_assets.append(converted_asset)
+        
+        # Apply simplified status analysis for performance
+        active_assets = []
+        inactive_count = 0
+        
+        for asset in converted_assets:
+            # Simple active classification based on utilization and status
+            utilization = asset.get('utilization_rate', 0)
+            status = asset.get('status', '').lower()
             
-        return converted_assets
+            is_active = (
+                utilization > 15 and  # At least 15% utilization
+                status not in ['inactive', 'maintenance', 'out of service', 'disposed'] and
+                asset.get('gps_lat') is not None and  # Has GPS tracking
+                asset.get('fuel_level', 0) > 0  # Has fuel
+            )
+            
+            if is_active:
+                asset['_status_classification'] = 'active'
+                active_assets.append(asset)
+            else:
+                inactive_count += 1
+        
+        # Store simple analysis in global context
+        global fort_worth_status_analysis
+        fort_worth_status_analysis = {
+            'total_assets': len(converted_assets),
+            'active_count': len(active_assets),
+            'inactive_count': inactive_count,
+            'active_percentage': (len(active_assets) / len(converted_assets)) * 100 if converted_assets else 0,
+            'analysis_method': 'simplified_performance_optimized',
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        logging.info(f"Asset Analysis: {status_analysis['total_assets']} total, {status_analysis['active_count']} active, {status_analysis['inactive_count']} inactive")
+        
+        return active_assets
         
     except Exception as e:
         print(f"GAUGE API connection issue: {e}")
         return []
+
+# Global variable to store status analysis
+fort_worth_status_analysis = {}
 
 # Authentication helper
 def require_auth():

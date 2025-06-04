@@ -1,0 +1,69 @@
+// /components/AgentControlPanel.jsx
+import { useState, useEffect } from 'react';
+
+const AGENT_MODES = ["coreFix", "autoRun", "telemetryLoop"];
+const ORGS = [
+  { id: "ragle_inc", label: "Ragle Inc" },
+  { id: "select_maintenance", label: "Select Maintenance" },
+  { id: "southern_sourcing_solutions", label: "Southern Sourcing Solutions" },
+  { id: "unified_specialties", label: "Unified Specialties" }
+];
+
+export default function AgentControlPanel() {
+  const [activeMode, setActiveMode] = useState(null);
+  const [status, setStatus] = useState("Idle");
+  const [activeOrg, setActiveOrg] = useState("ragle_inc");
+
+  const handleModeChange = async (mode) => {
+    setStatus("Switching to " + mode + "...");
+    const res = await fetch('/api/controller', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode, org: activeOrg })
+    });
+    const json = await res.json();
+    setActiveMode(mode);
+    setStatus(json.message || "Updated");
+  };
+
+  const handleOrgChange = (e) => {
+    const newOrg = e.target.value;
+    setActiveOrg(newOrg);
+    fetch('/api/org_context', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ org_id: newOrg })
+    });
+  };
+
+  return (
+    <div className="fixed bottom-4 right-4 bg-black text-white p-4 rounded-xl shadow-lg z-50">
+      <h3 className="text-lg font-semibold mb-2">⚙️ Agent Control Panel</h3>
+      <div className="mb-2">
+        <label className="text-sm block mb-1">Org:</label>
+        <select
+          className="text-black w-full p-1 rounded"
+          value={activeOrg}
+          onChange={handleOrgChange}
+        >
+          {ORGS.map(({ id, label }) => (
+            <option key={id} value={id}>{label}</option>
+          ))}
+        </select>
+      </div>
+      <p className="text-xs mb-2">Active Mode: <strong>{activeMode || "none"}</strong></p>
+      <div className="space-x-2">
+        {AGENT_MODES.map((mode) => (
+          <button
+            key={mode}
+            onClick={() => handleModeChange(mode)}
+            className="bg-blue-600 hover:bg-blue-500 text-sm px-3 py-1 rounded"
+          >
+            {mode}
+          </button>
+        ))}
+      </div>
+      <p className="text-xs mt-2 italic">{status}</p>
+    </div>
+  );
+}

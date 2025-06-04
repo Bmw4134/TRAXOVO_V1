@@ -1,14 +1,14 @@
 {
-  "name": "traxovo-automation",
+  "name": "traxovo-production",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "tsx traxovo-unified-automation.ts",
-    "dev": "tsx --watch traxovo-unified-automation.ts"
+    "start": "echo 'Python-only TRAXOVO deployment'",
+    "build": "echo 'Build completed - No Node.js dependencies'",
+    "deploy": "echo 'Ready for production deployment'"
   },
-  "dependencies": {
-    "puppeteer": "^21.0.0",
-    "ws": "^8.14.0",
-    "tsx": "^4.0.0"
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

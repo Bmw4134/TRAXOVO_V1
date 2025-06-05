@@ -21,6 +21,7 @@ from permissions_bootstrap import create_watson_unlock_routes
 from init_unlock import create_init_unlock_routes
 from role_based_user_management import create_user_management_routes
 from watson_force_render import create_watson_force_render_routes
+from automation_dashboard import create_automation_routes
 import asyncio
 
 app = Flask(__name__)
@@ -373,6 +374,7 @@ create_watson_unlock_routes(app)
 create_init_unlock_routes(app)
 create_user_management_routes(app)
 create_watson_force_render_routes(app)
+create_automation_routes(app)
 
 # Working dashboard route
 @app.route('/dashboard')
@@ -468,6 +470,12 @@ def clean_dashboard():
                 <div class="card-title">System Inspector</div>
                 <div class="card-desc">Module inspection and debugging</div>
                 <a href="/bare-bones-inspector" target="_blank" class="btn">Inspect System</a>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">Task Automation</div>
+                <div class="card-desc">Automate your manual tasks and workflows</div>
+                <a href="/automation-dashboard" target="_blank" class="btn">Automate Tasks</a>
             </div>
             
             <div class="card">

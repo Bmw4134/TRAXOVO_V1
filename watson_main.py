@@ -69,6 +69,13 @@ def home():
             <a href="/fleet_map_advanced" class="access-btn">Launch Fleet Map</a>
         </div>
         
+        <!-- Bleeding-Edge Proprietary Asset Tracker -->
+        <div class="module-card">
+            <div class="module-title">🎯 Proprietary Asset Tracker</div>
+            <div class="module-desc">Bleeding-edge asset tracking with ultra-high precision telemetry, predictive analytics, and asset fingerprinting.</div>
+            <a href="/proprietary_asset_tracker" class="access-btn">Launch Tracker</a>
+        </div>
+        
         <!-- Email Configuration Module -->
         <div class="module-card">
             <div class="module-title">📧 Email Configuration</div>
@@ -208,6 +215,32 @@ def get_advanced_fleet_map():
         'real_time_data': real_time_data,
         'map_type': 'advanced_proprietary'
     })
+
+# Bleeding-Edge Proprietary Asset Tracking
+@app.route('/api/fleet/proprietary_tracker')
+def get_proprietary_tracker():
+    if 'user' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    from proprietary_asset_tracker import generate_proprietary_asset_map, get_proprietary_analytics
+    
+    map_svg = generate_proprietary_asset_map()
+    analytics = get_proprietary_analytics()
+    
+    return jsonify({
+        'map_svg': map_svg,
+        'analytics': analytics,
+        'tracking_type': 'bleeding_edge_proprietary',
+        'precision': 'ultra_high',
+        'features': ['real_time_telemetry', 'predictive_analytics', 'asset_fingerprinting']
+    })
+
+@app.route('/proprietary_asset_tracker')
+def proprietary_asset_tracker():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    return send_file('public/proprietary_asset_tracker.html')
 
 @app.route('/fleet_map_advanced')
 def fleet_map_advanced():

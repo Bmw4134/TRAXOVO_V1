@@ -730,6 +730,34 @@ ENHANCED_MAIN_TEMPLATE = '''
             window.open('/bmi/legacy-export', '_blank');
         }
         
+        async function executeWatsonUnlock() {
+            try {
+                const response = await fetch('/watson/unlock/execute-protocol', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                
+                if (result.protocol_status === 'completed') {
+                    alert(`Watson DW Unlock Protocol Completed!\n\nAdmin Fingerprint: ${result.admin_fingerprint}\nSteps Completed: ${result.steps_completed.length}\n\nAll restricted modules now have unrestricted access.`);
+                } else {
+                    alert(`Unlock protocol failed: ${result.error || 'Unknown error'}`);
+                }
+                
+            } catch (error) {
+                alert(`Watson unlock error: ${error.message}`);
+            }
+        }
+        
+        function runUnlockTest() {
+            window.open('/init/unlock/test', '_blank');
+        }
+        
+        function openWatsonUnlockInterface() {
+            window.open('/watson/unlock/interface', '_blank');
+        }
+        
         function loadRepositoryStatus() {
             fetch('/api/internal-repos/status')
                 .then(response => response.json())

@@ -11,6 +11,11 @@ const flash = require('connect-flash');
 const path = require('path');
 const { chromium } = require('playwright');
 
+// AGI Infinity Synthesis Components
+const { updateDashboardSync } = require('./agi_evolution/sovereign_coordinator');
+const { delegateAgentTask } = require('./agi_evolution/agent_relay');
+const { logTelemetry } = require('./agi_evolution/telemetry_monitor');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -72,6 +77,30 @@ app.use((req, res, next) => {
     } else {
         next();
     }
+});
+
+// AGI Telemetry Monitoring Middleware
+app.use((req, res, next) => {
+    const start = Date.now();
+    
+    res.on('finish', () => {
+        const latency = Date.now() - start;
+        const userAgent = req.get('User-Agent') || 'unknown';
+        
+        try {
+            logTelemetry(req.path, latency, userAgent);
+            
+            // Update dashboard sync for key routes
+            if (req.path.includes('/api/') || req.path === '/') {
+                const fingerprint = `${req.path}-${Date.now()}`;
+                updateDashboardSync(req.path, fingerprint, { latency, status: res.statusCode });
+            }
+        } catch (error) {
+            console.error('Telemetry logging failed:', error);
+        }
+    });
+    
+    next();
 });
 
 // Authentication middleware
@@ -221,6 +250,53 @@ app.get('/api/user-info', requireAuth, (req, res) => {
         });
     } else {
         res.status(404).json({ error: 'User not found' });
+    }
+});
+
+// AGI Synthesis endpoints
+app.get('/api/agi-status', requireAuth, (req, res) => {
+    const memoryUsage = process.memoryUsage();
+    const memoryUsedRatio = memoryUsage.heapUsed / memoryUsage.heapTotal;
+    
+    const agentStatus = delegateAgentTask('primary-agent', 'status-check', memoryUsedRatio);
+    
+    res.json({
+        sovereignty: 'active',
+        agent_relay: agentStatus,
+        memory_usage: {
+            used: memoryUsage.heapUsed,
+            total: memoryUsage.heapTotal,
+            ratio: memoryUsedRatio
+        },
+        telemetry_active: true,
+        fingerprint_sync: 'operational',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Dashboard fingerprint status
+app.get('/api/dashboard-fingerprints', requireAuth, (req, res) => {
+    try {
+        const fs = require('fs');
+        let telemetryData = [];
+        
+        if (fs.existsSync('./logs/agi_sync.json')) {
+            const data = fs.readFileSync('./logs/agi_sync.json', 'utf8');
+            telemetryData = data.split('\n')
+                .filter(line => line.trim())
+                .map(line => JSON.parse(line))
+                .slice(-10); // Last 10 entries
+        }
+        
+        res.json({
+            dashboard_fingerprints: 'synchronized',
+            telemetry_entries: telemetryData.length,
+            recent_activity: telemetryData,
+            relay_status: 'balanced',
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to read telemetry data' });
     }
 });
 

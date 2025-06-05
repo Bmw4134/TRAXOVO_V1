@@ -1,4 +1,4 @@
-from flask import Flask, send_file, request, session, redirect, url_for
+from flask import Flask, send_file, request, session, redirect, url_for, jsonify
 import os
 import json
 import subprocess
@@ -11,9 +11,13 @@ app.secret_key = os.environ.get('SESSION_SECRET', 'dev-secret-key')
 users = {
     'troy': {'password': 'troy2025', 'role': 'exec', 'name': 'Troy'},
     'william': {'password': 'william2025', 'role': 'exec', 'name': 'William'},
-    'watson': {'password': 'watson2025', 'role': 'watson', 'name': 'Watson Command Console'},
     'admin': {'password': 'admin123', 'role': 'admin', 'name': 'Administrator'},
     'ops': {'password': 'ops123', 'role': 'ops', 'name': 'Operations'}
+}
+
+# Proprietary Watson access - separate from general users
+watson_access = {
+    'watson': {'password': 'proprietary_watson_2025', 'owner': True, 'name': 'Watson Command Console'}
 }
 
 def start_node_server():
@@ -42,6 +46,17 @@ def login():
     username = request.form.get('username')
     password = request.form.get('password')
     
+    # Check proprietary Watson access first
+    if username in watson_access and watson_access[username]['password'] == password:
+        session['user'] = {
+            'username': username,
+            'role': 'watson_owner',
+            'name': watson_access[username]['name'],
+            'watson_access': True
+        }
+        return redirect('/watson-command-console')
+    
+    # Check regular users
     if username in users and users[username]['password'] == password:
         session['user'] = {
             'username': username,
@@ -109,6 +124,12 @@ def mobile_fleet_map():
     if 'user' not in session:
         return redirect('/login')
     return send_file('mobile_fleet_map/index.html')
+
+@app.route('/watson-command-console')
+def watson_command_console():
+    if 'user' not in session or not session['user'].get('watson_access'):
+        return redirect('/login?error=unauthorized')
+    return send_file('public/watson_command_console.html')
 
 # Serve static files with error handling
 @app.route('/<path:filename>')

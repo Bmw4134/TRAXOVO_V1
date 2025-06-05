@@ -1966,5 +1966,87 @@ def kaizen_intelligence_dashboard():
     """Kaizen Intelligence Dashboard - QQQ10 Transcendence Interface"""
     return render_template('kaizen_intelligence_dashboard.html')
 
+@app.route('/api/infinity-agent-status')
+def api_infinity_agent_status():
+    """Get KaizenGPT Infinity Agent status"""
+    try:
+        from kaizen_infinity_agent import get_infinity_agent_status
+        status = get_infinity_agent_status()
+        
+        return jsonify({
+            "success": True,
+            "agent_status": status,
+            "trd_processing": True,
+            "bmi_intelligence": True,
+            "dashboard_sync": status.get("dashboard_sync", True)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/execute-trd-prompt', methods=['POST'])
+def api_execute_trd_prompt():
+    """Execute TRD-formatted prompt using Infinity Agent"""
+    try:
+        from kaizen_infinity_agent import execute_trd_prompt
+        
+        data = request.get_json()
+        trd_prompt = data.get('trd_prompt', '')
+        context = data.get('context', {})
+        
+        if not trd_prompt:
+            return jsonify({"success": False, "error": "TRD prompt required"}), 400
+        
+        # Add Fort Worth context
+        fort_worth_context = {
+            "location": "9003 Airport Freeway Ste 270, North Richland Hills TX, 76180",
+            "operations": "heavy_civil_construction",
+            "systems": ["TRAXOVO", "GAUGE", "fleet_management"],
+            **context
+        }
+        
+        result = execute_trd_prompt(trd_prompt, fort_worth_context)
+        
+        return jsonify({
+            "success": True,
+            "execution_result": result,
+            "fort_worth_integration": True
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/infinity-agent-dashboard')
+def infinity_agent_dashboard():
+    """KaizenGPT Infinity Agent Dashboard"""
+    return render_template('infinity_agent_dashboard.html')
+
+@app.route('/api/confidence-metrics')
+def api_confidence_metrics():
+    """Get confidence metrics and BMI analysis data"""
+    try:
+        from kaizen_infinity_agent import get_kaizen_infinity_agent
+        agent = get_kaizen_infinity_agent()
+        
+        # Get recent confidence data
+        with sqlite3.connect(agent.db_path) as conn:
+            cursor = conn.execute("""
+                SELECT metric_type, metric_value, timestamp 
+                FROM confidence_metrics 
+                ORDER BY timestamp DESC 
+                LIMIT 10
+            """)
+            metrics = [{"type": row[0], "value": row[1], "timestamp": row[2]} 
+                      for row in cursor.fetchall()]
+        
+        return jsonify({
+            "success": True,
+            "confidence_metrics": metrics,
+            "system_confidence": agent._calculate_system_confidence(),
+            "confidence_threshold": agent.confidence_threshold
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5001, debug=True)

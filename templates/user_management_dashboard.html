@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management Dashboard - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 50%, #2d2d5f 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .watson-header {
+            background: rgba(0, 255, 65, 0.1);
+            border: 2px solid #00ff41;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .watson-sidebar {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 250px;
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+            border-radius: 10px;
+            padding: 1rem;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .watson-menu-item {
+            display: block;
+            color: #ffffff;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .watson-menu-item:hover {
+            background: rgba(0, 255, 65, 0.2);
+            color: #00ff41;
+            border-color: #00ff41;
+            transform: translateX(5px);
+        }
+        
+        .watson-command-shell {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 400px;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #00ff41;
+            border-radius: 10px;
+            z-index: 9999;
+            display: none;
+            padding: 1rem;
+        }
+        
+        .watson-shell-active {
+            display: block !important;
+            animation: shellSlideIn 0.3s ease;
+        }
+        
+        @keyframes shellSlideIn {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .walkthrough-step {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .walkthrough-step.active {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .role-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .role-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+        }
+        
+        .role-card.selected {
+            border-color: #00ff41;
+            background: rgba(0, 255, 65, 0.1);
+        }
+        
+        .user-form {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .dashboard-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .dashboard-item:hover {
+            border-color: #667eea;
+        }
+        
+        .dashboard-item.selected {
+            border-color: #00ff41;
+            background: rgba(0, 255, 65, 0.1);
+        }
+        
+        .module-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .module-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .module-item:hover {
+            border-color: #667eea;
+        }
+        
+        .module-item.selected {
+            border-color: #00ff41;
+            background: rgba(0, 255, 65, 0.1);
+        }
+        
+        .progress-bar-custom {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        .btn-watson {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-watson:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .users-summary-table {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .users-summary-table table {
+            color: white;
+        }
+        
+        .fingerprint-status {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #00ff41;
+        }
+        
+        .security-badge {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+        }
+        
+        .security-badge.high {
+            background: rgba(255, 193, 7, 0.2);
+            border-color: #ffc107;
+            color: #ffc107;
+        }
+        
+        .security-badge.max {
+            background: rgba(40, 167, 69, 0.2);
+            border-color: #28a745;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <!-- Watson Sidebar -->
+    <div class="watson-sidebar" id="watsonSidebar">
+        <h6><i class="fas fa-brain me-2"></i>Watson Command</h6>
+        <a href="/watson-command-console" class="watson-menu-item">
+            <i class="fas fa-terminal me-2"></i>Command Console
+        </a>
+        <a href="/unlock-test-dashboard" class="watson-menu-item">
+            <i class="fas fa-unlock-alt me-2"></i>Unlock Test
+        </a>
+        <a href="/ai-showcase" class="watson-menu-item">
+            <i class="fas fa-magic me-2"></i>AI Showcase
+        </a>
+        <a href="#" class="watson-menu-item" id="toggleCommandShell">
+            <i class="fas fa-code me-2"></i>Command Shell
+        </a>
+        <div class="mt-3">
+            <button class="btn btn-sm btn-watson w-100" id="forceWatsonRebind">
+                <i class="fas fa-sync me-1"></i>Force Rebind
+            </button>
+        </div>
+    </div>
+
+    <!-- Watson Command Shell -->
+    <div class="watson-command-shell" id="watsonCommandShell">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6>Watson Shell</h6>
+            <button class="btn btn-sm btn-outline-success" id="closeShell">×</button>
+        </div>
+        <div id="shellOutput" style="height: 200px; overflow-y: auto; background: rgba(0,0,0,0.5); padding: 0.5rem; border-radius: 5px;">
+            <div>Watson Command Shell v1.0</div>
+            <div>Ready for TRD commands...</div>
+            <div>> </div>
+        </div>
+        <input type="text" class="form-control bg-dark text-success border-success mt-2" 
+               id="shellInput" placeholder="Enter command..." style="font-family: 'Courier New', monospace;">
+    </div>
+
+    <div class="container-fluid py-4" style="margin-left: 280px;">
+        <div class="watson-header">
+            <h1><i class="fas fa-users me-2"></i>User Management Dashboard</h1>
+            <p class="mb-3">Guided User Creation with Role-Based Access Controls</p>
+            <div id="watsonStatus" class="small">Watson Module: <span class="text-warning">Checking...</span></div>
+        </div>
+
+        <!-- Progress Tracker -->
+        <div class="card bg-dark border-secondary mb-4">
+            <div class="card-body">
+                <h6>Walkthrough Progress</h6>
+                <div class="progress-bar-custom mb-2">
+                    <div class="progress-fill" id="progressFill" style="width: 16.67%"></div>
+                </div>
+                <div class="d-flex justify-content-between small">
+                    <span id="currentStep">Step 1 of 6</span>
+                    <span id="progressPercent">16.67%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 1: Role Selection -->
+        <div class="walkthrough-step active" id="step1">
+            <h4><i class="fas fa-user-tag me-2"></i>Step 1: Select User Role</h4>
+            <p>Choose the appropriate role for the new user. Each role has predefined access controls and module visibility.</p>
+            
+            <div class="row">
+                <div class="col-lg-3 mb-3">
+                    <div class="role-card" data-role="admin">
+                        <div class="text-center">
+                            <i class="fas fa-crown fa-2x mb-2 text-warning"></i>
+                            <h6>Administrator</h6>
+                            <p class="small">Full system access with Watson integration</p>
+                            <div class="security-badge max">MAX SECURITY</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 mb-3">
+                    <div class="role-card" data-role="ops">
+                        <div class="text-center">
+                            <i class="fas fa-cogs fa-2x mb-2 text-primary"></i>
+                            <h6>Operations Manager</h6>
+                            <p class="small">Operational dashboards and automation tools</p>
+                            <div class="security-badge high">HIGH SECURITY</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 mb-3">
+                    <div class="role-card" data-role="exec">
+                        <div class="text-center">
+                            <i class="fas fa-chart-line fa-2x mb-2 text-success"></i>
+                            <h6>Executive</h6>
+                            <p class="small">Executive dashboards and analytics</p>
+                            <div class="security-badge high">HIGH SECURITY</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 mb-3">
+                    <div class="role-card" data-role="viewer">
+                        <div class="text-center">
+                            <i class="fas fa-eye fa-2x mb-2 text-info"></i>
+                            <h6>Viewer</h6>
+                            <p class="small">Read-only access to core dashboards</p>
+                            <div class="security-badge">STANDARD</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-end">
+                <button class="btn btn-watson" id="nextStep1" disabled>
+                    Next: User Details <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: User Details -->
+        <div class="walkthrough-step" id="step2" style="display: none;">
+            <h4><i class="fas fa-user me-2"></i>Step 2: User Details</h4>
+            <p>Enter the user's information and credentials.</p>
+            
+            <div class="user-form">
+                <div class="row">
+                    <div class="col-lg-6 mb-3">
+                        <label class="form-label">Username *</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" 
+                               id="username" placeholder="Enter username">
+                    </div>
+                    <div class="col-lg-6 mb-3">
+                        <label class="form-label">Email Address *</label>
+                        <input type="email" class="form-control bg-dark text-white border-secondary" 
+                               id="email" placeholder="Enter email">
+                    </div>
+                    <div class="col-lg-6 mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" 
+                               id="fullName" placeholder="Enter full name">
+                    </div>
+                    <div class="col-lg-6 mb-3">
+                        <label class="form-label">Department</label>
+                        <select class="form-select bg-dark text-white border-secondary" id="department">
+                            <option value="">Select department</option>
+                            <option value="operations">Operations</option>
+                            <option value="executive">Executive</option>
+                            <option value="finance">Finance</option>
+                            <option value="hr">Human Resources</option>
+                            <option value="it">Information Technology</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-outline-light" id="prevStep2">
+                    <i class="fas fa-arrow-left me-2"></i>Previous
+                </button>
+                <button class="btn btn-watson" id="nextStep2" disabled>
+                    Next: Dashboard Access <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Dashboard Access -->
+        <div class="walkthrough-step" id="step3" style="display: none;">
+            <h4><i class="fas fa-tachometer-alt me-2"></i>Step 3: Dashboard Access</h4>
+            <p>Configure which dashboards the user can access based on their role.</p>
+            
+            <div class="dashboard-grid" id="dashboardGrid">
+                <!-- Dashboards will be populated dynamically -->
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-outline-light" id="prevStep3">
+                    <i class="fas fa-arrow-left me-2"></i>Previous
+                </button>
+                <button class="btn btn-watson" id="nextStep3">
+                    Next: Module Visibility <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 4: Module Visibility -->
+        <div class="walkthrough-step" id="step4" style="display: none;">
+            <h4><i class="fas fa-cubes me-2"></i>Step 4: Module Visibility</h4>
+            <p>Set which modules are visible to this user within their accessible dashboards.</p>
+            
+            <div class="module-matrix" id="moduleMatrix">
+                <!-- Modules will be populated dynamically -->
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-outline-light" id="prevStep4">
+                    <i class="fas fa-arrow-left me-2"></i>Previous
+                </button>
+                <button class="btn btn-watson" id="nextStep4">
+                    Next: Security Settings <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 5: Security Settings -->
+        <div class="walkthrough-step" id="step5" style="display: none;">
+            <h4><i class="fas fa-fingerprint me-2"></i>Step 5: Fingerprint & Security</h4>
+            <p>Configure security and authentication settings for this user.</p>
+            
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card bg-dark border-secondary">
+                        <div class="card-body">
+                            <h6>Fingerprint Level</h6>
+                            <div id="fingerprintLevel" class="fingerprint-status">full_access</div>
+                            <hr>
+                            <h6>Security Features</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="mfaEnabled" checked>
+                                <label class="form-check-label" for="mfaEnabled">
+                                    Multi-Factor Authentication
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="accessLogging" checked>
+                                <label class="form-check-label" for="accessLogging">
+                                    Access Logging
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="card bg-dark border-secondary">
+                        <div class="card-body">
+                            <h6>Watson Integration</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="watsonAccess">
+                                <label class="form-check-label" for="watsonAccess">
+                                    Watson AI Access
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="commandShellAccess">
+                                <label class="form-check-label" for="commandShellAccess">
+                                    Command Shell Access
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="introspectionAccess">
+                                <label class="form-check-label" for="introspectionAccess">
+                                    System Introspection
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-outline-light" id="prevStep5">
+                    <i class="fas fa-arrow-left me-2"></i>Previous
+                </button>
+                <button class="btn btn-watson" id="nextStep5">
+                    Next: Preview & Confirm <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 6: Preview & Confirm -->
+        <div class="walkthrough-step" id="step6" style="display: none;">
+            <h4><i class="fas fa-check-circle me-2"></i>Step 6: Preview & Confirm</h4>
+            <p>Review all settings before creating the user.</p>
+            
+            <div class="card bg-dark border-secondary">
+                <div class="card-body">
+                    <h6>User Configuration Preview</h6>
+                    <div id="userPreview">
+                        <!-- User configuration preview will be displayed here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-3">
+                <button class="btn btn-outline-light" id="prevStep6">
+                    <i class="fas fa-arrow-left me-2"></i>Previous
+                </button>
+                <button class="btn btn-watson" id="createUser">
+                    <i class="fas fa-user-plus me-2"></i>Create User
+                </button>
+            </div>
+        </div>
+
+        <!-- Users Summary Table -->
+        <div class="users-summary-table mt-4" id="usersSummary" style="display: none;">
+            <div class="card bg-dark border-secondary">
+                <div class="card-header">
+                    <h6><i class="fas fa-table me-2"></i>Created Users Summary</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-dark" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Dashboard Access</th>
+                                    <th>Module Visibility</th>
+                                    <th>Watson Access</th>
+                                    <th>Security Level</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class UserManagementDashboard {
+            constructor() {
+                this.currentStep = 1;
+                this.maxSteps = 6;
+                this.selectedRole = null;
+                this.userManagementData = null;
+                this.createdUsers = [];
+                this.userConfig = {
+                    role: null,
+                    userData: {},
+                    dashboardAccess: [],
+                    moduleVisibility: [],
+                    securitySettings: {}
+                };
+                
+                this.init();
+                this.checkWatsonStatus();
+                this.loadUserManagementData();
+            }
+
+            init() {
+                // Watson sidebar and shell controls
+                document.getElementById('toggleCommandShell').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.toggleCommandShell();
+                });
+
+                document.getElementById('closeShell').addEventListener('click', () => {
+                    this.toggleCommandShell();
+                });
+
+                document.getElementById('forceWatsonRebind').addEventListener('click', () => {
+                    this.forceWatsonRebind();
+                });
+
+                // Shell input handler
+                document.getElementById('shellInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.executeShellCommand(e.target.value);
+                        e.target.value = '';
+                    }
+                });
+
+                // Keyboard shortcut for command shell
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.shiftKey && e.key === 'W') {
+                        this.toggleCommandShell();
+                    }
+                });
+
+                // Step navigation
+                this.setupStepNavigation();
+                
+                // Role selection
+                this.setupRoleSelection();
+                
+                // Form validation
+                this.setupFormValidation();
+            }
+
+            setupStepNavigation() {
+                // Next buttons
+                document.getElementById('nextStep1').addEventListener('click', () => this.nextStep());
+                document.getElementById('nextStep2').addEventListener('click', () => this.nextStep());
+                document.getElementById('nextStep3').addEventListener('click', () => this.nextStep());
+                document.getElementById('nextStep4').addEventListener('click', () => this.nextStep());
+                document.getElementById('nextStep5').addEventListener('click', () => this.nextStep());
+                
+                // Previous buttons
+                document.getElementById('prevStep2').addEventListener('click', () => this.prevStep());
+                document.getElementById('prevStep3').addEventListener('click', () => this.prevStep());
+                document.getElementById('prevStep4').addEventListener('click', () => this.prevStep());
+                document.getElementById('prevStep5').addEventListener('click', () => this.prevStep());
+                document.getElementById('prevStep6').addEventListener('click', () => this.prevStep());
+                
+                // Create user button
+                document.getElementById('createUser').addEventListener('click', () => this.createUser());
+            }
+
+            setupRoleSelection() {
+                document.querySelectorAll('.role-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        this.selectedRole = card.dataset.role;
+                        this.userConfig.role = this.selectedRole;
+                        document.getElementById('nextStep1').disabled = false;
+                    });
+                });
+            }
+
+            setupFormValidation() {
+                const requiredFields = ['username', 'email'];
+                
+                requiredFields.forEach(fieldId => {
+                    document.getElementById(fieldId).addEventListener('input', () => {
+                        this.validateStep2();
+                    });
+                });
+            }
+
+            validateStep2() {
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
+                
+                const isValid = username && email && email.includes('@');
+                document.getElementById('nextStep2').disabled = !isValid;
+                
+                if (isValid) {
+                    this.userConfig.userData = {
+                        username: username,
+                        email: email,
+                        full_name: document.getElementById('fullName').value.trim(),
+                        department: document.getElementById('department').value
+                    };
+                }
+            }
+
+            nextStep() {
+                if (this.currentStep < this.maxSteps) {
+                    document.getElementById(`step${this.currentStep}`).style.display = 'none';
+                    document.getElementById(`step${this.currentStep}`).classList.remove('active');
+                    
+                    this.currentStep++;
+                    
+                    document.getElementById(`step${this.currentStep}`).style.display = 'block';
+                    document.getElementById(`step${this.currentStep}`).classList.add('active');
+                    
+                    this.updateProgress();
+                    
+                    if (this.currentStep === 3) this.loadDashboards();
+                    if (this.currentStep === 4) this.loadModules();
+                    if (this.currentStep === 5) this.loadSecuritySettings();
+                    if (this.currentStep === 6) this.showPreview();
+                }
+            }
+
+            prevStep() {
+                if (this.currentStep > 1) {
+                    document.getElementById(`step${this.currentStep}`).style.display = 'none';
+                    document.getElementById(`step${this.currentStep}`).classList.remove('active');
+                    
+                    this.currentStep--;
+                    
+                    document.getElementById(`step${this.currentStep}`).style.display = 'block';
+                    document.getElementById(`step${this.currentStep}`).classList.add('active');
+                    
+                    this.updateProgress();
+                }
+            }
+
+            updateProgress() {
+                const progress = (this.currentStep / this.maxSteps) * 100;
+                document.getElementById('progressFill').style.width = `${progress}%`;
+                document.getElementById('currentStep').textContent = `Step ${this.currentStep} of ${this.maxSteps}`;
+                document.getElementById('progressPercent').textContent = `${progress.toFixed(1)}%`;
+            }
+
+            async checkWatsonStatus() {
+                try {
+                    const response = await fetch('/api/watson-status');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        document.getElementById('watsonStatus').innerHTML = 
+                            'Watson Module: <span class="text-success">Active</span>';
+                    } else {
+                        document.getElementById('watsonStatus').innerHTML = 
+                            'Watson Module: <span class="text-warning">Initializing</span>';
+                    }
+                } catch (error) {
+                    document.getElementById('watsonStatus').innerHTML = 
+                        'Watson Module: <span class="text-danger">Offline</span>';
+                }
+            }
+
+            async loadUserManagementData() {
+                try {
+                    const response = await fetch('/api/initialize-user-management');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.userManagementData = data.user_management;
+                    }
+                } catch (error) {
+                    console.error('Failed to load user management data:', error);
+                }
+            }
+
+            loadDashboards() {
+                if (!this.userManagementData) return;
+                
+                const dashboardGrid = document.getElementById('dashboardGrid');
+                const dashboards = this.userManagementData.dashboard_registry;
+                
+                dashboardGrid.innerHTML = dashboards.map(dashboard => `
+                    <div class="dashboard-item" data-dashboard="${dashboard.id}">
+                        <i class="fas fa-tachometer-alt mb-2"></i>
+                        <div class="fw-bold">${dashboard.name}</div>
+                        <div class="small text-muted">${dashboard.description}</div>
+                    </div>
+                `).join('');
+                
+                // Add click handlers
+                document.querySelectorAll('.dashboard-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        item.classList.toggle('selected');
+                        this.updateDashboardAccess();
+                    });
+                });
+            }
+
+            loadModules() {
+                if (!this.userManagementData) return;
+                
+                const moduleMatrix = document.getElementById('moduleMatrix');
+                const modules = this.userManagementData.module_registry;
+                
+                moduleMatrix.innerHTML = modules.map(module => `
+                    <div class="module-item" data-module="${module.id}">
+                        <div class="fw-bold">${module.name}</div>
+                        <div class="small">${module.description}</div>
+                    </div>
+                `).join('');
+                
+                // Add click handlers
+                document.querySelectorAll('.module-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        item.classList.toggle('selected');
+                        this.updateModuleVisibility();
+                    });
+                });
+            }
+
+            loadSecuritySettings() {
+                if (!this.selectedRole || !this.userManagementData) return;
+                
+                const roleConfig = this.userManagementData.available_roles[this.selectedRole];
+                
+                document.getElementById('fingerprintLevel').textContent = roleConfig.fingerprint_level;
+                document.getElementById('mfaEnabled').checked = this.selectedRole === 'admin' || this.selectedRole === 'exec';
+                document.getElementById('watsonAccess').checked = this.selectedRole === 'admin' || this.selectedRole === 'ops';
+                document.getElementById('commandShellAccess').checked = this.selectedRole === 'admin';
+                document.getElementById('introspectionAccess').checked = this.selectedRole === 'admin';
+            }
+
+            showPreview() {
+                const preview = document.getElementById('userPreview');
+                
+                preview.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>User Details:</strong><br>
+                            Username: ${this.userConfig.userData.username}<br>
+                            Email: ${this.userConfig.userData.email}<br>
+                            Role: ${this.selectedRole}<br>
+                            Department: ${this.userConfig.userData.department || 'Not specified'}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Access:</strong><br>
+                            Dashboards: ${this.userConfig.dashboardAccess.length}<br>
+                            Modules: ${this.userConfig.moduleVisibility.length}<br>
+                            Watson Access: ${document.getElementById('watsonAccess').checked ? 'Yes' : 'No'}
+                        </div>
+                    </div>
+                `;
+            }
+
+            updateDashboardAccess() {
+                const selected = Array.from(document.querySelectorAll('.dashboard-item.selected'))
+                    .map(item => item.dataset.dashboard);
+                this.userConfig.dashboardAccess = selected;
+            }
+
+            updateModuleVisibility() {
+                const selected = Array.from(document.querySelectorAll('.module-item.selected'))
+                    .map(item => item.dataset.module);
+                this.userConfig.moduleVisibility = selected;
+            }
+
+            async createUser() {
+                const button = document.getElementById('createUser');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating...';
+                button.disabled = true;
+
+                try {
+                    const response = await fetch('/api/create-user', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_data: this.userConfig.userData,
+                            role: this.selectedRole
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.createdUsers.push(data.user_created);
+                        this.updateUsersSummary();
+                        this.resetForm();
+                        alert('User created successfully!');
+                    } else {
+                        alert('Failed to create user: ' + data.error);
+                    }
+                } catch (error) {
+                    alert('Error creating user: ' + error.message);
+                } finally {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }
+            }
+
+            updateUsersSummary() {
+                const summary = document.getElementById('usersSummary');
+                const tbody = document.getElementById('usersTableBody');
+                
+                tbody.innerHTML = this.createdUsers.map(user => `
+                    <tr>
+                        <td>${user.username}</td>
+                        <td>${user.role}</td>
+                        <td>${user.role_config.dashboard_access.join(', ')}</td>
+                        <td>${user.role_config.module_visibility.join(', ')}</td>
+                        <td>${user.watson_integration.watson_access ? 'Yes' : 'No'}</td>
+                        <td><span class="security-badge ${user.role_config.fingerprint_level}">${user.role_config.fingerprint_level}</span></td>
+                    </tr>
+                `).join('');
+                
+                summary.style.display = 'block';
+            }
+
+            resetForm() {
+                this.currentStep = 1;
+                this.selectedRole = null;
+                this.userConfig = { role: null, userData: {}, dashboardAccess: [], moduleVisibility: [], securitySettings: {} };
+                
+                // Reset UI
+                document.querySelectorAll('.walkthrough-step').forEach(step => {
+                    step.style.display = 'none';
+                    step.classList.remove('active');
+                });
+                
+                document.getElementById('step1').style.display = 'block';
+                document.getElementById('step1').classList.add('active');
+                
+                // Clear selections
+                document.querySelectorAll('.role-card').forEach(card => card.classList.remove('selected'));
+                document.querySelectorAll('.dashboard-item').forEach(item => item.classList.remove('selected'));
+                document.querySelectorAll('.module-item').forEach(item => item.classList.remove('selected'));
+                
+                // Clear form
+                document.getElementById('username').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('fullName').value = '';
+                document.getElementById('department').value = '';
+                
+                this.updateProgress();
+            }
+
+            toggleCommandShell() {
+                const shell = document.getElementById('watsonCommandShell');
+                shell.classList.toggle('watson-shell-active');
+            }
+
+            async forceWatsonRebind() {
+                const button = document.getElementById('forceWatsonRebind');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Rebinding...';
+                button.disabled = true;
+
+                try {
+                    const response = await fetch('/api/force-watson-rebind');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.addShellOutput('Watson module rebind successful');
+                        this.addShellOutput('Admin fingerprint applied');
+                        this.addShellOutput('Module visibility: forced_enabled');
+                        document.getElementById('watsonStatus').innerHTML = 
+                            'Watson Module: <span class="text-success">Force Enabled</span>';
+                    } else {
+                        this.addShellOutput('Watson rebind failed: ' + data.error);
+                    }
+                } catch (error) {
+                    this.addShellOutput('Rebind error: ' + error.message);
+                } finally {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }
+            }
+
+            executeShellCommand(command) {
+                this.addShellOutput(`> ${command}`);
+                
+                switch(command.toLowerCase().trim()) {
+                    case 'status':
+                        this.addShellOutput('Watson Module: Active');
+                        this.addShellOutput('User Management: Ready');
+                        break;
+                    case 'rebind':
+                        this.forceWatsonRebind();
+                        break;
+                    case 'users':
+                        this.addShellOutput(`Created users: ${this.createdUsers.length}`);
+                        break;
+                    case 'clear':
+                        document.getElementById('shellOutput').innerHTML = '<div>> </div>';
+                        break;
+                    case 'help':
+                        this.addShellOutput('Available commands: status, rebind, users, clear, help');
+                        break;
+                    default:
+                        this.addShellOutput(`Unknown command: ${command}`);
+                }
+            }
+
+            addShellOutput(text) {
+                const output = document.getElementById('shellOutput');
+                const div = document.createElement('div');
+                div.textContent = text;
+                output.appendChild(div);
+                output.scrollTop = output.scrollHeight;
+            }
+        }
+
+        // Initialize User Management Dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            new UserManagementDashboard();
+        });
+    </script>
+</body>
+</html>

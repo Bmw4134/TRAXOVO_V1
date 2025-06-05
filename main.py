@@ -87,6 +87,12 @@ def dashboard_fingerprints():
         'last_update': '2025-06-05T12:52:00Z'
     })
 
+@app.route('/globe-tracker')
+def globe_tracker():
+    if 'user' not in session:
+        return redirect('/login')
+    return send_file('infinity_visual_tracker/index.html')
+
 # Serve static files
 @app.route('/<path:filename>')
 def serve_static(filename):

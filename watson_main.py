@@ -208,12 +208,44 @@ def home():
         .module-desc { color: #ffffff; font-size: 14px; line-height: 1.5; margin-bottom: 20px; opacity: 0.9; }
         .module-stats { display: flex; gap: 15px; margin-bottom: 20px; }
         .stat-item { text-align: center; }
-        .stat-value { font-size: 18px; font-weight: bold; color: #00ff88; }
-        .stat-label { font-size: 11px; color: #6c757d; text-transform: uppercase; }
+        .stat-value { 
+            font-size: 18px; 
+            font-weight: bold; 
+            color: #00ff64; 
+            text-shadow: 0 0 10px rgba(0, 255, 100, 0.5);
+            animation: metricPulse 2s ease-in-out infinite;
+        }
+        .stat-label { font-size: 11px; color: #ffffff; text-transform: uppercase; opacity: 0.7; }
         
-        .access-btn { background: linear-gradient(135deg, #00ff88, #4ecdc4); color: #000; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; font-weight: 500; transition: all 0.2s; }
-        .access-btn:hover { background: linear-gradient(135deg, #4ecdc4, #00ff88); transform: translateY(-1px); }
+        .access-btn { 
+            background: linear-gradient(135deg, #00ff64, #00ff88); 
+            color: #000; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            text-decoration: none; 
+            display: inline-block; 
+            font-weight: 600; 
+            transition: all 0.2s;
+        }
+        .access-btn:hover { 
+            background: linear-gradient(135deg, #00ff88, #00ff64); 
+            transform: translateY(-2px); 
+            box-shadow: 0 0 20px rgba(0, 255, 100, 0.4);
+        }
         .access-btn.watson { background: linear-gradient(135deg, #ff6b35, #ff8c42); }
+        
+        /* JDD Signature Animations */
+        @keyframes companyGlow {
+            from { text-shadow: 0 0 30px rgba(0, 255, 100, 0.8); }
+            to { text-shadow: 0 0 40px rgba(0, 255, 100, 1); }
+        }
+        
+        @keyframes metricPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
         
         /* Sidebar Toggle */
         .sidebar-toggle { position: fixed; top: 20px; left: 20px; z-index: 1001; background: #1a1a2e; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; }

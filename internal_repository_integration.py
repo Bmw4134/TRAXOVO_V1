@@ -850,6 +850,54 @@ ENHANCED_MAIN_TEMPLATE = '''
             setInterval(loadRepositoryStatus, 30000);
         });
         
+        // Missing functions for dashboard functionality
+        function toggleCommandMenu() {
+            const menu = document.getElementById('commandMenu');
+            if (menu) {
+                menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+        
+        function toggleFullscreen() {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                document.documentElement.requestFullscreen();
+            }
+        }
+        
+        function openSystem(systemName) {
+            const systemUrls = {
+                'master-brain': '/master-brain',
+                'fleet-operations': '/gauge-assets',
+                'failure-analysis': '/failure-analysis',
+                'dashboard-customizer': '/dashboard-customizer',
+                'github-sync': '/github-sync',
+                'trd-system': '/trd',
+                'bmi-sweep': '/bmi/sweep',
+                'watson-console': '/watson/console',
+                'user-management': '/role-management',
+                'watson-force-render': '/watson/force-render',
+                'system-inspector': '/bare-bones-inspector',
+                'internal-integration': '/internal-repos'
+            };
+            
+            const url = systemUrls[systemName];
+            if (url) {
+                window.open(url, '_blank');
+            } else {
+                alert('System not found: ' + systemName);
+            }
+        }
+        
+        function downloadUniversalComponents() {
+            window.open('/api/download/universal-components', '_blank');
+        }
+        
+        function downloadFullIntelligencePackage() {
+            window.open('/api/download/full-intelligence-package', '_blank');
+        }
+
         // Keyboard shortcuts
         document.addEventListener('keydown', function(event) {
             if (event.ctrlKey && event.key === 'Enter') {

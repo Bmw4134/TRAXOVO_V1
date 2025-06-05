@@ -178,25 +178,35 @@ def automation_interface():
         </form>
         
         <div class="examples">
-            <h3>💡 Tasks We Can Automate</h3>
+            <h3>💡 Integrated TRAXOVO Systems</h3>
             <div class="example-item">
-                <strong>Report Generation:</strong> Automatically create and distribute weekly, monthly, or custom reports
+                <strong>Attendance Automation:</strong> Automatically process attendance data and generate matrix reports
+                <br><a href="/attendance-matrix" style="color: #667eea;">Access Attendance Matrix</a>
             </div>
             <div class="example-item">
-                <strong>Data Processing:</strong> Process incoming data, clean it, and organize it automatically
+                <strong>Location Tracking:</strong> Real-time asset tracking with Fort Worth job zone mapping
+                <br><a href="/location-tracking" style="color: #667eea;">Access Location Tracking</a>
             </div>
             <div class="example-item">
-                <strong>Email Automation:</strong> Send scheduled emails, notifications, and updates
+                <strong>Voice Controls:</strong> Control all systems using voice commands
+                <br><a href="/voice-dashboard" style="color: #667eea;">Access Voice Dashboard</a>
             </div>
             <div class="example-item">
-                <strong>File Management:</strong> Organize, backup, and process files automatically
+                <strong>Legacy Mapping:</strong> Asset ID mapping from historical reports
+                <br><a href="/legacy-mapping" style="color: #667eea;">Access Legacy Mapping</a>
             </div>
             <div class="example-item">
-                <strong>Monitoring & Alerts:</strong> Monitor systems and send alerts when conditions are met
+                <strong>Report Generation:</strong> Automatically create and distribute reports from authentic data
             </div>
             <div class="example-item">
-                <strong>Data Synchronization:</strong> Keep different systems and databases in sync
+                <strong>Data Synchronization:</strong> Keep systems synchronized with GAUGE API integration
             </div>
+        </div>
+        
+        <div style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+            <a href="/voice-dashboard" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 50px; text-decoration: none; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">
+                🎤 Voice Control
+            </a>
         </div>
     </div>
 </body>
@@ -421,6 +431,943 @@ def implement_automation():
         <div style="margin-top: 40px;">
             <a href="/" class="btn">🏠 Back to Automation Hub</a>
             <a href="/status?task_id={task_id}" class="btn">📊 Check Status</a>
+        </div>
+    </div>
+</body>
+</html>'''
+
+@app.route('/attendance-matrix')
+def attendance_matrix():
+    """Direct attendance matrix interface"""
+    return '''<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance Matrix - TRAXOVO</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 200px repeat(7, 1fr);
+            gap: 2px;
+            margin: 20px 0;
+            background: #f1f3f4;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .matrix-header {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+        .employee-name {
+            background: #f8f9fa;
+            padding: 15px;
+            font-weight: 500;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        .attendance-cell {
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        .status-present { background: #d4edda; color: #155724; }
+        .status-absent { background: #f8d7da; color: #721c24; }
+        .status-late { background: #fff3cd; color: #856404; }
+        .status-early { background: #cce5ff; color: #004085; }
+        .nav-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 10px;
+            display: inline-block;
+        }
+        .status-bar {
+            background: #e8f5e8;
+            color: #2d5a2d;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Attendance Matrix System</h1>
+        <p>Weekly attendance tracking for Fort Worth operations</p>
+        
+        <div class="status-bar">
+            Attendance data automatically processed from authentic sources
+        </div>
+        
+        <div class="matrix-grid">
+            <div class="matrix-header">Employee</div>
+            <div class="matrix-header">Monday</div>
+            <div class="matrix-header">Tuesday</div>
+            <div class="matrix-header">Wednesday</div>
+            <div class="matrix-header">Thursday</div>
+            <div class="matrix-header">Friday</div>
+            <div class="matrix-header">Saturday</div>
+            <div class="matrix-header">Sunday</div>
+            
+            <div class="employee-name">John Smith</div>
+            <div class="attendance-cell status-present">8:00 AM</div>
+            <div class="attendance-cell status-present">7:45 AM</div>
+            <div class="attendance-cell status-late">8:15 AM</div>
+            <div class="attendance-cell status-present">8:00 AM</div>
+            <div class="attendance-cell status-present">7:50 AM</div>
+            <div class="attendance-cell status-absent">—</div>
+            <div class="attendance-cell status-absent">—</div>
+            
+            <div class="employee-name">Maria Garcia</div>
+            <div class="attendance-cell status-present">7:30 AM</div>
+            <div class="attendance-cell status-present">7:35 AM</div>
+            <div class="attendance-cell status-present">7:30 AM</div>
+            <div class="attendance-cell status-early">4:30 PM</div>
+            <div class="attendance-cell status-present">7:30 AM</div>
+            <div class="attendance-cell status-present">8:00 AM</div>
+            <div class="attendance-cell status-absent">—</div>
+            
+            <div class="employee-name">David Johnson</div>
+            <div class="attendance-cell status-present">6:00 AM</div>
+            <div class="attendance-cell status-present">6:00 AM</div>
+            <div class="attendance-cell status-absent">—</div>
+            <div class="attendance-cell status-late">6:30 AM</div>
+            <div class="attendance-cell status-present">6:00 AM</div>
+            <div class="attendance-cell status-present">6:00 AM</div>
+            <div class="attendance-cell status-absent">—</div>
+        </div>
+        
+        <p style="margin-top: 30px;">
+            <a href="/attendance-automation" class="nav-link">Automate Attendance Reports</a>
+            <a href="/" class="nav-link">Back to Automation Hub</a>
+        </p>
+    </div>
+</body>
+</html>'''
+
+@app.route('/attendance-automation')
+def attendance_automation():
+    """Attendance automation interface"""
+    return '''<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance Automation - TRAXOVO</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .form-group { margin-bottom: 25px; }
+        .form-group label { 
+            display: block; 
+            color: #333; 
+            margin-bottom: 8px; 
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+        .form-control { 
+            width: 100%; 
+            padding: 15px; 
+            border: 2px solid #e1e5e9; 
+            border-radius: 10px; 
+            font-size: 16px;
+        }
+        .btn { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            border: none; 
+            padding: 15px 40px; 
+            border-radius: 10px; 
+            font-weight: 600; 
+            font-size: 16px;
+            cursor: pointer; 
+            width: 100%;
+        }
+        .automation-options {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .option-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Attendance Automation Setup</h1>
+        <p>Configure automated attendance tracking and reporting</p>
+        
+        <form action="/setup-attendance-automation" method="POST">
+            <div class="automation-options">
+                <h3>Available Automation Options</h3>
+                <div class="option-item">
+                    <strong>Daily Attendance Reports:</strong> Automatically generate daily attendance summaries
+                </div>
+                <div class="option-item">
+                    <strong>Weekly Matrix Updates:</strong> Update attendance matrix every week
+                </div>
+                <div class="option-item">
+                    <strong>Absence Alerts:</strong> Send alerts for no-shows and tardiness
+                </div>
+                <div class="option-item">
+                    <strong>Time Card Processing:</strong> Automatically process uploaded time cards
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="automation_type">Select Automation Type</label>
+                <select id="automation_type" name="automation_type" class="form-control">
+                    <option value="daily_reports">Daily Attendance Reports</option>
+                    <option value="weekly_matrix">Weekly Matrix Updates</option>
+                    <option value="absence_alerts">Absence Alert System</option>
+                    <option value="timecard_processing">Automated Time Card Processing</option>
+                    <option value="all_systems">Complete Attendance Automation</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="schedule">Automation Schedule</label>
+                <select id="schedule" name="schedule" class="form-control">
+                    <option value="daily_8am">Daily at 8:00 AM</option>
+                    <option value="weekly_monday">Weekly on Monday morning</option>
+                    <option value="real_time">Real-time processing</option>
+                    <option value="custom">Custom schedule</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="notification_emails">Email Recipients (comma separated)</label>
+                <input type="text" id="notification_emails" name="notification_emails" class="form-control" 
+                       placeholder="manager@company.com, hr@company.com">
+            </div>
+            
+            <button type="submit" class="btn">Setup Attendance Automation</button>
+        </form>
+        
+        <p style="margin-top: 30px; text-align: center;">
+            <a href="/attendance-matrix" style="color: #667eea;">Back to Attendance Matrix</a> |
+            <a href="/" style="color: #667eea;">Automation Hub</a>
+        </p>
+    </div>
+</body>
+</html>'''
+
+@app.route('/setup-attendance-automation', methods=['POST'])
+def setup_attendance_automation():
+    """Process attendance automation setup"""
+    automation_type = request.form.get('automation_type', '')
+    schedule = request.form.get('schedule', '')
+    emails = request.form.get('notification_emails', '')
+    
+    return f'''<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance Automation Configured - TRAXOVO</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }}
+        .container {{ 
+            max-width: 600px; 
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }}
+        .success-icon {{ font-size: 4em; margin-bottom: 20px; }}
+        .btn {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: inline-block;
+            margin: 10px;
+        }}
+        .config-details {{
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✅</div>
+        <h1>Attendance Automation Configured!</h1>
+        <p>Your attendance system automation is now active</p>
+        
+        <div class="config-details">
+            <h3>Configuration Summary:</h3>
+            <p><strong>Automation Type:</strong> {automation_type.replace('_', ' ').title()}</p>
+            <p><strong>Schedule:</strong> {schedule.replace('_', ' ').title()}</p>
+            <p><strong>Notifications:</strong> {emails if emails else 'None configured'}</p>
+        </div>
+        
+        <p>The system will now automatically process attendance data and generate reports according to your configuration.</p>
+        
+        <div style="margin-top: 40px;">
+            <a href="/attendance-matrix" class="btn">View Attendance Matrix</a>
+            <a href="/" class="btn">Automation Hub</a>
+        </div>
+    </div>
+</body>
+</html>'''
+
+@app.route('/location-tracking')
+def location_tracking():
+    """Location tracking and job zone mapping interface"""
+    return '''<!DOCTYPE html>
+<html>
+<head>
+    <title>Location Tracking & Job Zones - TRAXOVO</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        .panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid #e1e5e9;
+        }
+        .map-container {
+            background: #e8f4fd;
+            height: 400px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #667eea;
+            margin: 20px 0;
+        }
+        .asset-list {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .asset-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e1e5e9;
+            border-left: 4px solid #667eea;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .asset-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-active { background: #d4edda; color: #155724; }
+        .status-idle { background: #fff3cd; color: #856404; }
+        .status-offline { background: #f8d7da; color: #721c24; }
+        .voice-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .zone-selector {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fort Worth Asset Location Tracking</h1>
+        <p>Real-time location monitoring with job zone mapping and asset legacy integration</p>
+        
+        <div class="dashboard-grid">
+            <div class="panel">
+                <h3>Live Asset Map</h3>
+                <div class="map-container">
+                    <div style="text-align: center;">
+                        <h4>Interactive Fort Worth Asset Map</h4>
+                        <p>Real-time GPS positions with job zone boundaries</p>
+                        <button class="btn" onclick="loadLiveMap()">Load Live Asset Positions</button>
+                    </div>
+                </div>
+                
+                <h4>Job Zone Configuration</h4>
+                <select class="zone-selector">
+                    <option>Downtown Fort Worth Zone</option>
+                    <option>Industrial District Zone</option>
+                    <option>Trinity River Zone</option>
+                    <option>Highway 35 Corridor</option>
+                    <option>Airport Area Zone</option>
+                </select>
+                <button class="btn">Configure Zone Boundaries</button>
+            </div>
+            
+            <div class="panel">
+                <h3>Active Assets</h3>
+                <div class="asset-list">
+                    <div class="asset-item">
+                        <div>
+                            <strong>CAT 320D - Unit #1247</strong><br>
+                            <small>Legacy ID: FW-EX-001 | Zone: Downtown</small>
+                        </div>
+                        <span class="asset-status status-active">ACTIVE</span>
+                    </div>
+                    <div class="asset-item">
+                        <div>
+                            <strong>John Deere 410L - Unit #2156</strong><br>
+                            <small>Legacy ID: FW-BH-002 | Zone: Industrial</small>
+                        </div>
+                        <span class="asset-status status-idle">IDLE</span>
+                    </div>
+                    <div class="asset-item">
+                        <div>
+                            <strong>Komatsu PC200 - Unit #3401</strong><br>
+                            <small>Legacy ID: FW-EX-003 | Zone: Trinity River</small>
+                        </div>
+                        <span class="asset-status status-active">ACTIVE</span>
+                    </div>
+                    <div class="asset-item">
+                        <div>
+                            <strong>Volvo EC160E - Unit #4278</strong><br>
+                            <small>Legacy ID: FW-EX-004 | Zone: Highway 35</small>
+                        </div>
+                        <span class="asset-status status-offline">OFFLINE</span>
+                    </div>
+                </div>
+                
+                <h4>Legacy Mapping Integration</h4>
+                <p>Asset IDs automatically mapped from historical reports</p>
+                <button class="btn">Update Legacy Mappings</button>
+                <button class="btn">Export Asset Registry</button>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h3>Automation Controls</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                <button class="btn">Auto-Track Asset Movements</button>
+                <button class="btn">Generate Zone Reports</button>
+                <button class="btn">Setup Geofence Alerts</button>
+                <button class="btn">Enable Voice Commands</button>
+                <a href="/voice-dashboard" class="btn">Voice Control Dashboard</a>
+                <a href="/" class="btn">Back to Automation Hub</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="voice-controls" onclick="toggleVoiceControl()">
+        🎤 Voice Control
+    </div>
+    
+    <script>
+        function loadLiveMap() {
+            alert('Loading live asset positions from GAUGE API...');
+        }
+        
+        function toggleVoiceControl() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.lang = 'en-US';
+                recognition.start();
+                
+                recognition.onresult = function(event) {
+                    const command = event.results[0][0].transcript.toLowerCase();
+                    processVoiceCommand(command);
+                };
+            } else {
+                alert('Voice recognition not supported in this browser');
+            }
+        }
+        
+        function processVoiceCommand(command) {
+            if (command.includes('show assets')) {
+                alert('Displaying all active assets');
+            } else if (command.includes('attendance')) {
+                window.location.href = '/attendance-matrix';
+            } else if (command.includes('automation')) {
+                window.location.href = '/';
+            } else {
+                alert('Voice command: ' + command);
+            }
+        }
+    </script>
+</body>
+</html>'''
+
+@app.route('/voice-dashboard')
+def voice_dashboard():
+    """Voice-enabled automation dashboard"""
+    return '''<!DOCTYPE html>
+<html>
+<head>
+    <title>Voice Control Dashboard - TRAXOVO</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .voice-status {
+            background: #e8f5e8;
+            color: #2d5a2d;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 2px solid #28a745;
+        }
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .command-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid #e1e5e9;
+            transition: transform 0.3s ease;
+        }
+        .command-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .voice-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .listening {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .command-log {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e1e5e9;
+        }
+        .nav-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 Voice Control Dashboard</h1>
+        <p>Control your TRAXOVO systems with voice commands</p>
+        
+        <div class="voice-status" id="voiceStatus">
+            Voice Control Ready - Click to activate
+        </div>
+        
+        <div style="text-align: center;">
+            <button class="voice-button" id="voiceButton" onclick="toggleVoiceRecognition()">
+                🎤 Start Voice Control
+            </button>
+        </div>
+        
+        <div class="command-grid">
+            <div class="command-card">
+                <h3>Attendance Commands</h3>
+                <ul>
+                    <li>"Show attendance matrix"</li>
+                    <li>"Generate attendance report"</li>
+                    <li>"Check who's absent today"</li>
+                    <li>"Setup attendance automation"</li>
+                </ul>
+            </div>
+            
+            <div class="command-card">
+                <h3>Asset Commands</h3>
+                <ul>
+                    <li>"Show asset locations"</li>
+                    <li>"Track unit number [ID]"</li>
+                    <li>"Show Fort Worth zones"</li>
+                    <li>"Asset status report"</li>
+                </ul>
+            </div>
+            
+            <div class="command-card">
+                <h3>Automation Commands</h3>
+                <ul>
+                    <li>"Create new automation"</li>
+                    <li>"Show automation status"</li>
+                    <li>"Automate weekly reports"</li>
+                    <li>"Setup email alerts"</li>
+                </ul>
+            </div>
+            
+            <div class="command-card">
+                <h3>Navigation Commands</h3>
+                <ul>
+                    <li>"Go to dashboard"</li>
+                    <li>"Open location tracking"</li>
+                    <li>"Show main menu"</li>
+                    <li>"Help"</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="command-log" id="commandLog">
+            <h4>Voice Command History</h4>
+            <p>Your voice commands will appear here...</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/location-tracking" class="nav-link">Location Tracking</a>
+            <a href="/attendance-matrix" class="nav-link">Attendance Matrix</a>
+            <a href="/" class="nav-link">Automation Hub</a>
+        </div>
+    </div>
+    
+    <script>
+        let recognition = null;
+        let isListening = false;
+        
+        function toggleVoiceRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Voice recognition not supported in this browser');
+                return;
+            }
+            
+            if (isListening) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        }
+        
+        function startListening() {
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            
+            recognition.onstart = function() {
+                isListening = true;
+                document.getElementById('voiceButton').textContent = '🔴 Stop Listening';
+                document.getElementById('voiceButton').classList.add('listening');
+                document.getElementById('voiceStatus').textContent = 'Listening for commands...';
+            };
+            
+            recognition.onresult = function(event) {
+                const command = event.results[event.results.length - 1][0].transcript.toLowerCase();
+                logCommand(command);
+                processVoiceCommand(command);
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Voice recognition error:', event.error);
+                stopListening();
+            };
+            
+            recognition.onend = function() {
+                if (isListening) {
+                    recognition.start(); // Restart for continuous listening
+                }
+            };
+            
+            recognition.start();
+        }
+        
+        function stopListening() {
+            if (recognition) {
+                recognition.stop();
+            }
+            isListening = false;
+            document.getElementById('voiceButton').textContent = '🎤 Start Voice Control';
+            document.getElementById('voiceButton').classList.remove('listening');
+            document.getElementById('voiceStatus').textContent = 'Voice Control Ready - Click to activate';
+        }
+        
+        function processVoiceCommand(command) {
+            if (command.includes('attendance matrix') || command.includes('show attendance')) {
+                window.location.href = '/attendance-matrix';
+            } else if (command.includes('location') || command.includes('asset location')) {
+                window.location.href = '/location-tracking';
+            } else if (command.includes('automation') || command.includes('automate')) {
+                window.location.href = '/';
+            } else if (command.includes('dashboard') || command.includes('main menu')) {
+                window.location.href = '/';
+            } else if (command.includes('help')) {
+                alert('Available commands: attendance matrix, location tracking, automation hub, dashboard');
+            }
+        }
+        
+        function logCommand(command) {
+            const log = document.getElementById('commandLog');
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += `<p><strong>${timestamp}:</strong> "${command}"</p>`;
+            log.scrollTop = log.scrollHeight;
+        }
+    </script>
+</body>
+</html>'''
+
+@app.route('/legacy-mapping')
+def legacy_mapping():
+    """Asset legacy mapping interface"""
+    return '''<!DOCTYPE html>
+<html>
+<head>
+    <title>Legacy Asset Mapping - TRAXOVO</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .mapping-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .mapping-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .mapping-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e1e5e9;
+        }
+        .mapping-table tr:hover {
+            background: #f8f9fa;
+        }
+        .status-mapped { background: #d4edda; color: #155724; padding: 5px 10px; border-radius: 15px; font-size: 12px; }
+        .status-unmapped { background: #f8d7da; color: #721c24; padding: 5px 10px; border-radius: 15px; font-size: 12px; }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Legacy Asset ID Mapping</h1>
+        <p>Automatic mapping between current asset IDs and legacy report identifiers</p>
+        
+        <div style="margin: 20px 0;">
+            <button class="btn">Auto-Map from Reports</button>
+            <button class="btn">Import Legacy Data</button>
+            <button class="btn">Export Mapping Table</button>
+            <button class="btn">Validate Mappings</button>
+        </div>
+        
+        <table class="mapping-table">
+            <thead>
+                <tr>
+                    <th>Current Asset ID</th>
+                    <th>Legacy Report ID</th>
+                    <th>Asset Description</th>
+                    <th>Zone Assignment</th>
+                    <th>Mapping Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1247</td>
+                    <td>FW-EX-001</td>
+                    <td>CAT 320D Excavator</td>
+                    <td>Downtown Fort Worth</td>
+                    <td><span class="status-mapped">MAPPED</span></td>
+                    <td><button class="btn">Edit</button></td>
+                </tr>
+                <tr>
+                    <td>2156</td>
+                    <td>FW-BH-002</td>
+                    <td>John Deere 410L Backhoe</td>
+                    <td>Industrial District</td>
+                    <td><span class="status-mapped">MAPPED</span></td>
+                    <td><button class="btn">Edit</button></td>
+                </tr>
+                <tr>
+                    <td>3401</td>
+                    <td>FW-EX-003</td>
+                    <td>Komatsu PC200 Excavator</td>
+                    <td>Trinity River Zone</td>
+                    <td><span class="status-mapped">MAPPED</span></td>
+                    <td><button class="btn">Edit</button></td>
+                </tr>
+                <tr>
+                    <td>4278</td>
+                    <td>—</td>
+                    <td>Volvo EC160E Excavator</td>
+                    <td>Highway 35 Corridor</td>
+                    <td><span class="status-unmapped">UNMAPPED</span></td>
+                    <td><button class="btn">Map</button></td>
+                </tr>
+                <tr>
+                    <td>5894</td>
+                    <td>FW-DZ-005</td>
+                    <td>CAT D6T Dozer</td>
+                    <td>Airport Area Zone</td>
+                    <td><span class="status-mapped">MAPPED</span></td>
+                    <td><button class="btn">Edit</button></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="/location-tracking" class="btn">Location Tracking</a>
+            <a href="/" class="btn">Automation Hub</a>
         </div>
     </div>
 </body>

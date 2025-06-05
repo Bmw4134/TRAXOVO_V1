@@ -36,32 +36,139 @@ def home():
 <head>
     <title>TRAXOVO - Watson Intelligence Platform</title>
     <style>
-        body { margin: 0; background: #0a0a0a; color: white; font-family: Arial; }
-        .header { background: #1a1a2e; padding: 20px; border-bottom: 2px solid #00ff88; }
-        .main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 20px; }
-        .module-card { background: #1a1a2e; border: 1px solid #00ff88; border-radius: 10px; padding: 20px; transition: transform 0.3s; }
-        .module-card:hover { transform: translateY(-5px); border-color: #00ccff; }
-        .module-title { color: #00ff88; font-size: 18px; font-weight: bold; margin-bottom: 10px; }
-        .module-desc { color: #ccc; font-size: 14px; margin-bottom: 15px; }
-        .access-btn { background: #00ff88; color: black; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; }
-        .access-btn:hover { background: #00ccff; }
-        .watson-exclusive { border-color: #ff6b35; background: linear-gradient(135deg, #1a1a2e 0%, #2a1a1a 100%); }
-        .watson-exclusive .module-title { color: #ff6b35; }
-        .user-info { float: right; color: #00ff88; }
-        .logout-btn { background: #ff4444; color: white; padding: 5px 15px; border: none; border-radius: 3px; cursor: pointer; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; color: #2c3e50; overflow-x: hidden; }
+        
+        /* Navigation Sidebar */
+        .sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100vh; background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%); z-index: 1000; transition: transform 0.3s; }
+        .sidebar.collapsed { transform: translateX(-240px); }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #2a2a4e; }
+        .logo { color: #00ff88; font-size: 20px; font-weight: bold; }
+        .user-info { margin-top: 10px; }
+        .user-name { color: #ffffff; font-size: 14px; }
+        .user-role { color: #4ecdc4; font-size: 12px; }
+        
+        .nav-menu { padding: 20px 0; }
+        .nav-section { margin-bottom: 25px; }
+        .nav-section-title { color: #4ecdc4; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; padding: 0 20px; margin-bottom: 8px; }
+        .nav-item { display: block; padding: 12px 20px; color: #ffffff; text-decoration: none; transition: all 0.2s; border-left: 3px solid transparent; }
+        .nav-item:hover { background: rgba(0,255,136,0.1); border-left-color: #00ff88; }
+        .nav-item.active { background: rgba(0,255,136,0.15); border-left-color: #00ff88; color: #00ff88; }
+        .nav-item.watson-exclusive { border-left-color: #ff6b35; }
+        .nav-item.watson-exclusive:hover { background: rgba(255,107,53,0.1); border-left-color: #ff6b35; }
+        
+        /* Fix Module - Always Visible */
+        .fix-module { background: #2a2a4e; margin: 15px; border-radius: 8px; padding: 15px; border: 1px solid #00ff88; }
+        .fix-module-title { color: #00ff88; font-size: 14px; font-weight: bold; margin-bottom: 10px; }
+        .fix-btn { width: 100%; background: #00ff88; color: #000; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 3px 0; }
+        .fix-btn.critical { background: #ff4444; color: white; }
+        .fix-btn:hover { opacity: 0.8; }
+        
+        /* Main Content */
+        .main-content { margin-left: 280px; min-height: 100vh; transition: margin-left 0.3s; }
+        .main-content.expanded { margin-left: 40px; }
+        
+        /* Header inspired by ragleinc.com */
+        .header { background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); padding: 20px 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-bottom: 1px solid #e9ecef; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 28px; color: #2c3e50; font-weight: 300; }
+        .page-subtitle { color: #6c757d; font-size: 14px; margin-top: 5px; }
+        .header-actions { display: flex; gap: 15px; }
+        .header-btn { background: #00ff88; color: #000; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        
+        /* Content Grid */
+        .content-grid { padding: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
+        
+        /* Module Cards - Enhanced Design */
+        .module-card { background: #ffffff; border-radius: 12px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e9ecef; transition: all 0.3s; position: relative; overflow: hidden; }
+        .module-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #00ff88, #4ecdc4); }
+        .module-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+        .module-card.watson-exclusive::before { background: linear-gradient(90deg, #ff6b35, #ff8c42); }
+        
+        .module-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #00ff88, #4ecdc4); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+        .module-icon.watson { background: linear-gradient(135deg, #ff6b35, #ff8c42); }
+        .module-title { color: #2c3e50; font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .module-desc { color: #6c757d; font-size: 14px; line-height: 1.5; margin-bottom: 20px; }
+        .module-stats { display: flex; gap: 15px; margin-bottom: 20px; }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 18px; font-weight: bold; color: #00ff88; }
+        .stat-label { font-size: 11px; color: #6c757d; text-transform: uppercase; }
+        
+        .access-btn { background: linear-gradient(135deg, #00ff88, #4ecdc4); color: #000; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; font-weight: 500; transition: all 0.2s; }
+        .access-btn:hover { background: linear-gradient(135deg, #4ecdc4, #00ff88); transform: translateY(-1px); }
+        .access-btn.watson { background: linear-gradient(135deg, #ff6b35, #ff8c42); }
+        
+        /* Sidebar Toggle */
+        .sidebar-toggle { position: fixed; top: 20px; left: 20px; z-index: 1001; background: #1a1a2e; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; }
+        
+        /* Fix Module Popup */
+        .fix-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 2000; display: none; max-width: 500px; width: 90%; }
+        .fix-popup.show { display: block; }
+        .fix-popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1999; display: none; }
+        .fix-popup-overlay.show { display: block; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>TRAXOVO - Watson Intelligence Platform</h1>
-        <div class="user-info">
-            Welcome, {{ user.name }} | Role: {{ user.role }}
-            <a href="/logout"><button class="logout-btn">Logout</button></a>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">TRAXOVO</div>
+            <div class="user-info">
+                <div class="user-name">{{ user.name }}</div>
+                <div class="user-role">{{ user.role }}</div>
+            </div>
         </div>
-        <p>Comprehensive fleet management and business intelligence with advanced AI integration</p>
+        
+        <nav class="nav-menu">
+            <div class="nav-section">
+                <div class="nav-section-title">Core Systems</div>
+                <a href="/" class="nav-item active">🏠 Dashboard</a>
+                <a href="/proprietary_asset_tracker" class="nav-item">🎯 Asset Intelligence</a>
+                <a href="/email_config" class="nav-item">📧 Email Config</a>
+                <a href="/fleet_analytics" class="nav-item">📊 Analytics</a>
+                <a href="/attendance_matrix" class="nav-item">👥 Attendance</a>
+            </div>
+            
+            {% if user.watson_access %}
+            <div class="nav-section">
+                <div class="nav-section-title">Watson Exclusive</div>
+                <a href="/watson_console.html" class="nav-item watson-exclusive">🤖 Watson Console</a>
+                <a href="/voice_commands" class="nav-item watson-exclusive">🎤 Voice Commands</a>
+            </div>
+            {% endif %}
+        </nav>
+        
+        <!-- Universal Fix Module -->
+        <div class="fix-module">
+            <div class="fix-module-title">🔧 Fix Anything</div>
+            <button class="fix-btn" onclick="runQuickFix('performance')">⚡ Performance Boost</button>
+            <button class="fix-btn" onclick="runQuickFix('routes')">🔄 Fix Routes</button>
+            <button class="fix-btn" onclick="runQuickFix('features')">🛠️ Repair Features</button>
+            {% if user.role in ['admin', 'watson_owner'] %}
+            <button class="fix-btn critical" onclick="runQuickFix('system')">⚠️ System Reset</button>
+            {% endif %}
+            <button class="fix-btn" onclick="showDiagnostics()">📊 Diagnostics</button>
+        </div>
     </div>
     
-    <div class="main-grid">
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        
+        <div class="header">
+            <div class="header-content">
+                <div>
+                    <h1 class="page-title">Watson Intelligence Platform</h1>
+                    <p class="page-subtitle">Advanced fleet management and business intelligence with AI integration</p>
+                </div>
+                <div class="header-actions">
+                    <button class="header-btn" onclick="refreshDashboard()">🔄 Refresh</button>
+                    <a href="/logout"><button class="header-btn" style="background: #dc3545;">Logout</button></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-grid">
         <!-- Proprietary Asset Intelligence Map -->
         <div class="module-card">
             <div class="module-title">🎯 Asset Intelligence Map</div>

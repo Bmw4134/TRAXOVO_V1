@@ -8,11 +8,12 @@ import os
 import logging
 import sqlite3
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 import json
+from kaizen_infinity_patch import initialize_kaizen_infinity_patch, get_operational_overview, validate_patch_deployment
 
 # Outlook Calendar Scraper Integration
 try:
@@ -2749,6 +2750,183 @@ def api_deployment_report():
 def deployment_console():
     """Deployment console dashboard"""
     return render_template('deployment_console.html')
+
+@app.route('/api/kaizen_infinity_patch/initialize', methods=['POST'])
+def api_initialize_kaizen_patch():
+    """Initialize KaizenGPT MegaUniform InfinityPatch"""
+    try:
+        result = initialize_kaizen_infinity_patch()
+        return jsonify({
+            'success': True,
+            'message': 'KaizenGPT InfinityPatch initialized successfully',
+            'data': result
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to initialize InfinityPatch'
+        }), 500
+
+@app.route('/api/kaizen_infinity_patch/overview')
+def api_kaizen_operational_overview():
+    """Get KaizenGPT operational overview"""
+    try:
+        overview = get_operational_overview()
+        return jsonify({
+            'success': True,
+            'data': overview
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/kaizen_infinity_patch/validate')
+def api_validate_kaizen_deployment():
+    """Validate KaizenGPT patch deployment"""
+    try:
+        validation = validate_patch_deployment()
+        return jsonify({
+            'success': True,
+            'data': validation
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/kaizen_operational_overview_pdf')
+def kaizen_operational_overview_pdf():
+    """Generate and display Live Operational Overview PDF"""
+    try:
+        overview = get_operational_overview()
+        
+        # Generate HTML-based PDF content
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>TRAXOVO Live Operational Overview</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; margin: 20px; }}
+                .header {{ background: #ff6b35; color: white; padding: 20px; text-align: center; }}
+                .section {{ margin: 20px 0; padding: 15px; border: 1px solid #ddd; }}
+                .metric {{ display: flex; justify-content: space-between; margin: 10px 0; }}
+                .status-ok {{ color: green; font-weight: bold; }}
+                .status-warning {{ color: orange; font-weight: bold; }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>TRAXOVO Live Operational Overview</h1>
+                <p>Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+            </div>
+            
+            <div class="section">
+                <h2>System Status</h2>
+                <div class="metric">
+                    <span>Status:</span>
+                    <span class="status-ok">{overview.get('system_status', 'OPERATIONAL')}</span>
+                </div>
+                <div class="metric">
+                    <span>Patch Version:</span>
+                    <span>{overview.get('patch_version', 'N/A')}</span>
+                </div>
+                <div class="metric">
+                    <span>Active Modules:</span>
+                    <span>{overview.get('modules_active', 0)}</span>
+                </div>
+                <div class="metric">
+                    <span>Stress Test Cycles:</span>
+                    <span>{overview.get('stress_test_cycles', 0):,}</span>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Performance Metrics</h2>
+                <div class="metric">
+                    <span>Load Time:</span>
+                    <span class="status-ok">{overview.get('performance_metrics', {}).get('load_time', 'N/A')}</span>
+                </div>
+                <div class="metric">
+                    <span>Response Time:</span>
+                    <span class="status-ok">{overview.get('performance_metrics', {}).get('response_time', 'N/A')}</span>
+                </div>
+                <div class="metric">
+                    <span>Uptime:</span>
+                    <span class="status-ok">{overview.get('performance_metrics', {}).get('uptime', 'N/A')}</span>
+                </div>
+                <div class="metric">
+                    <span>Memory Efficiency:</span>
+                    <span class="status-ok">{overview.get('performance_metrics', {}).get('memory_efficiency', 'N/A')}</span>
+                </div>
+                <div class="metric">
+                    <span>Security Score:</span>
+                    <span class="status-ok">{overview.get('performance_metrics', {}).get('security_score', 'N/A')}</span>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Enhanced Dashboards</h2>
+                <ul>
+        """
+        
+        for dashboard in overview.get('dashboards_enhanced', []):
+            html_content += f"<li>{dashboard}</li>"
+            
+        html_content += """
+                </ul>
+            </div>
+            
+            <div class="section">
+                <h2>Features Enabled</h2>
+                <ul>
+        """
+        
+        features = overview.get('features_enabled', {})
+        for feature, enabled in features.items():
+            status = "✅" if enabled else "❌"
+            html_content += f"<li>{feature.replace('_', ' ').title()}: {status}</li>"
+            
+        html_content += """
+                </ul>
+            </div>
+        </body>
+        </html>
+        """
+        
+        response = make_response(html_content)
+        response.headers['Content-Type'] = 'text/html'
+        
+        return response
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to generate operational overview'
+        }), 500
+
+@app.route('/kaizen_dashboard')
+def kaizen_dashboard():
+    """KaizenGPT MegaUniform Dashboard"""
+    try:
+        # Initialize patch if not already done
+        overview = get_operational_overview()
+        if not overview:
+            initialize_kaizen_infinity_patch()
+            overview = get_operational_overview()
+            
+        validation = validate_patch_deployment()
+        
+        return render_template('kaizen_dashboard.html', 
+                             overview=overview, 
+                             validation=validation)
+    except Exception as e:
+        flash(f'Error loading Kaizen dashboard: {str(e)}', 'error')
+        return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5001, debug=True)

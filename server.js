@@ -177,7 +177,13 @@ app.post('/login', async (req, res) => {
         };
         req.session.lastActivity = Date.now();
         req.session.cookie.maxAge = user.timeout;
-        res.redirect('/');
+        
+        // Redirect executives to special dashboard
+        if (username === 'troy' || username === 'william' || user.role === 'exec') {
+            res.redirect('/dashboard');
+        } else {
+            res.redirect('/');
+        }
     } else {
         res.redirect('/login?error=invalid');
     }
@@ -193,6 +199,11 @@ app.post('/logout', (req, res) => {
 // Main dashboard route (protected)
 app.get('/', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Executive dashboard route (protected)
+app.get('/dashboard', requireAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'post_login_reveal', 'executive_dashboard.html'));
 });
 
 // Enhanced Ragle Inc landing page (protected)

@@ -444,6 +444,22 @@ ENHANCED_MAIN_TEMPLATE = '''
                     <span>🚀</span> Auto-Configure DWC
                 </div>
             </div>
+            
+            <div class="command-section">
+                <h4>KAIZEN TRD System</h4>
+                <div class="command-item" onclick="openTRD()">
+                    <span>🔁</span> TRD Interface
+                </div>
+                <div class="command-item" onclick="performTRDIntrospection()">
+                    <span>🔍</span> Dashboard Introspection
+                </div>
+                <div class="command-item" onclick="activateTRDModules()">
+                    <span>⚡</span> Activate All Modules
+                </div>
+                <div class="command-item" onclick="openWatsonConsole()">
+                    <span>🤖</span> Watson Console
+                </div>
+            </div>
         </div>
     </div>
 
@@ -608,6 +624,42 @@ ENHANCED_MAIN_TEMPLATE = '''
             } catch (error) {
                 alert(`Configuration error: ${error.message}`);
             }
+        }
+        
+        function openTRD() {
+            window.open('/trd', '_blank');
+        }
+        
+        async function performTRDIntrospection() {
+            try {
+                const response = await fetch('/trd/introspect', { method: 'POST' });
+                const result = await response.json();
+                
+                alert(`Dashboard Introspection Complete!\n\nConfidence Level: ${(result.confidence_level * 100).toFixed(1)}%\nAutomation Agents Found: ${result.automation_agents?.length || 0}\nPurpose: ${result.dashboard_purpose?.primary_purpose || 'Unknown'}`);
+                
+            } catch (error) {
+                alert(`Introspection failed: ${error.message}`);
+            }
+        }
+        
+        async function activateTRDModules() {
+            try {
+                const response = await fetch('/trd/activate-modules', { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.status === 'activated') {
+                    alert(`All TRD Modules Activated!\n\nWatson: ${result.modules.watson ? 'Active' : 'Inactive'}\nPlaywright: ${result.modules.playwright ? 'Active' : 'Inactive'}\nSimulation: ${result.modules.simulation ? 'Active' : 'Inactive'}`);
+                } else {
+                    alert('Module activation failed');
+                }
+                
+            } catch (error) {
+                alert(`Module activation error: ${error.message}`);
+            }
+        }
+        
+        function openWatsonConsole() {
+            window.open('/watson/console', '_blank');
         }
         
         function loadRepositoryStatus() {

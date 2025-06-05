@@ -15,6 +15,7 @@ from bare_bones_inspector import create_inspector_routes
 from trillion_scale_intelligence_simulator import get_trillion_scale_simulator, run_trillion_simulations
 from github_dwc_synchronizer import create_github_sync_routes
 from kaizen_agent_system import create_kaizen_routes, kaizen_agent
+from trd_synchronization_interface import create_trd_routes
 import asyncio
 
 app = Flask(__name__)
@@ -361,6 +362,7 @@ create_internal_integration_routes(app)
 create_inspector_routes(app)
 create_github_sync_routes(app)
 create_kaizen_routes(app)
+create_trd_routes(app)
 
 # Enhanced main route with complete integration
 @app.route('/master-control')

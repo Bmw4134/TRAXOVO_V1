@@ -73,21 +73,20 @@ def home():
         .logo { 
             color: #00ff64; 
             font-size: 24px; 
-            font-weight: 900; 
-            text-shadow: 0 0 30px rgba(0, 255, 100, 0.8);
-            letter-spacing: 2px;
-            animation: companyGlow 3s ease-in-out infinite alternate;
+            font-weight: 700; 
+            text-shadow: 0 0 8px rgba(0, 255, 100, 0.3);
+            letter-spacing: 1px;
         }
         .user-info { margin-top: 10px; }
         .user-name { color: #ffffff; font-size: 14px; }
-        .user-role { color: #00ff64; font-size: 12px; text-shadow: 0 0 10px rgba(0, 255, 100, 0.5); }
+        .user-role { color: #00ff64; font-size: 12px; }
         
         .nav-menu { padding: 20px 0; }
         .nav-section { margin-bottom: 25px; }
         .nav-section-title { color: #00ff64; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; padding: 0 20px; margin-bottom: 8px; }
         .nav-item { display: block; padding: 12px 20px; color: #ffffff; text-decoration: none; transition: all 0.2s; border-left: 3px solid transparent; }
-        .nav-item:hover { background: rgba(0,255,100,0.1); border-left-color: #00ff64; text-shadow: 0 0 10px rgba(0, 255, 100, 0.5); }
-        .nav-item.active { background: rgba(0,255,100,0.15); border-left-color: #00ff64; color: #00ff64; text-shadow: 0 0 15px rgba(0, 255, 100, 0.8); }
+        .nav-item:hover { background: rgba(0,255,100,0.08); border-left-color: #00ff64; }
+        .nav-item.active { background: rgba(0,255,100,0.12); border-left-color: #00ff64; color: #00ff64; }
         .nav-item.watson-exclusive { border-left-color: #ff6b35; }
         .nav-item.watson-exclusive:hover { background: rgba(255,107,53,0.1); border-left-color: #ff6b35; }
         

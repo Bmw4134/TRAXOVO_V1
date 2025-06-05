@@ -10,6 +10,7 @@ from flask import Flask, request, session, redirect, url_for, jsonify, render_te
 from mobile_watson_access import generate_mobile_watson_interface
 from landing_page_wow import generate_wow_landing_page
 from bmi_intelligence_debug import run_bmi_intelligence_debug
+from micro_animation_feedback import enhance_template_with_animations, get_micro_animation_system
 
 app = Flask(__name__, static_folder='public')
 app.secret_key = os.environ.get('SESSION_SECRET', 'watson-intelligence-2025')
@@ -34,7 +35,11 @@ def home():
         return generate_wow_landing_page()
     
     user = session['user']
-    return render_template_string("""
+    
+    # Get micro-animation system and enhance template
+    animation_system = get_micro_animation_system()
+    
+    base_template = """
 <!DOCTYPE html>
 <html>
 <head>
@@ -126,18 +131,18 @@ def home():
         <nav class="nav-menu">
             <div class="nav-section">
                 <div class="nav-section-title">Core Systems</div>
-                <a href="/" class="nav-item active">🏠 Dashboard</a>
-                <a href="/proprietary_asset_tracker" class="nav-item">🎯 Asset Intelligence</a>
-                <a href="/email_config" class="nav-item">📧 Email Config</a>
-                <a href="/fleet_analytics" class="nav-item">📊 Analytics</a>
-                <a href="/attendance_matrix" class="nav-item">👥 Attendance</a>
+                <a href="/" class="nav-item active ripple-container hover-lift">🏠 Dashboard</a>
+                <a href="/proprietary_asset_tracker" class="nav-item ripple-container hover-lift">🎯 Asset Intelligence</a>
+                <a href="/email_config" class="nav-item ripple-container hover-lift">📧 Email Config</a>
+                <a href="/fleet_analytics" class="nav-item ripple-container hover-lift">📊 Analytics</a>
+                <a href="/attendance_matrix" class="nav-item ripple-container hover-lift">👥 Attendance</a>
             </div>
             
             {% if user.watson_access %}
             <div class="nav-section">
                 <div class="nav-section-title">Watson Exclusive</div>
-                <a href="/watson_console.html" class="nav-item watson-exclusive">🤖 Watson Console</a>
-                <a href="/voice_commands" class="nav-item watson-exclusive">🎤 Voice Commands</a>
+                <a href="/watson_console.html" class="nav-item watson-exclusive ripple-container hover-lift">🤖 Watson Console</a>
+                <a href="/voice_commands" class="nav-item watson-exclusive ripple-container hover-lift">🎤 Voice Commands</a>
             </div>
             {% endif %}
         </nav>
@@ -145,13 +150,13 @@ def home():
         <!-- Universal Fix Module -->
         <div class="fix-module">
             <div class="fix-module-title">🔧 Fix Anything</div>
-            <button class="fix-btn" onclick="runQuickFix('performance')">⚡ Performance Boost</button>
-            <button class="fix-btn" onclick="runQuickFix('routes')">🔄 Fix Routes</button>
-            <button class="fix-btn" onclick="runQuickFix('features')">🛠️ Repair Features</button>
+            <button class="fix-btn btn-interactive ripple-container" onclick="runQuickFix('performance')">⚡ Performance Boost</button>
+            <button class="fix-btn btn-interactive ripple-container" onclick="runQuickFix('routes')">🔄 Fix Routes</button>
+            <button class="fix-btn btn-interactive ripple-container" onclick="runQuickFix('features')">🛠️ Repair Features</button>
             {% if user.role in ['admin', 'watson_owner'] %}
-            <button class="fix-btn critical" onclick="runQuickFix('system')">⚠️ System Reset</button>
+            <button class="fix-btn critical btn-interactive ripple-container" onclick="runQuickFix('system')">⚠️ System Reset</button>
             {% endif %}
-            <button class="fix-btn" onclick="showDiagnostics()">📊 Diagnostics</button>
+            <button class="fix-btn btn-interactive ripple-container" onclick="showDiagnostics()">📊 Diagnostics</button>
         </div>
     </div>
     
@@ -166,8 +171,8 @@ def home():
                     <p class="page-subtitle">Advanced fleet management and business intelligence with AI integration</p>
                 </div>
                 <div class="header-actions">
-                    <button class="header-btn" onclick="refreshDashboard()">🔄 Refresh</button>
-                    <a href="/logout"><button class="header-btn" style="background: #dc3545;">Logout</button></a>
+                    <button class="header-btn btn-interactive ripple-container hover-lift" onclick="refreshDashboard()">🔄 Refresh</button>
+                    <a href="/logout"><button class="header-btn btn-interactive ripple-container hover-lift" style="background: #dc3545;">Logout</button></a>
                 </div>
             </div>
         </div>

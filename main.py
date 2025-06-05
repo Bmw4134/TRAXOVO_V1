@@ -47,17 +47,26 @@ def login():
             'role': users[username]['role'],
             'name': users[username]['name']
         }
-        # Redirect executives to dashboard
-        if username in ['troy', 'william'] or users[username]['role'] == 'exec':
-            return redirect('/dashboard')
-        return redirect('/')
+        # Redirect to organization selector for all authenticated users
+        return redirect(f'/organization-selector?user={users[username]["name"]}')
     
     return redirect('/login?error=invalid')
+
+@app.route('/organization-selector')
+def organization_selector():
+    if 'user' not in session:
+        return redirect('/login')
+    return send_file('public/organization_selector.html')
 
 @app.route('/dashboard')
 def executive_dashboard():
     if 'user' not in session:
         return redirect('/login')
+    
+    # Get organization from query parameter
+    org = request.args.get('org', 'default')
+    session['selected_organization'] = org
+    
     return send_file('public/post_login_reveal/executive_dashboard.html')
 
 @app.route('/logout', methods=['POST'])

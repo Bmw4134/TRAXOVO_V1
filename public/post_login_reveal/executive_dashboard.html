@@ -165,6 +165,14 @@
   <div class="header">
     <h1>Executive Intelligence Hub</h1>
     <p class="subtitle">Real-time AGI system overview and operational command center</p>
+    <div style="margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 20px;">
+      <div id="org-display" style="color: #00d4ff; font-size: 1rem; font-weight: 600;">
+        Loading Organization...
+      </div>
+      <button class="action-btn" onclick="changeOrganization()" style="font-size: 0.8rem; padding: 6px 12px;">
+        Change Organization
+      </button>
+    </div>
   </div>
 
   <div class="dashboard-grid">
@@ -288,9 +296,87 @@
       window.open('/mobile-fleet-map', 'mobile_fleet_map', 'width=800,height=1000');
     }
 
+    function changeOrganization() {
+      window.location.href = '/organization-selector';
+    }
+
+    function updateOrganizationDisplay() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const org = urlParams.get('org') || sessionStorage.getItem('selectedOrganization') || 'default';
+      
+      let orgName = '';
+      let orgData = {};
+      
+      switch(org) {
+        case 'ragle-inc':
+          orgName = 'Ragle Inc - Heavy Civil Construction';
+          orgData = {
+            assets: 717,
+            activeJobs: 42,
+            utilization: '87.3%',
+            costSavings: '$127K/month'
+          };
+          break;
+        case 'traxovo-systems':
+          orgName = 'TRAXOVO Systems - AI Platform';
+          orgData = {
+            assets: 'AGI Mesh',
+            activeJobs: '5 Agents',
+            utilization: '99.2%',
+            costSavings: '$340K/month'
+          };
+          break;
+        case 'fort-worth':
+          orgName = 'Fort Worth Operations Center';
+          orgData = {
+            assets: 245,
+            activeJobs: 18,
+            utilization: '94.1%',
+            costSavings: '$85K/month'
+          };
+          break;
+        case 'alliance':
+          orgName = 'Alliance Equipment Depot';
+          orgData = {
+            assets: 156,
+            activeJobs: 8,
+            utilization: '76.5%',
+            costSavings: '$42K/month'
+          };
+          break;
+        default:
+          orgName = 'Multi-Organization View';
+          orgData = {
+            assets: 717,
+            activeJobs: 42,
+            utilization: '87.3%',
+            costSavings: '$127K/month'
+          };
+      }
+      
+      document.getElementById('org-display').textContent = orgName;
+      
+      // Update fleet operations data based on organization
+      const fleetCards = document.querySelectorAll('.card');
+      fleetCards.forEach(card => {
+        if (card.querySelector('h3')?.textContent === 'Fleet Operations') {
+          const totalAssets = card.querySelector('div:nth-child(2) .highlight');
+          const activeJobs = card.querySelector('div:nth-child(3) .highlight');
+          const utilization = card.querySelector('div:nth-child(4) .highlight');
+          const costSavings = card.querySelector('div:nth-child(5) .highlight');
+          
+          if (totalAssets) totalAssets.textContent = orgData.assets;
+          if (activeJobs) activeJobs.textContent = orgData.activeJobs;
+          if (utilization) utilization.textContent = orgData.utilization;
+          if (costSavings) costSavings.textContent = orgData.costSavings;
+        }
+      });
+    }
+
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
       updateLoadTime();
+      updateOrganizationDisplay();
       updateTimestamp();
       updateMeshStats();
       updateTelemetryStats();

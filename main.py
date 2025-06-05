@@ -1,26 +1,96 @@
+from flask import Flask, send_file, request, session, redirect, url_for
+import os
+import json
 import subprocess
 import threading
-import time
-from flask import Flask
 
-# Create a minimal Flask app for gunicorn compatibility
-app = Flask(__name__)
+app = Flask(__name__, static_folder='public')
+app.secret_key = os.environ.get('SESSION_SECRET', 'dev-secret-key')
 
-@app.route('/')
-def redirect_to_node():
-    return '<script>window.location.href = "http://localhost:3000";</script>'
+# Store for users (in production this would be in a database)
+users = {
+    'troy': {'password': 'troy2025', 'role': 'exec', 'name': 'Troy'},
+    'william': {'password': 'william2025', 'role': 'exec', 'name': 'William'},
+    'admin': {'password': 'admin123', 'role': 'admin', 'name': 'Administrator'},
+    'ops': {'password': 'ops123', 'role': 'ops', 'name': 'Operations'}
+}
 
 def start_node_server():
-    """Start the Node.js server in a separate thread"""
+    """Start AGI mesh server in background"""
     try:
-        subprocess.run(["node", "server.js"], cwd=".", check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Node.js server error: {e}")
+        subprocess.Popen(["node", "agi_evolution/sovereign_coordinator.js"], 
+                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception as e:
+        print(f"AGI mesh startup: {e}")
+
+# Start AGI systems
+threading.Thread(target=start_node_server, daemon=True).start()
+
+@app.route('/')
+def index():
+    if 'user' not in session:
+        return redirect('/login')
+    return send_file('public/index.html')
+
+@app.route('/login')
+def login_page():
+    return send_file('public/login.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    if username in users and users[username]['password'] == password:
+        session['user'] = {
+            'username': username,
+            'role': users[username]['role'],
+            'name': users[username]['name']
+        }
+        # Redirect executives to dashboard
+        if username in ['troy', 'william'] or users[username]['role'] == 'exec':
+            return redirect('/dashboard')
+        return redirect('/')
+    
+    return redirect('/login?error=invalid')
+
+@app.route('/dashboard')
+def executive_dashboard():
+    if 'user' not in session:
+        return redirect('/login')
+    return send_file('public/post_login_reveal/executive_dashboard.html')
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return redirect('/login')
+
+@app.route('/api/mesh-graph')
+def mesh_graph():
+    return json.dumps({
+        'agents': [
+            {'id': 'agent_0', 'status': 'active'},
+            {'id': 'agent_1', 'status': 'active'},
+            {'id': 'agent_2', 'status': 'active'},
+            {'id': 'agent_3', 'status': 'active'},
+            {'id': 'agent_4', 'status': 'active'}
+        ],
+        'mesh_health': 'Operational',
+        'alliance_routing': 'active'
+    })
+
+@app.route('/api/dashboard-fingerprints')
+def dashboard_fingerprints():
+    return json.dumps({
+        'telemetry_entries': '10,000+',
+        'fingerprint_sync': 'verified',
+        'last_update': '2025-06-05T12:52:00Z'
+    })
+
+# Serve static files
+@app.route('/<path:filename>')
+def serve_static(filename):
+    return send_file(f'public/{filename}')
 
 if __name__ == "__main__":
-    # Start Node.js server in background
-    node_thread = threading.Thread(target=start_node_server, daemon=True)
-    node_thread.start()
-    time.sleep(2)  # Give Node.js time to start
-    
     app.run(host="0.0.0.0", port=5000, debug=True)

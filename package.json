@@ -1,14 +1,14 @@
 {
-  "name": "traxovo-automation",
+  "name": "traxovo-infinity",
   "version": "1.0.0",
-  "type": "module",
+  "description": "TRAXOVO Deployment - Final Infinity Sweep",
+  "main": "server.js",
   "scripts": {
-    "start": "tsx traxovo-unified-automation.ts",
-    "dev": "tsx --watch traxovo-unified-automation.ts"
+    "start": "node server.js",
+    "build": "echo '✅ Build completed (placeholder)'"
   },
   "dependencies": {
-    "puppeteer": "^21.0.0",
-    "ws": "^8.14.0",
-    "tsx": "^4.0.0"
+    "express": "^4.21.2",
+    "playwright": "^1.52.0"
   }
 }

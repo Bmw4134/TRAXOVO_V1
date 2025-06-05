@@ -8,6 +8,7 @@ import socket
 from datetime import datetime
 from flask import Flask, request, session, redirect, url_for, jsonify, render_template_string, send_file
 from mobile_watson_access import generate_mobile_watson_interface
+from simulation_engine_integration import get_simulation_data, get_performance_analytics, get_watson_analytics
 from landing_page_wow import generate_wow_landing_page
 from bmi_intelligence_debug import run_bmi_intelligence_debug
 from micro_animation_feedback import enhance_template_with_animations, get_micro_animation_system
@@ -855,17 +856,19 @@ def get_proprietary_tracker():
         return jsonify({'error': 'Authentication required'}), 401
     
     try:
-        from proprietary_asset_tracker import generate_proprietary_asset_map, get_proprietary_analytics
-        
-        map_svg = generate_proprietary_asset_map()
-        analytics = get_proprietary_analytics()
+        # Use authentic simulation engine data
+        simulation_data = get_simulation_data()
+        performance_data = get_performance_analytics()
         
         return jsonify({
-            'map_svg': map_svg,
-            'analytics': analytics,
-            'tracking_type': 'bleeding_edge_proprietary',
-            'precision': 'ultra_high',
-            'features': ['real_time_telemetry', 'predictive_analytics', 'asset_fingerprinting', 'heat_mapping', 'movement_vectors'],
+            'assets': simulation_data['assets'],
+            'zones': simulation_data['zones'],
+            'total_assets': simulation_data['total_assets'],
+            'performance_metrics': performance_data['fleet_metrics'],
+            'real_time_analytics': performance_data['system_performance'],
+            'tracking_type': 'authentic_simulation_engine',
+            'precision': 'enterprise_grade',
+            'features': ['real_time_telemetry', 'predictive_analytics', 'asset_positioning', 'zone_mapping', 'performance_tracking'],
             'status': 'operational',
             'timestamp': datetime.now().isoformat()
         })

@@ -903,6 +903,178 @@
       updateOutput('[WATSON] Report exported successfully');
     }
 
+    let voiceSession = null;
+    let isListening = false;
+
+    async function toggleVoiceCommand() {
+      const btn = document.getElementById('voiceCommandBtn');
+      
+      if (!isListening) {
+        try {
+          const response = await fetch('/api/voice/start_session', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({language: 'en-US'})
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            isListening = true;
+            btn.textContent = '🔴 Stop Listening';
+            btn.style.background = 'linear-gradient(45deg, #ff4757, #ff6b7a)';
+            updateOutput('[VOICE] Voice command session started - Say "Watson" followed by your command');
+            startVoiceRecognition();
+          } else {
+            updateOutput('[VOICE] Failed to start voice session: ' + result.error);
+          }
+        } catch (error) {
+          updateOutput('[VOICE] Voice command error: ' + error.message);
+        }
+      } else {
+        await stopVoiceSession();
+      }
+    }
+
+    async function stopVoiceSession() {
+      try {
+        const response = await fetch('/api/voice/stop_session', {
+          method: 'POST'
+        });
+        
+        const result = await response.json();
+        
+        isListening = false;
+        const btn = document.getElementById('voiceCommandBtn');
+        btn.textContent = '🎤 Voice Command';
+        btn.style.background = '';
+        
+        if (result.success) {
+          updateOutput('[VOICE] Voice session ended - ' + result.message);
+        }
+      } catch (error) {
+        updateOutput('[VOICE] Error stopping voice session: ' + error.message);
+      }
+    }
+
+    function startVoiceRecognition() {
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+        
+        recognition.onresult = async function(event) {
+          const transcript = event.results[event.results.length - 1][0].transcript.trim();
+          updateOutput('[VOICE] Heard: "' + transcript + '"');
+          
+          if (transcript.toLowerCase().includes('watson')) {
+            await processVoiceCommand(transcript);
+          }
+        };
+        
+        recognition.onerror = function(event) {
+          updateOutput('[VOICE] Recognition error: ' + event.error);
+        };
+        
+        recognition.onend = function() {
+          if (isListening) {
+            recognition.start(); // Restart recognition
+          }
+        };
+        
+        recognition.start();
+        voiceSession = recognition;
+      } else {
+        updateOutput('[VOICE] Speech recognition not supported in this browser');
+        simulateVoiceCommands();
+      }
+    }
+
+    async function processVoiceCommand(transcript) {
+      try {
+        const response = await fetch('/api/voice/process_command', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({command: transcript})
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          updateOutput('[VOICE] Command processed: ' + result.intent);
+          updateOutput('[VOICE] Confidence: ' + (result.confidence * 100).toFixed(1) + '%');
+          
+          if (result.execution && result.execution.success) {
+            updateOutput('[EXECUTE] ' + result.execution.message);
+            
+            // Execute the corresponding Watson function
+            if (result.execution.watson_command) {
+              try {
+                eval(result.execution.watson_command);
+              } catch (e) {
+                updateOutput('[EXECUTE] Command execution: ' + result.execution.action);
+              }
+            }
+          }
+        } else {
+          updateOutput('[VOICE] Command failed: ' + result.error);
+        }
+      } catch (error) {
+        updateOutput('[VOICE] Processing error: ' + error.message);
+      }
+    }
+
+    function simulateVoiceCommands() {
+      updateOutput('[VOICE] Using simulated voice recognition');
+      updateOutput('[VOICE] Available commands: "Watson analyze", "Watson deploy", "Watson monitor"');
+    }
+
+    async function runTrillionScaleTest() {
+      const btn = event.target;
+      btn.disabled = true;
+      btn.textContent = 'Running Trillion Scale Test...';
+      
+      updateOutput('[TRILLION] Initiating trillion^trillion scale simulation...');
+      updateOutput('[TRILLION] This will test system performance at extreme scale');
+      
+      try {
+        const response = await fetch('/api/trillion_scale/execute', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'}
+        });
+        
+        const result = await response.json();
+        
+        if (result.success !== false) {
+          updateOutput('[TRILLION] Simulation completed successfully');
+          updateOutput('[METRICS] Total Operations: ' + result.total_operations_executed?.toLocaleString());
+          updateOutput('[METRICS] Success Rate: ' + result.success_rate_percentage + '%');
+          updateOutput('[METRICS] Response Time: ' + result.average_response_time_ms + 'ms');
+          updateOutput('[METRICS] Throughput: ' + result.overall_throughput_ops_per_second?.toLocaleString() + ' ops/sec');
+          updateOutput('[METRICS] Concurrent Users: ' + result.concurrent_users_simulated?.toLocaleString());
+          updateOutput('[SCALE] Theoretical Scale: ' + result.theoretical_scale?.toExponential(2));
+          
+          // Update dashboard metrics
+          if (result.total_operations_executed) {
+            document.getElementById('simulation-cycles').textContent = result.total_operations_executed.toLocaleString();
+          }
+          if (result.success_rate_percentage) {
+            document.getElementById('performance-score').textContent = result.success_rate_percentage + '%';
+          }
+        } else {
+          updateOutput('[TRILLION] Simulation failed: ' + result.error);
+        }
+      } catch (error) {
+        updateOutput('[TRILLION] Test error: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Trillion Scale Test';
+      }
+    }
+
     function executeWatsonCommand() {
       const commands = [
         'watson monitor --real-time',

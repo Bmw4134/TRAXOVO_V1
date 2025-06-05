@@ -25,6 +25,7 @@ from automation_dashboard import create_automation_routes
 from js_fix import create_js_fix_routes
 from dashboard_direct_links import create_direct_dashboard_routes
 from standalone_automation import create_standalone_automation_routes
+from clean_html_dashboard import create_clean_html_routes
 import asyncio
 
 app = Flask(__name__)
@@ -381,6 +382,7 @@ create_automation_routes(app)
 create_js_fix_routes(app)
 create_direct_dashboard_routes(app)
 create_standalone_automation_routes(app)
+create_clean_html_routes(app)
 
 # Working dashboard route
 @app.route('/dashboard')
@@ -494,12 +496,12 @@ def clean_dashboard():
 </body>
 </html>'''
 
-# Main dashboard route - redirect to direct access
+# Main dashboard route - redirect to clean HTML
 @app.route('/')
 def main_dashboard():
-    """Redirect to security-compliant direct dashboard"""
+    """Redirect to clean HTML dashboard"""
     from flask import redirect
-    return redirect('/direct-dashboard')
+    return redirect('/clean')
 
 # Legacy dashboard route
 @app.route('/legacy-dashboard')

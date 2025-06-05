@@ -2798,6 +2798,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "agent-admin" },
     { name = "agents" },
+    { name = "aiohttp" },
     { name = "beautifulsoup4" },
     { name = "bleach" },
     { name = "brotli" },
@@ -2833,6 +2834,7 @@ dependencies = [
     { name = "pyjwt" },
     { name = "pyotp" },
     { name = "pypdf2" },
+    { name = "python-dateutil" },
     { name = "python-levenshtein" },
     { name = "pytz" },
     { name = "pyyaml" },
@@ -2862,6 +2864,7 @@ dependencies = [
 requires-dist = [
     { name = "agent-admin", specifier = ">=0.1.1" },
     { name = "agents", specifier = ">=1.4.0" },
+    { name = "aiohttp", specifier = ">=3.12.7" },
     { name = "beautifulsoup4", specifier = ">=4.13.4" },
     { name = "bleach", specifier = ">=6.2.0" },
     { name = "brotli", specifier = ">=1.1.0" },
@@ -2897,6 +2900,7 @@ requires-dist = [
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "pyotp", specifier = ">=2.9.0" },
     { name = "pypdf2", specifier = ">=3.0.1" },
+    { name = "python-dateutil", specifier = ">=2.9.0.post0" },
     { name = "python-levenshtein", specifier = ">=0.27.1" },
     { name = "pytz", specifier = ">=2025.2" },
     { name = "pyyaml", specifier = ">=6.0.2" },

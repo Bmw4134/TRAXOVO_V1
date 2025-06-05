@@ -64,4 +64,6 @@ dependencies = [
     "brotli>=1.1.0",
     "playwright>=1.52.0",
     "opencv-python>=4.11.0.86",
+    "python-dateutil>=2.9.0.post0",
+    "aiohttp>=3.12.7",
 ]

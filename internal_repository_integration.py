@@ -705,6 +705,18 @@ ENHANCED_MAIN_TEMPLATE = '''
             loadRepositoryStatus();
         }
         
+        function performBMISweep() {
+            window.open('/bmi/sweep', '_blank');
+        }
+        
+        function exportLegacyMappings() {
+            window.open('/api/bmi/legacy-mappings', '_blank');
+        }
+        
+        function viewInceptionAnalysis() {
+            window.open('/bmi/legacy-export', '_blank');
+        }
+        
         function loadRepositoryStatus() {
             fetch('/api/internal-repos/status')
                 .then(response => response.json())

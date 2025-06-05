@@ -473,6 +473,19 @@ ENHANCED_MAIN_TEMPLATE = '''
                     <span>🎯</span> Inception to Current
                 </div>
             </div>
+            
+            <div class="command-section">
+                <h4>Watson DW Unlock</h4>
+                <div class="command-item" onclick="executeWatsonUnlock()">
+                    <span>🔓</span> Execute Final Unlock
+                </div>
+                <div class="command-item" onclick="runUnlockTest()">
+                    <span>🧪</span> Run Unlock Test
+                </div>
+                <div class="command-item" onclick="openWatsonUnlockInterface()">
+                    <span>🤖</span> Watson Unlock Interface
+                </div>
+            </div>
         </div>
     </div>
 

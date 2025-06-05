@@ -17,6 +17,8 @@ from github_dwc_synchronizer import create_github_sync_routes
 from kaizen_agent_system import create_kaizen_routes, kaizen_agent
 from trd_synchronization_interface import create_trd_routes
 from bmi_intelligence_sweep import create_bmi_routes
+from permissions_bootstrap import create_watson_unlock_routes
+from init_unlock import create_init_unlock_routes
 import asyncio
 
 app = Flask(__name__)
@@ -365,6 +367,8 @@ create_github_sync_routes(app)
 create_kaizen_routes(app)
 create_trd_routes(app)
 create_bmi_routes(app)
+create_watson_unlock_routes(app)
+create_init_unlock_routes(app)
 
 # Enhanced main route with complete integration
 @app.route('/master-control')

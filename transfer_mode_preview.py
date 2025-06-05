@@ -374,6 +374,195 @@ create_init_unlock_routes(app)
 create_user_management_routes(app)
 create_watson_force_render_routes(app)
 
+# Main dashboard route
+@app.route('/')
+def main_dashboard():
+    """Main TRAXOVO dashboard"""
+    return f'''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TRAXOVO - Main Dashboard</title>
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #000000, #1a1a2e);
+                color: #ffffff;
+                min-height: 100vh;
+                padding: 20px;
+            }}
+            .dashboard-container {{
+                max-width: 1400px;
+                margin: 0 auto;
+                background: rgba(0,0,0,0.8);
+                border: 2px solid #00ff88;
+                border-radius: 15px;
+                padding: 30px;
+            }}
+            .header {{
+                text-align: center;
+                margin-bottom: 30px;
+                padding: 20px;
+                background: rgba(0,255,136,0.1);
+                border-radius: 10px;
+            }}
+            .dashboard-grid {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }}
+            .dashboard-card {{
+                background: rgba(0,0,0,0.6);
+                border: 1px solid #00ff88;
+                border-radius: 10px;
+                padding: 20px;
+                transition: transform 0.3s ease;
+                cursor: pointer;
+            }}
+            .dashboard-card:hover {{
+                transform: translateY(-5px);
+                border-color: #00ff88;
+                box-shadow: 0 5px 15px rgba(0,255,136,0.3);
+            }}
+            .card-title {{
+                color: #00ff88;
+                font-size: 1.2em;
+                margin-bottom: 10px;
+                font-weight: bold;
+            }}
+            .card-description {{
+                color: #ccc;
+                margin-bottom: 15px;
+            }}
+            .access-button {{
+                background: #00ff88;
+                color: #000;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: bold;
+                width: 100%;
+                transition: background 0.3s ease;
+            }}
+            .access-button:hover {{
+                background: #00cc70;
+            }}
+            .floating-widget {{
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(0,0,0,0.9);
+                border: 2px solid #00ff88;
+                border-radius: 10px;
+                padding: 15px;
+                z-index: 1000;
+            }}
+            .widget-toggle {{
+                background: #00ff88;
+                color: #000;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: bold;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="floating-widget">
+            <button class="widget-toggle" onclick="window.open('/internal-repos', '_blank')">Command Widget</button>
+        </div>
+        
+        <div class="dashboard-container">
+            <div class="header">
+                <h1>TRAXOVO Intelligence Platform</h1>
+                <h2>Fortune 500-Grade Construction Intelligence</h2>
+                <p>Comprehensive operational intelligence with advanced analytics and fleet management</p>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card" onclick="window.open('/master-brain', '_blank')">
+                    <div class="card-title">Master Brain Intelligence</div>
+                    <div class="card-description">Core AI intelligence and decision-making system with predictive analytics</div>
+                    <button class="access-button">Access Dashboard</button>
+                </div>
+                
+                <div class="dashboard-card" onclick="window.open('/gauge-assets', '_blank')">
+                    <div class="card-title">Fleet Operations</div>
+                    <div class="card-description">Real-time Fort Worth fleet management with GAUGE API integration</div>
+                    <button class="access-button">View Fleet Data</button>
+                </div>
+                
+                <div class="dashboard-card" onclick="window.open('/failure-analysis', '_blank')">
+                    <div class="card-title">Failure Analysis</div>
+                    <div class="card-description">Equipment failure prediction and maintenance optimization</div>
+                    <button class="access-button">Analyze Equipment</button>
+                </div>
+                
+                <div class="dashboard-card" onclick="window.open('/dashboard-customizer', '_blank')">
+                    <div class="card-title">Dashboard Customization</div>
+                    <div class="card-description">Personalized dashboard layouts with Fort Worth data integration</div>
+                    <button class="access-button">Customize Dashboards</button>
+                </div>
+                
+                <div class="dashboard-card" onclick="window.open('/github-sync', '_blank')">
+                    <div class="card-title">GitHub DWC Sync</div>
+                    <div class="card-description">Repository synchronization and development workflow control</div>
+                    <button class="access-button">Sync Repositories</button>
+                </div>
+                
+                <div class="dashboard-card" onclick="window.open('/trd', '_blank')">
+                    <div class="card-title">KAIZEN TRD System</div>
+                    <div class="card-description">Total Replication Dashboard with automation capabilities</div>
+                    <button class="access-button">Access TRD</button>
+                </div>
+                
+                <div class="dashboard-card" onclick="window.open('/bmi/sweep', '_blank')">
+                    <div class="card-title">BMI Intelligence Sweep</div>
+                    <div class="card-description">Business model intelligence analysis and legacy mapping</div>
+                    <button class="access-button">Run BMI Sweep</button>
+                </div>
+                
+                <div class="dashboard-card" onclick="window.open('/watson/console', '_blank')">
+                    <div class="card-title">Watson Command Console</div>
+                    <div class="card-description">AI command and control interface with unlock protocols</div>
+                    <button class="access-button">Open Console</button>
+                </div>
+                
+                <div class="dashboard-card" onclick="window.open('/role-management', '_blank')">
+                    <div class="card-title">User Management</div>
+                    <div class="card-description">Role-based user creation and access control management</div>
+                    <button class="access-button">Manage Users</button>
+                </div>
+                
+                <div class="dashboard-card" onclick="window.open('/watson/force-render', '_blank')">
+                    <div class="card-title">Watson Force Render</div>
+                    <div class="card-description">DOM injection and interface visibility control system</div>
+                    <button class="access-button">Force Render</button>
+                </div>
+                
+                <div class="dashboard-card" onclick="window.open('/bare-bones-inspector', '_blank')">
+                    <div class="card-title">System Inspector</div>
+                    <div class="card-description">Bare bones module inspection and system debugging</div>
+                    <button class="access-button">Inspect System</button>
+                </div>
+                
+                <div class="dashboard-card" onclick="window.open('/internal-repos', '_blank')">
+                    <div class="card-title">Internal Integration</div>
+                    <div class="card-description">Internal repository integration with floating command widget</div>
+                    <button class="access-button">Open Integration</button>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    '''
+
 # Enhanced main route with complete integration
 @app.route('/master-control')
 def master_control():

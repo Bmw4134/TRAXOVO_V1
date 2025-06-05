@@ -22,6 +22,14 @@ except ImportError:
     OUTLOOK_SCRAPER_AVAILABLE = False
     logging.warning("Outlook Calendar Scraper not available")
 
+# Kaizen System Introspection
+try:
+    from kaizen_system_introspection import get_kaizen_introspection, execute_trd_prompt, validate_and_deploy_patch
+    KAIZEN_INTROSPECTION_AVAILABLE = True
+except ImportError:
+    KAIZEN_INTROSPECTION_AVAILABLE = False
+    logging.warning("Kaizen System Introspection not available")
+
 # QQ AI Accessibility Enhancer
 try:
     from qq_ai_accessibility_enhancer import get_qq_accessibility_enhancer, analyze_page_accessibility, apply_ai_enhancements, get_accessibility_dashboard_data
@@ -2183,6 +2191,130 @@ def api_test_outlook_connection():
             "error": str(e),
             "connection_successful": False
         }), 500
+
+@app.route('/api/trd-introspection')
+def api_trd_introspection():
+    """Execute TRD prompt: Perform full self-introspection and system alignment"""
+    if not KAIZEN_INTROSPECTION_AVAILABLE:
+        return jsonify({
+            "success": False,
+            "error": "Kaizen System Introspection not available"
+        }), 503
+    
+    try:
+        trd_result = execute_trd_prompt()
+        
+        return jsonify({
+            "success": True,
+            "trd_sequence_complete": trd_result["trd_sequence_complete"],
+            "introspection": trd_result["introspection"],
+            "autowiring": trd_result["autowiring"],
+            "watson_activation": trd_result["watson_activation"],
+            "simulation_activation": trd_result["simulation_activation"],
+            "sync_log": trd_result["sync_log"],
+            "confidence_state": trd_result["confidence_state"],
+            "fingerprint_lock": trd_result["fingerprint_lock"]
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/system-fingerprint')
+def api_system_fingerprint():
+    """Get current system fingerprint and module status"""
+    if not KAIZEN_INTROSPECTION_AVAILABLE:
+        return jsonify({
+            "success": False,
+            "error": "Kaizen System Introspection not available"
+        }), 503
+    
+    try:
+        introspection = get_kaizen_introspection()
+        
+        if not introspection.fingerprint:
+            introspection.perform_full_introspection()
+        
+        return jsonify({
+            "success": True,
+            "system_fingerprint": {
+                "dashboard_purpose": introspection.fingerprint.dashboard_purpose,
+                "file_structure_hash": introspection.fingerprint.file_structure_hash,
+                "ui_components": introspection.fingerprint.ui_components,
+                "automation_agents": introspection.fingerprint.automation_agents,
+                "patch_version": introspection.fingerprint.patch_version,
+                "sync_status": introspection.fingerprint.sync_status,
+                "watson_ready": introspection.fingerprint.watson_ready,
+                "playwright_ready": introspection.fingerprint.playwright_ready,
+                "simulation_ready": introspection.fingerprint.simulation_ready
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/validate-patch', methods=['POST'])
+def api_validate_patch():
+    """Validate and deploy uploaded patch with fingerprint checking"""
+    if not KAIZEN_INTROSPECTION_AVAILABLE:
+        return jsonify({
+            "success": False,
+            "error": "Kaizen System Introspection not available"
+        }), 503
+    
+    try:
+        patch_data = request.get_json()
+        
+        if not patch_data:
+            return jsonify({
+                "success": False,
+                "error": "No patch data provided"
+            }), 400
+        
+        deployment_result = validate_and_deploy_patch(patch_data)
+        
+        return jsonify({
+            "success": True,
+            "deployment_result": deployment_result
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/watson-command-console')
+def watson_command_console():
+    """Watson Command Console Dashboard"""
+    return render_template('watson_command_console.html')
+
+@app.route('/api/watson-status')
+def api_watson_status():
+    """Get Watson Command Console status and confidence metrics"""
+    if not KAIZEN_INTROSPECTION_AVAILABLE:
+        return jsonify({
+            "success": False,
+            "error": "Kaizen System Introspection not available"
+        }), 503
+    
+    try:
+        introspection = get_kaizen_introspection()
+        watson_status = introspection.activate_watson_command()
+        
+        # Enhanced status with system metrics
+        enhanced_status = {
+            **watson_status,
+            "system_introspection_ready": True,
+            "automation_agents_count": len(introspection.automation_agents),
+            "ui_components_count": len(introspection.ui_components),
+            "fingerprint_validated": introspection.sync_status == "validated",
+            "last_sync": datetime.now().isoformat()
+        }
+        
+        return jsonify({
+            "success": True,
+            "watson_status": enhanced_status
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5001, debug=True)

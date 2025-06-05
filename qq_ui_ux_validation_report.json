@@ -1,5 +1,5 @@
 {
-  "validation_timestamp": 1749111969.0715466,
+  "validation_timestamp": 1749115838.106651,
   "ui_ux_metrics": {
     "overall_improvement_score": 64.9,
     "files_analyzed": 80,
@@ -16,9 +16,9 @@
     "design_system_coverage": 50.0
   },
   "design_system_validation": {
-    "templates_checked": 50,
+    "templates_checked": 51,
     "integrated_templates": 42,
-    "coverage_percentage": 84.0,
+    "coverage_percentage": 82.4,
     "template_details": [
       {
         "file": "templates/qq_executive_dashboard.html",
@@ -232,6 +232,11 @@
       },
       {
         "file": "templates/kaizen_intelligence_dashboard.html",
+        "has_design_system": false,
+        "status": "MISSING"
+      },
+      {
+        "file": "templates/calendar_automation.html",
         "has_design_system": false,
         "status": "MISSING"
       },

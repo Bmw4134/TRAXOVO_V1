@@ -760,11 +760,165 @@ def home():
         // Auto-refresh every 5 seconds
         setInterval(updateRealTimeStats, 5000);
         
-        // Initialize with Chart.js and Simulation Engine
+        // Comprehensive Micro-Interaction System
+        class MicroInteractionManager {
+            constructor() {
+                this.initializeRippleEffect();
+                this.initializeHoverEffects();
+                this.initializeClickFeedback();
+                this.initializeCardAnimations();
+            }
+            
+            initializeRippleEffect() {
+                document.addEventListener('click', (e) => {
+                    const element = e.target.closest('.access-btn, .module-card, .nav-item');
+                    if (!element) return;
+                    
+                    const ripple = document.createElement('span');
+                    const rect = element.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.style.position = 'absolute';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.background = 'rgba(0, 255, 100, 0.3)';
+                    ripple.style.pointerEvents = 'none';
+                    ripple.style.animation = 'ripple-animation 0.6s linear';
+                    
+                    element.style.position = 'relative';
+                    element.style.overflow = 'hidden';
+                    element.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            }
+            
+            initializeHoverEffects() {
+                const cards = document.querySelectorAll('.module-card');
+                cards.forEach(card => {
+                    card.addEventListener('mouseenter', () => {
+                        card.style.transform = 'translateY(-8px)';
+                        card.style.boxShadow = '0 20px 40px rgba(0, 255, 100, 0.2)';
+                        card.style.borderColor = 'rgba(0, 255, 100, 0.6)';
+                    });
+                    
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = '';
+                        card.style.boxShadow = '';
+                        card.style.borderColor = '';
+                    });
+                });
+            }
+            
+            initializeClickFeedback() {
+                const buttons = document.querySelectorAll('.access-btn');
+                buttons.forEach(button => {
+                    button.addEventListener('mousedown', () => {
+                        button.style.transform = 'translateY(-1px) scale(0.98)';
+                    });
+                    
+                    button.addEventListener('mouseup', () => {
+                        button.style.transform = '';
+                    });
+                    
+                    button.addEventListener('mouseleave', () => {
+                        button.style.transform = '';
+                    });
+                });
+            }
+            
+            initializeCardAnimations() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('.module-card').forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(30px)';
+                    card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+                    observer.observe(card);
+                });
+            }
+            
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#00ff64' : '#ff4444'};
+                    color: ${type === 'success' ? '#000' : '#fff'};
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    z-index: 10000;
+                    animation: slideIn 0.5s ease-out;
+                    font-weight: 600;
+                `;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease-in forwards';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+        }
+        
+        // CSS Animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple-animation {
+                0% { transform: scale(0); opacity: 1; }
+                100% { transform: scale(4); opacity: 0; }
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize everything
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('TRAXOVO Dashboard initialized with simulation engine');
+            console.log('TRAXOVO Dashboard initialized with simulation engine and micro-interactions');
             loadChartJS();
             updateRealTimeStats();
+            
+            // Initialize micro-interactions
+            window.microInteractions = new MicroInteractionManager();
+            
+            // Add interactive feedback to navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    window.microInteractions.showNotification('Navigation activated', 'success');
+                });
+            });
+            
+            // Add status indicator animations
+            setInterval(() => {
+                const indicators = document.querySelectorAll('.stat-value');
+                indicators.forEach(indicator => {
+                    indicator.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        indicator.style.transform = '';
+                    }, 200);
+                });
+            }, 10000);
         });
     </script>
 </body>

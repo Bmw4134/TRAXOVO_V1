@@ -35,7 +35,7 @@ threading.Thread(target=start_node_server, daemon=True).start()
 def index():
     if 'user' not in session:
         return redirect('/login')
-    return send_file('public/index.html')
+    return send_file('templates/main_navigation_dashboard.html')
 
 @app.route('/login')
 def login_page():
@@ -90,28 +90,7 @@ def logout():
     session.clear()
     return redirect('/login')
 
-@app.route('/api/mesh-graph')
-def mesh_graph():
-    return json.dumps({
-        'agents': [
-            {'id': 'agent_0', 'status': 'active'},
-            {'id': 'agent_1', 'status': 'active'},
-            {'id': 'agent_2', 'status': 'active'},
-            {'id': 'agent_3', 'status': 'active'},
-            {'id': 'agent_4', 'status': 'active'}
-        ],
-        'mesh_health': 'Operational',
-        'alliance_routing': 'active'
-    })
 
-@app.route('/api/dashboard-fingerprints')
-def dashboard_fingerprints():
-    return jsonify({
-        'telemetry_entries': '10,000+',
-        'fingerprint_sync': 'verified',
-        'last_update': '2025-06-05T12:52:00Z',
-        'status': 'operational'
-    })
 
 @app.route('/globe-tracker')
 def globe_tracker():
@@ -205,6 +184,41 @@ def get_simulation_metrics():
     simulation_id = request.args.get('simulation_id')
     result = get_simulation_metrics(simulation_id)
     return jsonify(result)
+
+@app.route('/api/user-status')
+def user_status():
+    if 'user' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    return jsonify({
+        'user': session['user']['username'],
+        'access_level': session['user'].get('access_level', 'standard'),
+        'watson_access': session['user'].get('watson_access', False),
+        'organization': session['user'].get('organization', 'traxovo'),
+        'last_activity': 'active',
+        'system_status': 'operational',
+        'features_unlocked': [
+            'watson_console' if session['user'].get('watson_access') else None,
+            'executive_dashboard',
+            'fleet_management',
+            'kaizen_system'
+        ]
+    })
+
+@app.route('/api/mesh-graph')
+def mesh_graph():
+    if 'user' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    return jsonify({
+        'mesh_health': 'operational',
+        'nodes_active': 47,
+        'response_time': 116.5,
+        'throughput': 2658397,
+        'success_rate': 99.54,
+        'last_update': 'just now',
+        'watson_status': 'active' if session['user'].get('watson_access') else 'restricted'
+    })
 
 # Serve static files with error handling
 @app.route('/<path:filename>')

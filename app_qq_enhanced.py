@@ -30,6 +30,14 @@ except ImportError:
     KAIZEN_INTROSPECTION_AVAILABLE = False
     logging.warning("Kaizen System Introspection not available")
 
+# KAIZEN Final Unlock Test System
+try:
+    from init_unlock import run_final_unlock_test, KaizenUnlockValidator
+    KAIZEN_UNLOCK_TEST_AVAILABLE = True
+except ImportError:
+    KAIZEN_UNLOCK_TEST_AVAILABLE = False
+    logging.warning("KAIZEN Unlock Test System not available")
+
 # QQ AI Accessibility Enhancer
 try:
     from qq_ai_accessibility_enhancer import get_qq_accessibility_enhancer, analyze_page_accessibility, apply_ai_enhancements, get_accessibility_dashboard_data
@@ -2315,6 +2323,85 @@ def api_watson_status():
         
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/final-unlock-test')
+def api_final_unlock_test():
+    """Execute KAIZEN Final Unlock Test - TRD: Validate unlocks across all dashboards"""
+    if not KAIZEN_UNLOCK_TEST_AVAILABLE:
+        return jsonify({
+            "success": False,
+            "error": "KAIZEN Unlock Test System not available"
+        }), 503
+    
+    try:
+        validation_results = run_final_unlock_test()
+        
+        if "error" in validation_results:
+            return jsonify({
+                "success": False,
+                "error": validation_results["error"],
+                "status": validation_results["status"]
+            }), 500
+        
+        return jsonify({
+            "success": True,
+            "validation_results": validation_results,
+            "unlock_summary": validation_results["unlock_summary"],
+            "trd_validation_complete": True
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/unlock-status')
+def api_unlock_status():
+    """Get quick unlock status overview"""
+    if not KAIZEN_UNLOCK_TEST_AVAILABLE:
+        return jsonify({
+            "success": False,
+            "error": "KAIZEN Unlock Test System not available"
+        }), 503
+    
+    try:
+        validator = KaizenUnlockValidator()
+        
+        # Quick validation
+        dashboards = validator._discover_dashboards()
+        module_access = validator._validate_unrestricted_module_access()
+        fingerprint_validation = validator._validate_fingerprint_matches()
+        ui_readiness = validator._validate_ui_readiness()
+        
+        quick_status = {
+            "dashboards_discovered": len(dashboards),
+            "unrestricted_modules_percentage": module_access["access_statistics"]["unrestricted_percentage"],
+            "fingerprint_match": fingerprint_validation["fingerprint_match"],
+            "ui_readiness_score": ui_readiness["ui_readiness_score"],
+            "system_ready": True
+        }
+        
+        # Calculate overall readiness
+        scores = [
+            100,  # Dashboards baseline
+            quick_status["unrestricted_modules_percentage"],
+            100 if quick_status["fingerprint_match"] else 0,
+            quick_status["ui_readiness_score"]
+        ]
+        
+        quick_status["overall_readiness"] = round(sum(scores) / len(scores), 2)
+        quick_status["status"] = "READY" if quick_status["overall_readiness"] >= 80 else "PARTIAL"
+        
+        return jsonify({
+            "success": True,
+            "unlock_status": quick_status
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/unlock-test-dashboard')
+def unlock_test_dashboard():
+    """KAIZEN Final Unlock Test Dashboard"""
+    return render_template('unlock_test_dashboard.html')
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5001, debug=True)

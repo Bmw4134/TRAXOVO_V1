@@ -460,6 +460,19 @@ ENHANCED_MAIN_TEMPLATE = '''
                     <span>🤖</span> Watson Console
                 </div>
             </div>
+            
+            <div class="command-section">
+                <h4>BMI Intelligence Sweep</h4>
+                <div class="command-item" onclick="performBMISweep()">
+                    <span>🧠</span> BMI Comprehensive Sweep
+                </div>
+                <div class="command-item" onclick="exportLegacyMappings()">
+                    <span>🗺️</span> Export Legacy Mappings
+                </div>
+                <div class="command-item" onclick="viewInceptionAnalysis()">
+                    <span>🎯</span> Inception to Current
+                </div>
+            </div>
         </div>
     </div>
 
@@ -660,6 +673,36 @@ ENHANCED_MAIN_TEMPLATE = '''
         
         function openWatsonConsole() {
             window.open('/watson/console', '_blank');
+        }
+        
+        function openSystem(url) {
+            window.open(url, '_blank');
+        }
+        
+        function toggleCommandMenu() {
+            const menu = document.getElementById('commandMenu');
+            if (commandMenuOpen) {
+                menu.style.display = 'none';
+                commandMenuOpen = false;
+            } else {
+                menu.style.display = 'block';
+                commandMenuOpen = true;
+            }
+        }
+        
+        function downloadUniversalComponents() {
+            const link = document.createElement('a');
+            link.href = '/download/TRAXOVO_Remix_QQ_Intelligence_Complete.zip';
+            link.download = 'TRAXOVO_Universal_Components.zip';
+            link.click();
+        }
+        
+        function refreshSystems() {
+            location.reload();
+        }
+        
+        function syncRepositories() {
+            loadRepositoryStatus();
         }
         
         function loadRepositoryStatus() {

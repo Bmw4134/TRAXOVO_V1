@@ -22,6 +22,7 @@ from init_unlock import create_init_unlock_routes
 from role_based_user_management import create_user_management_routes
 from watson_force_render import create_watson_force_render_routes
 from automation_dashboard import create_automation_routes
+from js_fix import create_js_fix_routes
 import asyncio
 
 app = Flask(__name__)
@@ -375,6 +376,7 @@ create_init_unlock_routes(app)
 create_user_management_routes(app)
 create_watson_force_render_routes(app)
 create_automation_routes(app)
+create_js_fix_routes(app)
 
 # Working dashboard route
 @app.route('/dashboard')

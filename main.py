@@ -93,6 +93,12 @@ def globe_tracker():
         return redirect('/login')
     return send_file('infinity_visual_tracker/index.html')
 
+@app.route('/mobile-fleet-map')
+def mobile_fleet_map():
+    if 'user' not in session:
+        return redirect('/login')
+    return send_file('mobile_fleet_map/index.html')
+
 # Serve static files with error handling
 @app.route('/<path:filename>')
 def serve_static(filename):

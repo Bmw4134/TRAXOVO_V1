@@ -206,6 +206,9 @@
         <button class="action-btn" onclick="openGlobeView()" style="font-size: 0.9rem; padding: 8px 16px;">
           View Global Fleet Map
         </button>
+        <button class="action-btn" onclick="openMobileMap()" style="font-size: 0.9rem; padding: 8px 16px; margin-left: 10px;">
+          Mobile Fleet View
+        </button>
       </div>
     </div>
   </div>
@@ -279,6 +282,10 @@
 
     function openGlobeView() {
       window.open('/globe-tracker', 'globe_tracker', 'width=1200,height=800');
+    }
+
+    function openMobileMap() {
+      window.open('/mobile-fleet-map', 'mobile_fleet_map', 'width=800,height=1000');
     }
 
     // Initialize

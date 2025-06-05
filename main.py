@@ -93,10 +93,18 @@ def globe_tracker():
         return redirect('/login')
     return send_file('infinity_visual_tracker/index.html')
 
-# Serve static files
+# Serve static files with error handling
 @app.route('/<path:filename>')
 def serve_static(filename):
-    return send_file(f'public/{filename}')
+    try:
+        return send_file(f'public/{filename}')
+    except FileNotFoundError:
+        # Return 404 for missing static files like favicon.ico, apple-touch-icon.png
+        return '', 404
+
+@app.errorhandler(404)
+def not_found(error):
+    return '', 404
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

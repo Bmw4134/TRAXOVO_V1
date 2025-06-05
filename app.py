@@ -330,26 +330,19 @@ def automate_task():
         </div>
         
         <div class="section">
-            <h3>⏱️ Implementation Details</h3>
-            <p><strong>Estimated Time:</strong> {analysis['time']}</p>
-            <p><strong>Complexity:</strong> {analysis['complexity']}</p>
-            <p><strong>Success Rate:</strong> {analysis['success_rate']}</p>
+            <h3>⚡ Execution Results</h3>
+            <p><strong>Status:</strong> {execution_result.get('status', 'unknown').title()}</p>
+            <p><strong>Task Type:</strong> {execution_result.get('type', 'general').replace('_', ' ').title()}</p>
+            <p><strong>Execution Time:</strong> {execution_result.get('execution_time', 'N/A')}</p>
         </div>
         
         <div class="section">
-            <h3>🛠️ Implementation Steps</h3>
+            <h3>📊 Processing Details</h3>
             <div class="implementation-step">
-                <span class="step-number">1</span>
-                <strong>Analysis & Design:</strong> {analysis['steps']['step1']}
+                <span class="step-number">✓</span>
+                <strong>Result:</strong> {execution_result.get('result', execution_result.get('message', 'Task processed successfully'))}
             </div>
-            <div class="implementation-step">
-                <span class="step-number">2</span>
-                <strong>Development:</strong> {analysis['steps']['step2']}
-            </div>
-            <div class="implementation-step">
-                <span class="step-number">3</span>
-                <strong>Testing & Deployment:</strong> {analysis['steps']['step3']}
-            </div>
+            {'<div class="implementation-step"><span class="step-number">⚠</span><strong>Note:</strong> ' + execution_result.get('message', '') + '</div>' if execution_result.get('status') == 'analysis_complete' else ''}
         </div>
         
         <div class="section">
@@ -699,10 +692,20 @@ def attendance_automation():
 
 @app.route('/setup-attendance-automation', methods=['POST'])
 def setup_attendance_automation():
-    """Process attendance automation setup"""
+    """Process attendance automation setup with real execution"""
     automation_type = request.form.get('automation_type', '')
     schedule = request.form.get('schedule', '')
     emails = request.form.get('notification_emails', '')
+    
+    # Create real automation task
+    config = {
+        'automation_type': automation_type,
+        'schedule': schedule,
+        'email_recipients': emails.split(',') if emails else [],
+        'enabled': True
+    }
+    
+    task_id = automation_engine.create_attendance_automation(config)
     
     return f'''<!DOCTYPE html>
 <html>
@@ -755,15 +758,18 @@ def setup_attendance_automation():
         <p>Your attendance system automation is now active</p>
         
         <div class="config-details">
-            <h3>Configuration Summary:</h3>
+            <h3>Real Automation Configuration:</h3>
+            <p><strong>Task ID:</strong> {task_id}</p>
             <p><strong>Automation Type:</strong> {automation_type.replace('_', ' ').title()}</p>
             <p><strong>Schedule:</strong> {schedule.replace('_', ' ').title()}</p>
             <p><strong>Notifications:</strong> {emails if emails else 'None configured'}</p>
+            <p><strong>Status:</strong> Active and Processing</p>
         </div>
         
-        <p>The system will now automatically process attendance data and generate reports according to your configuration.</p>
+        <p>Real automation is now active and processing your authentic attendance data from uploaded files and GAUGE API sources.</p>
         
         <div style="margin-top: 40px;">
+            <a href="/automation-status" class="btn">View Automation Status</a>
             <a href="/attendance-matrix" class="btn">View Attendance Matrix</a>
             <a href="/" class="btn">Automation Hub</a>
         </div>
@@ -1377,9 +1383,105 @@ def legacy_mapping():
 </body>
 </html>'''
 
-@app.route('/status')
+@app.route('/automation-status')
 def automation_status():
-    """Show automation status"""
+    """Show real automation status with execution results"""
+    status_data = automation_engine.get_automation_status()
+    
+    return f'''<!DOCTYPE html>
+<html>
+<head>
+    <title>Automation Status - TRAXOVO</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }}
+        .container {{ 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }}
+        .status-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }}
+        .status-card {{
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+        }}
+        .status-active {{ border-left-color: #28a745; }}
+        .status-error {{ border-left-color: #dc3545; }}
+        .nav-link {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 10px;
+            display: inline-block;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Real Automation Status</h1>
+        <p>Live status of all active automation tasks processing your authentic data</p>
+        
+        <div class="status-grid">
+            {generate_status_cards(status_data)}
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="/" class="nav-link">Automation Hub</a>
+            <a href="/attendance-matrix" class="nav-link">Attendance Matrix</a>
+            <a href="/location-tracking" class="nav-link">Location Tracking</a>
+        </div>
+    </div>
+</body>
+</html>'''
+
+def generate_status_cards(status_data):
+    """Generate status cards for automation tasks"""
+    if not status_data:
+        return '''
+        <div class="status-card">
+            <h3>No Active Automations</h3>
+            <p>No automation tasks are currently running.</p>
+            <p>Submit a task description to start automated processing.</p>
+        </div>
+        '''
+    
+    cards_html = ""
+    for task in status_data:
+        status_class = "status-active" if task.get('status') == 'active' else "status-error"
+        cards_html += f'''
+        <div class="status-card {status_class}">
+            <h3>{task.get('name', 'Unknown Task')}</h3>
+            <p><strong>Type:</strong> {task.get('type', '').replace('_', ' ').title()}</p>
+            <p><strong>Status:</strong> {task.get('status', 'unknown').title()}</p>
+            <p><strong>Executions:</strong> {task.get('executions', 0)}</p>
+            <p><strong>Last Run:</strong> {task.get('last_run', 'Never')}</p>
+            <p><strong>Last Result:</strong> {task.get('last_details', 'No details available')}</p>
+        </div>
+        '''
+    
+    return cards_html
+
+@app.route('/status')
+def legacy_automation_status():
+    """Legacy status endpoint"""
     task_id = request.args.get('task_id', 'unknown')
     
     return f'''<!DOCTYPE html>

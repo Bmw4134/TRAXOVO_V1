@@ -1197,13 +1197,151 @@ def execute_trillion_simulation():
     result = execute_optimized_trillion_test()
     return jsonify(result)
 
-# Fleet Analytics
-@app.route('/fleet_analytics')
-def fleet_analytics():
+# Watson Dev Admin Master Analytics Dashboard
+@app.route('/analytics_engine')
+def analytics_engine():
+    """Analytics Engine for Watson dev admin master"""
     if 'user' not in session:
         return redirect(url_for('login'))
     
-    return send_file('public/fleet_analytics.html')
+    user = session['user']
+    if not user.get('watson_access'):
+        return redirect(url_for('home'))
+    
+    watson_analytics = get_watson_analytics()
+    performance_data = get_performance_analytics()
+    
+    return render_template_string("""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analytics Engine - Watson Dev Admin Master</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { margin: 0; background: #0a0a0a; color: white; font-family: Arial; }
+        .analytics-container { padding: 20px; }
+        .header { background: #1a1a2e; padding: 20px; border-radius: 15px; border: 2px solid #00ff64; margin-bottom: 20px; }
+        .analytics-title { color: #00ff64; font-size: 28px; font-weight: bold; margin-bottom: 10px; }
+        .analytics-subtitle { color: #888; }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-top: 20px; }
+        .chart-card { background: #1a1a2e; padding: 20px; border-radius: 15px; border: 1px solid #00ff64; }
+        .chart-title { color: #00ff64; font-size: 18px; margin-bottom: 15px; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .metric-card { background: #2a2a4e; padding: 15px; border-radius: 10px; text-align: center; }
+        .metric-value { color: #00ff64; font-size: 24px; font-weight: bold; }
+        .metric-label { color: #888; font-size: 12px; margin-top: 5px; }
+        .back-btn { background: #00ff64; color: black; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="analytics-container">
+        <div class="header">
+            <div class="analytics-title">Watson Dev Admin Master - Analytics Engine</div>
+            <div class="analytics-subtitle">Real-time performance metrics with authentic simulation data</div>
+            <a href="/" class="back-btn">← Back to Dashboard</a>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value">{{ watson_analytics.system_control_metrics.total_modules_loaded }}</div>
+                <div class="metric-label">Modules Loaded</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ performance_data.fleet_metrics.total_assets }}</div>
+                <div class="metric-label">Total Assets</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ performance_data.fleet_metrics.active_percentage }}%</div>
+                <div class="metric-label">System Efficiency</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ watson_analytics.simulation_engine_status.engine_uptime }}</div>
+                <div class="metric-label">Engine Uptime</div>
+            </div>
+        </div>
+        
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">System Performance</div>
+                <canvas id="performanceChart" width="400" height="300"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Fleet Analytics</div>
+                <canvas id="fleetChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Performance Chart
+        const perfCtx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(perfCtx, {
+            type: 'line',
+            data: {
+                labels: ['CPU', 'Memory', 'Network', 'Storage'],
+                datasets: [{
+                    label: 'System Performance',
+                    data: [{{ performance_data.system_performance.cpu_usage }}, 
+                           {{ performance_data.system_performance.memory_usage }}, 
+                           {{ performance_data.system_performance.network_throughput }}, 
+                           {{ performance_data.system_performance.storage_utilization }}],
+                    borderColor: '#00ff64',
+                    backgroundColor: 'rgba(0, 255, 100, 0.1)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { 
+                        ticks: { color: '#ffffff' },
+                        grid: { color: 'rgba(0, 255, 100, 0.2)' }
+                    },
+                    x: { 
+                        ticks: { color: '#ffffff' },
+                        grid: { color: 'rgba(0, 255, 100, 0.2)' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: '#ffffff' }
+                    }
+                }
+            }
+        });
+        
+        // Fleet Chart
+        const fleetCtx = document.getElementById('fleetChart').getContext('2d');
+        new Chart(fleetCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ performance_data.analytics_data.chart_labels | tojson }},
+                datasets: [{
+                    data: {{ performance_data.analytics_data.chart_values | tojson }},
+                    backgroundColor: [
+                        'rgba(0, 255, 100, 0.8)',
+                        'rgba(0, 200, 255, 0.8)',
+                        'rgba(255, 200, 0, 0.8)',
+                        'rgba(255, 100, 0, 0.8)',
+                        'rgba(200, 0, 255, 0.8)'
+                    ],
+                    borderColor: '#00ff64',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: '#ffffff' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+    """, watson_analytics=watson_analytics, performance_data=performance_data)
 
 @app.route('/api/fleet/analytics')
 def get_fleet_analytics():

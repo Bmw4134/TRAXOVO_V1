@@ -1,4 +1,4 @@
-from app_clean import app  # noqa: F401
+from app_traxovo import app  # noqa: F401
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

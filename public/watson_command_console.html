@@ -176,6 +176,113 @@
       color: #ff6b35;
       font-weight: bold;
     }
+
+    /* Accessibility Enhancements */
+    .accessibility-controls {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+      display: flex;
+      gap: 10px;
+    }
+
+    .accessibility-btn {
+      background: rgba(0, 0, 0, 0.8);
+      color: #00ff88;
+      border: 1px solid #ff6b35;
+      border-radius: 5px;
+      padding: 8px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .accessibility-btn:hover,
+    .accessibility-btn:focus {
+      background: rgba(255, 107, 53, 0.3);
+      outline: 2px solid #00ff88;
+      outline-offset: 2px;
+    }
+
+    /* High Contrast Mode */
+    .high-contrast {
+      background: #000000 !important;
+      color: #ffffff !important;
+    }
+
+    .high-contrast .console-panel {
+      background: #000000 !important;
+      border: 3px solid #ffffff !important;
+      color: #ffffff !important;
+    }
+
+    .high-contrast .watson-btn {
+      background: #ffffff !important;
+      color: #000000 !important;
+      border: 2px solid #ffffff !important;
+    }
+
+    .high-contrast .command-line {
+      background: #000000 !important;
+      border: 2px solid #ffffff !important;
+    }
+
+    .high-contrast #terminal-input {
+      color: #ffffff !important;
+      background: #000000 !important;
+    }
+
+    /* Large Font Mode */
+    .large-font {
+      font-size: 16px !important;
+    }
+
+    .large-font .watson-logo {
+      font-size: 3rem !important;
+    }
+
+    .large-font .panel-header {
+      font-size: 1.3rem !important;
+    }
+
+    .large-font #terminal-input {
+      font-size: 16px !important;
+    }
+
+    /* Screen Reader Only Content */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Focus Indicators */
+    *:focus {
+      outline: 2px solid #00ff88;
+      outline-offset: 2px;
+    }
+
+    .watson-btn:focus,
+    .accessibility-btn:focus {
+      outline: 3px solid #00ff88;
+      outline-offset: 3px;
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
     
     @media (max-width: 768px) {
       .console-grid {
@@ -189,48 +296,60 @@
   </style>
 </head>
 <body>
-  <div class="console-header">
-    <div class="watson-logo">WATSON</div>
-    <div class="proprietary-badge">PROPRIETARY TECHNOLOGY</div>
-    <div style="color: #b8c6db; font-size: 1rem;">Command Console & Analysis Engine</div>
+  <!-- Accessibility Controls -->
+  <div class="accessibility-controls" role="toolbar" aria-label="Accessibility Options">
+    <button class="accessibility-btn" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Mode" id="contrast-btn">High Contrast</button>
+    <button class="accessibility-btn" onclick="toggleLargeFont()" aria-label="Toggle Large Font Mode" id="font-btn">Large Font</button>
+    <button class="accessibility-btn" onclick="announceStatus()" aria-label="Announce Current Status">Announce Status</button>
   </div>
 
-  <div class="access-warning">
-    RESTRICTED ACCESS - PROPRIETARY WATSON TECHNOLOGY
+  <!-- Screen Reader Announcements -->
+  <div id="announcements" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+  <header class="console-header" role="banner">
+    <h1 class="watson-logo">WATSON</h1>
+    <div class="proprietary-badge" role="img" aria-label="Proprietary Technology Badge">PROPRIETARY TECHNOLOGY</div>
+    <div style="color: #b8c6db; font-size: 1rem;" aria-label="Application Description">Command Console & Analysis Engine</div>
+  </header>
+
+  <div class="access-warning" role="alert" aria-label="Security Warning">
+    <span class="sr-only">Security Alert: </span>RESTRICTED ACCESS - PROPRIETARY WATSON TECHNOLOGY
   </div>
 
-  <div class="console-grid">
-    <div class="console-panel">
-      <div class="panel-header">System Analysis</div>
+  <main class="console-grid" role="main" aria-label="Watson Command Console Dashboard">
+    <section class="console-panel" role="region" aria-labelledby="analysis-header">
+      <h2 class="panel-header" id="analysis-header">System Analysis</h2>
       
-      <div class="command-line">
-        <div class="command-prompt">watson@traxovo:~$ ./analyze_system --full</div>
-        <div class="command-output">Executing comprehensive system analysis...</div>
-        <div class="command-output">Status: <span id="analysis-status">COMPLETE</span></div>
+      <div class="command-line" role="log" aria-label="Analysis Command Output">
+        <div class="command-prompt" aria-label="Command prompt">watson@traxovo:~$ ./analyze_system --full</div>
+        <div class="command-output" aria-live="polite">Executing comprehensive system analysis...</div>
+        <div class="command-output">Status: <span id="analysis-status" aria-live="polite">COMPLETE</span></div>
       </div>
       
-      <div class="status-grid">
-        <div class="status-item">
+      <div class="status-grid" role="grid" aria-label="System Performance Metrics">
+        <div class="status-item" role="gridcell">
           <span>Simulation Cycles</span>
-          <span class="status-value" id="simulation-cycles">2,000,000</span>
+          <span class="status-value" id="simulation-cycles" aria-label="2,000,000 simulation cycles">2,000,000</span>
         </div>
-        <div class="status-item">
+        <div class="status-item" role="gridcell">
           <span>Performance Score</span>
-          <span class="status-value" id="performance-score">98.7%</span>
+          <span class="status-value" id="performance-score" aria-label="Performance score 98.7 percent">98.7%</span>
         </div>
-        <div class="status-item">
+        <div class="status-item" role="gridcell">
           <span>UI Regressions</span>
-          <span class="status-value" id="ui-regressions">0</span>
+          <span class="status-value" id="ui-regressions" aria-label="Zero UI regressions">0</span>
         </div>
-        <div class="status-item">
+        <div class="status-item" role="gridcell">
           <span>Load Time</span>
-          <span class="status-value" id="load-time">1.8s</span>
+          <span class="status-value" id="load-time" aria-label="Load time 1.8 seconds">1.8s</span>
         </div>
       </div>
 
-      <div class="control-buttons">
-        <button class="watson-btn" onclick="runAnalysis()">Run Analysis</button>
-        <button class="watson-btn secondary" onclick="exportReport()">Export Report</button>
+      <div class="control-buttons" role="group" aria-label="Analysis Controls">
+        <button class="watson-btn" onclick="runAnalysis()" aria-describedby="analysis-description">Run Analysis</button>
+        <button class="watson-btn secondary" onclick="exportReport()" aria-describedby="export-description">Export Report</button>
+        <div id="analysis-description" class="sr-only">Execute comprehensive system analysis and security validation</div>
+        <div id="export-description" class="sr-only">Export current analysis results to file</div>
       </div>
     </div>
 
@@ -268,37 +387,47 @@
     </div>
   </div>
 
-  <div class="console-panel">
-    <div class="panel-header">Watson Command Terminal</div>
-    
-    <div class="command-line">
-      <div class="command-prompt">watson@proprietary:~$ watson --help</div>
-      <div class="command-output">Watson Command Console v2.0 - Proprietary Technology</div>
-      <div class="command-output">Available commands:</div>
-      <div class="command-output">  analyze     - Run system analysis</div>
-      <div class="command-output">  deploy      - Deployment validation</div>
-      <div class="command-output">  monitor     - Real-time monitoring</div>
-      <div class="command-output">  optimize    - Performance optimization</div>
-      <div class="command-output">  secure      - Security validation</div>
-    </div>
-
-    <div class="analysis-output" id="watson-output">
-      <div style="color: #ff6b35;">[WATSON] System initialized successfully</div>
-      <div style="color: #00ff88;">[ANALYSIS] Trillion-level simulation complete - 2M iterations</div>
-      <div style="color: #00ff88;">[VALIDATION] Executive dashboard approved for deployment</div>
-      <div style="color: #ff6b35;">[SECURITY] All access controls validated</div>
-      <div style="color: #00ff88;">[PERFORMANCE] Load time: 1.8s (target: &lt;2s) ✓</div>
-      <div style="color: #ff6b35;">[WATSON] Ready for proprietary operations</div>
-    </div>
-
-    <div style="margin-top: 15px;">
-      <div style="display: flex; align-items: center; background: #000; border: 2px solid #ff6b35; border-radius: 5px; padding: 10px;">
-        <span style="color: #ff6b35; margin-right: 10px;">watson@proprietary:~$</span>
-        <input type="text" id="terminal-input" placeholder="Enter Watson command..." 
-               style="background: transparent; border: none; color: #00ff88; flex: 1; outline: none; font-family: 'Courier New', monospace; font-size: 13px;" />
-        <button class="watson-btn" onclick="executeTerminalCommand()" style="margin-left: 10px; padding: 5px 15px;">Execute</button>
+    <section class="console-panel" role="region" aria-labelledby="terminal-header">
+      <h2 class="panel-header" id="terminal-header">Watson Command Terminal</h2>
+      
+      <div class="command-line" role="log" aria-label="Command Help Output">
+        <div class="command-prompt" aria-label="Help command prompt">watson@proprietary:~$ watson --help</div>
+        <div class="command-output">Watson Command Console v2.0 - Proprietary Technology</div>
+        <div class="command-output">Available commands:</div>
+        <div class="command-output">  analyze     - Run system analysis</div>
+        <div class="command-output">  deploy      - Deployment validation</div>
+        <div class="command-output">  monitor     - Real-time monitoring</div>
+        <div class="command-output">  optimize    - Performance optimization</div>
+        <div class="command-output">  secure      - Security validation</div>
+        <div class="command-output">  storage     - Storage diagnostics</div>
       </div>
-    </div>
+
+      <div class="analysis-output" id="watson-output" role="log" aria-live="polite" aria-label="Watson System Output">
+        <div style="color: #ff6b35;" aria-label="Watson system initialization">[WATSON] System initialized successfully</div>
+        <div style="color: #00ff88;" aria-label="Analysis complete">[ANALYSIS] Trillion-level simulation complete - 2M iterations</div>
+        <div style="color: #00ff88;" aria-label="Dashboard validation">[VALIDATION] Executive dashboard approved for deployment</div>
+        <div style="color: #ff6b35;" aria-label="Security validation">[SECURITY] All access controls validated</div>
+        <div style="color: #00ff88;" aria-label="Performance metrics">[PERFORMANCE] Load time: 1.8s (target: &lt;2s) ✓</div>
+        <div style="color: #ff6b35;" aria-label="Watson ready status">[WATSON] Ready for proprietary operations</div>
+      </div>
+
+      <div style="margin-top: 15px;" role="group" aria-labelledby="terminal-input-group">
+        <label id="terminal-input-group" class="sr-only">Watson Command Input</label>
+        <div style="display: flex; align-items: center; background: #000; border: 2px solid #ff6b35; border-radius: 5px; padding: 10px;">
+          <span style="color: #ff6b35; margin-right: 10px;" aria-hidden="true">watson@proprietary:~$</span>
+          <input type="text" 
+                 id="terminal-input" 
+                 placeholder="Enter Watson command..." 
+                 aria-label="Command input field - Type help for available commands"
+                 aria-describedby="terminal-instructions"
+                 style="background: transparent; border: none; color: #00ff88; flex: 1; outline: none; font-family: 'Courier New', monospace; font-size: 13px;" />
+          <button class="watson-btn" 
+                  onclick="executeTerminalCommand()" 
+                  aria-label="Execute Watson Command"
+                  style="margin-left: 10px; padding: 5px 15px;">Execute</button>
+        </div>
+        <div id="terminal-instructions" class="sr-only">Type Watson commands like analyze, deploy, monitor, optimize, secure, or storage. Press Enter or click Execute to run.</div>
+      </div>
 
     <div class="control-buttons">
       <button class="watson-btn" onclick="executeWatsonCommand()">Execute Command</button>
@@ -567,10 +696,132 @@
       }
     }
 
-    // Initialize Watson Console
+    // Accessibility State Management
+    let accessibilityState = {
+      highContrast: false,
+      largeFont: false,
+      screenReaderEnabled: false
+    };
+
+    // Accessibility Functions
+    function toggleHighContrast() {
+      accessibilityState.highContrast = !accessibilityState.highContrast;
+      document.body.classList.toggle('high-contrast', accessibilityState.highContrast);
+      
+      const btn = document.getElementById('contrast-btn');
+      btn.textContent = accessibilityState.highContrast ? 'Normal Contrast' : 'High Contrast';
+      btn.setAttribute('aria-pressed', accessibilityState.highContrast);
+      
+      announceToScreenReader(accessibilityState.highContrast ? 
+        'High contrast mode enabled' : 'High contrast mode disabled');
+    }
+
+    function toggleLargeFont() {
+      accessibilityState.largeFont = !accessibilityState.largeFont;
+      document.body.classList.toggle('large-font', accessibilityState.largeFont);
+      
+      const btn = document.getElementById('font-btn');
+      btn.textContent = accessibilityState.largeFont ? 'Normal Font' : 'Large Font';
+      btn.setAttribute('aria-pressed', accessibilityState.largeFont);
+      
+      announceToScreenReader(accessibilityState.largeFont ? 
+        'Large font mode enabled' : 'Large font mode disabled');
+    }
+
+    function announceStatus() {
+      const analysisStatus = document.getElementById('analysis-status').textContent;
+      const performanceScore = document.getElementById('performance-score').textContent;
+      const loadTime = document.getElementById('load-time').textContent;
+      
+      const statusMessage = `Watson Command Console Status: Analysis ${analysisStatus}, Performance Score ${performanceScore}, Load Time ${loadTime}`;
+      announceToScreenReader(statusMessage);
+    }
+
+    function announceToScreenReader(message) {
+      const announcements = document.getElementById('announcements');
+      announcements.textContent = message;
+      
+      // Clear after announcement to allow for new ones
+      setTimeout(() => {
+        announcements.textContent = '';
+      }, 1000);
+    }
+
+    // Enhanced keyboard navigation
+    function setupKeyboardNavigation() {
+      document.addEventListener('keydown', function(e) {
+        // Alt + 1-3 for accessibility controls
+        if (e.altKey) {
+          switch(e.key) {
+            case '1':
+              e.preventDefault();
+              toggleHighContrast();
+              break;
+            case '2':
+              e.preventDefault();
+              toggleLargeFont();
+              break;
+            case '3':
+              e.preventDefault();
+              announceStatus();
+              break;
+            case 'h':
+              e.preventDefault();
+              document.getElementById('terminal-input').focus();
+              break;
+          }
+        }
+        
+        // Escape to focus terminal input
+        if (e.key === 'Escape') {
+          document.getElementById('terminal-input').focus();
+        }
+      });
+    }
+
+    // Enhanced terminal command processing with accessibility
+    async function processWatsonCommandAccessible(command) {
+      const startTime = Date.now();
+      
+      // Announce command execution
+      announceToScreenReader(`Executing command: ${command}`);
+      
+      // Log command execution to storage
+      if (watsonStorage && watsonSQL) {
+        await watsonStorage.storeFeedbackLog(sessionId, command, 'Command initiated', new Date().toISOString());
+        await watsonSQL.logCommand(sessionId, command, 'Initiated', 0, true);
+      }
+      
+      const parts = command.toLowerCase().split(' ');
+      const baseCommand = parts[0];
+      
+      switch(baseCommand) {
+        case 'accessibility':
+          updateOutput('[WATSON] Accessibility features status:');
+          updateOutput(`High Contrast: ${accessibilityState.highContrast ? 'ENABLED' : 'DISABLED'}`);
+          updateOutput(`Large Font: ${accessibilityState.largeFont ? 'ENABLED' : 'DISABLED'}`);
+          updateOutput('Keyboard shortcuts: Alt+1 (contrast), Alt+2 (font), Alt+3 (status)');
+          announceToScreenReader('Accessibility status reported');
+          break;
+        default:
+          // Call original command processor
+          await processWatsonCommand(command);
+      }
+      
+      const executionTime = Date.now() - startTime;
+      if (watsonSQL) {
+        await watsonSQL.logCommand(sessionId, command, 'Command completed', executionTime, true);
+      }
+    }
+
+    // Initialize Watson Console with Accessibility
     document.addEventListener('DOMContentLoaded', async function() {
       updateOutput('[WATSON] Proprietary Command Console initialized');
+      updateOutput('[ACCESSIBILITY] Enhanced accessibility features loaded');
       updateOutput('[SYSTEM] Loading Infinity Alpha & Omega Storage Bundle...');
+      
+      // Setup accessibility features
+      setupKeyboardNavigation();
       
       // Initialize Watson storage and SQL modules
       try {
@@ -591,13 +842,18 @@
           updateOutput(`[DIAGNOSTICS] ✅ Bucket access: ${bucketValidation.success ? 'OPERATIONAL' : 'FAILED'}`);
           updateOutput(`[DIAGNOSTICS] ✅ Command I/O: FUNCTIONAL`);
           updateOutput(`[DIAGNOSTICS] ✅ SQL write validation: ${sqlValidation.success ? 'VALIDATED' : 'FAILED'}`);
+          updateOutput(`[DIAGNOSTICS] ✅ Accessibility: ENHANCED`);
           updateOutput(`[DIAGNOSTICS] ✅ No duplicate injection: CONFIRMED`);
           updateOutput('[WATSON] All systems ready - Type "help" for available commands');
+          updateOutput('[ACCESSIBILITY] Use Alt+1, Alt+2, Alt+3 for accessibility controls');
+          
+          announceToScreenReader('Watson Command Console fully initialized with accessibility enhancements');
         }, 1000);
         
       } catch (error) {
         updateOutput('[ERROR] Storage initialization failed: ' + error.message);
         updateOutput('[WATSON] Operating in limited mode');
+        announceToScreenReader('Watson Console initialized in limited mode');
       }
       
       // Add Enter key support for terminal input

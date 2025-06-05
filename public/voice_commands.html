@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voice Command Integration - TRAXOVO</title>
+    <style>
+        body { margin: 0; background: #0a0a0a; color: white; font-family: Arial; padding: 20px; }
+        .voice-container { max-width: 1000px; margin: 0 auto; }
+        .voice-header { background: #1a1a2e; padding: 20px; border-radius: 10px; border: 1px solid #00ff88; margin-bottom: 20px; }
+        .control-section { background: #1a1a2e; padding: 20px; border-radius: 10px; border: 1px solid #00ff88; margin: 20px 0; }
+        .voice-controls { display: flex; gap: 15px; margin: 20px 0; }
+        .voice-btn { background: #00ff88; color: black; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        .voice-btn:hover { background: #00ccff; }
+        .voice-btn.active { background: #ff6b35; }
+        .voice-btn.stop { background: #ff4444; color: white; }
+        .command-log { background: #0a0a0a; border: 1px solid #333; border-radius: 5px; padding: 15px; height: 200px; overflow-y: auto; font-family: monospace; }
+        .language-select { background: #2a2a4e; color: white; border: 1px solid #555; border-radius: 5px; padding: 10px; margin: 10px; }
+        .status-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+        .status-active { background: #00ff00; }
+        .status-inactive { background: #666; }
+        .back-btn { background: #333; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; }
+        .command-examples { background: #2a2a4e; padding: 15px; border-radius: 5px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="voice-container">
+        <div class="voice-header">
+            <button class="back-btn" onclick="window.location.href='/'">← Back to Dashboard</button>
+            <h1>Voice Command Integration</h1>
+            <p>Advanced speech recognition system for Watson Intelligence Platform</p>
+            <div id="voice-status">
+                <span class="status-indicator status-inactive" id="statusLight"></span>
+                <span id="statusText">Voice Recognition: Inactive</span>
+            </div>
+        </div>
+        
+        <div class="control-section">
+            <h2>Voice Control Center</h2>
+            <div class="voice-controls">
+                <button class="voice-btn" id="startBtn" onclick="startVoiceRecognition()">Start Listening</button>
+                <button class="voice-btn stop" id="stopBtn" onclick="stopVoiceRecognition()" disabled>Stop Listening</button>
+                <button class="voice-btn" onclick="testMicrophone()">Test Microphone</button>
+                <button class="voice-btn" onclick="clearLog()">Clear Log</button>
+            </div>
+            
+            <div>
+                <label for="languageSelect">Recognition Language:</label>
+                <select id="languageSelect" class="language-select" onchange="changeLanguage()">
+                    <option value="en-US">English (US)</option>
+                    <option value="en-GB">English (UK)</option>
+                    <option value="es-ES">Spanish</option>
+                    <option value="fr-FR">French</option>
+                    <option value="de-DE">German</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="control-section">
+            <h2>Command Examples</h2>
+            <div class="command-examples">
+                <h3>Wake Words:</h3>
+                <p>"Watson", "Computer", "System"</p>
+                
+                <h3>Available Commands:</h3>
+                <ul>
+                    <li><strong>Analysis:</strong> "Watson analyze system performance"</li>
+                    <li><strong>Deployment:</strong> "Watson check deployment status"</li>
+                    <li><strong>Monitoring:</strong> "Watson show system health"</li>
+                    <li><strong>Emergency:</strong> "Watson emergency system fix"</li>
+                    <li><strong>Fleet:</strong> "Watson refresh fleet map"</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="control-section">
+            <h2>Command Log</h2>
+            <div class="command-log" id="commandLog">
+                Voice commands will appear here...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isListening = false;
+        let recognition = null;
+        
+        function initializeVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = document.getElementById('languageSelect').value;
+                
+                recognition.onstart = function() {
+                    updateStatus(true, 'Voice Recognition: Active - Listening...');
+                    logCommand('Voice recognition started');
+                };
+                
+                recognition.onend = function() {
+                    updateStatus(false, 'Voice Recognition: Inactive');
+                    logCommand('Voice recognition stopped');
+                    isListening = false;
+                    updateButtons();
+                };
+                
+                recognition.onresult = function(event) {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        let transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+                    
+                    if (finalTranscript) {
+                        processVoiceCommand(finalTranscript);
+                    }
+                };
+                
+                recognition.onerror = function(event) {
+                    logCommand('Error: ' + event.error);
+                    updateStatus(false, 'Voice Recognition: Error - ' + event.error);
+                };
+                
+                return true;
+            } else {
+                logCommand('Speech recognition not supported in this browser');
+                return false;
+            }
+        }
+        
+        function startVoiceRecognition() {
+            if (!recognition && !initializeVoiceRecognition()) {
+                return;
+            }
+            
+            try {
+                recognition.start();
+                isListening = true;
+                updateButtons();
+                
+                // Also notify backend
+                fetch('/api/voice/start', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        logCommand('Backend voice system: ' + data.status);
+                    })
+                    .catch(error => {
+                        logCommand('Backend voice system: simulation mode');
+                    });
+                    
+            } catch (error) {
+                logCommand('Failed to start voice recognition: ' + error.message);
+            }
+        }
+        
+        function stopVoiceRecognition() {
+            if (recognition && isListening) {
+                recognition.stop();
+                
+                // Notify backend
+                fetch('/api/voice/stop', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        logCommand('Backend voice system stopped');
+                    });
+            }
+        }
+        
+        function processVoiceCommand(transcript) {
+            const command = transcript.toLowerCase();
+            logCommand('Heard: "' + transcript + '"');
+            
+            // Check for wake words
+            const wakeWords = ['watson', 'computer', 'system'];
+            const hasWakeWord = wakeWords.some(word => command.includes(word));
+            
+            if (hasWakeWord) {
+                logCommand('Wake word detected - Processing command...');
+                
+                // Categorize and execute command
+                if (command.includes('analyze') || command.includes('analysis')) {
+                    executeWatsonCommand('analysis', transcript);
+                } else if (command.includes('deploy') || command.includes('deployment')) {
+                    executeWatsonCommand('deployment', transcript);
+                } else if (command.includes('monitor') || command.includes('health') || command.includes('status')) {
+                    executeWatsonCommand('monitoring', transcript);
+                } else if (command.includes('emergency') || command.includes('fix')) {
+                    executeWatsonCommand('emergency', transcript);
+                } else if (command.includes('fleet') || command.includes('map')) {
+                    executeWatsonCommand('fleet', transcript);
+                } else {
+                    executeWatsonCommand('general', transcript);
+                }
+            }
+        }
+        
+        async function executeWatsonCommand(type, command) {
+            logCommand('Executing ' + type + ' command: ' + command);
+            
+            try {
+                switch(type) {
+                    case 'emergency':
+                        const response = await fetch('/api/watson/emergency_fix', { method: 'POST' });
+                        const result = await response.json();
+                        logCommand('Emergency fix completed: ' + result.system_status);
+                        break;
+                    case 'fleet':
+                        window.location.href = '/fleet_map_advanced';
+                        break;
+                    case 'analysis':
+                        logCommand('System analysis initiated...');
+                        break;
+                    default:
+                        logCommand('Command processed: ' + type);
+                }
+            } catch (error) {
+                logCommand('Command execution failed: ' + error.message);
+            }
+        }
+        
+        function testMicrophone() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        logCommand('Microphone test: SUCCESS - Access granted');
+                        stream.getTracks().forEach(track => track.stop());
+                    })
+                    .catch(error => {
+                        logCommand('Microphone test: FAILED - ' + error.message);
+                    });
+            } else {
+                logCommand('Microphone test: Not supported in this browser');
+            }
+        }
+        
+        function changeLanguage() {
+            const lang = document.getElementById('languageSelect').value;
+            if (recognition) {
+                recognition.lang = lang;
+                logCommand('Language changed to: ' + lang);
+            }
+        }
+        
+        function updateStatus(active, message) {
+            document.getElementById('statusLight').className = 
+                'status-indicator ' + (active ? 'status-active' : 'status-inactive');
+            document.getElementById('statusText').textContent = message;
+        }
+        
+        function updateButtons() {
+            document.getElementById('startBtn').disabled = isListening;
+            document.getElementById('stopBtn').disabled = !isListening;
+            
+            if (isListening) {
+                document.getElementById('startBtn').classList.add('active');
+            } else {
+                document.getElementById('startBtn').classList.remove('active');
+            }
+        }
+        
+        function logCommand(message) {
+            const log = document.getElementById('commandLog');
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += '[' + timestamp + '] ' + message + '\n';
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('commandLog').innerHTML = '';
+        }
+        
+        // Initialize on page load
+        window.onload = function() {
+            logCommand('Voice Command Integration initialized');
+            logCommand('Ready for voice commands - Click "Start Listening" to begin');
+        };
+    </script>
+</body>
+</html>

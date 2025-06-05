@@ -87,8 +87,8 @@ def home():
         .nav-item { display: block; padding: 12px 20px; color: #ffffff; text-decoration: none; transition: all 0.2s; border-left: 3px solid transparent; }
         .nav-item:hover { background: rgba(0,255,100,0.08); border-left-color: #00ff64; }
         .nav-item.active { background: rgba(0,255,100,0.12); border-left-color: #00ff64; color: #00ff64; }
-        .nav-item.watson-exclusive { border-left-color: #ff6b35; }
-        .nav-item.watson-exclusive:hover { background: rgba(255,107,53,0.1); border-left-color: #ff6b35; }
+        .nav-item.watson-exclusive { border-left-color: #00ff64; }
+        .nav-item.watson-exclusive:hover { background: rgba(0,255,100,0.1); border-left-color: #00ff64; }
         
         /* Fix Module - Always Visible */
         .fix-module { 
@@ -319,23 +319,34 @@ def home():
         </div>
         
         <div class="content-grid">
-        <!-- Watson Proprietary Systems -->
+        <!-- Watson Dev Admin Master Systems -->
         {% if user.watson_access %}
         <div class="module-card watson-exclusive">
-            <div class="module-icon watson">🤖</div>
-            <div class="module-title">Watson Proprietary Systems</div>
-            <div class="module-desc">Exclusive command terminal with proprietary AI integration</div>
+            <div class="module-icon">⚡</div>
+            <div class="module-title">Watson Dev Admin Master</div>
+            <div class="module-desc">Complete system control with simulation engine and advanced analytics</div>
             <div class="module-stats">
                 <div class="stat-item">
                     <div class="stat-value" id="watsonUptime">100%</div>
-                    <div class="stat-label">Uptime</div>
+                    <div class="stat-label">System Control</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="watsonAccess">ENABLED</div>
-                    <div class="stat-label">Access</div>
+                    <div class="stat-value" id="watsonAccess">MASTER</div>
+                    <div class="stat-label">Access Level</div>
                 </div>
             </div>
-            <a href="/watson_console.html" class="access-btn watson btn-interactive ripple-container hover-lift">Access Console</a>
+            <a href="/watson_console.html" class="access-btn btn-interactive ripple-container hover-lift">Master Console</a>
+        </div>
+        
+        <!-- Real-Time Analytics Dashboard -->
+        <div class="module-card">
+            <div class="module-icon">📊</div>
+            <div class="module-title">Live Analytics Engine</div>
+            <div class="module-desc">Dynamic charts and real-time performance metrics with simulation data</div>
+            <div style="height: 300px; margin: 20px 0;">
+                <canvas id="performanceChart"></canvas>
+            </div>
+            <a href="/analytics_engine" class="access-btn btn-interactive ripple-container hover-lift">View Analytics</a>
         </div>
         {% endif %}
         
@@ -678,12 +689,69 @@ def home():
             });
         }
         
+        // Chart.js Integration for Dynamic Visual Charts
+        function initializeCharts() {
+            const ctx = document.getElementById('performanceChart');
+            if (!ctx) return;
+            
+            // Simulation Engine Data Integration
+            const simulationData = {
+                labels: ['Assets', 'Analytics', 'Attendance', 'Performance', 'Efficiency'],
+                datasets: [{
+                    label: 'System Performance',
+                    data: [717, 9747433, 94.7, 99.54, 100],
+                    backgroundColor: 'rgba(0, 255, 100, 0.2)',
+                    borderColor: '#00ff64',
+                    borderWidth: 2,
+                    fill: true
+                }]
+            };
+            
+            new Chart(ctx, {
+                type: 'radar',
+                data: simulationData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            grid: {
+                                color: 'rgba(0, 255, 100, 0.2)'
+                            },
+                            pointLabels: {
+                                color: '#ffffff'
+                            },
+                            ticks: {
+                                color: '#00ff64'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Load Chart.js dynamically
+        function loadChartJS() {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+            script.onload = initializeCharts;
+            document.head.appendChild(script);
+        }
+        
         // Auto-refresh every 5 seconds
         setInterval(updateRealTimeStats, 5000);
         
-        // Initialize
+        // Initialize with Chart.js and Simulation Engine
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('TRAXOVO Dashboard initialized');
+            console.log('TRAXOVO Dashboard initialized with simulation engine');
+            loadChartJS();
             updateRealTimeStats();
         });
     </script>
@@ -708,8 +776,11 @@ def login():
                 session['user'] = {
                     'username': username,
                     'name': watson_access[username]['name'],
-                    'role': 'watson_owner',
+                    'role': 'dev_admin_master',
                     'watson_access': True,
+                    'admin_access': True,
+                    'full_system_control': True,
+                    'simulation_engine_access': True,
                     'exclusive_owner': True
                 }
                 return redirect(url_for('home'))
@@ -743,7 +814,7 @@ login_template = """
         .login-btn { width: 100%; background: #00ff88; color: black; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
         .login-btn:hover { background: #00ccff; }
         .error { color: #ff4444; text-align: center; margin-top: 10px; }
-        .watson-note { background: #2a1a1a; border: 1px solid #ff6b35; color: #ff6b35; padding: 10px; border-radius: 5px; margin-top: 20px; font-size: 12px; }
+        .watson-note { background: #2a1a1a; border: 1px solid #00ff64; color: #00ff64; padding: 10px; border-radius: 5px; margin-top: 20px; font-size: 12px; }
     </style>
 </head>
 <body>

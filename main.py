@@ -131,6 +131,18 @@ def watson_command_console():
         return redirect('/login?error=unauthorized')
     return send_file('public/watson_command_console.html')
 
+@app.route('/watson_email_ops')
+def watson_email_ops():
+    if 'user' not in session or not session['user'].get('watson_access'):
+        return redirect('/login?error=unauthorized')
+    return send_file('templates/watson_email_ops.html')
+
+@app.route('/kaizen_dashboard')
+def kaizen_dashboard():
+    if 'user' not in session:
+        return redirect('/login')
+    return send_file('templates/kaizen_dashboard.html')
+
 # Serve static files with error handling
 @app.route('/<path:filename>')
 def serve_static(filename):

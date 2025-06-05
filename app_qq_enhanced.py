@@ -14,6 +14,7 @@ from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 import json
 from kaizen_infinity_patch import initialize_kaizen_infinity_patch, get_operational_overview, validate_patch_deployment
+from infinity_email_intelligence import get_email_intelligence, process_daily_emails, get_email_dashboard_data
 
 # Outlook Calendar Scraper Integration
 try:
@@ -2926,6 +2927,78 @@ def kaizen_dashboard():
                              validation=validation)
     except Exception as e:
         flash(f'Error loading Kaizen dashboard: {str(e)}', 'error')
+        return redirect(url_for('index'))
+
+@app.route('/api/email_intelligence/dashboard_data')
+def api_email_dashboard_data():
+    """Get email intelligence dashboard data for Watson Console"""
+    try:
+        data = get_email_dashboard_data()
+        return jsonify({
+            'success': True,
+            'data': data
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/email_intelligence/process_batch', methods=['POST'])
+def api_process_email_batch():
+    """Process daily email batch"""
+    try:
+        email_config = request.get_json()
+        if not email_config:
+            return jsonify({
+                'success': False,
+                'error': 'Email configuration required'
+            }), 400
+        
+        result = process_daily_emails(email_config)
+        return jsonify({
+            'success': True,
+            'data': result
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/email_intelligence/scan_status')
+def api_email_scan_status():
+    """Get email scanning status"""
+    try:
+        email_intel = get_email_intelligence()
+        status = {
+            'system_status': 'OPERATIONAL',
+            'modules_active': 4,
+            'last_scan': datetime.now().isoformat(),
+            'queues': {
+                'urgent': len(email_intel.auto_scan.queues['urgent']),
+                'delayed': len(email_intel.auto_scan.queues['delayed']),
+                'weekly': len(email_intel.auto_scan.queues['weekly'])
+            }
+        }
+        return jsonify({
+            'success': True,
+            'data': status
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/watson_email_ops')
+def watson_email_ops():
+    """Watson Email Operations Panel"""
+    try:
+        email_data = get_email_dashboard_data()
+        return render_template('watson_email_ops.html', email_data=email_data)
+    except Exception as e:
+        flash(f'Error loading email operations: {str(e)}', 'error')
         return redirect(url_for('index'))
 
 if __name__ == '__main__':

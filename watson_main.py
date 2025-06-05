@@ -9,6 +9,7 @@ from datetime import datetime
 from flask import Flask, request, session, redirect, url_for, jsonify, render_template_string, send_file
 from mobile_watson_access import generate_mobile_watson_interface
 from simulation_engine_integration import get_simulation_data, get_performance_analytics, get_watson_analytics
+from working_asset_map import get_working_asset_data, generate_working_fort_worth_map
 from landing_page_wow import generate_wow_landing_page
 from bmi_intelligence_debug import run_bmi_intelligence_debug
 from micro_animation_feedback import enhance_template_with_animations, get_micro_animation_system
@@ -24,9 +25,18 @@ users = {
     'ops': {'password': 'ops123', 'role': 'ops', 'name': 'Operations'}
 }
 
-# Exclusive Watson access
+# Exclusive Watson access with dev admin master permissions
 watson_access = {
-    'watson': {'password': 'proprietary_watson_2025', 'exclusive_owner': True, 'name': 'Watson Intelligence Owner'}
+    'watson': {
+        'password': 'proprietary_watson_2025', 
+        'role': 'dev_admin_master',
+        'watson_access': True,
+        'admin_access': True,
+        'full_system_control': True,
+        'simulation_engine_access': True,
+        'exclusive_owner': True, 
+        'name': 'Watson Dev Admin Master'
+    }
 }
 
 @app.route('/')
@@ -332,7 +342,7 @@ def home():
                     <div class="stat-label">System Control</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="watsonAccess">MASTER</div>
+                    <div class="stat-value" id="watsonAccess">{{ user.role.upper() }}</div>
                     <div class="stat-label">Access Level</div>
                 </div>
             </div>
@@ -777,12 +787,12 @@ def login():
                 session['user'] = {
                     'username': username,
                     'name': watson_access[username]['name'],
-                    'role': 'dev_admin_master',
-                    'watson_access': True,
-                    'admin_access': True,
-                    'full_system_control': True,
-                    'simulation_engine_access': True,
-                    'exclusive_owner': True
+                    'role': watson_access[username]['role'],
+                    'watson_access': watson_access[username]['watson_access'],
+                    'admin_access': watson_access[username]['admin_access'],
+                    'full_system_control': watson_access[username]['full_system_control'],
+                    'simulation_engine_access': watson_access[username]['simulation_engine_access'],
+                    'exclusive_owner': watson_access[username]['exclusive_owner']
                 }
                 return redirect(url_for('home'))
         
@@ -856,20 +866,18 @@ def get_proprietary_tracker():
         return jsonify({'error': 'Authentication required'}), 401
     
     try:
-        # Use authentic simulation engine data
-        simulation_data = get_simulation_data()
-        performance_data = get_performance_analytics()
+        # Use working asset map data
+        asset_data = get_working_asset_data()
         
         return jsonify({
-            'assets': simulation_data['assets'],
-            'zones': simulation_data['zones'],
-            'total_assets': simulation_data['total_assets'],
-            'performance_metrics': performance_data['fleet_metrics'],
-            'real_time_analytics': performance_data['system_performance'],
-            'tracking_type': 'authentic_simulation_engine',
-            'precision': 'enterprise_grade',
-            'features': ['real_time_telemetry', 'predictive_analytics', 'asset_positioning', 'zone_mapping', 'performance_tracking'],
-            'status': 'operational',
+            'map_svg': asset_data['map_svg'],
+            'total_assets': asset_data['total_assets'],
+            'active_assets': asset_data['active_assets'],
+            'zones': asset_data['zones'],
+            'tracking_type': 'working_fort_worth_assets',
+            'precision': 'authentic_positioning',
+            'features': ['real_time_telemetry', 'asset_tracking', 'zone_mapping', 'status_monitoring'],
+            'status': asset_data['status'],
             'timestamp': datetime.now().isoformat()
         })
     except Exception as e:

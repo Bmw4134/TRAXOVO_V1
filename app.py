@@ -1,8 +1,9 @@
 import os
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template_string, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from real_automation import RealAutomationEngine
 
 
 class Base(DeclarativeBase):
@@ -23,6 +24,9 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 }
 # initialize the app with the extension, flask-sqlalchemy >= 3.0.x
 db.init_app(app)
+
+# Initialize real automation engine
+automation_engine = RealAutomationEngine()
 
 with app.app_context():
     # Make sure to import the models here or their tables won't be created
@@ -214,15 +218,15 @@ def automation_interface():
 
 @app.route('/automate-task', methods=['POST'])
 def automate_task():
-    """Process automation request"""
+    """Process and execute automation request with real data"""
     task_description = request.form.get('task_description', '').strip()
     urgency = request.form.get('urgency', 'soon')
     
     if not task_description:
         return automation_interface()
     
-    # Analyze the task
-    analysis = analyze_task(task_description, urgency)
+    # Execute the task immediately with real automation
+    execution_result = automation_engine.execute_manual_task(task_description, urgency)
     
     return f'''<!DOCTYPE html>
 <html>

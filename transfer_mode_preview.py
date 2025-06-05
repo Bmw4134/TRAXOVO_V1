@@ -23,6 +23,7 @@ from role_based_user_management import create_user_management_routes
 from watson_force_render import create_watson_force_render_routes
 from automation_dashboard import create_automation_routes
 from js_fix import create_js_fix_routes
+from dashboard_direct_links import create_direct_dashboard_routes
 import asyncio
 
 app = Flask(__name__)
@@ -377,6 +378,7 @@ create_user_management_routes(app)
 create_watson_force_render_routes(app)
 create_automation_routes(app)
 create_js_fix_routes(app)
+create_direct_dashboard_routes(app)
 
 # Working dashboard route
 @app.route('/dashboard')
@@ -490,10 +492,17 @@ def clean_dashboard():
 </body>
 </html>'''
 
-# Main dashboard route
+# Main dashboard route - redirect to direct access
 @app.route('/')
 def main_dashboard():
-    """Main TRAXOVO dashboard"""
+    """Redirect to security-compliant direct dashboard"""
+    from flask import redirect
+    return redirect('/direct-dashboard')
+
+# Legacy dashboard route
+@app.route('/legacy-dashboard')
+def legacy_dashboard():
+    """Legacy TRAXOVO dashboard"""
     return '''
     <!DOCTYPE html>
     <html lang="en">

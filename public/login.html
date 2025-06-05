@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Login - Secure Access</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #00ff88;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .login-header p {
+            color: #b8c6db;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00ff88;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #00ff88, #00d4ff);
+            color: #1e3c72;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+        }
+
+        .error-message {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff6b6b;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .demo-credentials {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .demo-credentials h3 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .credential-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .credential-item .role {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        .credential-item .timeout {
+            color: #b8c6db;
+            font-size: 0.8rem;
+        }
+
+        .security-notice {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid #00ff88;
+        }
+
+        .security-notice h4 {
+            color: #00ff88;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .security-notice p {
+            color: #b8c6db;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 20px;
+                padding: 30px 20px;
+            }
+            
+            .login-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>TRAXOVO</h1>
+            <p>Secure Fleet Management Access</p>
+        </div>
+
+        <div id="error-message" class="error-message"></div>
+
+        <form id="login-form" method="POST" action="/login">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter password" required>
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+
+        <div class="demo-credentials">
+            <h3>Demo Credentials</h3>
+            <div class="credential-item">
+                <span>
+                    <span class="role">admin</span> / admin123
+                </span>
+                <span class="timeout">1 hour</span>
+            </div>
+            <div class="credential-item">
+                <span>
+                    <span class="role">troy</span> / troy2025
+                </span>
+                <span class="timeout">2 hours</span>
+            </div>
+            <div class="credential-item">
+                <span>
+                    <span class="role">william</span> / william2025
+                </span>
+                <span class="timeout">2 hours</span>
+            </div>
+            <div class="credential-item">
+                <span>
+                    <span class="role">ops</span> / ops123
+                </span>
+                <span class="timeout">30 min</span>
+            </div>
+        </div>
+
+        <div class="security-notice">
+            <h4>Security Features</h4>
+            <p>
+                Sessions include user-specific timeouts, automatic logout on inactivity, 
+                and secure cookie management. All routes are protected and require authentication.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Check for error or expired session parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorMessage = document.getElementById('error-message');
+
+        if (urlParams.get('error') === 'invalid') {
+            errorMessage.textContent = 'Invalid username or password';
+            errorMessage.style.display = 'block';
+        } else if (urlParams.get('expired') === 'true') {
+            errorMessage.textContent = 'Session expired. Please login again.';
+            errorMessage.style.display = 'block';
+        }
+
+        // Auto-fill demo credentials on click
+        document.querySelectorAll('.credential-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const text = this.textContent;
+                const username = text.split(' / ')[0].split(' ')[0];
+                const password = text.split(' / ')[1].split(' ')[0];
+                
+                document.getElementById('username').value = username;
+                document.getElementById('password').value = password;
+            });
+        });
+
+        // Form validation
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                e.preventDefault();
+                errorMessage.textContent = 'Please enter both username and password';
+                errorMessage.style.display = 'block';
+            }
+        });
+
+        // Clear error message when typing
+        document.getElementById('username').addEventListener('input', clearError);
+        document.getElementById('password').addEventListener('input', clearError);
+
+        function clearError() {
+            errorMessage.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

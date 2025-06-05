@@ -1,18 +1,65 @@
 /**
- * TRAXOVO Infinity Server
- * Express.js server with Playwright integration
+ * TRAXOVO Infinity Server - Secure Authentication System
+ * Express.js server with Playwright integration and session management
  */
 
 const express = require('express');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
+const flash = require('connect-flash');
 const path = require('path');
 const { chromium } = require('playwright');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// User database (in production, use proper database)
+const users = {
+    'admin': {
+        password: bcrypt.hashSync('admin123', 10),
+        role: 'admin',
+        timeout: 3600000, // 1 hour
+        name: 'Administrator'
+    },
+    'troy': {
+        password: bcrypt.hashSync('troy2025', 10),
+        role: 'exec',
+        timeout: 7200000, // 2 hours
+        name: 'Troy Ragle'
+    },
+    'william': {
+        password: bcrypt.hashSync('william2025', 10),
+        role: 'exec',
+        timeout: 7200000, // 2 hours
+        name: 'William Ragle'
+    },
+    'ops': {
+        password: bcrypt.hashSync('ops123', 10),
+        role: 'ops',
+        timeout: 1800000, // 30 minutes
+        name: 'Operations Manager'
+    }
+};
+
+// Session configuration
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'traxovo-infinity-secure-key-2025',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false, // Set to true in production with HTTPS
+        httpOnly: true,
+        maxAge: 3600000 // Default 1 hour, overridden per user
+    },
+    rolling: true // Reset timeout on activity
+}));
+
 // Middleware
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(flash());
 app.use(express.static('public'));
 
 // CORS for development
@@ -27,6 +74,41 @@ app.use((req, res, next) => {
     }
 });
 
+// Authentication middleware
+function requireAuth(req, res, next) {
+    if (req.session && req.session.user) {
+        // Check if session has expired based on user-specific timeout
+        const user = users[req.session.user.username];
+        if (user && req.session.lastActivity) {
+            const timeElapsed = Date.now() - req.session.lastActivity;
+            if (timeElapsed > user.timeout) {
+                req.session.destroy();
+                return res.redirect('/login?expired=true');
+            }
+        }
+        // Update last activity
+        req.session.lastActivity = Date.now();
+        // Update cookie maxAge for user-specific timeout
+        if (user) {
+            req.session.cookie.maxAge = user.timeout;
+        }
+        return next();
+    } else {
+        return res.redirect('/login');
+    }
+}
+
+// Role-based access control
+function requireRole(roles) {
+    return (req, res, next) => {
+        if (req.session && req.session.user && roles.includes(req.session.user.role)) {
+            return next();
+        } else {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+    };
+}
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({
@@ -37,23 +119,73 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Main dashboard route
-app.get('/', (req, res) => {
+// Login page (public access)
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// Login POST handler
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    const user = users[username];
+    
+    if (user && await bcrypt.compare(password, user.password)) {
+        req.session.user = {
+            username: username,
+            role: user.role,
+            name: user.name
+        };
+        req.session.lastActivity = Date.now();
+        req.session.cookie.maxAge = user.timeout;
+        res.redirect('/');
+    } else {
+        res.redirect('/login?error=invalid');
+    }
+});
+
+// Logout handler
+app.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        res.redirect('/login');
+    });
+});
+
+// Main dashboard route (protected)
+app.get('/', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Enhanced Ragle Inc landing page
-app.get('/ragle', (req, res) => {
+// Enhanced Ragle Inc landing page (protected)
+app.get('/ragle', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'ragle-enhanced.html'));
 });
 
-// Redirect quantum dashboard to main Flask app
-app.get('/quantum-dashboard', (req, res) => {
+// User settings page (protected)
+app.get('/settings', requireAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'settings.html'));
+});
+
+// Update user settings
+app.post('/settings', requireAuth, (req, res) => {
+    const { timeout } = req.body;
+    const username = req.session.user.username;
+    
+    if (users[username] && timeout && timeout >= 300000 && timeout <= 86400000) {
+        users[username].timeout = parseInt(timeout);
+        req.session.cookie.maxAge = users[username].timeout;
+        res.json({ success: true, message: 'Settings updated successfully' });
+    } else {
+        res.status(400).json({ error: 'Invalid timeout value' });
+    }
+});
+
+// Redirect quantum dashboard to main Flask app (protected)
+app.get('/quantum-dashboard', requireAuth, (req, res) => {
     res.redirect('http://localhost:5000/quantum-dashboard');
 });
 
-// Redirect fleet map to main Flask app
-app.get('/fleet-map', (req, res) => {
+// Redirect fleet map to main Flask app (protected)
+app.get('/fleet-map', requireAuth, (req, res) => {
     res.redirect('http://localhost:5000/fleet-map');
 });
 
@@ -67,6 +199,29 @@ app.get('/api/status', (req, res) => {
         },
         timestamp: new Date().toISOString()
     });
+});
+
+// User information API (protected)
+app.get('/api/user-info', requireAuth, (req, res) => {
+    const username = req.session.user.username;
+    const user = users[username];
+    
+    if (user) {
+        res.json({
+            user: {
+                username: username,
+                role: user.role,
+                name: user.name,
+                timeout: user.timeout
+            },
+            session: {
+                lastActivity: req.session.lastActivity,
+                maxAge: req.session.cookie.maxAge
+            }
+        });
+    } else {
+        res.status(404).json({ error: 'User not found' });
+    }
 });
 
 // Playwright automation endpoint

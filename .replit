@@ -242,7 +242,7 @@ localPort = 45913
 externalPort = 5000
 
 [objectStorage]
-defaultBucketID = "replit-objstore-611c5a9b-2991-44d3-807b-2b36b5bb74eb"
+defaultBucketID = "replit-objstore-d19509e4-169b-43c7-8bd0-1c38d79cbf89"
 
 [env]
 REPLIT_DISABLE_PACKAGE_LAYER = "1"

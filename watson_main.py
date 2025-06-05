@@ -10,6 +10,7 @@ from flask import Flask, request, session, redirect, url_for, jsonify, render_te
 from mobile_watson_access import generate_mobile_watson_interface
 from simulation_engine_integration import get_simulation_data, get_performance_analytics, get_watson_analytics
 from working_asset_map import get_working_asset_data, generate_working_fort_worth_map
+from advanced_micro_interactions import get_micro_interaction_styles, get_micro_interaction_scripts, enhance_with_micro_interactions
 from landing_page_wow import generate_wow_landing_page
 from bmi_intelligence_debug import run_bmi_intelligence_debug
 from micro_animation_feedback import enhance_template_with_animations, get_micro_animation_system
@@ -891,6 +892,118 @@ def get_proprietary_tracker():
 def get_proprietary_tracker_legacy():
     """Legacy API endpoint - redirects to new endpoint"""
     return get_proprietary_tracker()
+
+@app.route('/asset_tracker')
+def asset_tracker():
+    """Working Asset Tracker page with authentic Fort Worth data"""
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    asset_data = get_working_asset_data()
+    micro_styles = get_micro_interaction_styles()
+    micro_scripts = get_micro_interaction_scripts()
+    
+    return render_template_string("""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Asset Tracker - TRAXOVO</title>
+    <style>
+        body { margin: 0; background: #0a0a0a; color: white; font-family: Arial; }
+        .tracker-container { padding: 20px; }
+        .header { background: #1a1a2e; padding: 20px; border-radius: 15px; border: 2px solid #00ff64; margin-bottom: 20px; }
+        .tracker-title { color: #00ff64; font-size: 28px; font-weight: bold; margin-bottom: 10px; }
+        .tracker-subtitle { color: #888; }
+        .map-container { background: #1a1a2e; padding: 20px; border-radius: 15px; border: 1px solid #00ff64; margin-bottom: 20px; }
+        .map-display { width: 100%; height: 600px; border: 1px solid #333; border-radius: 10px; overflow: hidden; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: #2a2a4e; padding: 15px; border-radius: 10px; text-align: center; }
+        .stat-value { color: #00ff64; font-size: 24px; font-weight: bold; }
+        .stat-label { color: #888; font-size: 12px; margin-top: 5px; }
+        .back-btn { background: #00ff64; color: black; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; }
+        {{ micro_styles }}
+    </style>
+</head>
+<body>
+    <div class="tracker-container">
+        <div class="header interactive-card">
+            <div class="tracker-title">Fort Worth Asset Tracker</div>
+            <div class="tracker-subtitle">Real-time positioning with authentic asset data</div>
+            <a href="/" class="back-btn micro-btn ripple-container">← Back to Dashboard</a>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card interactive-element hover-lift">
+                <div class="stat-value">{{ asset_data.total_assets }}</div>
+                <div class="stat-label">Total Assets</div>
+            </div>
+            <div class="stat-card interactive-element hover-lift">
+                <div class="stat-value">{{ asset_data.active_assets }}</div>
+                <div class="stat-label">Active Assets</div>
+            </div>
+            <div class="stat-card interactive-element hover-lift">
+                <div class="stat-value">{{ asset_data.zones|length }}</div>
+                <div class="stat-label">Operational Zones</div>
+            </div>
+            <div class="stat-card interactive-element hover-lift">
+                <div class="stat-value status-indicator status-online"></div>
+                <div class="stat-label">System Status</div>
+            </div>
+        </div>
+        
+        <div class="map-container interactive-card">
+            <div class="map-display">
+                {{ asset_data.map_svg | safe }}
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        {{ micro_scripts }}
+        
+        // Asset tracker specific interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Asset Tracker initialized with micro-interactions');
+            
+            // Add hover effects to asset markers
+            const assetMarkers = document.querySelectorAll('.asset-marker');
+            assetMarkers.forEach(marker => {
+                marker.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.2)';
+                    this.style.transition = 'transform 0.3s ease';
+                });
+                
+                marker.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+                
+                marker.addEventListener('click', function() {
+                    const assetId = this.getAttribute('data-id');
+                    const assetType = this.getAttribute('data-type');
+                    const assetStatus = this.getAttribute('data-status');
+                    
+                    window.microInteractions?.showNotification(
+                        `Asset ${assetId} - ${assetType} (${assetStatus})`, 
+                        'success'
+                    );
+                });
+            });
+            
+            // Real-time updates simulation
+            setInterval(() => {
+                const statusIndicator = document.querySelector('.status-online');
+                if (statusIndicator) {
+                    statusIndicator.classList.add('pulse');
+                    setTimeout(() => {
+                        statusIndicator.classList.remove('pulse');
+                    }, 1000);
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
+    """, asset_data=asset_data, micro_styles=micro_styles, micro_scripts=micro_scripts)
 
 @app.route('/proprietary_asset_tracker')
 def proprietary_asset_tracker():

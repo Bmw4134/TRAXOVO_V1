@@ -8,6 +8,8 @@ import socket
 from datetime import datetime
 from flask import Flask, request, session, redirect, url_for, jsonify, render_template_string, send_file
 from mobile_watson_access import generate_mobile_watson_interface
+from landing_page_wow import generate_wow_landing_page
+from bmi_intelligence_debug import run_bmi_intelligence_debug
 
 app = Flask(__name__, static_folder='public')
 app.secret_key = os.environ.get('SESSION_SECRET', 'watson-intelligence-2025')
@@ -28,7 +30,8 @@ watson_access = {
 @app.route('/')
 def home():
     if 'user' not in session:
-        return redirect(url_for('login'))
+        # Show informational wow factor landing page for non-authenticated users
+        return generate_wow_landing_page()
     
     user = session['user']
     return render_template_string("""
@@ -959,6 +962,33 @@ def api_diagnostics():
             'watson_console': 'operational'
         }
     })
+
+@app.route('/api/bmi_debug')
+def api_bmi_debug():
+    """BMI Intelligence Debug API endpoint"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    user = session['user']
+    if user['role'] not in ['admin', 'watson_owner']:
+        return jsonify({'error': 'Admin access required'}), 403
+    
+    debug_results = run_bmi_intelligence_debug()
+    return jsonify(debug_results)
+
+@app.route('/dashboard')
+def dashboard():
+    """Enhanced dashboard route for post-login experience"""
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    user = session['user']
+    
+    # Redirect to appropriate dashboard based on user role
+    if user.get('watson_access', False):
+        return redirect('/watson_console.html')
+    else:
+        return redirect(url_for('home'))
 
 @app.route('/attendance_matrix')
 def attendance_matrix():

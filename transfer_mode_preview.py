@@ -20,6 +20,7 @@ from bmi_intelligence_sweep import create_bmi_routes
 from permissions_bootstrap import create_watson_unlock_routes
 from init_unlock import create_init_unlock_routes
 from role_based_user_management import create_user_management_routes
+from watson_force_render import create_watson_force_render_routes
 import asyncio
 
 app = Flask(__name__)
@@ -371,6 +372,7 @@ create_bmi_routes(app)
 create_watson_unlock_routes(app)
 create_init_unlock_routes(app)
 create_user_management_routes(app)
+create_watson_force_render_routes(app)
 
 # Enhanced main route with complete integration
 @app.route('/master-control')

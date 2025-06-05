@@ -485,6 +485,9 @@ ENHANCED_MAIN_TEMPLATE = '''
                 <div class="command-item" onclick="openWatsonUnlockInterface()">
                     <span>🤖</span> Watson Unlock Interface
                 </div>
+                <div class="command-item" onclick="forceRenderWatsonInterface()">
+                    <span>⚡</span> Force Render Watson
+                </div>
             </div>
             
             <div class="command-section">
@@ -771,6 +774,32 @@ ENHANCED_MAIN_TEMPLATE = '''
             window.open('/watson/unlock/interface', '_blank');
         }
         
+        async function forceRenderWatsonInterface() {
+            try {
+                const response = await fetch('/api/watson/force-render', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fingerprint: null })
+                });
+                
+                const result = await response.json();
+                
+                if (result.render_success) {
+                    alert(`Watson Interface Force Rendered Successfully!\n\nDOM Injection: ${result.final_status.dom_injection_complete ? 'COMPLETE' : 'FAILED'}\nConsole Active: ${result.final_status.interface_fully_rendered ? 'YES' : 'NO'}\nAccess Level: ${result.access_validation.full_watson_permissions ? 'UNRESTRICTED' : 'LIMITED'}\n\nWatson module interface is now fully visible and operational.`);
+                    
+                    // Open Watson force render interface for detailed control
+                    window.open('/watson/force-render', '_blank');
+                } else {
+                    alert(`Watson force render failed. Opening control interface...`);
+                    window.open('/watson/force-render', '_blank');
+                }
+                
+            } catch (error) {
+                alert(`Watson force render error: ${error.message}`);
+                window.open('/watson/force-render', '_blank');
+            }
+        }
+        
         function openGuidedUserCreation() {
             window.open('/guided-user-creation', '_blank');
         }
@@ -784,60 +813,7 @@ ENHANCED_MAIN_TEMPLATE = '''
                 const response = await fetch('/api/users/summary');
                 const data = await response.json();
                 
-                const summaryWindow = window.open('', '_blank');
-                summaryWindow.document.write(`
-                    <html>
-                    <head>
-                        <title>User Summary - TRAXOVO</title>
-                        <style>
-                            body { font-family: Arial, sans-serif; background: #1a1a2e; color: #fff; padding: 20px; }
-                            .summary-card { background: rgba(0,0,0,0.8); border: 1px solid #00ff88; border-radius: 8px; padding: 15px; margin: 10px 0; }
-                            .user-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                            .user-table th, .user-table td { padding: 10px; border: 1px solid #333; text-align: left; }
-                            .user-table th { background: rgba(0,255,136,0.2); }
-                            .role-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8em; }
-                        </style>
-                    </head>
-                    <body>
-                        <h1>User Summary Table</h1>
-                        <div class="summary-card">
-                            <h3>Overview</h3>
-                            <p><strong>Total Users:</strong> ${data.total_users}</p>
-                            <p><strong>Admin Users:</strong> ${data.users_by_role.admin || 0}</p>
-                            <p><strong>Operations Users:</strong> ${data.users_by_role.ops || 0}</p>
-                            <p><strong>Executive Users:</strong> ${data.users_by_role.exec || 0}</p>
-                            <p><strong>Viewer Users:</strong> ${data.users_by_role.viewer || 0}</p>
-                        </div>
-                        
-                        <table class="user-table">
-                            <thead>
-                                <tr>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                    <th>Fingerprint</th>
-                                    <th>Dashboards</th>
-                                    <th>Modules</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${data.user_table.map(user => `
-                                    <tr>
-                                        <td>${user.username}</td>
-                                        <td>${user.email}</td>
-                                        <td><span class="role-badge" style="background-color: ${user.role_color}; color: #000;">${user.role}</span></td>
-                                        <td style="font-family: monospace; font-size: 0.8em;">${user.fingerprint}</td>
-                                        <td>${user.dashboards_accessible}</td>
-                                        <td>${user.modules_visible}</td>
-                                        <td style="color: ${user.status === 'Active' ? '#00ff88' : '#ff4444'};">${user.status}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </body>
-                    </html>
-                `);
+                window.open('/api/users/summary', '_blank');
                 
             } catch (error) {
                 alert(`Error loading user summary: ${error.message}`);

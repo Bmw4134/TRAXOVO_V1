@@ -42,6 +42,21 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Enhanced Ragle Inc landing page
+app.get('/ragle', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'ragle-enhanced.html'));
+});
+
+// Redirect quantum dashboard to main Flask app
+app.get('/quantum-dashboard', (req, res) => {
+    res.redirect('http://localhost:5000/quantum-dashboard');
+});
+
+// Redirect fleet map to main Flask app
+app.get('/fleet-map', (req, res) => {
+    res.redirect('http://localhost:5000/fleet-map');
+});
+
 // API routes
 app.get('/api/status', (req, res) => {
     res.json({

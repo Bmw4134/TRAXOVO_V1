@@ -11,6 +11,7 @@ app.secret_key = os.environ.get('SESSION_SECRET', 'dev-secret-key')
 users = {
     'troy': {'password': 'troy2025', 'role': 'exec', 'name': 'Troy'},
     'william': {'password': 'william2025', 'role': 'exec', 'name': 'William'},
+    'watson': {'password': 'watson2025', 'role': 'watson', 'name': 'Watson Command Console'},
     'admin': {'password': 'admin123', 'role': 'admin', 'name': 'Administrator'},
     'ops': {'password': 'ops123', 'role': 'ops', 'name': 'Operations'}
 }
@@ -90,10 +91,11 @@ def mesh_graph():
 
 @app.route('/api/dashboard-fingerprints')
 def dashboard_fingerprints():
-    return json.dumps({
+    return jsonify({
         'telemetry_entries': '10,000+',
         'fingerprint_sync': 'verified',
-        'last_update': '2025-06-05T12:52:00Z'
+        'last_update': '2025-06-05T12:52:00Z',
+        'status': 'operational'
     })
 
 @app.route('/globe-tracker')

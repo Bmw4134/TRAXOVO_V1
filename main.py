@@ -143,6 +143,69 @@ def kaizen_dashboard():
         return redirect('/login')
     return send_file('templates/kaizen_dashboard.html')
 
+@app.route('/api/voice/start_session', methods=['POST'])
+def start_voice_session():
+    if 'user' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    from watson_voice_integration import start_voice_session
+    user_id = session['user']['username']
+    language = request.json.get('language', 'en-US') if request.json else 'en-US'
+    
+    result = start_voice_session(user_id, language)
+    return jsonify(result)
+
+@app.route('/api/voice/process_command', methods=['POST'])
+def process_voice_command():
+    if 'user' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    from watson_voice_integration import process_voice_command
+    user_id = session['user']['username']
+    
+    # Simulate audio data processing
+    audio_data = request.data or b'watson analyze system performance'
+    
+    result = process_voice_command(audio_data, user_id)
+    return jsonify(result)
+
+@app.route('/api/voice/stop_session', methods=['POST'])
+def stop_voice_session():
+    if 'user' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    from watson_voice_integration import stop_voice_session
+    result = stop_voice_session()
+    return jsonify(result)
+
+@app.route('/api/voice/analytics')
+def voice_analytics():
+    if 'user' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    from watson_voice_integration import get_voice_analytics
+    result = get_voice_analytics()
+    return jsonify(result)
+
+@app.route('/api/trillion_scale/execute', methods=['POST'])
+def execute_trillion_simulation():
+    if 'user' not in session or not session['user'].get('watson_access'):
+        return jsonify({'error': 'Unauthorized - Watson access required'}), 401
+    
+    from trillion_scale_simulator import execute_trillion_scale_test
+    result = execute_trillion_scale_test()
+    return jsonify(result)
+
+@app.route('/api/trillion_scale/metrics')
+def get_simulation_metrics():
+    if 'user' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    from trillion_scale_simulator import get_simulation_metrics
+    simulation_id = request.args.get('simulation_id')
+    result = get_simulation_metrics(simulation_id)
+    return jsonify(result)
+
 # Serve static files with error handling
 @app.route('/<path:filename>')
 def serve_static(filename):

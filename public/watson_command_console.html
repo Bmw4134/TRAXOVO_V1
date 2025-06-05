@@ -1038,8 +1038,8 @@
       btn.disabled = true;
       btn.textContent = 'Running Trillion Scale Test...';
       
-      updateOutput('[TRILLION] Initiating trillion^trillion scale simulation...');
-      updateOutput('[TRILLION] This will test system performance at extreme scale');
+      updateOutput('[TRILLION] Initiating optimized trillion scale simulation...');
+      updateOutput('[TRILLION] Using fast processing to prevent worker timeouts');
       
       try {
         const response = await fetch('/api/trillion_scale/execute', {
@@ -1056,7 +1056,8 @@
           updateOutput('[METRICS] Response Time: ' + result.average_response_time_ms + 'ms');
           updateOutput('[METRICS] Throughput: ' + result.overall_throughput_ops_per_second?.toLocaleString() + ' ops/sec');
           updateOutput('[METRICS] Concurrent Users: ' + result.concurrent_users_simulated?.toLocaleString());
-          updateOutput('[SCALE] Theoretical Scale: ' + result.theoretical_scale?.toExponential(2));
+          updateOutput('[OPTIMIZATION] Status: ' + result.optimization_status);
+          updateOutput('[PERFORMANCE] Grade: ' + result.performance_grade);
           
           // Update dashboard metrics
           if (result.total_operations_executed) {
@@ -1073,6 +1074,39 @@
       } finally {
         btn.disabled = false;
         btn.textContent = 'Trillion Scale Test';
+      }
+    }
+
+    async function emergencySystemFix() {
+      const btn = event.target;
+      btn.disabled = true;
+      btn.textContent = 'Executing Emergency Fix...';
+      
+      updateOutput('[EMERGENCY] Initiating system optimization and repair...');
+      updateOutput('[EMERGENCY] Clearing memory cache and optimizing processes...');
+      
+      try {
+        const response = await fetch('/api/watson/emergency_fix', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'}
+        });
+        
+        const result = await response.json();
+        
+        if (result.emergency_fix === 'completed') {
+          updateOutput('[EMERGENCY] System fix completed successfully');
+          updateOutput('[ACTIONS] ' + result.actions_taken.join(', '));
+          updateOutput('[STATUS] System Status: ' + result.system_status);
+          updateOutput('[BOOST] Performance Improvement: ' + result.performance_boost);
+          updateOutput('[SUCCESS] Emergency fix applied successfully');
+        } else {
+          updateOutput('[EMERGENCY] Fix failed: ' + result.error);
+        }
+      } catch (error) {
+        updateOutput('[EMERGENCY] Fix error: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '⚡ Emergency Fix';
       }
     }
 

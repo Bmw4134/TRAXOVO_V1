@@ -6,12 +6,21 @@ Core modules working + quantum consciousness + authentic Fort Worth data
 
 import os
 import logging
+import sqlite3
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 import json
+
+# Outlook Calendar Scraper Integration
+try:
+    from outlook_calendar_scraper import get_outlook_scraper, scrape_weekly_calendar, get_calendar_priority_insights
+    OUTLOOK_SCRAPER_AVAILABLE = True
+except ImportError:
+    OUTLOOK_SCRAPER_AVAILABLE = False
+    logging.warning("Outlook Calendar Scraper not available")
 
 # QQ AI Accessibility Enhancer
 try:
@@ -2047,6 +2056,133 @@ def api_confidence_metrics():
         
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/calendar-automation')
+def calendar_automation():
+    """Outlook Calendar Automation Dashboard with BMI Priority Mapping"""
+    return render_template('calendar_automation.html')
+
+@app.route('/api/scrape-weekly-calendar')
+def api_scrape_weekly_calendar():
+    """Scrape this week's Outlook calendar entries with BMI priority mapping"""
+    if not OUTLOOK_SCRAPER_AVAILABLE:
+        return jsonify({
+            "success": False,
+            "error": "Outlook Calendar Scraper not available",
+            "requires_setup": True
+        }), 503
+    
+    try:
+        dynamic_calendar = scrape_weekly_calendar()
+        
+        if 'error' in dynamic_calendar:
+            return jsonify({
+                "success": False,
+                "error": dynamic_calendar['error'],
+                "requires_credentials": True
+            }), 400
+        
+        return jsonify({
+            "success": True,
+            "dynamic_calendar": dynamic_calendar,
+            "outlook_integration": True,
+            "bmi_priority_mapping": True
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/calendar-priority-insights')
+def api_calendar_priority_insights():
+    """Get calendar priority insights and automation opportunities"""
+    if not OUTLOOK_SCRAPER_AVAILABLE:
+        return jsonify({
+            "success": False,
+            "error": "Outlook Calendar Scraper not available"
+        }), 503
+    
+    try:
+        insights = get_calendar_priority_insights()
+        
+        if 'error' in insights:
+            return jsonify({
+                "success": False,
+                "error": insights['error'],
+                "requires_credentials": True
+            }), 400
+        
+        return jsonify({
+            "success": True,
+            "priority_insights": insights,
+            "bmi_analysis": True
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/calendar-automation-status')
+def api_calendar_automation_status():
+    """Get Outlook calendar automation system status"""
+    try:
+        # Check Microsoft Graph API credentials
+        credentials_available = all([
+            os.environ.get('MICROSOFT_CLIENT_ID'),
+            os.environ.get('MICROSOFT_CLIENT_SECRET'),
+            os.environ.get('MICROSOFT_TENANT_ID')
+        ])
+        
+        status = {
+            "outlook_scraper_available": OUTLOOK_SCRAPER_AVAILABLE,
+            "microsoft_credentials_configured": credentials_available,
+            "bmi_priority_mapping": True,
+            "dynamic_calendar_integration": True,
+            "automation_opportunities_detection": True,
+            "system_status": "ready" if (OUTLOOK_SCRAPER_AVAILABLE and credentials_available) else "requires_setup"
+        }
+        
+        if not credentials_available:
+            status["setup_required"] = {
+                "missing_credentials": [
+                    key for key in ['MICROSOFT_CLIENT_ID', 'MICROSOFT_CLIENT_SECRET', 'MICROSOFT_TENANT_ID']
+                    if not os.environ.get(key)
+                ],
+                "azure_setup_url": "https://portal.azure.com",
+                "permissions_required": ["Calendar.Read"]
+            }
+        
+        return jsonify({
+            "success": True,
+            "status": status
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/test-outlook-connection')
+def api_test_outlook_connection():
+    """Test Outlook Microsoft Graph API connection"""
+    if not OUTLOOK_SCRAPER_AVAILABLE:
+        return jsonify({
+            "success": False,
+            "error": "Outlook Calendar Scraper not available"
+        }), 503
+    
+    try:
+        scraper = get_outlook_scraper()
+        connection_test = scraper.authenticate()
+        
+        return jsonify({
+            "success": True,
+            "connection_successful": connection_test,
+            "authentication_status": "authenticated" if connection_test else "failed"
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "connection_successful": False
+        }), 500
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5001, debug=True)

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Automation - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 50%, #2d2d5f 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .calendar-header {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .priority-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+            transition: transform 0.3s ease;
+        }
+        
+        .priority-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .priority-critical { border-left-color: #dc3545; }
+        .priority-high { border-left-color: #fd7e14; }
+        .priority-medium { border-left-color: #ffc107; }
+        .priority-low { border-left-color: #28a745; }
+        
+        .bmi-score {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .automation-badge {
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid #28a745;
+            color: #28a745;
+            padding: 0.25rem 0.75rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+        }
+        
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        
+        .status-ready { background-color: #28a745; }
+        .status-warning { background-color: #ffc107; }
+        .status-error { background-color: #dc3545; }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .insight-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="calendar-header text-center">
+            <h1><i class="fas fa-calendar-alt me-2"></i>Outlook Calendar Automation</h1>
+            <p class="mb-3">AI-powered calendar scraping with BMI priority mapping</p>
+            <div id="systemStatus" class="mb-3">
+                <span class="status-indicator status-warning"></span>
+                <span>Checking system status...</span>
+            </div>
+            <button id="scrapeCalendar" class="btn btn-primary btn-lg me-2">
+                <i class="fas fa-sync-alt me-2"></i>Scrape Weekly Calendar
+            </button>
+            <button id="testConnection" class="btn btn-outline-light">
+                <i class="fas fa-link me-2"></i>Test Connection
+            </button>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-header">
+                        <h5><i class="fas fa-calendar-week me-2"></i>Calendar Entries with BMI Priority</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="calendarEntries">
+                            <div class="loading-spinner">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-3">Click "Scrape Weekly Calendar" to load entries</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="insight-panel mb-3">
+                    <h6><i class="fas fa-chart-pie me-2"></i>Priority Distribution</h6>
+                    <canvas id="priorityChart" width="300" height="200"></canvas>
+                </div>
+
+                <div class="insight-panel mb-3">
+                    <h6><i class="fas fa-robot me-2"></i>Automation Opportunities</h6>
+                    <div id="automationOpportunities">
+                        <p class="text-muted">Load calendar data to see automation opportunities</p>
+                    </div>
+                </div>
+
+                <div class="insight-panel">
+                    <h6><i class="fas fa-analytics me-2"></i>Calendar Insights</h6>
+                    <div id="calendarInsights">
+                        <p class="text-muted">Calendar insights will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        class CalendarAutomation {
+            constructor() {
+                this.priorityChart = null;
+                this.init();
+            }
+
+            init() {
+                this.checkSystemStatus();
+                this.setupEventListeners();
+                this.initPriorityChart();
+            }
+
+            setupEventListeners() {
+                document.getElementById('scrapeCalendar').addEventListener('click', () => {
+                    this.scrapeCalendar();
+                });
+
+                document.getElementById('testConnection').addEventListener('click', () => {
+                    this.testConnection();
+                });
+            }
+
+            async checkSystemStatus() {
+                try {
+                    const response = await fetch('/api/calendar-automation-status');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.updateStatusIndicator(data.status);
+                    } else {
+                        this.showError('Failed to check system status');
+                    }
+                } catch (error) {
+                    this.showError('System status check failed');
+                }
+            }
+
+            updateStatusIndicator(status) {
+                const indicator = document.querySelector('.status-indicator');
+                const statusText = indicator.nextElementSibling;
+                
+                if (status.system_status === 'ready') {
+                    indicator.className = 'status-indicator status-ready';
+                    statusText.textContent = 'System Ready - Outlook integration active';
+                } else if (status.microsoft_credentials_configured === false) {
+                    indicator.className = 'status-indicator status-error';
+                    statusText.textContent = 'Microsoft Graph API credentials required';
+                } else {
+                    indicator.className = 'status-indicator status-warning';
+                    statusText.textContent = 'System requires setup';
+                }
+            }
+
+            async scrapeCalendar() {
+                const button = document.getElementById('scrapeCalendar');
+                const originalText = button.innerHTML;
+                
+                button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Scraping...';
+                button.disabled = true;
+
+                try {
+                    const response = await fetch('/api/scrape-weekly-calendar');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.displayCalendarEntries(data.dynamic_calendar);
+                        this.loadPriorityInsights();
+                    } else {
+                        this.showError(data.error || 'Failed to scrape calendar');
+                        if (data.requires_credentials) {
+                            this.showCredentialsRequired();
+                        }
+                    }
+                } catch (error) {
+                    this.showError('Calendar scraping failed');
+                } finally {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }
+            }
+
+            async testConnection() {
+                const button = document.getElementById('testConnection');
+                const originalText = button.innerHTML;
+                
+                button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Testing...';
+                button.disabled = true;
+
+                try {
+                    const response = await fetch('/api/test-outlook-connection');
+                    const data = await response.json();
+                    
+                    if (data.success && data.connection_successful) {
+                        this.showSuccess('Outlook connection successful');
+                    } else {
+                        this.showError('Connection failed - Check credentials');
+                    }
+                } catch (error) {
+                    this.showError('Connection test failed');
+                } finally {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }
+            }
+
+            displayCalendarEntries(calendar) {
+                const container = document.getElementById('calendarEntries');
+                
+                if (!calendar.calendar_entries || calendar.calendar_entries.length === 0) {
+                    container.innerHTML = '<p class="text-muted text-center">No calendar entries found</p>';
+                    return;
+                }
+
+                const entriesHtml = calendar.calendar_entries.map(entry => {
+                    const priorityClass = `priority-${entry.priority_level}`;
+                    const timeUntil = this.formatTimeUntil(entry.time_until_event_hours);
+                    
+                    return `
+                        <div class="priority-card ${priorityClass}">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="mb-0">${entry.title}</h6>
+                                <span class="bmi-score">${entry.bmi_score}</span>
+                            </div>
+                            <p class="mb-2 text-muted">${entry.description}</p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <small><i class="fas fa-clock me-1"></i>${this.formatDateTime(entry.start_datetime)}</small><br>
+                                    <small><i class="fas fa-map-marker-alt me-1"></i>${entry.location || 'No location'}</small>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <div class="mb-1">
+                                        <span class="badge bg-primary">${entry.priority_level.toUpperCase()}</span>
+                                        <span class="badge bg-secondary">BMI: ${entry.combined_priority}</span>
+                                    </div>
+                                    ${entry.automation_readiness < 0.5 ? '<span class="automation-badge">Automation Ready</span>' : ''}
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-users me-1"></i>${entry.attendees.length} attendees | 
+                                    <i class="fas fa-hourglass-half me-1"></i>${timeUntil}
+                                </small>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = entriesHtml;
+            }
+
+            async loadPriorityInsights() {
+                try {
+                    const response = await fetch('/api/calendar-priority-insights');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.displayPriorityInsights(data.priority_insights);
+                        this.updatePriorityChart(data.priority_insights.priority_distribution);
+                    }
+                } catch (error) {
+                    console.error('Failed to load priority insights:', error);
+                }
+            }
+
+            displayPriorityInsights(insights) {
+                // Update automation opportunities
+                const automationContainer = document.getElementById('automationOpportunities');
+                if (insights.automation_opportunities && insights.automation_opportunities.length > 0) {
+                    const opportunitiesHtml = insights.automation_opportunities.slice(0, 3).map(opp => `
+                        <div class="mb-2 p-2 bg-dark rounded">
+                            <strong>${opp.event_title}</strong><br>
+                            <small class="text-success">Potential: ${(opp.automation_potential * 100).toFixed(0)}%</small><br>
+                            <small class="text-muted">${opp.suggested_automation}</small>
+                        </div>
+                    `).join('');
+                    automationContainer.innerHTML = opportunitiesHtml;
+                } else {
+                    automationContainer.innerHTML = '<p class="text-muted">No automation opportunities detected</p>';
+                }
+
+                // Update calendar insights
+                const insightsContainer = document.getElementById('calendarInsights');
+                if (insights.calendar_insights) {
+                    const ci = insights.calendar_insights;
+                    insightsContainer.innerHTML = `
+                        <div class="mb-2">
+                            <strong>High Priority:</strong> ${ci.high_priority_percentage}%
+                        </div>
+                        <div class="mb-2">
+                            <strong>Avg BMI Score:</strong> ${ci.average_bmi_score}
+                        </div>
+                        <div class="mb-2">
+                            <strong>Calendar Density:</strong> ${ci.calendar_density} meetings/day
+                        </div>
+                        ${ci.conflict_detection && ci.conflict_detection.length > 0 ? 
+                            `<div class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>${ci.conflict_detection.length} conflicts detected</div>` : 
+                            '<div class="text-success"><i class="fas fa-check me-1"></i>No conflicts detected</div>'
+                        }
+                    `;
+                }
+            }
+
+            initPriorityChart() {
+                const ctx = document.getElementById('priorityChart').getContext('2d');
+                this.priorityChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Critical', 'High', 'Medium', 'Low'],
+                        datasets: [{
+                            data: [0, 0, 0, 0],
+                            backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#28a745'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#ffffff' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            updatePriorityChart(distribution) {
+                if (this.priorityChart && distribution) {
+                    this.priorityChart.data.datasets[0].data = [
+                        distribution.critical || 0,
+                        distribution.high || 0,
+                        distribution.medium || 0,
+                        distribution.low || 0
+                    ];
+                    this.priorityChart.update();
+                }
+            }
+
+            formatDateTime(dateTime) {
+                return new Date(dateTime).toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                });
+            }
+
+            formatTimeUntil(hours) {
+                if (hours < 1) return `${Math.round(hours * 60)}m`;
+                if (hours < 24) return `${Math.round(hours)}h`;
+                return `${Math.round(hours / 24)}d`;
+            }
+
+            showSuccess(message) {
+                this.showAlert(message, 'success');
+            }
+
+            showError(message) {
+                this.showAlert(message, 'danger');
+            }
+
+            showAlert(message, type) {
+                const alertHtml = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                document.querySelector('.calendar-header').insertAdjacentHTML('beforeend', alertHtml);
+            }
+
+            showCredentialsRequired() {
+                const modal = `
+                    <div class="modal fade" id="credentialsModal" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content bg-dark">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Microsoft Graph API Setup Required</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>To enable Outlook calendar automation, you need to configure Microsoft Graph API credentials:</p>
+                                    <ol>
+                                        <li>Visit <a href="https://portal.azure.com" target="_blank">Azure Portal</a></li>
+                                        <li>Register a new application</li>
+                                        <li>Grant Calendar.Read permissions</li>
+                                        <li>Generate client credentials</li>
+                                        <li>Add the credentials to your environment</li>
+                                    </ol>
+                                    <p><strong>Required credentials:</strong></p>
+                                    <ul>
+                                        <li>MICROSOFT_CLIENT_ID</li>
+                                        <li>MICROSOFT_CLIENT_SECRET</li>
+                                        <li>MICROSOFT_TENANT_ID</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modal);
+                new bootstrap.Modal(document.getElementById('credentialsModal')).show();
+            }
+        }
+
+        // Initialize the calendar automation system
+        document.addEventListener('DOMContentLoaded', () => {
+            new CalendarAutomation();
+        });
+    </script>
+</body>
+</html>

@@ -194,26 +194,26 @@ def home():
                     <div class="stat-label">Access</div>
                 </div>
             </div>
-            <a href="/watson_console.html" class="access-btn watson">Access Console</a>
+            <a href="/watson_console.html" class="access-btn watson btn-interactive ripple-container hover-lift">Access Console</a>
         </div>
         {% endif %}
         
         <!-- Executive Dashboards -->
-        <div class="module-card">
+        <div class="module-card hover-lift interactive-highlight">
             <div class="module-icon">📊</div>
             <div class="module-title">Executive Dashboards</div>
             <div class="module-desc">Comprehensive business intelligence with real-time metrics and analytics</div>
             <div class="module-stats">
                 <div class="stat-item">
-                    <div class="stat-value" id="execDashboards">4</div>
+                    <div class="stat-value status-indicator" id="execDashboards">4</div>
                     <div class="stat-label">Active</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="execUptime">99.54%</div>
+                    <div class="stat-value status-indicator" id="execUptime">99.54%</div>
                     <div class="stat-label">Uptime</div>
                 </div>
             </div>
-            <a href="/proprietary_asset_tracker" class="access-btn">Launch Dashboard</a>
+            <a href="/proprietary_asset_tracker" class="access-btn btn-interactive ripple-container hover-lift">Launch Dashboard</a>
         </div>
         
         <!-- Fleet Management -->
@@ -468,7 +468,12 @@ def home():
     </script>
 </body>
 </html>
-    """, user=user)
+    """
+    
+    # Apply micro-animation enhancements to the template
+    enhanced_template = animation_system.generate_enhanced_template_with_animations(base_template)
+    
+    return render_template_string(enhanced_template, user=user)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

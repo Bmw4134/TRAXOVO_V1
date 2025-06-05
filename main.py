@@ -1,8 +1,4 @@
-"""
-QQ Intelligence Transfer Mode - Main Application Entry
-"""
+from app import app  # noqa: F401
 
-from transfer_mode_preview import app
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)

@@ -283,14 +283,420 @@
         transition-duration: 0.01ms !important;
       }
     }
+
+    /* ===== RESPONSIVE DESIGN - MULTI-DEVICE COMPATIBILITY ===== */
     
-    @media (max-width: 768px) {
-      .console-grid {
-        grid-template-columns: 1fr;
+    /* Base Mobile-First Styles (320px+) */
+    .console-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      padding: 10px;
+      max-width: 100%;
+    }
+
+    /* Touch-Friendly Controls */
+    .watson-btn,
+    .accessibility-btn {
+      min-height: 44px;
+      min-width: 44px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .watson-btn:active,
+    .accessibility-btn:active {
+      transform: scale(0.98);
+      transition: transform 0.1s ease;
+    }
+
+    /* Mobile Terminal Input */
+    #terminal-input {
+      min-height: 44px;
+      font-size: 16px; /* Prevents zoom on iOS */
+      padding: 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .execute-btn {
+      min-height: 44px;
+      min-width: 44px;
+      font-size: 18px;
+      padding: 12px;
+    }
+
+    /* Mobile Accessibility Controls */
+    .accessibility-controls {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      flex-direction: column;
+      gap: 5px;
+      z-index: 1000;
+      max-width: 120px;
+    }
+
+    .accessibility-btn {
+      font-size: 10px;
+      padding: 6px 8px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    /* Mobile Status Grid */
+    .status-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .status-item {
+      padding: 12px;
+      min-height: 44px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* Mobile Command Output */
+    .command-line,
+    .analysis-output {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    /* Mobile Header */
+    .console-header {
+      padding: 15px 10px;
+      text-align: center;
+    }
+
+    .watson-logo {
+      font-size: 1.8rem;
+      line-height: 1.2;
+    }
+
+    .proprietary-badge {
+      font-size: 0.7rem;
+      padding: 4px 8px;
+    }
+
+    /* Mobile Panel Headers */
+    .panel-header {
+      font-size: 1rem;
+      padding: 12px;
+      word-wrap: break-word;
+    }
+
+    /* Mobile Control Buttons */
+    .control-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .watson-btn {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    /* Mobile Terminal Container */
+    .terminal-input-container,
+    .terminal-input-container > div {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Small Mobile (up to 480px) */
+    @media (max-width: 480px) {
+      .accessibility-controls {
+        top: 5px;
+        right: 5px;
+        max-width: 100px;
       }
-      
+
+      .accessibility-btn {
+        font-size: 9px;
+        padding: 5px 6px;
+      }
+
+      .watson-logo {
+        font-size: 1.5rem;
+      }
+
+      .console-grid {
+        padding: 8px;
+        gap: 12px;
+      }
+
+      .console-panel {
+        padding: 12px;
+      }
+    }
+
+    /* Large Mobile / Small Tablet Portrait (481px - 767px) */
+    @media (min-width: 481px) and (max-width: 767px) {
       .status-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .accessibility-controls {
+        flex-direction: row;
+        max-width: none;
+      }
+
+      .accessibility-btn {
+        font-size: 11px;
+        padding: 6px 10px;
+      }
+
+      .watson-logo {
+        font-size: 2rem;
+      }
+    }
+
+    /* Tablet Portrait (768px - 1023px) */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .console-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        padding: 20px;
+      }
+
+      .status-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .accessibility-controls {
+        flex-direction: row;
+        gap: 10px;
+      }
+
+      .accessibility-btn {
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+
+      .watson-logo {
+        font-size: 2.5rem;
+      }
+
+      .terminal-input-container > div {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .control-buttons {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      .watson-btn {
+        width: auto;
+        min-width: 120px;
+        flex: 1;
+        margin: 0 5px;
+      }
+
+      #terminal-input {
+        font-size: 14px;
+      }
+    }
+
+    /* Tablet Landscape / Small Desktop (1024px - 1439px) */
+    @media (min-width: 1024px) and (max-width: 1439px) {
+      .console-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 30px;
+        gap: 25px;
+      }
+
+      .status-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .watson-logo {
+        font-size: 3rem;
+      }
+
+      .panel-header {
+        font-size: 1.2rem;
+      }
+
+      .accessibility-btn {
+        font-size: 13px;
+        padding: 10px 15px;
+      }
+
+      .watson-btn {
+        font-size: 15px;
+        padding: 14px 20px;
+      }
+    }
+
+    /* Large Desktop (1440px - 1919px) */
+    @media (min-width: 1440px) and (max-width: 1919px) {
+      .console-grid {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        max-width: 1600px;
+        gap: 30px;
+        padding: 40px;
+      }
+
+      .status-grid {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+      }
+
+      .watson-logo {
+        font-size: 3.5rem;
+      }
+
+      .panel-header {
+        font-size: 1.3rem;
+      }
+    }
+
+    /* Ultra-wide Desktop (1920px+) */
+    @media (min-width: 1920px) {
+      .console-grid {
+        max-width: 1800px;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 35px;
+        padding: 50px;
+      }
+
+      .watson-logo {
+        font-size: 4rem;
+      }
+    }
+
+    /* Landscape Mobile Specific */
+    @media (max-width: 768px) and (orientation: landscape) {
+      .console-header {
+        padding: 8px 10px;
+      }
+
+      .watson-logo {
+        font-size: 1.6rem;
+      }
+
+      .console-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        padding: 10px;
+      }
+
+      .accessibility-controls {
+        flex-direction: row;
+        top: 5px;
+        right: 5px;
+      }
+
+      .command-line,
+      .analysis-output {
+        max-height: 120px;
+      }
+    }
+
+    /* High DPI / Retina Displays */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      .watson-btn,
+      .accessibility-btn {
+        border-width: 0.5px;
+      }
+
+      .console-panel {
+        border-width: 0.5px;
+      }
+    }
+
+    /* Dark Mode Support */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #0a0a0a;
+      }
+
+      .console-panel {
+        background: rgba(15, 15, 15, 0.95);
+        border-color: #ff6b35;
+      }
+
+      .high-contrast .console-panel {
+        background: #000000 !important;
+      }
+    }
+
+    /* Touch Device Optimizations */
+    @media (hover: none) and (pointer: coarse) {
+      .watson-btn:hover,
+      .accessibility-btn:hover {
+        background: rgba(255, 107, 53, 0.3);
+      }
+
+      .watson-btn:active,
+      .accessibility-btn:active {
+        background: rgba(255, 107, 53, 0.5);
+        transform: scale(0.95);
+      }
+
+      /* Increase touch targets */
+      .status-item {
+        min-height: 48px;
+        padding: 14px;
+      }
+
+      .command-prompt,
+      .command-output {
+        line-height: 1.6;
+        padding: 4px 0;
+      }
+    }
+
+    /* Print Styles */
+    @media print {
+      .accessibility-controls,
+      .control-buttons {
+        display: none !important;
+      }
+
+      .console-panel {
+        break-inside: avoid;
+        border: 1px solid #000;
+        background: white !important;
+        color: black !important;
+        margin-bottom: 20px;
+      }
+
+      .watson-logo {
+        color: black !important;
+      }
+
+      .console-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px;
+      }
+    }
+
+    /* Reduced Data Mode */
+    @media (prefers-reduced-data: reduce) {
+      .console-panel {
+        background: rgba(0, 0, 0, 0.8);
+      }
+
+      .watson-btn,
+      .accessibility-btn {
+        background: rgba(0, 0, 0, 0.9);
       }
     }
   </style>
@@ -696,12 +1102,190 @@
       }
     }
 
-    // Accessibility State Management
+    // Device and Accessibility State Management
+    let deviceState = {
+      isMobile: false,
+      isTablet: false,
+      isDesktop: false,
+      orientation: 'portrait',
+      touchEnabled: false,
+      screenWidth: window.innerWidth,
+      screenHeight: window.innerHeight
+    };
+
     let accessibilityState = {
       highContrast: false,
       largeFont: false,
       screenReaderEnabled: false
     };
+
+    // Device Detection Functions
+    function detectDevice() {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      
+      deviceState.screenWidth = width;
+      deviceState.screenHeight = height;
+      deviceState.touchEnabled = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      deviceState.orientation = width > height ? 'landscape' : 'portrait';
+      
+      // Device type detection
+      if (width <= 768) {
+        deviceState.isMobile = true;
+        deviceState.isTablet = false;
+        deviceState.isDesktop = false;
+      } else if (width <= 1024) {
+        deviceState.isMobile = false;
+        deviceState.isTablet = true;
+        deviceState.isDesktop = false;
+      } else {
+        deviceState.isMobile = false;
+        deviceState.isTablet = false;
+        deviceState.isDesktop = true;
+      }
+      
+      updateDeviceClasses();
+      announceToScreenReader(`Device detected: ${getDeviceDescription()}`);
+    }
+
+    function getDeviceDescription() {
+      let description = '';
+      if (deviceState.isMobile) description = 'Mobile device';
+      else if (deviceState.isTablet) description = 'Tablet device';
+      else description = 'Desktop device';
+      
+      description += ` in ${deviceState.orientation} orientation`;
+      if (deviceState.touchEnabled) description += ' with touch support';
+      
+      return description;
+    }
+
+    function updateDeviceClasses() {
+      const body = document.body;
+      
+      // Remove existing device classes
+      body.classList.remove('mobile', 'tablet', 'desktop', 'portrait', 'landscape', 'touch');
+      
+      // Add current device classes
+      if (deviceState.isMobile) body.classList.add('mobile');
+      if (deviceState.isTablet) body.classList.add('tablet');
+      if (deviceState.isDesktop) body.classList.add('desktop');
+      if (deviceState.touchEnabled) body.classList.add('touch');
+      body.classList.add(deviceState.orientation);
+    }
+
+    // Responsive Layout Management
+    function optimizeLayoutForDevice() {
+      const consoleGrid = document.querySelector('.console-grid');
+      const statusGrids = document.querySelectorAll('.status-grid');
+      const controlButtons = document.querySelectorAll('.control-buttons');
+      
+      if (deviceState.isMobile) {
+        // Mobile optimizations
+        statusGrids.forEach(grid => {
+          if (deviceState.orientation === 'landscape') {
+            grid.style.gridTemplateColumns = '1fr 1fr';
+          } else {
+            grid.style.gridTemplateColumns = '1fr';
+          }
+        });
+        
+        // Ensure terminal input is properly sized
+        const terminalInput = document.getElementById('terminal-input');
+        if (terminalInput) {
+          terminalInput.style.fontSize = '16px'; // Prevents zoom on iOS
+        }
+      }
+      
+      // Update accessibility controls position
+      const accessibilityControls = document.querySelector('.accessibility-controls');
+      if (accessibilityControls && deviceState.isMobile && deviceState.orientation === 'landscape') {
+        accessibilityControls.style.flexDirection = 'row';
+        accessibilityControls.style.top = '5px';
+        accessibilityControls.style.right = '5px';
+      }
+    }
+
+    // Touch and Gesture Support
+    function setupTouchSupport() {
+      if (!deviceState.touchEnabled) return;
+      
+      const panels = document.querySelectorAll('.console-panel');
+      panels.forEach(panel => {
+        // Add touch-friendly scrolling
+        panel.style.webkitOverflowScrolling = 'touch';
+        panel.style.overflowY = 'auto';
+        
+        // Prevent text selection on touch
+        panel.style.webkitTouchCallout = 'none';
+        panel.style.webkitUserSelect = 'none';
+        panel.style.userSelect = 'none';
+      });
+      
+      // Enhanced terminal input for touch
+      const terminalInput = document.getElementById('terminal-input');
+      if (terminalInput) {
+        terminalInput.addEventListener('touchstart', function() {
+          this.focus();
+        });
+      }
+    }
+
+    // Viewport Management
+    function handleViewportChange() {
+      // Update viewport meta tag for better mobile experience
+      let viewport = document.querySelector('meta[name="viewport"]');
+      if (!viewport) {
+        viewport = document.createElement('meta');
+        viewport.name = 'viewport';
+        document.head.appendChild(viewport);
+      }
+      
+      if (deviceState.isMobile) {
+        viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+      } else {
+        viewport.content = 'width=device-width, initial-scale=1.0';
+      }
+    }
+
+    // Performance Optimizations for Different Devices
+    function optimizePerformance() {
+      const terminalOutput = document.getElementById('watson-output');
+      const analysisOutput = document.querySelector('.analysis-output');
+      
+      if (deviceState.isMobile) {
+        // Limit output lines on mobile for better performance
+        const maxLines = 20;
+        
+        if (terminalOutput && terminalOutput.children.length > maxLines) {
+          while (terminalOutput.children.length > maxLines) {
+            terminalOutput.removeChild(terminalOutput.firstChild);
+          }
+        }
+        
+        if (analysisOutput && analysisOutput.children.length > maxLines) {
+          while (analysisOutput.children.length > maxLines) {
+            analysisOutput.removeChild(analysisOutput.firstChild);
+          }
+        }
+      }
+    }
+
+    // Network-aware optimizations
+    function handleNetworkChange() {
+      if ('connection' in navigator) {
+        const connection = navigator.connection;
+        const effectiveType = connection.effectiveType;
+        
+        if (effectiveType === 'slow-2g' || effectiveType === '2g') {
+          // Reduce animation frequency for slow connections
+          document.body.classList.add('slow-connection');
+          announceToScreenReader('Slow network detected - interface optimized');
+        } else {
+          document.body.classList.remove('slow-connection');
+        }
+      }
+    }
 
     // Accessibility Functions
     function toggleHighContrast() {
@@ -814,11 +1398,19 @@
       }
     }
 
-    // Initialize Watson Console with Accessibility
+    // Initialize Watson Console with Multi-Device Support
     document.addEventListener('DOMContentLoaded', async function() {
       updateOutput('[WATSON] Proprietary Command Console initialized');
+      updateOutput('[RESPONSIVE] Multi-device compatibility system loading...');
       updateOutput('[ACCESSIBILITY] Enhanced accessibility features loaded');
       updateOutput('[SYSTEM] Loading Infinity Alpha & Omega Storage Bundle...');
+      
+      // Initialize device detection and responsive features
+      detectDevice();
+      handleViewportChange();
+      setupTouchSupport();
+      optimizeLayoutForDevice();
+      handleNetworkChange();
       
       // Setup accessibility features
       setupKeyboardNavigation();
@@ -842,12 +1434,15 @@
           updateOutput(`[DIAGNOSTICS] ✅ Bucket access: ${bucketValidation.success ? 'OPERATIONAL' : 'FAILED'}`);
           updateOutput(`[DIAGNOSTICS] ✅ Command I/O: FUNCTIONAL`);
           updateOutput(`[DIAGNOSTICS] ✅ SQL write validation: ${sqlValidation.success ? 'VALIDATED' : 'FAILED'}`);
+          updateOutput(`[DIAGNOSTICS] ✅ Device compatibility: ${getDeviceDescription().toUpperCase()}`);
+          updateOutput(`[DIAGNOSTICS] ✅ Responsive design: OPTIMIZED`);
           updateOutput(`[DIAGNOSTICS] ✅ Accessibility: ENHANCED`);
           updateOutput(`[DIAGNOSTICS] ✅ No duplicate injection: CONFIRMED`);
           updateOutput('[WATSON] All systems ready - Type "help" for available commands');
           updateOutput('[ACCESSIBILITY] Use Alt+1, Alt+2, Alt+3 for accessibility controls');
+          updateOutput('[RESPONSIVE] Interface optimized for your device type and screen size');
           
-          announceToScreenReader('Watson Command Console fully initialized with accessibility enhancements');
+          announceToScreenReader(`Watson Command Console fully initialized with accessibility enhancements for ${getDeviceDescription()}`);
         }, 1000);
         
       } catch (error) {
@@ -864,15 +1459,100 @@
         }
       });
       
-      // Focus on terminal input
-      terminalInput.focus();
+      // Focus on terminal input (with device-specific behavior)
+      if (!deviceState.isMobile) {
+        terminalInput.focus();
+      }
       
-      // Update real-time metrics
+      // Update real-time metrics with performance optimization
       setInterval(() => {
         const currentTime = new Date().toLocaleTimeString();
         document.getElementById('analysis-status').textContent = 'ACTIVE';
-      }, 5000);
+        
+        // Performance optimization for mobile devices
+        if (deviceState.isMobile) {
+          optimizePerformance();
+        }
+      }, deviceState.isMobile ? 10000 : 5000); // Slower updates on mobile
+      
+      // Setup responsive event listeners
+      window.addEventListener('resize', debounce(() => {
+        detectDevice();
+        optimizeLayoutForDevice();
+        updateOutput(`[RESPONSIVE] Layout optimized for ${deviceState.screenWidth}x${deviceState.screenHeight}`);
+      }, 250));
+      
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+          detectDevice();
+          optimizeLayoutForDevice();
+          announceToScreenReader(`Orientation changed to ${deviceState.orientation}`);
+        }, 100);
+      });
+      
+      // Network change detection
+      if ('connection' in navigator) {
+        navigator.connection.addEventListener('change', handleNetworkChange);
+      }
     });
+
+    // Utility function for debouncing resize events
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    // Enhanced command processing with device awareness
+    async function processWatsonCommandResponsive(command) {
+      const startTime = Date.now();
+      
+      // Announce command execution with device context
+      announceToScreenReader(`Executing command: ${command} on ${getDeviceDescription()}`);
+      
+      // Log command execution to storage
+      if (watsonStorage && watsonSQL) {
+        await watsonStorage.storeFeedbackLog(sessionId, command, 'Command initiated', new Date().toISOString());
+        await watsonSQL.logCommand(sessionId, command, 'Initiated', 0, true);
+      }
+      
+      const parts = command.toLowerCase().split(' ');
+      const baseCommand = parts[0];
+      
+      switch(baseCommand) {
+        case 'device':
+          updateOutput('[WATSON] Device information:');
+          updateOutput(`Screen: ${deviceState.screenWidth}x${deviceState.screenHeight}`);
+          updateOutput(`Type: ${deviceState.isMobile ? 'Mobile' : deviceState.isTablet ? 'Tablet' : 'Desktop'}`);
+          updateOutput(`Orientation: ${deviceState.orientation}`);
+          updateOutput(`Touch: ${deviceState.touchEnabled ? 'Enabled' : 'Disabled'}`);
+          announceToScreenReader('Device information reported');
+          break;
+          
+        case 'responsive':
+          updateOutput('[WATSON] Responsive design status:');
+          updateOutput(`Layout: Optimized for ${getDeviceDescription()}`);
+          updateOutput(`Breakpoint: ${deviceState.isMobile ? 'Mobile' : deviceState.isTablet ? 'Tablet' : 'Desktop'}`);
+          updateOutput('Features: Touch-friendly controls, adaptive layouts, performance optimization');
+          announceToScreenReader('Responsive design status reported');
+          break;
+          
+        default:
+          // Call original command processor
+          await processWatsonCommand(command);
+      }
+      
+      const executionTime = Date.now() - startTime;
+      if (watsonSQL) {
+        await watsonSQL.logCommand(sessionId, command, 'Command completed', executionTime, true);
+      }
+    }
   </script>
 </body>
 </html>

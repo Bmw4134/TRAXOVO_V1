@@ -46,10 +46,10 @@ def home():
     <title>TRAXOVO - Watson Intelligence Platform</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; color: #2c3e50; overflow-x: hidden; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #2c3e50; overflow-x: hidden; }
         
-        /* Navigation Sidebar */
-        .sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100vh; background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%); z-index: 1000; transition: transform 0.3s; }
+        /* Navigation Sidebar - Ragle Colors */
+        .sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100vh; background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%); z-index: 1000; transition: transform 0.3s; }
         .sidebar.collapsed { transform: translateX(-240px); }
         .sidebar-header { padding: 20px; border-bottom: 1px solid #2a2a4e; }
         .logo { color: #00ff88; font-size: 20px; font-weight: bold; }
@@ -147,9 +147,11 @@ def home():
             {% endif %}
         </nav>
         
-        <!-- Universal Fix Module -->
+        <!-- Universal Fix Module with Website Analysis -->
         <div class="fix-module">
-            <div class="fix-module-title">🔧 Fix Anything</div>
+            <div class="fix-module-title">🔧 Universal Fix Module</div>
+            <input type="url" id="websiteUrl" placeholder="Enter website URL to analyze..." style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #3b82f6; border-radius: 4px;">
+            <button class="fix-btn btn-interactive ripple-container" onclick="analyzeWebsite()">🌐 Analyze Website</button>
             <button class="fix-btn btn-interactive ripple-container" onclick="runQuickFix('performance')">⚡ Performance Boost</button>
             <button class="fix-btn btn-interactive ripple-container" onclick="runQuickFix('routes')">🔄 Fix Routes</button>
             <button class="fix-btn btn-interactive ripple-container" onclick="runQuickFix('features')">🛠️ Repair Features</button>

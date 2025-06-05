@@ -46,58 +46,166 @@ def home():
     <title>TRAXOVO - Watson Intelligence Platform</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #2c3e50; overflow-x: hidden; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, rgba(0, 20, 50, 0.95) 0%, rgba(20, 0, 50, 0.95) 100%);
+            color: #ffffff; 
+            overflow-x: hidden; 
+            margin: 0;
+            min-height: 100vh;
+        }
         
-        /* Navigation Sidebar - Ragle Colors */
-        .sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100vh; background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%); z-index: 1000; transition: transform 0.3s; }
+        /* Navigation Sidebar - JDD Style */
+        .sidebar { 
+            position: fixed; 
+            left: 0; 
+            top: 0; 
+            width: 280px; 
+            height: 100vh; 
+            background: rgba(0, 30, 60, 0.9); 
+            backdrop-filter: blur(10px);
+            border-right: 2px solid rgba(0, 255, 100, 0.4);
+            z-index: 1000; 
+            transition: transform 0.3s; 
+        }
         .sidebar.collapsed { transform: translateX(-240px); }
         .sidebar-header { padding: 20px; border-bottom: 1px solid #2a2a4e; }
-        .logo { color: #00ff88; font-size: 20px; font-weight: bold; }
+        .logo { 
+            color: #00ff64; 
+            font-size: 24px; 
+            font-weight: 900; 
+            text-shadow: 0 0 30px rgba(0, 255, 100, 0.8);
+            letter-spacing: 2px;
+            animation: companyGlow 3s ease-in-out infinite alternate;
+        }
         .user-info { margin-top: 10px; }
         .user-name { color: #ffffff; font-size: 14px; }
-        .user-role { color: #4ecdc4; font-size: 12px; }
+        .user-role { color: #00ff64; font-size: 12px; text-shadow: 0 0 10px rgba(0, 255, 100, 0.5); }
         
         .nav-menu { padding: 20px 0; }
         .nav-section { margin-bottom: 25px; }
-        .nav-section-title { color: #4ecdc4; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; padding: 0 20px; margin-bottom: 8px; }
+        .nav-section-title { color: #00ff64; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; padding: 0 20px; margin-bottom: 8px; }
         .nav-item { display: block; padding: 12px 20px; color: #ffffff; text-decoration: none; transition: all 0.2s; border-left: 3px solid transparent; }
-        .nav-item:hover { background: rgba(0,255,136,0.1); border-left-color: #00ff88; }
-        .nav-item.active { background: rgba(0,255,136,0.15); border-left-color: #00ff88; color: #00ff88; }
+        .nav-item:hover { background: rgba(0,255,100,0.1); border-left-color: #00ff64; text-shadow: 0 0 10px rgba(0, 255, 100, 0.5); }
+        .nav-item.active { background: rgba(0,255,100,0.15); border-left-color: #00ff64; color: #00ff64; text-shadow: 0 0 15px rgba(0, 255, 100, 0.8); }
         .nav-item.watson-exclusive { border-left-color: #ff6b35; }
         .nav-item.watson-exclusive:hover { background: rgba(255,107,53,0.1); border-left-color: #ff6b35; }
         
         /* Fix Module - Always Visible */
-        .fix-module { background: #2a2a4e; margin: 15px; border-radius: 8px; padding: 15px; border: 1px solid #00ff88; }
-        .fix-module-title { color: #00ff88; font-size: 14px; font-weight: bold; margin-bottom: 10px; }
-        .fix-btn { width: 100%; background: #00ff88; color: #000; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 3px 0; }
+        .fix-module { 
+            background: rgba(0, 30, 60, 0.9); 
+            margin: 15px; 
+            border-radius: 8px; 
+            padding: 15px; 
+            border: 2px solid rgba(0, 255, 100, 0.4);
+            backdrop-filter: blur(10px);
+        }
+        .fix-module-title { 
+            color: #00ff64; 
+            font-size: 14px; 
+            font-weight: bold; 
+            margin-bottom: 10px; 
+            text-shadow: 0 0 10px rgba(0, 255, 100, 0.5);
+        }
+        .fix-btn { 
+            width: 100%; 
+            background: #00ff64; 
+            color: #000; 
+            border: none; 
+            padding: 8px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 12px; 
+            margin: 3px 0;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
         .fix-btn.critical { background: #ff4444; color: white; }
-        .fix-btn:hover { opacity: 0.8; }
+        .fix-btn:hover { 
+            box-shadow: 0 0 15px rgba(0, 255, 100, 0.5);
+            transform: translateY(-1px);
+        }
         
         /* Main Content */
         .main-content { margin-left: 280px; min-height: 100vh; transition: margin-left 0.3s; }
         .main-content.expanded { margin-left: 40px; }
         
-        /* Header inspired by ragleinc.com */
-        .header { background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); padding: 20px 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-bottom: 1px solid #e9ecef; }
+        /* Header - JDD Business Intelligence Style */
+        .header { 
+            background: rgba(0, 0, 0, 0.7); 
+            padding: 20px 30px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3); 
+            border-bottom: 2px solid rgba(0, 255, 100, 0.4);
+            backdrop-filter: blur(10px);
+        }
         .header-content { display: flex; justify-content: space-between; align-items: center; }
-        .page-title { font-size: 28px; color: #2c3e50; font-weight: 300; }
-        .page-subtitle { color: #6c757d; font-size: 14px; margin-top: 5px; }
+        .page-title { 
+            font-size: 32px; 
+            color: #00ff64; 
+            font-weight: 900; 
+            text-shadow: 0 0 30px rgba(0, 255, 100, 0.8);
+            letter-spacing: 2px;
+            animation: companyGlow 3s ease-in-out infinite alternate;
+        }
+        .page-subtitle { color: #ffffff; font-size: 14px; margin-top: 5px; opacity: 0.8; }
         .header-actions { display: flex; gap: 15px; }
-        .header-btn { background: #00ff88; color: #000; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .header-btn { 
+            background: #00ff64; 
+            color: #000; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .header-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 255, 100, 0.6);
+            transform: translateY(-2px);
+        }
         
         /* Content Grid */
         .content-grid { padding: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
         
-        /* Module Cards - Enhanced Design */
-        .module-card { background: #ffffff; border-radius: 12px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e9ecef; transition: all 0.3s; position: relative; overflow: hidden; }
-        .module-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #00ff88, #4ecdc4); }
-        .module-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+        /* Module Cards - JDD Business Intelligence Style */
+        .module-card { 
+            background: rgba(0, 30, 60, 0.9); 
+            border-radius: 20px; 
+            padding: 25px; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3); 
+            border: 2px solid rgba(0, 255, 100, 0.4); 
+            transition: all 0.3s; 
+            position: relative; 
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        .module-card::before { 
+            content: ''; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            height: 4px; 
+            background: linear-gradient(90deg, #00ff64, #00ff88); 
+        }
+        .module-card:hover { 
+            transform: translateY(-10px); 
+            box-shadow: 0 15px 40px rgba(0, 255, 100, 0.2);
+            border-color: #00ff64;
+        }
         .module-card.watson-exclusive::before { background: linear-gradient(90deg, #ff6b35, #ff8c42); }
         
         .module-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #00ff88, #4ecdc4); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
         .module-icon.watson { background: linear-gradient(135deg, #ff6b35, #ff8c42); }
-        .module-title { color: #2c3e50; font-size: 18px; font-weight: 600; margin-bottom: 8px; }
-        .module-desc { color: #6c757d; font-size: 14px; line-height: 1.5; margin-bottom: 20px; }
+        .module-title { 
+            color: #00ff64; 
+            font-size: 18px; 
+            font-weight: 600; 
+            margin-bottom: 8px; 
+            text-shadow: 0 0 10px rgba(0, 255, 100, 0.5);
+        }
+        .module-desc { color: #ffffff; font-size: 14px; line-height: 1.5; margin-bottom: 20px; opacity: 0.9; }
         .module-stats { display: flex; gap: 15px; margin-bottom: 20px; }
         .stat-item { text-align: center; }
         .stat-value { font-size: 18px; font-weight: bold; color: #00ff88; }

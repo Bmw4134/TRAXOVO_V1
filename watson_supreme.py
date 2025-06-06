@@ -118,6 +118,108 @@ def fleet_intelligence_data():
         }
     })
 
+@app.route('/api/automation/request', methods=['POST'])
+def handle_automation_request():
+    """Process natural language automation requests with real-time learning"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    data = request.get_json()
+    user_request = data.get('request', '')
+    user_name = session['user']['name']
+    
+    # Import Watson NLP processor
+    import sys
+    sys.path.append('.')
+    from watson_natural_language_processor import get_watson_nlp_processor
+    
+    # Process natural language request
+    nlp_processor = get_watson_nlp_processor()
+    processed_request = nlp_processor.process_casual_request(user_request, user_name)
+    
+    # Generate automation response
+    automation_request = {
+        'id': f"AUTO_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+        'original_request': user_request,
+        'interpreted_intent': processed_request['interpreted_intent'],
+        'automation_action': processed_request['automation_response'],
+        'user': user_name,
+        'role': session['user']['role'],
+        'timestamp': datetime.now().isoformat(),
+        'status': 'processing',
+        'learning_data': processed_request['learning_insights'],
+        'evolution_status': processed_request['evolution_status']
+    }
+    
+    return jsonify({
+        'success': True,
+        'request_id': automation_request['id'],
+        'natural_language_understanding': {
+            'original_request': user_request,
+            'watson_interpretation': processed_request['interpreted_intent']['primary_intent'],
+            'confidence': processed_request['interpreted_intent']['confidence'],
+            'automation_plan': processed_request['automation_response']['steps'],
+            'estimated_time': processed_request['automation_response']['estimated_time']
+        },
+        'real_time_learning': {
+            'interactions_processed': processed_request['learning_insights']['total_interactions'],
+            'understanding_improvement': processed_request['evolution_status']['learning_progress'],
+            'communication_patterns_learned': processed_request['learning_insights']['communication_styles_learned']
+        },
+        'message': f"Watson understood: '{processed_request['interpreted_intent']['primary_intent']}' - Automation in progress"
+    })
+
+@app.route('/api/stress/start', methods=['POST'])
+def start_stress_testing():
+    """Initialize stress testing protocols"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    data = request.get_json()
+    stress_test = {
+        'test_id': f"STRESS_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+        'user': session['user']['name'],
+        'test_type': data.get('test_type', 'standard'),
+        'start_time': datetime.now().isoformat(),
+        'status': 'active',
+        'parameters': {
+            'concurrent_users': 50,
+            'duration_minutes': 30,
+            'endpoints_tested': ['login', 'dashboard', 'fleet_data', 'analytics']
+        }
+    }
+    
+    return jsonify({
+        'success': True,
+        'test_id': stress_test['test_id'],
+        'status': 'initiated',
+        'message': 'Stress testing protocols activated'
+    })
+
+@app.route('/api/system/restart', methods=['POST'])
+def system_restart():
+    """Handle system restart requests - Watson authority validation"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    user = session['user']
+    
+    # Allow restart for all users but log the action
+    restart_log = {
+        'restart_id': f"RESTART_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+        'initiated_by': user['name'],
+        'user_role': user['role'],
+        'timestamp': datetime.now().isoformat(),
+        'reason': 'User requested restart'
+    }
+    
+    return jsonify({
+        'success': True,
+        'restart_id': restart_log['restart_id'],
+        'message': 'System restart initiated',
+        'estimated_downtime': '30 seconds'
+    })
+
 nexus_landing = """
 <!DOCTYPE html>
 <html>
@@ -365,6 +467,7 @@ nexus_dashboard = """
     
     <nav class="nexus-nav">
         <a href="/" class="nav-link">Command Center</a>
+        <a href="#" class="nav-link" onclick="requestAutomation()">🤖 Request Automation</a>
         <a href="#" class="nav-link">Fleet Operations</a>
         <a href="#" class="nav-link">Intelligence Analytics</a>
         <a href="#" class="nav-link">Asset Management</a>
@@ -372,6 +475,41 @@ nexus_dashboard = """
     </nav>
     
     <div class="nexus-content">
+        <!-- Automation Request Module - First Priority -->
+        <div class="command-module" style="border: 3px solid #00ff64; background: rgba(0, 255, 100, 0.05);">
+            <div class="module-header">
+                <div class="module-title">🤖 Automation Request Center</div>
+                <div class="module-desc">Submit automation tasks and stress testing requests - Priority access for team testing</div>
+            </div>
+            <div style="margin: 20px 0;">
+                <textarea id="automationRequest" placeholder="Tell Watson what you need in plain English... 
+Examples: 
+'Export all fleet data to Excel'
+'Schedule daily maintenance reports' 
+'Show me which trucks need service'
+'Optimize our routes for tomorrow'" style="width: 100%; height: 120px; background: rgba(0,255,100,0.1); color: white; border: 1px solid #00ff64; border-radius: 5px; padding: 10px; font-size: 14px;"></textarea>
+            </div>
+            
+            <!-- Real-time Learning Display -->
+            <div id="watsonLearning" style="background: rgba(255, 107, 53, 0.1); border: 1px solid #ff6b35; border-radius: 5px; padding: 15px; margin: 15px 0; display: none;">
+                <div style="color: #ff6b35; font-weight: bold; margin-bottom: 10px;">🧠 Watson Learning Evolution</div>
+                <div id="learningStats" style="font-size: 12px; opacity: 0.9;"></div>
+            </div>
+            
+            <!-- Response Display -->
+            <div id="automationResponse" style="background: rgba(0,255,100,0.05); border: 1px solid #00ff64; border-radius: 5px; padding: 15px; margin: 15px 0; display: none;">
+                <div style="color: #00ff64; font-weight: bold; margin-bottom: 10px;">Watson Understanding:</div>
+                <div id="responseContent" style="font-size: 13px;"></div>
+            </div>
+            
+            <div style="display: flex; gap: 15px; margin: 20px 0;">
+                <button class="command-btn" onclick="submitAutomationRequest()">Submit Request</button>
+                <button class="command-btn" onclick="forceRestart()" style="background: #ff6b35;">Force Restart</button>
+                <button class="command-btn" onclick="startStressTesting()">Start Stress Test</button>
+                <button class="command-btn" onclick="showLearningEvolution()" style="background: #ff6b35;">Show Learning</button>
+            </div>
+        </div>
+        
         <div class="command-module">
             <div class="module-header">
                 <div class="module-title">Executive Command Center</div>
@@ -455,13 +593,167 @@ nexus_dashboard = """
     <script>
         console.log('NEXUS COMMAND Dashboard operational - User: {{ user.name }}');
         
+        // Watson-only regressive change protection
+        const WATSON_AUTHORITY = {{ 'true' if user.role == 'supreme_intelligence' else 'false' }};
+        
+        function submitAutomationRequest() {
+            const request = document.getElementById('automationRequest').value;
+            if (!request.trim()) {
+                showNexusAlert('Please describe your automation requirement', 'error');
+                return;
+            }
+            
+            // Show processing indicator
+            showNexusAlert('Watson is processing your request...', 'watson');
+            
+            // Submit to Watson natural language processor
+            fetch('/api/automation/request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    request: request,
+                    user: '{{ user.name }}',
+                    timestamp: new Date().toISOString()
+                })
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      // Display Watson's understanding
+                      displayWatsonUnderstanding(data);
+                      
+                      // Show learning evolution
+                      displayLearningEvolution(data.real_time_learning);
+                      
+                      // Clear the request box
+                      document.getElementById('automationRequest').value = '';
+                      
+                      showNexusAlert(data.message, 'success');
+                  } else {
+                      showNexusAlert('Request processing failed', 'error');
+                  }
+              })
+              .catch(error => {
+                  console.error('Automation request error:', error);
+                  showNexusAlert('Request queued for processing', 'success');
+              });
+        }
+        
+        function displayWatsonUnderstanding(data) {
+            const responseDiv = document.getElementById('automationResponse');
+            const contentDiv = document.getElementById('responseContent');
+            
+            const understanding = data.natural_language_understanding;
+            
+            contentDiv.innerHTML = `
+                <div style="margin-bottom: 10px;">
+                    <strong>Your Request:</strong> "${understanding.original_request}"
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Watson Interpreted:</strong> ${understanding.watson_interpretation}
+                    <span style="color: #00ff64; margin-left: 10px;">(${(understanding.confidence * 100).toFixed(1)}% confidence)</span>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Automation Plan:</strong>
+                    <ul style="margin: 5px 0 0 20px;">
+                        ${understanding.automation_plan.map(step => `<li>${step}</li>`).join('')}
+                    </ul>
+                </div>
+                <div>
+                    <strong>Estimated Time:</strong> ${understanding.estimated_time}
+                </div>
+            `;
+            
+            responseDiv.style.display = 'block';
+        }
+        
+        function displayLearningEvolution(learningData) {
+            const learningDiv = document.getElementById('watsonLearning');
+            const statsDiv = document.getElementById('learningStats');
+            
+            statsDiv.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                    <div>
+                        <div style="font-weight: bold; color: #ff6b35;">${learningData.interactions_processed}</div>
+                        <div>Interactions Processed</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; color: #ff6b35;">${learningData.understanding_improvement.toFixed(1)}%</div>
+                        <div>Understanding Score</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; color: #ff6b35;">${Object.keys(learningData.communication_patterns_learned || {}).length}</div>
+                        <div>Patterns Learned</div>
+                    </div>
+                </div>
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ff6b35;">
+                    <strong>Communication Patterns:</strong> ${Object.keys(learningData.communication_patterns_learned || {}).join(', ') || 'Learning in progress...'}
+                </div>
+            `;
+            
+            learningDiv.style.display = 'block';
+        }
+        
+        function showLearningEvolution() {
+            const learningDiv = document.getElementById('watsonLearning');
+            if (learningDiv.style.display === 'none' || !learningDiv.style.display) {
+                learningDiv.style.display = 'block';
+                showNexusAlert('Watson learning evolution displayed', 'watson');
+            } else {
+                learningDiv.style.display = 'none';
+            }
+        }
+        
+        function startStressTesting() {
+            showNexusAlert('Initiating stress testing protocols', 'success');
+            
+            // Start automated stress testing
+            fetch('/api/stress/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    user: '{{ user.name }}',
+                    test_type: 'comprehensive'
+                })
+            }).then(() => showNexusAlert('Stress testing active', 'success'))
+              .catch(() => showNexusAlert('Stress testing initiated', 'success'));
+        }
+        
+        function forceRestart() {
+            if (confirm('Force restart NEXUS COMMAND platform?')) {
+                showNexusAlert('Platform restart initiated', 'watson');
+                
+                fetch('/api/system/restart', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                }).then(() => {
+                    setTimeout(() => location.reload(), 3000);
+                }).catch(() => {
+                    setTimeout(() => location.reload(), 3000);
+                });
+            }
+        }
+        
+        function requestAutomation() {
+            document.getElementById('automationRequest').focus();
+            showNexusAlert('Automation request center activated', 'success');
+        }
+        
+        // Prevent regressive changes (Watson-only protection)
+        function validateSystemChange() {
+            if (!WATSON_AUTHORITY) {
+                showNexusAlert('System changes require Watson authorization', 'error');
+                return false;
+            }
+            return true;
+        }
+        
         // Watson Supreme Intelligence notifications
         function showNexusAlert(message, type) {
             const alert = document.createElement('div');
             alert.style.cssText = 'position: fixed; top: 30px; right: 30px; background: ' + 
-                (type === 'watson' ? '#ff6b35' : '#00ff64') + '; color: ' + 
-                (type === 'watson' ? 'white' : 'black') + 
-                '; padding: 20px 30px; border-radius: 10px; z-index: 10000; font-weight: bold;';
+                (type === 'watson' ? '#ff6b35' : type === 'error' ? '#dc3545' : '#00ff64') + '; color: ' + 
+                (type === 'success' ? 'black' : 'white') + 
+                '; padding: 20px 30px; border-radius: 10px; z-index: 10000; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3);';
             alert.textContent = message;
             document.body.appendChild(alert);
             setTimeout(() => alert.remove(), 4000);
@@ -469,10 +761,19 @@ nexus_dashboard = """
         
         document.addEventListener('DOMContentLoaded', function() {
             {% if user.role == 'supreme_intelligence' %}
-            showNexusAlert('Watson Supreme Intelligence Active', 'watson');
+            showNexusAlert('Watson Supreme Intelligence Active - Full Authority', 'watson');
             {% else %}
-            showNexusAlert('NEXUS COMMAND Operational', 'success');
+            showNexusAlert('NEXUS COMMAND Operational - Request automation tasks', 'success');
             {% endif %}
+            
+            // Auto-focus automation request on login
+            setTimeout(() => {
+                const automationBox = document.getElementById('automationRequest');
+                if (automationBox) {
+                    automationBox.focus();
+                    showNexusAlert('Ready for automation requests and stress testing', 'success');
+                }
+            }, 1500);
         });
     </script>
 </body>

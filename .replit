@@ -6,7 +6,7 @@ packages = ["cairo", "cargo", "ffmpeg-full", "freetype", "geckodriver", "ghostsc
 
 [deployment]
 deploymentTarget = "cloudrun"
-run = ["sh", "-c", "python app.py"]
+run = ["sh", "-c", "python main.py"]
 
 hidden = [".config", ".pythonlibs", "__pycache__", ".deployment_cache", "temp_*", "*.pyc", ".git", "attached_assets/*.zip", "qq_intelligent_archive", "archived_modules", "reports_processed", "uploads", "traxovo_remix_complete"]
 
@@ -219,7 +219,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python app.py"
+args = "python main.py"
 
 [[ports]]
 localPort = 3000

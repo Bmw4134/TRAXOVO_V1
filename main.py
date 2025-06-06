@@ -437,6 +437,46 @@ Examples:
     </div>
 
     <div class="command-module">
+        <div class="module-title">🎤 Infinity Sync Voice Commands</div>
+        <div style="margin-bottom: 20px; color: #ccc;">Voice-triggered logic listener with backend command parser and directive logger</div>
+        
+        <div id="voiceCommands" style="background: rgba(138,43,226,0.1); border: 1px solid #8a2be2; border-radius: 5px; padding: 15px; margin: 15px 0;">
+            <div style="color: #8a2be2; font-weight: bold; margin-bottom: 10px;">Voice Command Interface</div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: #ccc;">Voice Command Input:</label>
+                <input type="text" id="voiceCommandInput" placeholder="nexus self heal" 
+                       style="width: 100%; padding: 12px; background: #333; border: 1px solid #555; color: white; border-radius: 5px; font-size: 16px;">
+                <div style="font-size: 12px; color: #ccc; margin-top: 5px;">
+                    Try: "nexus self heal", "upgrade dashboard", "shrink file size", "buy 100 shares of AAPL", "platform overview"
+                </div>
+            </div>
+            
+            <div id="availableCommands" style="background: rgba(138,43,226,0.05); border: 1px solid #8a2be2; border-radius: 5px; padding: 10px; margin: 10px 0; display: none;">
+                <div style="color: #8a2be2; font-weight: bold; margin-bottom: 5px;">Available Voice Commands</div>
+                <div id="commandsList"></div>
+            </div>
+            
+            <div id="directiveResults" style="background: rgba(138,43,226,0.05); border: 1px solid #8a2be2; border-radius: 5px; padding: 10px; margin: 10px 0; display: none;">
+                <div style="color: #8a2be2; font-weight: bold; margin-bottom: 5px;">Directive Execution Results</div>
+                <div id="directiveResultsContent"></div>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 15px; margin: 20px 0;">
+            <button class="command-btn" onclick="executeVoiceCommand()" style="background: #8a2be2; color: white;">Execute Command</button>
+            <button class="command-btn" onclick="loadVoiceCommands()" style="background: #8a2be2; color: white;">Load Commands</button>
+            <button class="command-btn" onclick="showDirectiveHistory()" style="background: #8a2be2; color: white;">Command History</button>
+            <button class="command-btn" onclick="quickSelfHeal()" style="background: #8a2be2; color: white;">Quick Self Heal</button>
+        </div>
+        
+        <div id="directiveHistory" style="display: none; background: rgba(138,43,226,0.05); border: 1px solid #8a2be2; border-radius: 5px; padding: 15px; margin: 15px 0;">
+            <div style="color: #8a2be2; font-weight: bold; margin-bottom: 10px;">Recent Directive History</div>
+            <div id="directiveHistoryContent"></div>
+        </div>
+    </div>
+
+    <div class="command-module">
         <div class="module-title">⚡ Workflow Startup Optimization Toolkit</div>
         <div style="margin-bottom: 20px; color: #ccc;">Advanced system optimization for enhanced performance and faster startup</div>
         
@@ -1664,6 +1704,206 @@ Examples:
             showAlert('System Status: ' + status.system_status + ' | Trading: ' + status.trading_engine, 'success');
         }
         
+        // Infinity Sync Voice Command Functions
+        function executeVoiceCommand() {
+            const voiceInput = document.getElementById('voiceCommandInput').value.trim();
+            
+            if (!voiceInput) {
+                showAlert('Please enter a voice command', 'error');
+                return;
+            }
+            
+            showAlert(`Processing voice command: "${voiceInput}"`, 'watson');
+            
+            fetch('/api/infinity/voice-command', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    voice_input: voiceInput
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayDirectiveResult(data.directive_result);
+                    showAlert('Voice command executed successfully', 'success');
+                    document.getElementById('voiceCommandInput').value = '';
+                } else {
+                    showAlert('Voice command failed: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Voice command error:', error);
+                showAlert('Voice command execution failed', 'error');
+            });
+        }
+        
+        function displayDirectiveResult(result) {
+            const resultContent = document.getElementById('directiveResultsContent');
+            
+            if (result.success) {
+                resultContent.innerHTML = `
+                    <div style="margin-bottom: 10px;">
+                        <strong>✅ Command Executed Successfully</strong>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Directive ID:</strong> ${result.directive_id}
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Command:</strong> ${result.command}
+                    </div>
+                    ${result.execution_time ? `
+                    <div style="margin-bottom: 10px;">
+                        <strong>Execution Time:</strong> ${result.execution_time.toFixed(2)}s
+                    </div>
+                    ` : ''}
+                    ${result.result ? `
+                    <div style="margin-bottom: 10px;">
+                        <strong>Result:</strong>
+                        <pre style="background: rgba(138,43,226,0.1); padding: 10px; border-radius: 3px; margin-top: 5px; white-space: pre-wrap; font-size: 12px;">${JSON.stringify(result.result, null, 2)}</pre>
+                    </div>
+                    ` : ''}
+                `;
+            } else {
+                resultContent.innerHTML = `
+                    <div style="margin-bottom: 10px;">
+                        <strong>❌ Command Failed</strong>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Error:</strong> ${result.error}
+                    </div>
+                    ${result.directive_id ? `
+                    <div style="margin-bottom: 10px;">
+                        <strong>Directive ID:</strong> ${result.directive_id}
+                    </div>
+                    ` : ''}
+                `;
+            }
+            
+            document.getElementById('directiveResults').style.display = 'block';
+        }
+        
+        function loadVoiceCommands() {
+            showAlert('Loading available voice commands...', 'watson');
+            
+            fetch('/api/infinity/commands')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayAvailableCommands(data.commands);
+                        showAlert('Voice commands loaded successfully', 'success');
+                    } else {
+                        showAlert('Failed to load voice commands', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Voice commands loading error:', error);
+                    showAlert('Failed to load voice commands', 'error');
+                });
+        }
+        
+        function displayAvailableCommands(commands) {
+            const commandsList = document.getElementById('commandsList');
+            
+            let commandsHTML = `
+                <div style="margin-bottom: 10px; color: #8a2be2; font-weight: bold;">
+                    Total Commands: ${commands.total_commands} | Active Listeners: ${commands.active_listeners}
+                </div>
+            `;
+            
+            Object.entries(commands.commands).forEach(([commandName, commandConfig]) => {
+                commandsHTML += `
+                    <div style="background: rgba(138,43,226,0.1); border-radius: 3px; padding: 8px; margin-bottom: 8px;">
+                        <div style="font-weight: bold; color: #8a2be2; margin-bottom: 3px;">${commandName.replace('_', ' ').toUpperCase()}</div>
+                        <div style="font-size: 12px; color: #ccc; margin-bottom: 5px;">${commandConfig.description}</div>
+                        <div style="font-size: 11px; color: #888;">
+                            Triggers: ${commandConfig.triggers.slice(0, 2).join(', ')}${commandConfig.triggers.length > 2 ? '...' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            commandsList.innerHTML = commandsHTML;
+            document.getElementById('availableCommands').style.display = 'block';
+        }
+        
+        function showDirectiveHistory() {
+            showAlert('Loading directive history...', 'watson');
+            
+            fetch('/api/infinity/directives?limit=10')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayDirectiveHistory(data.directives);
+                        showAlert('Directive history loaded successfully', 'success');
+                    } else {
+                        showAlert('Failed to load directive history', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Directive history loading error:', error);
+                    showAlert('Failed to load directive history', 'error');
+                });
+        }
+        
+        function displayDirectiveHistory(directives) {
+            const historyContent = document.getElementById('directiveHistoryContent');
+            
+            if (directives.length === 0) {
+                historyContent.innerHTML = `
+                    <div style="text-align: center; color: #ccc; padding: 20px;">
+                        No directive history available.
+                    </div>
+                `;
+            } else {
+                let historyHTML = '';
+                
+                directives.forEach((directive, index) => {
+                    const timestamp = new Date(directive.timestamp).toLocaleString();
+                    const statusColor = directive.status === 'completed' ? '#00ff64' : 
+                                       directive.status === 'failed' ? '#ff6b35' : '#8a2be2';
+                    
+                    historyHTML += `
+                        <div style="background: rgba(138,43,226,0.1); border-radius: 3px; padding: 10px; margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <span style="font-weight: bold; color: #8a2be2;">${directive.command}</span>
+                                <span style="color: ${statusColor}; font-size: 12px;">${directive.status}</span>
+                            </div>
+                            <div style="font-size: 12px; color: #ccc; margin-bottom: 3px;">
+                                Trigger: "${directive.voice_trigger}"
+                            </div>
+                            <div style="font-size: 11px; color: #888;">
+                                ${timestamp} | ID: ${directive.directive_id}
+                            </div>
+                            ${directive.execution_time ? `
+                            <div style="font-size: 11px; color: #888;">
+                                Execution: ${directive.execution_time}s
+                            </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                
+                historyContent.innerHTML = historyHTML;
+            }
+            
+            document.getElementById('directiveHistory').style.display = 'block';
+        }
+        
+        function quickSelfHeal() {
+            document.getElementById('voiceCommandInput').value = 'nexus self heal';
+            executeVoiceCommand();
+        }
+        
+        // Add Enter key support for voice command input
+        document.getElementById('voiceCommandInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                executeVoiceCommand();
+            }
+        });
+        
         // Auto-update market data for selected symbol
         document.getElementById('tradeSymbol').addEventListener('change', function() {
             if (document.getElementById('marketData').style.display !== 'none') {
@@ -1679,6 +1919,8 @@ Examples:
             simulateBusinessIntelligence();
             // Check Nexus status on load
             checkNexusStatus();
+            // Load available voice commands
+            loadVoiceCommands();
         };
     </script>
 </body>
@@ -2129,6 +2371,80 @@ def get_nexus_trade_history(user_id):
             'success': True,
             'trades': trades,
             'count': len(trades),
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/infinity/voice-command', methods=['POST'])
+def process_voice_command():
+    """Process voice command through Infinity Sync Injector"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        data = request.get_json()
+        voice_input = data.get('voice_input', '')
+        
+        from infinity_sync_injector import get_infinity_sync_injector
+        sync_injector = get_infinity_sync_injector()
+        
+        result = sync_injector.execute_directive(voice_input)
+        
+        return jsonify({
+            'success': True,
+            'directive_result': result,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/infinity/commands')
+def get_infinity_commands():
+    """Get available voice commands"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from infinity_sync_injector import get_infinity_sync_injector
+        sync_injector = get_infinity_sync_injector()
+        
+        commands = sync_injector.get_available_commands()
+        
+        return jsonify({
+            'success': True,
+            'commands': commands,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/infinity/directives')
+def get_infinity_directives():
+    """Get directive execution history"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from infinity_sync_injector import get_infinity_sync_injector
+        sync_injector = get_infinity_sync_injector()
+        
+        limit = request.args.get('limit', 50, type=int)
+        directives = sync_injector.get_directive_history(limit)
+        
+        return jsonify({
+            'success': True,
+            'directives': directives,
+            'count': len(directives),
             'timestamp': datetime.now().isoformat()
         })
     except Exception as e:

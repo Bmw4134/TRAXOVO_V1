@@ -313,6 +313,130 @@ Examples:
     </div>
 
     <div class="command-module">
+        <div class="module-title">🎛️ Personalized Dashboard Customization</div>
+        <div style="margin-bottom: 20px; color: #ccc;">Create and customize your own dashboard layouts with drag-and-drop widgets</div>
+        
+        <div id="dashboardCustomization" style="background: rgba(148,0,211,0.1); border: 1px solid #9400d3; border-radius: 5px; padding: 15px; margin: 15px 0;">
+            <div style="color: #9400d3; font-weight: bold; margin-bottom: 10px;">Dashboard Builder</div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: #ccc;">Dashboard Name:</label>
+                    <input type="text" id="dashboardName" placeholder="My Custom Dashboard" 
+                           style="width: 100%; padding: 8px; background: #333; border: 1px solid #555; color: white; border-radius: 3px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: #ccc;">Theme:</label>
+                    <select id="dashboardTheme" style="width: 100%; padding: 8px; background: #333; border: 1px solid #555; color: white; border-radius: 3px;">
+                        <option value="executive_dark">Executive Dark</option>
+                        <option value="business_light">Business Light</option>
+                        <option value="performance_blue">Performance Blue</option>
+                        <option value="minimal_green">Minimal Green</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: #ccc;">Description:</label>
+                <textarea id="dashboardDescription" placeholder="Describe your dashboard purpose..."
+                          style="width: 100%; padding: 8px; background: #333; border: 1px solid #555; color: white; border-radius: 3px; height: 60px; resize: vertical;"></textarea>
+            </div>
+            
+            <div id="availableWidgets" style="display: none; margin-bottom: 15px;">
+                <div style="color: #9400d3; font-weight: bold; margin-bottom: 10px;">Available Widgets</div>
+                <div id="widgetGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                    <!-- Widget templates will be loaded here -->
+                </div>
+            </div>
+            
+            <div id="dashboardPreview" style="display: none; background: rgba(148,0,211,0.05); border: 1px solid #9400d3; border-radius: 5px; padding: 15px; margin: 15px 0;">
+                <div style="color: #9400d3; font-weight: bold; margin-bottom: 10px;">Dashboard Preview</div>
+                <div id="previewGrid" style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; min-height: 200px;">
+                    <div style="grid-column: span 12; text-align: center; color: #ccc; padding: 40px;">
+                        Your custom widgets will appear here
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 15px; margin: 20px 0;">
+            <button class="command-btn" onclick="createCustomDashboard()" style="background: #9400d3; color: white;">Create Dashboard</button>
+            <button class="command-btn" onclick="loadAvailableWidgets()" style="background: #9400d3; color: white;">Load Widgets</button>
+            <button class="command-btn" onclick="previewDashboard()" style="background: #9400d3; color: white;">Preview</button>
+            <button class="command-btn" onclick="loadUserDashboards()" style="background: #9400d3; color: white;">My Dashboards</button>
+        </div>
+        
+        <div id="userDashboards" style="display: none; background: rgba(148,0,211,0.05); border: 1px solid #9400d3; border-radius: 5px; padding: 15px; margin: 15px 0;">
+            <div style="color: #9400d3; font-weight: bold; margin-bottom: 10px;">My Custom Dashboards</div>
+            <div id="dashboardsList"></div>
+        </div>
+    </div>
+
+    <div class="command-module">
+        <div class="module-title">🚀 Nexus Infinity Trading Center</div>
+        <div style="margin-bottom: 20px; color: #ccc;">Real-time trading engine with advanced analytics and portfolio management</div>
+        
+        <div id="nexusTrading" style="background: rgba(0,255,255,0.1); border: 1px solid #00ffff; border-radius: 5px; padding: 15px; margin: 15px 0;">
+            <div style="color: #00ffff; font-weight: bold; margin-bottom: 10px;">Trading Interface</div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: #ccc;">Symbol:</label>
+                    <select id="tradeSymbol" style="width: 100%; padding: 8px; background: #333; border: 1px solid #555; color: white; border-radius: 3px;">
+                        <option value="AAPL">AAPL - Apple Inc.</option>
+                        <option value="GOOGL">GOOGL - Alphabet Inc.</option>
+                        <option value="MSFT">MSFT - Microsoft Corp.</option>
+                        <option value="AMZN">AMZN - Amazon.com Inc.</option>
+                        <option value="TSLA">TSLA - Tesla Inc.</option>
+                        <option value="META">META - Meta Platforms</option>
+                        <option value="NVDA">NVDA - NVIDIA Corp.</option>
+                        <option value="NFLX">NFLX - Netflix Inc.</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: #ccc;">Action:</label>
+                    <select id="tradeAction" style="width: 100%; padding: 8px; background: #333; border: 1px solid #555; color: white; border-radius: 3px;">
+                        <option value="buy">Buy</option>
+                        <option value="sell">Sell</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: #ccc;">Quantity:</label>
+                    <input type="number" id="tradeQuantity" placeholder="100" min="1" max="10000"
+                           style="width: 100%; padding: 8px; background: #333; border: 1px solid #555; color: white; border-radius: 3px;">
+                </div>
+            </div>
+            
+            <div id="marketData" style="background: rgba(0,255,255,0.05); border: 1px solid #00ffff; border-radius: 5px; padding: 10px; margin: 10px 0; display: none;">
+                <div style="color: #00ffff; font-weight: bold; margin-bottom: 5px;">Live Market Data</div>
+                <div id="currentPrice" style="font-size: 18px; color: #00ff64;">Loading...</div>
+            </div>
+            
+            <div id="portfolioSummary" style="background: rgba(0,255,255,0.05); border: 1px solid #00ffff; border-radius: 5px; padding: 10px; margin: 10px 0; display: none;">
+                <div style="color: #00ffff; font-weight: bold; margin-bottom: 5px;">Portfolio Summary</div>
+                <div id="portfolioData">Loading portfolio...</div>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 15px; margin: 20px 0;">
+            <button class="command-btn" onclick="executeNexusTrade()" style="background: #00ffff; color: black;">Execute Trade</button>
+            <button class="command-btn" onclick="loadMarketData()" style="background: #00ffff; color: black;">Market Data</button>
+            <button class="command-btn" onclick="loadPortfolio()" style="background: #00ffff; color: black;">Portfolio</button>
+            <button class="command-btn" onclick="checkNexusStatus()" style="background: #00ffff; color: black;">System Status</button>
+        </div>
+        
+        <div id="tradeResults" style="display: none; background: rgba(0,255,255,0.05); border: 1px solid #00ffff; border-radius: 5px; padding: 15px; margin: 15px 0;">
+            <div style="color: #00ffff; font-weight: bold; margin-bottom: 10px;">Trade Execution Results</div>
+            <div id="tradeResultsContent"></div>
+        </div>
+        
+        <div id="tradeHistory" style="display: none; background: rgba(0,255,255,0.05); border: 1px solid #00ffff; border-radius: 5px; padding: 15px; margin: 15px 0;">
+            <div style="color: #00ffff; font-weight: bold; margin-bottom: 10px;">Recent Trade History</div>
+            <div id="tradeHistoryContent"></div>
+        </div>
+    </div>
+
+    <div class="command-module">
         <div class="module-title">⚡ Workflow Startup Optimization Toolkit</div>
         <div style="margin-bottom: 20px; color: #ccc;">Advanced system optimization for enhanced performance and faster startup</div>
         
@@ -968,12 +1092,593 @@ Examples:
             showAlert('Predictive forecasts loaded', 'success');
         }
         
+        // Dashboard Customization Functions
+        let currentLayoutId = null;
+        let availableWidgetsData = null;
+        
+        function createCustomDashboard() {
+            showAlert('Creating custom dashboard...', 'watson');
+            
+            const name = document.getElementById('dashboardName').value || 'Custom Dashboard';
+            const description = document.getElementById('dashboardDescription').value || '';
+            const theme = document.getElementById('dashboardTheme').value;
+            
+            fetch('/api/dashboard/customize/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    description: description,
+                    theme: theme
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentLayoutId = data.layout_id;
+                    showAlert('Dashboard created successfully', 'success');
+                    document.getElementById('dashboardPreview').style.display = 'block';
+                    loadAvailableWidgets();
+                } else {
+                    showAlert('Dashboard creation failed: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Dashboard creation error:', error);
+                simulateCreateDashboard(name, description, theme);
+            });
+        }
+        
+        function loadAvailableWidgets() {
+            showAlert('Loading available widgets...', 'watson');
+            
+            fetch('/api/dashboard/customize/widgets')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        availableWidgetsData = data.widgets;
+                        displayAvailableWidgets(data.widgets);
+                        showAlert('Widgets loaded successfully', 'success');
+                    } else {
+                        showAlert('Widget loading failed', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Widget loading error:', error);
+                    simulateAvailableWidgets();
+                });
+        }
+        
+        function displayAvailableWidgets(widgetsData) {
+            const widgetGrid = document.getElementById('widgetGrid');
+            const categories = widgetsData.categories;
+            const templates = widgetsData.templates;
+            
+            let widgetHTML = '';
+            
+            Object.keys(categories).forEach(category => {
+                widgetHTML += `<div style="grid-column: span 3; color: #9400d3; font-weight: bold; margin: 10px 0;">${category}</div>`;
+                
+                categories[category].forEach(widgetType => {
+                    const template = templates[widgetType];
+                    widgetHTML += `
+                        <div class="widget-template" onclick="addWidgetToDashboard('${widgetType}')" 
+                             style="background: rgba(148,0,211,0.1); border: 1px solid #9400d3; border-radius: 5px; padding: 10px; cursor: pointer; transition: all 0.3s;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">${template.name}</div>
+                            <div style="font-size: 12px; color: #ccc;">${template.description}</div>
+                            <div style="margin-top: 8px; font-size: 11px; color: #9400d3;">
+                                Size: ${template.size_constraints.min_width}x${template.size_constraints.min_height}
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+            
+            widgetGrid.innerHTML = widgetHTML;
+            document.getElementById('availableWidgets').style.display = 'block';
+            
+            // Add hover effects
+            document.querySelectorAll('.widget-template').forEach(element => {
+                element.addEventListener('mouseover', function() {
+                    this.style.background = 'rgba(148,0,211,0.2)';
+                });
+                element.addEventListener('mouseout', function() {
+                    this.style.background = 'rgba(148,0,211,0.1)';
+                });
+            });
+        }
+        
+        function addWidgetToDashboard(widgetType) {
+            if (!currentLayoutId) {
+                showAlert('Please create a dashboard first', 'error');
+                return;
+            }
+            
+            showAlert(`Adding ${widgetType} widget to dashboard...`, 'watson');
+            
+            const position = {
+                x: Math.floor(Math.random() * 8),
+                y: Math.floor(Math.random() * 4),
+                width: availableWidgetsData.templates[widgetType].size_constraints.min_width,
+                height: availableWidgetsData.templates[widgetType].size_constraints.min_height
+            };
+            
+            fetch(`/api/dashboard/customize/${currentLayoutId}/widgets`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    widget_type: widgetType,
+                    position: position
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Widget added successfully', 'success');
+                    previewDashboard();
+                } else {
+                    showAlert('Widget addition failed: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Widget addition error:', error);
+                simulateAddWidget(widgetType, position);
+            });
+        }
+        
+        function previewDashboard() {
+            if (!currentLayoutId) {
+                showAlert('Please create a dashboard first', 'error');
+                return;
+            }
+            
+            showAlert('Loading dashboard preview...', 'watson');
+            
+            fetch(`/api/dashboard/customize/${currentLayoutId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayDashboardPreview(data.layout);
+                        showAlert('Dashboard preview loaded', 'success');
+                    } else {
+                        showAlert('Preview loading failed', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Preview loading error:', error);
+                    simulateDashboardPreview();
+                });
+        }
+        
+        function displayDashboardPreview(layout) {
+            const previewGrid = document.getElementById('previewGrid');
+            
+            if (layout.widgets.length === 0) {
+                previewGrid.innerHTML = `
+                    <div style="grid-column: span 12; text-align: center; color: #ccc; padding: 40px;">
+                        No widgets added yet. Use the widget library above to add components.
+                    </div>
+                `;
+                return;
+            }
+            
+            let previewHTML = '';
+            layout.widgets.forEach(widget => {
+                previewHTML += `
+                    <div class="preview-widget" 
+                         style="grid-column: span ${widget.position.width}; 
+                                grid-row: span ${widget.position.height}; 
+                                background: rgba(148,0,211,0.1); 
+                                border: 1px solid #9400d3; 
+                                border-radius: 5px; 
+                                padding: 10px; 
+                                position: relative;">
+                        <div style="font-weight: bold; margin-bottom: 5px; color: #9400d3;">${widget.title}</div>
+                        <div style="font-size: 12px; color: #ccc;">Type: ${widget.widget_type}</div>
+                        <div style="font-size: 11px; color: #ccc; margin-top: 5px;">
+                            Size: ${widget.position.width}x${widget.position.height}
+                        </div>
+                        <button onclick="removeWidgetFromPreview('${widget.widget_id}')" 
+                                style="position: absolute; top: 5px; right: 5px; background: none; border: none; color: #ff6b35; cursor: pointer;">✕</button>
+                    </div>
+                `;
+            });
+            
+            previewGrid.innerHTML = previewHTML;
+            document.getElementById('dashboardPreview').style.display = 'block';
+        }
+        
+        function loadUserDashboards() {
+            showAlert('Loading your dashboards...', 'watson');
+            
+            const userId = 'current_user'; // In real implementation, get from session
+            
+            fetch(`/api/dashboard/customize/user/${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayUserDashboards(data.dashboards);
+                        showAlert('Dashboards loaded successfully', 'success');
+                    } else {
+                        showAlert('Dashboard loading failed', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Dashboard loading error:', error);
+                    simulateUserDashboards();
+                });
+        }
+        
+        function displayUserDashboards(dashboards) {
+            const dashboardsList = document.getElementById('dashboardsList');
+            
+            if (dashboards.length === 0) {
+                dashboardsList.innerHTML = `
+                    <div style="text-align: center; color: #ccc; padding: 20px;">
+                        No custom dashboards created yet.
+                    </div>
+                `;
+            } else {
+                let dashboardsHTML = '';
+                dashboards.forEach(dashboard => {
+                    dashboardsHTML += `
+                        <div style="background: rgba(148,0,211,0.1); border: 1px solid #9400d3; border-radius: 5px; padding: 15px; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-weight: bold; color: #9400d3;">${dashboard.name}</div>
+                                    <div style="font-size: 12px; color: #ccc; margin: 5px 0;">${dashboard.description}</div>
+                                    <div style="font-size: 11px; color: #ccc;">
+                                        Widgets: ${dashboard.widget_count} | Theme: ${dashboard.theme} | Created: ${new Date(dashboard.created_at).toLocaleDateString()}
+                                    </div>
+                                </div>
+                                <div>
+                                    <button onclick="loadDashboard('${dashboard.layout_id}')" 
+                                            style="background: #9400d3; color: white; border: none; padding: 5px 10px; border-radius: 3px; margin-right: 5px; cursor: pointer;">Load</button>
+                                    <button onclick="exportDashboard('${dashboard.layout_id}')" 
+                                            style="background: #00ff64; color: black; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Export</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                dashboardsList.innerHTML = dashboardsHTML;
+            }
+            
+            document.getElementById('userDashboards').style.display = 'block';
+        }
+        
+        // Simulation functions for when backend is unavailable
+        function simulateCreateDashboard(name, description, theme) {
+            currentLayoutId = `demo_${Date.now()}`;
+            showAlert('Dashboard created (demo mode)', 'success');
+            document.getElementById('dashboardPreview').style.display = 'block';
+            simulateAvailableWidgets();
+        }
+        
+        function simulateAvailableWidgets() {
+            const simulatedWidgets = {
+                categories: {
+                    'Analytics': ['metrics_card', 'line_chart', 'gauge_chart'],
+                    'Data': ['data_table', 'activity_feed'],
+                    'Utilities': ['weather_widget', 'calendar_widget']
+                },
+                templates: {
+                    'metrics_card': {name: 'Metrics Card', description: 'Key performance metrics', size_constraints: {min_width: 2, min_height: 1}},
+                    'line_chart': {name: 'Line Chart', description: 'Time series visualization', size_constraints: {min_width: 3, min_height: 2}},
+                    'gauge_chart': {name: 'Gauge Chart', description: 'Progress indicators', size_constraints: {min_width: 2, min_height: 2}},
+                    'data_table': {name: 'Data Table', description: 'Tabular data display', size_constraints: {min_width: 4, min_height: 3}},
+                    'activity_feed': {name: 'Activity Feed', description: 'Real-time notifications', size_constraints: {min_width: 3, min_height: 4}},
+                    'weather_widget': {name: 'Weather Widget', description: 'Weather information', size_constraints: {min_width: 2, min_height: 2}},
+                    'calendar_widget': {name: 'Calendar', description: 'Events and scheduling', size_constraints: {min_width: 4, min_height: 3}}
+                }
+            };
+            
+            availableWidgetsData = simulatedWidgets;
+            displayAvailableWidgets(simulatedWidgets);
+            showAlert('Widgets loaded (demo mode)', 'success');
+        }
+        
+        function simulateAddWidget(widgetType, position) {
+            showAlert(`Widget ${widgetType} added (demo mode)`, 'success');
+            simulateDashboardPreview();
+        }
+        
+        function simulateDashboardPreview() {
+            const simulatedLayout = {
+                widgets: [
+                    {widget_id: 'demo1', title: 'Revenue Metrics', widget_type: 'metrics_card', position: {width: 2, height: 1}},
+                    {widget_id: 'demo2', title: 'Performance Chart', widget_type: 'line_chart', position: {width: 3, height: 2}},
+                    {widget_id: 'demo3', title: 'System Status', widget_type: 'gauge_chart', position: {width: 2, height: 2}}
+                ]
+            };
+            
+            displayDashboardPreview(simulatedLayout);
+            showAlert('Dashboard preview loaded (demo mode)', 'success');
+        }
+        
+        function simulateUserDashboards() {
+            const simulatedDashboards = [
+                {
+                    layout_id: 'demo_exec',
+                    name: 'Executive Overview',
+                    description: 'High-level business metrics and KPIs',
+                    theme: 'executive_dark',
+                    widget_count: 6,
+                    created_at: new Date().toISOString()
+                },
+                {
+                    layout_id: 'demo_ops',
+                    name: 'Operations Dashboard',
+                    description: 'Real-time operational data and performance',
+                    theme: 'performance_blue',
+                    widget_count: 8,
+                    created_at: new Date().toISOString()
+                }
+            ];
+            
+            displayUserDashboards(simulatedDashboards);
+            showAlert('Dashboards loaded (demo mode)', 'success');
+        }
+        
+        // Nexus Infinity Trading Functions
+        function executeNexusTrade() {
+            const symbol = document.getElementById('tradeSymbol').value;
+            const action = document.getElementById('tradeAction').value;
+            const quantity = document.getElementById('tradeQuantity').value;
+            
+            if (!quantity || quantity <= 0) {
+                showAlert('Please enter a valid quantity', 'error');
+                return;
+            }
+            
+            showAlert(`Executing ${action} order for ${quantity} shares of ${symbol}...`, 'watson');
+            
+            fetch('/api/nexus/trade', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    symbol: symbol,
+                    trade_type: action,
+                    quantity: quantity
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.trade_result.success) {
+                    displayTradeResult(data.trade_result);
+                    showAlert('Trade executed successfully', 'success');
+                    loadPortfolio(); // Refresh portfolio
+                } else {
+                    showAlert('Trade execution failed: ' + (data.trade_result.error || data.error), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Trade execution error:', error);
+                showAlert('Trade execution failed - connection error', 'error');
+            });
+        }
+        
+        function displayTradeResult(result) {
+            const resultContent = document.getElementById('tradeResultsContent');
+            
+            resultContent.innerHTML = `
+                <div style="margin-bottom: 10px;">
+                    <strong>Trade ID:</strong> ${result.trade_id}
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Executed Price:</strong> $${result.executed_price}
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Total Cost:</strong> $${result.total_cost.toFixed(2)}
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Fees:</strong> $${result.fees.toFixed(2)}
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Status:</strong> <span style="color: #00ff64;">${result.status}</span>
+                </div>
+                <div style="font-size: 12px; color: #ccc;">
+                    Executed at: ${new Date(result.timestamp).toLocaleString()}
+                </div>
+            `;
+            
+            document.getElementById('tradeResults').style.display = 'block';
+        }
+        
+        function loadMarketData() {
+            showAlert('Loading real-time market data...', 'watson');
+            
+            fetch('/api/nexus/market')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayMarketData(data.market_data);
+                        showAlert('Market data loaded successfully', 'success');
+                    } else {
+                        showAlert('Market data loading failed', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Market data error:', error);
+                    showAlert('Market data loading failed - connection error', 'error');
+                });
+        }
+        
+        function displayMarketData(marketData) {
+            const selectedSymbol = document.getElementById('tradeSymbol').value;
+            const symbolData = marketData[selectedSymbol];
+            
+            if (symbolData) {
+                const changeColor = symbolData.day_change >= 0 ? '#00ff64' : '#ff6b35';
+                
+                document.getElementById('currentPrice').innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-size: 24px; font-weight: bold;">${selectedSymbol}: $${symbolData.current_price}</span>
+                            <div style="font-size: 14px; color: ${changeColor};">
+                                ${symbolData.day_change >= 0 ? '+' : ''}${symbolData.day_change} (${symbolData.day_change_percent}%)
+                            </div>
+                        </div>
+                        <div style="text-align: right; font-size: 12px; color: #ccc;">
+                            <div>Bid: $${symbolData.bid}</div>
+                            <div>Ask: $${symbolData.ask}</div>
+                            <div>Volume: ${symbolData.volume.toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('marketData').style.display = 'block';
+            }
+        }
+        
+        function loadPortfolio() {
+            showAlert('Loading portfolio data...', 'watson');
+            
+            const userId = 'current_user'; // In real implementation, get from session
+            
+            fetch(`/api/nexus/portfolio/${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayPortfolio(data.portfolio);
+                        showAlert('Portfolio loaded successfully', 'success');
+                    } else {
+                        showAlert('Portfolio loading failed', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Portfolio loading error:', error);
+                    showAlert('Portfolio loading failed - connection error', 'error');
+                });
+        }
+        
+        function displayPortfolio(portfolio) {
+            const portfolioData = document.getElementById('portfolioData');
+            
+            let positionsHTML = '';
+            
+            if (Object.keys(portfolio.positions).length > 0) {
+                Object.entries(portfolio.positions).forEach(([symbol, position]) => {
+                    if (position.quantity > 0) {
+                        positionsHTML += `
+                            <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #333;">
+                                <span>${symbol}</span>
+                                <span>${position.quantity} @ $${position.average_price.toFixed(2)}</span>
+                            </div>
+                        `;
+                    }
+                });
+            } else {
+                positionsHTML = '<div style="color: #ccc; text-align: center; padding: 10px;">No positions</div>';
+            }
+            
+            portfolioData.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <div style="color: #00ffff; font-weight: bold;">Cash Balance</div>
+                        <div style="font-size: 18px;">$${portfolio.cash_balance.toFixed(2)}</div>
+                    </div>
+                    <div>
+                        <div style="color: #00ffff; font-weight: bold;">Portfolio Value</div>
+                        <div style="font-size: 18px;">$${portfolio.portfolio_value.toFixed(2)}</div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <div style="color: #00ffff; font-weight: bold; margin-bottom: 5px;">Positions</div>
+                    ${positionsHTML}
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 12px; color: #ccc;">
+                    <div>Total Trades: ${portfolio.total_trades}</div>
+                    <div>P&L: $${portfolio.total_profit_loss.toFixed(2)}</div>
+                </div>
+            `;
+            
+            document.getElementById('portfolioSummary').style.display = 'block';
+        }
+        
+        function checkNexusStatus() {
+            showAlert('Checking Nexus system status...', 'watson');
+            
+            fetch('/api/nexus/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayNexusStatus(data.status);
+                        showAlert('System status retrieved successfully', 'success');
+                    } else {
+                        showAlert('Status check failed', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Status check error:', error);
+                    showAlert('Status check failed - connection error', 'error');
+                });
+        }
+        
+        function displayNexusStatus(status) {
+            const statusContent = `
+                <div style="background: rgba(0,255,255,0.1); border: 1px solid #00ffff; border-radius: 5px; padding: 15px; margin: 15px 0;">
+                    <div style="color: #00ffff; font-weight: bold; margin-bottom: 10px;">Nexus Infinity System Status</div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <div style="color: #ccc; font-size: 12px;">System Status</div>
+                            <div style="color: #00ff64; font-weight: bold;">${status.system_status}</div>
+                        </div>
+                        <div>
+                            <div style="color: #ccc; font-size: 12px;">Trading Engine</div>
+                            <div style="color: #00ff64; font-weight: bold;">${status.trading_engine}</div>
+                        </div>
+                        <div>
+                            <div style="color: #ccc; font-size: 12px;">Market Connection</div>
+                            <div style="color: #00ff64; font-weight: bold;">${status.market_connection}</div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                        <div>
+                            <div style="color: #ccc; font-size: 12px;">Active Trades</div>
+                            <div style="color: #00ffff; font-weight: bold;">${status.active_trades}</div>
+                        </div>
+                        <div>
+                            <div style="color: #ccc; font-size: 12px;">Uptime</div>
+                            <div style="color: #00ffff; font-weight: bold;">${status.uptime}</div>
+                        </div>
+                        <div>
+                            <div style="color: #ccc; font-size: 12px;">Success Rate</div>
+                            <div style="color: #00ffff; font-weight: bold;">${status.performance_metrics.success_rate}%</div>
+                        </div>
+                        <div>
+                            <div style="color: #ccc; font-size: 12px;">Avg Profit</div>
+                            <div style="color: #00ffff; font-weight: bold;">$${status.performance_metrics.average_profit}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Display status in the alerts area or create a temporary status display
+            showAlert('System Status: ' + status.system_status + ' | Trading: ' + status.trading_engine, 'success');
+        }
+        
+        // Auto-update market data for selected symbol
+        document.getElementById('tradeSymbol').addEventListener('change', function() {
+            if (document.getElementById('marketData').style.display !== 'none') {
+                loadMarketData();
+            }
+        });
+        
         // Focus automation request on load and initialize optimization metrics
         window.onload = function() {
             document.getElementById('automationRequest').focus();
             updateOptimizationMetrics();
             // Auto-load business intelligence overview
             simulateBusinessIntelligence();
+            // Check Nexus status on load
+            checkNexusStatus();
         };
     </script>
 </body>
@@ -1130,6 +1835,300 @@ def visualization_dashboard():
         return jsonify({
             'success': True,
             'dashboard_config': dashboard_config,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/dashboard/customize/widgets')
+def get_available_widgets():
+    """Get available dashboard widgets and templates"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from dashboard_customization import get_dashboard_customization_engine
+        customization_engine = get_dashboard_customization_engine()
+        widgets_data = customization_engine.get_available_widgets()
+        
+        return jsonify({
+            'success': True,
+            'widgets': widgets_data,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/dashboard/customize/create', methods=['POST'])
+def create_custom_dashboard():
+    """Create a new custom dashboard layout"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        data = request.get_json()
+        user_id = session['user']['id']
+        
+        from dashboard_customization import get_dashboard_customization_engine
+        customization_engine = get_dashboard_customization_engine()
+        
+        layout = customization_engine.create_custom_dashboard(
+            user_id=user_id,
+            name=data.get('name', 'Custom Dashboard'),
+            description=data.get('description', '')
+        )
+        
+        return jsonify({
+            'success': True,
+            'layout_id': layout.layout_id,
+            'layout': {
+                'layout_id': layout.layout_id,
+                'name': layout.name,
+                'description': layout.description,
+                'theme': layout.theme,
+                'created_at': layout.created_at
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/dashboard/customize/<layout_id>/widgets', methods=['POST'])
+def add_widget_to_dashboard(layout_id):
+    """Add a widget to dashboard layout"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        data = request.get_json()
+        
+        from dashboard_customization import get_dashboard_customization_engine
+        customization_engine = get_dashboard_customization_engine()
+        
+        widget = customization_engine.add_widget_to_dashboard(
+            layout_id=layout_id,
+            widget_type=data['widget_type'],
+            position=data['position'],
+            config=data.get('config', {})
+        )
+        
+        return jsonify({
+            'success': True,
+            'widget': {
+                'widget_id': widget.widget_id,
+                'widget_type': widget.widget_type,
+                'title': widget.title,
+                'position': widget.position,
+                'created_at': widget.created_at
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/dashboard/customize/<layout_id>')
+def get_dashboard_layout(layout_id):
+    """Get dashboard layout configuration"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from dashboard_customization import get_dashboard_customization_engine
+        customization_engine = get_dashboard_customization_engine()
+        
+        layout = customization_engine.get_dashboard_layout(layout_id)
+        
+        if not layout:
+            return jsonify({'error': 'Dashboard not found'}), 404
+        
+        return jsonify({
+            'success': True,
+            'layout': {
+                'layout_id': layout.layout_id,
+                'name': layout.name,
+                'description': layout.description,
+                'theme': layout.theme,
+                'grid_config': layout.grid_config,
+                'widgets': [
+                    {
+                        'widget_id': w.widget_id,
+                        'widget_type': w.widget_type,
+                        'title': w.title,
+                        'position': w.position,
+                        'config': w.config,
+                        'data_source': w.data_source,
+                        'refresh_interval': w.refresh_interval,
+                        'visible': w.visible
+                    } for w in layout.widgets
+                ],
+                'created_at': layout.created_at,
+                'updated_at': layout.updated_at
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/dashboard/customize/user/<user_id>')
+def get_user_dashboards(user_id):
+    """Get all dashboards for a user"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from dashboard_customization import get_dashboard_customization_engine
+        customization_engine = get_dashboard_customization_engine()
+        
+        layouts = customization_engine.get_user_dashboards(user_id)
+        
+        return jsonify({
+            'success': True,
+            'dashboards': [
+                {
+                    'layout_id': layout.layout_id,
+                    'name': layout.name,
+                    'description': layout.description,
+                    'theme': layout.theme,
+                    'widget_count': len(layout.widgets),
+                    'created_at': layout.created_at,
+                    'updated_at': layout.updated_at
+                } for layout in layouts
+            ]
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nexus/status')
+def nexus_status():
+    """Get Nexus Infinity system status"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from nexus_infinity_engine import get_nexus_infinity_engine
+        nexus_engine = get_nexus_infinity_engine()
+        status = nexus_engine.get_nexus_status()
+        
+        return jsonify({
+            'success': True,
+            'status': status,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nexus/trade', methods=['POST'])
+def execute_nexus_trade():
+    """Execute a trade through Nexus Infinity"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        data = request.get_json()
+        user_id = session['user']['id']
+        
+        from nexus_infinity_engine import get_nexus_infinity_engine
+        nexus_engine = get_nexus_infinity_engine()
+        
+        result = nexus_engine.execute_trade(
+            symbol=data['symbol'],
+            trade_type=data['trade_type'],
+            quantity=float(data['quantity']),
+            user_id=user_id
+        )
+        
+        return jsonify({
+            'success': result['success'],
+            'trade_result': result,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nexus/portfolio/<user_id>')
+def get_nexus_portfolio(user_id):
+    """Get user portfolio from Nexus Infinity"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from nexus_infinity_engine import get_nexus_infinity_engine
+        nexus_engine = get_nexus_infinity_engine()
+        
+        portfolio = nexus_engine.get_user_portfolio(user_id)
+        
+        return jsonify({
+            'success': True,
+            'portfolio': portfolio,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nexus/market')
+def get_nexus_market_data():
+    """Get current market data from Nexus Infinity"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from nexus_infinity_engine import get_nexus_infinity_engine
+        nexus_engine = get_nexus_infinity_engine()
+        
+        market_data = nexus_engine.get_market_data()
+        
+        return jsonify({
+            'success': True,
+            'market_data': market_data,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nexus/trades/<user_id>')
+def get_nexus_trade_history(user_id):
+    """Get trade history from Nexus Infinity"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from nexus_infinity_engine import get_nexus_infinity_engine
+        nexus_engine = get_nexus_infinity_engine()
+        
+        limit = request.args.get('limit', 50, type=int)
+        trades = nexus_engine.get_trade_history(user_id, limit)
+        
+        return jsonify({
+            'success': True,
+            'trades': trades,
+            'count': len(trades),
             'timestamp': datetime.now().isoformat()
         })
     except Exception as e:

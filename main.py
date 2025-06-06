@@ -2984,17 +2984,19 @@ def get_timecard_entries(employee_id):
         return jsonify({'error': 'Authentication required'}), 401
     
     try:
-        start_date = request.args.get('start_date')
-        end_date = request.args.get('end_date')
+        conn = get_db_connection()
+        cursor = conn.cursor()
         
-        from timecard_automation import get_timecard_automation
-        timecard_system = get_timecard_automation()
+        query = "SELECT * FROM timecard_entries WHERE employee_id = %s ORDER BY date DESC"
+        cursor.execute(query, (employee_id,))
+        entries = cursor.fetchall()
         
-        entries = timecard_system.get_employee_timecards(employee_id, start_date, end_date)
+        cursor.close()
+        conn.close()
         
         return jsonify({
             'success': True,
-            'entries': entries,
+            'entries': [dict(entry) for entry in entries],
             'count': len(entries),
             'timestamp': datetime.now().isoformat()
         })

@@ -1,0 +1,21 @@
+{
+  "automation_inputs": {
+    "schedule_validation": "Prevent schedules more frequent than once per minute",
+    "email_validation": "Validate email addresses and domains",
+    "url_validation": "Restrict to approved domains only",
+    "file_path_validation": "Prevent access to system directories",
+    "command_validation": "Block shell command injection attempts"
+  },
+  "trading_inputs": {
+    "amount_validation": "Maximum 10% of account value per trade",
+    "symbol_validation": "Only allow approved trading symbols",
+    "frequency_validation": "Maximum 10 trades per day",
+    "risk_validation": "Maximum 2% account risk per position"
+  },
+  "user_inputs": {
+    "password_validation": "Minimum 12 characters with complexity",
+    "email_domain_validation": "Restrict to approved domains",
+    "role_validation": "Prevent privilege escalation attempts",
+    "permission_validation": "Verify permission consistency"
+  }
+}

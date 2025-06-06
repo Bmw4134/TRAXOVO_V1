@@ -1,0 +1,31 @@
+{
+  "automation_templates": {
+    "email_processing": {
+      "max_emails_per_run": 50,
+      "backup_processed_emails": true,
+      "notification_on_errors": true,
+      "auto_disable_on_failure": true
+    },
+    "report_generation": {
+      "max_data_rows": 10000,
+      "include_data_validation": true,
+      "create_audit_trail": true,
+      "limit_external_api_calls": true
+    }
+  },
+  "user_role_templates": {
+    "basic_user": {
+      "can_view_automations": true,
+      "can_create_simple_automations": true,
+      "can_modify_own_settings": true,
+      "cannot_delete_system_data": true,
+      "cannot_modify_others_work": true
+    },
+    "power_user": {
+      "can_create_complex_automations": true,
+      "can_access_trading_features": true,
+      "requires_approval_for_deletion": true,
+      "subject_to_audit_logging": true
+    }
+  }
+}

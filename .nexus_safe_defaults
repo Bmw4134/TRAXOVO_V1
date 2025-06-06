@@ -1,0 +1,26 @@
+{
+  "automation_limits": {
+    "max_executions_per_hour": 10,
+    "max_data_operations_per_run": 100,
+    "auto_disable_on_error_count": 3,
+    "require_approval_for_external_api_calls": true
+  },
+  "trading_limits": {
+    "max_position_size_percent": 1.0,
+    "max_daily_trades": 5,
+    "require_confirmation_above_amount": 100,
+    "paper_trading_mode_default": true
+  },
+  "user_permissions": {
+    "new_users_read_only": true,
+    "require_admin_approval_for_automation": true,
+    "limit_api_access_by_default": true,
+    "auto_logout_minutes": 30
+  },
+  "data_protection": {
+    "backup_before_operations": true,
+    "encrypt_sensitive_data": true,
+    "audit_log_all_actions": true,
+    "require_justification_for_data_deletion": true
+  }
+}

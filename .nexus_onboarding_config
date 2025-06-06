@@ -1,0 +1,8 @@
+{
+  "onboarding_active": true,
+  "user_mode_default": "layman",
+  "guided_tours_enabled": true,
+  "contextual_help_enabled": true,
+  "fallback_commands_enabled": true,
+  "activation_timestamp": "2025-06-06T20:48:58.917820"
+}

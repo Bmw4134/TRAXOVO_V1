@@ -1,0 +1,21 @@
+{
+  "auto_rollback_triggers": [
+    "automation_error_rate_above_50_percent",
+    "user_account_lockout_above_threshold",
+    "system_resource_usage_critical",
+    "security_breach_indicators",
+    "data_integrity_violations"
+  ],
+  "rollback_procedures": {
+    "automation_rollback": "Disable automation and restore previous version",
+    "user_settings_rollback": "Restore user permissions to last known good state",
+    "system_config_rollback": "Restore system configuration from backup",
+    "data_rollback": "Restore database from most recent backup"
+  },
+  "rollback_notifications": {
+    "notify_admins": true,
+    "notify_affected_users": true,
+    "log_rollback_reasons": true,
+    "create_incident_report": true
+  }
+}

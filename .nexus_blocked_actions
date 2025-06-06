@@ -1,0 +1,23 @@
+{
+  "database_operations": [
+    "DROP TABLE",
+    "DELETE FROM users",
+    "TRUNCATE",
+    "ALTER TABLE ... DROP"
+  ],
+  "file_operations": [
+    "delete_all_files",
+    "recursive_directory_deletion",
+    "system_file_modification"
+  ],
+  "automation_operations": [
+    "delete_all_automations",
+    "modify_critical_system_automation",
+    "grant_admin_access_via_automation"
+  ],
+  "api_operations": [
+    "revoke_all_api_keys",
+    "modify_authentication_settings",
+    "disable_security_features"
+  ]
+}

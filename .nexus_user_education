@@ -1,0 +1,21 @@
+{
+  "onboarding_modules": [
+    "Platform basics and safety principles",
+    "Understanding automation risks and benefits",
+    "Safe configuration practices",
+    "Recognizing and avoiding common mistakes",
+    "Emergency procedures and rollback options"
+  ],
+  "interactive_tutorials": [
+    "Creating your first safe automation",
+    "Managing user permissions responsibly",
+    "Setting up trading with appropriate risk limits",
+    "Monitoring and maintaining system health"
+  ],
+  "safety_warnings": [
+    "Visual indicators for high-risk operations",
+    "Plain language explanations of consequences",
+    "Examples of what can go wrong",
+    "Step-by-step safe configuration guides"
+  ]
+}

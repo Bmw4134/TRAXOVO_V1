@@ -1,0 +1,28 @@
+{
+  "high_risk_operations": {
+    "user_management_changes": {
+      "steps": 3,
+      "require_reason": true,
+      "require_admin_approval": true,
+      "cooling_off_period_minutes": 5
+    },
+    "automation_deletion": {
+      "steps": 2,
+      "require_reason": true,
+      "show_impact_analysis": true,
+      "backup_before_deletion": true
+    },
+    "trading_configuration": {
+      "steps": 3,
+      "require_risk_acknowledgment": true,
+      "show_financial_impact": true,
+      "require_secondary_approval": true
+    },
+    "system_settings_changes": {
+      "steps": 2,
+      "require_technical_competency_confirmation": true,
+      "create_restore_point": true,
+      "require_admin_approval": true
+    }
+  }
+}

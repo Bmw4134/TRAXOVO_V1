@@ -3057,20 +3057,20 @@ def api_nexus_control_bind():
 
 @app.route('/api/dave_mode/activate', methods=['POST'])
 def api_activate_dave_mode():
-    """Human fallback override trigger (Dave Mode)"""
+    """Human fallback override trigger (Dev Mode)"""
     if not session.get('authenticated'):
         return jsonify({'status': 'error', 'message': 'Authentication required'})
     
-    dave_mode_config = {
-        'status': 'DAVE_MODE_ACTIVATED',
-        'human_override': True,
+    dev_mode_config = {
+        'status': 'DEV_MODE_ACTIVATED',
+        'developer_override': True,
         'autonomous_pause': True,
         'manual_control': True,
-        'failsafe_active': True,
-        'message': 'All autonomous operations paused - human control active'
+        'debug_active': True,
+        'message': 'All autonomous operations paused - developer control active'
     }
     
-    return jsonify(dave_mode_config)
+    return jsonify(dev_mode_config)
 
 @app.route('/api/full_stack_awareness/activate', methods=['POST'])
 def api_activate_full_stack_awareness():
@@ -3096,17 +3096,17 @@ def api_trinity_sync_status():
     
     return jsonify(sync_status)
 
-@app.route('/api/dave_layer/activate', methods=['POST'])
-def api_activate_dave_layer_fallback():
-    """Activate DAVE_LAYER fallback override"""
+@app.route('/api/dev_mode/activate', methods=['POST'])
+def api_activate_dev_layer_fallback():
+    """Activate DEV_LAYER fallback override"""
     if not session.get('authenticated'):
         return jsonify({'status': 'error', 'message': 'Authentication required'})
     
-    from nexus_core import activate_dave_layer_fallback
+    from nexus_core import activate_dev_layer_fallback
     
-    dave_layer_result = activate_dave_layer_fallback()
+    dev_layer_result = activate_dev_layer_fallback()
     
-    return jsonify(dave_layer_result)
+    return jsonify(dev_layer_result)
 
 @app.route('/relay-agent')
 def relay_agent_dashboard():

@@ -36,6 +36,351 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 # Initialize the app with the extension
 db.init_app(app)
 
+# TRAXOVO Landing Page Template
+TRAXOVO_LANDING_PAGE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TRAXOVO - Enterprise Intelligence Platform</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .header {
+            background: linear-gradient(90deg, rgba(0,255,136,0.15), rgba(0,191,255,0.15));
+            border-bottom: 3px solid #00ff88;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%2300ff8820" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        .header h1 {
+            color: #00ff88;
+            font-size: 3rem;
+            font-weight: 800;
+            text-shadow: 0 0 30px rgba(0,255,136,0.6);
+            position: relative;
+            z-index: 2;
+        }
+        .header p {
+            color: #00bfff;
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+        .hero-section {
+            padding: 4rem 2rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #00ff88, #00bfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: #b8c5d1;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        .feature-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(15px);
+            transition: all 0.4s ease;
+        }
+        .feature-card:hover {
+            border-color: #00ff88;
+            box-shadow: 0 20px 40px rgba(0,255,136,0.2);
+            transform: translateY(-8px);
+        }
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(45deg, #00ff88, #00bfff);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 1.5rem;
+        }
+        .feature-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #00ff88;
+            margin-bottom: 1rem;
+        }
+        .feature-description {
+            color: #b8c5d1;
+            line-height: 1.6;
+        }
+        .cta-section {
+            background: rgba(0,255,136,0.1);
+            border: 1px solid #00ff88;
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin: 2rem auto;
+            max-width: 600px;
+        }
+        .cta-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 1rem;
+        }
+        .cta-description {
+            color: #b8c5d1;
+            margin-bottom: 2rem;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #1a1a2e;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,255,136,0.4);
+        }
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #666;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 4rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>TRAXOVO</h1>
+        <p>Enterprise Intelligence Platform</p>
+    </div>
+    
+    <div class="hero-section">
+        <h2 class="hero-title">Next-Generation Operational Intelligence</h2>
+        <p class="hero-subtitle">Harness the power of AI-driven analytics, real-time fleet tracking, and intelligent automation to transform your enterprise operations.</p>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🚗</div>
+                <h3 class="feature-title">Fleet Analytics</h3>
+                <p class="feature-description">Real-time asset tracking with advanced geospatial intelligence and predictive maintenance algorithms.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3 class="feature-title">AI Automation</h3>
+                <p class="feature-description">Intelligent task automation with machine learning optimization and autonomous decision-making capabilities.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">Enterprise Analytics</h3>
+                <p class="feature-description">Comprehensive business intelligence with real-time dashboards and advanced reporting systems.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3 class="feature-title">Secure Platform</h3>
+                <p class="feature-description">Enterprise-grade security with encrypted data transmission and role-based access controls.</p>
+            </div>
+        </div>
+        
+        <div class="cta-section">
+            <h3 class="cta-title">Ready to Transform Your Operations?</h3>
+            <p class="cta-description">Access the full TRAXOVO enterprise dashboard and unlock the power of intelligent automation.</p>
+            <a href="/login" class="btn-primary">Access Dashboard</a>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>&copy; 2025 TRAXOVO Enterprise Intelligence Platform | Secure Enterprise Solutions</p>
+    </div>
+</body>
+</html>
+"""
+
+# Login Page Template
+LOGIN_PAGE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TRAXOVO Login - Secure Access</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 16px;
+            padding: 3rem;
+            backdrop-filter: blur(15px);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-header {
+            margin-bottom: 2rem;
+        }
+        .login-logo {
+            color: #00ff88;
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-shadow: 0 0 20px rgba(0,255,136,0.5);
+            margin-bottom: 0.5rem;
+        }
+        .login-subtitle {
+            color: #b8c5d1;
+            font-size: 1rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .form-label {
+            display: block;
+            color: #00ff88;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 0 2px rgba(0,255,136,0.2);
+        }
+        .form-input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #1a1a2e;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,255,136,0.3);
+        }
+        .error-message {
+            background: rgba(239,68,68,0.2);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .back-link {
+            color: #00bfff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            display: inline-block;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1 class="login-logo">TRAXOVO</h1>
+            <p class="login-subtitle">Secure Enterprise Access</p>
+        </div>
+        
+        {% if error %}
+        <div class="error-message">{{ error }}</div>
+        {% endif %}
+        
+        <form method="POST">
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input type="text" id="username" name="username" class="form-input" placeholder="Enter your username" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
+            </div>
+            
+            <button type="submit" class="btn-login">Access Dashboard</button>
+        </form>
+        
+        <a href="/" class="back-link">← Back to Landing Page</a>
+    </div>
+</body>
+</html>
+"""
+
 # JDD Executive Dashboard Template
 JDD_EXECUTIVE_DASHBOARD = """
 <!DOCTYPE html>
@@ -514,17 +859,45 @@ JDD_EXECUTIVE_DASHBOARD = """
 # Routes
 @app.route('/')
 def index():
-    """Redirect to Executive Dashboard"""
-    return redirect(url_for('executive_dashboard'))
+    """TRAXOVO Landing Page - Public Access"""
+    return render_template_string(TRAXOVO_LANDING_PAGE)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Login page and authentication"""
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # Basic authentication check
+        if username == 'admin' and password == 'admin123':
+            session['authenticated'] = True
+            session['username'] = username
+            return redirect(url_for('executive_dashboard'))
+        else:
+            return render_template_string(LOGIN_PAGE, error="Invalid credentials")
+    
+    return render_template_string(LOGIN_PAGE)
+
+@app.route('/logout')
+def logout():
+    """Logout and clear session"""
+    session.clear()
+    return redirect(url_for('index'))
 
 @app.route('/dashboard')
 def executive_dashboard():
-    """JDD Executive Dashboard - Main Entry Point"""
+    """JDD Executive Dashboard - Requires Authentication"""
+    if not session.get('authenticated'):
+        return redirect(url_for('login'))
     return render_template_string(JDD_EXECUTIVE_DASHBOARD)
 
 @app.route('/api/platform_status')
 def api_platform_status():
-    """Platform integrations status API"""
+    """Platform integrations status API - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
     platform_status = {
         "robinhood": {"status": "Connected", "color": "green"},
         "pionex_us": {"status": "Connected", "color": "green"},
@@ -538,7 +911,10 @@ def api_platform_status():
 
 @app.route('/api/market_data')
 def api_market_data():
-    """Live market data API"""
+    """Live market data API - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
     market_data = {
         "btc_usdt": {
             "price": 46111.937,
@@ -550,7 +926,10 @@ def api_market_data():
 
 @app.route('/api/executive_metrics')
 def api_executive_metrics():
-    """Executive metrics API"""
+    """Executive metrics API - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
     metrics = {
         "deployment_readiness": 96,
         "projected_roi": 300,
@@ -572,7 +951,53 @@ def health_check():
     })
 
 with app.app_context():
+    from models_clean import User, Asset, OperationalMetrics, PlatformData
     db.create_all()
+    
+    # Initialize essential data in PostgreSQL
+    existing_data = PlatformData.query.filter_by(data_type='executive_metrics').first()
+    if not existing_data:
+        metrics_data = PlatformData(
+            data_type='executive_metrics',
+            data_content={
+                "deployment_readiness": 96,
+                "projected_roi": 300,
+                "time_savings": 85,
+                "ai_accuracy": 94,
+                "system_uptime": 99.78,
+                "data_points_hour": 864871,
+                "reliability": 99.8
+            }
+        )
+        db.session.add(metrics_data)
+        
+        platform_status_data = PlatformData(
+            data_type='platform_status',
+            data_content={
+                "robinhood": {"status": "Connected", "color": "green"},
+                "pionex_us": {"status": "Connected", "color": "green"},
+                "jdd_dashboard": {"status": "Auth Ready", "color": "orange"},
+                "dwc_platform": {"status": "Auth Ready", "color": "orange"},
+                "traxovo_suite": {"status": "Quantum Mode", "color": "cyan"},
+                "nexus_network": {"status": "Quantum Mode", "color": "cyan"},
+                "watson_ai": {"status": "AI Active", "color": "purple"}
+            }
+        )
+        db.session.add(platform_status_data)
+        
+        market_data = PlatformData(
+            data_type='market_data',
+            data_content={
+                "btc_usdt": {
+                    "price": 46111.937,
+                    "change": -2.97,
+                    "status": "neutral"
+                }
+            }
+        )
+        db.session.add(market_data)
+        
+        db.session.commit()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)

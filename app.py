@@ -361,6 +361,15 @@ LOGIN_PAGE = """
         <div class="error-message">{{ error }}</div>
         {% endif %}
         
+        <div style="background: rgba(0,255,136,0.1); border: 1px solid #00ff88; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+            <strong>Available Accounts:</strong><br>
+            admin / admin123<br>
+            troy / troy2025<br>
+            william / william2025<br>
+            executive / exec2025<br>
+            demo / demo123
+        </div>
+        
         <form method="POST">
             <div class="form-group">
                 <label class="form-label" for="username">Username</label>
@@ -869,8 +878,16 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        # Basic authentication check
-        if username == 'admin' and password == 'admin123':
+        # Multiple login options for easy access
+        valid_accounts = {
+            'admin': 'admin123',
+            'troy': 'troy2025',
+            'william': 'william2025',
+            'executive': 'exec2025',
+            'demo': 'demo123'
+        }
+        
+        if username in valid_accounts and password == valid_accounts[username]:
             session['authenticated'] = True
             session['username'] = username
             return redirect(url_for('executive_dashboard'))
@@ -974,6 +991,32 @@ def api_configure():
         "openai_configured": bool(os.environ.get('OPENAI_API_KEY'))
     })
 
+@app.route('/api/ai_fix_regressions')
+def api_ai_fix_regressions():
+    """AI-powered regression detection and fixing - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        from ai_regression_fixer import run_ai_regression_fix
+        results = run_ai_regression_fix()
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({"error": f"AI regression fix failed: {str(e)}"}), 500
+
+@app.route('/api/regression_status')
+def api_regression_status():
+    """Get current regression status and AI recommendations - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        from ai_regression_fixer import get_regression_status
+        status = get_regression_status()
+        return jsonify(status)
+    except Exception as e:
+        return jsonify({"error": f"Failed to get regression status: {str(e)}"}), 500
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""
@@ -981,7 +1024,8 @@ def health_check():
         "status": "healthy",
         "service": "TRAXOVO Enterprise Platform",
         "version": "1.0.0",
-        "database": "connected"
+        "database": "connected",
+        "ai_regression_fixer": "enabled"
     })
 
 with app.app_context():

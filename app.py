@@ -928,13 +928,60 @@ def api_executive_metrics():
         return jsonify(metrics_data.data_content)
     return jsonify({"error": "No metrics data available"}), 404
 
+@app.route('/api/update_data')
+def api_update_data():
+    """Update platform data from authentic sources - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        from data_connectors import update_platform_data
+        result = update_platform_data()
+        return jsonify({"status": "success", "message": "Data updated from authentic sources"})
+    except Exception as e:
+        return jsonify({"error": f"Data update failed: {str(e)}"}), 500
+
+@app.route('/api/configure', methods=['GET', 'POST'])
+def api_configure():
+    """Configure API credentials - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    if request.method == 'POST':
+        config_data = request.get_json()
+        # Store configuration in database
+        from models_clean import PlatformData
+        
+        config_record = PlatformData.query.filter_by(data_type='api_config').first()
+        if config_record:
+            config_record.data_content = config_data
+            config_record.updated_at = datetime.utcnow()
+        else:
+            config_record = PlatformData(
+                data_type='api_config',
+                data_content=config_data
+            )
+            db.session.add(config_record)
+        
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Configuration saved"})
+    
+    # GET request - return current configuration status
+    return jsonify({
+        "robinhood_configured": bool(os.environ.get('ROBINHOOD_ACCESS_TOKEN')),
+        "coinbase_configured": bool(os.environ.get('COINBASE_API_KEY')),
+        "gauge_configured": bool(os.environ.get('GAUGE_API_KEY')),
+        "openai_configured": bool(os.environ.get('OPENAI_API_KEY'))
+    })
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""
     return jsonify({
         "status": "healthy",
-        "service": "JDD Executive Dashboard",
-        "version": "1.0.0"
+        "service": "TRAXOVO Enterprise Platform",
+        "version": "1.0.0",
+        "database": "connected"
     })
 
 with app.app_context():

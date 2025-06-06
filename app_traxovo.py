@@ -47,21 +47,21 @@ except ImportError:
                 'result': f'Task "{description}" processed successfully',
                 'message': 'Real automation engine processing authentic data'
             }
-        
+
         def create_attendance_automation(self, config):
             return f"attendance_task_{hash(str(config)) % 10000}"
-        
+
         def get_automation_status(self):
             import os
             import glob
-            
+
             # Check for real uploaded files
             uploads_count = len(glob.glob('uploads/*.xlsx')) + len(glob.glob('uploads/*.csv'))
             reports_count = len(glob.glob('reports_processed/*.csv'))
-            
+
             # Check GAUGE API connectivity
             gauge_status = "Connected" if os.environ.get('GAUGE_API_KEY') else "API Key Required"
-            
+
             return [
                 {
                     'name': 'Attendance Processing',
@@ -80,7 +80,7 @@ except ImportError:
                     'last_details': f'GAUGE API Status: {gauge_status}'
                 }
             ]
-    
+
     automation_engine = SimpleAutomationEngine()
 
 # Import and setup user data integration
@@ -113,21 +113,21 @@ def main_dashboard():
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
             color: white;
             min-height: 100vh;
         }
-        
+
         .header {
             background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
             padding: 20px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .header-content {
             max-width: 1400px;
             margin: 0 auto;
@@ -136,7 +136,7 @@ def main_dashboard():
             align-items: center;
             padding: 0 20px;
         }
-        
+
         .logo {
             font-size: 2.5em;
             font-weight: 900;
@@ -144,13 +144,13 @@ def main_dashboard():
             text-shadow: 0 0 20px rgba(74, 158, 255, 0.5);
             letter-spacing: 2px;
         }
-        
+
         .client-badges {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
         }
-        
+
         .client-badge {
             background: rgba(74, 158, 255, 0.1);
             border: 1px solid rgba(74, 158, 255, 0.3);
@@ -160,18 +160,18 @@ def main_dashboard():
             color: #4a9eff;
             font-weight: 600;
         }
-        
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 40px 20px;
         }
-        
+
         .hero-section {
             text-align: center;
             margin-bottom: 60px;
         }
-        
+
         .hero-title {
             font-size: 3em;
             margin-bottom: 20px;
@@ -180,20 +180,20 @@ def main_dashboard():
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
+
         .hero-subtitle {
             font-size: 1.3em;
             color: rgba(255, 255, 255, 0.8);
             margin-bottom: 40px;
         }
-        
+
         .modules-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 30px;
             margin: 40px 0;
         }
-        
+
         .module-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -202,31 +202,31 @@ def main_dashboard():
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
         }
-        
+
         .module-card:hover {
             transform: translateY(-10px);
             border-color: #4a9eff;
             box-shadow: 0 20px 40px rgba(74, 158, 255, 0.2);
         }
-        
+
         .module-icon {
             font-size: 3em;
             margin-bottom: 20px;
             color: #4a9eff;
         }
-        
+
         .module-title {
             font-size: 1.5em;
             margin-bottom: 15px;
             color: white;
         }
-        
+
         .module-description {
             color: rgba(255, 255, 255, 0.7);
             margin-bottom: 25px;
             line-height: 1.6;
         }
-        
+
         .module-button {
             background: linear-gradient(45deg, #4a9eff, #00d4ff);
             color: white;
@@ -237,12 +237,12 @@ def main_dashboard():
             transition: all 0.3s ease;
             display: inline-block;
         }
-        
+
         .module-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 16px rgba(74, 158, 255, 0.3);
         }
-        
+
         .status-bar {
             background: rgba(0, 255, 136, 0.1);
             border: 1px solid rgba(0, 255, 136, 0.3);
@@ -251,7 +251,7 @@ def main_dashboard():
             text-align: center;
             margin: 40px 0;
         }
-        
+
         .status-indicator {
             display: inline-block;
             width: 12px;
@@ -261,12 +261,12 @@ def main_dashboard():
             margin-right: 10px;
             animation: pulse 2s ease-in-out infinite;
         }
-        
+
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
-        
+
         .quick-actions {
             display: flex;
             justify-content: center;
@@ -274,7 +274,7 @@ def main_dashboard():
             margin-top: 40px;
             flex-wrap: wrap;
         }
-        
+
         .quick-action {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -284,26 +284,26 @@ def main_dashboard():
             text-decoration: none;
             transition: all 0.3s ease;
         }
-        
+
         .quick-action:hover {
             background: rgba(74, 158, 255, 0.2);
             border-color: #4a9eff;
         }
-        
+
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
                 gap: 20px;
             }
-            
+
             .hero-title {
                 font-size: 2em;
             }
-            
+
             .modules-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .quick-actions {
                 flex-direction: column;
                 align-items: center;
@@ -323,18 +323,18 @@ def main_dashboard():
             </div>
         </div>
     </div>
-    
+
     <div class="container">
         <div class="hero-section">
             <h1 class="hero-title">Operational Intelligence Platform</h1>
             <p class="hero-subtitle">Comprehensive automation and fleet management for commercial operations</p>
         </div>
-        
+
         <div class="status-bar">
             <span class="status-indicator"></span>
             All automation systems operational | Fleet tracking active | Real-time data processing
         </div>
-        
+
         <div class="modules-grid">
             <div class="module-card">
                 <div class="module-icon">🚛</div>
@@ -344,7 +344,7 @@ def main_dashboard():
                 </div>
                 <a href="/fleet-tracking" class="module-button">Access Fleet Tracking</a>
             </div>
-            
+
             <div class="module-card">
                 <div class="module-icon">📊</div>
                 <div class="module-title">Attendance Matrix</div>
@@ -353,7 +353,7 @@ def main_dashboard():
                 </div>
                 <a href="/attendance-matrix" class="module-button">View Attendance Matrix</a>
             </div>
-            
+
             <div class="module-card">
                 <div class="module-icon">🤖</div>
                 <div class="module-title">Task Automation</div>
@@ -362,7 +362,7 @@ def main_dashboard():
                 </div>
                 <a href="/automation-hub" class="module-button">Automation Hub</a>
             </div>
-            
+
             <div class="module-card">
                 <div class="module-icon">🎤</div>
                 <div class="module-title">Voice Control</div>
@@ -371,7 +371,7 @@ def main_dashboard():
                 </div>
                 <a href="/voice-control" class="module-button">Voice Dashboard</a>
             </div>
-            
+
             <div class="module-card">
                 <div class="module-icon">🗺️</div>
                 <div class="module-title">Asset Mapping</div>
@@ -380,7 +380,7 @@ def main_dashboard():
                 </div>
                 <a href="/asset-mapping" class="module-button">Asset Mapping</a>
             </div>
-            
+
             <div class="module-card">
                 <div class="module-icon">⚡</div>
                 <div class="module-title">System Status</div>
@@ -390,7 +390,7 @@ def main_dashboard():
                 <a href="/system-status" class="module-button">View Status</a>
             </div>
         </div>
-        
+
         <div class="quick-actions">
             <a href="/upload-data" class="quick-action">📁 Upload Data Files</a>
             <a href="/reports" class="quick-action">📋 Generate Reports</a>
@@ -516,11 +516,11 @@ def automation_hub():
             <h1>🤖 TRAXOVO Automation Hub</h1>
             <p>Describe any manual task and get it automated instantly</p>
         </div>
-        
+
         <div class="status">
             ✅ All automation systems operational | Ready to process your tasks
         </div>
-        
+
         <form action="/automate-task" method="POST">
             <div class="form-group">
                 <label for="task_description">What manual task would you like to automate?</label>
@@ -532,7 +532,7 @@ def automation_hub():
                     placeholder="Example: I want to automatically generate weekly fleet reports from our Fort Worth operations data and email them to our management team every Friday at 9 AM..."
                     required></textarea>
             </div>
-            
+
             <div class="form-group">
                 <label for="urgency">How urgent is this automation?</label>
                 <select id="urgency" name="urgency" class="form-control">
@@ -541,10 +541,10 @@ def automation_hub():
                     <option value="eventually">Eventually - When convenient</option>
                 </select>
             </div>
-            
+
             <button type="submit" class="btn">🚀 Analyze & Automate This Task</button>
         </form>
-        
+
         <div class="examples">
             <h3>💡 Available TRAXOVO Systems</h3>
             <div class="example-item">
@@ -560,7 +560,7 @@ def automation_hub():
                 <br><a href="/asset-mapping" style="color: #4a9eff;">Access Asset Mapping</a>
             </div>
         </div>
-        
+
         <a href="/" class="nav-link">← Back to TRAXOVO Dashboard</a>
     </div>
 </body>
@@ -571,12 +571,12 @@ def automate_task():
     """Process automation request"""
     task_description = request.form.get('task_description', '').strip()
     urgency = request.form.get('urgency', 'soon')
-    
+
     if not task_description:
         return redirect(url_for('automation_hub'))
-    
+
     execution_result = automation_engine.execute_manual_task(task_description, urgency)
-    
+
     return render_template_string('''<!DOCTYPE html>
 <html>
 <head>
@@ -648,14 +648,14 @@ def automate_task():
             <h1>🎯 Your TRAXOVO Automation Plan</h1>
             <p>Ready to implement your automated solution</p>
         </div>
-        
+
         <div class="section">
             <h3>📋 Task Summary</h3>
             <p><strong>Description:</strong> {{ task_description }}</p>
             <p><strong>Priority:</strong> {{ urgency.title() }}</p>
             <p><strong>Status:</strong> {{ execution_result.get('status', 'completed').title() }}</p>
         </div>
-        
+
         <div class="section">
             <h3>⚡ Execution Results</h3>
             <p><strong>Status:</strong> {{ execution_result.get('status', 'unknown').title() }}</p>
@@ -663,7 +663,7 @@ def automate_task():
             <p><strong>Execution Time:</strong> {{ execution_result.get('execution_time', 'N/A') }}</p>
             <p><strong>Result:</strong> {{ execution_result.get('result', execution_result.get('message', 'Task processed successfully')) }}</p>
         </div>
-        
+
         <div style="text-align: center; margin-top: 40px;">
             <a href="/system-status" class="btn">View System Status</a>
             <a href="/automation-hub" class="btn">Submit Another Task</a>
@@ -681,18 +681,18 @@ def fleet_tracking():
         processor = AuthenticFleetDataProcessor()
         live_assets = processor.process_authentic_fort_worth_assets()
         gauge_status = "Connected" if processor.gauge_api_key else "API Key Required"
-        
+
         # Calculate real metrics from live data
         total_assets = len(live_assets)
         active_assets = len([a for a in live_assets if a.get('operational_status') == 'active'])
         idle_assets = len([a for a in live_assets if a.get('operational_status') == 'idle'])
         offline_assets = len([a for a in live_assets if a.get('operational_status') == 'offline'])
-        
+
     except ImportError:
         live_assets = []
         gauge_status = "Processor Unavailable"
         total_assets = active_assets = idle_assets = offline_assets = 0
-    
+
     return render_template_string('''<!DOCTYPE html>
 <html>
 <head>
@@ -785,7 +785,7 @@ def fleet_tracking():
             <h1>TRAXOVO Fleet Tracking</h1>
             <p>Real-time asset tracking with authentic GAUGE API data</p>
         </div>
-        
+
         <div class="gauge-status">
             <strong>GAUGE API Status:</strong> {{ gauge_status }}
             {% if gauge_status == "Connected" %}
@@ -794,17 +794,18 @@ def fleet_tracking():
                 <br>Waiting for GAUGE API configuration
             {% endif %}
         </div>
-        
+
         <div class="tracking-grid">
             <div class="tracking-card">
                 <h3>Live Fleet Metrics</h3>
                 <p><strong>Total Assets:</strong> {{ total_assets }}</p>
                 <p><strong>Active Assets:</strong> {{ active_assets }}</p>
                 <p><strong>Idle Assets:</strong> {{ idle_assets }}</p>
-                <p><strong>Offline Assets:</strong> {{ offline_assets }}</p>
+                <replit_final_file>
+            <p><strong>Offline Assets:</strong> {{ offline_assets }}</p>
                 <p><strong>Last Update:</strong> Live streaming</p>
             </div>
-            
+
             <div class="tracking-card">
                 <h3>GAUGE API Integration</h3>
                 <p><strong>Connection:</strong> {{ gauge_status }}</p>
@@ -813,7 +814,7 @@ def fleet_tracking():
                 <p><strong>Fort Worth Zones:</strong> 12 active zones</p>
                 <p><strong>GPS Accuracy:</strong> High precision</p>
             </div>
-            
+
             <div class="tracking-card">
                 <h3>Client Operations</h3>
                 <p><strong>RAGLE INC:</strong> {{ (total_assets * 0.25)|int }} assets</p>
@@ -822,7 +823,7 @@ def fleet_tracking():
                 <p><strong>UNIFIED SPECIALTIES:</strong> {{ (total_assets * 0.24)|int }} assets</p>
             </div>
         </div>
-        
+
         {% if live_assets %}
         <div style="margin-top: 40px;">
             <h3 style="color: #4a9eff; margin-bottom: 20px;">Live Asset Tracking Data</h3>
@@ -859,7 +860,7 @@ def fleet_tracking():
             {% endif %}
         </div>
         {% endif %}
-        
+
         <div style="text-align: center; margin-top: 30px;">
             <a href="/" class="nav-link">TRAXOVO Dashboard</a>
             <a href="/automation-hub" class="nav-link">Automation Hub</a>
@@ -882,7 +883,7 @@ def api_fleet_data():
         from authentic_fleet_data_processor import AuthenticFleetDataProcessor
         processor = AuthenticFleetDataProcessor()
         live_assets = processor.process_authentic_fort_worth_assets()
-        
+
         return jsonify({
             'status': 'success',
             'gauge_api_status': 'connected' if processor.gauge_api_key else 'api_key_required',
@@ -973,11 +974,11 @@ def attendance_matrix():
     <div class="container">
         <h1>📊 TRAXOVO Attendance Matrix</h1>
         <p>Automated attendance processing for Fort Worth operations</p>
-        
+
         <div style="background: rgba(0, 255, 136, 0.1); padding: 15px; border-radius: 10px; margin: 20px 0; text-align: center; border: 1px solid rgba(0, 255, 136, 0.3);">
             Attendance data automatically processed from authentic sources
         </div>
-        
+
         <div class="matrix-grid">
             <div class="matrix-header">Employee</div>
             <div class="matrix-header">Monday</div>
@@ -987,7 +988,7 @@ def attendance_matrix():
             <div class="matrix-header">Friday</div>
             <div class="matrix-header">Saturday</div>
             <div class="matrix-header">Sunday</div>
-            
+
             <div class="employee-name">John Smith</div>
             <div class="attendance-cell status-present">8:00 AM</div>
             <div class="attendance-cell status-present">7:45 AM</div>
@@ -996,7 +997,7 @@ def attendance_matrix():
             <div class="attendance-cell status-present">7:50 AM</div>
             <div class="attendance-cell status-absent">—</div>
             <div class="attendance-cell status-absent">—</div>
-            
+
             <div class="employee-name">Maria Garcia</div>
             <div class="attendance-cell status-present">7:30 AM</div>
             <div class="attendance-cell status-present">7:35 AM</div>
@@ -1006,7 +1007,7 @@ def attendance_matrix():
             <div class="attendance-cell status-present">8:00 AM</div>
             <div class="attendance-cell status-absent">—</div>
         </div>
-        
+
         <div style="text-align: center; margin-top: 30px;">
             <a href="/" class="nav-link">← TRAXOVO Dashboard</a>
             <a href="/automation-hub" class="nav-link">Automation Hub</a>
@@ -1086,11 +1087,11 @@ def voice_control():
     <div class="container">
         <h1>🎤 TRAXOVO Voice Control</h1>
         <p>Voice-activated system control and navigation</p>
-        
+
         <div style="background: rgba(0, 255, 136, 0.1); color: #00ff88; padding: 15px; border-radius: 10px; margin: 20px 0; text-align: center; border: 1px solid rgba(0, 255, 136, 0.3);">
             Voice recognition system ready - Speak your commands clearly
         </div>
-        
+
         <div class="voice-controls">
             <div class="voice-card">
                 <h3>Voice Control Interface</h3>
@@ -1098,7 +1099,7 @@ def voice_control():
                 <p>Click to activate voice recognition</p>
                 <p><strong>Status:</strong> Ready to listen</p>
             </div>
-            
+
             <div class="voice-card">
                 <h3>System Status</h3>
                 <p><strong>Automation Systems:</strong> Online</p>
@@ -1106,7 +1107,7 @@ def voice_control():
                 <p><strong>Attendance Matrix:</strong> Processing</p>
                 <p><strong>Voice Recognition:</strong> Ready</p>
             </div>
-            
+
             <div class="voice-card">
                 <h3>Available Commands</h3>
                 <p>"Show fleet tracking"</p>
@@ -1116,13 +1117,13 @@ def voice_control():
                 <p>"Main dashboard"</p>
             </div>
         </div>
-        
+
         <script>
         function startListening() {
             alert('Voice recognition activated. Speak your command now.');
         }
         </script>
-        
+
         <div style="text-align: center; margin-top: 30px;">
             <a href="/" class="nav-link">← TRAXOVO Dashboard</a>
             <a href="/automation-hub" class="nav-link">Automation Hub</a>
@@ -1186,7 +1187,7 @@ def asset_mapping():
     <div class="container">
         <h1>🗺️ TRAXOVO Asset Mapping</h1>
         <p>Legacy asset ID mapping and historical report integration</p>
-        
+
         <div class="mapping-grid">
             <div class="mapping-card">
                 <h3>Mapping Statistics</h3>
@@ -1196,7 +1197,7 @@ def asset_mapping():
                 <p><strong>Unmapped Assets:</strong> 25</p>
                 <p><strong>Mapping Accuracy:</strong> 85.7%</p>
             </div>
-            
+
             <div class="mapping-card">
                 <h3>Data Sources</h3>
                 <p><strong>GAUGE API:</strong> Primary source</p>
@@ -1204,7 +1205,7 @@ def asset_mapping():
                 <p><strong>Manual Entries:</strong> Field updates</p>
                 <p><strong>Last Sync:</strong> Real-time</p>
             </div>
-            
+
             <div class="mapping-card">
                 <h3>Client Distribution</h3>
                 <p><strong>RAGLE INC:</strong> 180 assets mapped</p>
@@ -1213,7 +1214,7 @@ def asset_mapping():
                 <p><strong>UNIFIED SPECIALTIES:</strong> 172 assets mapped</p>
             </div>
         </div>
-        
+
         <div style="text-align: center; margin-top: 30px;">
             <a href="/" class="nav-link">← TRAXOVO Dashboard</a>
             <a href="/automation-hub" class="nav-link">Automation Hub</a>
@@ -1226,7 +1227,7 @@ def asset_mapping():
 def system_status():
     """System Status Interface"""
     status_data = automation_engine.get_automation_status()
-    
+
     return render_template_string('''<!DOCTYPE html>
 <html>
 <head>
@@ -1280,7 +1281,7 @@ def system_status():
     <div class="container">
         <h1>⚡ TRAXOVO System Status</h1>
         <p>Real-time automation execution monitoring</p>
-        
+
         <div class="status-grid">
             {% for task in status_data %}
             <div class="status-card {% if task.status == 'active' %}status-active{% elif task.status == 'waiting_for_data' %}status-waiting{% else %}status-config{% endif %}">
@@ -1293,7 +1294,7 @@ def system_status():
             </div>
             {% endfor %}
         </div>
-        
+
         <div style="text-align: center; margin-top: 30px;">
             <a href="/" class="nav-link">← TRAXOVO Dashboard</a>
             <a href="/automation-hub" class="nav-link">Automation Hub</a>

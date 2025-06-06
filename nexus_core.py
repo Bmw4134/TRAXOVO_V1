@@ -471,15 +471,15 @@ class NexusCore:
         
         return sync_status
     
-    def activate_dave_layer(self):
-        """Activate DAVE_LAYER for override and debug fallback logic"""
+    def activate_dev_layer(self):
+        """Activate DEV_LAYER for override and debug fallback logic"""
         
-        self.dave_layer_active = True
+        self.dev_layer_active = True
         
-        dave_layer_config = {
-            'status': 'DAVE_LAYER_ACTIVATED',
+        dev_layer_config = {
+            'status': 'DEV_LAYER_ACTIVATED',
             'autonomous_systems_paused': True,
-            'human_override_active': True,
+            'developer_override_active': True,
             'debug_mode': True,
             'fallback_logic': {
                 'ai_relay_backup': True,
@@ -496,7 +496,7 @@ class NexusCore:
             ]
         }
         
-        return dave_layer_config
+        return dev_layer_config
     
     def run_full_stack_awareness(self):
         """Run complete full-stack self-awareness activation"""
@@ -524,10 +524,10 @@ class NexusCore:
         # Step 7: Check trinity sync
         trinity_sync = self.check_trinity_sync()
         
-        # Activate DAVE_LAYER if sync fails
-        dave_layer = None
+        # Activate DEV_LAYER if sync fails
+        dev_layer = None
         if not trinity_sync['trinity_sync_achieved']:
-            dave_layer = self.activate_dave_layer()
+            dev_layer = self.activate_dev_layer()
         
         execution_time = time.time() - start_time
         
@@ -541,7 +541,7 @@ class NexusCore:
             'ai_injection': injection_results,
             'capability_expansion': expansion,
             'trinity_sync': trinity_sync,
-            'dave_layer': dave_layer,
+            'dev_layer': dev_layer,
             'autonomous_ai_interaction': trinity_sync['trinity_sync_achieved'],
             'minimum_human_interaction': trinity_sync['trinity_sync_achieved']
         }
@@ -557,6 +557,6 @@ def get_trinity_sync_status():
     """Get current trinity sync status"""
     return nexus_core.check_trinity_sync()
 
-def activate_dave_layer_fallback():
-    """Activate DAVE_LAYER fallback"""
-    return nexus_core.activate_dave_layer()
+def activate_dev_layer_fallback():
+    """Activate DEV_LAYER fallback"""
+    return nexus_core.activate_dev_layer()

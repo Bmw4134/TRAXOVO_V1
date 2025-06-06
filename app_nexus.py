@@ -3266,7 +3266,7 @@ def relay_agent_dashboard():
         <button class="btn" onclick="startRelay()">Start AI Relay</button>
         <button class="btn" onclick="performTrinityTest()">Trinity Test</button>
         <button class="btn" onclick="activateAutonomousMode()">Activate Autonomous Mode</button>
-        <button class="btn" onclick="triggerDaveLayer()">DAVE_LAYER Override</button>
+        <button class="btn" onclick="triggerDevLayer()">DEV_LAYER Override</button>
     </div>
 
     <div class="logs-panel">
@@ -3319,7 +3319,7 @@ def relay_agent_dashboard():
                 
             }} catch (error) {{
                 addLog(`Relay error: ${{error.message}}`);
-                addLog('Triggering DAVE_LAYER fallback...');
+                addLog('Triggering DEV_LAYER fallback...');
             }}
         }}
 
@@ -3367,24 +3367,24 @@ def relay_agent_dashboard():
             }}
         }}
 
-        async function triggerDaveLayer() {{
-            addLog('Triggering DAVE_LAYER override...');
+        async function triggerDevLayer() {{
+            addLog('Triggering DEV_LAYER override...');
             
             try {{
-                const response = await fetch('/api/dave_mode/activate', {{
+                const response = await fetch('/api/dev_mode/activate', {{
                     method: 'POST',
                     headers: {{ 'Content-Type': 'application/json' }},
                     body: JSON.stringify({{ manual_override: true }})
                 }});
                 
                 const result = await response.json();
-                addLog('DAVE_LAYER ACTIVATED');
+                addLog('DEV_LAYER ACTIVATED');
                 addLog('All autonomous operations PAUSED');
-                addLog('Human control ACTIVE');
-                addLog('Failsafe mode ENGAGED');
+                addLog('Developer control ACTIVE');
+                addLog('Debug mode ENGAGED');
                 
             }} catch (error) {{
-                addLog(`DAVE_LAYER error: ${{error.message}}`);
+                addLog(`DEV_LAYER error: ${{error.message}}`);
             }}
         }}
 

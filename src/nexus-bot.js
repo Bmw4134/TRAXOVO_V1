@@ -105,14 +105,14 @@ class NexusBot {
             loopSession.error = error.message;
             await this.saveSessionLog(loopSession);
             
-            // Trigger DAVE_LAYER fallback
-            await this.triggerDaveLayer(sessionId, error);
+            // Trigger DEV_LAYER fallback
+            await this.triggerDevLayer(sessionId, error);
             
             return {
                 success: false,
                 sessionId: sessionId,
                 error: error.message,
-                fallback: 'dave_layer_activated'
+                fallback: 'dev_layer_activated'
             };
         }
     }
@@ -278,19 +278,19 @@ class NexusBot {
         console.log(`[NEXUS] Session log saved: ${logFile}`);
     }
 
-    async triggerDaveLayer(sessionId, error) {
-        console.log(`[NEXUS] Triggering DAVE_LAYER for session: ${sessionId}`);
+    async triggerDevLayer(sessionId, error) {
+        console.log(`[NEXUS] Triggering DEV_LAYER for session: ${sessionId}`);
         
         try {
-            await axios.post('http://localhost:5000/api/dave_mode/activate', {
+            await axios.post('http://localhost:5000/api/dev_mode/activate', {
                 session_id: sessionId,
                 error: error.message,
                 triggered_by: 'nexus_bot'
             });
             
-            console.log('[NEXUS] DAVE_LAYER activated successfully');
-        } catch (daveError) {
-            console.error(`[NEXUS] DAVE_LAYER activation failed: ${daveError.message}`);
+            console.log('[NEXUS] DEV_LAYER activated successfully');
+        } catch (devError) {
+            console.error(`[NEXUS] DEV_LAYER activation failed: ${devError.message}`);
         }
     }
 

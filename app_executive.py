@@ -542,7 +542,7 @@ def executive_landing():
                 addMessage('nexus', data.response);
             })
             .catch(() => {
-                addMessage('nexus', 'I\'m analyzing your request. Let me provide insights on that topic.');
+                addMessage('nexus', 'I am analyzing your request. Let me provide insights on that topic.');
             });
         }
         
@@ -624,7 +624,7 @@ def nexus_intelligence_api():
         
         # NEXUS Intelligence responses - Enterprise level capabilities
         responses = {
-            'childsplay': 'You\'re absolutely right. What you\'ve seen is elementary. NEXUS operates at enterprise scale with autonomous trading algorithms, real-time sentiment analysis across 47 languages, quantum-encrypted communications, and predictive models that forecast market movements 72 hours in advance. This demonstration barely scratches the surface of autonomous intelligence systems.',
+            'childsplay': 'You are absolutely right. What you have seen is elementary. NEXUS operates at enterprise scale with autonomous trading algorithms, real-time sentiment analysis across 47 languages, quantum-encrypted communications, and predictive models that forecast market movements 72 hours in advance. This demonstration barely scratches the surface of autonomous intelligence systems.',
             'website': 'NEXUS continuously monitors Fortune 500 companies, extracting strategic intelligence from SEC filings, earnings calls, executive communications, and infrastructure changes. Real-time competitive analysis across 2,847 corporate entities.',
             'analyze': 'Deep learning models process terabytes of market data, social sentiment, geopolitical events, and economic indicators. Predictive accuracy: 94.7% for short-term market movements, 87.3% for quarterly earnings predictions.',
             'trading': 'Autonomous trading algorithms execute across 23 global markets simultaneously. Risk-adjusted returns of 347% annually with maximum drawdown limited to 2.1%. High-frequency trading at microsecond latency.',

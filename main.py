@@ -437,6 +437,59 @@ Examples:
     </div>
 
     <div class="command-module">
+        <div class="module-title">⏰ Time Card Automation</div>
+        <div style="margin-bottom: 20px; color: #ccc;">Automated time entry, tracking, and submission system</div>
+        
+        <div id="timecardAutomation" style="background: rgba(255,165,0,0.1); border: 1px solid #ffa500; border-radius: 5px; padding: 15px; margin: 15px 0;">
+            <div style="color: #ffa500; font-weight: bold; margin-bottom: 10px;">Time Card Automation Interface</div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: #ccc;">Automation Request:</label>
+                <input type="text" id="timecardRequest" placeholder="fill my week with standard hours" 
+                       style="width: 100%; padding: 12px; background: #333; border: 1px solid #555; color: white; border-radius: 5px; font-size: 16px;">
+                <div style="font-size: 12px; color: #ccc; margin-top: 5px;">
+                    Try: "fill my week", "create today's timecard", "show weekly summary", "use remote work template"
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: #ccc;">Employee ID:</label>
+                    <input type="text" id="employeeId" value="current_user" 
+                           style="width: 100%; padding: 8px; background: #333; border: 1px solid #555; color: white; border-radius: 3px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; color: #ccc;">Employee Name:</label>
+                    <input type="text" id="employeeName" value="Current User" 
+                           style="width: 100%; padding: 8px; background: #333; border: 1px solid #555; color: white; border-radius: 3px;">
+                </div>
+            </div>
+            
+            <div id="timecardTemplates" style="background: rgba(255,165,0,0.05); border: 1px solid #ffa500; border-radius: 5px; padding: 10px; margin: 10px 0; display: none;">
+                <div style="color: #ffa500; font-weight: bold; margin-bottom: 5px;">Available Templates</div>
+                <div id="templatesList"></div>
+            </div>
+            
+            <div id="timecardResults" style="background: rgba(255,165,0,0.05); border: 1px solid #ffa500; border-radius: 5px; padding: 10px; margin: 10px 0; display: none;">
+                <div style="color: #ffa500; font-weight: bold; margin-bottom: 5px;">Automation Results</div>
+                <div id="timecardResultsContent"></div>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 15px; margin: 20px 0;">
+            <button class="command-btn" onclick="processTimecardAutomation()" style="background: #ffa500; color: white;">Process Request</button>
+            <button class="command-btn" onclick="loadTimecardTemplates()" style="background: #ffa500; color: white;">Load Templates</button>
+            <button class="command-btn" onclick="showWeeklySummary()" style="background: #ffa500; color: white;">Weekly Summary</button>
+            <button class="command-btn" onclick="quickFillWeek()" style="background: #ffa500; color: white;">Quick Fill Week</button>
+        </div>
+        
+        <div id="weeklySummary" style="display: none; background: rgba(255,165,0,0.05); border: 1px solid #ffa500; border-radius: 5px; padding: 15px; margin: 15px 0;">
+            <div style="color: #ffa500; font-weight: bold; margin-bottom: 10px;">Weekly Time Summary</div>
+            <div id="weeklySummaryContent"></div>
+        </div>
+    </div>
+
+    <div class="command-module">
         <div class="module-title">🎤 Infinity Sync Voice Commands</div>
         <div style="margin-bottom: 20px; color: #ccc;">Voice-triggered logic listener with backend command parser and directive logger</div>
         
@@ -1897,6 +1950,241 @@ Examples:
             executeVoiceCommand();
         }
         
+        // Timecard Automation Functions
+        function processTimecardAutomation() {
+            const request = document.getElementById('timecardRequest').value.trim();
+            const employeeId = document.getElementById('employeeId').value.trim();
+            const employeeName = document.getElementById('employeeName').value.trim();
+            
+            if (!request) {
+                showAlert('Please enter an automation request', 'error');
+                return;
+            }
+            
+            showAlert(`Processing timecard automation: "${request}"`, 'watson');
+            
+            fetch('/api/timecard/automate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    request: request,
+                    employee_id: employeeId,
+                    employee_name: employeeName
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayTimecardResults(data.automation_result);
+                    showAlert('Timecard automation completed successfully', 'success');
+                    document.getElementById('timecardRequest').value = '';
+                } else {
+                    showAlert('Timecard automation failed: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Timecard automation error:', error);
+                showAlert('Timecard automation failed', 'error');
+            });
+        }
+        
+        function displayTimecardResults(result) {
+            const resultContent = document.getElementById('timecardResultsContent');
+            
+            if (result.success) {
+                let resultHTML = `
+                    <div style="margin-bottom: 10px;">
+                        <strong>✅ ${result.action.replace('_', ' ').toUpperCase()} Completed</strong>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Message:</strong> ${result.message}
+                    </div>
+                `;
+                
+                if (result.template_used) {
+                    resultHTML += `
+                        <div style="margin-bottom: 10px;">
+                            <strong>Template Used:</strong> ${result.template_used.replace('_', ' ').toUpperCase()}
+                        </div>
+                    `;
+                }
+                
+                if (result.entries_created) {
+                    resultHTML += `
+                        <div style="margin-bottom: 10px;">
+                            <strong>Entries Created:</strong> ${result.entries_created}
+                        </div>
+                    `;
+                }
+                
+                if (result.summary) {
+                    resultHTML += `
+                        <div style="margin-bottom: 10px;">
+                            <strong>Weekly Summary:</strong>
+                            <div style="margin-left: 15px; margin-top: 5px;">
+                                Total Hours: ${result.summary.total_hours}<br>
+                                Overtime: ${result.summary.total_overtime}<br>
+                                Days Worked: ${result.summary.days_worked}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                resultContent.innerHTML = resultHTML;
+            } else {
+                resultContent.innerHTML = `
+                    <div style="margin-bottom: 10px;">
+                        <strong>❌ Automation Failed</strong>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Error:</strong> ${result.message}
+                    </div>
+                `;
+            }
+            
+            document.getElementById('timecardResults').style.display = 'block';
+        }
+        
+        function loadTimecardTemplates() {
+            showAlert('Loading timecard templates...', 'watson');
+            
+            fetch('/api/timecard/templates')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayTimecardTemplates(data.templates);
+                        showAlert('Timecard templates loaded successfully', 'success');
+                    } else {
+                        showAlert('Failed to load timecard templates', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Templates loading error:', error);
+                    showAlert('Failed to load timecard templates', 'error');
+                });
+        }
+        
+        function displayTimecardTemplates(templates) {
+            const templatesList = document.getElementById('templatesList');
+            
+            let templatesHTML = '';
+            
+            Object.entries(templates).forEach(([templateKey, templateConfig]) => {
+                templatesHTML += `
+                    <div style="background: rgba(255,165,0,0.1); border-radius: 3px; padding: 8px; margin-bottom: 8px; cursor: pointer;" 
+                         onclick="selectTemplate('${templateKey}')">
+                        <div style="font-weight: bold; color: #ffa500; margin-bottom: 3px;">${templateConfig.name}</div>
+                        <div style="font-size: 12px; color: #ccc; margin-bottom: 5px;">
+                            Hours: ${templateConfig.clock_in} - ${templateConfig.clock_out}
+                        </div>
+                        <div style="font-size: 11px; color: #888;">
+                            Lunch: ${templateConfig.lunch_start} - ${templateConfig.lunch_end} | 
+                            Break: ${templateConfig.break_start} - ${templateConfig.break_end}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            templatesList.innerHTML = templatesHTML;
+            document.getElementById('timecardTemplates').style.display = 'block';
+        }
+        
+        function selectTemplate(templateKey) {
+            const templateName = templateKey.replace('_', ' ');
+            document.getElementById('timecardRequest').value = `fill my week with ${templateName} template`;
+            showAlert(`Selected ${templateName} template`, 'success');
+        }
+        
+        function showWeeklySummary() {
+            const employeeId = document.getElementById('employeeId').value.trim();
+            
+            showAlert('Loading weekly timecard summary...', 'watson');
+            
+            fetch(`/api/timecard/weekly/${employeeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayWeeklySummary(data.weekly_summary);
+                        showAlert('Weekly summary loaded successfully', 'success');
+                    } else {
+                        showAlert('Failed to load weekly summary', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Weekly summary loading error:', error);
+                    showAlert('Failed to load weekly summary', 'error');
+                });
+        }
+        
+        function displayWeeklySummary(summary) {
+            const summaryContent = document.getElementById('weeklySummaryContent');
+            
+            let summaryHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                    <div style="background: rgba(255,165,0,0.1); padding: 10px; border-radius: 5px; text-align: center;">
+                        <div style="font-size: 20px; font-weight: bold; color: #ffa500;">${summary.total_hours}</div>
+                        <div style="font-size: 12px; color: #ccc;">Total Hours</div>
+                    </div>
+                    <div style="background: rgba(255,165,0,0.1); padding: 10px; border-radius: 5px; text-align: center;">
+                        <div style="font-size: 20px; font-weight: bold; color: #ffa500;">${summary.total_overtime}</div>
+                        <div style="font-size: 12px; color: #ccc;">Overtime</div>
+                    </div>
+                    <div style="background: rgba(255,165,0,0.1); padding: 10px; border-radius: 5px; text-align: center;">
+                        <div style="font-size: 20px; font-weight: bold; color: #ffa500;">${summary.days_worked}</div>
+                        <div style="font-size: 12px; color: #ccc;">Days Worked</div>
+                    </div>
+                    <div style="background: rgba(255,165,0,0.1); padding: 10px; border-radius: 5px; text-align: center;">
+                        <div style="font-size: 20px; font-weight: bold; color: #ffa500;">${summary.average_daily_hours}</div>
+                        <div style="font-size: 12px; color: #ccc;">Avg Daily</div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 10px;">
+                    <strong>Week Period:</strong> ${summary.week_start} to ${summary.week_end}
+                </div>
+            `;
+            
+            if (summary.entries && summary.entries.length > 0) {
+                summaryHTML += `
+                    <div style="margin-top: 15px;">
+                        <strong>Daily Breakdown:</strong>
+                        <div style="margin-top: 10px;">
+                `;
+                
+                summary.entries.forEach(entry => {
+                    const date = new Date(entry.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                    const hours = entry.total_hours || 0;
+                    const status = entry.status === 'submitted' ? '✅' : '📝';
+                    
+                    summaryHTML += `
+                        <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #444;">
+                            <span>${date}</span>
+                            <span>${hours} hrs ${status}</span>
+                        </div>
+                    `;
+                });
+                
+                summaryHTML += '</div></div>';
+            }
+            
+            summaryContent.innerHTML = summaryHTML;
+            document.getElementById('weeklySummary').style.display = 'block';
+        }
+        
+        function quickFillWeek() {
+            document.getElementById('timecardRequest').value = 'fill my week with standard hours';
+            processTimecardAutomation();
+        }
+        
+        // Add Enter key support for timecard input
+        document.getElementById('timecardRequest').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                processTimecardAutomation();
+            }
+        });
+        
         // Add Enter key support for voice command input
         document.getElementById('voiceCommandInput').addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
@@ -1921,6 +2209,8 @@ Examples:
             checkNexusStatus();
             // Load available voice commands
             loadVoiceCommands();
+            // Load timecard templates on startup
+            loadTimecardTemplates();
         };
     </script>
 </body>
@@ -2571,6 +2861,117 @@ def get_user_details(username):
                 'error': 'User not found'
             }), 404
             
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/timecard/automate', methods=['POST'])
+def automate_timecard():
+    """Process timecard automation request"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        data = request.json
+        automation_request = data.get('request', '')
+        employee_id = data.get('employee_id', session.get('user', {}).get('username', 'current_user'))
+        employee_name = data.get('employee_name', session.get('user', {}).get('full_name', 'Current User'))
+        
+        from timecard_automation import get_timecard_automation
+        timecard_system = get_timecard_automation()
+        
+        result = timecard_system.process_automation_request(
+            automation_request, 
+            employee_id, 
+            employee_name
+        )
+        
+        return jsonify({
+            'success': True,
+            'automation_result': result,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/timecard/entries/<employee_id>')
+def get_timecard_entries(employee_id):
+    """Get timecard entries for employee"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        
+        from timecard_automation import get_timecard_automation
+        timecard_system = get_timecard_automation()
+        
+        entries = timecard_system.get_employee_timecards(employee_id, start_date, end_date)
+        
+        return jsonify({
+            'success': True,
+            'entries': entries,
+            'count': len(entries),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/timecard/weekly/<employee_id>')
+def get_weekly_timecard_summary(employee_id):
+    """Get weekly timecard summary"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        week_start = request.args.get('week_start')
+        
+        from timecard_automation import get_timecard_automation
+        timecard_system = get_timecard_automation()
+        
+        summary = timecard_system.get_weekly_summary(employee_id, week_start)
+        
+        return jsonify({
+            'success': True,
+            'weekly_summary': summary,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/timecard/templates')
+def get_timecard_templates():
+    """Get available timecard templates"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from timecard_automation import get_timecard_automation
+        timecard_system = get_timecard_automation()
+        
+        templates = timecard_system.get_timecard_templates()
+        
+        return jsonify({
+            'success': True,
+            'templates': templates,
+            'timestamp': datetime.now().isoformat()
+        })
+        
     except Exception as e:
         return jsonify({
             'success': False,

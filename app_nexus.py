@@ -22,27 +22,33 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Database configuration
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+# Database configuration - Supabase PostgreSQL
+database_url = os.environ.get("DATABASE_URL")
+if not database_url:
+    raise SystemExit("DATABASE_URL environment variable must be set with Supabase connection string")
+
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     'pool_pre_ping': True,
     "pool_recycle": 300,
+    "pool_timeout": 20,
+    "max_overflow": 0
 }
 
 db = SQLAlchemy(app, model_class=Base)
 
 @app.route('/')
 def index():
-    """NEXUS Landing Page"""
+    """TRAXOVO Landing Page with User Onboarding"""
     if session.get('authenticated'):
-        return redirect('/nexus_dashboard')
+        return redirect('/traxovo_onboarding')
     
     return f"""
     <!DOCTYPE html>
     <html>
     <head>
-        <title>NEXUS - Automation Request Platform</title>
+        <title>TRAXOVO - What task would you like to automate today?</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
@@ -50,75 +56,413 @@ def index():
             body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                     min-height: 100vh; display: flex; align-items: center; justify-content: center; }}
-            .login-container {{ background: white; padding: 40px; border-radius: 12px; 
-                               box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-width: 400px; width: 100%; }}
-            .brand {{ text-align: center; margin-bottom: 30px; }}
-            .brand h1 {{ color: #2563eb; font-size: 32px; margin-bottom: 8px; }}
-            .brand p {{ color: #6b7280; }}
+            .onboarding-container {{ background: white; padding: 50px; border-radius: 16px; 
+                                   box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-width: 600px; width: 100%; }}
+            .brand {{ text-align: center; margin-bottom: 40px; }}
+            .brand h1 {{ color: #2563eb; font-size: 36px; margin-bottom: 12px; font-weight: 700; }}
+            .brand p {{ color: #6b7280; font-size: 18px; }}
+            .onboarding-question {{ text-align: center; margin-bottom: 40px; }}
+            .onboarding-question h2 {{ color: #1f2937; font-size: 28px; margin-bottom: 16px; }}
+            .onboarding-question p {{ color: #6b7280; font-size: 16px; line-height: 1.6; }}
+            .automation-options {{ display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 30px; }}
+            .automation-option {{ padding: 20px; border: 2px solid #e5e7eb; border-radius: 12px; 
+                                cursor: pointer; transition: all 0.2s; text-align: left; }}
+            .automation-option:hover {{ border-color: #2563eb; background: #f0f9ff; }}
+            .automation-option.selected {{ border-color: #2563eb; background: #eff6ff; }}
+            .option-title {{ font-weight: 600; color: #1f2937; margin-bottom: 8px; }}
+            .option-desc {{ color: #6b7280; font-size: 14px; }}
+            .login-section {{ border-top: 1px solid #e5e7eb; padding-top: 30px; }}
             .form-group {{ margin-bottom: 20px; }}
             label {{ display: block; font-weight: 600; margin-bottom: 8px; color: #374151; }}
             input {{ width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; 
                     font-size: 16px; transition: border-color 0.2s; }}
             input:focus {{ outline: none; border-color: #2563eb; }}
-            .login-btn {{ background: #2563eb; color: white; padding: 15px; border: none; 
-                         border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; 
-                         width: 100%; transition: background-color 0.2s; }}
-            .login-btn:hover {{ background: #1d4ed8; }}
-            .info {{ background: #f0f9ff; padding: 15px; border-radius: 8px; margin-top: 20px; 
-                    font-size: 14px; color: #0c4a6e; }}
+            .continue-btn {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                           color: white; padding: 16px; border: none; border-radius: 12px; 
+                           font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; 
+                           transition: transform 0.2s; }}
+            .continue-btn:hover {{ transform: translateY(-2px); }}
+            .or-divider {{ text-align: center; margin: 20px 0; color: #6b7280; }}
+            .quick-start {{ background: #f9fafb; padding: 20px; border-radius: 12px; text-align: center; }}
         </style>
     </head>
     <body>
-        <div class="login-container">
+        <div class="onboarding-container">
             <div class="brand">
-                <h1>NEXUS</h1>
-                <p>Automation Request Collection Platform</p>
+                <h1>TRAXOVO</h1>
+                <p>Intelligent Automation Platform</p>
             </div>
             
-            <form method="POST" action="/login">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required 
-                           placeholder="Enter your username">
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required 
-                           placeholder="Enter your password">
-                </div>
-                
-                <button type="submit" class="login-btn">Access NEXUS Dashboard</button>
-            </form>
+            <div class="onboarding-question">
+                <h2>What task would you like to automate today?</h2>
+                <p>Select an automation category below to get started, or login to access the full platform dashboard.</p>
+            </div>
             
-            <div class="info">
-                <strong>Platform Focus:</strong> Collect automation requests from users and 
-                convert them into development insights and roadmaps.
+            <div class="automation-options" id="automationOptions">
+                <div class="automation-option" data-category="data_processing">
+                    <div class="option-title">📊 Data Processing & Reports</div>
+                    <div class="option-desc">Automate data collection, processing, and report generation</div>
+                </div>
+                <div class="automation-option" data-category="communication">
+                    <div class="option-title">📧 Email & Communication</div>
+                    <div class="option-desc">Streamline email workflows and communication processes</div>
+                </div>
+                <div class="automation-option" data-category="file_management">
+                    <div class="option-title">📁 File & Document Management</div>
+                    <div class="option-desc">Organize, process, and manage files automatically</div>
+                </div>
+                <div class="automation-option" data-category="scheduling">
+                    <div class="option-title">📅 Scheduling & Calendar</div>
+                    <div class="option-desc">Automate meeting scheduling and calendar management</div>
+                </div>
+                <div class="automation-option" data-category="custom">
+                    <div class="option-title">⚡ Custom Automation</div>
+                    <div class="option-desc">Describe your specific automation needs</div>
+                </div>
+            </div>
+            
+            <div class="or-divider">— or —</div>
+            
+            <div class="login-section">
+                <form method="POST" action="/login" id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required 
+                               placeholder="Enter your username">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required 
+                               placeholder="Enter your password">
+                    </div>
+                    
+                    <input type="hidden" id="selectedCategory" name="automation_interest" value="">
+                    
+                    <button type="submit" class="continue-btn">Access TRAXOVO Platform</button>
+                </form>
+            </div>
+            
+            <div class="quick-start">
+                <strong>Quick Start:</strong> Select an automation type above to personalize your dashboard experience.
             </div>
         </div>
+        
+        <script>
+            // Track user automation interest
+            document.querySelectorAll('.automation-option').forEach(option => {{
+                option.addEventListener('click', function() {{
+                    // Remove selected class from all options
+                    document.querySelectorAll('.automation-option').forEach(opt => {{
+                        opt.classList.remove('selected');
+                    }});
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    // Store selection
+                    const category = this.dataset.category;
+                    document.getElementById('selectedCategory').value = category;
+                    
+                    // Visual feedback
+                    this.style.transform = 'scale(1.02)';
+                    setTimeout(() => {{
+                        this.style.transform = 'scale(1)';
+                    }}, 200);
+                }});
+            }});
+            
+            // Enhanced form submission
+            document.getElementById('loginForm').addEventListener('submit', function(e) {{
+                const category = document.getElementById('selectedCategory').value;
+                if (category) {{
+                    // Store user interest for dashboard personalization
+                    sessionStorage.setItem('userAutomationInterest', category);
+                }}
+            }});
+        </script>
     </body>
     </html>
     """
 
 @app.route('/login', methods=['POST'])
 def login():
-    """Login authentication"""
+    """Login authentication with automation interest tracking"""
     username = request.form.get('username')
     password = request.form.get('password')
+    automation_interest = request.form.get('automation_interest', '')
     
-    # Simple admin credentials for NEXUS access
+    # Simple admin credentials for TRAXOVO access
     admin_accounts = {
-        'admin': 'nexus2025',
-        'nexus': 'nexus2025',
-        'dev': 'nexus2025'
+        'admin': 'traxovo2025',
+        'traxovo': 'traxovo2025',
+        'dev': 'traxovo2025',
+        'demo': 'demo2025'
     }
     
     if username in admin_accounts and admin_accounts[username] == password:
         session['authenticated'] = True
         session['username'] = username
-        return redirect('/nexus_dashboard')
+        session['automation_interest'] = automation_interest
+        
+        # Redirect to personalized onboarding if they selected an automation type
+        if automation_interest:
+            return redirect(f'/traxovo_onboarding?interest={automation_interest}')
+        else:
+            return redirect('/nexus_dashboard')
     
     return redirect('/')
+
+@app.route('/traxovo_onboarding')
+def traxovo_onboarding():
+    """Personalized onboarding based on automation interest"""
+    if not session.get('authenticated'):
+        return redirect('/')
+    
+    interest = request.args.get('interest', session.get('automation_interest', ''))
+    username = session.get('username', 'User')
+    
+    # Timecard automation as primary demo
+    automation_suggestions = {
+        'data_processing': {
+            'title': 'Timecard Automation',
+            'description': 'Automate your daily timecard entry process',
+            'demo_task': 'timecard_entry',
+            'benefits': ['Save 10-15 minutes daily', 'Never forget to log time', 'Accurate time tracking']
+        },
+        'communication': {
+            'title': 'Email Automation',
+            'description': 'Automate email responses and scheduling',
+            'demo_task': 'email_automation',
+            'benefits': ['Auto-reply to common requests', 'Schedule emails', 'Email template management']
+        },
+        'file_management': {
+            'title': 'File Organization',
+            'description': 'Automatically organize and process files',
+            'demo_task': 'file_organization',
+            'benefits': ['Auto-sort downloads', 'Rename files by pattern', 'Backup important documents']
+        },
+        'scheduling': {
+            'title': 'Calendar Management',
+            'description': 'Automate meeting scheduling and calendar updates',
+            'demo_task': 'calendar_automation',
+            'benefits': ['Auto-schedule meetings', 'Block focus time', 'Send meeting reminders']
+        },
+        'custom': {
+            'title': 'Timecard Automation',
+            'description': 'Perfect starting point - automate timecard entry',
+            'demo_task': 'timecard_entry',
+            'benefits': ['Quick setup', 'Immediate time savings', 'Easy to understand']
+        }
+    }
+    
+    suggestion = automation_suggestions.get(interest, automation_suggestions['custom'])
+    
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>TRAXOVO - Ready to Automate</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{ 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh; 
+                padding: 20px;
+            }}
+            .onboarding-container {{ 
+                max-width: 800px; 
+                margin: 0 auto; 
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(20px);
+                border-radius: 20px; 
+                box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+                overflow: hidden;
+            }}
+            .header {{ 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white; 
+                padding: 40px; 
+                text-align: center; 
+            }}
+            .header h1 {{ font-size: 32px; margin-bottom: 8px; }}
+            .header p {{ opacity: 0.9; font-size: 18px; }}
+            .content {{ padding: 40px; }}
+            .welcome {{ text-align: center; margin-bottom: 40px; }}
+            .welcome h2 {{ color: #1f2937; font-size: 28px; margin-bottom: 16px; }}
+            .automation-demo {{ 
+                background: #f8fafc; 
+                border-radius: 16px; 
+                padding: 32px; 
+                margin-bottom: 32px;
+                border: 2px solid #e2e8f0;
+            }}
+            .demo-header {{ display: flex; align-items: center; margin-bottom: 24px; }}
+            .demo-icon {{ 
+                width: 64px; 
+                height: 64px; 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 16px; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center;
+                color: white; 
+                font-size: 24px; 
+                margin-right: 20px;
+            }}
+            .demo-title {{ 
+                font-size: 24px; 
+                font-weight: 700; 
+                color: #1f2937; 
+                margin-bottom: 4px; 
+            }}
+            .demo-subtitle {{ color: #6b7280; font-size: 16px; }}
+            .benefits {{ 
+                display: grid; 
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+                gap: 16px; 
+                margin-bottom: 32px; 
+            }}
+            .benefit {{ 
+                background: white; 
+                padding: 20px; 
+                border-radius: 12px; 
+                text-align: center;
+                border: 1px solid #e2e8f0;
+            }}
+            .benefit-icon {{ color: #10b981; font-size: 24px; margin-bottom: 12px; }}
+            .benefit-text {{ color: #374151; font-weight: 500; }}
+            .demo-actions {{ 
+                display: flex; 
+                gap: 16px; 
+                justify-content: center; 
+                flex-wrap: wrap;
+            }}
+            .btn {{ 
+                padding: 16px 32px; 
+                border-radius: 12px; 
+                font-weight: 600; 
+                font-size: 16px; 
+                cursor: pointer; 
+                transition: all 0.2s; 
+                text-decoration: none; 
+                display: inline-flex; 
+                align-items: center; 
+                gap: 8px;
+                border: none;
+            }}
+            .btn-primary {{ 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                color: white; 
+            }}
+            .btn-primary:hover {{ transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3); }}
+            .btn-secondary {{ 
+                background: white; 
+                color: #374151; 
+                border: 2px solid #e2e8f0; 
+            }}
+            .btn-secondary:hover {{ border-color: #667eea; color: #667eea; }}
+            .automation-preview {{ 
+                background: #1f2937; 
+                color: white; 
+                border-radius: 12px; 
+                padding: 24px; 
+                margin-top: 24px;
+                font-family: 'Courier New', monospace;
+            }}
+            .preview-title {{ color: #10b981; margin-bottom: 16px; font-weight: bold; }}
+            .preview-step {{ margin-bottom: 8px; opacity: 0.8; }}
+            .preview-step.active {{ opacity: 1; color: #10b981; }}
+        </style>
+    </head>
+    <body>
+        <div class="onboarding-container">
+            <div class="header">
+                <h1>Welcome to TRAXOVO, {username}!</h1>
+                <p>Let's set up your first automation in 60 seconds</p>
+            </div>
+            
+            <div class="content">
+                <div class="welcome">
+                    <h2>Perfect Choice: {suggestion['title']}</h2>
+                    <p>Based on your selection, here's the ideal automation to start with</p>
+                </div>
+                
+                <div class="automation-demo">
+                    <div class="demo-header">
+                        <div class="demo-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <div class="demo-title">{suggestion['title']}</div>
+                            <div class="demo-subtitle">{suggestion['description']}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="benefits">
+                        {"".join([f'<div class="benefit"><div class="benefit-icon"><i class="fas fa-check-circle"></i></div><div class="benefit-text">{benefit}</div></div>' for benefit in suggestion['benefits']])}
+                    </div>
+                    
+                    <div class="automation-preview">
+                        <div class="preview-title">🤖 Automation Preview:</div>
+                        <div class="preview-step">1. Navigate to timekeeper website</div>
+                        <div class="preview-step">2. Auto-fill your credentials</div>
+                        <div class="preview-step">3. Select current date</div>
+                        <div class="preview-step">4. Enter hours worked</div>
+                        <div class="preview-step">5. Submit timecard</div>
+                        <div class="preview-step">✅ Done! 10 minutes saved daily</div>
+                    </div>
+                    
+                    <div class="demo-actions">
+                        <button class="btn btn-primary" onclick="startDemo()">
+                            <i class="fas fa-play"></i>
+                            Start Demo Automation
+                        </button>
+                        <button class="btn btn-secondary" onclick="setupAutomation()">
+                            <i class="fas fa-cog"></i>
+                            Configure Settings
+                        </button>
+                        <a href="/nexus_dashboard" class="btn btn-secondary">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Skip to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            function startDemo() {{
+                // Start the timecard automation demo
+                window.location.href = '/automation_demo?task=timecard_entry';
+            }}
+            
+            function setupAutomation() {{
+                // Go to automation configuration
+                window.location.href = '/automation_setup?task=timecard_entry';
+            }}
+            
+            // Auto-highlight preview steps
+            let currentStep = 0;
+            const steps = document.querySelectorAll('.preview-step');
+            
+            function highlightNextStep() {{
+                if (currentStep < steps.length) {{
+                    steps[currentStep].classList.add('active');
+                    currentStep++;
+                    setTimeout(highlightNextStep, 800);
+                }}
+            }}
+            
+            setTimeout(highlightNextStep, 1000);
+        </script>
+    </body>
+    </html>
+    """
 
 @app.route('/logout')
 def logout():
@@ -1193,6 +1537,726 @@ def api_export_nexus_data():
         
     except Exception as e:
         return jsonify({"error": f"Export failed: {str(e)}"}), 500
+
+@app.route('/api/object_storage_upload', methods=['POST'])
+def api_object_storage_upload():
+    """Upload file to Object Storage"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        from object_storage_integration import TRAXOVOObjectStorage
+        storage = TRAXOVOObjectStorage()
+        
+        if 'file' not in request.files:
+            return jsonify({"error": "No file provided"}), 400
+        
+        file = request.files['file']
+        category = request.form.get('category', 'documents')
+        
+        result = storage.upload_file(file.read(), file.filename, category)
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({"error": f"Upload failed: {str(e)}"}), 500
+
+@app.route('/api/object_storage_files')
+def api_object_storage_files():
+    """List files in Object Storage"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        from object_storage_integration import TRAXOVOObjectStorage
+        storage = TRAXOVOObjectStorage()
+        
+        files = storage.list_files()
+        return jsonify(files)
+        
+    except Exception as e:
+        return jsonify({"error": f"File listing failed: {str(e)}"}), 500
+
+@app.route('/api/github_integration')
+def api_github_integration():
+    """GitHub database integration"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        # GitHub API integration for repository data
+        import requests
+        
+        github_token = os.environ.get('GITHUB_TOKEN')
+        if not github_token:
+            return jsonify({"error": "GitHub token not configured"}), 400
+        
+        headers = {'Authorization': f'token {github_token}'}
+        response = requests.get('https://api.github.com/user/repos', headers=headers)
+        
+        if response.status_code == 200:
+            repos = response.json()
+            
+            # Store in database
+            github_data = {
+                'repositories': repos,
+                'total_repos': len(repos),
+                'last_sync': datetime.utcnow().isoformat()
+            }
+            
+            # Save to platform data
+            github_record = PlatformData.query.filter_by(data_type='github_data').first()
+            if github_record:
+                github_record.data_content = github_data
+                github_record.updated_at = datetime.utcnow()
+            else:
+                github_record = PlatformData(
+                    data_type='github_data',
+                    data_content=github_data
+                )
+                db.session.add(github_record)
+            
+            db.session.commit()
+            return jsonify(github_data)
+        else:
+            return jsonify({"error": "GitHub API access failed"}), 503
+            
+    except Exception as e:
+        return jsonify({"error": f"GitHub integration failed: {str(e)}"}), 500
+
+@app.route('/api/chatgpt_kodex')
+def api_chatgpt_kodex():
+    """ChatGPT Kodex database integration"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        from openai import OpenAI
+        
+        openai_key = os.environ.get('OPENAI_API_KEY')
+        if not openai_key:
+            return jsonify({"error": "OpenAI API key not configured"}), 400
+        
+        client = OpenAI(api_key=openai_key)
+        
+        # Get TRAXOVO development insights using GPT-4o
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a development intelligence assistant for TRAXOVO automation platform. Analyze automation request patterns and provide development insights."
+                },
+                {
+                    "role": "user", 
+                    "content": "Generate development recommendations for an automation request collection platform. Focus on high-impact features that improve user experience and data collection efficiency."
+                }
+            ],
+            max_tokens=500
+        )
+        
+        kodex_insights = {
+            'ai_recommendations': response.choices[0].message.content,
+            'model_used': 'gpt-4o',
+            'generation_timestamp': datetime.utcnow().isoformat(),
+            'platform': 'TRAXOVO_NEXUS'
+        }
+        
+        # Store in database
+        kodex_record = PlatformData.query.filter_by(data_type='chatgpt_kodex').first()
+        if kodex_record:
+            kodex_record.data_content = kodex_insights
+            kodex_record.updated_at = datetime.utcnow()
+        else:
+            kodex_record = PlatformData(
+                data_type='chatgpt_kodex',
+                data_content=kodex_insights
+            )
+            db.session.add(kodex_record)
+        
+        db.session.commit()
+        return jsonify(kodex_insights)
+        
+    except Exception as e:
+        return jsonify({"error": f"ChatGPT Kodex integration failed: {str(e)}"}), 500
+
+@app.route('/api/sms_distribution', methods=['POST'])
+def api_sms_distribution():
+    """SMS distribution via Twilio"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        # Check Twilio credentials
+        twilio_sid = os.environ.get('TWILIO_ACCOUNT_SID')
+        twilio_token = os.environ.get('TWILIO_AUTH_TOKEN')
+        twilio_phone = os.environ.get('TWILIO_PHONE_NUMBER')
+        
+        if not all([twilio_sid, twilio_token, twilio_phone]):
+            return jsonify({"error": "Twilio credentials not configured"}), 400
+        
+        from twilio.rest import Client
+        client = Client(twilio_sid, twilio_token)
+        
+        request_data = request.get_json()
+        phone_numbers = request_data.get('phone_numbers', [])
+        message = request_data.get('message', 'TRAXOVO automation intake form: ')
+        
+        results = []
+        for phone in phone_numbers:
+            try:
+                message_obj = client.messages.create(
+                    body=message,
+                    from_=twilio_phone,
+                    to=phone
+                )
+                results.append({
+                    'phone': phone,
+                    'status': 'sent',
+                    'message_sid': message_obj.sid
+                })
+            except Exception as e:
+                results.append({
+                    'phone': phone,
+                    'status': 'failed',
+                    'error': str(e)
+                })
+        
+        return jsonify({
+            'results': results,
+            'total_sent': len([r for r in results if r['status'] == 'sent']),
+            'total_failed': len([r for r in results if r['status'] == 'failed'])
+        })
+        
+    except Exception as e:
+        return jsonify({"error": f"SMS distribution failed: {str(e)}"}), 500
+
+@app.route('/api/trello_integration')
+def api_trello_integration():
+    """Trello API integration for task management"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        import requests
+        
+        trello_key = os.environ.get('TRELLO_API_KEY')
+        trello_token = os.environ.get('TRELLO_TOKEN')
+        
+        if not trello_key or not trello_token:
+            return jsonify({"error": "Trello API credentials not configured. Please add TRELLO_API_KEY and TRELLO_TOKEN to environment secrets."}), 400
+        
+        # Get user's Trello boards
+        boards_url = f"https://api.trello.com/1/members/me/boards?key={trello_key}&token={trello_token}"
+        response = requests.get(boards_url)
+        
+        if response.status_code == 200:
+            boards = response.json()
+            
+            # Get lists and cards for first board
+            trello_data = {
+                'boards': [],
+                'total_boards': len(boards),
+                'automation_suggestions': []
+            }
+            
+            for board in boards[:3]:  # Limit to first 3 boards
+                board_id = board['id']
+                
+                # Get lists for this board
+                lists_url = f"https://api.trello.com/1/boards/{board_id}/lists?key={trello_key}&token={trello_token}"
+                lists_response = requests.get(lists_url)
+                
+                # Get cards for this board
+                cards_url = f"https://api.trello.com/1/boards/{board_id}/cards?key={trello_key}&token={trello_token}"
+                cards_response = requests.get(cards_url)
+                
+                board_data = {
+                    'id': board['id'],
+                    'name': board['name'],
+                    'url': board['url'],
+                    'lists': lists_response.json() if lists_response.status_code == 200 else [],
+                    'cards': cards_response.json() if cards_response.status_code == 200 else []
+                }
+                
+                trello_data['boards'].append(board_data)
+                
+                # Generate automation suggestions based on Trello activity
+                if len(board_data['cards']) > 10:
+                    trello_data['automation_suggestions'].append({
+                        'type': 'card_automation',
+                        'board': board['name'],
+                        'suggestion': 'Auto-create cards from email or forms',
+                        'potential_time_saved': '30 minutes/week'
+                    })
+                
+                if len(board_data['lists']) > 5:
+                    trello_data['automation_suggestions'].append({
+                        'type': 'workflow_automation',
+                        'board': board['name'],
+                        'suggestion': 'Auto-move cards based on due dates',
+                        'potential_time_saved': '20 minutes/week'
+                    })
+            
+            trello_data['last_sync'] = datetime.utcnow().isoformat()
+            
+            # Save to database
+            trello_record = PlatformData.query.filter_by(data_type='trello_data').first()
+            if trello_record:
+                trello_record.data_content = trello_data
+                trello_record.updated_at = datetime.utcnow()
+            else:
+                trello_record = PlatformData(
+                    data_type='trello_data',
+                    data_content=trello_data
+                )
+                db.session.add(trello_record)
+            
+            db.session.commit()
+            return jsonify(trello_data)
+        else:
+            return jsonify({"error": f"Trello API access failed: {response.status_code}"}), 503
+            
+    except Exception as e:
+        return jsonify({"error": f"Trello integration failed: {str(e)}"}), 500
+
+@app.route('/automation_demo')
+def automation_demo():
+    """Live automation demo for timecard entry"""
+    if not session.get('authenticated'):
+        return redirect('/')
+    
+    task = request.args.get('task', 'timecard_entry')
+    
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>TRAXOVO - Live Automation Demo</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{ 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: #1f2937;
+                color: white;
+                min-height: 100vh;
+                padding: 20px;
+            }}
+            .demo-container {{
+                max-width: 1400px;
+                margin: 0 auto;
+            }}
+            .demo-header {{
+                text-align: center;
+                margin-bottom: 40px;
+                padding: 30px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 16px;
+            }}
+            .demo-header h1 {{ font-size: 32px; margin-bottom: 8px; }}
+            .demo-header p {{ opacity: 0.9; font-size: 18px; }}
+            .demo-layout {{
+                display: grid;
+                grid-template-columns: 1fr 400px;
+                gap: 30px;
+                height: 70vh;
+            }}
+            .browser-window {{
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            }}
+            .browser-header {{
+                background: #f1f5f9;
+                padding: 12px 20px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                border-bottom: 1px solid #e2e8f0;
+            }}
+            .browser-dot {{
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+            }}
+            .dot-red {{ background: #ef4444; }}
+            .dot-yellow {{ background: #f59e0b; }}
+            .dot-green {{ background: #10b981; }}
+            .browser-url {{
+                flex: 1;
+                background: white;
+                border: 1px solid #e2e8f0;
+                border-radius: 6px;
+                padding: 6px 12px;
+                margin-left: 20px;
+                font-size: 14px;
+                color: #374151;
+            }}
+            .browser-content {{
+                background: white;
+                height: calc(100% - 60px);
+                padding: 30px;
+                color: #374151;
+                overflow-y: auto;
+            }}
+            .automation-panel {{
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+                padding: 24px;
+                backdrop-filter: blur(10px);
+            }}
+            .panel-section {{
+                margin-bottom: 30px;
+            }}
+            .panel-title {{
+                font-size: 18px;
+                font-weight: 600;
+                margin-bottom: 16px;
+                color: #10b981;
+            }}
+            .automation-step {{
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 8px;
+                padding: 16px;
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                transition: all 0.3s;
+            }}
+            .automation-step.active {{
+                background: rgba(16, 185, 129, 0.2);
+                border-left: 4px solid #10b981;
+            }}
+            .automation-step.completed {{
+                background: rgba(16, 185, 129, 0.1);
+                opacity: 0.7;
+            }}
+            .step-icon {{
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                background: #374151;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+            }}
+            .step-icon.active {{ background: #10b981; }}
+            .step-icon.completed {{ background: #059669; }}
+            .control-panel {{
+                display: flex;
+                gap: 12px;
+                margin-top: 24px;
+            }}
+            .demo-btn {{
+                flex: 1;
+                padding: 12px;
+                border: none;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }}
+            .btn-start {{
+                background: #10b981;
+                color: white;
+            }}
+            .btn-start:hover {{ background: #059669; }}
+            .btn-pause {{
+                background: #f59e0b;
+                color: white;
+            }}
+            .btn-stop {{
+                background: #ef4444;
+                color: white;
+            }}
+            .timecard-form {{
+                max-width: 600px;
+            }}
+            .form-group {{
+                margin-bottom: 20px;
+            }}
+            .form-label {{
+                display: block;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: #374151;
+            }}
+            .form-input {{
+                width: 100%;
+                padding: 12px;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 16px;
+            }}
+            .form-input:focus {{
+                outline: none;
+                border-color: #667eea;
+            }}
+            .submit-btn {{
+                background: #667eea;
+                color: white;
+                padding: 14px 28px;
+                border: none;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                font-size: 16px;
+            }}
+            .logs-panel {{
+                background: #0f172a;
+                border-radius: 8px;
+                padding: 16px;
+                margin-top: 20px;
+                font-family: 'Courier New', monospace;
+                font-size: 12px;
+                max-height: 200px;
+                overflow-y: auto;
+            }}
+            .log-entry {{
+                margin-bottom: 4px;
+                opacity: 0.8;
+            }}
+            .log-success {{ color: #10b981; }}
+            .log-info {{ color: #3b82f6; }}
+            .log-warning {{ color: #f59e0b; }}
+        </style>
+    </head>
+    <body>
+        <div class="demo-container">
+            <div class="demo-header">
+                <h1><i class="fas fa-robot"></i> TRAXOVO Live Automation Demo</h1>
+                <p>Watch as TRAXOVO automates your timecard entry process</p>
+            </div>
+            
+            <div class="demo-layout">
+                <div class="browser-window">
+                    <div class="browser-header">
+                        <div class="browser-dot dot-red"></div>
+                        <div class="browser-dot dot-yellow"></div>
+                        <div class="browser-dot dot-green"></div>
+                        <input class="browser-url" value="https://timekeeper.company.com/login" readonly>
+                    </div>
+                    <div class="browser-content" id="browserContent">
+                        <div class="timecard-form">
+                            <h2>Employee Timecard System</h2>
+                            <p style="margin-bottom: 30px; color: #6b7280;">Enter your daily work hours</p>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Employee ID</label>
+                                <input type="text" class="form-input" id="employeeId" placeholder="Enter your employee ID">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-input" id="workDate">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Start Time</label>
+                                <input type="time" class="form-input" id="startTime">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">End Time</label>
+                                <input type="time" class="form-input" id="endTime">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Break Duration (minutes)</label>
+                                <input type="number" class="form-input" id="breakTime" placeholder="30">
+                            </div>
+                            
+                            <button class="submit-btn" onclick="submitTimecard()">Submit Timecard</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="automation-panel">
+                    <div class="panel-section">
+                        <div class="panel-title"><i class="fas fa-cogs"></i> Automation Steps</div>
+                        <div class="automation-step" id="step1">
+                            <div class="step-icon">1</div>
+                            <div>Navigate to timekeeper website</div>
+                        </div>
+                        <div class="automation-step" id="step2">
+                            <div class="step-icon">2</div>
+                            <div>Fill employee credentials</div>
+                        </div>
+                        <div class="automation-step" id="step3">
+                            <div class="step-icon">3</div>
+                            <div>Set current date</div>
+                        </div>
+                        <div class="automation-step" id="step4">
+                            <div class="step-icon">4</div>
+                            <div>Enter work hours</div>
+                        </div>
+                        <div class="automation-step" id="step5">
+                            <div class="step-icon">5</div>
+                            <div>Submit timecard</div>
+                        </div>
+                    </div>
+                    
+                    <div class="panel-section">
+                        <div class="panel-title"><i class="fas fa-play-circle"></i> Demo Controls</div>
+                        <div class="control-panel">
+                            <button class="demo-btn btn-start" onclick="startAutomation()">
+                                <i class="fas fa-play"></i> Start Demo
+                            </button>
+                            <button class="demo-btn btn-stop" onclick="stopAutomation()">
+                                <i class="fas fa-stop"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="panel-section">
+                        <div class="panel-title"><i class="fas fa-terminal"></i> Automation Logs</div>
+                        <div class="logs-panel" id="logsPanel">
+                            <div class="log-entry log-info">🤖 TRAXOVO automation engine ready...</div>
+                            <div class="log-entry log-info">📋 Timecard automation loaded</div>
+                            <div class="log-entry log-info">⚡ Waiting for start command</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            let currentStep = 0;
+            let automationRunning = false;
+            
+            function addLog(message, type = 'info') {{
+                const logsPanel = document.getElementById('logsPanel');
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry log-${{type}}`;
+                logEntry.textContent = `[${{new Date().toLocaleTimeString()}}] ${{message}}`;
+                logsPanel.appendChild(logEntry);
+                logsPanel.scrollTop = logsPanel.scrollHeight;
+            }}
+            
+            function updateStep(stepNumber, status) {{
+                const step = document.getElementById(`step${{stepNumber}}`);
+                const icon = step.querySelector('.step-icon');
+                
+                step.classList.remove('active', 'completed');
+                icon.classList.remove('active', 'completed');
+                
+                if (status === 'active') {{
+                    step.classList.add('active');
+                    icon.classList.add('active');
+                }} else if (status === 'completed') {{
+                    step.classList.add('completed');
+                    icon.classList.add('completed');
+                    icon.innerHTML = '<i class="fas fa-check"></i>';
+                }}
+            }}
+            
+            async function startAutomation() {{
+                if (automationRunning) return;
+                
+                automationRunning = true;
+                currentStep = 1;
+                
+                addLog('🚀 Starting timecard automation demo...', 'success');
+                
+                // Step 1: Navigate
+                updateStep(1, 'active');
+                addLog('🌐 Navigating to timekeeper website...', 'info');
+                await sleep(1500);
+                updateStep(1, 'completed');
+                addLog('✅ Successfully loaded timekeeper portal', 'success');
+                
+                // Step 2: Fill credentials
+                currentStep = 2;
+                updateStep(2, 'active');
+                addLog('🔐 Auto-filling employee credentials...', 'info');
+                await sleep(1000);
+                document.getElementById('employeeId').value = 'EMP001';
+                await sleep(500);
+                updateStep(2, 'completed');
+                addLog('✅ Employee ID filled automatically', 'success');
+                
+                // Step 3: Set date
+                currentStep = 3;
+                updateStep(3, 'active');
+                addLog('📅 Setting current date...', 'info');
+                await sleep(800);
+                document.getElementById('workDate').value = new Date().toISOString().split('T')[0];
+                await sleep(500);
+                updateStep(3, 'completed');
+                addLog('✅ Date set to today', 'success');
+                
+                // Step 4: Enter hours
+                currentStep = 4;
+                updateStep(4, 'active');
+                addLog('⏰ Calculating and entering work hours...', 'info');
+                await sleep(1000);
+                document.getElementById('startTime').value = '09:00';
+                await sleep(500);
+                document.getElementById('endTime').value = '17:00';
+                await sleep(500);
+                document.getElementById('breakTime').value = '30';
+                await sleep(500);
+                updateStep(4, 'completed');
+                addLog('✅ Work hours calculated: 8 hours (minus 30min break)', 'success');
+                
+                // Step 5: Submit
+                currentStep = 5;
+                updateStep(5, 'active');
+                addLog('📤 Submitting timecard...', 'info');
+                await sleep(1500);
+                updateStep(5, 'completed');
+                addLog('🎉 Timecard submitted successfully!', 'success');
+                addLog('💰 Time saved: ~10 minutes daily', 'success');
+                addLog('🔄 Automation complete - ready for tomorrow!', 'success');
+                
+                automationRunning = false;
+            }}
+            
+            function stopAutomation() {{
+                automationRunning = false;
+                currentStep = 0;
+                
+                // Reset all steps
+                for (let i = 1; i <= 5; i++) {{
+                    const step = document.getElementById(`step${{i}}`);
+                    const icon = step.querySelector('.step-icon');
+                    step.classList.remove('active', 'completed');
+                    icon.classList.remove('active', 'completed');
+                    icon.textContent = i;
+                }}
+                
+                // Clear form
+                document.getElementById('employeeId').value = '';
+                document.getElementById('workDate').value = '';
+                document.getElementById('startTime').value = '';
+                document.getElementById('endTime').value = '';
+                document.getElementById('breakTime').value = '';
+                
+                addLog('🔄 Automation reset - ready for new demo', 'info');
+            }}
+            
+            function submitTimecard() {{
+                addLog('📋 Manual timecard submission detected', 'warning');
+                addLog('💡 Tip: Use automation to save time!', 'info');
+            }}
+            
+            function sleep(ms) {{
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }}
+            
+            // Auto-demo on page load
+            setTimeout(() => {{
+                addLog('👋 Welcome! Click "Start Demo" to see automation in action', 'info');
+            }}, 1000);
+        </script>
+    </body>
+    </html>
+    """
 
 # Include secure intake form endpoints
 @app.route('/intake/<token>')

@@ -1334,6 +1334,266 @@ def api_generate_executive_report():
     except Exception as e:
         return jsonify({"error": f"Report generation failed: {str(e)}"}), 500
 
+@app.route('/intake/<token>')
+def secure_intake_form(token):
+    """Secure intake form - no login required, token-based access"""
+    from secure_intake_system import validate_intake_token
+    
+    if not validate_intake_token(token):
+        return """
+        <html><body style="font-family: Arial; text-align: center; padding: 50px;">
+        <h2>Access Link Expired</h2>
+        <p>This intake form link has expired or been used already.</p>
+        <p>Please contact your administrator for a new link.</p>
+        </body></html>
+        """, 400
+    
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>TRAXOVO Automation Request</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    min-height: 100vh; padding: 20px; }}
+            .container {{ max-width: 800px; margin: 0 auto; background: white; 
+                         border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }}
+            .header {{ background: #2563eb; color: white; padding: 30px; border-radius: 12px 12px 0 0; 
+                      text-align: center; }}
+            .brand {{ font-size: 28px; font-weight: bold; margin-bottom: 8px; }}
+            .subtitle {{ opacity: 0.9; font-size: 16px; }}
+            .form-container {{ padding: 40px; }}
+            .form-group {{ margin-bottom: 25px; }}
+            label {{ display: block; font-weight: 600; margin-bottom: 8px; color: #374151; }}
+            input, textarea, select {{ width: 100%; padding: 12px; border: 2px solid #e5e7eb; 
+                                     border-radius: 8px; font-size: 16px; transition: border-color 0.2s; }}
+            input:focus, textarea:focus, select:focus {{ outline: none; border-color: #2563eb; }}
+            textarea {{ height: 120px; resize: vertical; }}
+            .checkbox-group {{ display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; }}
+            .checkbox-item {{ display: flex; align-items: center; }}
+            .checkbox-item input {{ width: auto; margin-right: 8px; }}
+            .submit-btn {{ background: #2563eb; color: white; padding: 15px 30px; 
+                          border: none; border-radius: 8px; font-size: 16px; font-weight: 600; 
+                          cursor: pointer; width: 100%; transition: background-color 0.2s; }}
+            .submit-btn:hover {{ background: #1d4ed8; }}
+            .info-box {{ background: #f0f9ff; border: 1px solid #0ea5e9; padding: 20px; 
+                        border-radius: 8px; margin-bottom: 30px; }}
+            .required {{ color: #dc2626; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="brand">⚡ TRAXOVO</div>
+                <div class="subtitle">Help Us Build Your Perfect Automation Tool</div>
+            </div>
+            
+            <div class="form-container">
+                <div class="info-box">
+                    <strong>Your input shapes our development priorities.</strong><br>
+                    Tell us what you want to automate and we'll build it. This takes 2-3 minutes.
+                </div>
+                
+                <form id="intakeForm">
+                    <div class="form-group">
+                        <label for="task_title">What task would you like to automate? <span class="required">*</span></label>
+                        <input type="text" id="task_title" name="task_title" required 
+                               placeholder="e.g., Daily expense reports, Data backup, Email notifications">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="task_description">Describe the task in detail <span class="required">*</span></label>
+                        <textarea id="task_description" name="task_description" required 
+                                  placeholder="Explain the current process, what steps are involved, and what the ideal automated version would do..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="task_category">Task Category</label>
+                        <select id="task_category" name="task_category">
+                            <option value="data_processing">Data Processing & Reports</option>
+                            <option value="communication">Email & Communication</option>
+                            <option value="file_management">File & Document Management</option>
+                            <option value="scheduling">Scheduling & Calendar</option>
+                            <option value="financial">Financial & Accounting</option>
+                            <option value="monitoring">System Monitoring</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="priority_level">How important is this automation?</label>
+                        <select id="priority_level" name="priority_level">
+                            <option value="high">High - Save significant time daily</option>
+                            <option value="medium">Medium - Moderate time savings</option>
+                            <option value="low">Low - Nice to have</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="expected_frequency">How often would you use this automation?</label>
+                        <select id="expected_frequency" name="expected_frequency">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="as_needed">As needed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>What data sources or systems does this involve? (Check all that apply)</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="data_sources" value="email"> Email
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="data_sources" value="spreadsheets"> Spreadsheets
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="data_sources" value="databases"> Databases
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="data_sources" value="file_systems"> File Systems
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="data_sources" value="web_apis"> Web APIs
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="data_sources" value="cloud_storage"> Cloud Storage
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="current_manual_process">How do you currently do this manually?</label>
+                        <textarea id="current_manual_process" name="current_manual_process" 
+                                  placeholder="Describe your current manual process step by step..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="success_criteria">How would you measure success of this automation?</label>
+                        <textarea id="success_criteria" name="success_criteria" 
+                                  placeholder="e.g., Saves 30 minutes daily, Reduces errors, Completes by 9 AM automatically..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="business_impact">What's the business impact if this gets automated?</label>
+                        <textarea id="business_impact" name="business_impact" 
+                                  placeholder="Time savings, cost reduction, improved accuracy, better customer service..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Submit Automation Request</button>
+                </form>
+            </div>
+        </div>
+        
+        <script>
+            document.getElementById('intakeForm').addEventListener('submit', function(e) {{
+                e.preventDefault();
+                
+                // Collect form data
+                const formData = new FormData(this);
+                const data = {{}};
+                
+                // Handle regular inputs
+                for (let [key, value] of formData.entries()) {{
+                    if (key === 'data_sources') {{
+                        if (!data[key]) data[key] = [];
+                        data[key].push(value);
+                    }} else {{
+                        data[key] = value;
+                    }}
+                }}
+                
+                // Handle unchecked data sources
+                if (!data.data_sources) data.data_sources = [];
+                
+                // Submit data
+                fetch('/api/intake/submit/{token}', {{
+                    method: 'POST',
+                    headers: {{
+                        'Content-Type': 'application/json',
+                    }},
+                    body: JSON.stringify(data)
+                }})
+                .then(response => response.json())
+                .then(result => {{
+                    if (result.status === 'success') {{
+                        document.body.innerHTML = `
+                            <div style="text-align: center; padding: 50px; font-family: Arial;">
+                                <h2 style="color: #059669;">Thank You!</h2>
+                                <p style="font-size: 18px; margin: 20px 0;">Your automation request has been submitted successfully.</p>
+                                <p>Our development team will analyze your feedback and prioritize features based on all responses.</p>
+                                <p style="margin-top: 30px; color: #6b7280;">You can now close this window.</p>
+                            </div>
+                        `;
+                    }} else {{
+                        alert('Error submitting form: ' + result.message);
+                    }}
+                }})
+                .catch(error => {{
+                    alert('Error submitting form. Please try again.');
+                    console.error('Error:', error);
+                }});
+            }});
+        </script>
+    </body>
+    </html>
+    """
+
+@app.route('/api/intake/submit/<token>', methods=['POST'])
+def submit_intake_response(token):
+    """Submit intake form response"""
+    from secure_intake_system import save_intake_response
+    
+    try:
+        response_data = request.get_json()
+        client_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
+        
+        result = save_intake_response(token, response_data, client_ip)
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Submission failed: {str(e)}'}), 500
+
+@app.route('/api/send_intake_emails', methods=['POST'])
+def api_send_intake_emails():
+    """Send intake form emails - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        request_data = request.get_json()
+        recipients = request_data.get('recipients', [])
+        
+        if not recipients:
+            return jsonify({"error": "No recipients provided"}), 400
+        
+        from secure_intake_system import send_bulk_intake_emails
+        results = send_bulk_intake_emails(recipients)
+        
+        return jsonify(results)
+        
+    except Exception as e:
+        return jsonify({"error": f"Email sending failed: {str(e)}"}), 500
+
+@app.route('/api/development_insights')
+def api_development_insights():
+    """Get development insights from intake responses - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        from secure_intake_system import get_development_insights
+        insights = get_development_insights()
+        return jsonify(insights)
+        
+    except Exception as e:
+        return jsonify({"error": f"Insights generation failed: {str(e)}"}), 500
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""
@@ -1346,6 +1606,7 @@ def health_check():
         "self_healing": "active",
         "watson_manual_config": "enabled",
         "object_storage": "enabled",
+        "secure_intake_system": "enabled",
         "free_apis": "active"
     })
 

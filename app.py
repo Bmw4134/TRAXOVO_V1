@@ -986,6 +986,88 @@ def api_market_data():
     except Exception as e:
         return jsonify({"error": f"Market data API failed: {str(e)}"}), 500
 
+@app.route('/api/weather_data')
+def api_weather_data():
+    """Live weather data API - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        # Using OpenWeatherMap free API (no key required for basic current weather)
+        import requests
+        
+        # Get weather for major business locations
+        locations = [
+            {"name": "New York", "lat": 40.7128, "lon": -74.0060},
+            {"name": "San Francisco", "lat": 37.7749, "lon": -122.4194},
+            {"name": "London", "lat": 51.5074, "lon": -0.1278},
+            {"name": "Tokyo", "lat": 35.6762, "lon": 139.6503}
+        ]
+        
+        weather_data = {}
+        
+        for location in locations:
+            try:
+                # Using OpenWeatherMap's free tier
+                weather_response = requests.get(
+                    f'https://api.openweathermap.org/data/2.5/weather?lat={location["lat"]}&lon={location["lon"]}&appid=demo&units=metric',
+                    timeout=5
+                )
+                
+                if weather_response.status_code == 200:
+                    weather_info = weather_response.json()
+                    weather_data[location["name"]] = {
+                        "temperature": round(weather_info["main"]["temp"]),
+                        "description": weather_info["weather"][0]["description"].title(),
+                        "humidity": weather_info["main"]["humidity"],
+                        "pressure": weather_info["main"]["pressure"],
+                        "feels_like": round(weather_info["main"]["feels_like"])
+                    }
+                else:
+                    # Fallback to wttr.in free service
+                    wttr_response = requests.get(
+                        f'https://wttr.in/{location["name"]}?format=j1',
+                        timeout=5
+                    )
+                    
+                    if wttr_response.status_code == 200:
+                        wttr_data = wttr_response.json()
+                        current = wttr_data["current_condition"][0]
+                        weather_data[location["name"]] = {
+                            "temperature": int(current["temp_C"]),
+                            "description": current["weatherDesc"][0]["value"],
+                            "humidity": int(current["humidity"]),
+                            "pressure": int(current["pressure"]),
+                            "feels_like": int(current["FeelsLikeC"])
+                        }
+            except:
+                continue
+        
+        authentic_weather_data = {
+            "weather_locations": weather_data,
+            "source": "openweathermap_wttr",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+        # Store authentic weather data
+        from models_clean import PlatformData
+        weather_record = PlatformData.query.filter_by(data_type='weather_data').first()
+        if weather_record:
+            weather_record.data_content = authentic_weather_data
+            weather_record.updated_at = datetime.utcnow()
+        else:
+            weather_record = PlatformData(
+                data_type='weather_data',
+                data_content=authentic_weather_data
+            )
+            db.session.add(weather_record)
+        
+        db.session.commit()
+        return jsonify(authentic_weather_data)
+        
+    except Exception as e:
+        return jsonify({"error": f"Weather data API failed: {str(e)}"}), 500
+
 @app.route('/api/executive_metrics')
 def api_executive_metrics():
     """Executive metrics API - Requires Authentication"""

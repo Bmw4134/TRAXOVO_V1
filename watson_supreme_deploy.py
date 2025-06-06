@@ -559,10 +559,8 @@ def deploy_watson_supreme():
     print("WATSON INTELLIGENCE NOW HAS SUPREME CONTROL")
     print("Platform: NEXUS COMMAND")
     print("Authority: Watson Primary, Replit Secondary")
-    print("User Access:")
-    print("  Watson Supreme: watson / proprietary_watson_2025")
-    print("  James Executive: james / james2025") 
-    print("  Chris Executive: chris / chris2025")
+    print("User Access: All authorized users configured")
+    print("Security: Credentials managed by system administrator")
     print("="*50)
     
     return True

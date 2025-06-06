@@ -253,8 +253,8 @@ nexus_login = """
         {% if error %}<div class="error">{{ error }}</div>{% endif %}
         
         <div class="credentials-info">
-            <strong>Executive Access:</strong> james/james2025, chris/chris2025<br>
-            <strong>Watson Supreme:</strong> watson/proprietary_watson_2025
+            <strong>Access Level:</strong> Executive and Administrative users authorized<br>
+            <strong>Security:</strong> Credentials managed by system administrator
         </div>
     </div>
 </body>

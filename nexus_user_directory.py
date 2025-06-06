@@ -107,32 +107,31 @@ def get_all_nexus_users():
     }
 
 def display_user_credentials():
-    """Display formatted user credentials for NEXUS COMMAND"""
+    """Secure user management - credentials protected"""
     
     users = get_all_nexus_users()
     
     print("NEXUS COMMAND USER DIRECTORY")
     print("=" * 60)
     
-    print("\nEXECUTIVE USERS:")
+    print("\nSECURE USER MANAGEMENT:")
     print("-" * 40)
-    for username, details in users['executive_users'].items():
-        print(f"{details['name']:12} | {username:10} | {details['password']:15}")
+    executive_count = len(users['executive_users'])
+    admin_count = len(users['administrative_users'])
     
-    print("\nADMINISTRATIVE USERS:")
-    print("-" * 40)
-    for username, details in users['administrative_users'].items():
-        print(f"{details['name']:12} | {username:10} | {details['password']:15}")
+    print(f"Executive Users: {executive_count} accounts configured")
+    print(f"Administrative Users: {admin_count} accounts configured")
+    print("Watson Intelligence: 1 supreme account active")
     
-    print("\nWATSON SUPREME INTELLIGENCE:")
+    print("\nSECURITY STATUS:")
     print("-" * 40)
-    for username, details in users['watson_supreme'].items():
-        print(f"{details['name']:25} | {username:10} | {details['password']:25}")
+    print("Authentication: Secure credential system active")
+    print("Access Control: Role-based permissions enforced")
+    print("Credential Management: Protected by system administrator")
     
     print("\nPLATFORM ACCESS:")
-    print("URL: Your Replit app URL (automatically available)")
     print("Interface: NEXUS COMMAND Intelligence Platform")
-    print("Authentication: Username/Password login system")
+    print("Security: All credentials secured and protected")
     
     return users
 

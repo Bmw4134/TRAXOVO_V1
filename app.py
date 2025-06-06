@@ -1056,6 +1056,38 @@ def api_platform_health():
     except Exception as e:
         return jsonify({"error": f"Health check failed: {str(e)}"}), 500
 
+@app.route('/api/perplexity_search', methods=['POST'])
+def api_perplexity_search():
+    """TRAXOVO tech stack enhanced Perplexity search - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        data = request.get_json()
+        query = data.get('query', '')
+        
+        if not query:
+            return jsonify({"error": "Search query required"}), 400
+        
+        from traxovo_tech_stack_knowledge import search_with_traxovo_context
+        results = search_with_traxovo_context(query)
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({"error": f"Perplexity search failed: {str(e)}"}), 500
+
+@app.route('/api/tech_stack')
+def api_tech_stack():
+    """Get complete TRAXOVO tech stack knowledge - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        from traxovo_tech_stack_knowledge import get_complete_tech_stack
+        tech_stack = get_complete_tech_stack()
+        return jsonify(tech_stack)
+    except Exception as e:
+        return jsonify({"error": f"Tech stack retrieval failed: {str(e)}"}), 500
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""
@@ -1065,7 +1097,8 @@ def health_check():
         "version": "1.0.0",
         "database": "connected",
         "nexus_infinity": "enabled",
-        "self_healing": "active"
+        "self_healing": "active",
+        "perplexity_integration": "enabled"
     })
 
 with app.app_context():

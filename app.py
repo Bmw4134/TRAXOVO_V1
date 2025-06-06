@@ -1017,6 +1017,45 @@ def api_regression_status():
     except Exception as e:
         return jsonify({"error": f"Failed to get regression status: {str(e)}"}), 500
 
+@app.route('/api/self_heal/check')
+def api_self_heal_check():
+    """Nexus Infinity validation check - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        from nexus_infinity_core import initialize_nexus_infinity
+        results = initialize_nexus_infinity()
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({"error": f"Validation check failed: {str(e)}"}), 500
+
+@app.route('/api/self_heal/recover')
+def api_self_heal_recover():
+    """Execute self-healing recovery - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        from nexus_infinity_core import execute_self_healing
+        results = execute_self_healing()
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({"error": f"Self-healing failed: {str(e)}"}), 500
+
+@app.route('/api/platform_health')
+def api_platform_health():
+    """Get current platform health status - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        from nexus_infinity_core import get_platform_health
+        health_status = get_platform_health()
+        return jsonify(health_status)
+    except Exception as e:
+        return jsonify({"error": f"Health check failed: {str(e)}"}), 500
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""
@@ -1025,7 +1064,8 @@ def health_check():
         "service": "TRAXOVO Enterprise Platform",
         "version": "1.0.0",
         "database": "connected",
-        "ai_regression_fixer": "enabled"
+        "nexus_infinity": "enabled",
+        "self_healing": "active"
     })
 
 with app.app_context():

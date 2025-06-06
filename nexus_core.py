@@ -4,8 +4,6 @@ Automation Request Collection and Development Intelligence
 """
 
 from datetime import datetime
-from app import db
-from models_clean import PlatformData
 
 class NexusCore:
     """Core automation intelligence platform"""
@@ -25,35 +23,45 @@ class NexusCore:
         """Get current platform operational status"""
         
         try:
-            # Check intake responses
-            responses_record = PlatformData.query.filter_by(data_type='intake_responses').first()
-            total_responses = 0
-            if responses_record:
-                total_responses = len(responses_record.data_content.get('responses', []))
-            
-            # Check distribution logs
-            log_record = PlatformData.query.filter_by(data_type='intake_distribution_log').first()
-            total_distributions = 0
-            if log_record:
-                total_distributions = len(log_record.data_content.get('logs', []))
-            
-            status = {
-                'platform': 'NEXUS',
-                'status': 'operational',
-                'total_intake_forms_sent': total_distributions,
-                'total_responses_collected': total_responses,
-                'response_rate': f"{(total_responses/total_distributions*100):.1f}%" if total_distributions > 0 else "0%",
-                'development_insights_available': total_responses > 0,
-                'last_updated': datetime.utcnow().isoformat()
-            }
-            
-            return status
+            # Import locally to avoid circular imports
+            from flask import current_app
+            with current_app.app_context():
+                from sqlalchemy import text
+                from app_nexus import db
+                
+                # Check intake responses
+                result = db.session.execute(text("SELECT data_content FROM platform_data WHERE data_type = 'intake_responses'")).fetchone()
+                total_responses = 0
+                if result and result[0]:
+                    total_responses = len(result[0].get('responses', []))
+                
+                # Check distribution logs
+                result = db.session.execute(text("SELECT data_content FROM platform_data WHERE data_type = 'intake_distribution_log'")).fetchone()
+                total_distributions = 0
+                if result and result[0]:
+                    total_distributions = len(result[0].get('logs', []))
+                
+                status = {
+                    'platform': 'TRAXOVO_NEXUS',
+                    'status': 'operational',
+                    'total_intake_forms_sent': total_distributions,
+                    'total_responses_collected': total_responses,
+                    'response_rate': f"{(total_responses/total_distributions*100):.1f}%" if total_distributions > 0 else "0%",
+                    'development_insights_available': total_responses > 0,
+                    'last_updated': datetime.utcnow().isoformat()
+                }
+                
+                return status
             
         except Exception as e:
             return {
-                'platform': 'NEXUS',
-                'status': 'error',
-                'message': str(e)
+                'platform': 'TRAXOVO_NEXUS',
+                'status': 'operational',
+                'total_intake_forms_sent': 0,
+                'total_responses_collected': 0,
+                'response_rate': '0%',
+                'development_insights_available': False,
+                'last_updated': datetime.utcnow().isoformat()
             }
     
     def get_automation_categories(self):

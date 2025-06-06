@@ -1,0 +1,10 @@
+{
+  "status": "operational",
+  "endpoints": [
+    "/api/crm/contacts",
+    "/api/crm/leads",
+    "/api/crm/opportunities"
+  ],
+  "authentication": "token_based",
+  "data_sync": "real_time"
+}

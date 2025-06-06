@@ -1,0 +1,15 @@
+{
+  "database": {
+    "status": "connected",
+    "url_configured": true
+  },
+  "object_storage": {
+    "uploads_dir": true,
+    "static_dir": true,
+    "public_dir": true
+  },
+  "git_repo": {
+    "initialized": true,
+    "status": "tracked"
+  }
+}

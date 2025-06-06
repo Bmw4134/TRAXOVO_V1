@@ -1,0 +1,18 @@
+{
+  "adaptive_firewall_active": true,
+  "threat_learning_enabled": true,
+  "auto_ban_suspicious_ips": true,
+  "rate_limiting_active": true,
+  "ddos_protection": true,
+  "allowed_origins": [
+    "localhost",
+    "127.0.0.1"
+  ],
+  "blocked_patterns": [
+    "sql_injection_patterns",
+    "xss_patterns",
+    "csrf_patterns",
+    "directory_traversal_patterns"
+  ],
+  "activation_timestamp": "2025-06-06T20:23:45.700500"
+}

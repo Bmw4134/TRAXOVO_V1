@@ -1,0 +1,14 @@
+flask>=2.3.0
+flask-sqlalchemy>=3.0.0
+gunicorn>=21.0.0
+openai>=1.0.0
+sendgrid>=6.10.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+werkzeug>=2.3.0
+
+# Optional packages
+# twilio>=8.0.0
+# alpaca-trade-api>=3.0.0
+# selenium>=4.15.0
+# speech-recognition>=3.10.0

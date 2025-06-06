@@ -1,0 +1,22 @@
+{
+  "quantum_sandbox_active": true,
+  "process_isolation": true,
+  "memory_isolation": true,
+  "network_isolation": false,
+  "file_system_protection": true,
+  "code_execution_monitoring": true,
+  "allowed_operations": [
+    "read_database",
+    "write_logs",
+    "http_requests",
+    "user_authentication",
+    "data_export"
+  ],
+  "restricted_operations": [
+    "system_commands",
+    "file_deletion",
+    "process_spawning",
+    "network_scanning"
+  ],
+  "activation_timestamp": "2025-06-06T20:23:45.702214"
+}

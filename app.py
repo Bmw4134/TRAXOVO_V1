@@ -1008,38 +1008,25 @@ def api_weather_data():
         
         for location in locations:
             try:
-                # Using OpenWeatherMap's free tier
-                weather_response = requests.get(
-                    f'https://api.openweathermap.org/data/2.5/weather?lat={location["lat"]}&lon={location["lon"]}&appid=demo&units=metric',
-                    timeout=5
+                # Using wttr.in completely free service (no API key required)
+                wttr_response = requests.get(
+                    f'https://wttr.in/{location["name"]}?format=j1',
+                    timeout=5,
+                    headers={'User-Agent': 'TRAXOVO-Enterprise/1.0'}
                 )
                 
-                if weather_response.status_code == 200:
-                    weather_info = weather_response.json()
+                if wttr_response.status_code == 200:
+                    wttr_data = wttr_response.json()
+                    current = wttr_data["current_condition"][0]
                     weather_data[location["name"]] = {
-                        "temperature": round(weather_info["main"]["temp"]),
-                        "description": weather_info["weather"][0]["description"].title(),
-                        "humidity": weather_info["main"]["humidity"],
-                        "pressure": weather_info["main"]["pressure"],
-                        "feels_like": round(weather_info["main"]["feels_like"])
+                        "temperature": int(current["temp_C"]),
+                        "description": current["weatherDesc"][0]["value"],
+                        "humidity": int(current["humidity"]),
+                        "pressure": int(current["pressure"]),
+                        "feels_like": int(current["FeelsLikeC"]),
+                        "wind_speed": current["windspeedKmph"],
+                        "visibility": current["visibility"]
                     }
-                else:
-                    # Fallback to wttr.in free service
-                    wttr_response = requests.get(
-                        f'https://wttr.in/{location["name"]}?format=j1',
-                        timeout=5
-                    )
-                    
-                    if wttr_response.status_code == 200:
-                        wttr_data = wttr_response.json()
-                        current = wttr_data["current_condition"][0]
-                        weather_data[location["name"]] = {
-                            "temperature": int(current["temp_C"]),
-                            "description": current["weatherDesc"][0]["value"],
-                            "humidity": int(current["humidity"]),
-                            "pressure": int(current["pressure"]),
-                            "feels_like": int(current["FeelsLikeC"])
-                        }
             except:
                 continue
         
@@ -1223,6 +1210,46 @@ def api_tech_stack():
     except Exception as e:
         return jsonify({"error": f"Tech stack retrieval failed: {str(e)}"}), 500
 
+@app.route('/api/watson_config')
+def api_watson_config():
+    """Watson manual configuration options - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        from watson_manual_config import get_watson_config_options
+        config_options = get_watson_config_options()
+        return jsonify(config_options)
+    except Exception as e:
+        return jsonify({"error": f"Watson config failed: {str(e)}"}), 500
+
+@app.route('/api/free_data_update')
+def api_free_data_update():
+    """Update all free data sources - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        from watson_manual_config import update_free_data_sources
+        results = update_free_data_sources()
+        return jsonify({"status": "updated", "results": results})
+    except Exception as e:
+        return jsonify({"error": f"Free data update failed: {str(e)}"}), 500
+
+@app.route('/api/manual_credentials', methods=['POST'])
+def api_manual_credentials():
+    """Save manual credentials - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    try:
+        credentials = request.get_json()
+        from watson_manual_config import save_manual_credentials
+        result = save_manual_credentials(credentials)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": f"Credential save failed: {str(e)}"}), 500
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""
@@ -1233,7 +1260,8 @@ def health_check():
         "database": "connected",
         "nexus_infinity": "enabled",
         "self_healing": "active",
-        "perplexity_integration": "enabled"
+        "watson_manual_config": "enabled",
+        "free_apis": "active"
     })
 
 with app.app_context():

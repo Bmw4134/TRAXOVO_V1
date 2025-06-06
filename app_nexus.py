@@ -187,31 +187,348 @@ def index():
 
 @app.route('/login', methods=['POST'])
 def login():
-    """Login authentication with automation interest tracking"""
+    """NEXUS Authentication with user administration"""
     username = request.form.get('username')
     password = request.form.get('password')
     automation_interest = request.form.get('automation_interest', '')
     
-    # Simple admin credentials for TRAXOVO access
-    admin_accounts = {
-        'admin': 'traxovo2025',
-        'traxovo': 'traxovo2025',
-        'dev': 'traxovo2025',
-        'demo': 'demo2025'
-    }
+    # Use NEXUS user administration system
+    from nexus_user_admin import authenticate_nexus_user
     
-    if username in admin_accounts and admin_accounts[username] == password:
+    auth_result = authenticate_nexus_user(username, password)
+    
+    if auth_result['status'] == 'success':
         session['authenticated'] = True
         session['username'] = username
+        session['user_role'] = auth_result['role']
+        session['user_permissions'] = auth_result['permissions']
+        session['user_department'] = auth_result['department']
         session['automation_interest'] = automation_interest
+        session['automation_preferences'] = auth_result.get('automation_preferences', {})
         
-        # Redirect to personalized onboarding if they selected an automation type
+        # Redirect based on automation interest or role
         if automation_interest:
             return redirect(f'/traxovo_onboarding?interest={automation_interest}')
+        elif auth_result['role'] == 'admin':
+            return redirect('/nexus_unified_control')
         else:
             return redirect('/nexus_dashboard')
+    else:
+        # Failed login - show error
+        return redirect(f'/?error={auth_result["message"]}')
+
+def create_user_rows(users):
+    """Helper function to create user table rows"""
+    rows = []
+    for user in users:
+        status_class = 'status-active' if user['is_active'] and not user['account_locked'] else 'status-locked' if user['account_locked'] else 'status-inactive'
+        status_text = 'Active' if user['is_active'] and not user['account_locked'] else 'Locked' if user['account_locked'] else 'Inactive'
+        
+        unlock_button = f'<button class="action-btn btn-unlock" onclick="unlockUser(\'{user["username"]}\')">Unlock</button>' if user['account_locked'] else ''
+        delete_button = f'<button class="action-btn btn-delete" onclick="deleteUser(\'{user["username"]}\')">Delete</button>' if user['username'] != 'nexus_admin' else ''
+        
+        row = f'''
+        <div class="user-row">
+            <div>{user['username']}</div>
+            <div>{user['email']}</div>
+            <div>{user['role'].title()}</div>
+            <div>{user['department'].replace('_', ' ').title()}</div>
+            <div>
+                <span class="user-status {status_class}">
+                    {status_text}
+                </span>
+            </div>
+            <div>{user['last_login'][:10] if user['last_login'] else 'Never'}</div>
+            <div class="user-actions">
+                <button class="action-btn btn-edit" onclick="editUser('{user['username']}')">Edit</button>
+                {unlock_button}
+                {delete_button}
+            </div>
+        </div>
+        '''
+        rows.append(row)
+    return ''.join(rows)
+
+@app.route('/nexus_admin')
+def nexus_admin():
+    """NEXUS User Administration Portal"""
+    if not session.get('authenticated'):
+        return redirect('/')
     
-    return redirect('/')
+    # Check admin permissions
+    user_permissions = session.get('user_permissions', [])
+    if 'user_management' not in user_permissions:
+        return redirect('/nexus_dashboard?error=insufficient_permissions')
+    
+    from nexus_user_admin import get_nexus_users
+    users_data = get_nexus_users()
+    
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>NEXUS User Administration</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{ 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 20px;
+            }}
+            .admin-container {{
+                max-width: 1200px;
+                margin: 0 auto;
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 16px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+                overflow: hidden;
+            }}
+            .admin-header {{
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+            }}
+            .admin-content {{
+                padding: 30px;
+            }}
+            .stats-grid {{
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+                margin-bottom: 30px;
+            }}
+            .stat-card {{
+                background: #f8fafc;
+                padding: 20px;
+                border-radius: 12px;
+                text-align: center;
+                border: 1px solid #e2e8f0;
+            }}
+            .stat-value {{
+                font-size: 32px;
+                font-weight: bold;
+                color: #2563eb;
+                margin-bottom: 8px;
+            }}
+            .stat-label {{
+                color: #64748b;
+                font-weight: 500;
+            }}
+            .users-table {{
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            }}
+            .table-header {{
+                background: #f8fafc;
+                padding: 20px;
+                border-bottom: 1px solid #e2e8f0;
+                display: flex;
+                justify-content: between;
+                align-items: center;
+            }}
+            .admin-actions {{
+                display: flex;
+                gap: 12px;
+                margin-bottom: 20px;
+            }}
+            .admin-btn {{
+                padding: 12px 24px;
+                border: none;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }}
+            .btn-primary {{
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }}
+            .btn-secondary {{
+                background: #f1f5f9;
+                color: #475569;
+                border: 1px solid #e2e8f0;
+            }}
+            .user-row {{
+                display: grid;
+                grid-template-columns: 200px 200px 150px 150px 120px 120px 200px;
+                padding: 15px 20px;
+                border-bottom: 1px solid #f1f5f9;
+                align-items: center;
+            }}
+            .user-row:hover {{
+                background: #f8fafc;
+            }}
+            .user-status {{
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+            }}
+            .status-active {{ background: #dcfce7; color: #166534; }}
+            .status-locked {{ background: #fef2f2; color: #dc2626; }}
+            .status-inactive {{ background: #f1f5f9; color: #475569; }}
+            .user-actions {{
+                display: flex;
+                gap: 8px;
+            }}
+            .action-btn {{
+                padding: 6px 12px;
+                border: none;
+                border-radius: 6px;
+                font-size: 12px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }}
+            .btn-edit {{ background: #3b82f6; color: white; }}
+            .btn-unlock {{ background: #10b981; color: white; }}
+            .btn-delete {{ background: #ef4444; color: white; }}
+        </style>
+    </head>
+    <body>
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1><i class="fas fa-users-cog"></i> NEXUS User Administration</h1>
+                <p>Manage users, roles, and permissions across the platform</p>
+            </div>
+            
+            <div class="admin-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">{users_data['total_count']}</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{users_data['active_count']}</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{users_data['locked_count']}</div>
+                        <div class="stat-label">Locked Accounts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">4</div>
+                        <div class="stat-label">User Roles</div>
+                    </div>
+                </div>
+                
+                <div class="admin-actions">
+                    <button class="admin-btn btn-primary" onclick="createNewUser()">
+                        <i class="fas fa-user-plus"></i> Create User
+                    </button>
+                    <button class="admin-btn btn-secondary" onclick="bulkActions()">
+                        <i class="fas fa-tasks"></i> Bulk Actions
+                    </button>
+                    <button class="admin-btn btn-secondary" onclick="exportUsers()">
+                        <i class="fas fa-download"></i> Export Users
+                    </button>
+                    <a href="/nexus_unified_control" class="admin-btn btn-secondary">
+                        <i class="fas fa-brain"></i> NEXUS Control
+                    </a>
+                </div>
+                
+                <div class="users-table">
+                    <div class="table-header">
+                        <h3>User Management</h3>
+                    </div>
+                    
+                    <div class="user-row" style="background: #f1f5f9; font-weight: 600;">
+                        <div>Username</div>
+                        <div>Email</div>
+                        <div>Role</div>
+                        <div>Department</div>
+                        <div>Status</div>
+                        <div>Last Login</div>
+                        <div>Actions</div>
+                    </div>
+                    
+                    {create_user_rows(users_data['users'])}
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            function createNewUser() {{
+                const username = prompt('Enter username:');
+                if (!username) return;
+                
+                const email = prompt('Enter email:');
+                if (!email) return;
+                
+                const role = prompt('Enter role (admin/manager/user/viewer):');
+                if (!role) return;
+                
+                const department = prompt('Enter department:');
+                if (!department) return;
+                
+                const password = prompt('Enter temporary password:');
+                if (!password) return;
+                
+                fetch('/api/nexus_users/create', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/json' }},
+                    body: JSON.stringify({{
+                        username: username,
+                        password: password,
+                        email: email,
+                        role: role,
+                        department: department
+                    }})
+                }})
+                .then(response => response.json())
+                .then(data => {{
+                    if (data.status === 'success') {{
+                        alert('User created successfully');
+                        location.reload();
+                    }} else {{
+                        alert('Error: ' + data.message);
+                    }}
+                }});
+            }}
+            
+            function unlockUser(username) {{
+                if (confirm(`Unlock account for ${{username}}?`)) {{
+                    fetch(`/api/nexus_users/unlock/${{username}}`, {{ method: 'POST' }})
+                        .then(response => response.json())
+                        .then(data => {{
+                            if (data.status === 'success') {{
+                                alert('Account unlocked successfully');
+                                location.reload();
+                            }} else {{
+                                alert('Error: ' + data.message);
+                            }}
+                        }});
+                }}
+            }}
+            
+            function deleteUser(username) {{
+                if (confirm(`Delete user ${{username}}? This cannot be undone.`)) {{
+                    fetch(`/api/nexus_users/delete/${{username}}`, {{ method: 'DELETE' }})
+                        .then(response => response.json())
+                        .then(data => {{
+                            if (data.status === 'success') {{
+                                alert('User deleted successfully');
+                                location.reload();
+                            }} else {{
+                                alert('Error: ' + data.message);
+                            }}
+                        }});
+                }}
+            }}
+            
+            function editUser(username) {{
+                window.location.href = `/nexus_admin/edit/${{username}}`;
+            }}
+        </script>
+    </body>
+    </html>
+    """
 
 @app.route('/traxovo_onboarding')
 def traxovo_onboarding():

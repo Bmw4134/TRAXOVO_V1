@@ -868,8 +868,10 @@ JDD_EXECUTIVE_DASHBOARD = """
 # Routes
 @app.route('/')
 def index():
-    """TRAXOVO Landing Page - Public Access"""
-    return render_template_string(TRAXOVO_LANDING_PAGE)
+    """TRAXOVO Executive Dashboard - Requires Authentication"""
+    if not session.get('authenticated'):
+        return redirect(url_for('login'))
+    return render_template_string(JDD_EXECUTIVE_DASHBOARD)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

@@ -1,0 +1,214 @@
+[
+  {
+    "user_id": "james_exec",
+    "username": "james",
+    "email": "james@nexuscommand.com",
+    "full_name": "James Anderson",
+    "role": "Chief Executive Officer",
+    "department": "Executive",
+    "access_level": 10,
+    "created_at": "2025-06-06T04:38:58.982841",
+    "last_login": null,
+    "is_active": true,
+    "permissions": [
+      "all_access",
+      "executive_dashboard",
+      "financial_data",
+      "user_management"
+    ]
+  },
+  {
+    "user_id": "chris_exec",
+    "username": "chris",
+    "email": "chris@nexuscommand.com",
+    "full_name": "Chris Williams",
+    "role": "Chief Technology Officer",
+    "department": "Technology",
+    "access_level": 10,
+    "created_at": "2025-06-06T04:38:58.982875",
+    "last_login": null,
+    "is_active": true,
+    "permissions": [
+      "all_access",
+      "system_admin",
+      "technical_data",
+      "platform_control"
+    ]
+  },
+  {
+    "user_id": "britney_exec",
+    "username": "britney",
+    "email": "britney@nexuscommand.com",
+    "full_name": "Britney Johnson",
+    "role": "Chief Operations Officer",
+    "department": "Operations",
+    "access_level": 9,
+    "created_at": "2025-06-06T04:38:58.982881",
+    "last_login": null,
+    "is_active": true,
+    "permissions": [
+      "operations_control",
+      "fleet_management",
+      "optimization_tools",
+      "reporting"
+    ]
+  },
+  {
+    "user_id": "cooper_exec",
+    "username": "cooper",
+    "email": "cooper@nexuscommand.com",
+    "full_name": "Cooper Davis",
+    "role": "Chief Financial Officer",
+    "department": "Finance",
+    "access_level": 9,
+    "created_at": "2025-06-06T04:38:58.982886",
+    "last_login": null,
+    "is_active": true,
+    "permissions": [
+      "financial_control",
+      "trading_access",
+      "roi_analysis",
+      "budget_management"
+    ]
+  },
+  {
+    "user_id": "ammar_mgmt",
+    "username": "ammar",
+    "email": "ammar@nexuscommand.com",
+    "full_name": "Ammar Hassan",
+    "role": "Director of Analytics",
+    "department": "Analytics",
+    "access_level": 8,
+    "created_at": "2025-06-06T04:38:58.982890",
+    "last_login": null,
+    "is_active": true,
+    "permissions": [
+      "analytics_access",
+      "data_visualization",
+      "business_intelligence",
+      "reporting"
+    ]
+  },
+  {
+    "user_id": "jacob_mgmt",
+    "username": "jacob",
+    "email": "jacob@nexuscommand.com",
+    "full_name": "Jacob Miller",
+    "role": "Director of Engineering",
+    "department": "Engineering",
+    "access_level": 8,
+    "created_at": "2025-06-06T04:38:58.982895",
+    "last_login": null,
+    "is_active": true,
+    "permissions": [
+      "engineering_control",
+      "system_optimization",
+      "workflow_management",
+      "technical_support"
+    ]
+  },
+  {
+    "user_id": "william_mgmt",
+    "username": "william",
+    "email": "william@nexuscommand.com",
+    "full_name": "William Thompson",
+    "role": "Director of Security",
+    "department": "Security",
+    "access_level": 8,
+    "created_at": "2025-06-06T04:38:58.982899",
+    "last_login": null,
+    "is_active": true,
+    "permissions": [
+      "security_control",
+      "user_management",
+      "audit_access",
+      "compliance_monitoring"
+    ]
+  },
+  {
+    "user_id": "troy_mgmt",
+    "username": "troy",
+    "email": "troy@nexuscommand.com",
+    "full_name": "Troy Martinez",
+    "role": "Director of Fleet Operations",
+    "department": "Fleet",
+    "access_level": 7,
+    "created_at": "2025-06-06T04:38:58.982906",
+    "last_login": null,
+    "is_active": true,
+    "permissions": [
+      "fleet_control",
+      "asset_tracking",
+      "route_optimization",
+      "maintenance_scheduling"
+    ]
+  },
+  {
+    "user_id": "sarah_ops",
+    "username": "sarah",
+    "email": "sarah@nexuscommand.com",
+    "full_name": "Sarah Connor",
+    "role": "Senior Analyst",
+    "department": "Analytics",
+    "access_level": 6,
+    "created_at": "2025-06-06T04:38:58.982919",
+    "last_login": null,
+    "is_active": true,
+    "permissions": [
+      "data_analysis",
+      "reporting",
+      "dashboard_access"
+    ]
+  },
+  {
+    "user_id": "mike_ops",
+    "username": "mike",
+    "email": "mike@nexuscommand.com",
+    "full_name": "Michael Rodriguez",
+    "role": "Fleet Coordinator",
+    "department": "Fleet",
+    "access_level": 5,
+    "created_at": "2025-06-06T04:38:58.982924",
+    "last_login": null,
+    "is_active": true,
+    "permissions": [
+      "fleet_monitoring",
+      "dispatch_control",
+      "basic_reporting"
+    ]
+  },
+  {
+    "user_id": "lisa_ops",
+    "username": "lisa",
+    "email": "lisa@nexuscommand.com",
+    "full_name": "Lisa Chen",
+    "role": "Financial Analyst",
+    "department": "Finance",
+    "access_level": 6,
+    "created_at": "2025-06-06T04:38:58.982929",
+    "last_login": null,
+    "is_active": true,
+    "permissions": [
+      "financial_analysis",
+      "cost_tracking",
+      "budget_reporting"
+    ]
+  },
+  {
+    "user_id": "david_ops",
+    "username": "david",
+    "email": "david@nexuscommand.com",
+    "full_name": "David Brown",
+    "role": "System Administrator",
+    "department": "Technology",
+    "access_level": 7,
+    "created_at": "2025-06-06T04:38:58.982936",
+    "last_login": null,
+    "is_active": true,
+    "permissions": [
+      "system_monitoring",
+      "user_support",
+      "maintenance_access"
+    ]
+  }
+]

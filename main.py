@@ -2453,5 +2453,129 @@ def get_infinity_directives():
             'error': str(e)
         }), 500
 
+@app.route('/api/users/list')
+def get_users_list():
+    """Get complete user list for NEXUS COMMAND platform"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from user_management_system import get_user_management_system
+        user_system = get_user_management_system()
+        
+        users = user_system.get_all_users()
+        
+        return jsonify({
+            'success': True,
+            'users': users,
+            'total_users': len(users),
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/users/departments')
+def get_users_by_department():
+    """Get users organized by department"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from user_management_system import get_user_management_system
+        user_system = get_user_management_system()
+        
+        departments = user_system.get_users_by_department()
+        
+        return jsonify({
+            'success': True,
+            'departments': departments,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/users/executives')
+def get_executives_list():
+    """Get executive team members"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from user_management_system import get_user_management_system
+        user_system = get_user_management_system()
+        
+        executives = user_system.get_executives_list()
+        
+        return jsonify({
+            'success': True,
+            'executives': executives,
+            'count': len(executives),
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/users/stats')
+def get_user_statistics():
+    """Get user statistics and analytics"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from user_management_system import get_user_management_system
+        user_system = get_user_management_system()
+        
+        stats = user_system.get_user_stats()
+        
+        return jsonify({
+            'success': True,
+            'statistics': stats,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/users/<username>')
+def get_user_details(username):
+    """Get specific user details"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        from user_management_system import get_user_management_system
+        user_system = get_user_management_system()
+        
+        user_data = user_system.get_user_by_username(username)
+        
+        if user_data:
+            return jsonify({
+                'success': True,
+                'user': user_data,
+                'timestamp': datetime.now().isoformat()
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'User not found'
+            }), 404
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

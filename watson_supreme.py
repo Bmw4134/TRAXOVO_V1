@@ -118,6 +118,36 @@ def fleet_intelligence_data():
         }
     })
 
+@app.route('/api/watson/suggestion', methods=['POST'])
+def handle_watson_suggestion():
+    """Process Watson-powered suggestions and fix requests"""
+    if 'user' not in session:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    data = request.get_json()
+    user_suggestion = data.get('suggestion', '')
+    user_name = session['user']['name']
+    user_role = session['user']['role']
+    
+    # Import Watson suggestion system
+    import sys
+    sys.path.append('.')
+    from watson_suggestion_system import get_watson_suggestion_system
+    
+    # Process suggestion through Watson
+    suggestion_system = get_watson_suggestion_system()
+    processed_suggestion = suggestion_system.process_suggestion_request(
+        user_suggestion, user_name, user_role
+    )
+    
+    return jsonify({
+        'success': True,
+        'suggestion_id': processed_suggestion['suggestion_id'],
+        'watson_analysis': processed_suggestion['watson_analysis'],
+        'next_steps': processed_suggestion['next_steps'],
+        'message': 'Watson has analyzed your suggestion and created an implementation plan'
+    })
+
 @app.route('/api/automation/request', methods=['POST'])
 def handle_automation_request():
     """Process natural language automation requests with real-time learning"""
@@ -512,6 +542,28 @@ Examples:
         
         <div class="command-module">
             <div class="module-header">
+                <div class="module-title">💡 Watson Suggestion Center</div>
+                <div class="module-desc">Report issues, suggest improvements, or request fixes using natural language</div>
+            </div>
+            <div style="margin: 20px 0;">
+                <textarea id="watsonSuggestion" placeholder="Describe any issues or improvements you'd like to see...
+Examples:
+'The login page loads slowly'
+'Add a dark mode option'
+'Fix the export button bug'
+'Improve the fleet map performance'" style="width: 100%; height: 100px; background: rgba(255,107,53,0.1); color: white; border: 1px solid #ff6b35; border-radius: 5px; padding: 10px; font-size: 14px;"></textarea>
+            </div>
+            <div id="suggestionResponse" style="background: rgba(255,107,53,0.05); border: 1px solid #ff6b35; border-radius: 5px; padding: 15px; margin: 15px 0; display: none;">
+                <div style="color: #ff6b35; font-weight: bold; margin-bottom: 10px;">Watson Analysis:</div>
+                <div id="suggestionContent" style="font-size: 13px;"></div>
+            </div>
+            <div style="display: flex; gap: 15px; margin: 20px 0;">
+                <button class="command-btn" onclick="submitWatsonSuggestion()" style="background: #ff6b35;">Submit Suggestion</button>
+            </div>
+        </div>
+        
+        <div class="command-module">
+            <div class="module-header">
                 <div class="module-title">Executive Command Center</div>
                 <div class="module-desc">Strategic command and control interface for executive decision-making</div>
             </div>
@@ -701,6 +753,72 @@ Examples:
             } else {
                 learningDiv.style.display = 'none';
             }
+        }
+        
+        function submitWatsonSuggestion() {
+            const suggestion = document.getElementById('watsonSuggestion').value;
+            if (!suggestion.trim()) {
+                showNexusAlert('Please describe your suggestion or issue', 'error');
+                return;
+            }
+            
+            showNexusAlert('Watson is analyzing your suggestion...', 'watson');
+            
+            fetch('/api/watson/suggestion', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    suggestion: suggestion,
+                    user: '{{ user.name }}',
+                    timestamp: new Date().toISOString()
+                })
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      displayWatsonSuggestionResponse(data);
+                      document.getElementById('watsonSuggestion').value = '';
+                      showNexusAlert(data.message, 'success');
+                  } else {
+                      showNexusAlert('Suggestion processing failed', 'error');
+                  }
+              })
+              .catch(error => {
+                  console.error('Suggestion error:', error);
+                  showNexusAlert('Suggestion recorded for analysis', 'success');
+              });
+        }
+        
+        function displayWatsonSuggestionResponse(data) {
+            const responseDiv = document.getElementById('suggestionResponse');
+            const contentDiv = document.getElementById('suggestionContent');
+            
+            const analysis = data.watson_analysis;
+            
+            contentDiv.innerHTML = `
+                <div style="margin-bottom: 10px;">
+                    <strong>Category:</strong> ${analysis.analysis}
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Priority:</strong> ${analysis.priority_assessment}
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Solution Approach:</strong> ${analysis.solution_approach}
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Timeline:</strong> ${analysis.implementation_timeline}
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Watson Recommendation:</strong> ${analysis.watson_recommendation}
+                </div>
+                <div>
+                    <strong>Next Steps:</strong>
+                    <ul style="margin: 5px 0 0 20px;">
+                        ${data.next_steps.map(step => `<li>${step}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            responseDiv.style.display = 'block';
         }
         
         function startStressTesting() {

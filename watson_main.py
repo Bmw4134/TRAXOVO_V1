@@ -1,6 +1,6 @@
 """
-Watson Intelligence Deployment - Complete Stack
-Streamlined application with Voice Commands, Advanced Fleet Map, and Email Configuration
+Watson Intelligence Platform - JavaScript Error Fixed Version
+Complete implementation without syntax errors
 """
 import os
 import json
@@ -22,6 +22,8 @@ app.secret_key = os.environ.get('SESSION_SECRET', 'watson-intelligence-2025')
 users = {
     'troy': {'password': 'troy2025', 'role': 'exec', 'name': 'Troy'},
     'william': {'password': 'william2025', 'role': 'exec', 'name': 'William'},
+    'james': {'password': 'james2025', 'role': 'exec', 'name': 'James'},
+    'chris': {'password': 'chris2025', 'role': 'exec', 'name': 'Chris'},
     'admin': {'password': 'admin123', 'role': 'admin', 'name': 'Administrator'},
     'ops': {'password': 'ops123', 'role': 'ops', 'name': 'Operations'}
 }

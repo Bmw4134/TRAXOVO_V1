@@ -6,10 +6,10 @@ packages = ["cairo", "cargo", "ffmpeg-full", "freetype", "geckodriver", "ghostsc
 
 [deployment]
 deploymentTarget = "cloudrun"
-run = ["sh", "-c", "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"]
+run = ["sh", "-c", "python app.py"]
 
 [workflows]
-runButton = "Run Clean App"
+runButton = "Start Production"
 
 [[workflows.workflow]]
 name = "Project"
@@ -200,6 +200,15 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python main.py"
+
+[[workflows.workflow]]
+name = "Start Production"
+author = 42738758
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python app.py"
 
 [[ports]]
 localPort = 3000

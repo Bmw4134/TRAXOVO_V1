@@ -83,6 +83,10 @@ except ImportError:
     
     automation_engine = SimpleAutomationEngine()
 
+# Import and setup user data integration
+from user_data_connector import create_user_data_routes
+create_user_data_routes(app)
+
 # Static file serving
 @app.route('/static/<path:filename>')
 def serve_static(filename):

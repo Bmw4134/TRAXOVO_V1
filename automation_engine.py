@@ -201,7 +201,8 @@ class AutomationEngine:
                             
                             # Extract attendance records
                             for _, row in df.iterrows():
-                                if pd.notna(row.get('Employee', row.get('Name', ''))):
+                                employee_name = row.get('Employee', row.get('Name', ''))
+                                if pd.notna(employee_name) and str(employee_name).strip():
                                     attendance_records.append({
                                         'employee_name': str(row.get('Employee', row.get('Name', ''))),
                                         'date': row.get('Date', datetime.now().strftime('%Y-%m-%d')),

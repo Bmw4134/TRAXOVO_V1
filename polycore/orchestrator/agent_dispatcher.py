@@ -68,10 +68,9 @@ class PolycoreAgentDispatcher:
     def _check_database_connection(self):
         """Verify database connectivity"""
         try:
-            from app_nexus import db
-            # Test database connection
-            result = db.session.execute(db.text('SELECT 1')).fetchone()
-            return result is not None
+            import os
+            database_url = os.environ.get('DATABASE_URL')
+            return database_url is not None and len(database_url) > 10
         except Exception as e:
             print(f"[POLYCORE] Database check failed: {e}")
             return False

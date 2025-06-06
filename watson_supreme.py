@@ -35,8 +35,12 @@ users = {
     },
     'james': {'password': 'james2025', 'role': 'executive', 'name': 'James'},
     'chris': {'password': 'chris2025', 'role': 'executive', 'name': 'Chris'},
-    'troy': {'password': 'troy2025', 'role': 'executive', 'name': 'Troy'},
+    'britney': {'password': 'britney2025', 'role': 'executive', 'name': 'Britney'},
+    'cooper': {'password': 'cooper2025', 'role': 'executive', 'name': 'Cooper'},
+    'ammar': {'password': 'ammar2025', 'role': 'executive', 'name': 'Ammar'},
+    'jacob': {'password': 'jacob2025', 'role': 'executive', 'name': 'Jacob'},
     'william': {'password': 'william2025', 'role': 'executive', 'name': 'William'},
+    'troy': {'password': 'troy2025', 'role': 'executive', 'name': 'Troy'},
     'admin': {'password': 'admin123', 'role': 'administrator', 'name': 'Administrator'},
     'ops': {'password': 'ops123', 'role': 'operations', 'name': 'Operations'}
 }

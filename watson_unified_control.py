@@ -58,7 +58,7 @@ class NexusUnifiedControl:
         <!DOCTYPE html>
         <html>
         <head>
-            <title>WATSON Unified Control Center</title>
+            <title>NEXUS Unified Control Center</title>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -361,7 +361,7 @@ class NexusUnifiedControl:
             <div class="unified-layout">
                 <div class="unified-header">
                     <div class="header-left">
-                        <h1><i class="fas fa-brain"></i> WATSON Unified Control</h1>
+                        <h1><i class="fas fa-brain"></i> NEXUS Unified Control</h1>
                     </div>
                     <div class="header-right">
                         <button class="watson-btn btn-primary" onclick="optimizePerformance()">
@@ -592,10 +592,10 @@ class NexusUnifiedControl:
                     
                     <div class="control-section">
                         <div class="control-title">
-                            <i class="fas fa-terminal"></i> WATSON Logs
+                            <i class="fas fa-terminal"></i> NEXUS Logs
                         </div>
                         <div class="automation-log" id="watsonLogs">
-                            <div class="log-entry log-info">[WATSON] Unified Control initialized</div>
+                            <div class="log-entry log-info">[NEXUS] Unified Control initialized</div>
                             <div class="log-entry log-info">[SYSTEM] Multi-browser engine loaded</div>
                             <div class="log-entry log-success">[READY] Autonomous setup ready</div>
                         </div>
@@ -738,13 +738,13 @@ class NexusUnifiedControl:
         </html>
         """
 
-# Global Watson instance
-watson_control = WatsonUnifiedControl()
+# Global Nexus instance
+nexus_control = NexusUnifiedControl()
 
-def get_watson_dashboard():
-    """Get Watson unified control dashboard"""
-    return watson_control.generate_unified_dashboard_html()
+def get_nexus_dashboard():
+    """Get Nexus unified control dashboard"""
+    return nexus_control.generate_unified_dashboard_html()
 
 def get_integration_status():
     """Get current integration status"""
-    return watson_control.get_integration_status()
+    return nexus_control.get_integration_status()

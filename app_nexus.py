@@ -918,6 +918,12 @@ def nexus_dashboard():
                         Settings
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="/nexus_unified_control" class="nav-link">
+                        <i class="fas fa-brain"></i>
+                        NEXUS Control
+                    </a>
+                </li>
             </ul>
         </div>
         
@@ -1678,6 +1684,34 @@ def api_chatgpt_kodex():
         
     except Exception as e:
         return jsonify({"error": f"ChatGPT Kodex integration failed: {str(e)}"}), 500
+
+@app.route('/nexus_unified_control')
+def nexus_unified_control():
+    """NEXUS Unified Control Center - Master Dashboard"""
+    if not session.get('authenticated'):
+        return redirect('/')
+    
+    from watson_unified_control import get_nexus_dashboard
+    return get_nexus_dashboard()
+
+@app.route('/api/nexus_validate')
+def api_nexus_validate():
+    """Validate all NEXUS integrations"""
+    if not session.get('authenticated'):
+        return jsonify({"error": "Authentication required"}), 401
+    
+    from watson_unified_control import get_integration_status
+    status = get_integration_status()
+    
+    ready_count = sum(1 for s in status.values() if not s['setup_required'])
+    total_count = len(status)
+    
+    return jsonify({
+        'status': status,
+        'ready_count': ready_count,
+        'total_count': total_count,
+        'deployment_ready': ready_count >= 4  # Core integrations ready
+    })
 
 @app.route('/api/sms_distribution', methods=['POST'])
 def api_sms_distribution():

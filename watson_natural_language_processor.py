@@ -339,7 +339,6 @@ class WatsonNaturalLanguageProcessor:
 
 def get_watson_nlp_processor():
     """Get the global Watson NLP processor instance"""
-    global watson_nlp_processor
-    if 'watson_nlp_processor' not in globals():
-        watson_nlp_processor = WatsonNaturalLanguageProcessor()
-    return watson_nlp_processor
+    if not hasattr(get_watson_nlp_processor, 'instance'):
+        get_watson_nlp_processor.instance = WatsonNaturalLanguageProcessor()
+    return get_watson_nlp_processor.instance

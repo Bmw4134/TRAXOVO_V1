@@ -148,6 +148,13 @@ def index():
                 </form>
             </div>
             
+            <!-- Anonymous Preview Link -->
+            <div class="anonymous-preview-link">
+                <a href="#" onclick="enableAnonymousPreview()" class="preview-link">
+                    <i class="fas fa-eye"></i> Anonymous Preview Mode
+                </a>
+            </div>
+            
             <div class="quick-start">
                 <strong>Quick Start:</strong> Select an automation type above to personalize your dashboard experience.
             </div>

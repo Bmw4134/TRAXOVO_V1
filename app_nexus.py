@@ -3108,6 +3108,477 @@ def api_activate_dev_layer_fallback():
     
     return jsonify(dev_layer_result)
 
+@app.route('/mobile-terminal')
+def mobile_terminal():
+    """iPhone AI Input/Output Terminal Mirror"""
+    return f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NEXUS Mobile Terminal</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            background: #000;
+            color: #00ff00;
+            padding: 10px;
+            min-height: 100vh;
+            font-size: 14px;
+        }}
+        .header {{
+            text-align: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #00ff00;
+            margin-bottom: 15px;
+        }}
+        .header h1 {{
+            font-size: 18px;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }}
+        .terminal {{
+            background: #111;
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+        }}
+        .input-section {{
+            background: #111;
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }}
+        .input-group {{
+            margin-bottom: 15px;
+        }}
+        .input-group textarea {{
+            width: 100%;
+            padding: 12px;
+            background: #222;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+            height: 80px;
+            resize: vertical;
+        }}
+        .btn {{
+            background: #003300;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 5px;
+            font-size: 14px;
+            width: calc(50% - 10px);
+            display: inline-block;
+            text-align: center;
+        }}
+        .btn:active {{
+            background: #00ff00;
+            color: #000;
+        }}
+        .status-bar {{
+            background: #111;
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }}
+        .log-entry {{
+            margin-bottom: 5px;
+            padding: 5px;
+            border-left: 2px solid #00ff00;
+            padding-left: 10px;
+        }}
+        .voice-input {{ border-left-color: #ffff00; }}
+        .text-input {{ border-left-color: #00ffff; }}
+        .ai-response {{ border-left-color: #ff00ff; }}
+        .recording {{
+            background: #330000 !important;
+            border-color: #ff0000 !important;
+            animation: pulse 1s infinite;
+        }}
+        @keyframes pulse {{
+            0% {{ opacity: 1; }}
+            50% {{ opacity: 0.5; }}
+            100% {{ opacity: 1; }}
+        }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>NEXUS MOBILE TERMINAL</h1>
+        <p>iPhone AI Input/Output Mirror</p>
+    </div>
+
+    <div class="status-bar">
+        <div>Session: <span id="sessionId">mobile_{int(time.time())}</span></div>
+        <div>AI Relay: <span id="aiRelayStatus">Connected</span></div>
+        <div>Routing: <span id="routingStatus">ChatGPT ↔ Perplexity ↔ Replit</span></div>
+    </div>
+
+    <div class="terminal" id="terminal">
+        <div class="log-entry">[{datetime.utcnow().strftime('%H:%M:%S')}] NEXUS Mobile Terminal initialized</div>
+        <div class="log-entry">[{datetime.utcnow().strftime('%H:%M:%S')}] Voice and text input mirroring active</div>
+        <div class="log-entry">[{datetime.utcnow().strftime('%H:%M:%S')}] AI relay system connected</div>
+        <div class="log-entry">[{datetime.utcnow().strftime('%H:%M:%S')}] Real-time feedback logging enabled</div>
+    </div>
+
+    <div class="input-section">
+        <div class="input-group">
+            <textarea id="textInput" placeholder="Enter command, question, or automation request..."></textarea>
+        </div>
+        <div>
+            <button class="btn" onclick="sendTextInput()">Send Text</button>
+            <button class="btn" id="voiceBtn" onclick="toggleVoiceRecording()">Start Voice</button>
+        </div>
+        <div style="margin-top: 10px;">
+            <button class="btn" onclick="triggerAutomation()">Automate Task</button>
+            <button class="btn" onclick="queryNexusIntelligence()">NEXUS Query</button>
+        </div>
+    </div>
+
+    <script>
+        let isRecording = false;
+        let mediaRecorder = null;
+        let sessionId = 'mobile_' + Date.now();
+        
+        document.getElementById('sessionId').textContent = sessionId;
+
+        function addLog(message, type = '') {{
+            const terminal = document.getElementById('terminal');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${{type}}`;
+            entry.textContent = `[${{timestamp}}] ${{message}}`;
+            terminal.appendChild(entry);
+            terminal.scrollTop = terminal.scrollHeight;
+        }}
+
+        async function sendTextInput() {{
+            const textInput = document.getElementById('textInput');
+            const text = textInput.value.trim();
+            
+            if (!text) return;
+            
+            try {{
+                addLog(`Text Input: ${{text}}`, 'text-input');
+                
+                const response = await fetch('/api/voice_command', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/json' }},
+                    body: JSON.stringify({{
+                        command_text: text,
+                        session_id: sessionId,
+                        input_type: 'mobile_text'
+                    }})
+                }});
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {{
+                    textInput.value = '';
+                    addLog(`AI Response: ${{result.response}}`, 'ai-response');
+                    addLog(`Routing: ${{result.routing_info || 'Direct NEXUS processing'}}`, 'system');
+                }} else {{
+                    addLog(`Error: ${{result.message}}`, 'error');
+                }}
+                
+            }} catch (error) {{
+                addLog(`Network error: ${{error.message}}`, 'error');
+            }}
+        }}
+
+        async function toggleVoiceRecording() {{
+            if (!isRecording) {{
+                await startVoiceRecording();
+            }} else {{
+                stopVoiceRecording();
+            }}
+        }}
+
+        async function startVoiceRecording() {{
+            try {{
+                const stream = await navigator.mediaDevices.getUserMedia({{ audio: true }});
+                mediaRecorder = new MediaRecorder(stream);
+                
+                let audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {{
+                    audioChunks.push(event.data);
+                }};
+                
+                mediaRecorder.onstop = async () => {{
+                    const audioBlob = new Blob(audioChunks, {{ type: 'audio/wav' }});
+                    await sendVoiceInput(audioBlob);
+                    
+                    stream.getTracks().forEach(track => track.stop());
+                }};
+                
+                mediaRecorder.start();
+                isRecording = true;
+                
+                const voiceBtn = document.getElementById('voiceBtn');
+                voiceBtn.textContent = 'Stop Voice';
+                voiceBtn.classList.add('recording');
+                
+                addLog('Voice recording started...', 'voice-input');
+                
+            }} catch (error) {{
+                addLog(`Voice access error: ${{error.message}}`, 'error');
+            }}
+        }}
+
+        function stopVoiceRecording() {{
+            if (mediaRecorder && isRecording) {{
+                mediaRecorder.stop();
+                isRecording = false;
+                
+                const voiceBtn = document.getElementById('voiceBtn');
+                voiceBtn.textContent = 'Start Voice';
+                voiceBtn.classList.remove('recording');
+                
+                addLog('Voice recording stopped, processing...', 'voice-input');
+            }}
+        }}
+
+        async function sendVoiceInput(audioBlob) {{
+            try {{
+                addLog('Processing voice through AI relay...', 'voice-input');
+                
+                // Send to voice command API with audio
+                const formData = new FormData();
+                formData.append('audio_data', audioBlob);
+                formData.append('session_id', sessionId);
+                
+                const response = await fetch('/api/voice_command', {{
+                    method: 'POST',
+                    body: formData
+                }});
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {{
+                    addLog(`Voice → Text: ${{result.transcribed_text || 'Audio processed'}}`, 'voice-input');
+                    addLog(`AI Response: ${{result.response}}`, 'ai-response');
+                }} else {{
+                    addLog(`Voice processing error: ${{result.message}}`, 'error');
+                }}
+                
+            }} catch (error) {{
+                addLog(`Voice upload error: ${{error.message}}`, 'error');
+            }}
+        }}
+
+        async function triggerAutomation() {{
+            addLog('Triggering automation request...', 'system');
+            
+            try {{
+                const response = await fetch('/api/automate_timecard', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/json' }},
+                    body: JSON.stringify({{
+                        session_id: sessionId,
+                        automation_type: 'timecard_entry'
+                    }})
+                }});
+                
+                const result = await response.json();
+                addLog(`Automation: ${{result.status}}`, 'ai-response');
+                
+                if (result.automation_log) {{
+                    result.automation_log.forEach(log => {{
+                        addLog(`→ ${{log}}`, 'system');
+                    }});
+                }}
+                
+            }} catch (error) {{
+                addLog(`Automation error: ${{error.message}}`, 'error');
+            }}
+        }}
+
+        async function queryNexusIntelligence() {{
+            addLog('Querying NEXUS Intelligence...', 'system');
+            
+            try {{
+                const response = await fetch('/api/nexus_infinity/activate', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/json' }},
+                    body: JSON.stringify({{
+                        session_id: sessionId,
+                        query_type: 'intelligence_status'
+                    }})
+                }});
+                
+                const result = await response.json();
+                addLog(`NEXUS Intelligence: ${{result.status}}`, 'ai-response');
+                
+                if (result.capabilities) {{
+                    addLog(`Capabilities: ${{result.capabilities.join(', ')}}`, 'system');
+                }}
+                
+            }} catch (error) {{
+                addLog(`Intelligence query error: ${{error.message}}`, 'error');
+            }}
+        }}
+
+        // Auto-refresh connection status
+        setInterval(async () => {{
+            try {{
+                const response = await fetch('/api/nexus_status');
+                const status = await response.json();
+                
+                document.getElementById('aiRelayStatus').textContent = 
+                    status.trinity_sync ? 'Connected' : 'Partial';
+                
+            }} catch (error) {{
+                document.getElementById('aiRelayStatus').textContent = 'Disconnected';
+            }}
+        }}, 10000);
+
+        // Initialize session
+        addLog(`Mobile session ${{sessionId}} established`, 'system');
+        
+        // Enable Enter key for text input
+        document.getElementById('textInput').addEventListener('keypress', function(e) {{
+            if (e.key === 'Enter' && !e.shiftKey) {{
+                e.preventDefault();
+                sendTextInput();
+            }}
+        }});
+    </script>
+</body>
+</html>
+    """
+
+@app.route('/api/mobile/voice-input', methods=['POST'])
+def process_mobile_voice_input():
+    """Process voice input from mobile device"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        audio_data = request.files.get('audio_data')
+        session_id = request.form.get('session_id', f'mobile_{int(time.time())}')
+        
+        if audio_data:
+            # Process voice through existing voice command system
+            from nexus_voice_command import process_voice_command
+            
+            result = process_voice_command(audio_data, session_id)
+            
+            # Log mobile voice input
+            mobile_log = PlatformData()
+            mobile_log.data_type = 'mobile_voice_log'
+            mobile_log.data_content = {
+                'session_id': session_id,
+                'transcribed_text': result.get('transcribed_text', ''),
+                'ai_response': result.get('response', ''),
+                'timestamp': datetime.utcnow().isoformat(),
+                'device_type': 'mobile_iphone'
+            }
+            
+            db.session.add(mobile_log)
+            db.session.commit()
+            
+            return jsonify({
+                'status': 'success',
+                'transcribed_text': result.get('transcribed_text', ''),
+                'response': result.get('response', ''),
+                'routing_info': 'Voice → NEXUS Intelligence → AI Relay'
+            })
+        
+        return jsonify({'status': 'error', 'message': 'No audio data received'})
+        
+    except Exception as e:
+        logging.error(f"Mobile voice processing error: {e}")
+        return jsonify({'status': 'error', 'message': str(e)})
+
+@app.route('/api/mobile/text-input', methods=['POST'])
+def process_mobile_text_input():
+    """Process text input from mobile device"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        data = request.get_json()
+        text_input = data.get('text', '')
+        session_id = data.get('session_id', f'mobile_{int(time.time())}')
+        
+        # Process through NEXUS voice command system
+        from nexus_voice_command import process_text_command
+        
+        result = process_text_command(text_input, session_id)
+        
+        # Log mobile text input
+        mobile_log = PlatformData()
+        mobile_log.data_type = 'mobile_text_log'
+        mobile_log.data_content = {
+            'session_id': session_id,
+            'text_input': text_input,
+            'ai_response': result.get('response', ''),
+            'timestamp': datetime.utcnow().isoformat(),
+            'device_type': 'mobile_iphone'
+        }
+        
+        db.session.add(mobile_log)
+        db.session.commit()
+        
+        return jsonify({
+            'status': 'success',
+            'response': result.get('response', ''),
+            'routing_info': 'Text → NEXUS Intelligence → AI Relay'
+        })
+        
+    except Exception as e:
+        logging.error(f"Mobile text processing error: {e}")
+        return jsonify({'status': 'error', 'message': str(e)})
+
+@app.route('/api/mobile/terminal-status')
+def get_mobile_terminal_status():
+    """Get mobile terminal status and logs"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        # Get recent mobile logs
+        recent_logs = PlatformData.query.filter(
+            PlatformData.data_type.in_(['mobile_voice_log', 'mobile_text_log'])
+        ).order_by(PlatformData.created_at.desc()).limit(10).all()
+        
+        # Check AI relay status
+        try:
+            from nexus_core import get_trinity_sync_status
+            sync_status = get_trinity_sync_status()
+            ai_relay_active = sync_status.get('trinity_sync_achieved', False)
+        except:
+            ai_relay_active = False
+        
+        return jsonify({
+            'status': 'success',
+            'active_sessions': len([log for log in recent_logs if log.created_at > datetime.utcnow() - timedelta(hours=1)]),
+            'ai_relay_status': ai_relay_active,
+            'last_activity': recent_logs[0].created_at.isoformat() if recent_logs else None,
+            'total_mobile_interactions': len(recent_logs),
+            'trinity_sync': ai_relay_active
+        })
+        
+    except Exception as e:
+        logging.error(f"Mobile status error: {e}")
+        return jsonify({'status': 'error', 'message': str(e)})
+
 @app.route('/relay-agent')
 def relay_agent_dashboard():
     """NEXUS Relay Trinity Dashboard - Auto-bind browser relay system"""

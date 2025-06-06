@@ -1,0 +1,27 @@
+{
+  "api_discovery_enabled": true,
+  "auto_discovery_endpoints": [
+    "/api/chat/message",
+    "/api/chat/free-automation",
+    "/api/users/login-info",
+    "/api/dashboard/status",
+    "/api/dashboard/export",
+    "/api/nexus/validate",
+    "/api/trading/status",
+    "/api/mobile/terminal",
+    "/api/voice/command"
+  ],
+  "session_sync": {
+    "cross_device_sync": true,
+    "real_time_state_sync": true,
+    "session_persistence": true,
+    "multi_tab_synchronization": true,
+    "login_state_propagation": true
+  },
+  "api_authentication": {
+    "session_based": true,
+    "token_based": true,
+    "oauth_support": true,
+    "microsoft_365_integration": true
+  }
+}

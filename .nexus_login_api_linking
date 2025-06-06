@@ -1,0 +1,29 @@
+{
+  "auto_linking_enabled": true,
+  "user_login_states": {
+    "session_management": true,
+    "cross_device_sync": true,
+    "persistent_login": true,
+    "single_sign_on": true
+  },
+  "accounting_api": {
+    "user_billing_integration": true,
+    "subscription_management": true,
+    "usage_tracking": true,
+    "payment_processing": true
+  },
+  "microsoft_365_integration": {
+    "user_import_enabled": true,
+    "azure_ad_sync": true,
+    "office_365_sso": true,
+    "teams_integration": true,
+    "outlook_calendar_sync": true
+  },
+  "supported_login_providers": [
+    "microsoft_365",
+    "google_workspace",
+    "okta",
+    "auth0",
+    "local_authentication"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "device_routing_enabled": true,
+  "mobile_routing": {
+    "enabled": true,
+    "supported_devices": [
+      "iPhone",
+      "iPad",
+      "Android"
+    ],
+    "mobile_view_template": "mobile_optimized",
+    "touch_interface": true,
+    "responsive_breakpoints": {
+      "mobile": "768px",
+      "tablet": "1024px"
+    }
+  },
+  "desktop_routing": {
+    "enabled": true,
+    "supported_platforms": [
+      "Mac",
+      "Windows",
+      "Linux"
+    ],
+    "desktop_view_template": "full_dashboard",
+    "keyboard_shortcuts": true,
+    "multi_window_support": true
+  },
+  "auto_detection": {
+    "user_agent_parsing": true,
+    "screen_size_detection": true,
+    "touch_capability_detection": true,
+    "device_orientation_support": true
+  },
+  "dynamic_routing": {
+    "dev_preview_mobile": "/mobile-preview",
+    "dev_preview_desktop": "/desktop-preview",
+    "production_auto_route": true
+  }
+}

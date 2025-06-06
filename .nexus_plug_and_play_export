@@ -1,0 +1,21 @@
+{
+  "plug_and_play_enabled": true,
+  "one_click_export": true,
+  "dashboard_templates": [
+    "executive_dashboard",
+    "automation_dashboard",
+    "trading_dashboard",
+    "mobile_dashboard",
+    "admin_dashboard"
+  ],
+  "export_formats": [
+    "standalone_zip",
+    "docker_container",
+    "kubernetes_manifest",
+    "heroku_deployment",
+    "aws_lambda"
+  ],
+  "auto_dependency_resolution": true,
+  "environment_configuration": true,
+  "database_migration_scripts": true
+}

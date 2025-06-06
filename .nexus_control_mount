@@ -1,0 +1,9 @@
+{
+  "module_mounted": true,
+  "mount_timestamp": "2025-06-06T20:37:22.168774",
+  "mount_point": "/nexus_control",
+  "permissions": "read_write_execute",
+  "access_level": "full_administrative",
+  "quantum_binding": true,
+  "autonomous_mode": true
+}

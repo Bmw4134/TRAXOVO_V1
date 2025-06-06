@@ -1,0 +1,115 @@
+{
+  "scan_timestamp": "2025-06-06T20:37:24.297214",
+  "api_keys_status": {
+    "DATABASE_URL": {
+      "configured": true,
+      "status": "AVAILABLE"
+    },
+    "OPENAI_API_KEY": {
+      "configured": true,
+      "status": "AVAILABLE"
+    },
+    "SENDGRID_API_KEY": {
+      "configured": true,
+      "status": "AVAILABLE"
+    },
+    "PERPLEXITY_API_KEY": {
+      "configured": false,
+      "status": "MISSING"
+    },
+    "TWILIO_ACCOUNT_SID": {
+      "configured": false,
+      "status": "MISSING"
+    },
+    "TWILIO_AUTH_TOKEN": {
+      "configured": false,
+      "status": "MISSING"
+    },
+    "ALPACA_API_KEY": {
+      "configured": false,
+      "status": "MISSING"
+    },
+    "ROBINHOOD_API_KEY": {
+      "configured": false,
+      "status": "MISSING"
+    },
+    "TD_AMERITRADE_API_KEY": {
+      "configured": false,
+      "status": "MISSING"
+    }
+  },
+  "component_status": {
+    "nexus_core": {
+      "file_exists": true,
+      "status": "AVAILABLE"
+    },
+    "nexus_intelligence_chat": {
+      "file_exists": true,
+      "status": "AVAILABLE"
+    },
+    "nexus_user_management": {
+      "file_exists": true,
+      "status": "AVAILABLE"
+    },
+    "nexus_dashboard_export": {
+      "file_exists": true,
+      "status": "AVAILABLE"
+    },
+    "nexus_trading_intelligence": {
+      "file_exists": true,
+      "status": "AVAILABLE"
+    },
+    "nexus_quantum_security": {
+      "file_exists": true,
+      "status": "AVAILABLE"
+    },
+    "mobile_terminal_mirror": {
+      "file_exists": true,
+      "status": "AVAILABLE"
+    }
+  },
+  "database_status": {
+    "connection_string": true,
+    "status": "CONFIGURED"
+  },
+  "missing_integrations": [
+    {
+      "integration": "PERPLEXITY_API_KEY",
+      "type": "API_KEY",
+      "priority": "MEDIUM",
+      "impact": "Enhanced features"
+    },
+    {
+      "integration": "TWILIO_ACCOUNT_SID",
+      "type": "API_KEY",
+      "priority": "MEDIUM",
+      "impact": "Enhanced features"
+    },
+    {
+      "integration": "TWILIO_AUTH_TOKEN",
+      "type": "API_KEY",
+      "priority": "MEDIUM",
+      "impact": "Enhanced features"
+    },
+    {
+      "integration": "ALPACA_API_KEY",
+      "type": "API_KEY",
+      "priority": "MEDIUM",
+      "impact": "Enhanced features"
+    },
+    {
+      "integration": "ROBINHOOD_API_KEY",
+      "type": "API_KEY",
+      "priority": "MEDIUM",
+      "impact": "Enhanced features"
+    },
+    {
+      "integration": "TD_AMERITRADE_API_KEY",
+      "type": "API_KEY",
+      "priority": "MEDIUM",
+      "impact": "Enhanced features"
+    }
+  ],
+  "total_missing": 6,
+  "critical_missing": 0
+}

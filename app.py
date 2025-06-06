@@ -1,13 +1,13 @@
 """
-TRAXOVO Enterprise Intelligence Platform
-Advanced operational intelligence with comprehensive database utilization
+TRAXOVO Core Application - Production Ready
+Enterprise Intelligence Platform with Full Features
 """
 
 import os
 import json
 import logging
 from datetime import datetime, timedelta
-from flask import Flask, render_template_string, jsonify, request, session, redirect, url_for
+from flask import Flask, render_template_string, jsonify, request, session, redirect, url_for, render_template
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import text

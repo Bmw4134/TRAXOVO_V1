@@ -1,40 +1,119 @@
-# Ignore Replit files
-.replit
-*.replit
-.replit.db
-
-# Python environment
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database
+*.db
+*.sqlite3
+archived_*.db
+
+# Environment variables
 .env
 .env.local
 
-# System
+# Node modules
+node_modules/
+npm-debug.log*
+
+# Build outputs
+/build
+/dist
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Logs
+*.log
+logs/
+
+# OS
 .DS_Store
 Thumbs.db
 
-# Output files
-*.zip
-*.exe
-*.csv
-/build/
-dist/
-
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-
-# Deployment size optimization
+# Large deployment files
 archived_modules/
-archived_modules_20250604_153141/
-traxovo_dna_backup_20250604_094841/
-QQ_Full_Intelligence_Transfer_*/
-attached_assets/*.mp4
-attached_assets/*.heic
-attached_assets/*.png
-attached_assets/*.jpg
-*.tar.gz
+attached_assets/
 *.zip
+*.tar.gz
+*.json
+TRAXOVO_*.zip
+TRAXOVO_*.tar.gz
+QQ_*.zip
+KAIZEN_*.zip
+*_Bundle.zip
+*_Package.md
+*_Report_*.txt
+*_Audit_*.json
+*_DNA_*.json
+*_Complete_*.zip
+*_Intelligence_*.zip
+*_Transfer_*.zip
+*_Deployment_*.json
+*_Certification.json
+*_Export*.tar.gz
+*_Summary_*.txt
+
+# Temporary files
+temp_*
+*.tmp
+adaptive_*.json
+user_feedback.json
+user_moods.json
+onboarding_progress.json
+
+# Documentation that's not essential
+*.md
+!README.md
+
+# Backup files
+backup_*
+*_backup.*
+*_old.*
+*_legacy.*
+
+# Large numbered directories
+0_BOOTSTRAP/
+1_UI_COMPONENTS/
+2_ANALYTICS_ENGINE/
+3_ATTENDANCE_MODULE/
+4_QA_AUTOMATION/
+5_DATA/
+
+# Docker files (not needed for Replit)
+Dockerfile*
+docker-compose*
+
+# Additional cleanup
+*.pyc
+deployment_cache/
 .deployment_cache/
-deployment_archive/

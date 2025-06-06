@@ -1,1 +1,0 @@
-# Placeholder for kaizen_daily_sync_agent.py

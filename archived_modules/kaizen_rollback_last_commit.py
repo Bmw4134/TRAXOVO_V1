@@ -1,1 +1,0 @@
-# Placeholder for kaizen_rollback_last_commit.py

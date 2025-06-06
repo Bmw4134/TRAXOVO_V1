@@ -87,6 +87,10 @@ except ImportError:
 from user_data_connector import create_user_data_routes
 create_user_data_routes(app)
 
+# Import and setup Nexus Watson Intelligence
+from nexus_watson_intelligence import integrate_watson_intelligence
+integrate_watson_intelligence(app)
+
 # Static file serving
 @app.route('/static/<path:filename>')
 def serve_static(filename):

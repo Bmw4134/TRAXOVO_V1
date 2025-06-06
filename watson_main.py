@@ -852,27 +852,8 @@ def home():
             }
             
             showNotification(message, type = 'success') {
-                const notification = document.createElement('div');
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: ${type === 'success' ? '#00ff64' : '#ff4444'};
-                    color: ${type === 'success' ? '#000' : '#fff'};
-                    padding: 15px 20px;
-                    border-radius: 8px;
-                    z-index: 10000;
-                    animation: slideIn 0.5s ease-out;
-                    font-weight: 600;
-                `;
-                notification.textContent = message;
-                
-                document.body.appendChild(notification);
-                
-                setTimeout(() => {
-                    notification.style.animation = 'slideOut 0.3s ease-in forwards';
-                    setTimeout(() => notification.remove(), 300);
-                }, 3000);
+                // Use global notification function
+                showNotification(message, type);
             }
         }
         

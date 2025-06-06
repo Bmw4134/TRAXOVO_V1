@@ -2,7 +2,7 @@ import os
 import json
 import sqlite3
 from datetime import datetime
-from flask import Flask, request, render_template_string, jsonify, redirect, url_for, session
+from flask import Flask, request, render_template_string, jsonify, redirect, url_for, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -83,6 +83,12 @@ except ImportError:
     
     automation_engine = SimpleAutomationEngine()
 
+# Static file serving
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    """Serve static files"""
+    return send_from_directory('static', filename)
+
 @app.route('/')
 def main_dashboard():
     """TRAXOVO Main Dashboard"""
@@ -92,6 +98,7 @@ def main_dashboard():
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAXOVO - Operational Intelligence Platform</title>
+    <link rel="stylesheet" href="/static/style.css">
     <style>
         * {
             margin: 0;

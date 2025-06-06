@@ -44,9 +44,8 @@ db = SQLAlchemy(app, model_class=Base)
 
 @app.route('/')
 def index():
-    """TRAXOVO Landing Page with User Onboarding"""
-    if session.get('authenticated'):
-        return redirect('/traxovo_onboarding')
+    """NEXUS Executive AI Landing Page with Intelligence Analysis"""
+    # Always show the executive landing page - no login redirect
     
     return f"""
     <!DOCTYPE html>
@@ -211,7 +210,7 @@ def index():
         <script>
             let nexusChatOpen = false;
             
-            function toggleNexusChat() {
+            function toggleNexusChat() {{
                 const panel = document.getElementById('nexusChatPanel');
                 nexusChatOpen = !nexusChatOpen;
                 panel.style.display = nexusChatOpen ? 'flex' : 'none';

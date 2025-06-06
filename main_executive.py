@@ -1,0 +1,1 @@
+from app_executive import app  # noqa: F401

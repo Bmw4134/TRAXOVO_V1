@@ -1,0 +1,15 @@
+{
+  "broadcast_config": {
+    "websocket_broadcasting": true,
+    "server_sent_events": true,
+    "polling_fallback": true,
+    "evolution_notifications": true,
+    "auto_refresh_capabilities": true
+  },
+  "mechanisms": {
+    "websocket_handler": true,
+    "sse_handler": true,
+    "polling_endpoint": true,
+    "notification_system": true
+  }
+}

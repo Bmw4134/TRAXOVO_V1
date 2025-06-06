@@ -1,0 +1,8 @@
+{
+  "chat_interface_embedded": true,
+  "autonomous_guidance_active": true,
+  "cross_dashboard_context_sharing": true,
+  "real_time_user_assistance": true,
+  "override_replit_agent_actions": true,
+  "nexus_intelligence_priority": true
+}

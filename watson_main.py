@@ -1401,6 +1401,118 @@ def stop_voice_commands():
     except Exception as e:
         return jsonify({'status': 'voice_simulation_stopped'})
 
+@app.route('/watson_console.html')
+def watson_console():
+    """DWAI Watson Console Interface"""
+    if 'user' not in session or not session['user'].get('watson_access'):
+        return redirect(url_for('login'))
+    
+    return render_template_string("""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Watson Console - DWAI Intelligence</title>
+    <style>
+        body { margin: 0; background: #0a0a0a; color: #00ff64; font-family: 'Courier New', monospace; }
+        .console-container { padding: 20px; height: 100vh; overflow-y: auto; }
+        .console-header { border-bottom: 2px solid #00ff64; padding-bottom: 20px; margin-bottom: 20px; }
+        .console-title { font-size: 28px; font-weight: bold; text-shadow: 0 0 10px #00ff64; }
+        .console-subtitle { color: #888; margin-top: 5px; }
+        .command-section { background: #1a1a2e; border: 1px solid #00ff64; border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .command-title { color: #00ff64; font-size: 18px; margin-bottom: 15px; }
+        .command-list { font-family: monospace; }
+        .command-item { padding: 8px 0; border-bottom: 1px solid #333; }
+        .command-syntax { color: #00ccff; }
+        .command-desc { color: #888; margin-left: 20px; }
+        .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0; }
+        .status-card { background: #1a1a2e; border: 1px solid #00ff64; border-radius: 10px; padding: 15px; }
+        .status-value { font-size: 24px; color: #00ff64; font-weight: bold; }
+        .status-label { color: #888; font-size: 12px; }
+        .back-btn { background: #00ff64; color: black; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="console-container">
+        <div class="console-header">
+            <div class="console-title">WATSON INTELLIGENCE CONSOLE</div>
+            <div class="console-subtitle">DWAI Command Interface - Dev Admin Master Access</div>
+            <a href="/" class="back-btn">← Return to Dashboard</a>
+        </div>
+        
+        <div class="status-grid">
+            <div class="status-card">
+                <div class="status-value">OPERATIONAL</div>
+                <div class="status-label">System Status</div>
+            </div>
+            <div class="status-card">
+                <div class="status-value">DEV_ADMIN_MASTER</div>
+                <div class="status-label">Access Level</div>
+            </div>
+            <div class="status-card">
+                <div class="status-value">100%</div>
+                <div class="status-label">Authority</div>
+            </div>
+            <div class="status-card">
+                <div class="status-value">ACTIVE</div>
+                <div class="status-label">Intelligence Engine</div>
+            </div>
+        </div>
+        
+        <div class="command-section">
+            <div class="command-title">Available Commands</div>
+            <div class="command-list">
+                <div class="command-item">
+                    <div class="command-syntax">watson.analytics.run()</div>
+                    <div class="command-desc">Execute comprehensive analytics suite</div>
+                </div>
+                <div class="command-item">
+                    <div class="command-syntax">watson.fleet.track()</div>
+                    <div class="command-desc">Activate real-time fleet tracking</div>
+                </div>
+                <div class="command-item">
+                    <div class="command-syntax">watson.system.optimize()</div>
+                    <div class="command-desc">Run system optimization protocols</div>
+                </div>
+                <div class="command-item">
+                    <div class="command-syntax">watson.security.scan()</div>
+                    <div class="command-desc">Perform security validation sweep</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="command-section">
+            <div class="command-title">System Intelligence Reports</div>
+            <div style="color: #888; font-family: monospace; line-height: 1.6;">
+                [WATSON] Deployment validation complete<br>
+                [WATSON] Micro-interaction systems active<br>
+                [WATSON] Asset tracking operational<br>
+                [WATSON] All dashboards synchronized<br>
+                [WATSON] System confidence: 97.8%+
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Console initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Watson Console initialized - DWAI Intelligence active');
+            
+            // Simulate live updates
+            setInterval(() => {
+                const statusCards = document.querySelectorAll('.status-value');
+                statusCards.forEach(card => {
+                    card.style.textShadow = '0 0 15px #00ff64';
+                    setTimeout(() => {
+                        card.style.textShadow = '0 0 5px #00ff64';
+                    }, 500);
+                });
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
+    """)
+
 @app.route('/voice_commands')
 def voice_commands_interface():
     if 'user' not in session or not session['user'].get('watson_access'):

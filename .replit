@@ -8,6 +8,8 @@ packages = ["cairo", "cargo", "ffmpeg-full", "freetype", "geckodriver", "ghostsc
 deploymentTarget = "cloudrun"
 run = ["sh", "-c", "python app.py"]
 
+hidden = [".config", ".pythonlibs", "__pycache__", ".deployment_cache", "temp_*", "*.pyc", ".git", "attached_assets/*.mp4", "attached_assets/*.heic", "archived_modules*", "traxovo_dna_backup*", "QQ_Full_Intelligence_Transfer*", "deployment_archive"]
+
 [workflows]
 runButton = "Start Production"
 
@@ -200,15 +202,6 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python main.py"
-
-[[workflows.workflow]]
-name = "Start Production"
-author = 42738758
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python app.py"
 
 [[ports]]
 localPort = 3000

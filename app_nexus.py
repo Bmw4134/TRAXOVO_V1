@@ -93,8 +93,9 @@ def index():
     <body>
         <div class="onboarding-container">
             <div class="brand">
-                <h1>TRAXOVO</h1>
+                <h1>NEXUS</h1>
                 <p>Intelligent Automation Platform</p>
+                <p style="font-size: 14px; color: #9ca3af; margin-top: 8px;">Powered by NEXUS Intelligence™</p>
             </div>
             
             <div class="onboarding-question">

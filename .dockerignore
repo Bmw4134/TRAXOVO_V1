@@ -1,60 +1,11 @@
-# Python cache and build files
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Large directories and files
-archived_modules/
-qq_intelligent_archive/
-attached_assets/
-uploads/*.xlsx
-uploads/*.csv
-reports_processed/
-*.log
-*.tmp
-temp/
-cache/
-
-# Git and IDE
-.git/
+app_broken.py
+models.py
+__pycache__
+*.pyc
+.git
 .gitignore
-.vscode/
-.idea/
-
-# Documentation and non-essential files
-*.md
-*.txt
-*.json.backup
-*.db-journal
-
-# Large data files
-*.zip
-*.tar.gz
-*.pdf
-*.xlsx
-*.xls
-GAUGE*.json
-TRAXOVO_*.json
-*.png
-*.jpg
-*.jpeg
-
-# Node modules if any
-node_modules/
+README.md
+.env
+*.log
+.DS_Store
+node_modules

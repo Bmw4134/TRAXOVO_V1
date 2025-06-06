@@ -898,16 +898,11 @@ def api_platform_status():
     if not session.get('authenticated'):
         return jsonify({"error": "Authentication required"}), 401
     
-    platform_status = {
-        "robinhood": {"status": "Connected", "color": "green"},
-        "pionex_us": {"status": "Connected", "color": "green"},
-        "jdd_dashboard": {"status": "Auth Ready", "color": "orange"},
-        "dwc_platform": {"status": "Auth Ready", "color": "orange"},
-        "traxovo_suite": {"status": "Quantum Mode", "color": "cyan"},
-        "nexus_network": {"status": "Quantum Mode", "color": "cyan"},
-        "watson_ai": {"status": "AI Active", "color": "purple"}
-    }
-    return jsonify(platform_status)
+    from models_clean import PlatformData
+    platform_data = PlatformData.query.filter_by(data_type='platform_status').first()
+    if platform_data:
+        return jsonify(platform_data.data_content)
+    return jsonify({"error": "No platform data available"}), 404
 
 @app.route('/api/market_data')
 def api_market_data():
@@ -915,14 +910,11 @@ def api_market_data():
     if not session.get('authenticated'):
         return jsonify({"error": "Authentication required"}), 401
     
-    market_data = {
-        "btc_usdt": {
-            "price": 46111.937,
-            "change": -2.97,
-            "status": "neutral"
-        }
-    }
-    return jsonify(market_data)
+    from models_clean import PlatformData
+    market_data = PlatformData.query.filter_by(data_type='market_data').first()
+    if market_data:
+        return jsonify(market_data.data_content)
+    return jsonify({"error": "No market data available"}), 404
 
 @app.route('/api/executive_metrics')
 def api_executive_metrics():
@@ -930,16 +922,11 @@ def api_executive_metrics():
     if not session.get('authenticated'):
         return jsonify({"error": "Authentication required"}), 401
     
-    metrics = {
-        "deployment_readiness": 96,
-        "projected_roi": 300,
-        "time_savings": 85,
-        "ai_accuracy": 94,
-        "system_uptime": 99.78,
-        "data_points_hour": 864871,
-        "reliability": 99.8
-    }
-    return jsonify(metrics)
+    from models_clean import PlatformData
+    metrics_data = PlatformData.query.filter_by(data_type='executive_metrics').first()
+    if metrics_data:
+        return jsonify(metrics_data.data_content)
+    return jsonify({"error": "No metrics data available"}), 404
 
 @app.route('/health')
 def health_check():

@@ -274,7 +274,7 @@ def home():
     <!-- Sidebar Navigation -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="logo">TRAXOVO</div>
+            <div class="logo">NEXUS COMMAND</div>
             <div class="user-info">
                 <div class="user-name">{{ user.name }}</div>
                 <div class="user-role">{{ user.role }}</div>
@@ -322,8 +322,8 @@ def home():
         <div class="header">
             <div class="header-content">
                 <div>
-                    <h1 class="page-title">Watson Intelligence Platform</h1>
-                    <p class="page-subtitle">Advanced fleet management and business intelligence with AI integration</p>
+                    <h1 class="page-title">NEXUS COMMAND</h1>
+                    <p class="page-subtitle">Intelligent Operations Command Center with Advanced Analytics & Fleet Management</p>
                 </div>
                 <div class="header-actions">
                     <button class="header-btn btn-interactive ripple-container hover-lift" onclick="refreshDashboard()">🔄 Refresh</button>
@@ -992,7 +992,7 @@ login_template = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>TRAXOVO Login - Watson Intelligence</title>
+    <title>NEXUS COMMAND Login - Intelligence Platform</title>
     <style>
         body { margin: 0; background: #0a0a0a; color: white; font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; }
         .login-container { background: #1a1a2e; padding: 40px; border-radius: 15px; border: 2px solid #00ff88; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
@@ -1008,7 +1008,7 @@ login_template = """
 </head>
 <body>
     <div class="login-container">
-        <h2 class="login-title">Watson Intelligence Platform</h2>
+        <h2 class="login-title">NEXUS COMMAND</h2>
         <form method="POST">
             <div class="form-group">
                 <label for="username">Username:</label>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRAXOVO - Enhanced Vector Intelligence Dashboard</title>
+    <title>NEXUS COMMAND - Enhanced Vector Intelligence Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-uniform-scaling.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vector-matrix-themes.css') }}">
     <style>
@@ -1314,7 +1314,7 @@
         function generatePDFReport(data) {
             // Generate a comprehensive PDF report
             const reportContent = `
-                TRAXOVO Intelligence Report
+                NEXUS COMMAND Intelligence Report
                 Generated: ${data.timestamp}
                 Theme: ${data.theme}
                 
@@ -1346,7 +1346,7 @@
         function generateExcelReport(data) {
             // Generate Excel-compatible format
             const excelContent = [
-                'TRAXOVO Intelligence Dashboard Export',
+                'NEXUS COMMAND Intelligence Dashboard Export',
                 `Generated: ${data.timestamp}`,
                 `Theme: ${data.theme}`,
                 '',
@@ -1562,7 +1562,7 @@
                 const data = {
                     matrix: currentDrillDown,
                     timestamp: new Date().toISOString(),
-                    exported_by: 'TRAXOVO_Intelligence_System'
+                    exported_by: 'NEXUS COMMAND_Intelligence_System'
                 };
                 
                 const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });

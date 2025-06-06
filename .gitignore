@@ -19,3 +19,22 @@ Thumbs.db
 *.csv
 /build/
 dist/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Deployment size optimization
+archived_modules/
+archived_modules_20250604_153141/
+traxovo_dna_backup_20250604_094841/
+QQ_Full_Intelligence_Transfer_*/
+attached_assets/*.mp4
+attached_assets/*.heic
+attached_assets/*.png
+attached_assets/*.jpg
+*.tar.gz
+*.zip
+.deployment_cache/
+deployment_archive/

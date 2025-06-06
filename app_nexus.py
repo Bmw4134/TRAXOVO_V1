@@ -88,6 +88,26 @@ def index():
             .continue-btn:hover {{ transform: translateY(-2px); }}
             .or-divider {{ text-align: center; margin: 20px 0; color: #6b7280; }}
             .quick-start {{ background: #f9fafb; padding: 20px; border-radius: 12px; text-align: center; }}
+            .preview-link {{ color: #6b7280; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border: 1px solid #e5e7eb; border-radius: 8px; transition: all 0.2s; }}
+            .preview-link:hover {{ color: #2563eb; border-color: #2563eb; background: #f0f9ff; }}
+            .anonymous-preview-link {{ text-align: center; margin: 20px 0; }}
+            
+            /* NEXUS Chat Interface */
+            .nexus-chat-toggle {{ position: fixed; bottom: 20px; right: 20px; background: linear-gradient(45deg, #4CAF50, #45a049); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; display: flex; align-items: center; justify-content: center; font-size: 24px; transition: all 0.3s ease; }}
+            .nexus-chat-toggle:hover {{ transform: scale(1.1); }}
+            .nexus-chat-panel {{ position: fixed; bottom: 90px; right: 20px; width: 350px; height: 500px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1001; display: none; flex-direction: column; }}
+            .nexus-chat-header {{ background: linear-gradient(45deg, #4CAF50, #45a049); color: white; padding: 15px 20px; border-radius: 15px 15px 0 0; display: flex; justify-content: space-between; align-items: center; }}
+            .nexus-chat-body {{ flex: 1; padding: 20px; overflow-y: auto; }}
+            .nexus-chat-input {{ border-top: 1px solid #e5e7eb; padding: 15px; display: flex; gap: 10px; }}
+            .nexus-chat-input input {{ flex: 1; padding: 10px; border: 1px solid #e5e7eb; border-radius: 20px; outline: none; }}
+            .nexus-chat-input button {{ background: #4CAF50; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; }}
+            .chat-message {{ margin-bottom: 15px; }}
+            .chat-message.user {{ text-align: right; }}
+            .chat-message.nexus {{ text-align: left; }}
+            .message-bubble {{ display: inline-block; max-width: 80%; padding: 10px 15px; border-radius: 15px; }}
+            .message-bubble.user {{ background: #2563eb; color: white; }}
+            .message-bubble.nexus {{ background: #f3f4f6; color: #1f2937; }}
+            .typing-indicator {{ color: #6b7280; font-style: italic; font-size: 14px; }}
         </style>
     </head>
     <body>
@@ -150,7 +170,7 @@ def index():
             
             <!-- Anonymous Preview Link -->
             <div class="anonymous-preview-link">
-                <a href="#" onclick="enableAnonymousPreview()" class="preview-link">
+                <a href="/mobile-preview" class="preview-link">
                     <i class="fas fa-eye"></i> Anonymous Preview Mode
                 </a>
             </div>
@@ -160,6 +180,111 @@ def index():
             </div>
         </div>
         
+        <!-- NEXUS Intelligence Chat Interface -->
+        <button class="nexus-chat-toggle" onclick="toggleNexusChat()">
+            <i class="fas fa-robot"></i>
+        </button>
+        
+        <div class="nexus-chat-panel" id="nexusChatPanel">
+            <div class="nexus-chat-header">
+                <div>
+                    <strong>NEXUS Intelligence</strong>
+                    <div style="font-size: 12px; opacity: 0.9;">Autonomous AI Assistant</div>
+                </div>
+                <button onclick="toggleNexusChat()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">×</button>
+            </div>
+            <div class="nexus-chat-body" id="nexusChatBody">
+                <div class="chat-message nexus">
+                    <div class="message-bubble nexus">
+                        Hello! I'm NEXUS Intelligence. I can help you understand any automation need or guide you through the platform. What would you like to automate today?
+                    </div>
+                </div>
+            </div>
+            <div class="nexus-chat-input">
+                <input type="text" id="nexusChatInput" placeholder="Ask NEXUS anything..." onkeypress="handleChatKeyPress(event)">
+                <button onclick="sendNexusMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+        
+        <script>
+            let nexusChatOpen = false;
+            
+            function toggleNexusChat() {
+                const panel = document.getElementById('nexusChatPanel');
+                nexusChatOpen = !nexusChatOpen;
+                panel.style.display = nexusChatOpen ? 'flex' : 'none';
+                
+                if (nexusChatOpen) {
+                    document.getElementById('nexusChatInput').focus();
+                }
+            }
+            
+            function handleChatKeyPress(event) {
+                if (event.key === 'Enter') {
+                    sendNexusMessage();
+                }
+            }
+            
+            function sendNexusMessage() {
+                const input = document.getElementById('nexusChatInput');
+                const message = input.value.trim();
+                
+                if (!message) return;
+                
+                // Add user message
+                addChatMessage('user', message);
+                input.value = '';
+                
+                // Show typing indicator
+                addTypingIndicator();
+                
+                // Send to NEXUS Intelligence
+                fetch('/api/nexus-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    removeTypingIndicator();
+                    addChatMessage('nexus', data.response);
+                })
+                .catch(error => {
+                    removeTypingIndicator();
+                    addChatMessage('nexus', 'I apologize, but I\'m experiencing a temporary connection issue. Please try again in a moment.');
+                });
+            }
+            
+            function addChatMessage(sender, message) {
+                const chatBody = document.getElementById('nexusChatBody');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${sender}`;
+                messageDiv.innerHTML = `<div class="message-bubble ${sender}">${message}</div>`;
+                chatBody.appendChild(messageDiv);
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+            
+            function addTypingIndicator() {
+                const chatBody = document.getElementById('nexusChatBody');
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'chat-message nexus typing-indicator';
+                typingDiv.id = 'typingIndicator';
+                typingDiv.innerHTML = '<div class="message-bubble nexus">NEXUS is thinking...</div>';
+                chatBody.appendChild(typingDiv);
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+            
+            function removeTypingIndicator() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+            
         <script>
             // Track user automation interest
             document.querySelectorAll('.automation-option').forEach(option => {{

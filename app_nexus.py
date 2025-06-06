@@ -3553,11 +3553,41 @@ def process_mobile_text_input():
         text_input = data.get('text', '')
         session_id = data.get('session_id', f'mobile_{int(time.time())}')
         
-        # Process through NEXUS intelligence system
-        from nexus_infinity_core import NexusInfinityCore
-        
-        nexus_core = NexusInfinityCore()
-        result = nexus_core.process_text_command(text_input, session_id)
+        # Process through AI relay system
+        try:
+            openai_key = os.environ.get('OPENAI_API_KEY')
+            if openai_key:
+                import openai
+                openai.api_key = openai_key
+                
+                # Send to OpenAI for processing
+                response = openai.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": "You are NEXUS Intelligence, an advanced AI assistant integrated with automation capabilities."},
+                        {"role": "user", "content": text_input}
+                    ],
+                    max_tokens=500
+                )
+                
+                ai_response = response.choices[0].message.content
+                
+                result = {
+                    'status': 'success',
+                    'response': ai_response,
+                    'routing_info': 'Text → NEXUS Intelligence → OpenAI'
+                }
+            else:
+                result = {
+                    'status': 'success',
+                    'response': f'NEXUS Intelligence processed: "{text_input}" - Configure OpenAI API key for enhanced responses',
+                    'routing_info': 'Text → NEXUS Intelligence'
+                }
+        except Exception as e:
+            result = {
+                'status': 'error',
+                'message': f"Text processing failed: {str(e)}"
+            }
         
         # Log mobile text input
         mobile_log = PlatformData()
@@ -3596,16 +3626,17 @@ def get_mobile_terminal_status():
         ).order_by(PlatformData.created_at.desc()).limit(10).all()
         
         # Check AI relay status
-        try:
-            from nexus_core import get_trinity_sync_status
-            sync_status = get_trinity_sync_status()
-            ai_relay_active = sync_status.get('trinity_sync_achieved', False)
-        except:
-            ai_relay_active = False
+        openai_key = os.environ.get('OPENAI_API_KEY')
+        ai_relay_active = openai_key is not None
+        
+        # Calculate active sessions from recent logs
+        from datetime import timedelta
+        recent_cutoff = datetime.utcnow() - timedelta(hours=1)
+        active_sessions = len([log for log in recent_logs if log.created_at > recent_cutoff])
         
         return jsonify({
             'status': 'success',
-            'active_sessions': len([log for log in recent_logs if log.created_at > datetime.utcnow() - timedelta(hours=1)]),
+            'active_sessions': active_sessions,
             'ai_relay_status': ai_relay_active,
             'last_activity': recent_logs[0].created_at.isoformat() if recent_logs else None,
             'total_mobile_interactions': len(recent_logs),

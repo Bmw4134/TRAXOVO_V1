@@ -736,7 +736,10 @@ def api_metrics():
         return jsonify({"error": "Metrics data unavailable"}), 500
 
 with app.app_context():
+    # Drop and recreate tables to fix schema mismatch
+    db.drop_all()
     db.create_all()
+    logging.info("Database tables recreated successfully")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)

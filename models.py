@@ -9,6 +9,7 @@ from sqlalchemy import JSON
 
 class User(db.Model):
     __tablename__ = 'users'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -20,6 +21,7 @@ class User(db.Model):
 
 class Asset(db.Model):
     __tablename__ = 'assets'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     asset_id = db.Column(db.String(50), unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
@@ -32,10 +34,11 @@ class Asset(db.Model):
     utilization = db.Column(db.Float, default=0.0)
     last_maintenance = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    metadata = db.Column(JSON)
+    asset_metadata = db.Column(JSON)
 
 class OperationalMetrics(db.Model):
     __tablename__ = 'operational_metrics'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     metric_date = db.Column(db.Date, nullable=False)
     total_assets = db.Column(db.Integer, default=0)
@@ -47,6 +50,7 @@ class OperationalMetrics(db.Model):
 
 class AttendanceRecord(db.Model):
     __tablename__ = 'attendance_records'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     employee_id = db.Column(db.String(50), nullable=False)
     employee_name = db.Column(db.String(100), nullable=False)
@@ -60,6 +64,7 @@ class AttendanceRecord(db.Model):
 
 class AutomationTask(db.Model):
     __tablename__ = 'automation_tasks'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     task_name = db.Column(db.String(100), nullable=False)
     task_type = db.Column(db.String(50), nullable=False)
@@ -74,6 +79,7 @@ class AutomationTask(db.Model):
 
 class SystemLog(db.Model):
     __tablename__ = 'system_logs'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     log_level = db.Column(db.String(10), nullable=False)
     module = db.Column(db.String(50), nullable=False)
@@ -85,6 +91,7 @@ class SystemLog(db.Model):
 
 class GaugeData(db.Model):
     __tablename__ = 'gauge_data'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     asset_id = db.Column(db.String(50), nullable=False)
     metric_name = db.Column(db.String(100), nullable=False)

@@ -2876,17 +2876,11 @@ def automate_timecard():
     try:
         data = request.json
         automation_request = data.get('request', '')
-        employee_id = data.get('employee_id', session.get('user', {}).get('username', 'current_user'))
-        employee_name = data.get('employee_name', session.get('user', {}).get('full_name', 'Current User'))
+        employee_id = session.get('user', {}).get('username', 'current_user')
+        employee_name = session.get('user', {}).get('full_name', 'Current User')
         
-        from timecard_automation import get_timecard_automation
-        timecard_system = get_timecard_automation()
-        
-        result = timecard_system.process_automation_request(
-            automation_request, 
-            employee_id, 
-            employee_name
-        )
+        # Process automation using database
+        result = process_timecard_automation_db(automation_request, employee_id, employee_name)
         
         return jsonify({
             'success': True,
@@ -2899,6 +2893,89 @@ def automate_timecard():
             'success': False,
             'error': str(e)
         }), 500
+
+def process_timecard_automation_db(request_text, employee_id, employee_name):
+    """Process timecard automation using database storage"""
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    request_lower = request_text.lower()
+    
+    if "fill week" in request_lower or "fill my week" in request_lower:
+        # Create timecard entries for the week
+        from datetime import date, timedelta
+        
+        today = date.today()
+        week_start = today - timedelta(days=today.weekday())
+        entries_created = 0
+        
+        for i in range(5):  # Monday to Friday
+            work_date = week_start + timedelta(days=i)
+            entry_id = f"tc_{employee_id}_{work_date}_{int(time.time())}"
+            
+            cursor.execute("""
+                INSERT INTO timecard_entries 
+                (entry_id, employee_id, employee_name, date, clock_in, clock_out, 
+                 lunch_start, lunch_end, break_start, break_end, total_hours, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (entry_id) DO NOTHING
+            """, (entry_id, employee_id, employee_name, work_date, 
+                  '08:00', '17:00', '12:00', '13:00', '10:15', '10:30', 8.0, 'draft'))
+            
+            if cursor.rowcount > 0:
+                entries_created += 1
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return {
+            'action': 'auto_fill_week',
+            'success': True,
+            'entries_created': entries_created,
+            'message': f'Created {entries_created} timecard entries for the week'
+        }
+    
+    elif "today" in request_lower:
+        # Create today's timecard
+        today = date.today()
+        entry_id = f"tc_{employee_id}_{today}_{int(time.time())}"
+        
+        cursor.execute("""
+            INSERT INTO timecard_entries 
+            (entry_id, employee_id, employee_name, date, clock_in, clock_out, 
+             lunch_start, lunch_end, break_start, break_end, total_hours, status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (entry_id, employee_id, employee_name, today, 
+              '08:00', '17:00', '12:00', '13:00', '10:15', '10:30', 8.0, 'draft'))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return {
+            'action': 'create_today',
+            'success': True,
+            'entry_id': entry_id,
+            'message': 'Created timecard entry for today'
+        }
+    
+    else:
+        cursor.close()
+        conn.close()
+        return {
+            'action': 'unknown',
+            'success': False,
+            'message': 'Could not understand request. Try: "fill my week" or "create today\'s timecard"'
+        }
+
+def get_db_connection():
+    """Get database connection"""
+    return psycopg2.connect(
+        os.environ.get('DATABASE_URL'),
+        cursor_factory=RealDictCursor
+    )
 
 @app.route('/api/timecard/entries/<employee_id>')
 def get_timecard_entries(employee_id):

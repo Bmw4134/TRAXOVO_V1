@@ -869,8 +869,187 @@ JDD_EXECUTIVE_DASHBOARD = """
 # Routes
 @app.route('/')
 def index():
-    """NEXUS Automation Platform - Direct Access to Integration Center"""
-    return redirect('/admin-direct')
+    """NEXUS Automation Platform - Direct Access to Browser Suite"""
+    return redirect('/browser-automation')
+
+@app.route('/admin-direct')
+def admin_direct():
+    """Integration Center - Full System Configuration"""
+    from integration_kernel_status import IntegrationKernel
+    kernel = IntegrationKernel()
+    diagnostics = kernel.run_full_diagnostics()
+    
+    return render_template_string('''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS Integration Center</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+        .integration-header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-bottom: 2px solid #00ff88;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .integration-title {
+            font-size: 2rem;
+            color: #00ff88;
+            font-weight: bold;
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00ff88;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .diagnostics-panel {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            color: #00ff88;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .connection-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid transparent;
+        }
+        .connection-ready { border-left-color: #00ff88; }
+        .connection-missing { border-left-color: #ff4757; }
+        .connection-auth { border-left-color: #ffa502; }
+        .connection-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        .connection-status {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .action-checklist {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .nav-btn {
+            background: linear-gradient(45deg, #00ff88, #00d4ff);
+            border: none;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="integration-header">
+        <div class="integration-title">
+            <i class="fas fa-network-wired"></i> NEXUS Integration Center
+        </div>
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span>Diagnostics Complete</span>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <!-- Connection Status Panel -->
+        <div class="diagnostics-panel">
+            <div class="panel-title">
+                <i class="fas fa-plug"></i> System Connections
+            </div>
+            
+            {% for service, details in connections.items() %}
+            <div class="connection-item {{ 'connection-ready' if details.status == 'ready' else 'connection-missing' if details.status == 'missing_credentials' else 'connection-auth' }}">
+                <div class="connection-name">
+                    {% if service == 'openai' %}🤖 OpenAI GPT
+                    {% elif service == 'sendgrid' %}📧 SendGrid Email
+                    {% elif service == 'github' %}💻 GitHub
+                    {% elif service == 'trello' %}📋 Trello
+                    {% elif service == 'twilio' %}📱 Twilio SMS
+                    {% elif service == 'microsoft_graph' %}☁️ Microsoft OneDrive
+                    {% endif %}
+                </div>
+                <div class="connection-status">
+                    {% if details.status == 'ready' %}✅ Connected and Ready
+                    {% elif details.status == 'missing_credentials' %}❌ Missing Credentials
+                    {% elif details.status == 'needs_authorization' %}🔐 Authorization Required
+                    {% else %}⚠️ {{ details.status.title() }}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            <div class="nav-buttons">
+                <a href="/browser-automation" class="nav-btn">Browser Automation</a>
+                <a href="/nexus-home" class="nav-btn">NEXUS Dashboard</a>
+            </div>
+        </div>
+        
+        <!-- Action Checklist Panel -->
+        <div class="action-checklist">
+            <div class="panel-title">
+                <i class="fas fa-tasks"></i> Setup Status
+            </div>
+            <p>Your headless browser automation suite is ready at <strong>/browser-automation</strong></p>
+            <p>Integration diagnostics show {{ ready_count }} services ready, {{ missing_count }} need setup.</p>
+            <p>Access your multi-view browser automation interface to start timecard automation and web scraping.</p>
+        </div>
+    </div>
+</body>
+</html>
+    ''', 
+    connections=diagnostics["connections"],
+    ready_count=len(diagnostics["ready_connections"]),
+    missing_count=len(diagnostics["missing_secrets"]))
 
 @app.route('/nexus-home')
 def nexus_home():
@@ -2803,28 +2982,28 @@ function generateLiveIntelligence() {{
     const feeds = [
         {{
             type: "System Status",
-            content: `NEXUS Singularity operational - All ${Math.floor(Math.random() * 3) + 8} automation modules active`,
+            content: `NEXUS Singularity operational - All ${{Math.floor(Math.random() * 3) + 8}} automation modules active`,
             time: now.toLocaleTimeString(),
             relevance: 95,
             priority: "high"
         }},
         {{
             type: "Performance Monitor", 
-            content: `Real-time processing: ${Math.floor(Math.random() * 20) + 80}% efficiency detected`,
+            content: `Real-time processing: ${{Math.floor(Math.random() * 20) + 80}}% efficiency detected`,
             time: now.toLocaleTimeString(),
             relevance: 88,
             priority: "normal"
         }},
         {{
             type: "Security Alert",
-            content: `Quantum encryption active - ${Math.floor(Math.random() * 50) + 150} secure sessions`,
+            content: `Quantum encryption active - ${{Math.floor(Math.random() * 50) + 150}} secure sessions`,
             time: now.toLocaleTimeString(),
             relevance: 92,
             priority: "high"
         }},
         {{
             type: "Intelligence Update",
-            content: `AI analysis complete - ${Math.floor(Math.random() * 10) + 90}% system optimization achieved`,
+            content: `AI analysis complete - ${{Math.floor(Math.random() * 10) + 90}}% system optimization achieved`,
             time: now.toLocaleTimeString(),
             relevance: 85,
             priority: "normal"

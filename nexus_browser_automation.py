@@ -22,18 +22,20 @@ class NexusBrowserAutomation:
         self.automation_log = []
         self.active_sessions = {}
         
-    def create_browser_session(self, session_id=None):
-        """Create new headless browser session"""
+    def create_browser_session(self, session_id=None, windowed=True):
+        """Create new browser session (windowed by default for visibility)"""
         
         if not session_id:
             session_id = f"nexus_session_{int(time.time())}"
         
         chrome_options = Options()
-        chrome_options.add_argument("--headless")
+        if not windowed:
+            chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--window-size=1920,1080")
+        chrome_options.add_argument("--window-size=1200,800")
+        chrome_options.add_argument("--window-position=100,100")
         chrome_options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
         
         try:

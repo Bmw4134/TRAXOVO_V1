@@ -4462,12 +4462,16 @@ def api_browser_create_session():
         import nexus_browser_automation
         browser_automation = nexus_browser_automation.NexusBrowserAutomation()
         
-        result = browser_automation.create_browser_session()
+        data = request.get_json() or {}
+        windowed = data.get('windowed', True)  # Default to windowed for visibility
+        
+        result = browser_automation.create_browser_session(windowed=windowed)
         
         return jsonify({
             "success": True,
             "session_id": result.get("session_id"),
             "status": "created",
+            "windowed": windowed,
             "active_sessions": len(browser_automation.active_sessions)
         })
         

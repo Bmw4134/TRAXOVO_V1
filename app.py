@@ -5112,6 +5112,247 @@ def api_nexus_400_error_summary():
             "timestamp": datetime.now().isoformat()
         })
 
+@app.route('/api/nexus/github-connect')
+def api_nexus_github_connect():
+    """Connect to GitHub and setup repository - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from nexus_github_integration import connect_github, setup_nexus_repository
+        
+        # First authenticate
+        auth_result = connect_github()
+        if not auth_result.get('authenticated'):
+            return jsonify({
+                'status': 'authentication_required',
+                'error': auth_result.get('error'),
+                'setup_required': True,
+                'instructions': 'Please provide GITHUB_TOKEN in environment variables'
+            })
+        
+        # Setup complete repository
+        setup_result = setup_nexus_repository()
+        
+        return jsonify({
+            'status': 'success',
+            'github_connected': True,
+            'authentication': auth_result,
+            'repository_setup': setup_result,
+            'ready_for_development': True
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'github_connected': False
+        }), 500
+
+@app.route('/api/nexus/codex-connect')
+def api_nexus_codex_connect():
+    """Connect to ChatGPT Codex - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from nexus_chatgpt_codex_integration import connect_chatgpt_codex
+        
+        connection_result = connect_chatgpt_codex()
+        
+        if connection_result.get('authenticated'):
+            return jsonify({
+                'status': 'success',
+                'codex_connected': True,
+                'model': connection_result.get('model'),
+                'ready_for_ai_development': True,
+                'capabilities': [
+                    'Code generation',
+                    'Module optimization',
+                    'Automated testing',
+                    'Documentation generation',
+                    'Codebase analysis'
+                ]
+            })
+        else:
+            return jsonify({
+                'status': 'authentication_required',
+                'error': connection_result.get('error'),
+                'setup_required': True,
+                'instructions': 'Please provide OPENAI_API_KEY in environment variables'
+            })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'codex_connected': False
+        }), 500
+
+@app.route('/api/nexus/generate-code', methods=['POST'])
+def api_nexus_generate_code():
+    """Generate NEXUS code using ChatGPT Codex - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from nexus_chatgpt_codex_integration import generate_nexus_module
+        
+        data = request.get_json()
+        description = data.get('description', '')
+        module_type = data.get('module_type', 'automation')
+        
+        if not description:
+            return jsonify({'error': 'Description required'}), 400
+        
+        generation_result = generate_nexus_module(description, module_type)
+        
+        return jsonify({
+            'status': 'success' if generation_result.get('success') else 'failed',
+            'generation_result': generation_result,
+            'ai_powered': True
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nexus/analyze-codebase')
+def api_nexus_analyze_codebase():
+    """Analyze NEXUS codebase using AI - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from nexus_chatgpt_codex_integration import analyze_platform
+        
+        analysis_result = analyze_platform()
+        
+        return jsonify({
+            'status': 'success' if analysis_result.get('success') else 'failed',
+            'analysis_result': analysis_result,
+            'ai_analysis': True
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nexus/optimize-module', methods=['POST'])
+def api_nexus_optimize_module():
+    """Optimize NEXUS module using AI - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from nexus_chatgpt_codex_integration import optimize_module
+        
+        data = request.get_json()
+        module_name = data.get('module_name', '')
+        
+        if not module_name:
+            return jsonify({'error': 'Module name required'}), 400
+        
+        optimization_result = optimize_module(module_name)
+        
+        return jsonify({
+            'status': 'success' if optimization_result.get('success') else 'failed',
+            'optimization_result': optimization_result,
+            'ai_optimized': True
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nexus/github-repositories')
+def api_nexus_github_repositories():
+    """List GitHub repositories - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from nexus_github_integration import github_connector
+        
+        repos_result = github_connector.list_repositories()
+        
+        return jsonify({
+            'status': 'success' if repos_result.get('success') else 'failed',
+            'repositories': repos_result
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nexus/sync-github', methods=['POST'])
+def api_nexus_sync_github():
+    """Sync local changes with GitHub - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from nexus_github_integration import github_connector
+        
+        sync_result = github_connector.sync_with_local_changes()
+        
+        return jsonify({
+            'status': 'success' if sync_result.get('success') else 'failed',
+            'sync_result': sync_result,
+            'github_updated': True
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/development-hub')
+def development_hub():
+    """NEXUS Development Hub - GitHub and AI Integration Dashboard"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    
+    try:
+        from nexus_development_hub import get_development_dashboard
+        return get_development_dashboard()
+    except Exception as e:
+        return f"Development hub error: {str(e)}"
+
+@app.route('/api/nexus/development-status')
+def api_nexus_development_status():
+    """Get development integration status - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from nexus_development_hub import get_development_status, get_setup_instructions
+        
+        status = get_development_status()
+        instructions = get_setup_instructions()
+        
+        return jsonify({
+            'status': 'success',
+            'integration_status': status,
+            'setup_instructions': instructions,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
 # Unified Platform Routes - Consolidating all functionality
 @app.route('/api/process-ai-prompt', methods=['POST'])
 def api_process_ai_prompt():

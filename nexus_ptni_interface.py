@@ -31,11 +31,45 @@ class NexusPTNIInterface:
             view_mode = request.args.get('view', 'default')
         
         # Dynamic content based on view mode
-        primary_content = self._get_view_content(view_mode)
-        navigation_bar = self._get_unified_navigation()
-        view_title = self._get_view_title(view_mode)
+        primary_content = self.get_view_content(view_mode)
+        navigation_bar = self.get_unified_navigation()
+        view_title = self.get_view_title(view_mode)
         
+        return self.generate_dashboard_html(primary_content, navigation_bar, view_title)
+    
+    def get_view_content(self, view_mode):
+        """Generate content based on view mode"""
+        if view_mode == 'browser':
+            return '<div class="component-bucket"><h2>Browser Automation Suite</h2><iframe src="/browser-automation" style="width: 100%; height: 800px; border: none;"></iframe></div>'
+        elif view_mode == 'automation':
+            return '<div class="component-bucket"><h2>Automation Queue</h2><div class="queue-display">Active automation tasks running...</div></div>'
+        elif view_mode == 'intelligence':
+            return '<div class="component-bucket"><h2>Intelligence Feed</h2><div class="feed-container">Real-time intelligence data...</div></div>'
+        else:
+            return '<div class="component-bucket"><h2>NEXUS PTNI Overview</h2><p>Complete proprietary intelligence interface operational</p></div>'
+    
+    def get_unified_navigation(self):
+        """Generate unified navigation bar"""
         return '''
+        <nav style="position: fixed; top: 0; left: 0; right: 0; height: 60px; background: linear-gradient(90deg, #1a1a2e, #16213e); z-index: 10000; display: flex; align-items: center; padding: 0 20px; border-bottom: 2px solid #00d4aa;">
+            <div style="color: #00d4aa; font-weight: bold; font-size: 18px;">NEXUS PTNI</div>
+        </nav>
+        <style>body { margin-top: 60px !important; }</style>
+        '''
+    
+    def get_view_title(self, view_mode):
+        """Get view title based on mode"""
+        titles = {
+            'browser': 'Browser Automation Suite',
+            'automation': 'Automation Queue Management', 
+            'intelligence': 'Intelligence Feed',
+            'default': 'NEXUS PTNI Dashboard'
+        }
+        return titles.get(view_mode, 'NEXUS PTNI Dashboard')
+        
+    def generate_dashboard_html(self, primary_content, navigation_bar, view_title):
+        """Generate complete dashboard HTML"""
+        return f'''
 <!DOCTYPE html>
 <html lang="en">
 <head>

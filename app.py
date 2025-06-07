@@ -4957,6 +4957,29 @@ def embedded_browser_interface():
     """Embedded browser interface for live platform interaction"""
     return render_template('browser_automation.html')
 
+@app.route('/api/nexus/mesh-sync-repair', methods=['POST'])
+def api_nexus_mesh_sync_repair():
+    """Repair PTNI mesh synchronization 400 Bad Request issues"""
+    try:
+        import nexus_mesh_sync_repair
+        repair_results = nexus_mesh_sync_repair.execute_mesh_sync_repair()
+        
+        return jsonify({
+            "success": True,
+            "repair_results": repair_results,
+            "mesh_status": "repaired",
+            "timestamp": datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logging.error(f"Mesh sync repair error: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "fallback_mode": "standalone",
+            "timestamp": datetime.now().isoformat()
+        })
+
 # Unified Platform Routes - Consolidating all functionality
 @app.route('/api/process-ai-prompt', methods=['POST'])
 def api_process_ai_prompt():

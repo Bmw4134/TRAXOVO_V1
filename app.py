@@ -3788,323 +3788,484 @@ def browser_automation_suite():
             border: none; 
             width: 100%; 
         }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        
+        /* Control Cards */
         .automation-card {
             background: rgba(0, 255, 136, 0.1);
             border: 1px solid #00ff88;
             border-radius: 10px;
-            padding: 20px;
-            transition: all 0.3s ease;
+            padding: 15px;
+            margin: 10px 0;
             cursor: pointer;
+            transition: all 0.3s;
         }
-        .automation-card:hover {
-            background: rgba(0, 255, 136, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
-        }
-        .card-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 10px; color: #00ff88; }
-        .card-description { font-size: 0.9rem; color: #ccc; margin-bottom: 15px; line-height: 1.4; }
-        .execute-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(45deg, #00ff88, #00d4ff);
-            color: #000;
-            border: none;
-            border-radius: 8px;
+        .automation-card:hover { background: rgba(0, 255, 136, 0.2); transform: translateY(-2px); }
+        .card-title { font-weight: bold; margin-bottom: 5px; }
+        .execute-btn { 
+            background: #00ff88; 
+            color: #000; 
+            border: none; 
+            padding: 8px 15px; 
+            border-radius: 5px; 
+            margin-top: 10px; 
+            cursor: pointer; 
             font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
         }
-        .execute-btn:hover { transform: scale(1.05); }
-        .status-panel {
-            background: rgba(26, 26, 46, 0.9);
-            border: 2px solid #00d4ff;
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
+        
+        /* Status Panel */
+        .status-panel { 
+            background: rgba(0, 212, 255, 0.1); 
+            border: 1px solid #00d4ff; 
+            border-radius: 10px; 
+            padding: 15px; 
+            margin: 20px 0;
         }
-        .status-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+        .status-item { 
+            display: flex; 
+            justify-content: space-between; 
+            margin: 8px 0; 
+            font-size: 14px;
         }
-        .status-item:last-child { border-bottom: none; }
         .status-label { color: #00d4ff; }
         .status-value { color: #00ff88; font-weight: bold; }
-        .log-panel {
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
-            font-family: 'Courier New', monospace;
+        
+        /* Log Panel */
+        .log-panel { 
+            background: rgba(0, 0, 0, 0.7); 
+            border: 1px solid #555; 
+            border-radius: 10px; 
+            padding: 15px; 
+            height: 200px; 
+            overflow-y: auto; 
+            font-family: monospace; 
             font-size: 12px;
-            height: 200px;
-            overflow-y: auto;
         }
-        .log-entry {
-            color: #00ff88;
-            margin-bottom: 5px;
-        }
+        .log-entry { margin: 2px 0; padding: 2px 5px; }
+        .log-entry.info { color: #00ff88; }
         .log-entry.error { color: #ff4757; }
-        .log-entry.warning { color: #ffa502; }
-        .log-entry.info { color: #00d4ff; }
+        .log-entry.success { color: #00d4ff; }
     </style>
 </head>
 <body>
+    <!-- PTNI Navigation System -->
+    <nav class="nexus-nav">
+        <div class="logo">🌐 NEXUS</div>
+        <div class="nav-links">
+            <a href="/">Dashboard</a>
+            <a href="/browser-automation" class="active">Browser Automation</a>
+            <a href="/executive-dashboard">Analytics</a>
+            <a href="/admin-direct">API Tests</a>
+            <a href="/nexus-admin-logs">Logs</a>
+        </div>
+        <div class="status">● OPERATIONAL</div>
+    </nav>
+
     <div class="container">
-        <div class="header">
-            <div class="title">NEXUS BROWSER AUTOMATION SUITE</div>
-            <div class="subtitle">Headless Browser Control & Web Automation</div>
-        </div>
-        
-        <div class="control-panel">
-            <h3 style="color: #00ff88; margin-bottom: 20px;">Browser Session Control</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                <button onclick="createSession()" class="execute-btn">Create New Session</button>
-                <button onclick="listSessions()" class="execute-btn">List Active Sessions</button>
-                <button onclick="killAllSessions()" class="execute-btn" style="background: linear-gradient(45deg, #ff4757, #ff6b7a);">Kill All Sessions</button>
-                <button onclick="getSessionStats()" class="execute-btn">Session Statistics</button>
+        <!-- Left Panel: Controls -->
+        <div class="control-section">
+            <div class="section-title">🎛️ Automation Controls</div>
+            
+            <!-- Browser Session Management -->
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #00d4ff; margin-bottom: 10px;">Session Management</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button onclick="createSession()" class="execute-btn">Create Session</button>
+                    <button onclick="listSessions()" class="execute-btn">List Sessions</button>
+                </div>
             </div>
-        </div>
-        
-        <div class="grid">
+            
+            <!-- Automation Tools -->
             <div class="automation-card" onclick="executeTimecard()">
                 <div class="card-title">Timecard Automation</div>
-                <div class="card-description">Automated timecard entry with real browser interaction. Handles login, navigation, and time entry forms.</div>
-                <button class="execute-btn">Execute Timecard Entry</button>
+                <button class="execute-btn">Execute</button>
             </div>
             
             <div class="automation-card" onclick="executeWebScraping()">
-                <div class="card-title">Web Data Scraping</div>
-                <div class="card-description">Extract data from websites using headless browser automation. Handles dynamic content and JavaScript.</div>
-                <button class="execute-btn">Start Web Scraping</button>
+                <div class="card-title">Web Scraping</div>
+                <button class="execute-btn">Execute</button>
             </div>
             
             <div class="automation-card" onclick="executeFormFilling()">
                 <div class="card-title">Form Automation</div>
-                <div class="card-description">Automatically fill and submit web forms. Supports complex multi-step forms and validation.</div>
-                <button class="execute-btn">Execute Form Filling</button>
+                <button class="execute-btn">Execute</button>
             </div>
             
             <div class="automation-card" onclick="executePageTesting()">
                 <div class="card-title">Page Testing</div>
-                <div class="card-description">Automated testing of web pages, form validation, and user interaction flows.</div>
-                <button class="execute-btn">Run Page Tests</button>
+                <button class="execute-btn">Execute</button>
             </div>
             
-            <div class="automation-card" onclick="executeCustomScript()">
-                <div class="card-title">Custom Browser Script</div>
-                <div class="card-description">Execute custom JavaScript automation scripts in headless browser environment.</div>
-                <button class="execute-btn">Run Custom Script</button>
-            </div>
-            
-            <div class="automation-card" onclick="executeMonitoring()">
-                <div class="card-title">Website Monitoring</div>
-                <div class="card-description">Monitor website changes, availability, and performance metrics automatically.</div>
-                <button class="execute-btn">Start Monitoring</button>
-            </div>
-        </div>
-        
-        <div class="status-panel">
-            <h3 style="color: #00d4ff; margin-bottom: 15px;">System Status</h3>
-            <div class="status-item">
-                <span class="status-label">Active Browser Sessions:</span>
-                <span class="status-value" id="active-sessions">0</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Selenium Driver Status:</span>
-                <span class="status-value" id="driver-status">Checking...</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Automation Queue:</span>
-                <span class="status-value" id="queue-status">Empty</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Last Execution:</span>
-                <span class="status-value" id="last-execution">Never</span>
-            </div>
-        </div>
-        
-        <div class="log-panel" id="automation-log">
-            <div class="log-entry info">[SYSTEM] NEXUS Browser Automation Suite initialized</div>
-            <div class="log-entry info">[SYSTEM] Waiting for automation commands...</div>
-        </div>
-        
-        <!-- NEXUS Multi-View Browser Windows - Embedded in Dashboard -->
-        <div id="browser-windows-container" style="
-            margin-top: 20px;
-            width: 100%;
-            height: 600px;
-            background: rgba(0, 0, 0, 0.95);
-            border: 2px solid #00ff88;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        ">
-            <div style="
-                background: linear-gradient(45deg, #00ff88, #00d4ff);
-                color: #000;
-                padding: 10px 15px;
-                font-weight: bold;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-radius: 8px 8px 0 0;
-            ">
-                <span>🌐 NEXUS Live Browser Sessions</span>
-                <div>
-                    <button onclick="addBrowserWindow()" style="background: rgba(0,0,0,0.2); border: none; color: #000; padding: 5px 10px; border-radius: 3px; margin-right: 5px; cursor: pointer;">+ New</button>
-                    <button onclick="toggleBrowserContainer()" style="background: rgba(0,0,0,0.2); border: none; color: #000; padding: 5px 10px; border-radius: 3px; cursor: pointer;">−</button>
+            <!-- Status Panel -->
+            <div class="status-panel">
+                <h4 style="color: #00d4ff; margin-bottom: 10px;">System Status</h4>
+                <div class="status-item">
+                    <span class="status-label">Active Sessions:</span>
+                    <span class="status-value" id="active-sessions">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Driver Status:</span>
+                    <span class="status-value" id="driver-status">Ready</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Last Execution:</span>
+                    <span class="status-value" id="last-execution">None</span>
                 </div>
             </div>
             
-            <div id="browser-tabs" style="
-                display: flex;
-                background: rgba(0, 0, 0, 0.3);
-                border-bottom: 1px solid #00ff88;
-                overflow-x: auto;
-                min-height: 40px;
-            "></div>
-            
-            <div id="browser-windows" style="
-                flex: 1;
-                position: relative;
-                overflow: hidden;
-                background: #1a1a1a;
-            "></div>
+            <!-- Log Panel -->
+            <div class="log-panel" id="automation-log">
+                <div class="log-entry info">[SYSTEM] NEXUS Browser Automation initialized</div>
+                <div class="log-entry info">[SYSTEM] Ready for automation commands</div>
+            </div>
+        </div>
+        
+        <!-- Right Panel: Embedded Browser Sessions -->
+        <div class="browser-section">
+            <div class="section-title">🌐 Live Browser Sessions</div>
+            <div class="browser-container">
+                <div class="browser-tabs" id="browser-tabs">
+                    <!-- Browser tabs will be dynamically added here -->
+                </div>
+                <div class="browser-windows" id="browser-windows">
+                    <!-- Embedded browser windows will be displayed here -->
+                    <div style="
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center; 
+                        height: 100%; 
+                        color: #666; 
+                        flex-direction: column;
+                        gap: 15px;
+                    ">
+                        <div style="font-size: 48px;">🌐</div>
+                        <div>No active browser sessions</div>
+                        <button onclick="createSession()" style="
+                            background: #00ff88; 
+                            color: #000; 
+                            border: none; 
+                            padding: 10px 20px; 
+                            border-radius: 5px; 
+                            cursor: pointer; 
+                            font-weight: bold;
+                        ">Create First Session</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
     <script>
-        let browserSessions = [];
-        let activeBrowserTab = null;
-        let browserWindowCounter = 0;
+        let activeSessions = [];
+        let automationCount = 0;
         
-        // NEXUS Browser System - Always functional approach
-        function initializeBrowserSystem() {
-            console.log('NEXUS Browser System initializing...');
-            
-            // Ensure we have a working log function
-            if (!window.addLog) {
-                window.addLog = function(msg, type) {
-                    console.log(`[${type || 'info'}] ${msg}`);
-                };
-            }
-            
-            // Find or create browser container
-            let container = document.getElementById('browser-windows-container');
-            
-            if (!container) {
-                console.log('Creating new browser container');
-                container = document.createElement('div');
-                container.id = 'browser-windows-container';
-                container.style.cssText = `
-                    position: fixed; right: 20px; top: 80px; 
-                    width: 50%; height: calc(100vh - 80px);
-                    background: rgba(0,0,0,0.9); border: 2px solid #00ff88;
-                    border-radius: 10px; z-index: 1000; display: flex;
-                    flex-direction: column;
-                `;
-                
-                container.innerHTML = `
-                    <div style="background: linear-gradient(45deg, #00ff88, #00d4ff); color: #000; padding: 10px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
-                        <span>🌐 NEXUS Live Browser Sessions</span>
-                        <div>
-                            <button onclick="addBrowserWindow()" style="background: rgba(0,0,0,0.2); border: none; color: #000; padding: 5px 10px; border-radius: 3px; margin-right: 5px; cursor: pointer;">+</button>
-                            <button onclick="minimizeBrowserContainer()" style="background: rgba(0,0,0,0.2); border: none; color: #000; padding: 5px 10px; border-radius: 3px; cursor: pointer;">−</button>
-                        </div>
-                    </div>
-                    <div id="browser-tabs" style="display: flex; background: rgba(0, 0, 0, 0.3); border-bottom: 1px solid #00ff88; overflow-x: auto;"></div>
-                    <div id="browser-windows" style="flex: 1; position: relative; overflow: hidden;"></div>
-                `;
-                
-                document.body.appendChild(container);
-            }
-            
-            // Initialize first browser window
-            addBrowserWindow('https://example.com', 'Demo Browser');
-            addLog('NEXUS Multi-View Browser System operational', 'success');
-            console.log('NEXUS Browser System fully operational');
+        function addLog(message, type = 'info') {
+            const logs = document.getElementById('automation-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logs.appendChild(logEntry);
+            logs.scrollTop = logs.scrollHeight;
         }
         
-        // Initialize immediately when script loads
-        initializeBrowserSystem();
+        function updateStatus() {
+            document.getElementById('active-sessions').textContent = activeSessions.length;
+            document.getElementById('last-execution').textContent = automationCount > 0 ? new Date().toLocaleTimeString() : 'None';
+        }
         
-        function addBrowserWindow(url = 'about:blank', title = 'New Browser') {
-            browserWindowCounter++;
-            const sessionId = `browser-${browserWindowCounter}`;
+        async function createSession() {
+            try {
+                addLog('Creating new browser session...', 'info');
+                const response = await fetch('/api/browser/create-session', { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.success) {
+                    activeSessions.push(result.session_id);
+                    addLog(`Session created: ${result.session_id}`, 'success');
+                    createBrowserWindow(result.session_id);
+                    updateStatus();
+                } else {
+                    addLog(`Failed to create session: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Error creating session: ${error.message}`, 'error');
+            }
+        }
+        
+        function createBrowserWindow(sessionId) {
+            const browserWindows = document.getElementById('browser-windows');
+            const browserTabs = document.getElementById('browser-tabs');
+            
+            // Remove empty state
+            if (browserWindows.children.length === 1 && browserWindows.children[0].innerHTML.includes('No active browser sessions')) {
+                browserWindows.innerHTML = '';
+                browserTabs.innerHTML = '';
+            }
             
             // Create tab
             const tab = document.createElement('div');
-            tab.id = `tab-${sessionId}`;
-            tab.style.cssText = `
-                padding: 8px 15px;
-                background: rgba(0, 255, 136, 0.1);
-                border-right: 1px solid #00ff88;
-                cursor: pointer;
-                color: #00ff88;
-                font-size: 12px;
-                white-space: nowrap;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            `;
-            tab.innerHTML = `
-                <span>🌐</span>
-                <span>${title}</span>
-                <button onclick="closeBrowserWindow('${sessionId}')" style="
-                    background: none; 
-                    border: none; 
-                    color: #ff4757; 
-                    cursor: pointer;
-                    font-size: 14px;
-                    padding: 0;
-                    margin-left: 5px;
-                ">×</button>
-            `;
-            tab.onclick = (e) => {
-                if (e.target.tagName !== 'BUTTON') {
-                    switchToBrowser(sessionId);
-                }
-            };
+            tab.className = 'browser-tab active';
+            tab.textContent = `Session ${sessionId.substr(0, 8)}`;
+            tab.onclick = () => showBrowserWindow(sessionId);
+            browserTabs.appendChild(tab);
             
             // Create browser window
             const browserWindow = document.createElement('div');
-            browserWindow.id = `window-${sessionId}`;
-            browserWindow.style.cssText = `
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: #fff;
-                display: none;
-                flex-direction: column;
+            browserWindow.className = 'browser-window active';
+            browserWindow.id = `browser-${sessionId}`;
+            browserWindow.innerHTML = `
+                <div class="browser-header">
+                    <span>Session: ${sessionId}</span>
+                    <div>
+                        <button onclick="navigateTo('${sessionId}')" style="background: #00d4ff; color: #000; border: none; padding: 5px 10px; border-radius: 3px; margin-right: 5px;">Navigate</button>
+                        <button onclick="closeBrowser('${sessionId}')" style="background: #ff4757; color: #fff; border: none; padding: 5px 10px; border-radius: 3px;">Close</button>
+                    </div>
+                </div>
+                <iframe class="browser-iframe" src="/api/browser/view/${sessionId}" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"></iframe>
             `;
+            browserWindows.appendChild(browserWindow);
+        }
+        
+        function showBrowserWindow(sessionId) {
+            document.querySelectorAll('.browser-window').forEach(w => w.classList.remove('active'));
+            document.querySelectorAll('.browser-tab').forEach(t => t.classList.remove('active'));
             
-            // Create address bar
-            const addressBar = document.createElement('div');
-            addressBar.style.cssText = `
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 8px;
-                background: #f0f0f0;
-                border-bottom: 1px solid #ddd;
-            `;
-            addressBar.innerHTML = `
-                <button onclick="browserNavigate('${sessionId}', 'back')" style="
-                    background: #ddd;
-                    border: none;
-                    padding: 5px 10px;
-                    border-radius: 3px;
-                    cursor: pointer;
-                ">←</button>
-                <button onclick="browserNavigate('${sessionId}', 'forward')" style="
+            document.getElementById(`browser-${sessionId}`).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function navigateTo(sessionId) {
+            const url = prompt('Enter URL to navigate to:', 'https://');
+            if (url) {
+                fetch('/api/browser/navigate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId, url: url })
+                }).then(response => response.json())
+                  .then(result => {
+                      if (result.success) {
+                          addLog(`Navigated to ${url}`, 'success');
+                          // Refresh iframe to show new page
+                          const iframe = document.querySelector(`#browser-${sessionId} iframe`);
+                          iframe.src = `/api/browser/view/${sessionId}`;
+                      } else {
+                          addLog(`Navigation failed: ${result.error}`, 'error');
+                      }
+                  });
+            }
+        }
+        
+        function closeBrowser(sessionId) {
+            activeSessions = activeSessions.filter(id => id !== sessionId);
+            
+            document.getElementById(`browser-${sessionId}`).remove();
+            document.querySelector(`.browser-tab[onclick*="${sessionId}"]`).remove();
+            
+            if (activeSessions.length === 0) {
+                document.getElementById('browser-windows').innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; flex-direction: column; gap: 15px;">
+                        <div style="font-size: 48px;">🌐</div>
+                        <div>No active browser sessions</div>
+                        <button onclick="createSession()" style="background: #00ff88; color: #000; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">Create First Session</button>
+                    </div>
+                `;
+            }
+            
+            addLog(`Browser session ${sessionId} closed`, 'success');
+            updateStatus();
+        }
+        
+        async function listSessions() {
+            try {
+                const response = await fetch('/api/browser/sessions');
+                const result = await response.json();
+                addLog(`Found ${result.sessions.length} active sessions`, 'info');
+                updateStatus();
+            } catch (error) {
+                addLog(`Error listing sessions: ${error.message}`, 'error');
+            }
+        }
+        
+        async function executeTimecard() {
+            automationCount++;
+            updateStatus();
+            addLog('Executing timecard automation...', 'info');
+            
+            try {
+                const response = await fetch('/api/browser/timecard', { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.success) {
+                    addLog('Timecard automation completed', 'success');
+                } else {
+                    addLog(`Timecard failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Timecard error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function executeWebScraping() {
+            automationCount++;
+            updateStatus();
+            addLog('Starting web scraping...', 'info');
+            
+            try {
+                const response = await fetch('/api/browser/scrape', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: 'https://example.com' })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    addLog('Web scraping completed', 'success');
+                } else {
+                    addLog(`Scraping failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Scraping error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function executeFormFilling() {
+            automationCount++;
+            updateStatus();
+            addLog('Executing form automation...', 'info');
+            
+            try {
+                const response = await fetch('/api/browser/form-fill', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: 'https://httpbin.org/forms/post' })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    addLog('Form automation completed', 'success');
+                } else {
+                    addLog(`Form filling failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Form error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function executePageTesting() {
+            automationCount++;
+            updateStatus();
+            addLog('Running page tests...', 'info');
+            
+            try {
+                const response = await fetch('/api/browser/test-page', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: 'https://httpbin.org' })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    addLog('Page testing completed', 'success');
+                } else {
+                    addLog(`Testing failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Testing error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-refresh status every 30 seconds
+        setInterval(async () => {
+            try {
+                const response = await fetch('/api/browser/stats');
+                const result = await response.json();
+                document.getElementById('driver-status').textContent = result.chrome_status || 'Ready';
+            } catch (error) {
+                console.error('Status update failed:', error);
+            }
+        }, 30000);
+        
+        // Initialize
+        updateStatus();
+    </script>
+</body>
+</html>
+    """
+
+@app.route('/api/browser/view/<session_id>')
+def api_browser_view(session_id):
+    """Provide browser view for embedded iframe"""
+    try:
+        browser_automation = NexusBrowserAutomation()
+        
+        # Get current page screenshot or content
+        result = browser_automation.get_session_view(session_id)
+        
+        if result.get('success'):
+            # Return HTML page showing current browser state
+            return f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Browser Session {session_id}</title>
+                <style>
+                    body {{ margin: 0; padding: 0; background: #000; color: #fff; font-family: monospace; }}
+                    .browser-content {{ padding: 20px; }}
+                    .url-bar {{ background: #333; padding: 10px; color: #0f0; }}
+                </style>
+            </head>
+            <body>
+                <div class="url-bar">Current URL: {result.get('current_url', 'about:blank')}</div>
+                <div class="browser-content">
+                    <p>Browser Session: {session_id}</p>
+                    <p>Status: {result.get('status', 'active')}</p>
+                    <p>Page Title: {result.get('title', 'Untitled')}</p>
+                    {result.get('screenshot_html', '<p>Live browser view will appear here</p>')}
+                </div>
+            </body>
+            </html>
+            """
+        else:
+            return f"""
+            <!DOCTYPE html>
+            <html>
+            <body style="background: #000; color: #fff; font-family: monospace; padding: 20px;">
+                <h3>Browser Session {session_id}</h3>
+                <p>Error: {result.get('error', 'Session not found')}</p>
+            </body>
+            </html>
+            """
+            
+    except Exception as e:
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <body style="background: #000; color: #fff; font-family: monospace; padding: 20px;">
+            <h3>Browser Session {session_id}</h3>
+            <p>Error: {str(e)}</p>
+        </body>
+        </html>
+        """
+
+@app.route('/api/browser/navigate', methods=['POST'])
+def api_browser_navigate():
+    """Navigate browser session to URL"""
+    try:
+        data = request.get_json()
+        session_id = data.get('session_id')
+        url = data.get('url')
+        
+        browser_automation = NexusBrowserAutomation()
+        result = browser_automation.navigate_session(session_id, url)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logging.error(f"Browser navigation error: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
                     background: #ddd;
                     border: none;
                     padding: 5px 10px;

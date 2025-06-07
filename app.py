@@ -4865,7 +4865,6 @@ def wow_tester_log_interaction():
     })
 
 @app.route('/api/nexus-trillion-optimization', methods=['POST'])
-@require_auth
 def api_nexus_trillion_optimization():
     """Execute comprehensive NEXUS trillion-scale optimization and deployment preparation"""
     try:

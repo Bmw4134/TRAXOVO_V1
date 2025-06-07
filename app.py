@@ -3669,7 +3669,7 @@ def api_nexus_legacy_automation_setup():
 
 @app.route('/browser-automation')
 def browser_automation_suite():
-    """Headless Browser Automation Suite Interface"""
+    """NEXUS Browser Automation Suite with Embedded Sessions"""
     return render_template_string('''
 <!DOCTYPE html>
 <html>
@@ -3686,17 +3686,107 @@ def browser_automation_suite():
             min-height: 100vh;
             overflow-x: hidden;
         }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .title { font-size: 2.5rem; font-weight: bold; text-shadow: 0 0 20px #00ff88; margin-bottom: 10px; }
-        .subtitle { font-size: 1.2rem; color: #00d4ff; opacity: 0.8; }
-        .control-panel { 
-            background: rgba(26, 26, 46, 0.9); 
+        
+        /* PTNI Navigation System */
+        .nexus-nav { 
+            position: fixed; 
+            top: 0; left: 0; right: 0; 
+            height: 50px; 
+            background: linear-gradient(45deg, #000, #1a1a1a); 
+            border-bottom: 2px solid #00ff88; 
+            z-index: 9999; 
+            display: flex; 
+            align-items: center; 
+            padding: 0 20px; 
+            box-shadow: 0 2px 10px rgba(0, 255, 136, 0.5); 
+        }
+        .nexus-nav .logo { color: #00ff88; font-weight: bold; margin-right: 30px; }
+        .nexus-nav .nav-links { display: flex; gap: 15px; flex: 1; }
+        .nexus-nav a { 
+            color: #fff; text-decoration: none; padding: 8px 12px; 
+            border-radius: 5px; transition: all 0.3s; font-size: 14px;
+        }
+        .nexus-nav a:hover, .nexus-nav a.active { background: rgba(0,255,136,0.2); color: #00ff88; }
+        .nexus-nav .status { color: #00d4ff; font-size: 12px; }
+        
+        .container { 
+            max-width: 1600px; margin: 50px auto 0; padding: 20px; 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; 
+        }
+        
+        /* Left Panel - Controls */
+        .control-section { 
+            background: rgba(26, 26, 46, 0.95); 
             border: 2px solid #00ff88; 
             border-radius: 15px; 
-            padding: 25px; 
-            margin-bottom: 30px;
+            padding: 20px; 
             backdrop-filter: blur(10px);
+        }
+        .section-title { color: #00ff88; font-size: 1.5rem; margin-bottom: 15px; text-align: center; }
+        
+        /* Right Panel - Live Browser Sessions */
+        .browser-section { 
+            background: rgba(26, 26, 46, 0.95); 
+            border: 2px solid #00d4ff; 
+            border-radius: 15px; 
+            padding: 15px; 
+            backdrop-filter: blur(10px);
+            min-height: 80vh;
+        }
+        
+        /* Embedded Browser Container */
+        .browser-container { 
+            height: 100%; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .browser-tabs { 
+            display: flex; 
+            background: rgba(0, 0, 0, 0.3); 
+            border-bottom: 1px solid #00d4ff; 
+            min-height: 40px; 
+            overflow-x: auto;
+        }
+        .browser-tab { 
+            padding: 8px 15px; 
+            background: rgba(0, 212, 255, 0.1); 
+            border-right: 1px solid #00d4ff; 
+            cursor: pointer; 
+            color: #00d4ff; 
+            font-size: 12px; 
+            white-space: nowrap; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
+        }
+        .browser-tab.active { background: rgba(0, 212, 255, 0.3); }
+        .browser-windows { 
+            flex: 1; 
+            position: relative; 
+            background: #1a1a1a; 
+            border-radius: 0 0 10px 10px;
+        }
+        .browser-window { 
+            position: absolute; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: #fff; 
+            display: none; 
+            flex-direction: column;
+        }
+        .browser-window.active { display: flex; }
+        .browser-controls { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            padding: 8px; 
+            background: #f0f0f0; 
+            border-bottom: 1px solid #ddd;
+        }
+        .browser-iframe { 
+            flex: 1; 
+            border: none; 
+            width: 100%; 
         }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .automation-card {
@@ -3843,19 +3933,17 @@ def browser_automation_suite():
             <div class="log-entry info">[SYSTEM] Waiting for automation commands...</div>
         </div>
         
-        <!-- NEXUS Multi-View Browser Windows -->
+        <!-- NEXUS Multi-View Browser Windows - Embedded in Dashboard -->
         <div id="browser-windows-container" style="
-            position: fixed;
-            top: 60px;
-            right: 20px;
-            width: 50%;
-            height: calc(100vh - 80px);
-            background: rgba(0, 0, 0, 0.9);
+            margin-top: 20px;
+            width: 100%;
+            height: 600px;
+            background: rgba(0, 0, 0, 0.95);
             border: 2px solid #00ff88;
             border-radius: 10px;
-            z-index: 1000;
             display: flex;
             flex-direction: column;
+            position: relative;
         ">
             <div style="
                 background: linear-gradient(45deg, #00ff88, #00d4ff);
@@ -3869,8 +3957,8 @@ def browser_automation_suite():
             ">
                 <span>🌐 NEXUS Live Browser Sessions</span>
                 <div>
-                    <button onclick="addBrowserWindow()" style="background: rgba(0,0,0,0.2); border: none; color: #000; padding: 5px 10px; border-radius: 3px; margin-right: 5px; cursor: pointer;">+</button>
-                    <button onclick="minimizeBrowserContainer()" style="background: rgba(0,0,0,0.2); border: none; color: #000; padding: 5px 10px; border-radius: 3px; cursor: pointer;">−</button>
+                    <button onclick="addBrowserWindow()" style="background: rgba(0,0,0,0.2); border: none; color: #000; padding: 5px 10px; border-radius: 3px; margin-right: 5px; cursor: pointer;">+ New</button>
+                    <button onclick="toggleBrowserContainer()" style="background: rgba(0,0,0,0.2); border: none; color: #000; padding: 5px 10px; border-radius: 3px; cursor: pointer;">−</button>
                 </div>
             </div>
             
@@ -3879,12 +3967,14 @@ def browser_automation_suite():
                 background: rgba(0, 0, 0, 0.3);
                 border-bottom: 1px solid #00ff88;
                 overflow-x: auto;
+                min-height: 40px;
             "></div>
             
             <div id="browser-windows" style="
                 flex: 1;
                 position: relative;
                 overflow: hidden;
+                background: #1a1a1a;
             "></div>
         </div>
     </div>
@@ -4283,16 +4373,46 @@ def browser_automation_suite():
         async function createSession() {
             addLog('Creating new browser session...', 'info');
             try {
-                const response = await fetch('/api/browser/create-session', { method: 'POST' });
+                const response = await fetch('/api/browser/create-session', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ windowed: true })
+                });
                 const data = await response.json();
                 if (data.success) {
-                    addLog(`Session created: ${data.session_id}`, 'info');
+                    addLog(`Windowed session created: ${data.session_id}`, 'info');
                     updateStatus('active-sessions', data.active_sessions || 1);
+                    
+                    // Create visual browser window in interface
+                    createBrowserWindow(data.session_id);
                 } else {
                     addLog(`Session creation failed: ${data.error}`, 'error');
                 }
             } catch (error) {
                 addLog(`Network error: ${error.message}`, 'error');
+            }
+        }
+        
+        function createBrowserWindow(sessionId) {
+            // Use the existing browser window system
+            const url = 'https://www.google.com';
+            const title = `Session ${sessionId}`;
+            addBrowserWindow(url, title, sessionId);
+        }
+        
+        function toggleBrowserContainer() {
+            const container = document.getElementById('browser-windows-container');
+            const windowsDiv = document.getElementById('browser-windows');
+            const tabsDiv = document.getElementById('browser-tabs');
+            
+            if (windowsDiv.style.display === 'none') {
+                windowsDiv.style.display = 'block';
+                tabsDiv.style.display = 'flex';
+                container.style.height = '600px';
+            } else {
+                windowsDiv.style.display = 'none';
+                tabsDiv.style.display = 'none';
+                container.style.height = '50px';
             }
         }
         

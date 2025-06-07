@@ -3854,7 +3854,7 @@ def browser_automation_suite():
             border: 2px solid #00ff88;
             border-radius: 10px;
             z-index: 1000;
-            display: none;
+            display: flex;
             flex-direction: column;
         ">
             <div style="

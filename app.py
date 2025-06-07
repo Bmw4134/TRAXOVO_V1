@@ -7,7 +7,7 @@ import os
 import json
 import logging
 from datetime import datetime, timedelta
-from flask import Flask, render_template_string, jsonify, request, session, redirect, url_for
+from flask import Flask, render_template, render_template_string, jsonify, request, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -4950,6 +4950,12 @@ def api_nexus_trillion_optimization():
         }), 500
 
 # Comprehensive Status API integrated into existing endpoint structure
+
+@app.route('/embedded-browser')
+@require_auth
+def embedded_browser_interface():
+    """Embedded browser interface for live platform interaction"""
+    return render_template('browser_automation.html')
 
 # Unified Platform Routes - Consolidating all functionality
 @app.route('/api/process-ai-prompt', methods=['POST'])

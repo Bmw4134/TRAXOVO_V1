@@ -869,8 +869,8 @@ JDD_EXECUTIVE_DASHBOARD = """
 # Routes
 @app.route('/')
 def index():
-    """NEXUS Automation Platform - Direct Access to Browser Suite"""
-    return redirect('/browser-automation')
+    """NEXUS Automation Platform - Direct Access to Integration Center"""
+    return redirect('/admin-direct')
 
 @app.route('/nexus-home')
 def nexus_home():
@@ -2475,95 +2475,107 @@ def inject_navigation(response):
                 data = re.sub(r'<div[^>]*id="nexus-unified-nav"[^>]*>.*?</div>\s*(?:</div>)?', '', data, flags=re.DOTALL)
                 data = re.sub(r'<div[^>]*id="nexus-floating-nav"[^>]*>.*?</div>\s*(?:</div>)?', '', data, flags=re.DOTALL)
                 
-                # NUCLEAR WIDGET CLEANUP - Target the exact duplicate in your screenshot
-                # Remove all fixed position elements with purple/violet backgrounds
-                data = re.sub(r'<div[^>]*style="[^"]*position:\s*fixed[^"]*background[^:]*:[^;]*(?:purple|violet|#[89AB][0-9A-F]{5}|rgb\(\s*138[^)]*\))[^"]*"[^>]*>.*?</div>', '', data, flags=re.DOTALL)
+                # WIDGET FUSION PROTOCOL - Eliminate purple duplicates, preserve green unified interface
+                # Phase 1: Target purple widget shell elimination
+                data = re.sub(r'<div[^>]*style="[^"]*(?:background|background-color)[^:]*:[^;]*(?:purple|violet|#8A2BE2|#9932CC|rgb\(138[^)]*\))[^"]*"[^>]*>(?:[^<]*NEXUS[^<]*|.*?)</div>', '', data, flags=re.DOTALL | re.IGNORECASE)
                 
-                # Remove any element with "NEXUS" text and purple background
-                data = re.sub(r'<div[^>]*style="[^"]*(?:background|background-color)[^:]*:[^;]*(?:purple|violet|#[89AB][0-9A-F]{5})[^"]*"[^>]*>(?:[^<]*NEXUS[^<]*|[^<]*nexus[^<]*)</div>', '', data, flags=re.DOTALL | re.IGNORECASE)
+                # Phase 2: Remove fixed position widgets except green interface
+                data = re.sub(r'<div[^>]*style="[^"]*position:\s*fixed[^"]*(?!.*(?:green|#00FF|#008000))[^"]*"[^>]*>(?:[^<]*(?:NEXUS|nexus|widget|assistant)[^<]*)</div>', '', data, flags=re.DOTALL | re.IGNORECASE)
                 
-                # Remove rounded corner widgets (common widget pattern)
-                data = re.sub(r'<div[^>]*style="[^"]*border-radius:\s*[0-9]+px[^"]*"[^>]*>(?:[^<]*NEXUS[^<]*)</div>', '', data, flags=re.DOTALL | re.IGNORECASE)
+                # Phase 3: Preserve only green widget routing
+                # Allow green background widgets to remain for unified intelligence routing
+                # Remove all other colored widget shells
+                data = re.sub(r'<div[^>]*style="[^"]*(?:background|background-color)[^:]*:[^;]*(?:blue|red|orange|yellow|pink|#(?![0-9A-F]*[0-9A-F][0-9A-F][0-9A-F][0-9A-F]00))[^"]*"[^>]*>(?:[^<]*(?:NEXUS|widget)[^<]*)</div>', '', data, flags=re.DOTALL | re.IGNORECASE)
                 
-                # Remove any small fixed position divs with text content
-                data = re.sub(r'<div[^>]*style="[^"]*position:\s*fixed[^"]*width:\s*[0-9]{2,3}px[^"]*height:\s*[0-9]{2,3}px[^"]*"[^>]*>[^<]*\w+[^<]*</div>', '', data, flags=re.DOTALL)
+                # Phase 4: Remove orphaned widget containers
+                data = re.sub(r'<div[^>]*(?:class="[^"]*(?:widget-container|assistant-wrapper|chat-wrapper)[^"]*"|id="[^"]*(?:widget|assistant|chat)[^"]*")[^>]*>(?:\s*|.*?(?:NEXUS|nexus).*?)</div>', '', data, flags=re.DOTALL)
                 
-                # Clean up assistant/chat widgets specifically
-                data = re.sub(r'<div[^>]*(?:class="[^"]*(?:assistant|widget|chat|floating)[^"]*"|id="[^"]*(?:assistant|widget|chat|floating)[^"]*")[^>]*>.*?</div>', '', data, flags=re.DOTALL)
-                
-                # Inject nuclear widget cleanup JavaScript
-                widget_killer_script = '''
+                # Unified Intelligence Routing - Green widget preservation script
+                intelligence_routing_script = '''
                 <script>
-                function destroyDuplicateWidgets() {
-                    // Target the exact purple NEXUS widget from screenshot
+                // NEXUS Widget Fusion Protocol
+                function executeWidgetFusion() {
+                    // Phase 1: Eliminate purple duplicate shells
                     document.querySelectorAll('div').forEach(el => {
                         const style = window.getComputedStyle(el);
                         const text = el.textContent || '';
                         const rect = el.getBoundingClientRect();
                         
-                        // Remove purple/violet widgets containing NEXUS text
-                        if (text.toLowerCase().includes('nexus') && 
-                            (style.backgroundColor.includes('purple') || 
+                        // Target purple widget elimination (from screenshot)
+                        if ((style.backgroundColor.includes('purple') || 
                              style.backgroundColor.includes('138') ||
                              style.backgroundColor.includes('violet') ||
-                             style.position === 'fixed')) {
+                             style.backgroundColor.includes('8A2BE2')) &&
+                            text.toLowerCase().includes('nexus')) {
                             el.remove();
+                            console.log('NEXUS: Purple widget shell eliminated');
                             return;
                         }
                         
-                        // Remove small fixed position elements with rounded corners (widget pattern)
+                        // Preserve ONLY green widgets for unified intelligence routing
+                        if (style.backgroundColor.includes('green') || 
+                            style.backgroundColor.includes('00FF') ||
+                            style.backgroundColor.includes('008000')) {
+                            // Mark as protected unified interface
+                            el.setAttribute('data-nexus-unified', 'true');
+                            return;
+                        }
+                        
+                        // Remove all other colored widget shells except green
                         if (style.position === 'fixed' && 
-                            style.borderRadius && style.borderRadius !== '0px' && 
-                            rect.width < 200 && rect.height < 200) {
+                            (style.backgroundColor.includes('blue') ||
+                             style.backgroundColor.includes('red') ||
+                             style.backgroundColor.includes('orange') ||
+                             style.backgroundColor.includes('yellow')) &&
+                            (text.toLowerCase().includes('nexus') || 
+                             text.toLowerCase().includes('widget'))) {
                             el.remove();
                             return;
                         }
                         
-                        // Remove any element with assistant/chat/widget class patterns
+                        // Clean orphaned widget containers
                         if (el.className && 
-                            (el.className.includes('assistant') || 
-                             el.className.includes('widget') || 
-                             el.className.includes('chat') ||
-                             el.className.includes('floating'))) {
+                            (el.className.includes('widget-container') ||
+                             el.className.includes('assistant-wrapper') ||
+                             el.className.includes('chat-wrapper')) &&
+                            !el.hasAttribute('data-nexus-unified')) {
                             el.remove();
                             return;
                         }
-                        
-                        // Remove elements with suspicious positioning (top-right corner widgets)
-                        if (style.position === 'fixed' && 
-                            parseInt(style.right) < 100 && 
-                            parseInt(style.top) < 100) {
-                            el.remove();
-                            return;
-                        }
+                    });
+                    
+                    // Phase 2: DOM reconciliation
+                    document.querySelectorAll('[data-nexus-unified="true"]').forEach(el => {
+                        // Ensure visual input flows only to unified green interface
+                        el.style.zIndex = '10000';
+                        el.style.pointerEvents = 'auto';
                     });
                 }
                 
-                // Aggressive cleanup - run immediately and continuously
-                destroyDuplicateWidgets();
-                setInterval(destroyDuplicateWidgets, 500); // Check every 500ms
+                // Execute fusion protocol immediately and continuously
+                executeWidgetFusion();
+                setInterval(executeWidgetFusion, 300); // Faster cleanup cycle
                 
-                // Monitor DOM changes and destroy widgets immediately
-                const observer = new MutationObserver(function(mutations) {
+                // DOM integrity monitoring
+                const fusionObserver = new MutationObserver(function(mutations) {
                     mutations.forEach(function(mutation) {
                         if (mutation.addedNodes.length) {
-                            setTimeout(destroyDuplicateWidgets, 100);
+                            setTimeout(executeWidgetFusion, 50); // Immediate response
                         }
                     });
                 });
-                observer.observe(document.body, { childList: true, subtree: true });
+                fusionObserver.observe(document.body, { childList: true, subtree: true });
                 
-                // Also check on window resize and focus
-                window.addEventListener('resize', destroyDuplicateWidgets);
-                window.addEventListener('focus', destroyDuplicateWidgets);
+                // Log fusion protocol status
+                console.log('NEXUS: Widget Fusion Protocol activated - Purple shells eliminated, Green interface unified');
                 </script>
                 '''
                 
-                # Insert the cleanup script before closing body tag
+                # Insert fusion script before closing body tag
                 if '</body>' in data:
-                    data = data.replace('</body>', widget_killer_script + '</body>')
+                    data = data.replace('</body>', intelligence_routing_script + '</body>')
                 else:
-                    data += widget_killer_script
+                    data += intelligence_routing_script
                 
                 # Create clean navigation HTML with gesture controls and intelligence feed
                 current_path = request.path

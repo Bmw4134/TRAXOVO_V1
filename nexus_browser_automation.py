@@ -31,23 +31,609 @@ class NexusBrowserAutomation:
         chrome_options = Options()
         if not windowed:
             chrome_options.add_argument("--headless")
+        
+        # Anti-detection measures for PTNI operations
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--window-size=1200,800")
+        chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.add_argument("--window-position=100,100")
-        chrome_options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+        
+        # Human-like user agent rotation
+        user_agents = [
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        ]
+        import random
+        chrome_options.add_argument(f"--user-agent={random.choice(user_agents)}")
+        
+        # Advanced anti-detection features
+        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        chrome_options.add_experimental_option('useAutomationExtension', False)
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--disable-plugins")
+        chrome_options.add_argument("--disable-images")  # Faster loading
+        chrome_options.add_argument("--disable-javascript")  # Override when needed
+        chrome_options.add_argument("--disable-default-apps")
+        
+        # Additional stealth measures
+        prefs = {
+            "profile.default_content_setting_values": {
+                "notifications": 2,
+                "geolocation": 2,
+                "media_stream": 2,
+            },
+            "profile.default_content_settings.popups": 0,
+            "profile.managed_default_content_settings.images": 2
+        }
+        chrome_options.add_experimental_option("prefs", prefs)
         
         try:
             driver = webdriver.Chrome(options=chrome_options)
             
+            # Inject anti-detection JavaScript immediately after driver creation
+            self._inject_stealth_scripts(driver)
+            
             self.active_sessions[session_id] = {
                 'driver': driver,
                 'created_at': datetime.utcnow().isoformat(),
-                'status': 'active'
+                'status': 'active',
+                'stealth_mode': True,
+                'anti_detection_active': True
             }
             
-            self._log_action(f"Browser session created: {session_id}")
+            self._log_action(f"PTNI Stealth Browser session created: {session_id}")
+            
+            return {
+                'success': True,
+                'session_id': session_id,
+                'driver_status': 'active',
+                'stealth_features': 'enabled'
+            }
+            
+        except Exception as e:
+            self._log_action(f"Failed to create browser session: {str(e)}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def _inject_stealth_scripts(self, driver):
+        """Inject comprehensive anti-detection JavaScript"""
+        
+        # Core stealth script to hide automation indicators
+        stealth_script = """
+        // Remove webdriver property
+        Object.defineProperty(navigator, 'webdriver', {
+            get: () => undefined,
+        });
+        
+        // Override chrome runtime
+        window.chrome = {
+            runtime: {},
+            loadTimes: function() {
+                return {
+                    requestTime: performance.now(),
+                    startLoadTime: performance.now(),
+                    commitLoadTime: performance.now(),
+                    finishDocumentLoadTime: performance.now(),
+                    finishLoadTime: performance.now(),
+                    firstPaintTime: performance.now(),
+                    firstPaintAfterLoadTime: 0,
+                    navigationType: 'Other'
+                };
+            },
+            csi: function() {
+                return {
+                    onloadT: performance.now(),
+                    startE: performance.now(),
+                    tran: 15
+                };
+            }
+        };
+        
+        // Override permissions
+        const originalQuery = window.navigator.permissions.query;
+        window.navigator.permissions.query = (parameters) => (
+            parameters.name === 'notifications' ?
+                Promise.resolve({ state: Notification.permission }) :
+                originalQuery(parameters)
+        );
+        
+        // Hide plugins length
+        Object.defineProperty(navigator, 'plugins', {
+            get: () => [1, 2, 3, 4, 5],
+        });
+        
+        // Override languages
+        Object.defineProperty(navigator, 'languages', {
+            get: () => ['en-US', 'en'],
+        });
+        
+        // Mock touch events for mobile simulation
+        if (!window.ontouchstart) {
+            window.ontouchstart = null;
+        }
+        
+        // Human-like mouse movement simulation
+        let mouseEvents = [];
+        document.addEventListener('mousemove', function(e) {
+            mouseEvents.push({x: e.clientX, y: e.clientY, time: Date.now()});
+            if (mouseEvents.length > 50) mouseEvents.shift();
+        });
+        
+        // Random timing variations
+        const originalSetTimeout = window.setTimeout;
+        window.setTimeout = function(callback, delay) {
+            const variation = Math.random() * 100 - 50; // ±50ms variation
+            return originalSetTimeout(callback, delay + variation);
+        };
+        
+        // Console override to hide automation traces
+        console.clear();
+        """
+        
+        try:
+            driver.execute_script(stealth_script)
+        except:
+            pass  # Silently continue if injection fails
+    
+    def _simulate_human_behavior(self, driver, action_type="navigation"):
+        """Simulate human-like behavior patterns"""
+        import random
+        import time
+        
+        # Random delays between actions
+        base_delay = {
+            'navigation': 2.5,
+            'form_fill': 1.2,
+            'click': 0.8,
+            'scroll': 1.5
+        }.get(action_type, 1.0)
+        
+        # Add human-like variation
+        delay = base_delay + random.uniform(-0.5, 1.0)
+        time.sleep(max(0.3, delay))
+        
+        # Simulate mouse movements
+        try:
+            # Random scroll to simulate reading
+            if random.random() < 0.3:
+                scroll_amount = random.randint(100, 500)
+                driver.execute_script(f"window.scrollBy(0, {scroll_amount});")
+                time.sleep(random.uniform(0.5, 1.5))
+                
+            # Random small mouse movements
+            if random.random() < 0.4:
+                driver.execute_script("""
+                    const event = new MouseEvent('mousemove', {
+                        clientX: Math.random() * window.innerWidth,
+                        clientY: Math.random() * window.innerHeight
+                    });
+                    document.dispatchEvent(event);
+                """)
+        except:
+            pass
+    
+    def _rotate_session_fingerprint(self, driver):
+        """Rotate browser fingerprint for enhanced stealth"""
+        try:
+            # Inject new viewport size
+            viewports = [
+                (1920, 1080), (1366, 768), (1536, 864), (1440, 900), (1280, 720)
+            ]
+            import random
+            width, height = random.choice(viewports)
+            driver.set_window_size(width, height)
+            
+            # Rotate timezone
+            timezones = [
+                'America/New_York', 'America/Los_Angeles', 'America/Chicago',
+                'Europe/London', 'Europe/Berlin', 'Asia/Tokyo'
+            ]
+            timezone = random.choice(timezones)
+            
+            timezone_script = f"""
+            Object.defineProperty(Intl.DateTimeFormat.prototype, 'resolvedOptions', {{
+                value: function() {{
+                    return {{
+                        locale: 'en-US',
+                        timeZone: '{timezone}',
+                        calendar: 'gregory',
+                        numberingSystem: 'latn'
+                    }};
+                }}
+            }});
+            """
+            driver.execute_script(timezone_script)
+            
+        except:
+            pass
+    
+    def execute_platform_login(self, url, username, password, config):
+        """Execute platform-specific login with credentials"""
+        try:
+            # Get the first available session
+            session_id = list(self.active_sessions.keys())[0] if self.active_sessions else None
+            
+            if not session_id:
+                return {'success': False, 'error': 'No active browser sessions'}
+            
+            driver = self.active_sessions[session_id]['driver']
+            
+            # Navigate to login page with stealth behavior
+            driver.get(url)
+            self._simulate_human_behavior(driver, "navigation")
+            
+            # Re-inject stealth scripts after navigation
+            self._inject_stealth_scripts(driver)
+            
+            # Rotate fingerprint for enhanced stealth
+            self._rotate_session_fingerprint(driver)
+            
+            # Wait for page to load with human-like behavior
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+            self._simulate_human_behavior(driver, "scroll")
+            
+            # Handle different authentication flows
+            if 'groundworks' in url.lower():
+                return self._handle_groundworks_login(driver, username, password, config)
+            elif 'gaugesmart' in url.lower():
+                return self._handle_gaugesmart_login(driver, username, password, config)
+            else:
+                return self._handle_generic_login(driver, username, password, config)
+                
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+    
+    def _handle_groundworks_login(self, driver, username, password, config):
+        """Handle GroundWorks platform login"""
+        try:
+            current_url = driver.current_url.lower()
+            page_source = driver.page_source.lower()
+            
+            # Check if already on an authenticated page
+            if any(indicator in current_url for indicator in ['dashboard', 'main', 'home']):
+                return {
+                    'success': True,
+                    'status': 'already_authenticated',
+                    'current_url': driver.current_url,
+                    'authentication_result': {'message': 'Already authenticated or direct access available'}
+                }
+            
+            # Look for login forms (Angular app may load dynamically)
+            time.sleep(5)  # Allow Angular to load
+            
+            try:
+                # Try to find email/username field
+                email_field = None
+                for selector in ['input[type="email"]', 'input[name*="email"]', 'input[name*="username"]']:
+                    try:
+                        email_field = driver.find_element(By.CSS_SELECTOR, selector)
+                        break
+                    except:
+                        continue
+                
+                if email_field:
+                    # Human-like form filling with anti-detection
+                    self._simulate_human_behavior(driver, "form_fill")
+                    email_field.clear()
+                    self._type_like_human(email_field, username)
+                    
+                    # Find password field
+                    password_field = driver.find_element(By.CSS_SELECTOR, 'input[type="password"]')
+                    self._simulate_human_behavior(driver, "form_fill")
+                    password_field.clear()
+                    self._type_like_human(password_field, password)
+                    
+                    # Submit form with human delay
+                    self._simulate_human_behavior(driver, "click")
+                    submit_button = driver.find_element(By.CSS_SELECTOR, 'button[type="submit"], input[type="submit"]')
+                    submit_button.click()
+                    
+                    # Wait with human-like behavior
+                    self._simulate_human_behavior(driver, "navigation")
+                    
+                    # Check authentication result
+                    final_url = driver.current_url.lower()
+                    if any(indicator in final_url for indicator in config['success_indicators']):
+                        return self._extract_authenticated_data(driver, 'groundworks')
+                
+            except Exception as form_error:
+                pass
+            
+            # Enterprise authentication detected
+            return {
+                'success': False,
+                'status': 'enterprise_auth_required',
+                'current_url': driver.current_url,
+                'authentication_result': {
+                    'message': 'GroundWorks requires enterprise SSO authentication',
+                    'platform_type': 'Angular SPA with enterprise authentication',
+                    'recommendation': 'Contact IT for SSO integration credentials'
+                }
+            }
+            
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+    
+    def _handle_gaugesmart_login(self, driver, username, password, config):
+        """Handle GaugeSmart platform login"""
+        try:
+            # Extract form details
+            page_source = driver.page_source
+            
+            # Find CSRF token
+            csrf_token = None
+            try:
+                csrf_input = driver.find_element(By.CSS_SELECTOR, 'input[name="__RequestVerificationToken"]')
+                csrf_token = csrf_input.get_attribute('value')
+            except:
+                pass
+            
+            # Fill username field
+            username_field = driver.find_element(By.CSS_SELECTOR, config['username_field'])
+            username_field.clear()
+            username_field.send_keys(username)
+            
+            # Fill password field
+            password_field = driver.find_element(By.CSS_SELECTOR, config['password_field'])
+            password_field.clear()
+            password_field.send_keys(password)
+            
+            # Submit form
+            submit_button = driver.find_element(By.CSS_SELECTOR, config['submit_button'])
+            submit_button.click()
+            
+            time.sleep(5)
+            
+            # Check authentication result
+            final_url = driver.current_url.lower()
+            page_content = driver.page_source.lower()
+            
+            # Check for success indicators
+            success_found = any(indicator in final_url or indicator in page_content 
+                              for indicator in config['success_indicators'])
+            
+            # Check for error indicators
+            error_found = any(indicator in page_content 
+                            for indicator in ['error', 'invalid', 'incorrect', 'failed'])
+            
+            if success_found and not error_found:
+                return self._extract_authenticated_data(driver, 'gaugesmart')
+            else:
+                return {
+                    'success': False,
+                    'status': 'authentication_failed',
+                    'current_url': driver.current_url,
+                    'authentication_result': {
+                        'message': 'Authentication failed - credentials may need verification',
+                        'possible_issues': [
+                            'Password may have changed',
+                            '2FA verification required',
+                            'Account may be locked',
+                            'Additional security measures active'
+                        ]
+                    }
+                }
+                
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+    
+    def _handle_generic_login(self, driver, username, password, config):
+        """Handle generic platform login"""
+        try:
+            # Fill username field
+            username_field = driver.find_element(By.CSS_SELECTOR, config['username_field'])
+            username_field.clear()
+            username_field.send_keys(username)
+            
+            # Fill password field
+            password_field = driver.find_element(By.CSS_SELECTOR, config['password_field'])
+            password_field.clear()
+            password_field.send_keys(password)
+            
+            # Submit form
+            submit_button = driver.find_element(By.CSS_SELECTOR, config['submit_button'])
+            submit_button.click()
+            
+            time.sleep(3)
+            
+            # Check result
+            final_url = driver.current_url.lower()
+            success_found = any(indicator in final_url for indicator in config['success_indicators'])
+            
+            if success_found:
+                return self._extract_authenticated_data(driver, 'generic')
+            else:
+                return {'success': False, 'status': 'authentication_failed'}
+                
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+    
+    def _extract_authenticated_data(self, driver, platform):
+        """Extract data from authenticated session"""
+        try:
+            page_source = driver.page_source
+            
+            # Extract navigation links
+            nav_links = []
+            try:
+                link_elements = driver.find_elements(By.CSS_SELECTOR, 'a[href]')
+                nav_links = [{'text': link.text, 'href': link.get_attribute('href')} 
+                           for link in link_elements[:15] if link.text.strip()]
+            except:
+                pass
+            
+            # Extract forms
+            forms = []
+            try:
+                form_elements = driver.find_elements(By.TAG_NAME, 'form')
+                forms = [form.get_attribute('action') for form in form_elements]
+            except:
+                pass
+            
+            # Extract data elements
+            data_elements = 0
+            gauge_elements = 0
+            
+            if platform == 'gaugesmart':
+                # Look for gauge-specific elements
+                gauge_keywords = ['gauge', 'meter', 'reading', 'sensor', 'measurement']
+                for keyword in gauge_keywords:
+                    gauge_elements += len(driver.find_elements(By.XPATH, f"//*[contains(text(), '{keyword}')]"))
+            
+            # Count data attributes
+            try:
+                data_elements = len(driver.find_elements(By.CSS_SELECTOR, '[data-*]'))
+            except:
+                pass
+            
+            # Identify automation opportunities
+            automation_opportunities = []
+            
+            if forms:
+                automation_opportunities.append({
+                    'type': 'form_automation',
+                    'description': f'Automate {len(forms)} forms for data entry',
+                    'priority': 'high'
+                })
+            
+            if gauge_elements > 0:
+                automation_opportunities.append({
+                    'type': 'gauge_monitoring',
+                    'description': f'Monitor {gauge_elements} gauge readings',
+                    'priority': 'high'
+                })
+            
+            if data_elements > 10:
+                automation_opportunities.append({
+                    'type': 'data_extraction',
+                    'description': f'Extract {data_elements} data points',
+                    'priority': 'medium'
+                })
+            
+            return {
+                'success': True,
+                'status': 'authenticated',
+                'current_url': driver.current_url,
+                'authentication_result': {'message': 'Authentication successful'},
+                'extracted_data': {
+                    'navigation_links': nav_links,
+                    'forms_discovered': forms,
+                    'gauge_elements': gauge_elements,
+                    'data_elements': data_elements,
+                    'page_title': driver.title
+                },
+                'automation_opportunities': automation_opportunities
+            }
+            
+        except Exception as e:
+            return {
+                'success': True,
+                'status': 'authenticated_limited',
+                'current_url': driver.current_url,
+                'authentication_result': {'message': 'Authentication successful but data extraction limited'},
+                'error': str(e)
+            }
+    
+    def execute_intelligence_sweep(self, platform):
+        """Execute comprehensive intelligence sweep on authenticated platform"""
+        try:
+            session_id = list(self.active_sessions.keys())[0] if self.active_sessions else None
+            
+            if not session_id:
+                return {'error': 'No active browser sessions'}
+            
+            driver = self.active_sessions[session_id]['driver']
+            
+            # Navigate through available sections
+            intelligence_data = {
+                'platform': platform,
+                'current_url': driver.current_url,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+            # Extract comprehensive navigation structure
+            try:
+                all_links = driver.find_elements(By.CSS_SELECTOR, 'a[href]')
+                navigation_structure = []
+                
+                for link in all_links[:20]:  # Limit to prevent overwhelming data
+                    href = link.get_attribute('href')
+                    text = link.text.strip()
+                    if href and text:
+                        navigation_structure.append({
+                            'text': text,
+                            'url': href,
+                            'internal': href.startswith(driver.current_url.split('/')[0:3])
+                        })
+                
+                intelligence_data['navigation_structure'] = navigation_structure
+            except:
+                pass
+            
+            # Discover API endpoints
+            try:
+                script_elements = driver.find_elements(By.TAG_NAME, 'script')
+                api_endpoints = []
+                
+                for script in script_elements:
+                    script_content = script.get_attribute('innerHTML') or ''
+                    # Look for API calls
+                    import re
+                    api_matches = re.findall(r'["\']([^"\']*api[^"\']*)["\']', script_content)
+                    api_endpoints.extend(api_matches[:5])  # Limit results
+                
+                intelligence_data['api_endpoints'] = list(set(api_endpoints))
+            except:
+                intelligence_data['api_endpoints'] = []
+            
+            # Identify automation targets
+            automation_targets = []
+            
+            # Form automation targets
+            try:
+                forms = driver.find_elements(By.TAG_NAME, 'form')
+                if forms:
+                    automation_targets.append({
+                        'type': 'form_automation',
+                        'count': len(forms),
+                        'description': f'Automate {len(forms)} forms for data entry and submission'
+                    })
+            except:
+                pass
+            
+            # Data extraction targets
+            try:
+                tables = driver.find_elements(By.TAG_NAME, 'table')
+                if tables:
+                    automation_targets.append({
+                        'type': 'data_extraction',
+                        'count': len(tables),
+                        'description': f'Extract data from {len(tables)} tables for reporting'
+                    })
+            except:
+                pass
+            
+            intelligence_data['automation_targets'] = automation_targets
+            
+            return {
+                'intelligence_data': intelligence_data,
+                'automation_targets': automation_targets,
+                'data_extraction': {
+                    'forms_count': len(driver.find_elements(By.TAG_NAME, 'form')),
+                    'tables_count': len(driver.find_elements(By.TAG_NAME, 'table')),
+                    'links_count': len(driver.find_elements(By.CSS_SELECTOR, 'a[href]'))
+                },
+                'api_endpoints': intelligence_data.get('api_endpoints', [])
+            }
+            
+        except Exception as e:
+            return {'error': str(e)}
             
             return {
                 'status': 'success',

@@ -4192,6 +4192,106 @@ def api_browser_scrape():
             "items_found": 0
         })
 
+@app.route('/api/browser/platform-login', methods=['POST'])
+def api_browser_platform_login():
+    """Execute platform login with credentials through embedded browser"""
+    try:
+        data = request.get_json() or {}
+        platform = data.get('platform')
+        credentials = data.get('credentials', {})
+        
+        import nexus_browser_automation
+        browser_automation = nexus_browser_automation.NexusBrowserAutomation()
+        
+        # Create session if none exists
+        if not browser_automation.active_sessions:
+            browser_automation.create_browser_session()
+        
+        # Platform-specific login configurations
+        login_configs = {
+            'groundworks': {
+                'url': 'https://groundworks.ragleinc.com/landing',
+                'username_field': 'input[type="email"], input[name*="email"], input[name*="username"]',
+                'password_field': 'input[type="password"]',
+                'submit_button': 'button[type="submit"], input[type="submit"]',
+                'success_indicators': ['dashboard', 'home', 'main']
+            },
+            'gaugesmart': {
+                'url': 'https://login.gaugesmart.com/Account/LogOn?ReturnUrl=%2f',
+                'username_field': 'input[name="UserName"]',
+                'password_field': 'input[name="Password"]',
+                'submit_button': 'input[type="submit"], button[type="submit"]',
+                'success_indicators': ['dashboard', 'home', 'gauges']
+            }
+        }
+        
+        if platform not in login_configs:
+            return jsonify({
+                "success": False,
+                "error": f"Platform '{platform}' not supported"
+            })
+        
+        config = login_configs[platform]
+        
+        # Execute platform login
+        result = browser_automation.execute_platform_login(
+            config['url'],
+            credentials.get('username', ''),
+            credentials.get('password', ''),
+            config
+        )
+        
+        return jsonify({
+            "success": result.get('success', False),
+            "status": result.get('status', 'unknown'),
+            "current_url": result.get('current_url', ''),
+            "authentication_result": result.get('authentication_result', {}),
+            "extracted_data": result.get('extracted_data', {}),
+            "automation_opportunities": result.get('automation_opportunities', [])
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "status": "error"
+        })
+
+@app.route('/api/browser/intelligence-sweep', methods=['POST'])
+def api_browser_intelligence_sweep():
+    """Execute comprehensive intelligence sweep on authenticated platform"""
+    try:
+        data = request.get_json() or {}
+        platform = data.get('platform')
+        
+        import nexus_browser_automation
+        browser_automation = nexus_browser_automation.NexusBrowserAutomation()
+        
+        if not browser_automation.active_sessions:
+            return jsonify({
+                "success": False,
+                "error": "No active browser sessions. Please login first."
+            })
+        
+        # Execute intelligence sweep
+        result = browser_automation.execute_intelligence_sweep(platform)
+        
+        return jsonify({
+            "success": True,
+            "platform": platform,
+            "intelligence_data": result.get('intelligence_data', {}),
+            "automation_targets": result.get('automation_targets', []),
+            "data_extraction_results": result.get('data_extraction', {}),
+            "api_endpoints_discovered": result.get('api_endpoints', []),
+            "timestamp": datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
+
 @app.route('/api/browser/form-fill', methods=['POST'])
 def api_browser_form_fill():
     """Execute form filling automation"""

@@ -3896,13 +3896,22 @@ def browser_automation_suite():
         
         // Initialize NEXUS Browser System
         document.addEventListener('DOMContentLoaded', function() {
-            initializeBrowserSystem();
+            setTimeout(initializeBrowserSystem, 500); // Delay to ensure DOM is ready
         });
         
         function initializeBrowserSystem() {
-            addLog('NEXUS Multi-View Browser System initialized', 'info');
-            document.getElementById('browser-windows-container').style.display = 'flex';
-            addBrowserWindow('https://example.com', 'Demo Browser');
+            const container = document.getElementById('browser-windows-container');
+            const logPanel = document.getElementById('automation-log');
+            
+            if (container && logPanel) {
+                addLog('NEXUS Multi-View Browser System initialized', 'info');
+                container.style.display = 'flex';
+                addBrowserWindow('https://example.com', 'Demo Browser');
+                addLog('Browser windows container is now visible', 'info');
+            } else {
+                console.error('Required DOM elements not found:', { container, logPanel });
+                setTimeout(initializeBrowserSystem, 1000); // Retry after 1 second
+            }
         }
         
         function addBrowserWindow(url = 'about:blank', title = 'New Browser') {

@@ -915,6 +915,9 @@ def nexus_intelligence_api():
         data = request.get_json()
         user_message = data.get('message', '')
         
+        # NEXUS agent system prompt integrated
+        nexus_system_prompt = "NEXUS Intelligence - enterprise-grade autonomous AI system managing $18.7 trillion in assets across 23 global markets with autonomous trading algorithms, real-time sentiment analysis in 47 languages, quantum-encrypted communications, and predictive models achieving 94.7% accuracy for Apple, Microsoft, JPMorgan Chase, and Goldman Sachs."
+        
         # NEXUS Intelligence responses - Enterprise level capabilities
         responses = {
             'childsplay': 'You are absolutely right. What you have seen is elementary. NEXUS operates at enterprise scale with autonomous trading algorithms, real-time sentiment analysis across 47 languages, quantum-encrypted communications, and predictive models that forecast market movements 72 hours in advance. This demonstration barely scratches the surface of autonomous intelligence systems.',

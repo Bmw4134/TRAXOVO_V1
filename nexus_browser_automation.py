@@ -253,6 +253,294 @@ class NexusBrowserAutomation:
         except:
             pass
     
+    def _type_like_human(self, element, text):
+        """Type text with human-like timing and patterns"""
+        import random
+        import time
+        
+        # Clear field first
+        element.clear()
+        
+        # Type with human-like delays
+        for char in text:
+            element.send_keys(char)
+            # Random typing speed variation
+            delay = random.uniform(0.05, 0.15)
+            if char in ' ._@':  # Slightly longer pauses for special chars
+                delay += random.uniform(0.02, 0.08)
+            time.sleep(delay)
+        
+        # Random pause after typing
+        time.sleep(random.uniform(0.2, 0.6))
+    
+    def scrape_website(self, url, selectors):
+        """Execute web scraping with anti-detection measures"""
+        try:
+            session_id = list(self.active_sessions.keys())[0] if self.active_sessions else None
+            
+            if not session_id:
+                return {'error': 'No active browser sessions'}
+            
+            driver = self.active_sessions[session_id]['driver']
+            
+            # Navigate with stealth
+            driver.get(url)
+            self._simulate_human_behavior(driver, "navigation")
+            self._inject_stealth_scripts(driver)
+            
+            scraped_data = []
+            
+            for selector in selectors:
+                try:
+                    elements = driver.find_elements(By.CSS_SELECTOR, selector)
+                    for element in elements:
+                        text = element.text.strip()
+                        if text:
+                            scraped_data.append({
+                                'selector': selector,
+                                'text': text,
+                                'tag': element.tag_name
+                            })
+                    
+                    # Human-like delay between selectors
+                    self._simulate_human_behavior(driver, "scroll")
+                    
+                except Exception as e:
+                    continue
+            
+            return {
+                'success': True,
+                'scraped_data': scraped_data,
+                'url': url,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            return {'error': str(e)}
+    
+    def automate_form_filling(self, form_data):
+        """Execute form filling automation with stealth"""
+        try:
+            session_id = list(self.active_sessions.keys())[0] if self.active_sessions else None
+            
+            if not session_id:
+                return {'error': 'No active browser sessions'}
+            
+            driver = self.active_sessions[session_id]['driver']
+            
+            filled_fields = []
+            
+            for field_selector, value in form_data.items():
+                try:
+                    element = driver.find_element(By.CSS_SELECTOR, field_selector)
+                    
+                    # Simulate human behavior before filling
+                    self._simulate_human_behavior(driver, "form_fill")
+                    
+                    # Fill field with human-like typing
+                    self._type_like_human(element, str(value))
+                    
+                    filled_fields.append({
+                        'selector': field_selector,
+                        'value': value,
+                        'status': 'filled'
+                    })
+                    
+                except Exception as e:
+                    filled_fields.append({
+                        'selector': field_selector,
+                        'error': str(e),
+                        'status': 'failed'
+                    })
+            
+            return {
+                'success': True,
+                'filled_fields': filled_fields,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            return {'error': str(e)}
+    
+    def test_page_functionality(self, test_config):
+        """Execute page testing automation"""
+        try:
+            session_id = list(self.active_sessions.keys())[0] if self.active_sessions else None
+            
+            if not session_id:
+                return {'error': 'No active browser sessions'}
+            
+            driver = self.active_sessions[session_id]['driver']
+            
+            test_results = []
+            
+            # Test page load
+            page_title = driver.title
+            current_url = driver.current_url
+            
+            test_results.append({
+                'test': 'page_load',
+                'status': 'passed' if page_title else 'failed',
+                'data': {'title': page_title, 'url': current_url}
+            })
+            
+            # Test element presence
+            if 'elements' in test_config:
+                for selector in test_config['elements']:
+                    try:
+                        elements = driver.find_elements(By.CSS_SELECTOR, selector)
+                        test_results.append({
+                            'test': f'element_presence_{selector}',
+                            'status': 'passed' if elements else 'failed',
+                            'count': len(elements)
+                        })
+                    except Exception as e:
+                        test_results.append({
+                            'test': f'element_presence_{selector}',
+                            'status': 'error',
+                            'error': str(e)
+                        })
+            
+            return {
+                'success': True,
+                'test_results': test_results,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            return {'error': str(e)}
+    
+    def execute_javascript(self, script):
+        """Execute JavaScript in browser session"""
+        try:
+            session_id = list(self.active_sessions.keys())[0] if self.active_sessions else None
+            
+            if not session_id:
+                return {'error': 'No active browser sessions'}
+            
+            driver = self.active_sessions[session_id]['driver']
+            
+            # Execute script with stealth measures
+            result = driver.execute_script(script)
+            
+            return {
+                'success': True,
+                'result': result,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            return {'error': str(e)}
+    
+    def start_website_monitoring(self, monitor_config):
+        """Start website monitoring with stealth"""
+        try:
+            session_id = list(self.active_sessions.keys())[0] if self.active_sessions else None
+            
+            if not session_id:
+                return {'error': 'No active browser sessions'}
+            
+            driver = self.active_sessions[session_id]['driver']
+            
+            monitoring_data = {
+                'url': driver.current_url,
+                'title': driver.title,
+                'timestamp': datetime.now().isoformat(),
+                'elements_monitored': []
+            }
+            
+            # Monitor specified elements
+            if 'selectors' in monitor_config:
+                for selector in monitor_config['selectors']:
+                    try:
+                        elements = driver.find_elements(By.CSS_SELECTOR, selector)
+                        monitoring_data['elements_monitored'].append({
+                            'selector': selector,
+                            'count': len(elements),
+                            'status': 'active'
+                        })
+                    except:
+                        monitoring_data['elements_monitored'].append({
+                            'selector': selector,
+                            'status': 'error'
+                        })
+            
+            return {
+                'success': True,
+                'monitoring_data': monitoring_data
+            }
+            
+        except Exception as e:
+            return {'error': str(e)}
+    
+    def terminate_all_sessions(self):
+        """Terminate all browser sessions"""
+        terminated_sessions = []
+        
+        for session_id, session_data in list(self.active_sessions.items()):
+            try:
+                session_data['driver'].quit()
+                terminated_sessions.append(session_id)
+                del self.active_sessions[session_id]
+            except:
+                pass
+        
+        return {
+            'success': True,
+            'terminated_sessions': terminated_sessions,
+            'timestamp': datetime.now().isoformat()
+        }
+    
+    def navigate_session(self, url):
+        """Navigate session to new URL with stealth"""
+        try:
+            session_id = list(self.active_sessions.keys())[0] if self.active_sessions else None
+            
+            if not session_id:
+                return {'error': 'No active browser sessions'}
+            
+            driver = self.active_sessions[session_id]['driver']
+            
+            # Navigate with stealth behavior
+            driver.get(url)
+            self._simulate_human_behavior(driver, "navigation")
+            self._inject_stealth_scripts(driver)
+            self._rotate_session_fingerprint(driver)
+            
+            return {
+                'success': True,
+                'current_url': driver.current_url,
+                'title': driver.title,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            return {'error': str(e)}
+    
+    def refresh_session(self):
+        """Refresh current session with stealth"""
+        try:
+            session_id = list(self.active_sessions.keys())[0] if self.active_sessions else None
+            
+            if not session_id:
+                return {'error': 'No active browser sessions'}
+            
+            driver = self.active_sessions[session_id]['driver']
+            
+            # Refresh with stealth behavior
+            driver.refresh()
+            self._simulate_human_behavior(driver, "navigation")
+            self._inject_stealth_scripts(driver)
+            
+            return {
+                'success': True,
+                'current_url': driver.current_url,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            return {'error': str(e)}
+    
     def execute_platform_login(self, url, username, password, config):
         """Execute platform-specific login with credentials"""
         try:

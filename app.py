@@ -4980,6 +4980,34 @@ def api_nexus_mesh_sync_repair():
             "timestamp": datetime.now().isoformat()
         })
 
+@app.route('/api/crypto/market-status')
+def api_crypto_market_status():
+    """Get 24/7 crypto market status with override"""
+    try:
+        import nexus_crypto_market_override
+        status = nexus_crypto_market_override.get_crypto_market_status()
+        return jsonify(status)
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        })
+
+@app.route('/api/crypto/market-patch', methods=['POST'])
+def api_crypto_market_patch():
+    """Apply emergency patch for CryptoNexus market status"""
+    try:
+        import nexus_crypto_market_override
+        patch_result = nexus_crypto_market_override.apply_market_patch()
+        return jsonify(patch_result)
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        })
+
 # Unified Platform Routes - Consolidating all functionality
 @app.route('/api/process-ai-prompt', methods=['POST'])
 def api_process_ai_prompt():

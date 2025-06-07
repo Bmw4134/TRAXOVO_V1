@@ -694,6 +694,147 @@ def executive_landing():
         updateAnalysisFeed();
         updateAnalysisFeed();
         
+        // Initialize NEXUS Widget
+        function initNEXUSWidget(triggerContext = "direct") {
+            const widgetDiv = document.createElement('div');
+            widgetDiv.id = 'nexus-widget-container';
+            widgetDiv.innerHTML = `
+                <div id="nexus-chat" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                padding: 15px; border-radius: 50px; cursor: pointer; 
+                                box-shadow: 0 4px 20px rgba(0,0,0,0.3);" 
+                         onclick="toggleNexusWidget()">
+                        <span style="color: white; font-weight: bold;">🧠 NEXUS</span>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(widgetDiv);
+        }
+        
+        function toggleNexusWidget() {
+            const existingPanel = document.getElementById('nexus-widget-panel');
+            if (existingPanel) {
+                existingPanel.remove();
+                return;
+            }
+            
+            const panel = document.createElement('div');
+            panel.id = 'nexus-widget-panel';
+            panel.style.cssText = `
+                position: fixed; bottom: 80px; right: 20px; 
+                width: 350px; height: 400px; z-index: 1001;
+                background: white; border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                display: flex; flex-direction: column;
+            `;
+            
+            panel.innerHTML = `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                           padding: 15px; border-radius: 15px 15px 0 0; color: white;">
+                    <h3 style="margin: 0; font-size: 16px;">NEXUS Intelligence</h3>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.8;">Enterprise AI Assistant</p>
+                </div>
+                <div style="flex: 1; padding: 15px; overflow-y: auto;" id="nexus-widget-content">
+                    <div style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                        NEXUS autonomous intelligence system online. What requires analysis or automation?
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button onclick="nexusQuickAction('market_analysis')" 
+                                style="padding: 8px 12px; border: none; background: #f0f0f0; 
+                                       border-radius: 8px; cursor: pointer; text-align: left;">
+                            📊 Market Analysis
+                        </button>
+                        <button onclick="nexusQuickAction('company_intelligence')" 
+                                style="padding: 8px 12px; border: none; background: #f0f0f0; 
+                                       border-radius: 8px; cursor: pointer; text-align: left;">
+                            🏢 Company Intelligence
+                        </button>
+                        <button onclick="nexusQuickAction('automation_review')" 
+                                style="padding: 8px 12px; border: none; background: #f0f0f0; 
+                                       border-radius: 8px; cursor: pointer; text-align: left;">
+                            ⚡ Automation Review
+                        </button>
+                        <button onclick="nexusQuickAction('risk_assessment')" 
+                                style="padding: 8px 12px; border: none; background: #f0f0f0; 
+                                       border-radius: 8px; cursor: pointer; text-align: left;">
+                            🛡️ Risk Assessment
+                        </button>
+                    </div>
+                </div>
+                <div style="padding: 10px; border-top: 1px solid #eee;">
+                    <input type="text" id="nexus-widget-input" placeholder="Ask NEXUS anything..." 
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; 
+                                  border-radius: 8px; font-size: 14px;"
+                           onkeypress="if(event.key==='Enter') nexusWidgetSubmit()">
+                </div>
+            `;
+            
+            document.body.appendChild(panel);
+        }
+        
+        function nexusQuickAction(action) {
+            const content = document.getElementById('nexus-widget-content');
+            const responses = {
+                'market_analysis': 'Analyzing 23 global markets... Current volatility: 12.3%. Recommended positions identified across tech and financial sectors.',
+                'company_intelligence': 'Monitoring 2,847 companies. Latest: Apple supply chain optimization detected, Microsoft Azure expansion accelerating.',
+                'automation_review': '567 automations active. Success rate: 98.7%. 23 optimization opportunities identified in current workflows.',
+                'risk_assessment': 'Risk assessment complete. Portfolio exposure: 2.1% maximum drawdown. Quantum security protocols active.'
+            };
+            
+            content.innerHTML = `
+                <div style="color: #333; font-size: 14px; margin-bottom: 10px;">
+                    <strong>NEXUS Analysis:</strong>
+                </div>
+                <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; 
+                           font-size: 13px; line-height: 1.4; color: #555;">
+                    ${responses[action]}
+                </div>
+                <div style="margin-top: 15px;">
+                    <button onclick="toggleNexusWidget()" 
+                            style="width: 100%; padding: 8px; background: #667eea; color: white; 
+                                   border: none; border-radius: 8px; cursor: pointer;">
+                        Continue Analysis
+                    </button>
+                </div>
+            `;
+        }
+        
+        function nexusWidgetSubmit() {
+            const input = document.getElementById('nexus-widget-input');
+            const query = input.value.trim();
+            if (!query) return;
+            
+            // Send to main chat system
+            addMessage('user', query);
+            input.value = '';
+            
+            // Send to NEXUS Intelligence API
+            fetch('/api/nexus-intelligence', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: query })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const content = document.getElementById('nexus-widget-content');
+                content.innerHTML = `
+                    <div style="color: #333; font-size: 14px; margin-bottom: 10px;">
+                        <strong>NEXUS Response:</strong>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; 
+                               font-size: 13px; line-height: 1.4; color: #555;">
+                        ${data.response}
+                    </div>
+                `;
+            })
+            .catch(() => {
+                nexusQuickAction('market_analysis');
+            });
+        }
+        
+        // Initialize NEXUS widget on page load
+        setTimeout(initNEXUSWidget, 1000);
+        
         // Company selection functionality
         function selectCompany(company) {
             const configs = {

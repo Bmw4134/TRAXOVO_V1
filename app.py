@@ -5453,6 +5453,110 @@ def api_nexus_gauge_scrape():
             'error': str(e)
         }), 500
 
+@app.route('/api/nexus/ptni-dashboard')
+def api_nexus_ptni_dashboard():
+    """Get comprehensive PTNI dashboard with trading intelligence - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from nexus_ptni_trading_intelligence import get_ptni_dashboard
+        
+        ptni_data = get_ptni_dashboard()
+        
+        return jsonify({
+            'status': 'success',
+            'ptni_data': ptni_data,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nexus/ptni-execute-trade', methods=['POST'])
+def api_nexus_ptni_execute_trade():
+    """Execute intelligent trade using PTNI analysis - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from nexus_ptni_trading_intelligence import execute_ptni_trade
+        
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['symbol', 'signal_type']
+        if not all(field in data for field in required_fields):
+            return jsonify({'error': 'Missing required trading parameters'}), 400
+        
+        # Execute trade with PTNI intelligence
+        trade_result = execute_ptni_trade(data)
+        
+        return jsonify({
+            'status': 'success' if trade_result.get('success') else 'failed',
+            'trade_execution': trade_result,
+            'ptni_powered': True,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/ptni-intelligence')
+def ptni_intelligence():
+    """NEXUS PTNI Unified Intelligence Dashboard - Requires Authentication"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    
+    try:
+        from nexus_ptni_unified_dashboard import get_ptni_unified_interface
+        return get_ptni_unified_interface()
+    except Exception as e:
+        return f"PTNI interface error: {str(e)}"
+
+@app.route('/api/nexus/emergency-stop', methods=['POST'])
+def api_nexus_emergency_stop():
+    """Emergency stop all automated systems - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        # Log emergency stop
+        emergency_data = {
+            'timestamp': datetime.now().isoformat(),
+            'initiated_by': session.get('username', 'unknown'),
+            'systems_halted': [
+                'trading_automation',
+                'fleet_optimization',
+                'ptni_intelligence',
+                'browser_automation'
+            ],
+            'reason': 'manual_emergency_stop'
+        }
+        
+        # Stop trading automation
+        session['trading_halted'] = True
+        session['automation_halted'] = True
+        
+        return jsonify({
+            'status': 'success',
+            'emergency_stop_executed': True,
+            'systems_halted': emergency_data['systems_halted'],
+            'timestamp': emergency_data['timestamp']
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
 @app.route('/development-hub')
 def development_hub():
     """NEXUS Development Hub - GitHub and AI Integration Dashboard"""

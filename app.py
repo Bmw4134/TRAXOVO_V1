@@ -2502,6 +2502,14 @@ def inject_navigation(response):
                 except:
                     voice_html = ""
                 
+                # Import total recall system
+                try:
+                    import nexus_total_recall
+                    total_recall = nexus_total_recall.NexusTotalRecall()
+                    total_recall_html = total_recall.activate_voice_command_overlay()
+                except:
+                    total_recall_html = ""
+                
                 nav_html = f'''
 <script>
 // Aggressive cleanup of all existing widgets
@@ -2810,13 +2818,118 @@ setTimeout(() => {{
 }}, 1000);
 </script>
 
-<!-- Voice Commands and Archive Search Interface -->
-{voice_html}
-
-<div id="voice-archive-controls" style="position: fixed; bottom: 200px; right: 20px; z-index: 49100; display: flex; flex-direction: column; gap: 8px;">
-    <div class="voice-control-button" style="width: 45px; height: 45px; background: linear-gradient(135deg, #3742fa 0%, #00d4ff 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-weight: bold; box-shadow: 0 4px 15px rgba(55, 66, 250, 0.3); transition: all 0.3s ease;" title="Voice Commands (Ctrl+Shift+M)" onclick="toggleVoiceInterface()">🎤</div>
-    <div class="archive-control-button" style="width: 45px; height: 45px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-weight: bold; box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3); transition: all 0.3s ease;" title="Archive Search (Ctrl+Shift+S)" onclick="toggleArchiveSearch()">🔍</div>
+<!-- NEXUS Control Panel - Always Visible -->
+<div id="nexus-control-panel" style="position: fixed; top: 20px; right: 20px; width: 280px; background: rgba(26, 26, 46, 0.95); border: 2px solid #00ff88; border-radius: 10px; z-index: 51000; backdrop-filter: blur(15px); font-family: 'Courier New', monospace;">
+    <div style="padding: 12px; background: linear-gradient(90deg, #00ff88, #00d4ff); color: black; font-weight: bold; text-align: center; border-radius: 8px 8px 0 0; font-size: 12px;">
+        NEXUS TOTAL CONTROL
+    </div>
+    
+    <!-- Main Controls -->
+    <div style="padding: 15px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+            <button onclick="startVoiceCommand()" style="padding: 8px; background: linear-gradient(45deg, #3742fa, #00d4ff); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 10px;">
+                🎤 VOICE
+            </button>
+            <button onclick="openArchiveSearch()" style="padding: 8px; background: linear-gradient(45deg, #43e97b, #38f9d7); color: black; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 10px;">
+                🔍 SEARCH
+            </button>
+            <button onclick="toggleFullscreen()" style="padding: 8px; background: linear-gradient(45deg, #fa709a, #fee140); color: black; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 10px;">
+                ⛶ FULL
+            </button>
+            <button onclick="showSystemStatus()" style="padding: 8px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 10px;">
+                📊 STATUS
+            </button>
+        </div>
+        
+        <!-- Quick Voice Commands -->
+        <div style="border-top: 1px solid rgba(0, 255, 136, 0.3); padding-top: 10px; margin-bottom: 10px;">
+            <div style="color: #00ff88; font-size: 9px; font-weight: bold; margin-bottom: 6px;">QUICK COMMANDS:</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                <button onclick="executeQuickCommand('admin')" style="padding: 4px; background: rgba(55, 66, 250, 0.3); color: white; border: 1px solid #3742fa; border-radius: 4px; cursor: pointer; font-size: 8px;">ADMIN</button>
+                <button onclick="executeQuickCommand('dashboard')" style="padding: 4px; background: rgba(55, 66, 250, 0.3); color: white; border: 1px solid #3742fa; border-radius: 4px; cursor: pointer; font-size: 8px;">DASH</button>
+                <button onclick="executeQuickCommand('upload')" style="padding: 4px; background: rgba(67, 233, 123, 0.3); color: white; border: 1px solid #43e97b; border-radius: 4px; cursor: pointer; font-size: 8px;">UPLOAD</button>
+                <button onclick="executeQuickCommand('automation')" style="padding: 4px; background: rgba(250, 112, 154, 0.3); color: white; border: 1px solid #fa709a; border-radius: 4px; cursor: pointer; font-size: 8px;">AUTO</button>
+            </div>
+        </div>
+        
+        <!-- System Status Indicators -->
+        <div style="border-top: 1px solid rgba(0, 255, 136, 0.3); padding-top: 8px;">
+            <div style="display: flex; justify-content: space-between; font-size: 8px; color: #ccc;">
+                <span>Voice: <span id="voice-status-indicator" style="color: #00ff88;">READY</span></span>
+                <span>Archive: <span id="archive-status-indicator" style="color: #00ff88;">READY</span></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 8px; color: #ccc; margin-top: 2px;">
+                <span>Auto: <span id="auto-status-indicator" style="color: #00ff88;">READY</span></span>
+                <span>API: <span id="api-status-indicator" style="color: #00ff88;">ONLINE</span></span>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Voice Command Input Modal -->
+<div id="voice-command-modal" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: rgba(26, 26, 46, 0.98); border: 2px solid #3742fa; border-radius: 12px; z-index: 52000; display: none; backdrop-filter: blur(20px);">
+    <div style="padding: 15px; border-bottom: 1px solid #3742fa; color: #3742fa; font-weight: bold; text-align: center;">
+        🎤 Voice Command Interface
+    </div>
+    <div style="padding: 20px;">
+        <div style="margin-bottom: 15px;">
+            <button id="start-voice-btn" onclick="startListening()" style="width: 100%; padding: 12px; background: linear-gradient(45deg, #3742fa, #00d4ff); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                🎤 Start Listening
+            </button>
+        </div>
+        <div id="voice-input-display" style="background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 6px; color: #fff; font-size: 12px; min-height: 60px; margin-bottom: 15px;">
+            Click "Start Listening" and speak your command...
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="closeVoiceModal()" style="flex: 1; padding: 8px; background: rgba(255, 71, 87, 0.3); color: white; border: 1px solid #ff4757; border-radius: 6px; cursor: pointer;">Close</button>
+            <button onclick="executeTextCommand()" style="flex: 2; padding: 8px; background: linear-gradient(45deg, #43e97b, #38f9d7); color: black; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Execute Command</button>
+        </div>
+    </div>
+</div>
+
+<!-- Archive Search Modal -->
+<div id="archive-search-modal" style="position: fixed; top: 10%; right: 20px; width: 350px; max-height: 70vh; background: rgba(26, 26, 46, 0.98); border: 2px solid #43e97b; border-radius: 12px; z-index: 52000; display: none; backdrop-filter: blur(20px);">
+    <div style="padding: 15px; border-bottom: 1px solid #43e97b; color: #43e97b; font-weight: bold; text-align: center;">
+        🔍 Archive & Memory Search
+    </div>
+    <div style="padding: 20px;">
+        <div style="margin-bottom: 15px;">
+            <input type="text" id="archive-search-input" placeholder="Search files, memory, automation..." style="width: 100%; padding: 10px; background: rgba(255, 255, 255, 0.1); border: 1px solid #43e97b; border-radius: 6px; color: white; font-size: 12px;">
+        </div>
+        <div style="margin-bottom: 15px;">
+            <button onclick="performArchiveSearch()" style="width: 100%; padding: 10px; background: linear-gradient(45deg, #43e97b, #38f9d7); color: black; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                Search Archives
+            </button>
+        </div>
+        <div id="archive-search-results" style="max-height: 300px; overflow-y: auto; color: #fff; font-size: 11px;">
+            <div style="text-align: center; color: #888; padding: 20px;">
+                Enter search terms to find files, cached memory, and automation opportunities
+            </div>
+        </div>
+        <div style="margin-top: 15px;">
+            <button onclick="closeArchiveModal()" style="width: 100%; padding: 8px; background: rgba(255, 71, 87, 0.3); color: white; border: 1px solid #ff4757; border-radius: 6px; cursor: pointer;">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- System Status Modal -->
+<div id="system-status-modal" style="position: fixed; top: 10%; left: 20px; width: 400px; background: rgba(26, 26, 46, 0.98); border: 2px solid #667eea; border-radius: 12px; z-index: 52000; display: none; backdrop-filter: blur(20px);">
+    <div style="padding: 15px; border-bottom: 1px solid #667eea; color: #667eea; font-weight: bold; text-align: center;">
+        📊 NEXUS System Status
+    </div>
+    <div style="padding: 20px;">
+        <div id="system-status-content" style="color: #fff; font-size: 11px; font-family: monospace;">
+            Loading system status...
+        </div>
+        <div style="margin-top: 15px;">
+            <button onclick="refreshSystemStatus()" style="width: 48%; padding: 8px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; border-radius: 6px; cursor: pointer; margin-right: 4%;">Refresh</button>
+            <button onclick="closeStatusModal()" style="width: 48%; padding: 8px; background: rgba(255, 71, 87, 0.3); color: white; border: 1px solid #ff4757; border-radius: 6px; cursor: pointer;">Close</button>
+        </div>
+    </div>
+</div>
+
+{voice_html}
+{total_recall_html}
 
 <script>
 // Add hover effects to voice/archive controls

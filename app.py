@@ -3894,25 +3894,55 @@ def browser_automation_suite():
         let activeBrowserTab = null;
         let browserWindowCounter = 0;
         
-        // Initialize NEXUS Browser System
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(initializeBrowserSystem, 500); // Delay to ensure DOM is ready
-        });
-        
+        // NEXUS Browser System - Always functional approach
         function initializeBrowserSystem() {
-            const container = document.getElementById('browser-windows-container');
-            const logPanel = document.getElementById('automation-log');
+            console.log('NEXUS Browser System initializing...');
             
-            if (container && logPanel) {
-                addLog('NEXUS Multi-View Browser System initialized', 'info');
-                container.style.display = 'flex';
-                addBrowserWindow('https://example.com', 'Demo Browser');
-                addLog('Browser windows container is now visible', 'info');
-            } else {
-                console.error('Required DOM elements not found:', { container, logPanel });
-                setTimeout(initializeBrowserSystem, 1000); // Retry after 1 second
+            // Ensure we have a working log function
+            if (!window.addLog) {
+                window.addLog = function(msg, type) {
+                    console.log(`[${type || 'info'}] ${msg}`);
+                };
             }
+            
+            // Find or create browser container
+            let container = document.getElementById('browser-windows-container');
+            
+            if (!container) {
+                console.log('Creating new browser container');
+                container = document.createElement('div');
+                container.id = 'browser-windows-container';
+                container.style.cssText = `
+                    position: fixed; right: 20px; top: 80px; 
+                    width: 50%; height: calc(100vh - 80px);
+                    background: rgba(0,0,0,0.9); border: 2px solid #00ff88;
+                    border-radius: 10px; z-index: 1000; display: flex;
+                    flex-direction: column;
+                `;
+                
+                container.innerHTML = `
+                    <div style="background: linear-gradient(45deg, #00ff88, #00d4ff); color: #000; padding: 10px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;">
+                        <span>🌐 NEXUS Live Browser Sessions</span>
+                        <div>
+                            <button onclick="addBrowserWindow()" style="background: rgba(0,0,0,0.2); border: none; color: #000; padding: 5px 10px; border-radius: 3px; margin-right: 5px; cursor: pointer;">+</button>
+                            <button onclick="minimizeBrowserContainer()" style="background: rgba(0,0,0,0.2); border: none; color: #000; padding: 5px 10px; border-radius: 3px; cursor: pointer;">−</button>
+                        </div>
+                    </div>
+                    <div id="browser-tabs" style="display: flex; background: rgba(0, 0, 0, 0.3); border-bottom: 1px solid #00ff88; overflow-x: auto;"></div>
+                    <div id="browser-windows" style="flex: 1; position: relative; overflow: hidden;"></div>
+                `;
+                
+                document.body.appendChild(container);
+            }
+            
+            // Initialize first browser window
+            addBrowserWindow('https://example.com', 'Demo Browser');
+            addLog('NEXUS Multi-View Browser System operational', 'success');
+            console.log('NEXUS Browser System fully operational');
         }
+        
+        // Initialize immediately when script loads
+        initializeBrowserSystem();
         
         function addBrowserWindow(url = 'about:blank', title = 'New Browser') {
             browserWindowCounter++;

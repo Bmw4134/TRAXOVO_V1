@@ -184,15 +184,14 @@ def get_landing_page():
         </form>
         
         <div class="demo-credentials">
-            <h4>Available Accounts:</h4>
-            <div class="credential-item">
-                <span>Admin Access:</span>
-                <span>admin / nexus_admin_2025</span>
-            </div>
+            <h4>Demo Account Available:</h4>
             <div class="credential-item">
                 <span>Demo Access:</span>
                 <span>demo / nexus_demo_2025</span>
             </div>
+            <p style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;">
+                Admin credentials are provided separately for security.
+            </p>
         </div>
     </div>
     

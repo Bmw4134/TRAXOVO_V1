@@ -869,7 +869,12 @@ JDD_EXECUTIVE_DASHBOARD = """
 # Routes
 @app.route('/')
 def index():
-    """NEXUS Automation Platform - Direct Access"""
+    """NEXUS Automation Platform - Direct Access to Browser Suite"""
+    return redirect('/browser-automation')
+
+@app.route('/nexus-home')
+def nexus_home():
+    """NEXUS Home Page"""
     return render_template_string("""
 <!DOCTYPE html>
 <html>
@@ -3392,6 +3397,471 @@ def api_nexus_legacy_automation_setup():
         return jsonify({
             "success": False,
             "error": str(e)
+        })
+
+@app.route('/browser-automation')
+def browser_automation_suite():
+    """Headless Browser Automation Suite Interface"""
+    return render_template_string('''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NEXUS Browser Automation Suite</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Courier New', monospace; 
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #00ff88;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .title { font-size: 2.5rem; font-weight: bold; text-shadow: 0 0 20px #00ff88; margin-bottom: 10px; }
+        .subtitle { font-size: 1.2rem; color: #00d4ff; opacity: 0.8; }
+        .control-panel { 
+            background: rgba(26, 26, 46, 0.9); 
+            border: 2px solid #00ff88; 
+            border-radius: 15px; 
+            padding: 25px; 
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .automation-card {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .automation-card:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+        .card-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 10px; color: #00ff88; }
+        .card-description { font-size: 0.9rem; color: #ccc; margin-bottom: 15px; line-height: 1.4; }
+        .execute-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #00ff88, #00d4ff);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .execute-btn:hover { transform: scale(1.05); }
+        .status-panel {
+            background: rgba(26, 26, 46, 0.9);
+            border: 2px solid #00d4ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+        }
+        .status-item:last-child { border-bottom: none; }
+        .status-label { color: #00d4ff; }
+        .status-value { color: #00ff88; font-weight: bold; }
+        .log-panel {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            height: 200px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            color: #00ff88;
+            margin-bottom: 5px;
+        }
+        .log-entry.error { color: #ff4757; }
+        .log-entry.warning { color: #ffa502; }
+        .log-entry.info { color: #00d4ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">NEXUS BROWSER AUTOMATION SUITE</div>
+            <div class="subtitle">Headless Browser Control & Web Automation</div>
+        </div>
+        
+        <div class="control-panel">
+            <h3 style="color: #00ff88; margin-bottom: 20px;">Browser Session Control</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <button onclick="createSession()" class="execute-btn">Create New Session</button>
+                <button onclick="listSessions()" class="execute-btn">List Active Sessions</button>
+                <button onclick="killAllSessions()" class="execute-btn" style="background: linear-gradient(45deg, #ff4757, #ff6b7a);">Kill All Sessions</button>
+                <button onclick="getSessionStats()" class="execute-btn">Session Statistics</button>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div class="automation-card" onclick="executeTimecard()">
+                <div class="card-title">Timecard Automation</div>
+                <div class="card-description">Automated timecard entry with real browser interaction. Handles login, navigation, and time entry forms.</div>
+                <button class="execute-btn">Execute Timecard Entry</button>
+            </div>
+            
+            <div class="automation-card" onclick="executeWebScraping()">
+                <div class="card-title">Web Data Scraping</div>
+                <div class="card-description">Extract data from websites using headless browser automation. Handles dynamic content and JavaScript.</div>
+                <button class="execute-btn">Start Web Scraping</button>
+            </div>
+            
+            <div class="automation-card" onclick="executeFormFilling()">
+                <div class="card-title">Form Automation</div>
+                <div class="card-description">Automatically fill and submit web forms. Supports complex multi-step forms and validation.</div>
+                <button class="execute-btn">Execute Form Filling</button>
+            </div>
+            
+            <div class="automation-card" onclick="executePageTesting()">
+                <div class="card-title">Page Testing</div>
+                <div class="card-description">Automated testing of web pages, form validation, and user interaction flows.</div>
+                <button class="execute-btn">Run Page Tests</button>
+            </div>
+            
+            <div class="automation-card" onclick="executeCustomScript()">
+                <div class="card-title">Custom Browser Script</div>
+                <div class="card-description">Execute custom JavaScript automation scripts in headless browser environment.</div>
+                <button class="execute-btn">Run Custom Script</button>
+            </div>
+            
+            <div class="automation-card" onclick="executeMonitoring()">
+                <div class="card-title">Website Monitoring</div>
+                <div class="card-description">Monitor website changes, availability, and performance metrics automatically.</div>
+                <button class="execute-btn">Start Monitoring</button>
+            </div>
+        </div>
+        
+        <div class="status-panel">
+            <h3 style="color: #00d4ff; margin-bottom: 15px;">System Status</h3>
+            <div class="status-item">
+                <span class="status-label">Active Browser Sessions:</span>
+                <span class="status-value" id="active-sessions">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Selenium Driver Status:</span>
+                <span class="status-value" id="driver-status">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Automation Queue:</span>
+                <span class="status-value" id="queue-status">Empty</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Last Execution:</span>
+                <span class="status-value" id="last-execution">Never</span>
+            </div>
+        </div>
+        
+        <div class="log-panel" id="automation-log">
+            <div class="log-entry info">[SYSTEM] NEXUS Browser Automation Suite initialized</div>
+            <div class="log-entry info">[SYSTEM] Waiting for automation commands...</div>
+        </div>
+    </div>
+    
+    <script>
+        function addLog(message, type = 'info') {
+            const logPanel = document.getElementById('automation-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logPanel.appendChild(logEntry);
+            logPanel.scrollTop = logPanel.scrollHeight;
+        }
+        
+        function updateStatus(field, value) {
+            document.getElementById(field).textContent = value;
+        }
+        
+        async function createSession() {
+            addLog('Creating new browser session...', 'info');
+            try {
+                const response = await fetch('/api/browser/create-session', { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    addLog(`Session created: ${data.session_id}`, 'info');
+                    updateStatus('active-sessions', data.active_sessions || 1);
+                } else {
+                    addLog(`Session creation failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Network error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function listSessions() {
+            addLog('Fetching active sessions...', 'info');
+            try {
+                const response = await fetch('/api/browser/sessions');
+                const data = await response.json();
+                if (data.success) {
+                    addLog(`Active sessions: ${data.sessions.length}`, 'info');
+                    data.sessions.forEach(session => {
+                        addLog(`Session ${session.id}: ${session.status}`, 'info');
+                    });
+                    updateStatus('active-sessions', data.sessions.length);
+                }
+            } catch (error) {
+                addLog(`Failed to fetch sessions: ${error.message}`, 'error');
+            }
+        }
+        
+        async function killAllSessions() {
+            addLog('Terminating all browser sessions...', 'warning');
+            try {
+                const response = await fetch('/api/browser/kill-all', { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    addLog('All sessions terminated', 'info');
+                    updateStatus('active-sessions', 0);
+                }
+            } catch (error) {
+                addLog(`Failed to terminate sessions: ${error.message}`, 'error');
+            }
+        }
+        
+        async function executeTimecard() {
+            addLog('Starting timecard automation...', 'info');
+            try {
+                const response = await fetch('/api/browser/timecard', { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    addLog('Timecard automation completed', 'info');
+                    updateStatus('last-execution', 'Timecard Entry');
+                } else {
+                    addLog(`Timecard automation failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Timecard error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function executeWebScraping() {
+            addLog('Starting web scraping automation...', 'info');
+            try {
+                const response = await fetch('/api/browser/scrape', { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    addLog(`Scraped ${data.items_found || 0} items`, 'info');
+                    updateStatus('last-execution', 'Web Scraping');
+                } else {
+                    addLog(`Scraping failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Scraping error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function executeFormFilling() {
+            addLog('Starting form automation...', 'info');
+            try {
+                const response = await fetch('/api/browser/form-fill', { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    addLog('Form filling completed', 'info');
+                    updateStatus('last-execution', 'Form Filling');
+                } else {
+                    addLog(`Form filling failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Form error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function executePageTesting() {
+            addLog('Starting page testing...', 'info');
+            try {
+                const response = await fetch('/api/browser/test-page', { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    addLog(`Page tests completed: ${data.tests_passed}/${data.total_tests} passed`, 'info');
+                    updateStatus('last-execution', 'Page Testing');
+                } else {
+                    addLog(`Page testing failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Testing error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function executeCustomScript() {
+            const script = prompt('Enter custom JavaScript to execute:');
+            if (script) {
+                addLog('Executing custom script...', 'info');
+                try {
+                    const response = await fetch('/api/browser/custom-script', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ script: script })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        addLog('Custom script executed successfully', 'info');
+                        updateStatus('last-execution', 'Custom Script');
+                    } else {
+                        addLog(`Script execution failed: ${data.error}`, 'error');
+                    }
+                } catch (error) {
+                    addLog(`Script error: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        async function executeMonitoring() {
+            addLog('Starting website monitoring...', 'info');
+            try {
+                const response = await fetch('/api/browser/monitor', { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    addLog('Monitoring started', 'info');
+                    updateStatus('last-execution', 'Website Monitoring');
+                } else {
+                    addLog(`Monitoring failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Monitoring error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function getSessionStats() {
+            try {
+                const response = await fetch('/api/browser/stats');
+                const data = await response.json();
+                if (data.success) {
+                    updateStatus('active-sessions', data.active_sessions);
+                    updateStatus('driver-status', data.driver_status);
+                    updateStatus('queue-status', data.queue_status);
+                    addLog('System status updated', 'info');
+                }
+            } catch (error) {
+                addLog(`Status update failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-refresh status every 30 seconds
+        setInterval(getSessionStats, 30000);
+        
+        // Initial status check
+        setTimeout(getSessionStats, 1000);
+    </script>
+</body>
+</html>
+    ''')
+
+@app.route('/api/browser/create-session', methods=['POST'])
+def api_browser_create_session():
+    """Create new browser automation session"""
+    try:
+        import nexus_browser_automation
+        browser_automation = nexus_browser_automation.NexusBrowserAutomation()
+        
+        result = browser_automation.create_browser_session()
+        
+        return jsonify({
+            "success": True,
+            "session_id": result.get("session_id"),
+            "status": "created",
+            "active_sessions": len(browser_automation.active_sessions)
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
+
+@app.route('/api/browser/sessions')
+def api_browser_sessions():
+    """Get active browser sessions"""
+    try:
+        import nexus_browser_automation
+        browser_automation = nexus_browser_automation.NexusBrowserAutomation()
+        
+        sessions = []
+        for session_id, session_data in browser_automation.active_sessions.items():
+            sessions.append({
+                "id": session_id,
+                "status": session_data.get("status"),
+                "created_at": session_data.get("created_at")
+            })
+        
+        return jsonify({
+            "success": True,
+            "sessions": sessions
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
+
+@app.route('/api/browser/timecard', methods=['POST'])
+def api_browser_timecard():
+    """Execute timecard automation"""
+    try:
+        import nexus_browser_automation
+        browser_automation = nexus_browser_automation.NexusBrowserAutomation()
+        
+        # Create session if none exists
+        if not browser_automation.active_sessions:
+            session_result = browser_automation.create_browser_session()
+        
+        # Execute timecard automation
+        result = browser_automation.automate_timecard_entry()
+        
+        return jsonify({
+            "success": True,
+            "result": result,
+            "message": "Timecard automation completed"
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
+
+@app.route('/api/browser/stats')
+def api_browser_stats():
+    """Get browser automation statistics"""
+    try:
+        import nexus_browser_automation
+        browser_automation = nexus_browser_automation.NexusBrowserAutomation()
+        
+        return jsonify({
+            "success": True,
+            "active_sessions": len(browser_automation.active_sessions),
+            "driver_status": "Ready" if browser_automation.active_sessions else "No Active Sessions",
+            "queue_status": "Empty",
+            "automation_log_count": len(browser_automation.automation_log)
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "active_sessions": 0,
+            "driver_status": "Error",
+            "queue_status": "Unknown"
         })
 
 if __name__ == "__main__":

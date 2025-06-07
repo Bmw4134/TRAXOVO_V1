@@ -11,6 +11,7 @@ from flask import Flask, render_template_string, jsonify, request, session, redi
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from nexus_wow_tester import wow_tester
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -4929,6 +4930,66 @@ def api_ptni_emergency_stop():
             'success': False,
             'error': str(e)
         })
+
+# WOW Tester Routes - Public Demo System
+@app.route('/wow-tester-join')
+def wow_tester_join():
+    """Public welcome landing page for wow tester demos"""
+    return wow_tester.get_welcome_landing()
+
+@app.route('/wow-tester/login')
+def wow_tester_login():
+    """Secure login screen for wow testers"""
+    return wow_tester.get_login_screen()
+
+@app.route('/wow-tester/authenticate', methods=['POST'])
+def wow_tester_authenticate():
+    """Handle wow tester authentication"""
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    if username == wow_tester.test_credentials['username'] and password == wow_tester.test_credentials['password']:
+        # Create demo session
+        ip_address = request.remote_addr or 'unknown'
+        user_agent = request.headers.get('User-Agent', 'unknown')
+        session_id = wow_tester.create_demo_session(ip_address, user_agent)
+        
+        # Store session
+        session['wow_tester_session'] = session_id
+        session['wow_tester_authenticated'] = True
+        
+        return redirect('/wow-tester/dashboard')
+    else:
+        return redirect('/wow-tester/login?error=invalid')
+
+@app.route('/wow-tester/dashboard')
+def wow_tester_dashboard():
+    """Eye-popper demo dashboard for authenticated testers"""
+    if not session.get('wow_tester_authenticated'):
+        return redirect('/wow-tester/login')
+    
+    session_id = session.get('wow_tester_session')
+    return wow_tester.get_demo_dashboard(session_id)
+
+@app.route('/wow-tester/log-interaction', methods=['POST'])
+def wow_tester_log_interaction():
+    """Log demo interaction to database"""
+    if not session.get('wow_tester_authenticated'):
+        return jsonify({'error': 'unauthorized'}), 401
+    
+    data = request.json
+    session_id = data.get('session_id')
+    interaction_type = data.get('interaction_type')
+    content = data.get('content')
+    ai_response = data.get('ai_response', '')
+    
+    wow_tester.log_demo_interaction(session_id, interaction_type, content, ai_response)
+    
+    return jsonify({
+        'status': 'logged',
+        'interaction_type': interaction_type,
+        'timestamp': datetime.now().isoformat()
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)

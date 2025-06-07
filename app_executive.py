@@ -2168,9 +2168,9 @@ def executive_landing():
         
         .nexus-chat {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
+            bottom: 30px;
+            right: 30px;
+            z-index: 999;
         }
         
         .chat-toggle {
@@ -2178,12 +2178,13 @@ def executive_landing():
             color: white;
             border: none;
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
             cursor: pointer;
-            font-size: 24px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            font-size: 20px;
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
             transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
         
         .chat-toggle:hover {

@@ -32,6 +32,239 @@ if database_url:
     }
     db = SQLAlchemy(app, model_class=Base)
 
+@app.route('/upload')
+def file_upload_interface():
+    """File Upload Interface for Legacy Workbook Automation"""
+    return '''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS File Upload - Legacy Workbook Automation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .upload-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 { font-size: 2.5em; margin-bottom: 20px; color: #00ff88; }
+        .upload-area {
+            border: 3px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 60px 20px;
+            margin: 30px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+        .upload-icon { font-size: 4em; margin-bottom: 20px; }
+        .upload-text { font-size: 1.2em; margin-bottom: 10px; }
+        .file-input { display: none; }
+        .process-btn {
+            background: linear-gradient(45deg, #00ff88, #00d4ff);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 20px 10px;
+            transition: transform 0.3s ease;
+        }
+        .process-btn:hover { transform: translateY(-2px); }
+        .file-info {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        .analysis-results {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <h1>NEXUS File Processor</h1>
+        <p>Upload your legacy workbook for automated analysis and workflow generation</p>
+        
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">📊</div>
+            <div class="upload-text">Click to upload Excel workbook</div>
+            <div style="font-size: 0.9em; opacity: 0.7;">Supports .xlsx, .xls files</div>
+        </div>
+        
+        <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" onchange="handleFileSelect(event)">
+        
+        <div id="fileInfo" class="file-info">
+            <h3>Selected File:</h3>
+            <p id="fileName"></p>
+            <p id="fileSize"></p>
+        </div>
+        
+        <button class="process-btn" onclick="processFile()" id="processBtn" style="display:none;">
+            Analyze & Generate Automation
+        </button>
+        
+        <button class="process-btn" onclick="window.location.href='/'">
+            Return to Dashboard
+        </button>
+        
+        <div id="analysisResults" class="analysis-results">
+            <h3>Analysis Results:</h3>
+            <div id="analysisContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        
+        function handleFileSelect(event) {
+            selectedFile = event.target.files[0];
+            if (selectedFile) {
+                document.getElementById('fileName').textContent = selectedFile.name;
+                document.getElementById('fileSize').textContent = formatFileSize(selectedFile.size);
+                document.getElementById('fileInfo').style.display = 'block';
+                document.getElementById('processBtn').style.display = 'inline-block';
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        async function processFile() {
+            if (!selectedFile) return;
+            
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            
+            document.getElementById('processBtn').textContent = 'Processing...';
+            document.getElementById('processBtn').disabled = true;
+            
+            try {
+                const response = await fetch('/api/process-file', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('analysisContent').innerHTML = `
+                        <h4>File Analysis Complete</h4>
+                        <p><strong>Sheets Detected:</strong> ${result.analysis.total_sheets}</p>
+                        <p><strong>Automation Opportunities:</strong> ${result.analysis.automation_opportunities.join(', ')}</p>
+                        <p><strong>Recommended Automation:</strong> ${result.recommendations.implementation_complexity}</p>
+                        <p><strong>Estimated Time Savings:</strong> ${result.recommendations.estimated_time_savings}</p>
+                        <h4>Generated Workflow:</h4>
+                        <pre style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; overflow-x: auto; font-size: 0.9em;">${result.workflow_script.substring(0, 500)}...</pre>
+                        <p><em>Complete automation script generated and ready for deployment.</em></p>
+                    `;
+                    document.getElementById('analysisResults').style.display = 'block';
+                } else {
+                    document.getElementById('analysisContent').innerHTML = `
+                        <p style="color: #ff6b6b;">Analysis failed: ${result.error}</p>
+                    `;
+                    document.getElementById('analysisResults').style.display = 'block';
+                }
+            } catch (error) {
+                document.getElementById('analysisContent').innerHTML = `
+                    <p style="color: #ff6b6b;">Upload failed: ${error.message}</p>
+                `;
+                document.getElementById('analysisResults').style.display = 'block';
+            }
+            
+            document.getElementById('processBtn').textContent = 'Analyze & Generate Automation';
+            document.getElementById('processBtn').disabled = false;
+        }
+    </script>
+</body>
+</html>
+    '''
+
+@app.route('/api/process-file', methods=['POST'])
+def process_uploaded_file():
+    """Process uploaded workbook and generate automation"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'error': 'No file uploaded'})
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'success': False, 'error': 'No file selected'})
+        
+        # Save uploaded file temporarily
+        import tempfile
+        import os
+        from nexus_file_processor import nexus_processor
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp_file:
+            file.save(tmp_file.name)
+            
+            # Analyze file structure
+            analysis = nexus_processor.analyze_excel_structure(tmp_file.name)
+            
+            if 'error' in analysis:
+                os.unlink(tmp_file.name)
+                return jsonify({'success': False, 'error': analysis['error']})
+            
+            # Generate automation recommendations
+            recommendations = nexus_processor.generate_automation_recommendations(analysis)
+            
+            # Create workflow configuration
+            workflow_config = nexus_processor.create_equipment_billing_workflow(analysis)
+            
+            # Generate Python automation script
+            automation_script = nexus_processor.generate_python_automation_script(workflow_config)
+            
+            # Save analysis to database
+            nexus_processor.save_analysis_to_database(file.filename, analysis, recommendations)
+            
+            # Clean up temporary file
+            os.unlink(tmp_file.name)
+            
+            return jsonify({
+                'success': True,
+                'analysis': analysis,
+                'recommendations': recommendations,
+                'workflow_config': workflow_config,
+                'workflow_script': automation_script,
+                'timestamp': datetime.utcnow().isoformat()
+            })
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route('/')
 def executive_landing():
     """NEXUS Executive AI Landing Page with Real-time Intelligence"""

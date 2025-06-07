@@ -2475,18 +2475,95 @@ def inject_navigation(response):
                 data = re.sub(r'<div[^>]*id="nexus-unified-nav"[^>]*>.*?</div>\s*(?:</div>)?', '', data, flags=re.DOTALL)
                 data = re.sub(r'<div[^>]*id="nexus-floating-nav"[^>]*>.*?</div>\s*(?:</div>)?', '', data, flags=re.DOTALL)
                 
-                # Aggressively remove purple widget and any duplicate navigation
-                data = re.sub(r'<div[^>]*style="[^"]*(?:background[^:]*:\s*[^;]*(?:purple|#8A2BE2|#9932CC|rgb\(128,\s*0,\s*128\)|hsl\(270,\s*100%,\s*25%\)))[^"]*"[^>]*>.*?</div>', '', data, flags=re.DOTALL)
-                data = re.sub(r'<div[^>]*style="[^"]*(?:background[^:]*:\s*[^;]*(?:green|#00FF00|#008000|rgb\(0,\s*128,\s*0\)|hsl\(120,\s*100%,\s*25%\)))[^"]*"[^>]*>.*?</div>', '', data, flags=re.DOTALL)
+                # NUCLEAR WIDGET CLEANUP - Target the exact duplicate in your screenshot
+                # Remove all fixed position elements with purple/violet backgrounds
+                data = re.sub(r'<div[^>]*style="[^"]*position:\s*fixed[^"]*background[^:]*:[^;]*(?:purple|violet|#[89AB][0-9A-F]{5}|rgb\(\s*138[^)]*\))[^"]*"[^>]*>.*?</div>', '', data, flags=re.DOTALL)
                 
-                # Remove any fixed position elements that aren't our navigation
-                data = re.sub(r'<div(?![^>]*id="nexus-unified-nav")[^>]*(?:position:\s*fixed|position:fixed)[^>]*>.*?</div>', '', data, flags=re.DOTALL)
+                # Remove any element with "NEXUS" text and purple background
+                data = re.sub(r'<div[^>]*style="[^"]*(?:background|background-color)[^:]*:[^;]*(?:purple|violet|#[89AB][0-9A-F]{5})[^"]*"[^>]*>(?:[^<]*NEXUS[^<]*|[^<]*nexus[^<]*)</div>', '', data, flags=re.DOTALL | re.IGNORECASE)
                 
-                # Remove assistant/widget classes
-                data = re.sub(r'<div[^>]*class="[^"]*(?:assistant|widget|chat)[^"]*"[^>]*>.*?</div>', '', data, flags=re.DOTALL)
+                # Remove rounded corner widgets (common widget pattern)
+                data = re.sub(r'<div[^>]*style="[^"]*border-radius:\s*[0-9]+px[^"]*"[^>]*>(?:[^<]*NEXUS[^<]*)</div>', '', data, flags=re.DOTALL | re.IGNORECASE)
                 
-                # Remove any elements with purple/green colors in background
-                data = re.sub(r'<[^>]*style="[^"]*background[^:]*:[^;]*(?:purple|green|#8A2BE2|#9932CC|#00FF00|#008000)[^"]*"[^>]*>.*?</[^>]*>', '', data, flags=re.DOTALL)
+                # Remove any small fixed position divs with text content
+                data = re.sub(r'<div[^>]*style="[^"]*position:\s*fixed[^"]*width:\s*[0-9]{2,3}px[^"]*height:\s*[0-9]{2,3}px[^"]*"[^>]*>[^<]*\w+[^<]*</div>', '', data, flags=re.DOTALL)
+                
+                # Clean up assistant/chat widgets specifically
+                data = re.sub(r'<div[^>]*(?:class="[^"]*(?:assistant|widget|chat|floating)[^"]*"|id="[^"]*(?:assistant|widget|chat|floating)[^"]*")[^>]*>.*?</div>', '', data, flags=re.DOTALL)
+                
+                # Inject nuclear widget cleanup JavaScript
+                widget_killer_script = '''
+                <script>
+                function destroyDuplicateWidgets() {
+                    // Target the exact purple NEXUS widget from screenshot
+                    document.querySelectorAll('div').forEach(el => {
+                        const style = window.getComputedStyle(el);
+                        const text = el.textContent || '';
+                        const rect = el.getBoundingClientRect();
+                        
+                        // Remove purple/violet widgets containing NEXUS text
+                        if (text.toLowerCase().includes('nexus') && 
+                            (style.backgroundColor.includes('purple') || 
+                             style.backgroundColor.includes('138') ||
+                             style.backgroundColor.includes('violet') ||
+                             style.position === 'fixed')) {
+                            el.remove();
+                            return;
+                        }
+                        
+                        // Remove small fixed position elements with rounded corners (widget pattern)
+                        if (style.position === 'fixed' && 
+                            style.borderRadius && style.borderRadius !== '0px' && 
+                            rect.width < 200 && rect.height < 200) {
+                            el.remove();
+                            return;
+                        }
+                        
+                        // Remove any element with assistant/chat/widget class patterns
+                        if (el.className && 
+                            (el.className.includes('assistant') || 
+                             el.className.includes('widget') || 
+                             el.className.includes('chat') ||
+                             el.className.includes('floating'))) {
+                            el.remove();
+                            return;
+                        }
+                        
+                        // Remove elements with suspicious positioning (top-right corner widgets)
+                        if (style.position === 'fixed' && 
+                            parseInt(style.right) < 100 && 
+                            parseInt(style.top) < 100) {
+                            el.remove();
+                            return;
+                        }
+                    });
+                }
+                
+                // Aggressive cleanup - run immediately and continuously
+                destroyDuplicateWidgets();
+                setInterval(destroyDuplicateWidgets, 500); // Check every 500ms
+                
+                // Monitor DOM changes and destroy widgets immediately
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.addedNodes.length) {
+                            setTimeout(destroyDuplicateWidgets, 100);
+                        }
+                    });
+                });
+                observer.observe(document.body, { childList: true, subtree: true });
+                
+                // Also check on window resize and focus
+                window.addEventListener('resize', destroyDuplicateWidgets);
+                window.addEventListener('focus', destroyDuplicateWidgets);
+                </script>
+                '''
+                
+                # Insert the cleanup script before closing body tag
+                if '</body>' in data:
+                    data = data.replace('</body>', widget_killer_script + '</body>')
+                else:
+                    data += widget_killer_script
                 
                 # Create clean navigation HTML with gesture controls and intelligence feed
                 current_path = request.path

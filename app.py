@@ -1901,5 +1901,266 @@ with app.app_context():
         
         db.session.commit()
 
+# EZ-Integration API Endpoints
+@app.route('/api/ez-integration/trello/setup', methods=['POST'])
+def api_trello_setup():
+    """Setup Trello API integration"""
+    try:
+        data = request.get_json() or {}
+        api_key = data.get('api_key')
+        api_token = data.get('api_token')
+        
+        if not api_key or not api_token:
+            return jsonify({
+                "success": False,
+                "error": "Trello API key and token required",
+                "setup_url": "https://trello.com/app-key"
+            })
+        
+        # Test credentials by making API call
+        import requests
+        response = requests.get(
+            f"https://api.trello.com/1/members/me",
+            params={'key': api_key, 'token': api_token}
+        )
+        
+        if response.status_code == 200:
+            user_data = response.json()
+            return jsonify({
+                "success": True,
+                "username": user_data.get('username'),
+                "full_name": user_data.get('fullName'),
+                "email": user_data.get('email')
+            })
+        else:
+            return jsonify({"success": False, "error": "Invalid credentials"})
+            
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+@app.route('/api/ez-integration/trello/boards', methods=['POST'])
+def api_trello_boards():
+    """Get Trello boards"""
+    try:
+        data = request.get_json() or {}
+        api_key = data.get('api_key')
+        api_token = data.get('api_token')
+        
+        if not api_key or not api_token:
+            return jsonify({"success": False, "error": "Credentials required"})
+        
+        import requests
+        response = requests.get(
+            f"https://api.trello.com/1/members/me/boards",
+            params={'key': api_key, 'token': api_token}
+        )
+        
+        if response.status_code == 200:
+            boards = response.json()
+            return jsonify({"success": True, "boards": boards})
+        else:
+            return jsonify({"success": False, "error": "Failed to fetch boards"})
+            
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+@app.route('/api/ez-integration/trello/create-card', methods=['POST'])
+def api_trello_create_card():
+    """Create Trello card with automation trigger"""
+    try:
+        data = request.get_json() or {}
+        api_key = data.get('api_key')
+        api_token = data.get('api_token')
+        list_id = data.get('list_id')
+        name = data.get('name')
+        desc = data.get('description', 'Created via NEXUS automation')
+        
+        if not all([api_key, api_token, list_id, name]):
+            return jsonify({"success": False, "error": "All fields required"})
+        
+        import requests
+        params = {
+            'key': api_key,
+            'token': api_token,
+            'name': name,
+            'idList': list_id,
+            'desc': desc
+        }
+        
+        response = requests.post("https://api.trello.com/1/cards", params=params)
+        
+        if response.status_code == 200:
+            card = response.json()
+            return jsonify({"success": True, "card": card, "automation_triggered": True})
+        else:
+            return jsonify({"success": False, "error": "Failed to create card"})
+            
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+@app.route('/api/ez-integration/onedrive/auth-url', methods=['POST'])
+def api_onedrive_auth_url():
+    """Get OneDrive OAuth authorization URL"""
+    try:
+        data = request.get_json() or {}
+        client_id = data.get('client_id')
+        
+        if not client_id:
+            return jsonify({
+                "success": False,
+                "error": "Microsoft Client ID required",
+                "setup_instructions": "Register app at https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps"
+            })
+        
+        redirect_uri = "http://localhost:5000/auth/microsoft/callback"
+        scopes = "Files.ReadWrite User.Read offline_access"
+        
+        auth_url = (
+            f"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?"
+            f"client_id={client_id}&"
+            f"response_type=code&"
+            f"redirect_uri={redirect_uri}&"
+            f"scope={scopes}&"
+            f"response_mode=query"
+        )
+        
+        return jsonify({
+            "success": True,
+            "auth_url": auth_url,
+            "redirect_uri": redirect_uri,
+            "scopes": scopes.split()
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+@app.route('/api/ez-integration/twilio/setup', methods=['POST'])
+def api_twilio_setup():
+    """Setup Twilio messaging service"""
+    try:
+        data = request.get_json() or {}
+        account_sid = data.get('account_sid')
+        auth_token = data.get('auth_token')
+        phone_number = data.get('phone_number')
+        
+        if not all([account_sid, auth_token, phone_number]):
+            return jsonify({
+                "success": False,
+                "error": "Twilio Account SID, Auth Token, and Phone Number required",
+                "setup_url": "https://console.twilio.com/"
+            })
+        
+        # Test credentials
+        try:
+            from twilio.rest import Client
+            client = Client(account_sid, auth_token)
+            account = client.api.account.fetch()
+            
+            return jsonify({
+                "success": True,
+                "account_name": account.friendly_name,
+                "phone_number": phone_number,
+                "status": "ready"
+            })
+        except ImportError:
+            return jsonify({
+                "success": False,
+                "error": "Twilio library not installed",
+                "note": "Install with: pip install twilio"
+            })
+        except Exception as twilio_error:
+            return jsonify({"success": False, "error": str(twilio_error)})
+            
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+@app.route('/api/ez-integration/twilio/send-test', methods=['POST'])
+def api_twilio_send_test():
+    """Send test SMS message"""
+    try:
+        data = request.get_json() or {}
+        account_sid = data.get('account_sid')
+        auth_token = data.get('auth_token')
+        from_number = data.get('from_number')
+        to_number = data.get('to_number')
+        message = data.get('message', 'NEXUS EZ-Integration Test Message')
+        
+        if not all([account_sid, auth_token, from_number, to_number]):
+            return jsonify({
+                "success": False,
+                "error": "All Twilio credentials and phone numbers required"
+            })
+        
+        try:
+            from twilio.rest import Client
+            client = Client(account_sid, auth_token)
+            
+            message_instance = client.messages.create(
+                body=message,
+                from_=from_number,
+                to=to_number
+            )
+            
+            return jsonify({
+                "success": True,
+                "message_sid": message_instance.sid,
+                "status": message_instance.status,
+                "to": to_number,
+                "automation_triggered": True
+            })
+        except ImportError:
+            return jsonify({
+                "success": False,
+                "error": "Twilio library not installed"
+            })
+        except Exception as twilio_error:
+            return jsonify({"success": False, "error": str(twilio_error)})
+            
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+@app.route('/api/ez-integration/status', methods=['GET'])
+def api_ez_integration_status():
+    """Get EZ-Integration status"""
+    try:
+        status = {
+            "trello": {
+                "service": "Trello",
+                "status": "ready_for_setup",
+                "capabilities": ["board_access", "card_creation", "automation_triggers"],
+                "setup_url": "https://trello.com/app-key"
+            },
+            "onedrive": {
+                "service": "OneDrive",
+                "status": "ready_for_setup", 
+                "oauth_permissions": ["Files.ReadWrite", "User.Read", "offline_access"],
+                "capabilities": ["file_access", "automation_triggers", "workflow_integration"],
+                "setup_url": "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps"
+            },
+            "twilio": {
+                "service": "Twilio",
+                "status": "ready_for_setup",
+                "capabilities": ["sms_messaging", "automation_alerts", "event_notifications"],
+                "setup_url": "https://console.twilio.com/"
+            }
+        }
+        
+        return jsonify({
+            "success": True,
+            "integration_status": status,
+            "endpoints": {
+                "trello_setup": "/api/ez-integration/trello/setup",
+                "trello_boards": "/api/ez-integration/trello/boards", 
+                "trello_create_card": "/api/ez-integration/trello/create-card",
+                "onedrive_auth": "/api/ez-integration/onedrive/auth-url",
+                "twilio_setup": "/api/ez-integration/twilio/setup",
+                "twilio_test": "/api/ez-integration/twilio/send-test"
+            },
+            "deployment_timestamp": datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)

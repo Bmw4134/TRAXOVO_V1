@@ -2460,16 +2460,47 @@ def inject_navigation(response):
         try:
             data = response.get_data(as_text=True)
             
-            # Only inject if navigation not already present
-            if '<body' in data and 'nexus-unified-nav' not in data:
+            # Always inject navigation and clean duplicates
+            if '<body' in data:
                 
-                # Create simplified navigation HTML directly
+                # First remove ALL existing navigation elements
+                import re
+                
+                # Remove all existing NEXUS navigation elements
+                data = re.sub(r'<div[^>]*id="nexus-unified-nav"[^>]*>.*?</div>\s*(?:</div>)?', '', data, flags=re.DOTALL)
+                data = re.sub(r'<div[^>]*id="nexus-floating-nav"[^>]*>.*?</div>\s*(?:</div>)?', '', data, flags=re.DOTALL)
+                
+                # Remove any purple/green widgets or assistant elements
+                data = re.sub(r'<div[^>]*class="[^"]*assistant[^"]*"[^>]*>.*?</div>', '', data, flags=re.DOTALL)
+                data = re.sub(r'<div[^>]*style="[^"]*(?:purple|green|#[0-9a-fA-F]{6})[^"]*"[^>]*>.*?</div>', '', data, flags=re.DOTALL)
+                
+                # Remove any floating widgets
+                data = re.sub(r'<div[^>]*(?:position:\s*fixed|position:fixed)[^>]*>.*?</div>', '', data, flags=re.DOTALL)
+                
+                # Create clean navigation HTML
                 current_path = request.path
                 nav_html = f'''
-<div id="nexus-unified-nav" style="position: fixed; top: 0; left: 0; right: 0; height: 60px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-bottom: 2px solid #00ff88; z-index: 10000; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; font-family: 'SF Mono', Monaco, monospace; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);">
+<script>
+// Aggressive cleanup of all existing widgets
+document.addEventListener('DOMContentLoaded', function() {{
+    // Remove any existing navigation elements
+    const existingNavs = document.querySelectorAll('#nexus-unified-nav, #nexus-floating-nav, [id*="nexus"], [class*="assistant"], [class*="widget"], [style*="position: fixed"]');
+    existingNavs.forEach(el => el.remove());
+    
+    // Remove any purple or green colored elements that might be widgets
+    const coloredElements = document.querySelectorAll('[style*="purple"], [style*="green"], [style*="#"], .purple, .green');
+    coloredElements.forEach(el => {{
+        if (el.style.position === 'fixed' || el.className.includes('widget') || el.className.includes('assistant')) {{
+            el.remove();
+        }}
+    }});
+}});
+</script>
+
+<div id="nexus-unified-nav" style="position: fixed; top: 0; left: 0; right: 0; height: 60px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-bottom: 2px solid #00ff88; z-index: 99999; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; font-family: 'SF Mono', Monaco, monospace; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);">
     <div style="display: flex; align-items: center; gap: 15px;">
         <div style="font-size: 18px; font-weight: bold; color: #00ff88; cursor: pointer;" onclick="window.location.href='/'">NEXUS</div>
-        <div style="padding: 4px 8px; background: #00ff88; color: #000; border-radius: 3px; font-size: 11px; font-weight: bold;">OPERATIONAL</div>
+        <div style="padding: 4px 8px; background: #00ff88; color: #000; border-radius: 3px; font-size: 11px; font-weight: bold;">SINGULARITY</div>
     </div>
     <div style="display: flex; align-items: center; gap: 20px;">
         <a href="/admin-direct" style="color: #00ff88; text-decoration: none; font-weight: bold; padding: 8px 12px; border: 1px solid #00ff88; border-radius: 4px;">ADMIN</a>
@@ -2479,36 +2510,36 @@ def inject_navigation(response):
     </div>
     <div style="display: flex; align-items: center; gap: 15px;">
         <div style="color: #ffffff; font-size: 12px; opacity: 0.8;">{current_path}</div>
-        <div style="background: #ff4757; color: #ffffff; padding: 6px 10px; border-radius: 3px; cursor: pointer; font-size: 11px; font-weight: bold;" onclick="window.location.href='/admin-direct'">🚨 ADMIN</div>
-    </div>
-</div>
-
-<div id="nexus-floating-nav" style="position: fixed; bottom: 20px; left: 20px; z-index: 15000; display: flex; flex-direction: column; gap: 10px;">
-    <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3); color: #000; font-weight: bold; font-size: 18px;" onclick="toggleFloatingMenu()">N</div>
-    <div id="nexus-floating-menu" style="display: none; flex-direction: column; gap: 8px; margin-bottom: 10px;">
-        <div onclick="window.location.href='/admin-direct'" style="width: 50px; height: 50px; background: #ff4757; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-weight: bold; font-size: 12px;" title="Admin">A</div>
-        <div onclick="window.location.href='/nexus-dashboard'" style="width: 50px; height: 50px; background: #3742fa; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-weight: bold; font-size: 12px;" title="Dashboard">D</div>
-        <div onclick="window.location.href='/executive-dashboard'" style="width: 50px; height: 50px; background: #ffa502; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-weight: bold; font-size: 12px;" title="Executive">E</div>
-        <div onclick="window.location.href='/'" style="width: 50px; height: 50px; background: #2f3542; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; font-weight: bold; font-size: 12px;" title="Home">H</div>
+        <div style="background: #ff4757; color: #ffffff; padding: 6px 10px; border-radius: 3px; cursor: pointer; font-size: 11px; font-weight: bold;" onclick="window.location.href='/admin-direct'">ADMIN</div>
     </div>
 </div>
 
 <script>
+// Ensure body margin and prevent duplicate widgets
 document.body.style.marginTop = '60px';
-let floatingMenuOpen = false;
-function toggleFloatingMenu() {{
-    const menu = document.getElementById('nexus-floating-menu');
-    const button = document.querySelector('#nexus-floating-nav > div:first-child');
-    if (floatingMenuOpen) {{
-        menu.style.display = 'none';
-        button.style.transform = 'rotate(0deg)';
-        floatingMenuOpen = false;
-    }} else {{
-        menu.style.display = 'flex';
-        button.style.transform = 'rotate(45deg)';
-        floatingMenuOpen = true;
+document.body.style.paddingTop = '0';
+
+// Continuous cleanup of duplicate widgets
+setInterval(function() {{
+    const duplicateNavs = document.querySelectorAll('#nexus-unified-nav');
+    for (let i = 1; i < duplicateNavs.length; i++) {{
+        duplicateNavs[i].remove();
     }}
-}}
+    
+    // Remove any unwanted colored widgets
+    const unwantedWidgets = document.querySelectorAll('[style*="position: fixed"]:not(#nexus-unified-nav)');
+    unwantedWidgets.forEach(widget => {{
+        if (widget.id !== 'nexus-unified-nav' && 
+            (widget.style.background.includes('purple') || 
+             widget.style.background.includes('green') ||
+             widget.className.includes('assistant') ||
+             widget.className.includes('widget'))) {{
+            widget.remove();
+        }}
+    }});
+}}, 1000);
+
+// Keyboard shortcuts
 document.addEventListener('keydown', function(e) {{
     if (e.ctrlKey && e.shiftKey && e.key === 'A') {{ e.preventDefault(); window.location.href = '/admin-direct'; }}
     if (e.ctrlKey && e.shiftKey && e.key === 'D') {{ e.preventDefault(); window.location.href = '/nexus-dashboard'; }}

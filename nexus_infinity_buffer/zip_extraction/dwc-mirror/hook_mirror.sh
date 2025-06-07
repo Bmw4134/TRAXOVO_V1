@@ -1,0 +1,1 @@
+# Placeholder for dwc-mirror/hook_mirror.sh

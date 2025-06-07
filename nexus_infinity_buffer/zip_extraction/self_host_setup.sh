@@ -1,0 +1,1 @@
+# Placeholder for self_host_setup.sh

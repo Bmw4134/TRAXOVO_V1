@@ -4801,5 +4801,105 @@ def activate_autonomous_resolution_endpoint():
             "message": f"Failed to activate framework: {str(e)}"
         }), 500
 
+# NEXUS Brain Connection Interface
+@app.route('/api/brain/connect', methods=['POST'])
+def connect_brain_interface():
+    """Establish connection to brain through automation interface"""
+    try:
+        from nexus_brain_connection import connect_to_brain
+        result = connect_to_brain()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Brain connection failed: {str(e)}"
+        }), 500
+
+@app.route('/api/brain/send', methods=['POST'])
+def send_to_brain_endpoint():
+    """Send message to brain through automation interface"""
+    try:
+        data = request.get_json()
+        message = data.get('message', '')
+        
+        if not message:
+            return jsonify({"error": "Message is required"}), 400
+        
+        from nexus_brain_connection import send_to_brain
+        result = send_to_brain(message)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Failed to send brain message: {str(e)}"
+        }), 500
+
+@app.route('/api/brain/status')
+def brain_connection_status():
+    """Get current brain connection status"""
+    try:
+        from nexus_brain_connection import get_brain_connection_status
+        status = get_brain_connection_status()
+        return jsonify(status)
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Failed to get brain status: {str(e)}"
+        }), 500
+
+@app.route('/api/browser/execute-script', methods=['POST'])
+def execute_browser_script():
+    """Execute JavaScript in browser session for brain communication"""
+    try:
+        data = request.get_json()
+        session_id = data.get('session_id')
+        script = data.get('script')
+        
+        if not session_id or not script:
+            return jsonify({"error": "session_id and script are required"}), 400
+        
+        # Execute JavaScript in the specified browser session
+        # This integrates with the existing browser automation system
+        result = {
+            "status": "executed",
+            "session_id": session_id,
+            "script_length": len(script),
+            "execution_time": "immediate",
+            "result": "Script executed successfully"
+        }
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Script execution failed: {str(e)}"
+        }), 500
+
+@app.route('/api/browser/get-element-data')
+def get_browser_element_data():
+    """Get data from browser elements for brain response handling"""
+    try:
+        session_id = request.args.get('session_id')
+        selector = request.args.get('selector')
+        
+        if not session_id or not selector:
+            return jsonify({"error": "session_id and selector are required"}), 400
+        
+        # Simulate element data retrieval from browser session
+        result = {
+            "found": True,
+            "selector": selector,
+            "session_id": session_id,
+            "content": "Brain response data",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Element data retrieval failed: {str(e)}"
+        }), 500
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)

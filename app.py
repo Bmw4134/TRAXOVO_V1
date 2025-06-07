@@ -1060,10 +1060,19 @@ def admin_direct():
     missing_count=len(diagnostics["missing_secrets"]))
 
 @app.route('/nexus-home')
-@require_auth(['admin', 'demo'])
 def nexus_home():
     """NEXUS Home Page - Redirects to unified dashboard"""
-    return redirect('/nexus-dashboard')
+    # Check if user is authenticated
+    if session.get('authenticated'):
+        return redirect('/nexus-dashboard')
+    else:
+        return redirect('/landing.html')
+
+@app.route('/test-auth')
+def test_auth():
+    """Authentication test page"""
+    with open('test_auth.html', 'r') as f:
+        return f.read()
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

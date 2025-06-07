@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NEXUS Auth Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #1a1a2e; color: white; }
+        .container { max-width: 400px; margin: 0 auto; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 5px; }
+        button { width: 100%; padding: 12px; background: #00d4aa; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #00b894; }
+        .status { margin-top: 20px; padding: 10px; border-radius: 5px; }
+        .success { background: rgba(0,212,170,0.2); border: 1px solid #00d4aa; }
+        .error { background: rgba(255,107,107,0.2); border: 1px solid #ff6b6b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>NEXUS Authentication Test</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Username" value="demo">
+            <input type="password" id="password" placeholder="Password" value="demo123">
+            <button type="submit">Login & Test Navigation</button>
+        </form>
+        <div id="status"></div>
+        
+        <div style="margin-top: 30px;">
+            <h3>Test Routes:</h3>
+            <button onclick="testRoute('/nexus-home')">Test /nexus-home</button>
+            <button onclick="testRoute('/nexus-dashboard')">Test /nexus-dashboard</button>
+            <button onclick="testRoute('/admin-direct')">Test /admin-direct</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `username=${username}&password=${password}`
+                });
+                
+                const status = document.getElementById('status');
+                if (response.ok) {
+                    status.innerHTML = '<div class="success">Login successful! You can now test navigation routes.</div>';
+                } else {
+                    status.innerHTML = '<div class="error">Login failed. Check credentials.</div>';
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = '<div class="error">Error: ' + error.message + '</div>';
+            }
+        };
+        
+        async function testRoute(route) {
+            try {
+                const response = await fetch(route);
+                const status = document.getElementById('status');
+                
+                if (response.redirected) {
+                    status.innerHTML = `<div class="success">Route ${route} redirected to: ${response.url}</div>`;
+                } else if (response.ok) {
+                    status.innerHTML = `<div class="success">Route ${route} loaded successfully</div>`;
+                } else {
+                    status.innerHTML = `<div class="error">Route ${route} failed: ${response.status}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = `<div class="error">Error testing ${route}: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

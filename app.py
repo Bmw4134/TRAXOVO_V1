@@ -5078,6 +5078,40 @@ def api_traxovo_agent_status():
             "timestamp": datetime.now().isoformat()
         })
 
+@app.route('/api/nexus/400-diagnostics')
+def api_nexus_400_diagnostics():
+    """Run comprehensive 400 error diagnostics - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        import nexus_400_error_diagnostics
+        result = nexus_400_error_diagnostics.validate_and_fix_400_errors()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        })
+
+@app.route('/api/nexus/400-error-summary')
+def api_nexus_400_error_summary():
+    """Get 400 error summary - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        import nexus_400_error_diagnostics
+        result = nexus_400_error_diagnostics.get_400_error_summary()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        })
+
 # Unified Platform Routes - Consolidating all functionality
 @app.route('/api/process-ai-prompt', methods=['POST'])
 def api_process_ai_prompt():

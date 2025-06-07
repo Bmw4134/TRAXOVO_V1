@@ -1477,6 +1477,65 @@ def executive_landing():
             line-height: 1.6;
         }
         
+        .quick-access-panel {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 40px auto;
+            max-width: 1000px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .access-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .access-btn {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: linear-gradient(45deg, #00ff88, #00d4ff);
+            color: #000;
+            text-decoration: none;
+            border-radius: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .access-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+        
+        .access-btn.admin {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+        }
+        
+        .access-btn.stress-test {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+        
+        .access-btn i {
+            font-size: 24px;
+        }
+        
+        .btn-text h4 {
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .btn-text p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
         .capabilities-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -1799,6 +1858,43 @@ def executive_landing():
             in assets with microsecond latency trading and 347% annual returns across technology, financial services, 
             and investment banking sectors.
         </p>
+    </div>
+    
+    <div class="quick-access-panel">
+        <h3 style="text-align: center; margin-bottom: 20px; color: #00ff88;">🚀 NEXUS Control Access</h3>
+        <div class="access-buttons">
+            <a href="/nexus-dashboard" class="access-btn admin">
+                <i class="fas fa-rocket"></i>
+                <div class="btn-text">
+                    <h4>Command Center</h4>
+                    <p>Full NEXUS Control</p>
+                </div>
+            </a>
+            
+            <a href="/login" class="access-btn">
+                <i class="fas fa-user-shield"></i>
+                <div class="btn-text">
+                    <h4>Admin Login</h4>
+                    <p>Authentication Portal</p>
+                </div>
+            </a>
+            
+            <a href="/upload" class="access-btn">
+                <i class="fas fa-file-upload"></i>
+                <div class="btn-text">
+                    <h4>File Automation</h4>
+                    <p>Upload & Process</p>
+                </div>
+            </a>
+            
+            <a href="/preview-dashboard" class="access-btn stress-test">
+                <i class="fas fa-users"></i>
+                <div class="btn-text">
+                    <h4>Stress Test Portal</h4>
+                    <p>Limited Preview Access</p>
+                </div>
+            </a>
+        </div>
     </div>
     
     <div class="enterprise-selector">

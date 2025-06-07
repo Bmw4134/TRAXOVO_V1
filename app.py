@@ -4476,7 +4476,11 @@ def api_browser_timecard():
             session_result = browser_automation.create_browser_session()
         
         # Execute timecard automation
-        result = browser_automation.automate_timecard_entry()
+        result = browser_automation.automate_timecard_entry("default_session", {
+            "url": "https://timecard.company.com",
+            "username_field": "#username",
+            "password_field": "#password"
+        })
         
         return jsonify({
             "success": True,

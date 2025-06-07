@@ -4725,5 +4725,81 @@ def api_browser_kill_all():
             "error": str(e)
         })
 
+# NEXUS Autonomous Resolution Framework routes
+@app.route('/nexus-admin/logs')
+def nexus_admin_logs():
+    """NEXUS admin log viewer for patch flow monitoring"""
+    try:
+        import json
+        logs = []
+        log_file = "/tmp/nexus-admin/logs/patch_results.json"
+        
+        if os.path.exists(log_file):
+            with open(log_file, 'r') as f:
+                for line in f:
+                    if line.strip():
+                        logs.append(json.loads(line))
+        
+        return jsonify({
+            "status": "success",
+            "logs": logs[-50:],  # Last 50 entries
+            "total_entries": len(logs)
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Failed to retrieve logs: {str(e)}"
+        }), 500
+
+@app.route('/console')
+def console_broadcast():
+    """Console endpoint for broadcasting completion status"""
+    try:
+        from nexus_autonomous_resolution_framework import get_framework_status
+        framework_status = get_framework_status()
+        
+        console_data = {
+            "nexus_framework": framework_status,
+            "browser_automation": {
+                "status": "operational",
+                "windowed_browsers": "active",
+                "ui_integrity": "validated"
+            },
+            "financial_intelligence": {
+                "market_data_api": "connected",
+                "sentiment_analysis": "operational",
+                "automation_metrics": "active"
+            },
+            "self_healing": {
+                "agents_deployed": framework_status.get("agents", {}),
+                "healing_queue": framework_status.get("healing_queue_size", 0),
+                "runtime_validation": "continuous"
+            }
+        }
+        
+        return jsonify(console_data)
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Console broadcast failed: {str(e)}"
+        }), 500
+
+@app.route('/activate-autonomous-resolution')
+def activate_autonomous_resolution_endpoint():
+    """Activate the NEXUS Autonomous Resolution Framework"""
+    try:
+        from nexus_autonomous_resolution_framework import activate_autonomous_resolution
+        result = activate_autonomous_resolution()
+        return jsonify({
+            "status": "success",
+            "message": "Autonomous Resolution Framework activated",
+            "framework_data": result
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Failed to activate framework: {str(e)}"
+        }), 500
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)

@@ -39,7 +39,9 @@ class NexusZipIntegrationHandler:
                     'filename': file_path.name,
                     'path': str(file_path),
                     'size': file_path.stat().st_size,
-                    'type': 'nexus_bundle' if 'NEXUS' in file_path.name.upper() else 'standard'
+                    'type': 'nexus_bundle' if ('NEXUS' in file_path.name.upper() or 
+                                             'nexus' in file_path.name.lower() or
+                                             'infinity' in file_path.name.lower()) else 'standard'
                 }
                 zip_files.append(zip_info)
         

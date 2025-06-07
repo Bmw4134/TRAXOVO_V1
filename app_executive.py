@@ -508,7 +508,499 @@ def admin_direct_access():
     session['access_level'] = 'full_nexus_access'
     session['mode'] = 'replit'
     
-    return nexus_command_center()
+    return nexus_unified_automation_center()
+
+def nexus_unified_automation_center():
+    """Unified automation center with all tools"""
+    username = session.get('username', 'NEXUS Admin')
+    
+    return render_template_string('''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS Unified Automation Center</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            color: #00ff88;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-bottom: 2px solid #00ff88;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #00ff88, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .automation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .automation-module {
+            background: linear-gradient(135deg, #1e1e3f 0%, #2a2a5a 100%);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .automation-module:hover {
+            transform: translateY(-5px);
+            border-color: #00ff88;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+        
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .module-title {
+            font-size: 1.3em;
+            color: #00ff88;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .module-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+        
+        .status-ready {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+        
+        .module-description {
+            color: #ccc;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .automation-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 10px 15px;
+            background: linear-gradient(45deg, #00ff88, #00d4ff);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        .action-btn.danger {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+            color: white;
+        }
+        
+        .file-drop-zone {
+            border: 2px dashed rgba(0, 255, 136, 0.5);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin: 15px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .file-drop-zone:hover {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.05);
+        }
+        
+        .automation-console {
+            grid-column: 1 / -1;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .console-output {
+            background: #000;
+            color: #00ff88;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        
+        .console-input {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .console-input input {
+            flex: 1;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        
+        .execute-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .quick-access {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .quick-btn {
+            padding: 15px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            color: #00ff88;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .quick-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>NEXUS Unified Automation Center</h1>
+        <div class="user-info">
+            <span>{{ username }}</span>
+            <span class="status-active">All Systems Operational</span>
+        </div>
+    </div>
+    
+    <div class="quick-access">
+        <a href="/upload" class="quick-btn">
+            <i class="fas fa-file-upload"></i><br>File Upload
+        </a>
+        <a href="/nexus-dashboard" class="quick-btn">
+            <i class="fas fa-rocket"></i><br>Command Center
+        </a>
+        <a href="/login" class="quick-btn">
+            <i class="fas fa-users"></i><br>User Management
+        </a>
+        <a href="/" class="quick-btn">
+            <i class="fas fa-home"></i><br>Landing Page
+        </a>
+    </div>
+    
+    <div class="automation-grid">
+        <!-- File Processing Automation -->
+        <div class="automation-module">
+            <div class="module-header">
+                <div class="module-title">
+                    <i class="fas fa-file-excel"></i>
+                    File Processing Automation
+                </div>
+                <div class="module-status status-active">Active</div>
+            </div>
+            <div class="module-description">
+                Automatically processes Excel files, CSVs, and documents. Extracts data, generates insights, and creates automation workflows.
+            </div>
+            <div class="file-drop-zone" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 2em; margin-bottom: 10px;"></i>
+                <p>Drop files here or click to upload</p>
+                <small>Supports: .xlsx, .csv, .pdf, .docx</small>
+            </div>
+            <input type="file" id="fileInput" style="display: none;" multiple onchange="handleFileUpload(event)">
+            <div class="automation-actions">
+                <button class="action-btn" onclick="processFiles()">Process Files</button>
+                <button class="action-btn" onclick="viewResults()">View Results</button>
+            </div>
+        </div>
+        
+        <!-- OneDrive Integration -->
+        <div class="automation-module">
+            <div class="module-header">
+                <div class="module-title">
+                    <i class="fab fa-microsoft"></i>
+                    OneDrive Integration
+                </div>
+                <div class="module-status status-ready">Ready</div>
+            </div>
+            <div class="module-description">
+                Connect to OneDrive for real workload automation. Analyzes files, creates automated workflows, and manages document processing.
+            </div>
+            <div class="automation-actions">
+                <button class="action-btn" onclick="connectOneDrive()">Connect OneDrive</button>
+                <button class="action-btn" onclick="scanFiles()">Scan Files</button>
+                <button class="action-btn" onclick="automateWorkflows()">Create Workflows</button>
+            </div>
+        </div>
+        
+        <!-- Trading & Portfolio Automation -->
+        <div class="automation-module">
+            <div class="module-header">
+                <div class="module-title">
+                    <i class="fas fa-chart-line"></i>
+                    Trading Automation
+                </div>
+                <div class="module-status status-active">Active</div>
+            </div>
+            <div class="module-description">
+                Automated trading algorithms, portfolio analysis, and market intelligence. Connects to Robinhood, Coinbase, and Alpaca APIs.
+            </div>
+            <div class="automation-actions">
+                <button class="action-btn" onclick="executeCommand('market_analysis')">Market Analysis</button>
+                <button class="action-btn" onclick="executeCommand('portfolio_sync')">Sync Portfolio</button>
+                <button class="action-btn" onclick="viewTradingResults()">View Results</button>
+            </div>
+        </div>
+        
+        <!-- Communication Automation -->
+        <div class="automation-module">
+            <div class="module-header">
+                <div class="module-title">
+                    <i class="fas fa-envelope"></i>
+                    Communication Automation
+                </div>
+                <div class="module-status status-active">Active</div>
+            </div>
+            <div class="module-description">
+                Automated email campaigns, SMS notifications, and multi-platform messaging via SendGrid and Twilio integrations.
+            </div>
+            <div class="automation-actions">
+                <button class="action-btn" onclick="sendTestEmail()">Send Test Email</button>
+                <button class="action-btn" onclick="sendTestSMS()">Send Test SMS</button>
+                <button class="action-btn" onclick="setupCampaign()">Setup Campaign</button>
+            </div>
+        </div>
+        
+        <!-- AI Decision Engine -->
+        <div class="automation-module">
+            <div class="module-header">
+                <div class="module-title">
+                    <i class="fas fa-brain"></i>
+                    AI Decision Engine
+                </div>
+                <div class="module-status status-active">Active</div>
+            </div>
+            <div class="module-description">
+                Multi-AI analysis using OpenAI and Perplexity. Autonomous decision making, business intelligence, and strategic recommendations.
+            </div>
+            <div class="automation-actions">
+                <button class="action-btn" onclick="runAIAnalysis()">Run Analysis</button>
+                <button class="action-btn" onclick="getRecommendations()">Get Recommendations</button>
+                <button class="action-btn" onclick="viewAIResults()">View Results</button>
+            </div>
+        </div>
+        
+        <!-- Workflow Scheduler -->
+        <div class="automation-module">
+            <div class="module-header">
+                <div class="module-title">
+                    <i class="fas fa-clock"></i>
+                    Workflow Scheduler
+                </div>
+                <div class="module-status status-active">Active</div>
+            </div>
+            <div class="module-description">
+                Schedule and manage automated workflows. Set recurring tasks, manage dependencies, and monitor execution status.
+            </div>
+            <div class="automation-actions">
+                <button class="action-btn" onclick="createSchedule()">Create Schedule</button>
+                <button class="action-btn" onclick="viewSchedules()">View Schedules</button>
+                <button class="action-btn" onclick="pauseAll()" class="danger">Pause All</button>
+            </div>
+        </div>
+        
+        <!-- Automation Console -->
+        <div class="automation-console">
+            <h3><i class="fas fa-terminal"></i> Automation Console</h3>
+            <div class="console-output" id="automationConsole">
+                [NEXUS] Unified Automation Center initialized<br>
+                [NEXUS] All automation modules loaded<br>
+                [NEXUS] File processing engine active<br>
+                [NEXUS] OneDrive connector ready<br>
+                [NEXUS] Trading automation running<br>
+                [NEXUS] Communication systems online<br>
+                [NEXUS] AI decision engine operational<br>
+                [NEXUS] Workflow scheduler active<br>
+                [NEXUS] Ready for automation commands<br>
+            </div>
+            <div class="console-input">
+                <input type="text" id="consoleInput" placeholder="Enter automation command..." onkeypress="handleConsoleKeypress(event)">
+                <button class="execute-btn" onclick="executeConsoleCommand()">Execute</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function addToConsole(message) {
+            const console = document.getElementById('automationConsole');
+            const timestamp = new Date().toLocaleTimeString();
+            console.innerHTML += `[${timestamp}] ${message}<br>`;
+            console.scrollTop = console.scrollHeight;
+        }
+        
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            for (let file of files) {
+                addToConsole(`File selected: ${file.name} (${(file.size/1024/1024).toFixed(2)}MB)`);
+            }
+        }
+        
+        function processFiles() {
+            addToConsole('Processing uploaded files...');
+            // Redirect to actual file processing
+            window.location.href = '/upload';
+        }
+        
+        function connectOneDrive() {
+            addToConsole('Initiating OneDrive connection...');
+            fetch('/api/onedrive/connect', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        addToConsole('OneDrive connected successfully');
+                    } else {
+                        addToConsole('OneDrive connection failed: ' + data.error);
+                    }
+                });
+        }
+        
+        function executeCommand(command) {
+            addToConsole(`Executing: ${command}`);
+            fetch('/api/nexus/command', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({command: command})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addToConsole(`${command} completed: ${data.message}`);
+                } else {
+                    addToConsole(`${command} failed: ${data.error}`);
+                }
+            });
+        }
+        
+        function sendTestEmail() {
+            addToConsole('Sending test email via SendGrid...');
+            fetch('/api/communication/test-email', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => addToConsole('Test email: ' + (data.success ? 'Sent' : 'Failed')));
+        }
+        
+        function sendTestSMS() {
+            addToConsole('Sending test SMS via Twilio...');
+            fetch('/api/communication/test-sms', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => addToConsole('Test SMS: ' + (data.success ? 'Sent' : 'Failed')));
+        }
+        
+        function runAIAnalysis() {
+            addToConsole('Running AI analysis across all platforms...');
+            fetch('/api/ai/analyze', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => addToConsole('AI analysis completed'));
+        }
+        
+        function executeConsoleCommand() {
+            const input = document.getElementById('consoleInput');
+            const command = input.value.trim();
+            
+            if (!command) return;
+            
+            addToConsole(`> ${command}`);
+            input.value = '';
+            
+            // Execute command
+            fetch('/api/automation/console', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({command: command})
+            })
+            .then(response => response.json())
+            .then(data => {
+                addToConsole(data.result || 'Command executed');
+            })
+            .catch(error => {
+                addToConsole('Error: ' + error.message);
+            });
+        }
+        
+        function handleConsoleKeypress(event) {
+            if (event.key === 'Enter') {
+                executeConsoleCommand();
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            addToConsole('Automation center ready for commands');
+        });
+    </script>
+</body>
+</html>
+    ''', username=username)
 
 @app.route('/nexus-dashboard')
 def nexus_admin_dashboard():

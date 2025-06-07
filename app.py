@@ -5008,6 +5008,76 @@ def api_crypto_market_patch():
             "timestamp": datetime.now().isoformat()
         })
 
+@app.route('/api/traxovo/daily-driver-report', methods=['POST'])
+def api_traxovo_daily_driver_report():
+    """Process daily driver report - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        import traxovo_agent_integration
+        data = request.get_json()
+        result = traxovo_agent_integration.process_daily_driver_report(data)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        })
+
+@app.route('/api/traxovo/equipment-billing')
+def api_traxovo_equipment_billing():
+    """Process monthly equipment billing - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        import traxovo_agent_integration
+        billing_period = request.args.get('period')
+        result = traxovo_agent_integration.process_equipment_billing(billing_period)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        })
+
+@app.route('/api/traxovo/fleet-recommendations')
+def api_traxovo_fleet_recommendations():
+    """Get fleet optimization recommendations - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        import traxovo_agent_integration
+        result = traxovo_agent_integration.get_fleet_recommendations()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        })
+
+@app.route('/api/traxovo/agent-status')
+def api_traxovo_agent_status():
+    """Get TRAXOVO agent status - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        import traxovo_agent_integration
+        result = traxovo_agent_integration.get_traxovo_status()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        })
+
 # Unified Platform Routes - Consolidating all functionality
 @app.route('/api/process-ai-prompt', methods=['POST'])
 def api_process_ai_prompt():

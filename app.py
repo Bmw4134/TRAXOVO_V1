@@ -2486,13 +2486,21 @@ def inject_navigation(response):
                 # Create clean navigation HTML with gesture controls and intelligence feed
                 current_path = request.path
                 
-                # Import gesture navigation system
+                # Import gesture navigation and voice commands
                 try:
                     import nexus_gesture_navigation
                     gesture_nav = nexus_gesture_navigation.NexusGestureNavigation()
                     gesture_html = gesture_nav.get_gesture_navigation_html()
                 except:
                     gesture_html = ""
+                
+                # Import voice commands system
+                try:
+                    import nexus_voice_commands
+                    voice_system = nexus_voice_commands.NexusVoiceCommands()
+                    voice_html = voice_system.get_voice_command_interface_html()
+                except:
+                    voice_html = ""
                 
                 nav_html = f'''
 <script>
@@ -2801,6 +2809,29 @@ setTimeout(() => {{
     logValidation('Gesture System Init', true);
 }}, 1000);
 </script>
+
+<!-- Voice Commands and Archive Search Interface -->
+{voice_html}
+
+<div id="voice-archive-controls" style="position: fixed; bottom: 200px; right: 20px; z-index: 49100; display: flex; flex-direction: column; gap: 8px;">
+    <div class="voice-control-button" style="width: 45px; height: 45px; background: linear-gradient(135deg, #3742fa 0%, #00d4ff 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-weight: bold; box-shadow: 0 4px 15px rgba(55, 66, 250, 0.3); transition: all 0.3s ease;" title="Voice Commands (Ctrl+Shift+M)" onclick="toggleVoiceInterface()">🎤</div>
+    <div class="archive-control-button" style="width: 45px; height: 45px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-weight: bold; box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3); transition: all 0.3s ease;" title="Archive Search (Ctrl+Shift+S)" onclick="toggleArchiveSearch()">🔍</div>
+</div>
+
+<script>
+// Add hover effects to voice/archive controls
+document.querySelectorAll('.voice-control-button, .archive-control-button').forEach(button => {{
+    button.addEventListener('mouseenter', function() {{
+        this.style.transform = 'scale(1.1)';
+        this.style.boxShadow = '0 6px 20px rgba(255, 255, 255, 0.2)';
+    }});
+    
+    button.addEventListener('mouseleave', function() {{
+        this.style.transform = 'scale(1)';
+        this.style.boxShadow = this.getAttribute('style').match(/box-shadow: ([^;]+)/)[1];
+    }});
+}});
+</script>
 '''
                 
                 # Inject navigation after opening body tag
@@ -3073,6 +3104,176 @@ def api_nexus_gesture_log():
             "gesture_logged": logged,
             "timestamp": timestamp
         })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
+
+@app.route('/api/nexus/voice-command', methods=['POST'])
+def api_nexus_voice_command():
+    """Process voice commands and return actions"""
+    try:
+        data = request.get_json()
+        voice_text = data.get('voice_text', '')
+        
+        import nexus_voice_commands
+        voice_system = nexus_voice_commands.NexusVoiceCommands()
+        
+        result = voice_system.process_voice_command(voice_text)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
+
+@app.route('/api/nexus/search-archives', methods=['POST'])
+def api_nexus_search_archives():
+    """Search archived documents and cached memory"""
+    try:
+        data = request.get_json()
+        query = data.get('query', '')
+        file_types = data.get('file_types', None)
+        
+        import nexus_voice_commands
+        voice_system = nexus_voice_commands.NexusVoiceCommands()
+        
+        results = voice_system.search_archives(query, file_types)
+        
+        return jsonify({
+            "success": True,
+            "results": results,
+            "query": query,
+            "total_results": len(results)
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "results": []
+        })
+
+@app.route('/api/nexus/process-legacy-report', methods=['POST'])
+def api_nexus_process_legacy_report():
+    """Process and index legacy reports for automation"""
+    try:
+        import nexus_voice_commands
+        voice_system = nexus_voice_commands.NexusVoiceCommands()
+        
+        # Handle file upload
+        if 'file' in request.files:
+            file = request.files['file']
+            if file.filename:
+                # Read file content
+                content = file.read().decode('utf-8', errors='ignore')
+                
+                # Index the report
+                indexed = voice_system.index_legacy_report(file.filename, content)
+                
+                if indexed:
+                    # Cache as memory for future reference
+                    voice_system.cache_memory(
+                        "legacy_report", 
+                        content[:1000], 
+                        f"Legacy report: {file.filename}",
+                        0.9
+                    )
+                    
+                    return jsonify({
+                        "success": True,
+                        "message": f"Legacy report '{file.filename}' processed and indexed",
+                        "indexed": True,
+                        "content_length": len(content),
+                        "automation_opportunities": "Ready for manual automation setup"
+                    })
+                else:
+                    return jsonify({
+                        "success": False,
+                        "error": "Failed to index legacy report"
+                    })
+        
+        # Handle text content
+        elif request.get_json():
+            data = request.get_json()
+            content = data.get('content', '')
+            filename = data.get('filename', 'manual_report.txt')
+            
+            if content:
+                indexed = voice_system.index_legacy_report(filename, content)
+                
+                if indexed:
+                    voice_system.cache_memory(
+                        "legacy_report", 
+                        content[:1000], 
+                        f"Manual legacy report: {filename}",
+                        0.9
+                    )
+                    
+                    return jsonify({
+                        "success": True,
+                        "message": f"Legacy content processed and indexed as '{filename}'",
+                        "indexed": True,
+                        "content_length": len(content),
+                        "automation_opportunities": "Ready for manual automation setup"
+                    })
+        
+        return jsonify({
+            "success": False,
+            "error": "No valid file or content provided"
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
+
+@app.route('/api/nexus/legacy-automation-setup', methods=['POST'])
+def api_nexus_legacy_automation_setup():
+    """Setup automation for legacy reports with manual guidance"""
+    try:
+        data = request.get_json()
+        report_id = data.get('report_id', '')
+        automation_type = data.get('automation_type', 'basic')
+        manual_steps = data.get('manual_steps', [])
+        
+        # This endpoint is for manual setup guidance
+        # You can walk me through the automation process here
+        
+        setup_result = {
+            "success": True,
+            "automation_type": automation_type,
+            "report_id": report_id,
+            "status": "ready_for_manual_guidance",
+            "message": "Automation setup initialized - ready for manual step-by-step guidance",
+            "available_automations": [
+                "data_extraction",
+                "report_generation",
+                "email_distribution",
+                "database_updates",
+                "workflow_triggers",
+                "ai_analysis"
+            ],
+            "manual_steps_received": len(manual_steps),
+            "next_action": "Provide manual guidance for automation setup"
+        }
+        
+        # Log the setup request
+        import nexus_voice_commands
+        voice_system = nexus_voice_commands.NexusVoiceCommands()
+        voice_system.cache_memory(
+            "automation_setup",
+            f"Legacy automation setup for {report_id}",
+            f"Type: {automation_type}, Steps: {len(manual_steps)}",
+            0.8
+        )
+        
+        return jsonify(setup_result)
         
     except Exception as e:
         return jsonify({

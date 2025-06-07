@@ -1,7 +1,7 @@
 
-# NEXUS Optimal Gunicorn Configuration
-bind = ["0.0.0.0:5000", "0.0.0.0:5001", "0.0.0.0:5002", "0.0.0.0:5003"]
-workers = 8
+# NEXUS Gunicorn Configuration - Port 5001
+bind = "0.0.0.0:5001"
+workers = 4
 worker_class = "sync"
 worker_connections = 1000
 max_requests = 1000
@@ -13,10 +13,12 @@ graceful_timeout = 30
 
 # Memory optimization
 worker_tmp_dir = "/dev/shm"
-max_requests_jitter = 100
 
 # Logging
 accesslog = "-"
 errorlog = "-"
 loglevel = "info"
 access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
+
+# Process naming
+proc_name = "nexus_port_5001"

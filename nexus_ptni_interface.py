@@ -69,7 +69,7 @@ class NexusPTNIInterface:
         
     def generate_dashboard_html(self, primary_content, navigation_bar, view_title):
         """Generate complete dashboard HTML"""
-        return f'''
+        return '''
 <!DOCTYPE html>
 <html lang="en">
 <head>

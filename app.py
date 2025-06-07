@@ -12,6 +12,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 from nexus_wow_tester import wow_tester
+from nexus_unified_platform import initialize_unified_platform, get_unified_interface
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)

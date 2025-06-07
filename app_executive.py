@@ -497,6 +497,19 @@ def authenticate_user():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/admin-direct')
+def admin_direct_access():
+    """Direct admin access - immediate NEXUS control"""
+    # Set admin session directly for immediate access
+    session['nexus_session_id'] = 'admin_direct_session'
+    session['user_id'] = 'nexus_admin_primary'
+    session['username'] = 'NEXUS Admin'
+    session['role'] = 'admin'
+    session['access_level'] = 'full_nexus_access'
+    session['mode'] = 'replit'
+    
+    return nexus_command_center()
+
 @app.route('/nexus-dashboard')
 def nexus_admin_dashboard():
     """Full NEXUS dashboard for admin users"""
@@ -1863,11 +1876,11 @@ def executive_landing():
     <div class="quick-access-panel">
         <h3 style="text-align: center; margin-bottom: 20px; color: #00ff88;">🚀 NEXUS Control Access</h3>
         <div class="access-buttons">
-            <a href="/nexus-dashboard" class="access-btn admin">
+            <a href="/admin-direct" class="access-btn admin">
                 <i class="fas fa-rocket"></i>
                 <div class="btn-text">
                     <h4>Command Center</h4>
-                    <p>Full NEXUS Control</p>
+                    <p>Direct Admin Access</p>
                 </div>
             </a>
             

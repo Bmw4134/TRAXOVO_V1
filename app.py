@@ -13,6 +13,7 @@ from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 from nexus_wow_tester import wow_tester
 from nexus_simple_unified import get_unified_demo_interface, get_unified_executive_interface, process_ai_prompt_simple, analyze_file_simple
+from nexus_auth_gatekeeper import setup_auth_routes, require_auth, verify_deployment
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -872,11 +873,16 @@ JDD_EXECUTIVE_DASHBOARD = """
 @app.route('/')
 def index():
     """NEXUS Automation Platform - Unified PTNI Interface"""
-    return redirect('/ptni-dashboard')
+    # Check if user is authenticated, otherwise redirect to landing
+    if 'authenticated' in session and session['authenticated']:
+        return redirect('/nexus-dashboard')
+    else:
+        return redirect('/landing.html')
 
 @app.route('/admin-direct')
+@require_auth(['admin'])
 def admin_direct():
-    """Integration Center - Full System Configuration"""
+    """Integration Center - Full System Configuration - Admin Only"""
     from integration_kernel_status import IntegrationKernel
     kernel = IntegrationKernel()
     diagnostics = kernel.run_full_diagnostics()
@@ -5049,21 +5055,48 @@ def api_ptni_switch_view():
         logging.error(f"View switch error: {e}")
         return jsonify({"error": str(e), "success": False})
 
-# Unified Platform Route - Replaces PTNI Dashboard
-@app.route('/unified-platform')
-@app.route('/ptni')
-def unified_platform():
-    """Unified platform that consolidates all existing functionality"""
-    try:
-        if 'authenticated' in session and session['authenticated']:
-            return get_unified_executive_interface()
-        elif 'wow_authenticated' in session and session['wow_authenticated']:
-            return get_unified_demo_interface()
-        else:
-            return get_unified_demo_interface()
-    except Exception as e:
-        logging.error(f"Unified platform error: {e}")
+# Authentication Setup
+setup_auth_routes(app)
+
+# Protected Routes with Authentication Gatekeeper
+@app.route('/dashboard')
+@require_auth(['admin', 'demo'])
+def dashboard():
+    """Main dashboard - requires authentication"""
+    user_role = session.get('user_role')
+    if user_role == 'admin':
+        return get_unified_executive_interface()
+    else:
         return get_unified_demo_interface()
 
+
+
+@app.route('/nexus-dashboard')
+@app.route('/unified-platform')
+@app.route('/ptni')
+@require_auth(['admin', 'demo'])
+def nexus_dashboard():
+    """NEXUS unified platform - requires authentication"""
+    user_role = session.get('user_role')
+    if user_role == 'admin':
+        return get_unified_executive_interface()
+    else:
+        return get_unified_demo_interface()
+
+@app.route('/console')
+@require_auth(['admin'])
+def console():
+    """Admin console - admin only"""
+    return get_unified_executive_interface()
+
+# Deployment Status and Verification
+@app.route('/api/deployment-status')
+def deployment_status():
+    """Get final deployment status"""
+    status = verify_deployment()
+    return jsonify(status)
+
 if __name__ == "__main__":
+    # Final deployment verification
+    verify_deployment()
     app.run(host="0.0.0.0", port=5000, debug=False)

@@ -23,8 +23,18 @@ class NexusPTNIInterface:
             'automation_queue': []
         }
         
-    def generate_ptni_dashboard(self):
+    def generate_ptni_dashboard(self, view_mode=None):
         """Generate complete PTNI dashboard with embedded browser views"""
+        # Parse view mode from URL parameters
+        from flask import request
+        if not view_mode:
+            view_mode = request.args.get('view', 'default')
+        
+        # Dynamic content based on view mode
+        primary_content = self._get_view_content(view_mode)
+        navigation_bar = self._get_unified_navigation()
+        view_title = self._get_view_title(view_mode)
+        
         return '''
 <!DOCTYPE html>
 <html lang="en">

@@ -869,8 +869,8 @@ JDD_EXECUTIVE_DASHBOARD = """
 # Routes
 @app.route('/')
 def index():
-    """NEXUS Automation Platform - Direct Access to Browser Suite"""
-    return redirect('/browser-automation')
+    """NEXUS Automation Platform - Unified PTNI Interface"""
+    return redirect('/ptni-dashboard')
 
 @app.route('/admin-direct')
 def admin_direct():

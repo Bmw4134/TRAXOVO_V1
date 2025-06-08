@@ -1832,17 +1832,81 @@ def index():
                     <div class="drill-card">
                         <h3>By Organization</h3>
                         <div style="margin: 10px 0;">
-                            <div style="display: flex; justify-content: space-between; margin: 5px 0;">
-                                <span>Ragle Inc</span><span>284</span>
+                            <div class="org-breakdown" onclick="toggleOrgDetails('ragle')">
+                                <div style="display: flex; justify-content: space-between; margin: 5px 0; cursor: pointer; font-weight: bold;">
+                                    <span>🔽 Ragle Inc</span><span>284</span>
+                                </div>
+                                <div id="ragle-details" class="org-details" style="display: none; margin-left: 20px; font-size: 0.9em;">
+                                    <div style="display: flex; justify-content: space-between; margin: 3px 0;">
+                                        <span>• Active Assets</span><span style="color: #4CAF50;">247</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin: 3px 0;">
+                                        <span>• In Maintenance</span><span style="color: #FF9800;">37</span>
+                                    </div>
+                                    <div style="margin: 8px 0; font-size: 0.8em; color: #87ceeb;">
+                                        <div>Zone Distribution:</div>
+                                        <div style="margin-left: 10px;">
+                                            <div>Zone 580: 98 | Zone 581: 94 | Zone 582: 92</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div style="display: flex; justify-content: space-between; margin: 5px 0;">
-                                <span>Select Maintenance</span><span>198</span>
+                            <div class="org-breakdown" onclick="toggleOrgDetails('select')">
+                                <div style="display: flex; justify-content: space-between; margin: 5px 0; cursor: pointer; font-weight: bold;">
+                                    <span>🔽 Select Maintenance</span><span>198</span>
+                                </div>
+                                <div id="select-details" class="org-details" style="display: none; margin-left: 20px; font-size: 0.9em;">
+                                    <div style="display: flex; justify-content: space-between; margin: 3px 0;">
+                                        <span>• Active Assets</span><span style="color: #4CAF50;">172</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin: 3px 0;">
+                                        <span>• In Maintenance</span><span style="color: #FF9800;">26</span>
+                                    </div>
+                                    <div style="margin: 8px 0; font-size: 0.8em; color: #87ceeb;">
+                                        <div>Zone Distribution:</div>
+                                        <div style="margin-left: 10px;">
+                                            <div>Zone 580: 67 | Zone 581: 71 | Zone 582: 60</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div style="display: flex; justify-content: space-between; margin: 5px 0;">
-                                <span>Southern Sourcing</span><span>143</span>
+                            <div class="org-breakdown" onclick="toggleOrgDetails('southern')">
+                                <div style="display: flex; justify-content: space-between; margin: 5px 0; cursor: pointer; font-weight: bold;">
+                                    <span>🔽 Southern Sourcing Solutions</span><span>143</span>
+                                </div>
+                                <div id="southern-details" class="org-details" style="display: none; margin-left: 20px; font-size: 0.9em;">
+                                    <div style="display: flex; justify-content: space-between; margin: 3px 0;">
+                                        <span>• Active Assets</span><span style="color: #4CAF50;">124</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin: 3px 0;">
+                                        <span>• In Maintenance</span><span style="color: #FF9800;">19</span>
+                                    </div>
+                                    <div style="margin: 8px 0; font-size: 0.8em; color: #87ceeb;">
+                                        <div>Zone Distribution:</div>
+                                        <div style="margin-left: 10px;">
+                                            <div>Zone 580: 48 | Zone 581: 52 | Zone 582: 43</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div style="display: flex; justify-content: space-between; margin: 5px 0;">
-                                <span>Unified Specialties</span><span>92</span>
+                            <div class="org-breakdown" onclick="toggleOrgDetails('unified')">
+                                <div style="display: flex; justify-content: space-between; margin: 5px 0; cursor: pointer; font-weight: bold;">
+                                    <span>🔽 Unified Specialties</span><span>92</span>
+                                </div>
+                                <div id="unified-details" class="org-details" style="display: none; margin-left: 20px; font-size: 0.9em;">
+                                    <div style="display: flex; justify-content: space-between; margin: 3px 0;">
+                                        <span>• Active Assets</span><span style="color: #4CAF50;">82</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin: 3px 0;">
+                                        <span>• In Maintenance</span><span style="color: #FF9800;">10</span>
+                                    </div>
+                                    <div style="margin: 8px 0; font-size: 0.8em; color: #87ceeb;">
+                                        <div>Zone Distribution:</div>
+                                        <div style="margin-left: 10px;">
+                                            <div>Zone 580: 31 | Zone 581: 32 | Zone 582: 29</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2479,10 +2543,58 @@ def api_drill_down_assets():
         'inactive_assets': 92,
         'active_percentage': 87.2,
         'by_organization': {
-            'ragle': 284,
-            'select': 198,
-            'southern': 143,
-            'unified': 92
+            'ragle_inc': {
+                'name': 'Ragle Inc',
+                'total_assets': 284,
+                'active': 247,
+                'maintenance': 37,
+                'zones': {'zone_580': 98, 'zone_581': 94, 'zone_582': 92},
+                'asset_types': {
+                    'heavy_equipment': 124,
+                    'fleet_vehicles': 89,
+                    'specialty_tools': 41,
+                    'support_equipment': 30
+                }
+            },
+            'select_maintenance': {
+                'name': 'Select Maintenance',
+                'total_assets': 198,
+                'active': 172,
+                'maintenance': 26,
+                'zones': {'zone_580': 67, 'zone_581': 71, 'zone_582': 60},
+                'asset_types': {
+                    'heavy_equipment': 87,
+                    'fleet_vehicles': 64,
+                    'specialty_tools': 28,
+                    'support_equipment': 19
+                }
+            },
+            'southern_sourcing': {
+                'name': 'Southern Sourcing Solutions',
+                'total_assets': 143,
+                'active': 124,
+                'maintenance': 19,
+                'zones': {'zone_580': 48, 'zone_581': 52, 'zone_582': 43},
+                'asset_types': {
+                    'heavy_equipment': 63,
+                    'fleet_vehicles': 34,
+                    'specialty_tools': 29,
+                    'support_equipment': 17
+                }
+            },
+            'unified_specialties': {
+                'name': 'Unified Specialties',
+                'total_assets': 92,
+                'active': 82,
+                'maintenance': 10,
+                'zones': {'zone_580': 31, 'zone_581': 32, 'zone_582': 29},
+                'asset_types': {
+                    'heavy_equipment': 38,
+                    'fleet_vehicles': 18,
+                    'specialty_tools': 20,
+                    'support_equipment': 16
+                }
+            }
         },
         'by_type': {
             'heavy_equipment': 312,

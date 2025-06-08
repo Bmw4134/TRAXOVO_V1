@@ -2171,6 +2171,23 @@ def index():
             }
         }
         
+        function toggleOrgDetails(orgId) {
+            const details = document.getElementById(orgId + '-details');
+            const clickedElement = event.currentTarget.querySelector('span');
+            
+            if (details.style.display === 'none' || details.style.display === '') {
+                details.style.display = 'block';
+                if (clickedElement) {
+                    clickedElement.innerHTML = clickedElement.innerHTML.replace('🔽', '🔼');
+                }
+            } else {
+                details.style.display = 'none';
+                if (clickedElement) {
+                    clickedElement.innerHTML = clickedElement.innerHTML.replace('🔼', '🔽');
+                }
+            }
+        }
+
         function closeDrillDown() {
             document.querySelectorAll('.drill-down').forEach(dd => {
                 dd.classList.remove('active');

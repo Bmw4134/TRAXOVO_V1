@@ -873,11 +873,9 @@ JDD_EXECUTIVE_DASHBOARD = """
 @app.route('/')
 def index():
     """NEXUS Automation Platform - Unified PTNI Interface"""
-    # Check if user is authenticated, otherwise redirect to landing
-    if 'authenticated' in session and session['authenticated']:
-        return redirect('/nexus-dashboard')
-    else:
-        return redirect('/landing.html')
+    # Display NEXUS unified platform directly
+    from nexus_unified_dashboard import get_nexus_unified_interface
+    return get_nexus_unified_interface()
 
 @app.route('/admin-direct')
 @require_auth(['admin'])

@@ -11,6 +11,7 @@ from flask import Flask, render_template_string, jsonify, request, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from supabase_integration import initialize_supabase_integration, sync_traxovo_to_supabase
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -238,9 +239,9 @@ TRAXOVO_TEMPLATE = """
                     <div class="metric-label">Alert System</div>
                 </div>
                 <div class="metric-card">
-                    <h3>Data Encryption</h3>
-                    <div class="metric-value">256-bit</div>
-                    <div class="metric-label">Enterprise Security</div>
+                    <h3>Supabase Database</h3>
+                    <div class="metric-value">{{ supabase_status }}</div>
+                    <div class="metric-label">Real-time Sync</div>
                 </div>
             </div>
         </div>
@@ -377,6 +378,58 @@ def api_traxovo_sync():
         logging.error(f"Sync command error: {e}")
         return jsonify({
             'error': 'Sync operation failed',
+            'status': 'error',
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/supabase-status')
+def api_supabase_status():
+    """Check Supabase connection and sync status"""
+    
+    try:
+        supabase_connector = initialize_supabase_integration()
+        
+        if supabase_connector:
+            status = supabase_connector.get_connection_status()
+            analytics = supabase_connector.get_asset_analytics()
+            
+            return jsonify({
+                'connection': status,
+                'analytics': analytics,
+                'sync_available': True,
+                'timestamp': datetime.now().isoformat()
+            })
+        else:
+            return jsonify({
+                'connection': {'status': 'disconnected'},
+                'error': 'Supabase credentials not configured',
+                'timestamp': datetime.now().isoformat()
+            }), 503
+            
+    except Exception as e:
+        logging.error(f"Supabase status error: {e}")
+        return jsonify({
+            'error': str(e),
+            'status': 'error',
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/supabase-sync')
+def api_supabase_sync():
+    """Sync TRAXOVO data to Supabase"""
+    
+    try:
+        sync_result = sync_traxovo_to_supabase()
+        
+        if sync_result.get('status') == 'success':
+            return jsonify(sync_result)
+        else:
+            return jsonify(sync_result), 500
+            
+    except Exception as e:
+        logging.error(f"Supabase sync error: {e}")
+        return jsonify({
+            'error': str(e),
             'status': 'error',
             'timestamp': datetime.now().isoformat()
         }), 500

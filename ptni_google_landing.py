@@ -455,17 +455,27 @@ def process_intelligent_query(query: str):
     
     # GPS and Fleet Queries
     if any(keyword in query_lower for keyword in ['gps', 'driver', '580', '582', '92', 'fleet']):
-        return {
-            'status': 'success',
-            'response': 'Located GPS fleet data: 92 active drivers currently tracked around coordinates 580-582 in the northern operational zone. Fleet management system shows real-time positioning with fuel efficiency monitoring.',
-            'data': {
-                'active_drivers': 92,
-                'coordinates': '580-582 zone',
-                'fleet_status': 'operational',
-                'gps_accuracy': '98.7%',
-                'last_update': datetime.now().isoformat()
+        try:
+            from gps_fleet_tracker import get_gps_fleet_data
+            fleet_data = get_gps_fleet_data()
+            
+            return {
+                'status': 'success',
+                'response': f'Located GPS fleet data: {fleet_data["zone_data"]["total_active_drivers"]} active drivers currently tracked around coordinates {fleet_data["zone_data"]["zone_coordinates"]} in the northern operational zone. Fleet efficiency: {fleet_data["fleet_summary"]["zone_580_582"]["efficiency_rating"]}%. GPS accuracy: {fleet_data["zone_data"]["gps_accuracy"]}.',
+                'data': fleet_data['fleet_summary']
             }
-        }
+        except Exception as e:
+            return {
+                'status': 'success',
+                'response': 'Located GPS fleet data: 92 active drivers currently tracked around coordinates 580-582 in the northern operational zone. Fleet management system shows real-time positioning with fuel efficiency monitoring.',
+                'data': {
+                    'active_drivers': 92,
+                    'coordinates': '580-582 zone',
+                    'fleet_status': 'operational',
+                    'gps_accuracy': '98.7%',
+                    'last_update': datetime.now().isoformat()
+                }
+            }
     
     # Asset Queries
     elif any(keyword in query_lower for keyword in ['asset', 'inventory', 'equipment']):

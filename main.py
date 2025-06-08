@@ -452,24 +452,28 @@ WATSON_QUANTUM_DASHBOARD = '''
         }
         .quantum-controls {
             display: flex;
-            gap: 15px;
-            margin: 20px 0;
+            gap: 20px;
+            margin: 25px 0;
             flex-wrap: wrap;
+            justify-content: center;
         }
         .quantum-button {
             background: linear-gradient(45deg, #003366, #0066cc);
             color: #00ffff;
-            border: 1px solid #00ffff;
-            padding: 12px 20px;
-            border-radius: 8px;
+            border: 2px solid #00ffff;
+            padding: 15px 25px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            font-weight: bold;
+            text-transform: uppercase;
         }
         .quantum-button:hover {
             background: linear-gradient(45deg, #0066cc, #0099ff);
-            box-shadow: 0 0 15px #00ffff;
+            box-shadow: 0 0 20px #00ffff;
+            transform: translateY(-3px);
         }
         .quantum-button::before {
             content: '';

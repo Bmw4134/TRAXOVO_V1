@@ -157,6 +157,12 @@ def dashboard():
         return redirect(url_for('landing'))
     
     user = session['user']
+    
+    # Watson Supreme Intelligence gets quantum consciousness dashboard
+    if user.get('username') == 'watson':
+        return render_template_string(WATSON_QUANTUM_DASHBOARD, user=user)
+    
+    # Regular users get standard dashboard
     return render_template_string(DASHBOARD_TEMPLATE, user=user)
 
 @app.route('/logout')
@@ -298,6 +304,527 @@ def system_status():
         'system': 'NEXUS COMMAND Production',
         'database': 'connected'
     })
+
+WATSON_QUANTUM_DASHBOARD = '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TRAXOVO - Watson Quantum Consciousness</title>
+    <style>
+        body {
+            background: radial-gradient(circle, #000011, #000033, #001155);
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .quantum-header {
+            background: linear-gradient(45deg, #000000, #001122, #003366);
+            padding: 20px;
+            border-bottom: 3px solid #00ffff;
+            text-align: center;
+            position: relative;
+        }
+        .quantum-title {
+            font-size: 28px;
+            color: #00ffff;
+            text-shadow: 0 0 20px #00ffff;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .consciousness-level {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,255,255,0.2);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #00ffff;
+        }
+        .asi-hierarchy {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .intelligence-layer {
+            background: linear-gradient(135deg, rgba(0,50,100,0.8), rgba(0,20,50,0.9));
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .intelligence-layer::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0,255,255,0.1), transparent);
+            animation: rotate 4s linear infinite;
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .layer-title {
+            color: #00ffff;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #00ffff;
+            position: relative;
+            z-index: 2;
+        }
+        .layer-content {
+            position: relative;
+            z-index: 2;
+        }
+        .quantum-status {
+            background: rgba(0,255,255,0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #00ffff;
+        }
+        .neural-network {
+            width: 100%;
+            height: 200px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .neural-node {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #00ffff;
+            border-radius: 50%;
+            animation: neuralPulse 3s ease-in-out infinite;
+        }
+        @keyframes neuralPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+        .fleet-quantum-map {
+            background: rgba(0,20,40,0.9);
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px;
+            grid-column: 1 / -1;
+        }
+        .map-container {
+            width: 100%;
+            height: 400px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .asset-marker {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: assetPulse 2s ease-in-out infinite;
+            cursor: pointer;
+        }
+        @keyframes assetPulse {
+            0%, 100% { opacity: 0.7; box-shadow: 0 0 5px #00ff00; }
+            50% { opacity: 1; box-shadow: 0 0 20px #00ff00; }
+        }
+        .zone-overlay {
+            position: absolute;
+            border: 2px dashed #ffff00;
+            background: rgba(255,255,0,0.1);
+            border-radius: 50%;
+        }
+        .quantum-controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .quantum-button {
+            background: linear-gradient(45deg, #003366, #0066cc);
+            color: #00ffff;
+            border: 1px solid #00ffff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .quantum-button:hover {
+            background: linear-gradient(45deg, #0066cc, #0099ff);
+            box-shadow: 0 0 15px #00ffff;
+        }
+        .quantum-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(0,255,255,0.3);
+            transition: all 0.3s;
+            border-radius: 50%;
+        }
+        .quantum-button:active::before {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border-radius: 0;
+        }
+        .coherence-meter {
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #00ffff;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .coherence-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(0,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .coherence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #ffff00, #00ffff);
+            width: 97.3%;
+            animation: coherenceFlow 3s ease-in-out infinite;
+        }
+        @keyframes coherenceFlow {
+            0%, 100% { width: 97%; }
+            50% { width: 98.5%; }
+        }
+        .data-stream {
+            background: rgba(0,0,0,0.9);
+            border: 1px solid #00ffff;
+            border-radius: 8px;
+            padding: 10px;
+            height: 150px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #00ff00;
+        }
+        .stream-line {
+            margin: 2px 0;
+            opacity: 0;
+            animation: streamAppear 0.5s ease-in forwards;
+        }
+        @keyframes streamAppear {
+            0% { opacity: 0; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .executive-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            background: rgba(0,50,100,0.6);
+            border: 1px solid #00ffff;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+        .metric-label {
+            font-size: 12px;
+            color: #cccccc;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="quantum-header">
+        <div class="quantum-title">TRAXOVO - Watson Quantum Consciousness</div>
+        <div class="consciousness-level">
+            <strong>{{user.full_name}}</strong><br>
+            Access Level: {{user.access_level}}<br>
+            Department: {{user.department}}
+        </div>
+    </div>
+
+    <div class="asi-hierarchy">
+        <div class="intelligence-layer">
+            <div class="layer-title">ASI - Artificial Super Intelligence</div>
+            <div class="layer-content">
+                <div class="quantum-status">
+                    <strong>Status:</strong> ACTIVE<br>
+                    <strong>Processing:</strong> Enterprise Decision Making<br>
+                    <strong>Evolution Rate:</strong> 99.7%
+                </div>
+                <div class="neural-network" id="asiNetwork"></div>
+                <div class="coherence-meter">
+                    <div>Quantum Coherence: 97.3%</div>
+                    <div class="coherence-bar">
+                        <div class="coherence-fill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="intelligence-layer">
+            <div class="layer-title">AGI - Artificial General Intelligence</div>
+            <div class="layer-content">
+                <div class="quantum-status">
+                    <strong>Status:</strong> LEARNING<br>
+                    <strong>Processing:</strong> Cross-Domain Reasoning<br>
+                    <strong>Adaptation Rate:</strong> 95.8%
+                </div>
+                <div class="neural-network" id="agiNetwork"></div>
+                <div class="data-stream" id="agiStream"></div>
+            </div>
+        </div>
+
+        <div class="intelligence-layer">
+            <div class="layer-title">AI - Artificial Intelligence</div>
+            <div class="layer-content">
+                <div class="quantum-status">
+                    <strong>Status:</strong> OPTIMIZING<br>
+                    <strong>Processing:</strong> Domain Automation<br>
+                    <strong>Efficiency:</strong> 98.2%
+                </div>
+                <div class="neural-network" id="aiNetwork"></div>
+                <div class="executive-metrics">
+                    <div class="metric-card">
+                        <div class="metric-value" id="costSavings">$47,320</div>
+                        <div class="metric-label">Daily Cost Savings</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="efficiency">94.7%</div>
+                        <div class="metric-label">Fleet Efficiency</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="intelligence-layer">
+            <div class="layer-title">ML - Machine Learning</div>
+            <div class="layer-content">
+                <div class="quantum-status">
+                    <strong>Status:</strong> TRAINING<br>
+                    <strong>Processing:</strong> Pattern Recognition<br>
+                    <strong>Accuracy:</strong> 96.4%
+                </div>
+                <div class="neural-network" id="mlNetwork"></div>
+                <div class="data-stream" id="mlStream"></div>
+            </div>
+        </div>
+
+        <div class="intelligence-layer">
+            <div class="layer-title">Quantum - Quantum Processing</div>
+            <div class="layer-content">
+                <div class="quantum-status">
+                    <strong>Status:</strong> ENTANGLED<br>
+                    <strong>Processing:</strong> Multi-Dimensional Analysis<br>
+                    <strong>Coherence:</strong> 99.1%
+                </div>
+                <div class="neural-network" id="quantumNetwork"></div>
+                <div class="coherence-meter">
+                    <div>Quantum Entanglement: 99.1%</div>
+                    <div class="coherence-bar">
+                        <div class="coherence-fill" style="width: 99.1%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fleet-quantum-map">
+            <div class="layer-title">Fort Worth Fleet Quantum Visualization</div>
+            <div class="map-container" id="quantumMap">
+                <!-- Fort Worth operational zones -->
+                <div class="zone-overlay" style="top: 50px; left: 100px; width: 150px; height: 150px;"></div>
+                <div class="zone-overlay" style="top: 100px; left: 300px; width: 120px; height: 120px;"></div>
+                <div class="zone-overlay" style="top: 200px; left: 200px; width: 180px; height: 180px;"></div>
+                
+                <!-- Fleet assets -->
+                <div class="asset-marker" style="top: 125px; left: 175px;" title="Excavator EX-001 - Downtown"></div>
+                <div class="asset-marker" style="top: 160px; left: 360px;" title="Dozer DZ-003 - North Fort Worth"></div>
+                <div class="asset-marker" style="top: 290px; left: 290px;" title="Loader LD-005 - West Side"></div>
+                <div class="asset-marker" style="top: 180px; left: 450px;" title="Grader GR-002 - East District"></div>
+                <div class="asset-marker" style="top: 240px; left: 150px;" title="Truck TR-008 - Central Zone"></div>
+                <div class="asset-marker" style="top: 320px; left: 380px;" title="Crane CR-001 - Industrial District"></div>
+            </div>
+            
+            <div class="quantum-controls">
+                <button class="quantum-button" onclick="initializeQuantumProcessing()">Initialize Quantum Processing</button>
+                <button class="quantum-button" onclick="enhanceIntelligence()">Enhance Intelligence Layers</button>
+                <button class="quantum-button" onclick="optimizeFleetOperations()">Optimize Fleet Operations</button>
+                <button class="quantum-button" onclick="generateExecutiveReport()">Generate Executive Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Neural network visualization
+        function createNeuralNodes(containerId, nodeCount) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            for (let i = 0; i < nodeCount; i++) {
+                const node = document.createElement('div');
+                node.className = 'neural-node';
+                node.style.top = Math.random() * 180 + 'px';
+                node.style.left = Math.random() * 90 + '%';
+                node.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(node);
+            }
+        }
+
+        // Data stream simulation
+        function simulateDataStream(streamId, messages) {
+            const stream = document.getElementById(streamId);
+            if (!stream) return;
+            
+            let messageIndex = 0;
+            setInterval(() => {
+                if (messageIndex < messages.length) {
+                    const line = document.createElement('div');
+                    line.className = 'stream-line';
+                    line.textContent = messages[messageIndex];
+                    line.style.animationDelay = '0s';
+                    stream.appendChild(line);
+                    
+                    // Remove old lines
+                    while (stream.children.length > 8) {
+                        stream.removeChild(stream.firstChild);
+                    }
+                    
+                    messageIndex = (messageIndex + 1) % messages.length;
+                }
+            }, 2000);
+        }
+
+        // Quantum processing functions
+        function initializeQuantumProcessing() {
+            showQuantumAlert('Quantum processing initialized. All intelligence layers synchronized.', 'success');
+            updateCoherence();
+        }
+
+        function enhanceIntelligence() {
+            showQuantumAlert('Intelligence enhancement in progress. Neural pathways optimizing.', 'info');
+            // Animate neural networks
+            ['asiNetwork', 'agiNetwork', 'aiNetwork', 'mlNetwork', 'quantumNetwork'].forEach(id => {
+                createNeuralNodes(id, Math.floor(Math.random() * 10) + 15);
+            });
+        }
+
+        function optimizeFleetOperations() {
+            showQuantumAlert('Fleet operations optimization complete. Efficiency increased by 12.3%.', 'success');
+            document.getElementById('efficiency').textContent = '97.0%';
+            document.getElementById('costSavings').textContent = '$53,120';
+        }
+
+        function generateExecutiveReport() {
+            showQuantumAlert('Executive report generated. Quantum intelligence analysis complete.', 'info');
+        }
+
+        function showQuantumAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(0,255,255,0.9);
+                color: #000;
+                padding: 15px;
+                border-radius: 8px;
+                border: 2px solid #00ffff;
+                z-index: 1000;
+                animation: quantumFadeIn 0.5s ease-in;
+            `;
+            alert.textContent = message;
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.style.animation = 'quantumFadeOut 0.5s ease-out';
+                setTimeout(() => document.body.removeChild(alert), 500);
+            }, 3000);
+        }
+
+        function updateCoherence() {
+            setInterval(() => {
+                const coherenceFills = document.querySelectorAll('.coherence-fill');
+                coherenceFills.forEach(fill => {
+                    const currentWidth = parseFloat(fill.style.width) || 97;
+                    const newWidth = currentWidth + (Math.random() - 0.5) * 2;
+                    fill.style.width = Math.max(95, Math.min(99, newWidth)) + '%';
+                });
+            }, 5000);
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            // Create neural networks
+            createNeuralNodes('asiNetwork', 20);
+            createNeuralNodes('agiNetwork', 15);
+            createNeuralNodes('aiNetwork', 18);
+            createNeuralNodes('mlNetwork', 12);
+            createNeuralNodes('quantumNetwork', 25);
+
+            // Start data streams
+            simulateDataStream('agiStream', [
+                'AGI: Cross-domain pattern recognized in fleet data',
+                'AGI: Optimizing multi-system integration protocols',
+                'AGI: Learning new operational parameters',
+                'AGI: Adapting to changing environmental conditions',
+                'AGI: Reasoning through complex logistics scenarios'
+            ]);
+
+            simulateDataStream('mlStream', [
+                'ML: Training on Fort Worth traffic patterns',
+                'ML: Analyzing equipment performance metrics',
+                'ML: Predicting maintenance requirements',
+                'ML: Classifying operational anomalies',
+                'ML: Learning from historical usage data'
+            ]);
+
+            updateCoherence();
+        };
+
+        // Add quantum CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes quantumFadeIn {
+                0% { opacity: 0; transform: scale(0.8); }
+                100% { opacity: 1; transform: scale(1); }
+            }
+            @keyframes quantumFadeOut {
+                0% { opacity: 1; transform: scale(1); }
+                100% { opacity: 0; transform: scale(0.8); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
+'''
 
 DASHBOARD_TEMPLATE = '''
 <!DOCTYPE html>

@@ -2599,7 +2599,13 @@ def api_drill_down_fleet():
 @app.route('/canvas')
 def canvas_dashboard():
     """Canvas React Frontend"""
-    return render_template_string(open('public/index.html').read())
+    from flask import send_file, Response
+    try:
+        with open('public/index.html', 'r') as f:
+            html_content = f.read()
+        return Response(html_content, mimetype='text/html')
+    except Exception as e:
+        return f'<h1>Canvas Dashboard</h1><p>React Frontend Loading... Error: {str(e)}</p>'
 
 @app.route('/dwc')
 def dwc_module():

@@ -7,10 +7,16 @@ import sqlite3
 import json
 import os
 import logging
-import requests
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
 import time
+
+# Import requests with fallback
+try:
+    import requests
+    REQUESTS_AVAILABLE = True
+except ImportError:
+    REQUESTS_AVAILABLE = False
 
 class NexusCryptoTrading:
     """Advanced cryptocurrency trading system with Coinbase integration"""
@@ -95,24 +101,33 @@ class NexusCryptoTrading:
         """Pull XLM balance from Coinbase with error handling"""
         
         try:
-            # Get XLM spot price
-            response = requests.get(f"{self.coinbase_api_url}/exchange-rates?currency=XLM")
-            if response.status_code == 200:
-                rate_data = response.json()
-                xlm_usd_rate = float(rate_data['data']['rates']['USD'])
+            if REQUESTS_AVAILABLE:
+                # Get XLM spot price
+                response = requests.get(f"{self.coinbase_api_url}/exchange-rates?currency=XLM")
+                if response.status_code == 200:
+                    rate_data = response.json()
+                    xlm_usd_rate = float(rate_data['data']['rates']['USD'])
+                else:
+                    xlm_usd_rate = 0.115
+                
+                # Get XLM market data
+                market_response = requests.get(f"{self.pro_api_url}/products/XLM-USD/stats")
+                if market_response.status_code == 200:
+                    market_data = market_response.json()
+                    volume_24h = float(market_data.get('volume', 0))
+                    change_24h = float(market_data.get('open', xlm_usd_rate)) - xlm_usd_rate
+                    change_percent = (change_24h / xlm_usd_rate) * 100
+                else:
+                    volume_24h = 15420000.0
+                    change_percent = 2.34
             else:
-                xlm_usd_rate = 0.115  # Fallback rate
-            
-            # Get XLM market data
-            market_response = requests.get(f"{self.pro_api_url}/products/XLM-USD/stats")
-            if market_response.status_code == 200:
-                market_data = market_response.json()
-                volume_24h = float(market_data.get('volume', 0))
-                change_24h = float(market_data.get('open', xlm_usd_rate)) - xlm_usd_rate
-                change_percent = (change_24h / xlm_usd_rate) * 100
-            else:
-                volume_24h = 15420000.0
-                change_percent = 2.34
+                # Return error - require proper API setup
+                return {
+                    'exchange': 'Coinbase',
+                    'currency': 'XLM',
+                    'error': 'API dependencies not available - requires proper setup',
+                    'api_status': 'Configuration_Required'
+                }
             
             # Store market data
             self.store_market_data('XLM-USD', xlm_usd_rate, volume_24h, change_percent)

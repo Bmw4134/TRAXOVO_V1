@@ -5584,6 +5584,15 @@ def api_nexus_ptni_optimize_route():
             'error': str(e)
         }), 500
 
+@app.route('/nexus-unified')
+def nexus_unified():
+    """NEXUS Unified Intelligence Platform - PTI + Crypto Integration"""
+    try:
+        from nexus_unified_dashboard import get_nexus_unified_dashboard
+        return get_nexus_unified_dashboard()
+    except Exception as e:
+        return f"NEXUS unified dashboard error: {str(e)}"
+
 @app.route('/pti-intelligence')
 def pti_intelligence():
     """NEXUS PTI Unified Asset Intelligence Platform - Requires Authentication"""
@@ -5645,7 +5654,7 @@ def api_nexus_execute_crypto_command():
         return jsonify({'status': 'error', 'message': 'Authentication required'})
     
     try:
-        from nexus_crypto_trading_module import execute_nexus_crypto_command
+        from nexus_crypto_simple import execute_nexus_crypto_command
         
         data = request.get_json()
         command = data.get('command', '')
@@ -5672,7 +5681,7 @@ def api_nexus_crypto_dashboard():
         return jsonify({'status': 'error', 'message': 'Authentication required'})
     
     try:
-        from nexus_crypto_trading_module import get_crypto_trading_dashboard
+        from nexus_crypto_simple import get_crypto_trading_dashboard
         
         dashboard_data = get_crypto_trading_dashboard()
         

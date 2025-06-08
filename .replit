@@ -6,7 +6,7 @@ packages = ["chromium", "chromedriver"]
 
 [deployment]
 deploymentTarget = "cloudrun"
-run = ["sh", "-c", "gunicorn --bind 0.0.0.0:5000 --workers 4 --timeout 120 --preload app_executive:app"]
+run = ["sh", "-c", "gunicorn app_executive:app --bind 0.0.0.0:5000"]
 
 hidden = [".config", ".pythonlibs", "__pycache__", ".deployment_cache", "temp_*", "*.pyc", ".git", "attached_assets/*.zip", "qq_intelligent_archive", "archived_modules", "reports_processed", "uploads", "traxovo_remix_complete"]
 

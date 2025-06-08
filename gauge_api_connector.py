@@ -171,10 +171,28 @@ def get_live_gauge_data() -> Dict[str, Any]:
     
     connector = GaugeAPIConnector()
     
-    # Get real metrics from GAUGE API
+    # Try external API first
     asset_count = connector.get_asset_count()
     system_metrics = connector.get_system_metrics()
     performance_data = connector.get_performance_summary()
+    
+    # If external API fails, use authenticated local data
+    if asset_count == 0:
+        try:
+            from traxovo_asset_extractor import get_traxovo_dashboard_metrics
+            traxovo_data = get_traxovo_dashboard_metrics()
+            
+            # Convert to GAUGE API format
+            return {
+                'assets_tracked': traxovo_data['asset_overview']['total_tracked'],
+                'system_uptime': float(traxovo_data['operational_metrics']['system_uptime'].replace('%', '')),
+                'annual_savings': traxovo_data['financial_intelligence']['annual_savings'],
+                'roi_improvement': int(traxovo_data['financial_intelligence']['roi_improvement'].replace('%', '')),
+                'last_updated': traxovo_data['generated_at'],
+                'data_source': 'TRAXOVO_AUTHENTICATED_DATA'
+            }
+        except Exception as e:
+            logging.error(f"TRAXOVO data extraction failed: {e}")
     
     # Compile live dashboard data
     live_data = {

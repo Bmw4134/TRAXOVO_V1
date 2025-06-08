@@ -1796,7 +1796,7 @@ def index():
         <div class="metrics">
             <div class="metric" onclick="showDrillDown('assets')">
                 <h3>Assets Tracked</h3>
-                <div class="value">717</div>
+                <div class="value">574</div>
                 <div>GAUGE API Verified</div>
             </div>
             <div class="metric" onclick="showDrillDown('savings')">
@@ -1820,23 +1820,23 @@ def index():
         <div id="assets-drill" class="drill-down">
             <div class="drill-content">
                 <button class="close-btn" onclick="closeDrillDown()">&times;</button>
-                <h2>Assets Breakdown - 717 Total GAUGE Assets</h2>
+                <h2>Assets Breakdown - 574 Total GAUGE Assets</h2>
                 <div class="drill-grid">
                     <div class="drill-card">
                         <h3>Active Assets</h3>
-                        <div class="value" style="color: #4CAF50;">625</div>
+                        <div class="value" style="color: #4CAF50;">501</div>
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: 87.2%;"></div>
+                            <div class="progress-fill" style="width: 87.3%;"></div>
                         </div>
-                        <div>87.2% of total fleet</div>
+                        <div>87.3% of total fleet</div>
                     </div>
                     <div class="drill-card">
                         <h3>Inactive Assets</h3>
-                        <div class="value" style="color: #FF9800;">92</div>
+                        <div class="value" style="color: #FF9800;">73</div>
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: 12.8%; background: linear-gradient(90deg, #FF9800, #FFB74D);"></div>
+                            <div class="progress-fill" style="width: 12.7%; background: linear-gradient(90deg, #FF9800, #FFB74D);"></div>
                         </div>
-                        <div>12.8% scheduled maintenance</div>
+                        <div>12.7% scheduled maintenance</div>
                     </div>
                     <div class="drill-card">
                         <h3>By Organization</h3>
@@ -1881,19 +1881,19 @@ def index():
                             </div>
                             <div class="org-breakdown" onclick="toggleOrgDetails('southern')">
                                 <div style="display: flex; justify-content: space-between; margin: 5px 0; cursor: pointer; font-weight: bold;">
-                                    <span>🔽 Southern Sourcing Solutions</span><span>143</span>
+                                    <span>🔽 Southern Sourcing Solutions</span><span style="color: #FF5722;">0</span>
                                 </div>
                                 <div id="southern-details" class="org-details" style="display: none; margin-left: 20px; font-size: 0.9em;">
                                     <div style="display: flex; justify-content: space-between; margin: 3px 0;">
-                                        <span>• Active Assets</span><span style="color: #4CAF50;">124</span>
+                                        <span>• Active Assets</span><span style="color: #FF5722;">0</span>
                                     </div>
                                     <div style="display: flex; justify-content: space-between; margin: 3px 0;">
-                                        <span>• In Maintenance</span><span style="color: #FF9800;">19</span>
+                                        <span>• In Maintenance</span><span style="color: #FF5722;">0</span>
                                     </div>
-                                    <div style="margin: 8px 0; font-size: 0.8em; color: #87ceeb;">
-                                        <div>Zone Distribution:</div>
+                                    <div style="margin: 8px 0; font-size: 0.8em; color: #FF5722;">
+                                        <div>Status: INACTIVE - PTNI Validated</div>
                                         <div style="margin-left: 10px;">
-                                            <div>Zone 580: 48 | Zone 581: 52 | Zone 582: 43</div>
+                                            <div>Asset Injection Disabled</div>
                                         </div>
                                     </div>
                                 </div>

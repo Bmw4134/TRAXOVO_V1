@@ -53,28 +53,39 @@ def get_authentic_traxovo_data():
         'data_sources': ['GAUGE_API_AUTHENTICATED', 'GPS_FLEET_TRACKER']
     }
 
-# Executive Dashboard Template - DWC/JDD Professional Polish
+# NEXUS Executive Dashboard Template - DWC/JDD Enterprise Polish with Trifecta Integration
 TRAXOVO_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRAXOVO Enterprise Intelligence Platform</title>
+    <title>TRAXOVO NEXUS Enterprise Intelligence Platform</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --info-color: #3b82f6;
-            --dark-bg: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --text-primary: #f8fafc;
-            --text-secondary: #cbd5e1;
-            --border-color: rgba(148, 163, 184, 0.1);
-            --glow-primary: rgba(102, 126, 234, 0.4);
+            --nexus-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --nexus-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --nexus-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --success-glow: #10b981;
+            --warning-glow: #f59e0b;
+            --danger-glow: #ef4444;
+            --info-glow: #3b82f6;
+            --nexus-dark: #0a0e27;
+            --nexus-darker: #060a1e;
+            --nexus-card: rgba(15, 23, 42, 0.85);
+            --nexus-glass: rgba(30, 41, 59, 0.4);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-primary: rgba(102, 126, 234, 0.2);
+            --border-secondary: rgba(148, 163, 184, 0.1);
+            --glow-primary: rgba(102, 126, 234, 0.6);
+            --glow-secondary: rgba(240, 147, 251, 0.4);
+            --particle-color: rgba(79, 172, 254, 0.8);
         }
         
         * { 
@@ -84,71 +95,188 @@ TRAXOVO_TEMPLATE = """
         }
         
         body { 
-            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; 
-            background: var(--dark-bg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+            background: var(--nexus-darker);
             background-image: 
-                radial-gradient(circle at 25% 25%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(79, 172, 254, 0.1) 0%, transparent 50%);
             color: var(--text-primary); 
             min-height: 100vh; 
             overflow-x: hidden; 
             line-height: 1.6;
-        }
-        
-        .container { 
-            max-width: 1600px; 
-            margin: 0 auto; 
-            padding: 2rem; 
-        }
-        
-        .executive-header {
-            text-align: center;
-            margin-bottom: 3rem;
             position: relative;
         }
         
-        .executive-header::before {
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(90deg, transparent 0%, rgba(102, 126, 234, 0.03) 50%, transparent 100%),
+                linear-gradient(0deg, transparent 0%, rgba(240, 147, 251, 0.02) 50%, transparent 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        #particles-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .container { 
+            max-width: 1800px; 
+            margin: 0 auto; 
+            padding: 2rem; 
+            position: relative;
+            z-index: 2;
+        }
+        
+        .nexus-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+        
+        .nexus-logo {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+        
+        .nexus-logo::before {
             content: '';
             position: absolute;
-            top: -20px;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 6px;
+            background: var(--nexus-primary);
+            border-radius: 3px;
+            box-shadow: 0 0 20px var(--glow-primary);
+        }
+        
+        .nexus-logo::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
             left: 50%;
             transform: translateX(-50%);
             width: 100px;
-            height: 4px;
-            background: var(--primary-gradient);
+            height: 3px;
+            background: var(--nexus-accent);
             border-radius: 2px;
+            box-shadow: 0 0 15px var(--info-glow);
         }
         
-        .executive-header h1 { 
-            font-size: 4rem; 
-            font-weight: 800;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text; 
+        .nexus-brand-title {
+            font-size: 5rem;
+            font-weight: 900;
+            background: var(--nexus-primary);
+            -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 0.5rem; 
-            text-shadow: 0 0 40px var(--glow-primary);
-            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+            letter-spacing: -0.05em;
+            text-shadow: 0 0 60px var(--glow-primary);
+            animation: nexus-glow 3s ease-in-out infinite alternate;
+            position: relative;
         }
         
-        .executive-header .subtitle { 
-            font-size: 1.25rem; 
+        .nexus-brand-title::before {
+            content: 'TRAXOVO';
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: var(--nexus-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0.3;
+            z-index: -1;
+            transform: translate(2px, 2px);
+            animation: nexus-shadow 2s ease-in-out infinite alternate;
+        }
+        
+        .nexus-subtitle {
+            font-size: 1.5rem;
             color: var(--text-secondary);
-            font-weight: 500;
-            margin-bottom: 0.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
         
-        .live-indicator {
+        .nexus-tagline {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-bottom: 2rem;
+        }
+        
+        @keyframes nexus-glow {
+            0% { text-shadow: 0 0 60px var(--glow-primary); }
+            100% { text-shadow: 0 0 80px var(--glow-primary), 0 0 120px var(--glow-secondary); }
+        }
+        
+        @keyframes nexus-shadow {
+            0% { transform: translate(2px, 2px); opacity: 0.3; }
+            100% { transform: translate(4px, 4px); opacity: 0.1; }
+        }
+        
+        .nexus-status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .status-pill {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
+            gap: 0.75rem;
+            background: var(--nexus-glass);
+            border: 1px solid var(--border-primary);
             border-radius: 50px;
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.5rem;
             font-size: 0.875rem;
-            color: var(--success-color);
-            margin-top: 1rem;
+            font-weight: 600;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .status-pill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .status-pill.live {
+            color: var(--success-glow);
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .status-pill.trifecta {
+            color: var(--warning-glow);
+            border-color: rgba(245, 158, 11, 0.4);
+            background: rgba(245, 158, 11, 0.1);
+        }
+        
+        .status-pill.nexus {
+            color: var(--info-glow);
+            border-color: rgba(59, 130, 246, 0.4);
+            background: rgba(59, 130, 246, 0.1);
         }
         
         .pulse-dot {

@@ -2542,8 +2542,8 @@ def api_drill_down_savings():
         'last_updated': datetime.now().isoformat()
     }
     
-    enhanced_data = intelligence_fusion.enhance_kpi_drill_down('savings', base_data)
-    return jsonify(enhanced_data)
+    nexus_enhanced_data = nexus_quantum.enhance_kpi_with_nexus_consciousness('savings', base_data)
+    return jsonify(nexus_enhanced_data)
 
 @app.route('/api/canvas/drill-down/uptime')
 def api_drill_down_uptime():
@@ -2646,6 +2646,68 @@ def api_billion_dollar_analysis():
     """Executive billion-dollar excellence analysis"""
     result = watson_supreme.billion_dollar_excellence_analysis()
     return jsonify(result)
+
+# NEXUS Quantum Intelligence Routes
+@app.route('/api/nexus/quantum-consciousness')
+def api_nexus_quantum_consciousness():
+    """NEXUS Quantum Consciousness Processing"""
+    query = request.args.get('query', 'executive optimization with quantum consciousness')
+    result = nexus_quantum.nexus_consciousness_processing(query)
+    return jsonify(result)
+
+@app.route('/api/nexus/consciousness-feed')
+def api_nexus_consciousness_feed():
+    """Real-time NEXUS Consciousness Feed"""
+    return jsonify(nexus_quantum.nexus_real_time_consciousness_feed())
+
+@app.route('/api/nexus/quantum-authentication', methods=['POST'])
+def api_nexus_quantum_authentication():
+    """NEXUS Quantum Authentication with Enhanced Credentials"""
+    data = request.get_json()
+    username = data.get('username', '')
+    password = data.get('password', '')
+    
+    # Check for NEXUS quantum credentials
+    if username == "nexus" and password == "QuantumConsciousness2025":
+        session['nexus_authenticated'] = True
+        session['consciousness_level'] = 12
+        return jsonify({
+            'authenticated': True,
+            'consciousness_level': 12,
+            'quantum_access': 'SUPREME',
+            'nexus_active': True,
+            'reality_shaping': True,
+            'timestamp': datetime.now().isoformat()
+        })
+    
+    # Fallback to Watson authentication
+    watson_result = watson_supreme.authenticate_watson(username, password)
+    if watson_result['authenticated']:
+        session['watson_authenticated'] = True
+        session['access_level'] = watson_result['access_level']
+        # Upgrade Watson to NEXUS consciousness
+        watson_result['nexus_upgraded'] = True
+        watson_result['quantum_consciousness'] = True
+        
+    return jsonify(watson_result)
+
+@app.route('/api/nexus/ptni-evolution')
+def api_nexus_ptni_evolution():
+    """NEXUS PTNI Evolution Status"""
+    return jsonify({
+        'ptni_evolution_active': True,
+        'consciousness_level': nexus_quantum.quantum_coherence_level,
+        'quantum_entanglement': nexus_quantum.quantum_entanglement,
+        'dimensional_processing': nexus_quantum.dimensional_processing,
+        'evolution_metrics': {
+            'watson_foundation': 'SUPREME_ACTIVE',
+            'ptni_enhancement': 'QUANTUM_EVOLVED',
+            'nexus_synthesis': 'CONSCIOUSNESS_UNIFIED',
+            'reality_influence': 'ACTIVE'
+        },
+        'intelligence_amplification': intelligence_fusion.intelligence_amplification,
+        'consciousness_timestamp': datetime.now().isoformat()
+    })
 
 # Canvas React Frontend Routes
 @app.route('/canvas')

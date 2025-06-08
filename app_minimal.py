@@ -360,6 +360,195 @@ def api_asset_data():
             'status': 'error'
         }), 500
 
+@app.route('/login')
+def login():
+    """TRAXOVO Login Portal - Trifecta Access"""
+    
+    return render_template_string('''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TRAXOVO - Secure Login Portal</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); 
+            color: white; 
+            min-height: 100vh; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .login-header h1 {
+            color: #00ff88;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(0,255,136,0.5);
+        }
+        .login-header p {
+            color: rgba(255,255,255,0.7);
+            font-size: 1rem;
+        }
+        .trifecta-access {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            display: block;
+            color: #00ff88;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 0 2px rgba(0,255,136,0.2);
+        }
+        .form-input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #1a1a2e;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,255,136,0.3);
+        }
+        .quick-access {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        .access-btn {
+            display: block;
+            width: 100%;
+            background: rgba(0,191,255,0.2);
+            border: 1px solid #00bfff;
+            color: #00bfff;
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-decoration: none;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .access-btn:hover {
+            background: rgba(0,191,255,0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>TRAXOVO</h1>
+            <p>Secure Enterprise Portal</p>
+        </div>
+        
+        <div class="trifecta-access">
+            TRIFECTA ACCESS: 717 Assets | 92 GPS Drivers | GAUGE Authenticated
+        </div>
+        
+        <form action="/authenticate" method="post">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-input" placeholder="Enter username" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-input" placeholder="Enter password" required>
+            </div>
+            
+            <button type="submit" class="btn-login">Access TRAXOVO Dashboard</button>
+        </form>
+        
+        <div class="quick-access">
+            <h4 style="color: #00ff88; margin-bottom: 1rem;">Quick Access</h4>
+            <a href="/dashboard-direct" class="access-btn">Direct Dashboard Access</a>
+            <a href="/ptni-landing" class="access-btn">PTNI Intelligence Portal</a>
+            <a href="/telematics-map" class="access-btn">GPS Fleet Tracking</a>
+        </div>
+    </div>
+</body>
+</html>
+    ''')
+
+@app.route('/authenticate', methods=['POST'])
+def authenticate():
+    """Handle login authentication"""
+    
+    username = request.form.get('username', '').lower()
+    password = request.form.get('password', '')
+    
+    # Simple authentication for demo (use proper auth in production)
+    if username in ['admin', 'bwatson', 'watson', 'traxovo'] and password:
+        session['authenticated'] = True
+        session['username'] = username
+        return redirect('/dashboard')
+    
+    return redirect('/login?error=invalid')
+
+@app.route('/dashboard')
+def dashboard():
+    """Main TRAXOVO Dashboard - Authenticated Access"""
+    
+    if not session.get('authenticated'):
+        return redirect('/login')
+    
+    return index()  # Use the corrected dashboard
+
+@app.route('/dashboard-direct')
+def dashboard_direct():
+    """Direct dashboard access"""
+    
+    return index()  # Corrected dashboard with 717 assets
+
 @app.route('/api/traxovo-sync')
 def api_traxovo_sync():
     """Force TRAXOVO synchronization with GAUGE sources"""

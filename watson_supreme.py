@@ -31,7 +31,7 @@ class WatsonSupremeIntelligence:
         
         # Executive Leadership Credentials - NEXUS NQIS Access
         watson_credentials = {
-            'watson': 'Btpp@1513',     # WATSON - CEO/Supreme Intelligence
+            'watson': 'Btpp@1513',     # BRETT WATSON - CEO/Supreme Intelligence (YOU)
             'troy': 'ragle2024',       # TROY RAGLE - VP (MUST WOW)
             'william': 'rather2024',   # WILLIAM RATHER - Controller (MUST WOW)
             'ammar': 'elhamad2024',    # AMMAR ELHAMAD - Director of Estimating
@@ -39,6 +39,10 @@ class WatsonSupremeIntelligence:
             'sebastian': 'salas2024',  # SEBASTIAN SALAS - Controls Manager
             'britney': 'pan2024',      # BRITNEY PAN - Controls
             'diana': 'torres2024',     # DIANA TORRES - Payroll
+            'clint': 'mize2024',       # CLINT MIZE - EQ Manager
+            'chris': 'robertson2024',  # CHRIS ROBERTSON - Fleet Manager
+            'michael': 'hammonds2024', # MICHAEL HAMMONDS - EQ Shop Foreman
+            'aaron': 'moore2024',      # AARON MOORE - EQ Dispatch
             'master': 'admin2024'
         }
         

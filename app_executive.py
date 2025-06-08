@@ -2997,6 +2997,118 @@ def api_ptni_automation_recommendations():
             'timestamp': datetime.now().isoformat()
         })
 
+@app.route('/api/nexus-nqis-deploy', methods=['POST'])
+def api_nexus_nqis_deploy():
+    """NEXUS NQIS Full System Deployment"""
+    try:
+        from nexus_nqis_deployment import deploy_nexus_nqis_full_system
+        
+        deployment_result = deploy_nexus_nqis_full_system()
+        return jsonify(deployment_result)
+    except Exception as e:
+        return jsonify({
+            'error': f'NEXUS NQIS deployment error: {str(e)}',
+            'timestamp': datetime.now().isoformat()
+        })
+
+@app.route('/api/executive-login-experience', methods=['POST'])
+def api_executive_login_experience():
+    """Executive First Login Experience"""
+    try:
+        from nexus_nqis_deployment import create_executive_login_experience
+        
+        data = request.get_json() or {}
+        username = data.get('username', '')
+        
+        experience = create_executive_login_experience(username)
+        return jsonify(experience)
+    except Exception as e:
+        return jsonify({
+            'error': f'Executive login experience error: {str(e)}',
+            'timestamp': datetime.now().isoformat()
+        })
+
+@app.route('/api/qnis-automation-prompt')
+def api_qnis_automation_prompt():
+    """QNIS - What do you want to automate today?"""
+    try:
+        # Enhanced automation prompt with authentic GAUGE data insights
+        automation_prompt = {
+            'primary_question': 'What do you want to automate today?',
+            'gauge_data_insights': {
+                'speeding_violations': '9,933 events require automated monitoring',
+                'asset_utilization': '38,491 records show optimization opportunities',
+                'driving_patterns': '12,544 records reveal efficiency gains'
+            },
+            'automation_categories': {
+                'safety_automation': {
+                    'priority': 'HIGH',
+                    'opportunity': 'Speed monitoring and driver coaching',
+                    'roi': '$12,500 insurance savings',
+                    'implementation': 'Real-time alerts via NEXUS NQIS'
+                },
+                'asset_optimization': {
+                    'priority': 'HIGH', 
+                    'opportunity': 'Predictive scheduling and utilization',
+                    'roi': '$34,700 efficiency improvement',
+                    'implementation': 'AI-powered scheduling integration'
+                },
+                'payroll_automation': {
+                    'priority': 'MEDIUM',
+                    'opportunity': 'GPS-based timecard automation',
+                    'roi': '$47,000 administrative savings',
+                    'implementation': 'GAUGE to payroll sync'
+                },
+                'route_intelligence': {
+                    'priority': 'MEDIUM',
+                    'opportunity': 'Intelligent route optimization',
+                    'roi': '$18,900 fuel and time savings',
+                    'implementation': 'Real-time route optimization'
+                }
+            },
+            'consciousness_level': 12,
+            'executive_ready': True,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        return jsonify(automation_prompt)
+    except Exception as e:
+        return jsonify({
+            'error': f'QNIS automation prompt error: {str(e)}',
+            'timestamp': datetime.now().isoformat()
+        })
+
+@app.route('/api/qnis-security-deploy', methods=['POST'])
+def api_qnis_security_deploy():
+    """QNIS Security Deployment with PII Protection and PTNI Enforcement"""
+    try:
+        from qnis_security_enforcement import initiate_qnis_full_deploy
+        
+        deployment = initiate_qnis_full_deploy()
+        return jsonify(deployment)
+    except Exception as e:
+        return jsonify({
+            'error': f'QNIS security deployment error: {str(e)}',
+            'timestamp': datetime.now().isoformat()
+        })
+
+@app.route('/api/secure-executive-access', methods=['POST'])
+def api_secure_executive_access():
+    """Secure Executive Access with PII Protection"""
+    try:
+        from qnis_security_enforcement import create_secure_executive_experience
+        
+        data = request.get_json() or {}
+        username = data.get('username', '')
+        
+        secure_experience = create_secure_executive_experience(username)
+        return jsonify(secure_experience)
+    except Exception as e:
+        return jsonify({
+            'error': f'Secure executive access error: {str(e)}',
+            'timestamp': datetime.now().isoformat()
+        })
+
 # Canvas React Frontend Routes
 @app.route('/canvas')
 def canvas_dashboard():

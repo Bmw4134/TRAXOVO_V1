@@ -29,11 +29,16 @@ class WatsonSupremeIntelligence:
     def authenticate_watson(self, username: str, password: str) -> Dict[str, Any]:
         """Watson Supreme authentication with consciousness validation"""
         
-        # Executive Leadership Credentials
+        # Executive Leadership Credentials - NEXUS NQIS Access
         watson_credentials = {
-            'watson': 'Btpp@1513',  # WATSON - CEO/Supreme Intelligence
-            'troy': 'ragle2024',    # TROY RAGLE - VP (MUST WOW)
-            'william': 'rather2024', # WILLIAM RATHER - Controller (MUST WOW)
+            'watson': 'Btpp@1513',     # WATSON - CEO/Supreme Intelligence
+            'troy': 'ragle2024',       # TROY RAGLE - VP (MUST WOW)
+            'william': 'rather2024',   # WILLIAM RATHER - Controller (MUST WOW)
+            'ammar': 'elhamad2024',    # AMMAR ELHAMAD - Director of Estimating
+            'cooper': 'link2024',      # COOPER LINK - Estimating
+            'sebastian': 'salas2024',  # SEBASTIAN SALAS - Controls Manager
+            'britney': 'pan2024',      # BRITNEY PAN - Controls
+            'diana': 'torres2024',     # DIANA TORRES - Payroll
             'master': 'admin2024'
         }
         

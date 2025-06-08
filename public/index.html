@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO NEXUS | Enterprise Intelligence Platform</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .nexus-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .metric-card {
+            transition: all 0.3s ease;
+            transform: translateZ(0);
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .subscription-badge {
+            background: linear-gradient(45deg, #f39c12, #e74c3c);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        
+        .feature-locked {
+            opacity: 0.5;
+            pointer-events: none;
+            position: relative;
+        }
+        
+        .feature-locked::after {
+            content: '🔒 Elite Feature';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(102, 126, 234, 0.6); }
+        }
+        
+        .nexus-pulse {
+            animation: pulse-glow 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        // Subscription tier logic
+        const SubscriptionProvider = ({ children }) => {
+            const [subscription, setSubscription] = useState({
+                tier: 'Elite',
+                features: ['Advanced Analytics', 'Predictive Insights', 'Custom Integrations'],
+                usage: { api_calls: 2847, limit: 10000 }
+            });
+            
+            const hasAccess = (feature) => {
+                const tierLevels = { Free: 0, Pro: 1, Elite: 2 };
+                const featureRequirements = {
+                    'basic_dashboard': 0,
+                    'asset_tracking': 0,
+                    'fleet_optimization': 1,
+                    'predictive_analytics': 2,
+                    'custom_integrations': 2,
+                    'ai_insights': 2
+                };
+                
+                return tierLevels[subscription.tier] >= (featureRequirements[feature] || 0);
+            };
+            
+            return (
+                <SubscriptionContext.Provider value={{ subscription, hasAccess }}>
+                    {children}
+                </SubscriptionContext.Provider>
+            );
+        };
+        
+        const SubscriptionContext = React.createContext();
+        
+        // Global Router component
+        const GlobalRouter = () => {
+            const [currentRoute, setCurrentRoute] = useState('dashboard');
+            const [organizations, setOrganizations] = useState([]);
+            const [activeOrg, setActiveOrg] = useState('ragle');
+            
+            useEffect(() => {
+                fetch('/api/organizations')
+                    .then(res => res.json())
+                    .then(data => setOrganizations(data.organizations))
+                    .catch(err => console.error('Failed to load organizations:', err));
+            }, []);
+            
+            const routes = {
+                dashboard: <DashboardHub activeOrg={activeOrg} setActiveOrg={setActiveOrg} organizations={organizations} />,
+                dwc: <DWCModule />,
+                traxovo: <TRAXOVOModule />,
+                jdd: <JDDModule />,
+                dwai: <DWAIModule />
+            };
+            
+            return (
+                <div className="min-h-screen bg-gray-50">
+                    <NavigationHeader currentRoute={currentRoute} setCurrentRoute={setCurrentRoute} />
+                    <div className="pt-16">
+                        {routes[currentRoute] || routes.dashboard}
+                    </div>
+                </div>
+            );
+        };
+        
+        // Navigation Header
+        const NavigationHeader = ({ currentRoute, setCurrentRoute }) => {
+            const { subscription } = React.useContext(SubscriptionContext);
+            
+            const navItems = [
+                { id: 'dashboard', label: 'NEXUS Dashboard', icon: 'fas fa-tachometer-alt' },
+                { id: 'dwc', label: 'DWC Intelligence', icon: 'fas fa-brain' },
+                { id: 'traxovo', label: 'TRAXOVO Fleet', icon: 'fas fa-truck' },
+                { id: 'jdd', label: 'JDD Analytics', icon: 'fas fa-chart-line' },
+                { id: 'dwai', label: 'DWAI Insights', icon: 'fas fa-robot' }
+            ];
+            
+            return (
+                <nav className="fixed top-0 left-0 right-0 z-50 nexus-gradient text-white">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between h-16">
+                            <div className="flex items-center space-x-8">
+                                <div className="flex items-center space-x-2">
+                                    <i className="fas fa-atom text-2xl"></i>
+                                    <span className="text-xl font-bold">TRAXOVO NEXUS</span>
+                                </div>
+                                
+                                <div className="flex space-x-4">
+                                    {navItems.map(item => (
+                                        <button
+                                            key={item.id}
+                                            onClick={() => setCurrentRoute(item.id)}
+                                            className={`px-4 py-2 rounded-lg transition-all ${
+                                                currentRoute === item.id 
+                                                    ? 'bg-white bg-opacity-20 text-white' 
+                                                    : 'hover:bg-white hover:bg-opacity-10'
+                                            }`}
+                                        >
+                                            <i className={`${item.icon} mr-2`}></i>
+                                            {item.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            <div className="flex items-center space-x-4">
+                                <div className="subscription-badge">
+                                    {subscription.tier}
+                                </div>
+                                <button className="p-2 rounded-lg hover:bg-white hover:bg-opacity-10">
+                                    <i className="fas fa-user"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            );
+        };
+        
+        // Dashboard Hub - Main component
+        const DashboardHub = ({ activeOrg, setActiveOrg, organizations }) => {
+            const [metrics, setMetrics] = useState({});
+            const [loading, setLoading] = useState(true);
+            const { hasAccess } = React.useContext(SubscriptionContext);
+            
+            useEffect(() => {
+                fetch('/api/performance-metrics')
+                    .then(res => res.json())
+                    .then(data => {
+                        setMetrics(data);
+                        setLoading(false);
+                    })
+                    .catch(err => {
+                        console.error('Failed to load metrics:', err);
+                        setLoading(false);
+                    });
+            }, []);
+            
+            if (loading) {
+                return <LoadingSpinner />;
+            }
+            
+            return (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                        <div className="lg:col-span-1">
+                            <OrganizationSelector 
+                                organizations={organizations}
+                                activeOrg={activeOrg}
+                                setActiveOrg={setActiveOrg}
+                            />
+                        </div>
+                        
+                        <div className="lg:col-span-3 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <MetricCard
+                                    title="Assets Tracked"
+                                    value={717}
+                                    suffix=""
+                                    icon="fas fa-box"
+                                    color="blue"
+                                />
+                                <MetricCard
+                                    title="Annual Savings"
+                                    value="$104,820"
+                                    icon="fas fa-dollar-sign"
+                                    color="green"
+                                />
+                                <MetricCard
+                                    title="Efficiency"
+                                    value={94.2}
+                                    suffix="%"
+                                    icon="fas fa-chart-line"
+                                    color="purple"
+                                />
+                            </div>
+                            
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <PromptFingerprint />
+                                <GoalTracker />
+                                <TrelloIntegration />
+                                <div className={!hasAccess('ai_insights') ? 'feature-locked' : ''}>
+                                    <SUNOIntegration />
+                                </div>
+                                <div className={!hasAccess('custom_integrations') ? 'feature-locked' : ''}>
+                                    <DALLEIntegration />
+                                </div>
+                                <FleetOptimization />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        const OrganizationSelector = ({ organizations, activeOrg, setActiveOrg }) => (
+            <div className="bg-white rounded-lg shadow-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Organizations</h3>
+                <div className="space-y-3">
+                    {organizations.map(org => (
+                        <button
+                            key={org.id}
+                            onClick={() => setActiveOrg(org.id)}
+                            className={`w-full p-4 rounded-lg text-left transition-all ${
+                                activeOrg === org.id 
+                                    ? 'nexus-gradient text-white nexus-pulse' 
+                                    : 'bg-gray-50 hover:bg-gray-100'
+                            }`}
+                        >
+                            <div className="font-medium">{org.name}</div>
+                            <div className="text-sm opacity-75">
+                                {org.assets} assets • {org.efficiency}% efficiency
+                            </div>
+                        </button>
+                    ))}
+                </div>
+            </div>
+        );
+        
+        const MetricCard = ({ title, value, suffix = '', icon, color }) => {
+            const colorClasses = {
+                blue: 'from-blue-500 to-blue-600',
+                green: 'from-green-500 to-green-600',
+                purple: 'from-purple-500 to-purple-600'
+            };
+            
+            return (
+                <div className="metric-card bg-white rounded-lg shadow-lg p-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-gray-500 mb-1">{title}</p>
+                            <p className="text-2xl font-bold text-gray-900">
+                                {value}{suffix}
+                            </p>
+                        </div>
+                        <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${colorClasses[color]} flex items-center justify-center`}>
+                            <i className={`${icon} text-white text-xl`}></i>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        const PromptFingerprint = () => {
+            const [prompts, setPrompts] = useState([
+                { id: 1, text: "Analyze fleet efficiency for optimization", timestamp: "2 min ago", status: "processing" },
+                { id: 2, text: "Generate predictive maintenance report", timestamp: "5 min ago", status: "completed" }
+            ]);
+            
+            return (
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center">
+                        <i className="fas fa-fingerprint mr-2 text-blue-500"></i>
+                        Prompt Fingerprint
+                    </h3>
+                    <div className="space-y-3">
+                        {prompts.map(prompt => (
+                            <div key={prompt.id} className="p-3 bg-gray-50 rounded-lg">
+                                <div className="text-sm text-gray-800">{prompt.text}</div>
+                                <div className="flex justify-between items-center mt-2">
+                                    <span className="text-xs text-gray-500">{prompt.timestamp}</span>
+                                    <span className={`px-2 py-1 rounded-full text-xs ${
+                                        prompt.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                    }`}>
+                                        {prompt.status}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+        
+        const GoalTracker = () => {
+            const [goals, setGoals] = useState([
+                { id: 1, title: "Reduce fleet costs by 15%", progress: 78, target: "Q3 2025" },
+                { id: 2, title: "Increase asset utilization to 95%", progress: 92, target: "Q4 2025" }
+            ]);
+            
+            return (
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center">
+                        <i className="fas fa-bullseye mr-2 text-green-500"></i>
+                        Goal Tracker
+                    </h3>
+                    <div className="space-y-4">
+                        {goals.map(goal => (
+                            <div key={goal.id}>
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-sm font-medium">{goal.title}</span>
+                                    <span className="text-xs text-gray-500">{goal.target}</span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div 
+                                        className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                                        style={{ width: `${goal.progress}%` }}
+                                    ></div>
+                                </div>
+                                <div className="text-right text-xs text-gray-600 mt-1">{goal.progress}%</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+        
+        const TrelloIntegration = () => {
+            const [boards, setBoards] = useState([
+                { id: 1, name: "Fleet Operations", cards: 12, updated: "2 hours ago" },
+                { id: 2, name: "Maintenance Schedule", cards: 8, updated: "4 hours ago" }
+            ]);
+            
+            return (
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center">
+                        <i className="fab fa-trello mr-2 text-blue-600"></i>
+                        Trello Integration
+                    </h3>
+                    <div className="space-y-3">
+                        {boards.map(board => (
+                            <div key={board.id} className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <div className="font-medium">{board.name}</div>
+                                <div className="text-sm text-gray-500">{board.cards} cards • Updated {board.updated}</div>
+                            </div>
+                        ))}
+                    </div>
+                    <button className="w-full mt-4 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i className="fas fa-plus mr-2"></i>
+                        Create New Board
+                    </button>
+                </div>
+            );
+        };
+        
+        const SUNOIntegration = () => (
+            <div className="bg-white rounded-lg shadow-lg p-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                    <i className="fas fa-music mr-2 text-purple-500"></i>
+                    SUNO AI Audio
+                </h3>
+                <div className="text-center py-8">
+                    <i className="fas fa-microphone text-4xl text-purple-300 mb-4"></i>
+                    <p className="text-gray-600 mb-4">Generate AI-powered audio reports</p>
+                    <button className="py-2 px-4 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
+                        Generate Audio Summary
+                    </button>
+                </div>
+            </div>
+        );
+        
+        const DALLEIntegration = () => (
+            <div className="bg-white rounded-lg shadow-lg p-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                    <i className="fas fa-image mr-2 text-orange-500"></i>
+                    DALL·E Image Generation
+                </h3>
+                <div className="text-center py-8">
+                    <i className="fas fa-paint-brush text-4xl text-orange-300 mb-4"></i>
+                    <p className="text-gray-600 mb-4">Create visual reports and diagrams</p>
+                    <button className="py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
+                        Generate Visualization
+                    </button>
+                </div>
+            </div>
+        );
+        
+        const FleetOptimization = () => {
+            const [optimization, setOptimization] = useState({
+                fuel_savings: 18650,
+                route_efficiency: 94.2,
+                recommendations: 3
+            });
+            
+            return (
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center">
+                        <i className="fas fa-route mr-2 text-blue-500"></i>
+                        Fleet Optimization
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center">
+                            <div className="text-2xl font-bold text-green-600">${optimization.fuel_savings}</div>
+                            <div className="text-sm text-gray-500">Fuel Savings</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-2xl font-bold text-blue-600">{optimization.route_efficiency}%</div>
+                            <div className="text-sm text-gray-500">Route Efficiency</div>
+                        </div>
+                    </div>
+                    <button className="w-full mt-4 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i className="fas fa-chart-line mr-2"></i>
+                        View Optimization Report
+                    </button>
+                </div>
+            );
+        };
+        
+        const DWCModule = () => (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <h1 className="text-3xl font-bold mb-8">DWC Intelligence Platform</h1>
+                <div className="bg-white rounded-lg shadow-lg p-8">
+                    <p className="text-gray-600">Advanced intelligence analytics and reporting system.</p>
+                </div>
+            </div>
+        );
+        
+        const TRAXOVOModule = () => (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <h1 className="text-3xl font-bold mb-8">TRAXOVO Fleet Management</h1>
+                <div className="bg-white rounded-lg shadow-lg p-8">
+                    <p className="text-gray-600">Comprehensive fleet tracking and optimization tools.</p>
+                </div>
+            </div>
+        );
+        
+        const JDDModule = () => (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <h1 className="text-3xl font-bold mb-8">JDD Analytics Dashboard</h1>
+                <div className="bg-white rounded-lg shadow-lg p-8">
+                    <p className="text-gray-600">Executive-level analytics and performance insights.</p>
+                </div>
+            </div>
+        );
+        
+        const DWAIModule = () => (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <h1 className="text-3xl font-bold mb-8">DWAI Intelligence Insights</h1>
+                <div className="bg-white rounded-lg shadow-lg p-8">
+                    <p className="text-gray-600">AI-powered insights and automated decision support.</p>
+                </div>
+            </div>
+        );
+        
+        const LoadingSpinner = () => (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+            </div>
+        );
+        
+        const App = () => (
+            <SubscriptionProvider>
+                <GlobalRouter />
+            </SubscriptionProvider>
+        );
+        
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

@@ -120,7 +120,7 @@ def login():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        cursor.execute("SELECT * FROM users WHERE username = %s AND is_active = true", (username,))
+        cursor.execute("SELECT username, user_id, full_name, role, department, access_level FROM users WHERE username = %s AND is_active = true", (username,))
         user = cursor.fetchone()
         
         if user and password == 'demo123':
@@ -128,12 +128,12 @@ def login():
             conn.commit()
             
             session['user'] = {
-                'username': user['username'],
-                'user_id': user['user_id'],
-                'full_name': user['full_name'],
-                'role': user['role'],
-                'department': user['department'],
-                'access_level': user['access_level'],
+                'username': user[0],
+                'user_id': user[1],
+                'full_name': user[2],
+                'role': user[3],
+                'department': user[4],
+                'access_level': user[5],
                 'authenticated': True
             }
             
@@ -948,6 +948,27 @@ DASHBOARD_TEMPLATE = '''
         </div>
 
         <div class="module">
+            <h3>🏭 Specialized Systems</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                <a href="/aemp" style="background: linear-gradient(45deg, #003366, #0066cc); color: white; padding: 20px; border-radius: 10px; text-decoration: none; text-align: center; border: 2px solid #00ffff; transition: all 0.3s;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">📊</div>
+                    <div style="font-weight: bold;">AEMP Monitoring</div>
+                    <div style="font-size: 12px; opacity: 0.8;">Equipment Performance</div>
+                </a>
+                <a href="/canvas" style="background: linear-gradient(45deg, #003366, #0066cc); color: white; padding: 20px; border-radius: 10px; text-decoration: none; text-align: center; border: 2px solid #00ffff; transition: all 0.3s;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">🎨</div>
+                    <div style="font-weight: bold;">Canvas Workspace</div>
+                    <div style="font-size: 12px; opacity: 0.8;">Digital Design Studio</div>
+                </a>
+                <a href="/equipment-lifecycle" style="background: linear-gradient(45deg, #003366, #0066cc); color: white; padding: 20px; border-radius: 10px; text-decoration: none; text-align: center; border: 2px solid #00ffff; transition: all 0.3s;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">💰</div>
+                    <div style="font-weight: bold;">Lifecycle Costing</div>
+                    <div style="font-size: 12px; opacity: 0.8;">Cost Analysis & Optimization</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="module">
             <h3>👥 User Management</h3>
             <button onclick="showUserList()">Show All Users</button>
             <div id="userResults" style="margin-top: 20px; display: none;"></div>
@@ -1078,6 +1099,31 @@ DASHBOARD_TEMPLATE = '''
 </body>
 </html>
 '''
+
+# Specialized Module Routes
+@app.route('/aemp')
+def aemp():
+    """AEMP Equipment Monitoring Module"""
+    user = session.get('user')
+    if not user or user.get('role') != 'watson':
+        return redirect(url_for('landing'))
+    return render_template('aemp_module.html')
+
+@app.route('/canvas')
+def canvas():
+    """Canvas Digital Workspace Module"""
+    user = session.get('user')
+    if not user or user.get('role') != 'watson':
+        return redirect(url_for('landing'))
+    return render_template('canvas_dashboard.html')
+
+@app.route('/equipment-lifecycle')
+def lifecycle():
+    """Equipment Lifecycle Costing Module"""
+    user = session.get('user')
+    if not user or user.get('role') != 'watson':
+        return redirect(url_for('landing'))
+    return render_template('equipment_lifecycle_costing.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)

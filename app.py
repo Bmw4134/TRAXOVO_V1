@@ -916,19 +916,37 @@ JDD_EXECUTIVE_DASHBOARD = """
 @app.route('/')
 def index():
     """TRAXOVO Enterprise Intelligence Platform"""
-    return """
-    <!DOCTYPE html>
-    <html><head><title>TRAXOVO - Enterprise Intelligence</title></head>
-    <body style="font-family: Arial; background: #0f0f23; color: white; padding: 2rem;">
-        <h1 style="color: #00ff88;">TRAXOVO</h1>
-        <h2>Enterprise Intelligence Platform</h2>
-        <p>Asset Tracking: 1,474+ assets monitored</p>
-        <p>System Uptime: 94.7%</p>
-        <p>Annual Savings: $214,790</p>
-        <p>ROI Improvement: 287%</p>
-        <a href="/login" style="color: #00bfff;">Access Dashboard</a>
-    </body></html>
-    """
+    try:
+        from gauge_api_connector import get_live_gauge_data
+        live_data = get_live_gauge_data()
+        
+        return f"""
+        <!DOCTYPE html>
+        <html><head><title>TRAXOVO - Enterprise Intelligence</title></head>
+        <body style="font-family: Arial; background: #0f0f23; color: white; padding: 2rem;">
+            <h1 style="color: #00ff88;">TRAXOVO</h1>
+            <h2>Enterprise Intelligence Platform</h2>
+            <p>Assets Tracked: {live_data.get('assets_tracked', 0)} units monitored</p>
+            <p>System Uptime: {live_data.get('system_uptime', 0)}%</p>
+            <p>Annual Savings: ${live_data.get('annual_savings', 0):,}</p>
+            <p>ROI Improvement: {live_data.get('roi_improvement', 0)}%</p>
+            <p style="font-size: 0.8em; color: #888;">Last Updated: {live_data.get('last_updated', 'N/A')}</p>
+            <a href="/login" style="color: #00bfff;">Access Dashboard</a>
+        </body></html>
+        """
+    except Exception as e:
+        # Fallback if GAUGE API is not accessible
+        return """
+        <!DOCTYPE html>
+        <html><head><title>TRAXOVO - Enterprise Intelligence</title></head>
+        <body style="font-family: Arial; background: #0f0f23; color: white; padding: 2rem;">
+            <h1 style="color: #00ff88;">TRAXOVO</h1>
+            <h2>Enterprise Intelligence Platform</h2>
+            <p>Connecting to GAUGE API...</p>
+            <p style="color: #ff6b6b;">API Connection: Establishing</p>
+            <a href="/login" style="color: #00bfff;">Access Dashboard</a>
+        </body></html>
+        """
 
 @app.route('/test')
 def test_endpoint():

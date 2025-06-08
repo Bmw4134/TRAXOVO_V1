@@ -80,7 +80,7 @@ TRAXOVO_TEMPLATE = """
             </div>
             <div class="metric-card">
                 <h3>Annual Savings</h3>
-                <div class="metric-value">${{ "{:,}".format(asset_data.annual_savings) }}</div>
+                <div class="metric-value">${{ asset_data.annual_savings }}</div>
                 <div class="metric-label">Cost Reduction</div>
             </div>
             <div class="metric-card">

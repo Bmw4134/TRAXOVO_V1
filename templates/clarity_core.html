@@ -661,6 +661,9 @@
         // Animation and State Management
         let currentView = 'overview';
         let isAuthenticated = false;
+        let sessionTimeout = null;
+        const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+        const ACTIVITY_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours of inactivity
         
         // Landing to Login Transition
         function showLogin() {
@@ -668,6 +671,63 @@
             setTimeout(() => {
                 document.getElementById('loginScreen').classList.add('active');
             }, 400);
+        }
+        
+        // Session Management
+        function saveSession() {
+            const sessionData = {
+                isAuthenticated: true,
+                loginTime: Date.now(),
+                lastActivity: Date.now()
+            };
+            localStorage.setItem('traxovo_session', JSON.stringify(sessionData));
+        }
+        
+        function checkExistingSession() {
+            const sessionData = localStorage.getItem('traxovo_session');
+            if (sessionData) {
+                const session = JSON.parse(sessionData);
+                const now = Date.now();
+                const sessionAge = now - session.loginTime;
+                const inactivityTime = now - session.lastActivity;
+                
+                // Check if session is still valid (24 hours) and not inactive (2 hours)
+                if (sessionAge < SESSION_DURATION && inactivityTime < ACTIVITY_TIMEOUT) {
+                    isAuthenticated = true;
+                    updateLastActivity();
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        function updateLastActivity() {
+            const sessionData = localStorage.getItem('traxovo_session');
+            if (sessionData) {
+                const session = JSON.parse(sessionData);
+                session.lastActivity = Date.now();
+                localStorage.setItem('traxovo_session', JSON.stringify(session));
+            }
+        }
+        
+        function clearSession() {
+            localStorage.removeItem('traxovo_session');
+            if (sessionTimeout) {
+                clearTimeout(sessionTimeout);
+            }
+        }
+        
+        function setupActivityTimeout() {
+            if (sessionTimeout) {
+                clearTimeout(sessionTimeout);
+            }
+            
+            sessionTimeout = setTimeout(() => {
+                if (isAuthenticated) {
+                    logout();
+                    alert('Session expired due to inactivity. Please log in again.');
+                }
+            }, ACTIVITY_TIMEOUT);
         }
         
         // Authentication
@@ -679,6 +739,9 @@
             // Simple credential check (replace with actual authentication)
             if (username && password) {
                 isAuthenticated = true;
+                saveSession();
+                setupActivityTimeout();
+                
                 document.getElementById('loginScreen').classList.remove('active');
                 setTimeout(() => {
                     document.getElementById('mainDashboard').classList.add('active');
@@ -1087,10 +1150,41 @@
             }
         });
         
+        // Logout Function
+        function logout() {
+            isAuthenticated = false;
+            clearSession();
+            document.getElementById('mainDashboard').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('landingScreen').classList.remove('hidden');
+                document.getElementById('loginScreen').classList.remove('active');
+            }, 300);
+        }
+        
+        // Activity Tracking
+        function trackActivity() {
+            if (isAuthenticated) {
+                updateLastActivity();
+                setupActivityTimeout();
+            }
+        }
+        
+        // Add activity listeners
+        document.addEventListener('click', trackActivity);
+        document.addEventListener('keypress', trackActivity);
+        document.addEventListener('mousemove', trackActivity);
+        document.addEventListener('scroll', trackActivity);
+        
         // Initialize on load
         document.addEventListener('DOMContentLoaded', function() {
-            // Auto-advance demo (remove in production)
-            // setTimeout(showLogin, 3000);
+            // Check for existing session on page load
+            if (checkExistingSession()) {
+                document.getElementById('landingScreen').classList.add('hidden');
+                document.getElementById('loginScreen').classList.remove('active');
+                document.getElementById('mainDashboard').classList.add('active');
+                initializeDashboard();
+                setupActivityTimeout();
+            }
         });
     </script>
 </body>

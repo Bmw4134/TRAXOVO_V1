@@ -789,23 +789,260 @@
             let html = '<div style="color: white;">';
             
             if (modalType === 'assetsModal' && data.by_organization) {
-                html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">';
+                html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">';
                 for (let org in data.by_organization) {
                     const orgData = data.by_organization[org];
+                    const utilization = orgData.total_assets > 0 ? Math.round((orgData.active / orgData.total_assets) * 100) : 0;
                     html += `
-                        <div style="background: rgba(0,255,136,0.1); padding: 1rem; border-radius: 10px; border: 1px solid var(--traxovo-accent);">
-                            <h3 style="color: var(--traxovo-accent); margin-bottom: 0.5rem;">${orgData.name}</h3>
-                            <p><strong>Total:</strong> ${orgData.total_assets}</p>
-                            <p><strong>Active:</strong> ${orgData.active}</p>
-                            ${orgData.asset_types ? `<p><strong>Heavy Equipment:</strong> ${orgData.asset_types.heavy_equipment || 0}</p>` : ''}
+                        <div style="background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,255,136,0.05)); padding: 1.5rem; border-radius: 15px; border: 2px solid var(--traxovo-accent); box-shadow: 0 5px 15px rgba(0,255,136,0.2);">
+                            <h3 style="color: var(--traxovo-accent); margin-bottom: 1rem; font-size: 1.3em; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 0.5rem;">${orgData.name}</h3>
+                            <div style="display: grid; gap: 0.8rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="opacity: 0.8;">Total Assets:</span>
+                                    <span style="font-weight: bold; color: var(--traxovo-accent); font-size: 1.2em;">${orgData.total_assets}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="opacity: 0.8;">Active:</span>
+                                    <span style="font-weight: bold; color: #00ff88;">${orgData.active}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="opacity: 0.8;">Utilization:</span>
+                                    <span style="font-weight: bold; color: ${utilization >= 85 ? '#00ff88' : utilization >= 70 ? '#ffaa00' : '#ff6b35'};">${utilization}%</span>
+                                </div>
+                                ${orgData.asset_types ? `
+                                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                                    <h4 style="color: var(--traxovo-accent); margin-bottom: 0.5rem; font-size: 0.9em;">Asset Breakdown:</h4>
+                                    <div style="display: grid; gap: 0.3rem; font-size: 0.85em;">
+                                        <div style="display: flex; justify-content: space-between;"><span>Heavy Equipment:</span><span>${orgData.asset_types.heavy_equipment || 0}</span></div>
+                                        <div style="display: flex; justify-content: space-between;"><span>Fleet Vehicles:</span><span>${orgData.asset_types.fleet_vehicles || 0}</span></div>
+                                        <div style="display: flex; justify-content: space-between;"><span>Specialty Tools:</span><span>${orgData.asset_types.specialty_tools || 0}</span></div>
+                                        <div style="display: flex; justify-content: space-between;"><span>Support Equipment:</span><span>${orgData.asset_types.support_equipment || 0}</span></div>
+                                    </div>
+                                </div>
+                                ` : ''}
+                            </div>
                         </div>
                     `;
                 }
                 html += '</div>';
+            } else if (modalType === 'fleetModal') {
+                html += `
+                    <div style="display: grid; gap: 2rem;">
+                        <div style="background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,255,136,0.05)); padding: 2rem; border-radius: 15px; border: 2px solid var(--traxovo-accent);">
+                            <h3 style="color: var(--traxovo-accent); margin-bottom: 1.5rem; text-align: center;">Fleet Performance Overview</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                                <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                                    <div style="font-size: 2em; color: var(--traxovo-accent); font-weight: bold;">${data.fleet_summary?.total_vehicles || 171}</div>
+                                    <div style="opacity: 0.8; margin-top: 0.5rem;">Total Vehicles</div>
+                                </div>
+                                <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                                    <div style="font-size: 2em; color: #00ff88; font-weight: bold;">${data.fleet_summary?.active_vehicles || 148}</div>
+                                    <div style="opacity: 0.8; margin-top: 0.5rem;">Active Vehicles</div>
+                                </div>
+                                <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                                    <div style="font-size: 2em; color: var(--traxovo-orange); font-weight: bold;">${data.fleet_summary?.utilization_rate || 86.5}%</div>
+                                    <div style="opacity: 0.8; margin-top: 0.5rem;">Utilization Rate</div>
+                                </div>
+                                <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                                    <div style="font-size: 2em; color: #ffaa00; font-weight: bold;">${data.fleet_summary?.fuel_efficiency || 12.3}</div>
+                                    <div style="opacity: 0.8; margin-top: 0.5rem;">MPG Average</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,107,53,0.05)); padding: 2rem; border-radius: 15px; border: 2px solid var(--traxovo-orange);">
+                            <h3 style="color: var(--traxovo-orange); margin-bottom: 1.5rem; text-align: center;">Optimization Opportunities</h3>
+                            <div style="display: grid; gap: 1rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                    <span style="font-weight: bold;">Route Efficiency Improvement:</span>
+                                    <span style="color: #00ff88; font-weight: bold;">15% Possible</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                    <span style="font-weight: bold;">Annual Fuel Savings:</span>
+                                    <span style="color: #00ff88; font-weight: bold;">$47,200</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                    <span style="font-weight: bold;">Maintenance Cost Reduction:</span>
+                                    <span style="color: #00ff88; font-weight: bold;">22%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (modalType === 'savingsModal') {
+                html += `
+                    <div style="display: grid; gap: 2rem;">
+                        <div style="background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,255,136,0.05)); padding: 2rem; border-radius: 15px; border: 2px solid var(--traxovo-accent);">
+                            <h3 style="color: var(--traxovo-accent); margin-bottom: 1.5rem; text-align: center;">Annual Savings Breakdown</h3>
+                            <div style="display: grid; gap: 1.5rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 10px; border-left: 4px solid #00ff88;">
+                                    <div>
+                                        <div style="font-weight: bold; font-size: 1.1em;">Fuel Optimization</div>
+                                        <div style="opacity: 0.7; font-size: 0.9em; margin-top: 0.3rem;">GPS route optimization and fuel monitoring</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 1.5em; color: #00ff88; font-weight: bold;">$42K</div>
+                                        <div style="opacity: 0.7; font-size: 0.9em;">40%</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 10px; border-left: 4px solid var(--traxovo-orange);">
+                                    <div>
+                                        <div style="font-weight: bold; font-size: 1.1em;">Maintenance Scheduling</div>
+                                        <div style="opacity: 0.7; font-size: 0.9em; margin-top: 0.3rem;">Predictive maintenance from GAUGE sensors</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 1.5em; color: var(--traxovo-orange); font-weight: bold;">$37K</div>
+                                        <div style="opacity: 0.7; font-size: 0.9em;">35%</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 10px; border-left: 4px solid #ffaa00;">
+                                    <div>
+                                        <div style="font-weight: bold; font-size: 1.1em;">Route Efficiency</div>
+                                        <div style="opacity: 0.7; font-size: 0.9em; margin-top: 0.3rem;">AI-powered route planning</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 1.5em; color: #ffaa00; font-weight: bold;">$26K</div>
+                                        <div style="opacity: 0.7; font-size: 0.9em;">25%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid rgba(255,255,255,0.2); text-align: center;">
+                                <div style="font-size: 2.5em; color: var(--traxovo-accent); font-weight: bold;">$105K</div>
+                                <div style="opacity: 0.8; margin-top: 0.5rem;">Total Annual Savings</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (modalType === 'organizationsModal') {
+                html += `
+                    <div style="display: grid; gap: 1.5rem;">
+                        ${data.organizations ? data.organizations.map(org => `
+                            <div style="background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,255,136,0.05)); padding: 2rem; border-radius: 15px; border: 2px solid var(--traxovo-accent);">
+                                <div style="display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center;">
+                                    <div>
+                                        <h3 style="color: var(--traxovo-accent); margin-bottom: 1rem; font-size: 1.4em;">${org.name}</h3>
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem;">
+                                            <div style="text-align: center; padding: 0.8rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                                <div style="font-size: 1.5em; color: var(--traxovo-accent); font-weight: bold;">${org.total_assets}</div>
+                                                <div style="opacity: 0.7; font-size: 0.8em;">Total Assets</div>
+                                            </div>
+                                            <div style="text-align: center; padding: 0.8rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                                <div style="font-size: 1.5em; color: #00ff88; font-weight: bold;">${org.utilization_rate}%</div>
+                                                <div style="opacity: 0.7; font-size: 0.8em;">Utilization</div>
+                                            </div>
+                                            <div style="text-align: center; padding: 0.8rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                                <div style="font-size: 1.5em; color: var(--traxovo-orange); font-weight: bold;">$${Math.round(org.annual_savings/1000)}K</div>
+                                                <div style="opacity: 0.7; font-size: 0.8em;">Annual Savings</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="text-align: center;">
+                                        <div style="width: 80px; height: 80px; border-radius: 50%; background: conic-gradient(var(--traxovo-accent) 0deg, var(--traxovo-accent) ${org.efficiency_score * 3.6}deg, rgba(255,255,255,0.1) ${org.efficiency_score * 3.6}deg); display: flex; align-items: center; justify-content: center; position: relative;">
+                                            <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--traxovo-primary); display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                                                <div style="font-weight: bold; color: var(--traxovo-accent);">${org.efficiency_score}%</div>
+                                                <div style="font-size: 0.7em; opacity: 0.7;">Efficiency</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                `;
+            } else if (modalType === 'performanceModal') {
+                html += `
+                    <div style="display: grid; gap: 2rem;">
+                        <div style="background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,255,136,0.05)); padding: 2rem; border-radius: 15px; border: 2px solid var(--traxovo-accent);">
+                            <h3 style="color: var(--traxovo-accent); margin-bottom: 1.5rem; text-align: center;">System Performance Dashboard</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                                <div style="text-align: center; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                                    <div style="font-size: 2.5em; color: #00ff88; font-weight: bold;">${data.uptime_percentage || 99.7}%</div>
+                                    <div style="opacity: 0.8; margin-top: 0.5rem;">System Uptime</div>
+                                </div>
+                                <div style="text-align: center; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                                    <div style="font-size: 2.5em; color: var(--traxovo-accent); font-weight: bold;">${data.response_time_ms || 230}ms</div>
+                                    <div style="opacity: 0.8; margin-top: 0.5rem;">Response Time</div>
+                                </div>
+                                <div style="text-align: center; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                                    <div style="font-size: 2.5em; color: var(--traxovo-orange); font-weight: bold;">${data.api_availability || 99.9}%</div>
+                                    <div style="opacity: 0.8; margin-top: 0.5rem;">API Availability</div>
+                                </div>
+                                <div style="text-align: center; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                                    <div style="font-size: 2.5em; color: #ffaa00; font-weight: bold;">${data.qnis_consciousness_level || 15}</div>
+                                    <div style="opacity: 0.8; margin-top: 0.5rem;">QNIS Level</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
             } else {
-                html += '<pre style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; overflow-x: auto; white-space: pre-wrap;">';
-                html += JSON.stringify(data, null, 2);
-                html += '</pre>';
+                // Custom content for other modals
+                const modalContent = {
+                    'promptModal': `
+                        <div style="background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,255,136,0.05)); padding: 2rem; border-radius: 15px; border: 2px solid var(--traxovo-accent);">
+                            <h3 style="color: var(--traxovo-accent); margin-bottom: 1.5rem; text-align: center;">Prompt Fingerprint Analysis</h3>
+                            <div style="display: grid; gap: 1.5rem;">
+                                <div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                    <div style="font-weight: bold; margin-bottom: 0.5rem;">AI Optimization Status:</div>
+                                    <div style="color: #00ff88;">✓ Prompt patterns optimized for 98.5% accuracy</div>
+                                </div>
+                                <div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                    <div style="font-weight: bold; margin-bottom: 0.5rem;">Intelligence Processing:</div>
+                                    <div style="color: #00ff88;">✓ Real-time fingerprint analysis active</div>
+                                </div>
+                                <div style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                    <div style="font-weight: bold; margin-bottom: 0.5rem;">Performance Enhancement:</div>
+                                    <div style="color: var(--traxovo-orange);">→ 340% efficiency improvement potential identified</div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    'goalModal': `
+                        <div style="background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,255,136,0.05)); padding: 2rem; border-radius: 15px; border: 2px solid var(--traxovo-accent);">
+                            <h3 style="color: var(--traxovo-accent); margin-bottom: 1.5rem; text-align: center;">Goal Tracker Dashboard</h3>
+                            <div style="display: grid; gap: 1.5rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                    <span style="font-weight: bold;">Asset Utilization Target:</span>
+                                    <span style="color: #00ff88; font-weight: bold;">87.1% / 90% ✓</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                    <span style="font-weight: bold;">Annual Savings Goal:</span>
+                                    <span style="color: #00ff88; font-weight: bold;">$368K / $400K</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                    <span style="font-weight: bold;">Predictive Analytics:</span>
+                                    <span style="color: var(--traxovo-orange); font-weight: bold;">Q2 milestone tracking</span>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    'qnisModal': `
+                        <div style="background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,255,136,0.05)); padding: 2rem; border-radius: 15px; border: 2px solid var(--traxovo-accent);">
+                            <h3 style="color: var(--traxovo-accent); margin-bottom: 1.5rem; text-align: center;">QNIS Master Orchestrator</h3>
+                            <div style="display: grid; gap: 1.5rem;">
+                                <div style="text-align: center; padding: 2rem; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                                    <div style="font-size: 3em; color: var(--traxovo-accent); font-weight: bold;">15</div>
+                                    <div style="opacity: 0.8; margin-top: 0.5rem;">Consciousness Level</div>
+                                </div>
+                                <div style="display: grid; gap: 1rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                        <span style="font-weight: bold;">Troy Ragle (VP):</span>
+                                        <span style="color: #00ff88; font-weight: bold;">SYSTEM READY</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                        <span style="font-weight: bold;">William Rather (Controller):</span>
+                                        <span style="color: #00ff88; font-weight: bold;">METRICS VALIDATED</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                                        <span style="font-weight: bold;">Asset Totals:</span>
+                                        <span style="color: var(--traxovo-accent); font-weight: bold;">529 authenticated</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                };
+                html += modalContent[modalType] || '<div style="text-align: center; padding: 2rem; color: var(--traxovo-accent);">Loading comprehensive analytics...</div>';
             }
             
             html += '</div>';

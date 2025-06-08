@@ -5453,20 +5453,96 @@ def api_nexus_gauge_scrape():
             'error': str(e)
         }), 500
 
-@app.route('/api/nexus/ptni-dashboard')
-def api_nexus_ptni_dashboard():
-    """Get comprehensive PTNI fleet management dashboard - Requires Authentication"""
+@app.route('/api/nexus/pti-dashboard')
+def api_nexus_pti_dashboard():
+    """Get comprehensive PTI system dashboard with real asset data - Requires Authentication"""
     if not session.get('authenticated'):
         return jsonify({'status': 'error', 'message': 'Authentication required'})
     
     try:
-        from nexus_ptni_fleet_intelligence import get_ptni_fleet_dashboard
+        from nexus_pti_comprehensive_system import get_comprehensive_pti_dashboard
         
-        ptni_data = get_ptni_fleet_dashboard()
+        pti_data = get_comprehensive_pti_dashboard()
         
         return jsonify({
             'status': 'success',
-            'ptni_data': ptni_data,
+            'pti_data': pti_data,
+            'data_source': 'authentic_assets',
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nexus/asset-inventory')
+def api_nexus_asset_inventory():
+    """Get complete asset inventory from PTI system - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from nexus_pti_comprehensive_system import get_real_asset_count, pti_system
+        import sqlite3
+        
+        # Get real asset data from PTI database
+        conn = sqlite3.connect(pti_system.pti_db)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT asset_id, asset_name, asset_type, status, location, 
+                   performance_score, utilization_rate, efficiency_rating
+            FROM real_assets 
+            ORDER BY performance_score DESC
+            LIMIT 100
+        ''')
+        
+        assets = []
+        for row in cursor.fetchall():
+            assets.append({
+                'asset_id': row[0],
+                'asset_name': row[1],
+                'asset_type': row[2],
+                'status': row[3],
+                'location': row[4],
+                'performance_score': row[5],
+                'utilization_rate': row[6],
+                'efficiency_rating': row[7]
+            })
+        
+        conn.close()
+        
+        return jsonify({
+            'status': 'success',
+            'total_assets': get_real_asset_count(),
+            'asset_inventory': assets,
+            'data_source': 'pti_database',
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nexus/consolidated-modules')
+def api_nexus_consolidated_modules():
+    """Get status of all consolidated NEXUS modules - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from nexus_comprehensive_asset_consolidation import get_comprehensive_asset_inventory
+        
+        consolidation_data = get_comprehensive_asset_inventory()
+        
+        return jsonify({
+            'status': 'success',
+            'consolidation_data': consolidation_data,
+            'modules_unified': True,
             'timestamp': datetime.now().isoformat()
         })
         
@@ -5508,17 +5584,22 @@ def api_nexus_ptni_optimize_route():
             'error': str(e)
         }), 500
 
-@app.route('/ptni-intelligence')
-def ptni_intelligence():
-    """NEXUS PTNI Fleet Intelligence Dashboard - Requires Authentication"""
+@app.route('/pti-intelligence')
+def pti_intelligence():
+    """NEXUS PTI Unified Asset Intelligence Platform - Requires Authentication"""
     if not session.get('authenticated'):
         return redirect('/login')
     
     try:
-        from nexus_ptni_fleet_dashboard import get_ptni_fleet_interface
-        return get_ptni_fleet_interface()
+        from nexus_unified_pti_dashboard import get_unified_pti_interface
+        return get_unified_pti_interface()
     except Exception as e:
-        return f"PTNI fleet interface error: {str(e)}"
+        return f"PTI unified interface error: {str(e)}"
+
+@app.route('/ptni-intelligence')
+def ptni_intelligence_redirect():
+    """Redirect old PTNI route to new PTI unified platform"""
+    return redirect('/pti-intelligence')
 
 @app.route('/api/nexus/emergency-stop', methods=['POST'])
 def api_nexus_emergency_stop():

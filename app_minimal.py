@@ -280,8 +280,8 @@ TRAXOVO_TEMPLATE = """
                     <p>Live Fleet Tracking</p>
                 </div>
                 <div class="status-item status-active">
-                    <h4><a href="/browser-automation" style="color: white; text-decoration: none;">Browser Automation</a></h4>
-                    <p>Automated Operations</p>
+                    <h4><a href="/crypto-dashboard" style="color: white; text-decoration: none;">Crypto Trading</a></h4>
+                    <p>Live Market Data</p>
                 </div>
                 <div class="status-item status-connected">
                     <h4><a href="/development-hub" style="color: white; text-decoration: none;">Development Hub</a></h4>
@@ -635,6 +635,58 @@ def development_hub():
     """
     
     return render_template_string(dev_template)
+
+@app.route('/crypto-dashboard')
+def crypto_dashboard():
+    """Live crypto trading dashboard with real market data"""
+    
+    try:
+        from crypto_trading_demo import create_crypto_dashboard_interface
+        return create_crypto_dashboard_interface()
+    except Exception as e:
+        return f"Crypto Dashboard Loading: {str(e)}", 500
+
+@app.route('/api/crypto/demo-trade', methods=['POST'])
+def api_crypto_demo_trade():
+    """Execute demo crypto trade with live market prices"""
+    
+    try:
+        from crypto_trading_demo import CryptoTradingDemo
+        
+        data = request.get_json()
+        symbol = data.get('symbol', 'BTC')
+        side = data.get('side', 'buy')
+        amount = float(data.get('amount', 5.0))
+        
+        demo_engine = CryptoTradingDemo()
+        trade_result = demo_engine.execute_demo_trade(symbol, side, amount)
+        
+        return jsonify(trade_result)
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/crypto/market-data')
+def api_crypto_market_data():
+    """Get live crypto market data"""
+    
+    try:
+        from crypto_trading_demo import CryptoTradingDemo
+        
+        demo_engine = CryptoTradingDemo()
+        market_data = demo_engine.get_live_market_prices()
+        
+        return jsonify(market_data)
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
 
 @app.route('/health')
 def health_check():

@@ -688,6 +688,42 @@ def api_crypto_market_data():
             'timestamp': datetime.now().isoformat()
         }), 500
 
+@app.route('/ptni-landing')
+def ptni_landing():
+    """PTNI Google-like intelligent landing page"""
+    
+    try:
+        from ptni_google_landing import create_ptni_google_landing
+        return create_ptni_google_landing()
+    except Exception as e:
+        return f"PTNI Landing Error: {str(e)}", 500
+
+@app.route('/api/ptni/intelligent-search', methods=['POST'])
+def api_ptni_intelligent_search():
+    """Process intelligent queries using PTNI LLM integration"""
+    
+    try:
+        from ptni_google_landing import process_intelligent_query
+        
+        data = request.get_json()
+        query = data.get('query', '')
+        
+        if not query:
+            return jsonify({
+                'status': 'error',
+                'message': 'Query parameter required'
+            }), 400
+        
+        result = process_intelligent_query(query)
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""

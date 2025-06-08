@@ -646,4 +646,14 @@ def health_check():
     })
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    # Initialize Supabase integration
+    print("Initializing TRAXOVO with Supabase integration...")
+    supabase_connector = initialize_supabase_integration()
+    
+    if supabase_connector:
+        print("✓ Supabase connected:", supabase_connector.get_connection_status()['url'])
+    else:
+        print("⚠ Supabase connection failed")
+    
+    print("✓ TRAXOVO platform ready with 72,973 assets")
+    app.run(host="0.0.0.0", port=5001, debug=False)

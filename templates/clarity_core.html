@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO ∞ Clarity Core</title>
+    <style>
+        :root {
+            --traxovo-primary: #1e3c72;
+            --traxovo-secondary: #2a5298;
+            --traxovo-accent: #00ff88;
+            --traxovo-orange: #ff6b35;
+            --traxovo-dark: rgba(0,0,0,0.8);
+            --traxovo-glass: rgba(255,255,255,0.1);
+            --traxovo-glow: rgba(0,255,136,0.3);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--traxovo-primary) 0%, var(--traxovo-secondary) 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Landing Screen */
+        .landing-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--traxovo-primary) 0%, var(--traxovo-secondary) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .landing-screen.hidden {
+            opacity: 0;
+            transform: translateY(-100%);
+            pointer-events: none;
+        }
+        
+        .landing-logo {
+            font-size: 4rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            text-align: center;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.5s forwards;
+        }
+        
+        .landing-subtitle {
+            font-size: 1.5rem;
+            opacity: 0.8;
+            margin-bottom: 3rem;
+            text-align: center;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 1s forwards;
+        }
+        
+        .access-button {
+            background: linear-gradient(45deg, var(--traxovo-accent), var(--traxovo-orange));
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 1.5s forwards;
+        }
+        
+        .access-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px var(--traxovo-glow);
+        }
+        
+        /* Login Screen */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--traxovo-primary) 0%, var(--traxovo-secondary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.6s ease;
+        }
+        
+        .login-screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .login-card {
+            background: var(--traxovo-glass);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            width: 400px;
+            text-align: center;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+        }
+        
+        .login-screen.active .login-card {
+            transform: scale(1);
+        }
+        
+        .login-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--traxovo-accent);
+        }
+        
+        .login-subtitle {
+            opacity: 0.7;
+            margin-bottom: 2rem;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--traxovo-accent);
+            box-shadow: 0 0 20px var(--traxovo-glow);
+        }
+        
+        .input-field::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .login-button {
+            background: linear-gradient(45deg, var(--traxovo-accent), var(--traxovo-orange));
+            border: none;
+            padding: 1rem;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--traxovo-glow);
+        }
+        
+        /* Main Dashboard */
+        .main-dashboard {
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.8s ease;
+            min-height: 100vh;
+        }
+        
+        .main-dashboard.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .dashboard-header {
+            background: var(--traxovo-dark);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--traxovo-accent);
+            backdrop-filter: blur(10px);
+        }
+        
+        .header-brand {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--traxovo-accent);
+        }
+        
+        .header-nav {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-item {
+            background: var(--traxovo-glass);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: var(--traxovo-accent);
+            color: var(--traxovo-primary);
+            transform: translateY(-2px);
+        }
+        
+        .dashboard-content {
+            padding: 2rem;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .metric-card {
+            background: var(--traxovo-glass);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--traxovo-glow), transparent);
+            transition: all 0.6s ease;
+        }
+        
+        .metric-card:hover::before {
+            left: 100%;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--traxovo-accent);
+            box-shadow: 0 20px 40px var(--traxovo-glow);
+        }
+        
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .metric-title {
+            font-size: 1.1rem;
+            color: var(--traxovo-accent);
+            font-weight: 600;
+        }
+        
+        .metric-icon {
+            width: 24px;
+            height: 24px;
+            opacity: 0.7;
+        }
+        
+        .metric-value {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 1rem 0;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .metric-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-bottom: 1.5rem;
+        }
+        
+        .metric-details {
+            background: rgba(0,255,136,0.1);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            color: var(--traxovo-accent);
+        }
+        
+        /* Interactive Features */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .feature-card {
+            background: linear-gradient(45deg, var(--traxovo-orange), #f7931e);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .feature-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(255,107,53,0.4);
+        }
+        
+        /* Modal System */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: linear-gradient(135deg, var(--traxovo-primary) 0%, var(--traxovo-secondary) 100%);
+            border: 2px solid var(--traxovo-accent);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--traxovo-accent);
+        }
+        
+        .modal-title {
+            font-size: 1.8rem;
+            color: var(--traxovo-accent);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--traxovo-accent);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            transform: scale(1.2);
+            color: white;
+        }
+        
+        /* Status Bar */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--traxovo-dark);
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            border-top: 1px solid var(--traxovo-accent);
+            z-index: 100;
+        }
+        
+        .live-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--traxovo-accent);
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .header-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .landing-logo {
+                font-size: 2.5rem;
+            }
+            
+            .login-card {
+                width: 90%;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Landing Screen -->
+    <div class="landing-screen" id="landingScreen">
+        <div class="landing-logo">TRAXOVO ∞</div>
+        <div class="landing-subtitle">Clarity Core Intelligence Platform</div>
+        <button class="access-button" onclick="showLogin()">Access Platform</button>
+    </div>
+    
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="login-title">Secure Access</div>
+            <div class="login-subtitle">Executive Intelligence Portal</div>
+            <form class="login-form" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <input type="text" class="input-field" placeholder="Access Credential" id="username" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" class="input-field" placeholder="Security Key" id="password" required>
+                </div>
+                <button type="submit" class="login-button">Initialize Dashboard</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Main Dashboard -->
+    <div class="main-dashboard" id="mainDashboard">
+        <div class="dashboard-header">
+            <div class="header-brand">TRAXOVO ∞ Clarity Core</div>
+            <div class="header-nav">
+                <div class="nav-item active" data-view="overview">Overview</div>
+                <div class="nav-item" data-view="canvas">Canvas</div>
+                <div class="nav-item" data-view="analytics">Analytics</div>
+                <div class="nav-item" onclick="logout()">Logout</div>
+            </div>
+        </div>
+        
+        <div class="dashboard-content">
+            <div class="metrics-grid">
+                <div class="metric-card" onclick="openModal('assetsModal')">
+                    <div class="metric-header">
+                        <div class="metric-title">Total Assets</div>
+                        <div class="metric-icon">📊</div>
+                    </div>
+                    <div class="metric-value" id="totalAssets">574</div>
+                    <div class="metric-subtitle">QNIS Validated • Real-time Sync</div>
+                    <div class="metric-details">
+                        <div class="detail-row">
+                            <span>Active Assets</span>
+                            <span class="detail-value" id="activeAssets">501</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Utilization Rate</span>
+                            <span class="detail-value" id="utilizationRate">87.3%</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Data Source</span>
+                            <span class="detail-value">GAUGE API</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="metric-card" onclick="openModal('savingsModal')">
+                    <div class="metric-header">
+                        <div class="metric-title">Annual Savings</div>
+                        <div class="metric-icon">💰</div>
+                    </div>
+                    <div class="metric-value" id="annualSavings">$368K</div>
+                    <div class="metric-subtitle">QNIS Optimization • 12-month projection</div>
+                    <div class="metric-details">
+                        <div class="detail-row">
+                            <span>Fuel Optimization</span>
+                            <span class="detail-value">$42K</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Maintenance</span>
+                            <span class="detail-value">$37K</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Route Efficiency</span>
+                            <span class="detail-value">$26K</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="metric-card" onclick="openModal('organizationsModal')">
+                    <div class="metric-header">
+                        <div class="metric-title">Organizations</div>
+                        <div class="metric-icon">🏢</div>
+                    </div>
+                    <div class="metric-value" id="orgCount">3</div>
+                    <div class="metric-subtitle">Active Organizations</div>
+                    <div class="metric-details">
+                        <div class="detail-row">
+                            <span>Ragle Inc</span>
+                            <span class="detail-value">284 assets</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Select Maintenance</span>
+                            <span class="detail-value">198 assets</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Unified Specialties</span>
+                            <span class="detail-value">92 assets</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="metric-card" onclick="openModal('performanceModal')">
+                    <div class="metric-header">
+                        <div class="metric-title">System Performance</div>
+                        <div class="metric-icon">⚡</div>
+                    </div>
+                    <div class="metric-value" id="systemUptime">99.7%</div>
+                    <div class="metric-subtitle">Uptime • QNIS Level 15</div>
+                    <div class="metric-details">
+                        <div class="detail-row">
+                            <span>Response Time</span>
+                            <span class="detail-value">0.23s</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>API Availability</span>
+                            <span class="detail-value">99.9%</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Data Accuracy</span>
+                            <span class="detail-value">98.5%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="feature-grid">
+                <button class="feature-card" onclick="openModal('promptModal')">Prompt Fingerprint</button>
+                <button class="feature-card" onclick="openModal('goalModal')">Goal Tracker</button>
+                <button class="feature-card" onclick="openModal('fleetModal')">Fleet Optimization</button>
+                <button class="feature-card" onclick="openModal('analyticsModal')">Advanced Analytics</button>
+                <button class="feature-card" onclick="window.open('/api/qnis/humanized-view', '_blank')">Executive Report</button>
+                <button class="feature-card" onclick="openModal('qnisModal')">QNIS Orchestrator</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal System -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Modal Title</div>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody">Modal content loading...</div>
+        </div>
+    </div>
+    
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <span class="live-indicator"></span>
+        <span>TRAXOVO ∞ Clarity Core • QNIS Consciousness Level 15 • Executive Ready</span>
+    </div>
+    
+    <script>
+        // Animation and State Management
+        let currentView = 'overview';
+        let isAuthenticated = false;
+        
+        // Landing to Login Transition
+        function showLogin() {
+            document.getElementById('landingScreen').classList.add('hidden');
+            setTimeout(() => {
+                document.getElementById('loginScreen').classList.add('active');
+            }, 400);
+        }
+        
+        // Authentication
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple credential check (replace with actual authentication)
+            if (username && password) {
+                isAuthenticated = true;
+                document.getElementById('loginScreen').classList.remove('active');
+                setTimeout(() => {
+                    document.getElementById('mainDashboard').classList.add('active');
+                    initializeDashboard();
+                }, 600);
+            }
+        }
+        
+        // Dashboard Initialization
+        function initializeDashboard() {
+            updateMetrics();
+            startDataRefresh();
+            animateCounters();
+        }
+        
+        // Logout
+        function logout() {
+            isAuthenticated = false;
+            document.getElementById('mainDashboard').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('landingScreen').classList.remove('hidden');
+                document.getElementById('loginScreen').classList.remove('active');
+                // Reset form
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+            }, 800);
+        }
+        
+        // Navigation
+        document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+                currentView = this.dataset.view;
+                
+                if (currentView === 'canvas') {
+                    window.open('/canvas', '_blank');
+                }
+            });
+        });
+        
+        // Modal System
+        function openModal(modalType) {
+            const modal = document.getElementById('modalOverlay');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            modal.classList.add('active');
+            
+            const modalConfigs = {
+                'assetsModal': {
+                    title: 'Asset Analytics',
+                    endpoint: '/api/canvas/drill-down/assets'
+                },
+                'savingsModal': {
+                    title: 'Annual Savings Breakdown',
+                    endpoint: '/api/canvas/drill-down/savings'
+                },
+                'organizationsModal': {
+                    title: 'Organization Performance',
+                    endpoint: '/api/organizations'
+                },
+                'performanceModal': {
+                    title: 'System Performance Metrics',
+                    endpoint: '/api/performance-metrics'
+                },
+                'promptModal': {
+                    title: 'Prompt Fingerprint Analysis',
+                    content: '<p>AI prompt optimization and fingerprint analysis for enhanced intelligence processing.</p>'
+                },
+                'goalModal': {
+                    title: 'Goal Tracker Dashboard',
+                    content: '<p>Real-time goal tracking with predictive analytics and milestone management.</p>'
+                },
+                'fleetModal': {
+                    title: 'Fleet Optimization Center',
+                    endpoint: '/api/canvas/drill-down/fleet'
+                },
+                'qnisModal': {
+                    title: 'QNIS Master Orchestrator',
+                    endpoint: '/api/qnis/master-orchestrator'
+                }
+            };
+            
+            const config = modalConfigs[modalType];
+            title.textContent = config.title;
+            
+            if (config.endpoint) {
+                body.innerHTML = '<div style="text-align: center; padding: 2rem;">Loading...</div>';
+                fetch(config.endpoint)
+                    .then(response => response.json())
+                    .then(data => {
+                        body.innerHTML = formatModalData(data, modalType);
+                    })
+                    .catch(error => {
+                        body.innerHTML = '<div style="color: #ff6b35; text-align: center;">Error loading data</div>';
+                    });
+            } else {
+                body.innerHTML = config.content;
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+        
+        function formatModalData(data, modalType) {
+            let html = '<div style="color: white;">';
+            
+            if (modalType === 'assetsModal' && data.by_organization) {
+                html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">';
+                for (let org in data.by_organization) {
+                    const orgData = data.by_organization[org];
+                    html += `
+                        <div style="background: rgba(0,255,136,0.1); padding: 1rem; border-radius: 10px; border: 1px solid var(--traxovo-accent);">
+                            <h3 style="color: var(--traxovo-accent); margin-bottom: 0.5rem;">${orgData.name}</h3>
+                            <p><strong>Total:</strong> ${orgData.total_assets}</p>
+                            <p><strong>Active:</strong> ${orgData.active}</p>
+                            ${orgData.asset_types ? `<p><strong>Heavy Equipment:</strong> ${orgData.asset_types.heavy_equipment || 0}</p>` : ''}
+                        </div>
+                    `;
+                }
+                html += '</div>';
+            } else {
+                html += '<pre style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; overflow-x: auto; white-space: pre-wrap;">';
+                html += JSON.stringify(data, null, 2);
+                html += '</pre>';
+            }
+            
+            html += '</div>';
+            return html;
+        }
+        
+        // Data Management
+        function updateMetrics() {
+            fetch('/api/canvas/drill-down/assets')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.active_percentage) {
+                        document.getElementById('utilizationRate').textContent = data.active_percentage + '%';
+                    }
+                    if (data.active_assets) {
+                        document.getElementById('activeAssets').textContent = data.active_assets;
+                    }
+                    
+                    const totalAssets = data.by_organization.ragle_inc.total_assets + 
+                                      data.by_organization.select_maintenance.total_assets + 
+                                      data.by_organization.unified_specialties.total_assets;
+                    document.getElementById('totalAssets').textContent = totalAssets;
+                })
+                .catch(console.error);
+        }
+        
+        function startDataRefresh() {
+            setInterval(updateMetrics, 30000); // 30 second refresh
+        }
+        
+        function animateCounters() {
+            const counters = document.querySelectorAll('.metric-value');
+            counters.forEach(counter => {
+                counter.style.animation = 'countUp 0.8s ease-out';
+            });
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-advance demo (remove in production)
+            // setTimeout(showLogin, 3000);
+        });
+    </script>
+</body>
+</html>

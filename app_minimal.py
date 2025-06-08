@@ -7,7 +7,7 @@ import os
 import json
 import logging
 from datetime import datetime
-from flask import Flask, render_template_string, jsonify, request, session
+from flask import Flask, render_template_string, jsonify, request, session, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -548,6 +548,35 @@ def dashboard_direct():
     """Direct dashboard access"""
     
     return index()  # Corrected dashboard with 717 assets
+
+@app.route('/api/migrate-authentic-data')
+def api_migrate_authentic_data():
+    """Execute complete authentic data migration - eliminate all synthetic data"""
+    
+    try:
+        from authentic_data_migrator import execute_authentic_migration
+        
+        # Execute complete migration from synthetic to authentic data
+        migration_result = execute_authentic_migration()
+        
+        return jsonify({
+            'success': True,
+            'migration_complete': True,
+            'authentic_assets': migration_result['authentic_assets'],
+            'authenticated_sources': migration_result['authenticated_sources'],
+            'workbook_records_processed': migration_result['workbook_records_processed'],
+            'synthetic_data_eliminated': migration_result['synthetic_data_eliminated'],
+            'sources': migration_result['sources'],
+            'message': 'All synthetic data eradicated and replaced with authentic sources'
+        })
+        
+    except Exception as e:
+        logging.error(f"Authentic migration error: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Authentic data migration failed',
+            'status': 'error'
+        }), 500
 
 @app.route('/api/traxovo-sync')
 def api_traxovo_sync():

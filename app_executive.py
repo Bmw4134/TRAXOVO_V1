@@ -2850,8 +2850,18 @@ def api_nexus_ptni_evolution():
 # Canvas React Frontend Routes
 @app.route('/canvas')
 def canvas_dashboard():
-    """Canvas React Frontend"""
+    """Canvas React Frontend - Protected Access Only"""
     from flask import send_file, Response
+    
+    # Authentication required for Canvas access
+    if not session.get('authenticated') and not session.get('watson_authenticated'):
+        return redirect(url_for('login'))
+    
+    # Verify sufficient access level
+    user_access_level = session.get('access_level', 0)
+    if user_access_level < 5:
+        return '<h1>Access Denied</h1><p>Canvas dashboard requires elevated access.</p>', 403
+    
     try:
         with open('public/index.html', 'r') as f:
             html_content = f.read()
@@ -2862,21 +2872,53 @@ def canvas_dashboard():
 @app.route('/dwc')
 def dwc_module():
     """DWC Intelligence Module"""
+    # Authentication required
+    if not session.get('authenticated') and not session.get('watson_authenticated'):
+        return redirect(url_for('login'))
+    
+    user_access_level = session.get('access_level', 0)
+    if user_access_level < 5:
+        return '<h1>Access Denied</h1><p>DWC module requires elevated access.</p>', 403
+    
     return render_template_string(open('public/index.html').read())
 
 @app.route('/traxovo')
 def traxovo_module():
     """TRAXOVO Fleet Module"""
+    # Authentication required
+    if not session.get('authenticated') and not session.get('watson_authenticated'):
+        return redirect(url_for('login'))
+    
+    user_access_level = session.get('access_level', 0)
+    if user_access_level < 5:
+        return '<h1>Access Denied</h1><p>TRAXOVO module requires elevated access.</p>', 403
+    
     return render_template_string(open('public/index.html').read())
 
 @app.route('/jdd')
 def jdd_module():
     """JDD Analytics Module"""
+    # Authentication required
+    if not session.get('authenticated') and not session.get('watson_authenticated'):
+        return redirect(url_for('login'))
+    
+    user_access_level = session.get('access_level', 0)
+    if user_access_level < 5:
+        return '<h1>Access Denied</h1><p>JDD module requires elevated access.</p>', 403
+    
     return render_template_string(open('public/index.html').read())
 
 @app.route('/dwai')
 def dwai_module():
     """DWAI Insights Module"""
+    # Authentication required
+    if not session.get('authenticated') and not session.get('watson_authenticated'):
+        return redirect(url_for('login'))
+    
+    user_access_level = session.get('access_level', 0)
+    if user_access_level < 5:
+        return '<h1>Access Denied</h1><p>DWAI module requires elevated access.</p>', 403
+    
     return render_template_string(open('public/index.html').read())
 
 # Missing Canvas API Endpoints - Fix 404 Errors

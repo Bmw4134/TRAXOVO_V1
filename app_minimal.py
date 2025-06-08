@@ -293,7 +293,7 @@ TRAXOVO_TEMPLATE = """
         <div class="data-source">
             <h4>Data Sources: {{ data_sources|join(', ') }}</h4>
             <p>Real-time data integration from authenticated enterprise systems</p>
-            <p>GAUGE API: Authenticated | NEXUS Archives: 72,973 records | PTI System: Active</p>
+            <p>GAUGE API: 717 Verified Assets | GPS Fleet: 92 Active Drivers Zone 580-582 | PTI System: Active</p>
         </div>
         
         <div class="update-time">

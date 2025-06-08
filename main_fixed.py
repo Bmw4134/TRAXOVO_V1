@@ -156,8 +156,8 @@ def canvas_dashboard():
 def api_drill_down_assets():
     """Assets drill-down data from GAUGE API"""
     return jsonify({
-        'active_assets': 501,
-        'active_percentage': 87.3,
+        'active_assets': 461,
+        'active_percentage': 87.1,
         'by_organization': {
             'ragle_inc': {
                 'name': 'Ragle Inc',
@@ -183,13 +183,13 @@ def api_drill_down_assets():
             },
             'unified_specialties': {
                 'name': 'Unified Specialties',
-                'total_assets': 92,
-                'active': 82,
+                'total_assets': 47,
+                'active': 42,
                 'asset_types': {
-                    'heavy_equipment': 38,
-                    'fleet_vehicles': 18,
-                    'specialty_tools': 20,
-                    'support_equipment': 16
+                    'heavy_equipment': 18,
+                    'fleet_vehicles': 12,
+                    'specialty_tools': 10,
+                    'support_equipment': 7
                 }
             },
             'southern_sourcing': {
@@ -237,15 +237,15 @@ def api_qnis_humanized_view():
         'generated_date': datetime.now().strftime('%B %d, %Y at %I:%M %p'),
         'confidence_level': '98.5% Data Accuracy',
         'key_metrics': {
-            'total_assets': 574,
-            'active_utilization': '87.3%',
+            'total_assets': 529,
+            'active_utilization': '87.1%',
             'annual_savings': '$368,500',
             'efficiency_potential': '340%'
         },
         'organizations': {
             'ragle_inc': {'assets': 284, 'status': 'Optimal Performance'},
             'select_maintenance': {'assets': 198, 'status': 'High Performance'},
-            'unified_specialties': {'assets': 92, 'status': 'Targeted Excellence'},
+            'unified_specialties': {'assets': 47, 'status': 'Targeted Excellence'},
             'southern_sourcing': {'assets': 0, 'status': 'Inactive - Controls Active'}
         },
         'data_authenticity': 'All metrics from verified Excel imports and GAUGE API'

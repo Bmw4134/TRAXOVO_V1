@@ -874,8 +874,8 @@ JDD_EXECUTIVE_DASHBOARD = """
 def index():
     """NEXUS Automation Platform - Unified PTNI Interface"""
     # Display NEXUS unified platform directly
-    from nexus_unified_dashboard import get_nexus_unified_interface
-    return get_nexus_unified_interface()
+    from nexus_unified_dashboard import create_nexus_unified_dashboard
+    return create_nexus_unified_dashboard()
 
 @app.route('/admin-direct')
 @require_auth(['admin'])

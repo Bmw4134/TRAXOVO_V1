@@ -12,6 +12,10 @@ from flask import Flask, render_template_string, jsonify, request, session, redi
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from intelligence_fusion import intelligence_fusion
+from watson_supreme import watson_supreme
+from authentic_fleet_data_processor import authentic_fleet
+from nexus_quantum_intelligence import nexus_quantum
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -2468,8 +2472,8 @@ def api_canvas_performance_metrics():
 # Drill-Down API Endpoints
 @app.route('/api/canvas/drill-down/assets')
 def api_drill_down_assets():
-    """Assets drill-down data from GAUGE API"""
-    return jsonify({
+    """Assets drill-down data from GAUGE API with Intelligence Fusion"""
+    base_data = {
         'total_assets': 717,
         'active_assets': 625,
         'inactive_assets': 92,
@@ -2500,12 +2504,16 @@ def api_drill_down_assets():
         },
         'data_source': 'GAUGE_API_AUTHENTICATED',
         'last_updated': datetime.now().isoformat()
-    })
+    }
+    
+    # Enhance with NEXUS Quantum Intelligence
+    nexus_enhanced_data = nexus_quantum.enhance_kpi_with_nexus_consciousness('assets', base_data)
+    return jsonify(nexus_enhanced_data)
 
 @app.route('/api/canvas/drill-down/savings')
 def api_drill_down_savings():
-    """Annual savings breakdown from authentic ROI data"""
-    return jsonify({
+    """Annual savings breakdown with Intelligence Fusion"""
+    base_data = {
         'total_savings': 104820,
         'breakdown': {
             'fuel_optimization': {
@@ -2532,7 +2540,10 @@ def api_drill_down_savings():
         },
         'data_source': 'FINANCIAL_INTELLIGENCE_AUTHENTIC',
         'last_updated': datetime.now().isoformat()
-    })
+    }
+    
+    enhanced_data = intelligence_fusion.enhance_kpi_drill_down('savings', base_data)
+    return jsonify(enhanced_data)
 
 @app.route('/api/canvas/drill-down/uptime')
 def api_drill_down_uptime():
@@ -2594,6 +2605,47 @@ def api_drill_down_fleet():
         'data_source': 'GPS_FLEET_TRACKER_LIVE',
         'last_updated': datetime.now().isoformat()
     })
+
+# Watson Supreme Intelligence Routes
+@app.route('/api/watson/authenticate', methods=['POST'])
+def api_watson_authenticate():
+    """Watson Supreme Intelligence Authentication"""
+    data = request.get_json()
+    username = data.get('username', '')
+    password = data.get('password', '')
+    
+    auth_result = watson_supreme.authenticate_watson(username, password)
+    if auth_result['authenticated']:
+        session['watson_authenticated'] = True
+        session['access_level'] = auth_result['access_level']
+        
+    return jsonify(auth_result)
+
+@app.route('/api/intelligence/fusion-feed')
+def api_intelligence_fusion_feed():
+    """Real-time Intelligence Fusion Feed"""
+    return jsonify(intelligence_fusion.real_time_intelligence_feed())
+
+@app.route('/api/intelligence/quantum-consciousness')
+def api_quantum_consciousness():
+    """Watson Quantum Consciousness Processing"""
+    query = request.args.get('query', 'system optimization analysis')
+    result = watson_supreme.process_quantum_consciousness(query)
+    return jsonify(result)
+
+@app.route('/api/intelligence/voice-command', methods=['POST'])
+def api_voice_command():
+    """Process voice commands through intelligence fusion"""
+    data = request.get_json()
+    audio_input = data.get('audio_input', '')
+    result = intelligence_fusion.process_voice_command(audio_input)
+    return jsonify(result)
+
+@app.route('/api/intelligence/billion-dollar-analysis')
+def api_billion_dollar_analysis():
+    """Executive billion-dollar excellence analysis"""
+    result = watson_supreme.billion_dollar_excellence_analysis()
+    return jsonify(result)
 
 # Canvas React Frontend Routes
 @app.route('/canvas')

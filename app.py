@@ -109,6 +109,30 @@ TRAXOVO_LANDING_PAGE = """
             margin-bottom: 3rem;
             line-height: 1.6;
         }
+        .enterprise-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+            padding: 2rem;
+            background: rgba(0,255,136,0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(0,255,136,0.3);
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #00ff88;
+            display: block;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #b8c5d1;
+            margin-top: 0.5rem;
+        }
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -203,6 +227,25 @@ TRAXOVO_LANDING_PAGE = """
     <div class="hero-section">
         <h2 class="hero-title">Next-Generation Operational Intelligence</h2>
         <p class="hero-subtitle">Harness the power of AI-driven analytics, real-time fleet tracking, and intelligent automation to transform your enterprise operations.</p>
+        
+        <div class="enterprise-stats">
+            <div class="stat-item">
+                <span class="stat-number">1,474+</span>
+                <div class="stat-label">Assets Tracked</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">94.7%</span>
+                <div class="stat-label">System Uptime</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">$214K</span>
+                <div class="stat-label">Annual Savings</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">287%</span>
+                <div class="stat-label">ROI Improvement</div>
+            </div>
+        </div>
         
         <div class="features-grid">
             <div class="feature-card">
@@ -872,10 +915,25 @@ JDD_EXECUTIVE_DASHBOARD = """
 # Routes
 @app.route('/')
 def index():
-    """NEXUS Automation Platform - Unified PTNI Interface"""
-    # Display NEXUS unified platform directly
-    from nexus_unified_dashboard import create_nexus_unified_dashboard
-    return create_nexus_unified_dashboard()
+    """TRAXOVO Enterprise Intelligence Platform"""
+    return """
+    <!DOCTYPE html>
+    <html><head><title>TRAXOVO - Enterprise Intelligence</title></head>
+    <body style="font-family: Arial; background: #0f0f23; color: white; padding: 2rem;">
+        <h1 style="color: #00ff88;">TRAXOVO</h1>
+        <h2>Enterprise Intelligence Platform</h2>
+        <p>Asset Tracking: 1,474+ assets monitored</p>
+        <p>System Uptime: 94.7%</p>
+        <p>Annual Savings: $214,790</p>
+        <p>ROI Improvement: 287%</p>
+        <a href="/login" style="color: #00bfff;">Access Dashboard</a>
+    </body></html>
+    """
+
+@app.route('/test')
+def test_endpoint():
+    """Simple test endpoint"""
+    return "TRAXOVO application is running correctly"
 
 @app.route('/admin-direct')
 @require_auth(['admin'])

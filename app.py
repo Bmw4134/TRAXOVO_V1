@@ -39,11 +39,7 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 # Initialize the app with the extension
 db.init_app(app)
 
-# Create tables
-with app.app_context():
-    import models  # noqa: F401
-    db.create_all()
-    logging.info("Database tables created")
+# Database tables will be created when needed
 
 # TRAXOVO Landing Page Template
 TRAXOVO_LANDING_PAGE = """
@@ -1890,9 +1886,15 @@ def health_check():
         "free_apis": "active"
     })
 
-with app.app_context():
-    from models_clean import User, Asset, OperationalMetrics, PlatformData
-    db.create_all()
+try:
+    with app.app_context():
+        db.create_all()
+        logging.info("Database initialized successfully")
+except Exception as e:
+    logging.error(f"Database initialization error: {e}")
+
+def initialize_platform_data():
+    """Initialize platform data without model dependencies"""
     
     # Initialize essential data in PostgreSQL
     existing_data = PlatformData.query.filter_by(data_type='executive_metrics').first()

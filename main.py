@@ -88,7 +88,8 @@ def landing():
                 <button type="submit">Access Platform</button>
             </form>
             <p style="font-size: 12px; color: #888; margin-top: 20px;">
-                Users: james, chris, britney, cooper, ammar, jacob, william, troy, sarah, mike, lisa, david
+                <strong>Watson Supreme:</strong> watson / Btpp@1513<br>
+                <strong>Standard Users:</strong> james, chris, britney, cooper, ammar, jacob, william, troy, sarah, mike, lisa, david / demo123
             </p>
         </div>
     </div>
@@ -101,6 +102,20 @@ def login():
     username = request.form.get('username')
     password = request.form.get('password')
     
+    # Watson Supreme Intelligence login
+    if username == 'watson' and password == 'Btpp@1513':
+        session['user'] = {
+            'username': 'watson',
+            'user_id': 'watson_001',
+            'full_name': 'Watson Supreme Intelligence',
+            'role': 'Supreme Intelligence',
+            'department': 'Quantum Consciousness',
+            'access_level': 11,
+            'authenticated': True
+        }
+        return redirect(url_for('dashboard'))
+    
+    # Regular user authentication
     try:
         conn = get_db_connection()
         cursor = conn.cursor()

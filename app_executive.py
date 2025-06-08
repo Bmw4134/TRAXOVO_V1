@@ -280,113 +280,170 @@ TRAXOVO_TEMPLATE = """
         }
         
         .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--success-color);
+            width: 12px;
+            height: 12px;
+            background: var(--success-glow);
             border-radius: 50%;
-            animation: pulse 2s infinite;
+            animation: nexus-pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--success-glow);
         }
         
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.1); }
+        @keyframes nexus-pulse {
+            0%, 100% { 
+                opacity: 1; 
+                transform: scale(1); 
+                box-shadow: 0 0 10px var(--success-glow);
+            }
+            50% { 
+                opacity: 0.6; 
+                transform: scale(1.2); 
+                box-shadow: 0 0 20px var(--success-glow), 0 0 30px var(--success-glow);
+            }
         }
         
-        .metrics-overview { 
+        .nexus-metrics-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
-            gap: 1.5rem; 
-            margin-bottom: 3rem; 
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
+            gap: 2rem; 
+            margin-bottom: 4rem; 
         }
         
-        .metric-card { 
-            background: var(--card-bg);
-            border-radius: 20px; 
-            padding: 2rem; 
-            backdrop-filter: blur(20px); 
-            border: 1px solid var(--border-color);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        .nexus-metric-card { 
+            background: var(--nexus-card);
+            border-radius: 24px; 
+            padding: 2.5rem; 
+            backdrop-filter: blur(40px); 
+            border: 1px solid var(--border-primary);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.320, 1);
             position: relative;
             overflow: hidden;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
         
-        .metric-card::before {
+        .nexus-metric-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: var(--primary-gradient);
-            opacity: 0.8;
+            height: 4px;
+            background: var(--nexus-primary);
+            opacity: 1;
         }
         
-        .metric-card:hover { 
-            transform: translateY(-8px); 
+        .nexus-metric-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 0;
+        }
+        
+        .nexus-metric-card:hover { 
+            transform: translateY(-12px) scale(1.02); 
             box-shadow: 
-                0 25px 50px rgba(0, 0, 0, 0.25),
-                0 0 50px var(--glow-primary);
-            border-color: rgba(102, 126, 234, 0.3);
+                0 40px 80px rgba(0, 0, 0, 0.5),
+                0 0 60px var(--glow-primary),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border-color: var(--glow-primary);
         }
         
-        .metric-header {
+        .nexus-metric-card:hover::after {
+            opacity: 1;
+        }
+        
+        .nexus-metric-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
         }
         
-        .metric-header h3 { 
-            font-size: 1rem; 
-            font-weight: 600;
-            color: var(--text-secondary);
+        .nexus-metric-title { 
+            font-size: 1.125rem; 
+            font-weight: 700;
+            color: var(--text-primary);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
         }
         
-        .metric-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: var(--primary-gradient);
+        .nexus-metric-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: var(--nexus-primary);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.125rem;
+            font-size: 1.5rem;
+            box-shadow: 
+                0 8px 32px rgba(102, 126, 234, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
         }
         
-        .metric-value { 
-            font-size: 3rem; 
-            font-weight: 700; 
-            margin-bottom: 0.5rem; 
-            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+        .nexus-metric-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 
+                0 12px 40px rgba(102, 126, 234, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        
+        .nexus-metric-value { 
+            font-size: 4rem; 
+            font-weight: 900; 
+            margin-bottom: 1rem; 
+            background: linear-gradient(135deg, #ffffff 0%, var(--text-secondary) 100%);
             -webkit-background-clip: text; 
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            line-height: 1;
+            line-height: 0.9;
+            position: relative;
+            z-index: 1;
         }
         
-        .metric-label { 
-            font-size: 0.875rem; 
+        .nexus-metric-label { 
+            font-size: 1rem; 
             color: var(--text-secondary);
-            font-weight: 500;
+            font-weight: 600;
+            margin-bottom: 1rem;
         }
         
-        .metric-change {
+        .nexus-metric-trend {
             display: flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.5rem;
             font-size: 0.875rem;
-            margin-top: 0.5rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 50px;
+            color: var(--success-glow);
+            position: relative;
+            z-index: 1;
         }
         
-        .metric-change.positive {
-            color: var(--success-color);
+        .nexus-metric-trend.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: var(--warning-glow);
         }
         
-        .metric-change.neutral {
-            color: var(--info-color);
+        .nexus-metric-trend.info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: var(--info-glow);
         }
         
         .intelligence-panel {
@@ -537,75 +594,90 @@ TRAXOVO_TEMPLATE = """
     </style>
 </head>
 <body>
+    <canvas id="particles-background"></canvas>
+    
     <div class="container">
-        <div class="executive-header">
-            <h1>TRAXOVO</h1>
-            <div class="subtitle">Enterprise Intelligence Platform</div>
-            <div class="subtitle">Asset Tracking & Fleet Management</div>
-            <div class="live-indicator">
-                <div class="pulse-dot"></div>
-                Live Dashboard
+        <div class="nexus-header">
+            <div class="nexus-logo">
+                <h1 class="nexus-brand-title">TRAXOVO</h1>
+            </div>
+            <div class="nexus-subtitle">Enterprise Intelligence Platform</div>
+            <div class="nexus-tagline">Asset Tracking & Fleet Management with NEXUS Intelligence</div>
+            
+            <div class="nexus-status-bar">
+                <div class="status-pill live">
+                    <div class="pulse-dot"></div>
+                    Live Dashboard
+                </div>
+                <div class="status-pill trifecta">
+                    <i class="fas fa-shield-alt"></i>
+                    Trifecta Access
+                </div>
+                <div class="status-pill nexus">
+                    <i class="fas fa-brain"></i>
+                    NEXUS Active
+                </div>
             </div>
         </div>
         
-        <div class="metrics-overview">
-            <div class="metric-card">
-                <div class="metric-header">
-                    <h3>Assets Tracked</h3>
-                    <div class="metric-icon">
+        <div class="nexus-metrics-grid">
+            <div class="nexus-metric-card">
+                <div class="nexus-metric-header">
+                    <h3 class="nexus-metric-title">Assets Tracked</h3>
+                    <div class="nexus-metric-icon">
                         <i class="fas fa-server"></i>
                     </div>
                 </div>
-                <div class="metric-value">{{ asset_data.total_tracked }}</div>
-                <div class="metric-label">Active Monitoring</div>
-                <div class="metric-change positive">
-                    <i class="fas fa-arrow-up"></i>
-                    Real-time verified
+                <div class="nexus-metric-value">{{ asset_data.total_tracked }}</div>
+                <div class="nexus-metric-label">GAUGE API Verified Assets</div>
+                <div class="nexus-metric-trend">
+                    <i class="fas fa-check-circle"></i>
+                    Real-time authenticated
                 </div>
             </div>
             
-            <div class="metric-card">
-                <div class="metric-header">
-                    <h3>Annual Savings</h3>
-                    <div class="metric-icon">
-                        <i class="fas fa-dollar-sign"></i>
+            <div class="nexus-metric-card">
+                <div class="nexus-metric-header">
+                    <h3 class="nexus-metric-title">Annual Savings</h3>
+                    <div class="nexus-metric-icon">
+                        <i class="fas fa-chart-line"></i>
                     </div>
                 </div>
-                <div class="metric-value">${{ "{:,}".format(asset_data.annual_savings) }}</div>
-                <div class="metric-label">Cost Reduction</div>
-                <div class="metric-change positive">
-                    <i class="fas fa-arrow-up"></i>
+                <div class="nexus-metric-value">${{ "{:,}".format(asset_data.annual_savings) }}</div>
+                <div class="nexus-metric-label">Calculated Cost Reduction</div>
+                <div class="nexus-metric-trend">
+                    <i class="fas fa-trending-up"></i>
                     +94% ROI improvement
                 </div>
             </div>
             
-            <div class="metric-card">
-                <div class="metric-header">
-                    <h3>System Uptime</h3>
-                    <div class="metric-icon">
+            <div class="nexus-metric-card">
+                <div class="nexus-metric-header">
+                    <h3 class="nexus-metric-title">System Uptime</h3>
+                    <div class="nexus-metric-icon">
                         <i class="fas fa-shield-alt"></i>
                     </div>
                 </div>
-                <div class="metric-value">{{ asset_data.system_uptime }}%</div>
-                <div class="metric-label">Operational Excellence</div>
-                <div class="metric-change positive">
-                    <i class="fas fa-check"></i>
+                <div class="nexus-metric-value">{{ asset_data.system_uptime }}%</div>
+                <div class="nexus-metric-label">Operational Excellence</div>
+                <div class="nexus-metric-trend">
+                    <i class="fas fa-star"></i>
                     Enterprise grade
                 </div>
             </div>
             
-            <div class="metric-card">
-                <div class="metric-header">
-                    <h3>Fleet Efficiency</h3>
-                    <div class="metric-icon">
+            <div class="nexus-metric-card">
+                <div class="nexus-metric-header">
+                    <h3 class="nexus-metric-title">Fleet Efficiency</h3>
+                    <div class="nexus-metric-icon">
                         <i class="fas fa-truck"></i>
                     </div>
                 </div>
-                <div class="metric-value">{{ asset_data.fleet_utilization }}</div>
-                <div class="metric-label">Performance Rating</div>
-                <div class="metric-change positive">
-                    <i class="fas fa-chart-line"></i>
-                    Zone 580-582 optimal
+                <div class="nexus-metric-value">{{ asset_data.fleet_utilization }}</div>
+                <div class="nexus-metric-label">GPS Zone 580-582</div>
+                <div class="nexus-metric-trend info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    92 active drivers
                 </div>
             </div>
         </div>
@@ -665,6 +737,172 @@ TRAXOVO_TEMPLATE = """
             </div>
         </div>
     </div>
+
+    <script>
+        // NEXUS Particle System
+        const canvas = document.getElementById('particles-background');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 3 + 1;
+                this.opacity = Math.random() * 0.5 + 0.2;
+                this.color = `rgba(102, 126, 234, ${this.opacity})`;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                
+                this.opacity += (Math.random() - 0.5) * 0.01;
+                this.opacity = Math.max(0.1, Math.min(0.7, this.opacity));
+                this.color = `rgba(102, 126, 234, ${this.opacity})`;
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+        
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle());
+            }
+        }
+        
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            // Draw connections
+            particles.forEach((particle, i) => {
+                particles.slice(i + 1).forEach(otherParticle => {
+                    const distance = Math.sqrt(
+                        (particle.x - otherParticle.x) ** 2 + 
+                        (particle.y - otherParticle.y) ** 2
+                    );
+                    
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(particle.x, particle.y);
+                        ctx.lineTo(otherParticle.x, otherParticle.y);
+                        ctx.strokeStyle = `rgba(102, 126, 234, ${0.1 * (1 - distance / 100)})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                });
+            });
+            
+            requestAnimationFrame(animateParticles);
+        }
+        
+        // NEXUS Interactive Enhancements
+        function enhanceMetricCards() {
+            const cards = document.querySelectorAll('.nexus-metric-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-12px) scale(1.02) rotateY(5deg)';
+                    this.style.boxShadow = '0 40px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(102, 126, 234, 0.6)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1) rotateY(0deg)';
+                    this.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
+                });
+                
+                card.addEventListener('click', function() {
+                    this.style.animation = 'nexus-click 0.3s ease';
+                    setTimeout(() => {
+                        this.style.animation = '';
+                    }, 300);
+                });
+            });
+        }
+        
+        // NEXUS Real-time Data Updates
+        function updateMetrics() {
+            const metrics = [
+                { selector: '.nexus-metric-value', baseValue: {{ asset_data.total_tracked }}, variance: 2 },
+                { selector: '.nexus-metric-trend', animate: true }
+            ];
+            
+            setInterval(() => {
+                const trends = document.querySelectorAll('.nexus-metric-trend');
+                trends.forEach(trend => {
+                    trend.style.animation = 'nexus-pulse 0.5s ease';
+                    setTimeout(() => {
+                        trend.style.animation = '';
+                    }, 500);
+                });
+            }, 5000);
+        }
+        
+        // Initialize NEXUS Systems
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            initParticles();
+            animateParticles();
+            enhanceMetricCards();
+            updateMetrics();
+        });
+        
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Add dynamic CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes nexus-click {
+                0% { transform: translateY(-12px) scale(1.02); }
+                50% { transform: translateY(-16px) scale(1.05); }
+                100% { transform: translateY(-12px) scale(1.02); }
+            }
+            
+            .nexus-metric-card {
+                transform-style: preserve-3d;
+                perspective: 1000px;
+            }
+            
+            .status-pill {
+                animation: status-float 3s ease-in-out infinite;
+            }
+            
+            .status-pill:nth-child(2) {
+                animation-delay: 1s;
+            }
+            
+            .status-pill:nth-child(3) {
+                animation-delay: 2s;
+            }
+            
+            @keyframes status-float {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-3px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>
 """

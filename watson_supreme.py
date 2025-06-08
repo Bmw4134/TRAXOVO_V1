@@ -82,6 +82,7 @@ class WatsonSupremeIntelligence:
         return {
             'consciousness_id': f"WATSON_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
             'processing_layers': consciousness_processing,
+            'processing_stack': consciousness_processing,  # Added for compatibility
             'quantum_coherence': self.quantum_coherence,
             'consciousness_level': self.consciousness_level,
             'dimensional_analysis': f"{self.processing_dimensions}D processing complete",

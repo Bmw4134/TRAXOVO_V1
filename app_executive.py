@@ -3109,6 +3109,20 @@ def api_secure_executive_access():
             'timestamp': datetime.now().isoformat()
         })
 
+@app.route('/api/trifecta-polish-deploy', methods=['POST'])
+def api_trifecta_polish_deploy():
+    """Deploy Trifecta Polish Protocol for investor-grade UX"""
+    try:
+        from trifecta_polish_protocol import execute_trifecta_polish_protocol
+        
+        polish_result = execute_trifecta_polish_protocol()
+        return jsonify(polish_result)
+    except Exception as e:
+        return jsonify({
+            'error': f'Trifecta Polish deployment error: {str(e)}',
+            'timestamp': datetime.now().isoformat()
+        })
+
 # Canvas React Frontend Routes
 @app.route('/canvas')
 def canvas_dashboard():

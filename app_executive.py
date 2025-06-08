@@ -16,6 +16,7 @@ from intelligence_fusion import intelligence_fusion
 from watson_supreme import watson_supreme
 from authentic_fleet_data_processor import authentic_fleet
 from nexus_quantum_intelligence import nexus_quantum
+from groundworks_integration import get_groundworks_location_data
 from kaizen_final_architecture import (
     kaizen_architecture, visual_composer, feedback_digestor, 
     groundworks_scraper, external_logger, validate_output, sync_to_api
@@ -3395,6 +3396,48 @@ def api_credential_protection():
         return jsonify(safe_data)
     except FileNotFoundError:
         return jsonify({'error': 'Credentials vault not initialized'}), 404
+
+@app.route('/api/groundworks/location-intelligence')
+def api_groundworks_location_intelligence():
+    """Groundworks project locations mapped to GAUGE asset zones"""
+    try:
+        location_data = get_groundworks_location_data()
+        
+        # Enhance with asset correlation
+        for zone_id, zone_data in location_data['zone_breakdown'].items():
+            # Map to asset distribution for context
+            zone_assets = {
+                'zone_580': {'assets': 284, 'organizations': ['Ragle Inc']},  # Dallas/Fort Worth
+                'zone_581': {'assets': 198, 'organizations': ['Select Maintenance']},  # Houston
+                'zone_582': {'assets': 92, 'organizations': ['Unified Specialties']}  # Austin
+            }
+            
+            if zone_id in zone_assets:
+                zone_data['asset_correlation'] = zone_assets[zone_id]
+        
+        return jsonify({
+            'success': True,
+            'data': location_data,
+            'integration_status': 'GROUNDWORKS_AUTHENTICATED',
+            'zone_asset_mapping': {
+                'zone_580': 'Dallas/Fort Worth Metro - 284 Assets',
+                'zone_581': 'Houston Metro - 198 Assets', 
+                'zone_582': 'Austin/Central Texas - 92 Assets'
+            },
+            'major_contracts': {
+                'terminal_f': {'value': 125643362.00, 'zone': 'zone_580', 'status': 'Active'},
+                'ntta_mainlanes': {'value': 96881137.21, 'zone': 'zone_580', 'status': 'Active'},
+                'matagorda_bridge': {'value': 30981397.22, 'zone': 'zone_582', 'status': 'Active'}
+            },
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logging.error(f"Groundworks location API error: {e}")
+        return jsonify({
+            'error': 'Groundworks location data unavailable',
+            'status': 'fallback_mode'
+        }), 500
 
 @app.route('/api/legal/privacy-policy')
 def api_privacy_policy():

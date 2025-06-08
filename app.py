@@ -5638,6 +5638,56 @@ def api_nexus_emergency_stop():
             'error': str(e)
         }), 500
 
+@app.route('/api/nexus/execute-crypto-command', methods=['POST'])
+def api_nexus_execute_crypto_command():
+    """Execute NEXUS cryptocurrency trading commands - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from nexus_crypto_trading_module import execute_nexus_crypto_command
+        
+        data = request.get_json()
+        command = data.get('command', '')
+        
+        # Execute the NEXUS command
+        result = execute_nexus_crypto_command(command)
+        
+        return jsonify({
+            'status': 'success',
+            'command_result': result,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/api/nexus/crypto-dashboard')
+def api_nexus_crypto_dashboard():
+    """Get comprehensive cryptocurrency trading dashboard - Requires Authentication"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from nexus_crypto_trading_module import get_crypto_trading_dashboard
+        
+        dashboard_data = get_crypto_trading_dashboard()
+        
+        return jsonify({
+            'status': 'success',
+            'crypto_data': dashboard_data,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
 @app.route('/development-hub')
 def development_hub():
     """NEXUS Development Hub - GitHub and AI Integration Dashboard"""

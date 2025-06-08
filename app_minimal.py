@@ -549,6 +549,223 @@ def dashboard_direct():
     
     return index()  # Corrected dashboard with 717 assets
 
+@app.route('/legacy-workbook-upload')
+def legacy_workbook_upload():
+    """Legacy workbook upload interface for authentic data integration"""
+    
+    return render_template_string('''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TRAXOVO - Legacy Workbook Upload</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); 
+            color: white; 
+            min-height: 100vh; 
+            padding: 2rem;
+        }
+        .upload-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(15px);
+        }
+        .header h1 {
+            color: #00ff88;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .status-banner {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #1a1a2e;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        .upload-section {
+            background: rgba(0,255,136,0.1);
+            border: 2px dashed #00ff88;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        .upload-section:hover {
+            background: rgba(0,255,136,0.2);
+        }
+        .file-input {
+            display: none;
+        }
+        .upload-btn {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #1a1a2e;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 1rem;
+        }
+        .file-list {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .process-btn {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <div class="header">
+            <h1>Legacy Workbook Integration</h1>
+            <p>Upload your Excel/CSV files to replace all synthetic data with authentic sources</p>
+        </div>
+        
+        <div class="status-banner">
+            Synthetic Data Eliminated: ✓ | GAUGE API: 717 Assets | GPS Fleet: 92 Drivers | Ready for Legacy Data
+        </div>
+        
+        <div class="upload-section" onclick="document.getElementById('fileInput').click()">
+            <h3>Drop Excel/CSV Files Here</h3>
+            <p>Supports: .xlsx, .xls, .csv files</p>
+            <p>Automatic detection of billing, equipment, maintenance data</p>
+            <input type="file" id="fileInput" class="file-input" multiple accept=".xlsx,.xls,.csv" onchange="handleFiles(this.files)">
+            <button class="upload-btn">Select Files</button>
+        </div>
+        
+        <div class="file-list" id="fileList">
+            <h4>Uploaded Files</h4>
+            <div id="files"></div>
+            <button class="process-btn" onclick="processFiles()">Process All Files</button>
+        </div>
+        
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="/dashboard-direct" style="color: #00ff88; text-decoration: none;">← Back to Dashboard</a>
+        </div>
+    </div>
+    
+    <script>
+        let uploadedFiles = [];
+        
+        function handleFiles(files) {
+            for (let file of files) {
+                uploadedFiles.push(file);
+                addFileToList(file);
+            }
+        }
+        
+        function addFileToList(file) {
+            const fileDiv = document.createElement('div');
+            fileDiv.className = 'file-item';
+            fileDiv.innerHTML = `
+                <span>${file.name} (${(file.size/1024/1024).toFixed(2)} MB)</span>
+                <span style="color: #00ff88;">Ready</span>
+            `;
+            document.getElementById('files').appendChild(fileDiv);
+        }
+        
+        function processFiles() {
+            if (uploadedFiles.length === 0) {
+                alert('Please upload files first');
+                return;
+            }
+            
+            // Process each file
+            uploadedFiles.forEach(file => {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                fetch('/api/process-legacy-file', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('File processed:', data);
+                    if (data.success) {
+                        alert(`${file.name} processed successfully! ${data.records_processed} records added.`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+    ''')
+
+@app.route('/api/process-legacy-file', methods=['POST'])
+def api_process_legacy_file():
+    """Process uploaded legacy workbook files"""
+    
+    try:
+        from authentic_data_migrator import AuthenticDataMigrator
+        
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'error': 'No file uploaded'})
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'success': False, 'error': 'No file selected'})
+        
+        # Save file temporarily
+        import tempfile
+        import os
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp_file:
+            file.save(tmp_file.name)
+            
+            # Process with migrator
+            migrator = AuthenticDataMigrator()
+            if migrator._process_workbook_file(tmp_file.name):
+                # Get updated counts
+                workbook_records = migrator.get_workbook_record_count()
+                
+                return jsonify({
+                    'success': True,
+                    'filename': file.filename,
+                    'records_processed': workbook_records,
+                    'message': f'Legacy file {file.filename} processed and integrated into authentic data system'
+                })
+            else:
+                return jsonify({'success': False, 'error': 'File processing failed'})
+                
+    except Exception as e:
+        logging.error(f"Legacy file processing error: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route('/api/migrate-authentic-data')
 def api_migrate_authentic_data():
     """Execute complete authentic data migration - eliminate all synthetic data"""

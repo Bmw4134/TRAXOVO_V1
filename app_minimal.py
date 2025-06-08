@@ -202,6 +202,28 @@ def api_asset_data():
             'status': 'error'
         }), 500
 
+@app.route('/api/traxovo-sync')
+def api_traxovo_sync():
+    """Force TRAXOVO synchronization with GAUGE sources"""
+    
+    try:
+        from traxovo_sync_command import execute_traxovo_sync_command
+        
+        source = request.args.get('source', 'GAUGE')
+        force = request.args.get('force', 'true').lower() == 'true'
+        
+        sync_result = execute_traxovo_sync_command(source, force)
+        
+        return jsonify(sync_result)
+        
+    except Exception as e:
+        logging.error(f"Sync command error: {e}")
+        return jsonify({
+            'error': 'Sync operation failed',
+            'status': 'error',
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""

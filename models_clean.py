@@ -9,6 +9,7 @@ from sqlalchemy import JSON
 
 class User(db.Model):
     __tablename__ = 'users'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -19,6 +20,7 @@ class User(db.Model):
 
 class Asset(db.Model):
     __tablename__ = 'assets'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     asset_id = db.Column(db.String(50), unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
@@ -30,6 +32,7 @@ class Asset(db.Model):
 
 class OperationalMetrics(db.Model):
     __tablename__ = 'operational_metrics'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     metric_date = db.Column(db.Date, nullable=False)
     total_assets = db.Column(db.Integer, default=0)
@@ -40,6 +43,7 @@ class OperationalMetrics(db.Model):
 
 class PlatformData(db.Model):
     __tablename__ = 'platform_data'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     data_type = db.Column(db.String(50), nullable=False)
     data_content = db.Column(JSON)

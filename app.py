@@ -39,6 +39,12 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 # Initialize the app with the extension
 db.init_app(app)
 
+# Create tables
+with app.app_context():
+    import models  # noqa: F401
+    db.create_all()
+    logging.info("Database tables created")
+
 # TRAXOVO Landing Page Template
 TRAXOVO_LANDING_PAGE = """
 <!DOCTYPE html>

@@ -35,6 +35,7 @@ def extract_traxovo_assets() -> Dict[str, Any]:
     
     conn.close()
     
+    # Return only authentic data - no synthetic database overrides
     asset_data = {
         'total_assets': 717,  # GAUGE API verified count - authentic user assets
         'active_assets': gps_drivers,  # Real GPS drivers from migration
@@ -45,89 +46,7 @@ def extract_traxovo_assets() -> Dict[str, Any]:
         'data_sources': ['GAUGE_API_AUTHENTICATED', 'GPS_FLEET_TRACKER']
     }
     
-    # Check traxovo_agent.db for equipment billing data
-    try:
-        conn = sqlite3.connect('traxovo_agent.db')
-        cursor = conn.cursor()
-        
-        # Get equipment billing records
-        cursor.execute("SELECT COUNT(*) FROM equipment_billing")
-        equipment_count = cursor.fetchone()[0]
-        
-        if equipment_count > 0:
-            asset_data['total_assets'] = equipment_count
-            asset_data['active_assets'] = equipment_count
-            asset_data['data_sources'].append('TRAXOVO_AGENT_DB')
-            
-            # Calculate realistic savings for equipment
-            asset_data['annual_savings'] = equipment_count * 42890  # Per equipment annual savings
-            
-        conn.close()
-        
-    except Exception as e:
-        pass
-    
-    # Check nexus_pti_comprehensive.db for comprehensive asset data
-    try:
-        conn = sqlite3.connect('nexus_pti_comprehensive.db')
-        cursor = conn.cursor()
-        
-        # Get real assets count
-        cursor.execute("SELECT COUNT(*) FROM real_assets WHERE status = 'Active'")
-        pti_assets = cursor.fetchone()[0]
-        
-        if pti_assets > asset_data['total_assets']:
-            asset_data['total_assets'] = pti_assets
-            asset_data['active_assets'] = pti_assets
-            asset_data['data_sources'].append('PTI_COMPREHENSIVE_SYSTEM')
-            
-            # Get performance metrics
-            cursor.execute("SELECT AVG(performance_score), AVG(utilization_rate) FROM real_assets WHERE status = 'Active'")
-            perf_data = cursor.fetchone()
-            
-            if perf_data[0]:
-                performance_avg = perf_data[0]
-                utilization_avg = perf_data[1]
-                
-                # Calculate uptime based on performance
-                asset_data['system_uptime'] = min(94.0 + (performance_avg / 10), 99.5)
-                
-                # Calculate ROI based on utilization
-                asset_data['roi_improvement'] = int(250 + (utilization_avg * 2))
-        
-        conn.close()
-        
-    except Exception as e:
-        pass
-    
-    # Check nexus_archives.db for comprehensive asset data
-    try:
-        conn = sqlite3.connect('nexus_archives.db')
-        cursor = conn.cursor()
-        
-        # Get archived documents count (asset tracking system)
-        cursor.execute("SELECT COUNT(*) FROM archived_documents")
-        archived_count = cursor.fetchone()[0]
-        
-        if archived_count > asset_data['total_assets']:
-            asset_data['total_assets'] = archived_count
-            asset_data['active_assets'] = int(archived_count * 0.92)  # 92% active based on enterprise standards
-            asset_data['data_sources'].append('NEXUS_ARCHIVES_COMPREHENSIVE')
-            
-            # Calculate enterprise-scale savings
-            asset_data['annual_savings'] = archived_count * 18  # Per-asset operational savings
-        
-        conn.close()
-        
-    except Exception as e:
-        pass
-    
-    # Calculate final metrics
-    if asset_data['total_assets'] > 0:
-        # Ensure minimum realistic savings
-        min_savings = asset_data['total_assets'] * 1200  # Minimum $1200 per asset annually
-        if asset_data['annual_savings'] < min_savings:
-            asset_data['annual_savings'] = min_savings
+    # SYNTHETIC DATA SOURCES ELIMINATED - Only authentic GAUGE/GPS data allowed
     
     return asset_data
 

@@ -113,33 +113,29 @@ def access_portal():
 
 @app.route('/watson-auth', methods=['POST'])
 def watson_auth():
-    """Watson Superuser Authentication Handler"""
-    username = request.form.get('username', '').strip()
-    password = request.form.get('password', '').strip()
+    """Watson Superuser Authentication Handler - Exclusive Access Control"""
+    username = request.form.get('username', '').strip().lower()
+    password = request.form.get('password', '').strip().lower()
     
-    # Universal nexus authentication
-    if username == 'nexus' and password == 'nexus':
+    # Exclusive superuser access - only nexus, brett, or watson
+    superuser_credentials = {
+        'nexus': 'nexus',
+        'brett': 'nexus', 
+        'watson': 'nexus'
+    }
+    
+    if username in superuser_credentials and password == superuser_credentials[username]:
         session['watson_authenticated'] = True
         session['authenticated'] = True
         session['username'] = username
-        session['user_level'] = 'watson_superuser'
+        session['user_level'] = 'nexus_superuser'
         session['authentication_time'] = datetime.now().isoformat()
-        logging.info(f"Watson superuser authenticated: {username}")
+        logging.info(f"NEXUS Superuser authenticated: {username} - Full system access granted")
         return redirect('/dashboard')
     
-    # Alternative authentication paths
-    if (username in ['watson', 'admin', 'superuser'] and password == 'nexus') or \
-       (username == 'nexus' and password in ['watson', 'admin', 'password']):
-        session['watson_authenticated'] = True
-        session['authenticated'] = True
-        session['username'] = username
-        session['user_level'] = 'watson_superuser'
-        session['authentication_time'] = datetime.now().isoformat()
-        logging.info(f"Watson superuser authenticated: {username}")
-        return redirect('/dashboard')
-    
-    # Return to landing with error indicator
-    return redirect('/?auth_error=1')
+    # All other attempts are rejected
+    logging.warning(f"Authentication failed for: {username}")
+    return redirect('/access?auth_error=1')
 
 
 

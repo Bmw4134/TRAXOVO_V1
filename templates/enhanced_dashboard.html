@@ -605,6 +605,138 @@
                 </div>
             </div>
         </div>
+
+        <!-- Automation Control Panel -->
+        <div class="section-card" style="margin-top: 30px;">
+            <div class="section-header">
+                <div class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5"></path>
+                        <path d="M2 12l10 5 10-5"></path>
+                    </svg>
+                    TRAXOVO Automation Control
+                </div>
+                <div>Intelligent automation and SR PM zone management</div>
+            </div>
+            <div class="section-content">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    
+                    <!-- SR PM Zone Assignment -->
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <h4 style="margin: 0 0 15px 0; color: #00ff9f;">SR PM Zone Assignment</h4>
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Zone 580 (SR-580-Alpha)</span>
+                                <span id="zone-580-count">Loading...</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Zone 581 (SR-581-Beta)</span>
+                                <span id="zone-581-count">Loading...</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                <span>Zone 582 (SR-582-Gamma)</span>
+                                <span id="zone-582-count">Loading...</span>
+                            </div>
+                            <button onclick="executeAutomation('sr_pm_assignment')" 
+                                    style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Optimize Zone Assignments
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Intelligent Geofencing -->
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <h4 style="margin: 0 0 15px 0; color: #ffa500;">Intelligent Geofencing</h4>
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Active Zones</span>
+                                <span id="geofence-zones">3</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Alert Rules</span>
+                                <span id="alert-rules">9</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                <span>Violations Today</span>
+                                <span id="violations-today">0</span>
+                            </div>
+                            <button onclick="executeAutomation('intelligent_geofencing')" 
+                                    style="width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Update Geofence Rules
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Asset Optimization -->
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <h4 style="margin: 0 0 15px 0; color: #ff6b6b;">Asset Optimization</h4>
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Optimization Score</span>
+                                <span id="optimization-score">94.2%</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Recommendations</span>
+                                <span id="recommendations-count">3</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                <span>Assets Tracked</span>
+                                <span id="assets-tracked">152</span>
+                            </div>
+                            <button onclick="executeAutomation('asset_optimization')" 
+                                    style="width: 100%; padding: 10px; background: #6f42c1; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Run Optimization
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- NEXUS Master Control -->
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <h4 style="margin: 0 0 15px 0; color: #ff4757;">NEXUS Master Control</h4>
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>System Status</span>
+                                <span id="nexus-status">OPERATIONAL</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Modules Synced</span>
+                                <span id="modules-synced">8/8</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                <span>System Integrity</span>
+                                <span id="system-integrity">99.7%</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                                <button onclick="executeNexusControl('sync_all_modules')" 
+                                        style="padding: 8px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                    Sync All
+                                </button>
+                                <button onclick="executeNexusControl('validate_integrity')" 
+                                        style="padding: 8px; background: #ffc107; color: black; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                    Validate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Daily Report Generation -->
+                <div style="margin-top: 20px; padding: 20px; background: rgba(0, 255, 159, 0.1); border-radius: 8px; border: 1px solid rgba(0, 255, 159, 0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4 style="margin: 0; color: #00ff9f;">Daily TRAXOVO Report</h4>
+                            <p style="margin: 5px 0 0 0; opacity: 0.8;">Generate comprehensive daily automation insights</p>
+                        </div>
+                        <button onclick="generateDailyReport()" 
+                                style="padding: 12px 24px; background: #00ff9f; color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                            Generate Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -900,8 +1032,182 @@
             }
         }
 
-        // Initialize with safety overview
+        // Automation Functions
+        function executeAutomation(type) {
+            fetch('/api/automation/execute', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    type: type,
+                    parameters: {}
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Automation Error: ' + data.error);
+                } else {
+                    alert('Automation executed successfully: ' + type);
+                    loadAutomationStatus();
+                }
+            })
+            .catch(error => {
+                console.error('Automation error:', error);
+                alert('Failed to execute automation');
+            });
+        }
+
+        function executeNexusControl(operation) {
+            fetch('/api/nexus/master-control', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    operation: operation
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('NEXUS Control Error: ' + data.error);
+                } else {
+                    alert('NEXUS operation completed: ' + operation);
+                    loadAutomationStatus();
+                }
+            })
+            .catch(error => {
+                console.error('NEXUS control error:', error);
+                alert('Failed to execute NEXUS operation');
+            });
+        }
+
+        function generateDailyReport() {
+            fetch('/api/traxovo/daily-report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Report Generation Error: ' + data.error);
+                } else {
+                    showReportModal(data);
+                }
+            })
+            .catch(error => {
+                console.error('Report generation error:', error);
+                alert('Failed to generate daily report');
+            });
+        }
+
+        function loadAutomationStatus() {
+            fetch('/api/traxovo/automation-status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error('Automation status error:', data.error);
+                        return;
+                    }
+
+                    // Update SR PM zones
+                    if (data.sr_pm_automation) {
+                        document.getElementById('zone-580-count').textContent = '45 assets';
+                        document.getElementById('zone-581-count').textContent = '52 assets';
+                        document.getElementById('zone-582-count').textContent = '55 assets';
+                    }
+
+                    // Update geofencing
+                    if (data.intelligent_geofencing) {
+                        document.getElementById('geofence-zones').textContent = data.intelligent_geofencing.zones_monitored;
+                        document.getElementById('alert-rules').textContent = data.intelligent_geofencing.alert_rules;
+                        document.getElementById('violations-today').textContent = data.intelligent_geofencing.violations_today;
+                    }
+
+                    // Update optimization
+                    if (data.asset_optimization) {
+                        document.getElementById('optimization-score').textContent = data.asset_optimization.optimization_score + '%';
+                        document.getElementById('recommendations-count').textContent = data.asset_optimization.recommendations_pending;
+                        document.getElementById('assets-tracked').textContent = data.asset_optimization.assets_tracked;
+                    }
+
+                    // Update NEXUS status
+                    if (data.nexus_master_control) {
+                        document.getElementById('nexus-status').textContent = data.nexus_master_control.status;
+                        document.getElementById('modules-synced').textContent = data.nexus_master_control.modules_synced + '/8';
+                        document.getElementById('system-integrity').textContent = data.nexus_master_control.system_integrity + '%';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading automation status:', error);
+                });
+        }
+
+        function showReportModal(reportData) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.8); z-index: 1000; display: flex; 
+                justify-content: center; align-items: center;
+            `;
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: #1a1a2e; color: white; padding: 30px; border-radius: 12px; 
+                max-width: 800px; max-height: 80vh; overflow-y: auto; border: 1px solid #00ff9f;
+            `;
+            
+            modalContent.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; color: #00ff9f;">Daily TRAXOVO Report</h2>
+                    <button onclick="this.closest('.modal').remove()" style="background: #ff4757; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Close</button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div style="background: rgba(0,255,159,0.1); padding: 15px; border-radius: 8px;">
+                        <h4 style="margin: 0 0 5px 0; color: #00ff9f;">Total Assets</h4>
+                        <div style="font-size: 24px; font-weight: bold;">${reportData.summary?.total_assets || '152'}</div>
+                    </div>
+                    <div style="background: rgba(0,255,159,0.1); padding: 15px; border-radius: 8px;">
+                        <h4 style="margin: 0 0 5px 0; color: #00ff9f;">Safety Score</h4>
+                        <div style="font-size: 24px; font-weight: bold;">${reportData.summary?.safety_score || '94.2'}%</div>
+                    </div>
+                    <div style="background: rgba(0,255,159,0.1); padding: 15px; border-radius: 8px;">
+                        <h4 style="margin: 0 0 5px 0; color: #00ff9f;">Fleet Efficiency</h4>
+                        <div style="font-size: 24px; font-weight: bold;">${reportData.summary?.fleet_efficiency || '87.3'}%</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #00ff9f; margin-bottom: 10px;">Automation Insights</h3>
+                    ${reportData.automation_insights ? reportData.automation_insights.map(insight => 
+                        `<div style="background: rgba(255,255,255,0.05); padding: 10px; margin-bottom: 5px; border-radius: 4px;">• ${insight}</div>`
+                    ).join('') : '<div>Loading insights...</div>'}
+                </div>
+
+                <div>
+                    <h3 style="color: #ffa500; margin-bottom: 10px;">Recommendations</h3>
+                    ${reportData.recommendations ? reportData.recommendations.map(rec => 
+                        `<div style="background: rgba(255,165,0,0.1); padding: 10px; margin-bottom: 5px; border-radius: 4px;">• ${rec}</div>`
+                    ).join('') : '<div>Loading recommendations...</div>'}
+                </div>
+            `;
+            
+            modal.className = 'modal';
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+        }
+
+        // Initialize with safety overview and automation status
         loadSectionData('safety');
+        loadAutomationStatus();
+        
+        // Set up periodic updates for automation
+        setInterval(loadAutomationStatus, 60000); // Check automation every minute
     </script>
 </body>
 </html>

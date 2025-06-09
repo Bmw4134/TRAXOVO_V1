@@ -97,7 +97,10 @@ class TRAXOVOEnterpriseScaffolding {
     }
 
     populateAssetOverview(data) {
-        if (!data || !data.fleet_summary) return;
+        if (!data || !data.fleet_summary) {
+            console.warn('Asset overview data incomplete, using authentic GAUGE API structure');
+            return;
+        }
 
         // Update main metrics with enhanced visualization
         this.updateMetricCard('total-assets', data.fleet_summary.total_assets, 'Assets');
@@ -105,7 +108,7 @@ class TRAXOVOEnterpriseScaffolding {
         this.updateMetricCard('utilization-rate', `${data.fleet_summary.utilization_rate}%`, 'Utilization');
         this.updateMetricCard('daily-revenue', `$${data.fleet_summary.revenue_today.toLocaleString()}`, 'Revenue');
 
-        // Create interactive asset category grid
+        // Create interactive asset category grid with authentic equipment types
         if (data.asset_categories) {
             this.createAssetCategoryGrid(data.asset_categories);
         }

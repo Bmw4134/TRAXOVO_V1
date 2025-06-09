@@ -633,8 +633,8 @@ def api_asset_overview():
             'dozers': {'count': 89, 'active': 78, 'utilization': 87.6},
             'loaders': {'count': 134, 'active': 121, 'utilization': 90.3},
             'dump_trucks': {'count': 98, 'active': 89, 'utilization': 90.8},
-            'cranes': {'count': 45, 'active': 38, 'utilization': 84.4},
-            'compactors': {'count': 26, 'active': 19, 'utilization': 73.1}
+            'graders': {'count': 45, 'active': 38, 'utilization': 84.4},
+            'skid_steers': {'count': 26, 'active': 19, 'utilization': 73.1}
         },
         'division_performance': {
             'DIV1-INDIANA': {

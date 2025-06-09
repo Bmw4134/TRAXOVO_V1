@@ -5557,54 +5557,19 @@ def api_asset_drill_down():
             'error': 'Asset data temporarily unavailable',
             'status': 'error'
         }), 500
-        if asset['assets_count'] > 0:
-            detailed_assets.append({
-                'asset_id': asset['job_number'],
-                'name': asset['name'],
-                'location': f"{asset['position'][0]:.4f}, {asset['position'][1]:.4f}",
-                'last_trip': f"{random.randint(1, 6)} hrs ago",
-                'status': 'OFF',
-                'fuel_level': f"{random.randint(10, 95)}%",
-                'current_owner': asset['organization'],
-                'license_plate': f"TLZ{random.randint(1000, 9999)}",
-                'tags': ['UNIFIED TEST']
-            })
-    
-    return jsonify({'assets': detailed_assets})
 
-@app.route('/api/fuel-energy')
-def api_fuel_energy():
-    """Fuel and energy analytics"""
-    return jsonify({
-        'vehicle_performance': [
-            {
-                'asset_id': 'CV-GPU-F350',
-                'efficiency': 6.3,
-                'efficiency_unit': 'MPG',
-                'fuel_consumed': 'UNLEADED FUEL',
-                'total_fuel': '0 gal'
-            },
-            {
-                'asset_id': 'FT-SIU-H20E60',
-                'efficiency': 4.5,
-                'efficiency_unit': 'MPG',
-                'fuel_consumed': 'DIESEL',
-                'total_fuel': '2,295 gal'
-            }
-        ],
-        'metrics': {
-            'total_idle_time': '98h 40m',
-            'idle_percentage': '40%',
-            'idling_by_temperature': '98%',
-            'driver_efficiency_score': 36,
-            'emissions': '2,713 kg',
-            'ev_suitability': '100%'
-        },
-        'costs': {
-            'idle_cost_savings': '$216.59',
-            'fuel_trend': '+7%'
-        }
-    })
+@app.route('/api/asset-details')
+def api_asset_details():
+    """Get detailed asset information with drill-down capabilities"""
+    try:
+        # Return the same data as asset drill-down for consistency
+        return api_asset_drill_down()
+    except Exception as e:
+        logging.error(f"Asset details error: {e}")
+        return jsonify({
+            'error': 'Asset details temporarily unavailable',
+            'status': 'error'
+        }), 500
 
 @app.route('/api/gauge-status')
 def api_gauge_status():

@@ -886,12 +886,108 @@
                             <div style="font-size: 12px; color: rgba(255, 255, 255, 0.7);">QNIS Level</div>
                         </div>
                     </div>
-                    <button onclick="window.open('/asset-tracking-map', '_blank')" 
-                            style="padding: 15px 30px; background: #00ff9f; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; margin-top: 10px;">
-                        Launch Live Asset Map
-                    </button>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                        <button onclick="toggleAssetMap()" 
+                                style="padding: 15px 20px; background: #00ff9f; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px;">
+                            Launch Asset Map
+                        </button>
+                        <button onclick="toggleProjectManager()" 
+                                style="padding: 15px 20px; background: #673ab7; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px;">
+                            SR PM Project Portal
+                        </button>
+                    </div>
+                    <div id="embeddedAssetMap" style="display: none; margin-top: 20px; height: 600px; border: 2px solid #00ff9f; border-radius: 8px; position: relative;">
+                        <div style="padding: 15px; background: rgba(0, 255, 159, 0.1); border-bottom: 1px solid rgba(0, 255, 159, 0.3);">
+                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                <select id="divisionSelect" onchange="filterAssetsByDivision()" style="padding: 8px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; color: white;">
+                                    <option value="all">All Divisions</option>
+                                    <option value="DIV1-INDIANA">Division 1 - Indiana</option>
+                                    <option value="DIV2-DFW">Division 2 - DFW</option>
+                                    <option value="DIV3-WTX">Division 3 - West Texas</option>
+                                    <option value="DIV4-HOU">Division 4 - Houston</option>
+                                    <option value="DIV8-TEXDIST">Division 8 - Texas Distribution</option>
+                                </select>
+                                <span style="color: #00ff9f; font-weight: 600;">Live Assets: <span id="liveAssetCount">642</span></span>
+                                <span style="color: #ffa500;">Active: <span id="activeCount">487</span></span>
+                                <span style="color: #ff6b6b;">Maintenance: <span id="maintenanceCount">42</span></span>
+                                <button onclick="toggleAssetMap()" style="padding: 6px 12px; background: #ff6b6b; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: auto;">Close Map</button>
+                            </div>
+                        </div>
+                        <div id="assetMapContainer" style="height: calc(100% - 80px); background: #161b22; position: relative;">
+                            <div id="assetGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; padding: 20px; height: 100%; overflow-y: auto;">
+                                <!-- Asset cards will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- SR PM Project Manager Portal -->
+                    <div id="projectManagerPortal" style="display: none; margin-top: 20px; border: 2px solid #673ab7; border-radius: 8px; background: rgba(103, 58, 183, 0.05);">
+                        <div style="padding: 20px; border-bottom: 1px solid rgba(103, 58, 183, 0.3);">
+                            <h3 style="margin: 0 0 15px 0; color: #673ab7;">SR PM/PE Project Management Portal</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                                <select id="pmProjectSelect" onchange="loadProjectAssets()" style="padding: 10px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; color: white;">
+                                    <option value="">Select Your Project</option>
+                                    <option value="2019-044">2019-044 - E Long Avenue</option>
+                                    <option value="2021-017">2021-017 - Plaza Reconstruction</option>
+                                    <option value="2022-089">2022-089 - Highway 35 Extension</option>
+                                    <option value="2023-156">2023-156 - Downtown Infrastructure</option>
+                                    <option value="2024-201">2024-201 - Metro Bridge Project</option>
+                                </select>
+                                <select id="pmDivisionFilter" style="padding: 10px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; color: white;">
+                                    <option value="all">All Divisions</option>
+                                    <option value="DIV1-INDIANA">Division 1 - Indiana</option>
+                                    <option value="DIV2-DFW">Division 2 - DFW</option>
+                                    <option value="DIV3-WTX">Division 3 - West Texas</option>
+                                    <option value="DIV4-HOU">Division 4 - Houston</option>
+                                    <option value="DIV8-TEXDIST">Division 8 - Texas Distribution</option>
+                                </select>
+                                <button onclick="generateUtilizationReport()" style="padding: 10px 15px; background: #00ff9f; color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                    Asset Utilization Report
+                                </button>
+                                <button onclick="toggleProjectManager()" style="padding: 10px 15px; background: #ff6b6b; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    Close Portal
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Project Asset Overview -->
+                        <div style="padding: 20px;">
+                            <div id="projectOverview" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                                <div style="background: rgba(0, 255, 159, 0.1); padding: 15px; border-radius: 6px; text-align: center;">
+                                    <div style="font-size: 20px; font-weight: 700; color: #00ff9f;" id="projectAssetCount">0</div>
+                                    <div style="font-size: 12px; color: rgba(255, 255, 255, 0.7);">Assets On-Site</div>
+                                </div>
+                                <div style="background: rgba(255, 165, 0, 0.1); padding: 15px; border-radius: 6px; text-align: center;">
+                                    <div style="font-size: 20px; font-weight: 700; color: #ffa500;" id="projectUtilization">0%</div>
+                                    <div style="font-size: 12px; color: rgba(255, 255, 255, 0.7);">Utilization Rate</div>
+                                </div>
+                                <div style="background: rgba(255, 107, 107, 0.1); padding: 15px; border-radius: 6px; text-align: center;">
+                                    <div style="font-size: 20px; font-weight: 700; color: #ff6b6b;" id="wasteAlert">$0</div>
+                                    <div style="font-size: 12px; color: rgba(255, 255, 255, 0.7);">Daily Waste Cost</div>
+                                </div>
+                                <div style="background: rgba(103, 58, 183, 0.1); padding: 15px; border-radius: 6px; text-align: center;">
+                                    <div style="font-size: 20px; font-weight: 700; color: #673ab7;" id="efficiencyScore">0</div>
+                                    <div style="font-size: 12px; color: rgba(255, 255, 255, 0.7);">Efficiency Score</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Asset Utilization Alerts -->
+                            <div id="utilizationAlerts" style="margin-bottom: 20px;">
+                                <h4 style="color: #ff6b6b; margin-bottom: 10px;">Asset Utilization Alerts</h4>
+                                <div id="alertsList" style="background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.3); border-radius: 6px; padding: 15px; min-height: 100px;">
+                                    <!-- Alerts will be populated here -->
+                                </div>
+                            </div>
+                            
+                            <!-- Project Asset Grid -->
+                            <div id="projectAssetGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                                <!-- Project assets will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div style="margin-top: 15px; font-size: 12px; color: rgba(255, 255, 255, 0.6);">
-                        Interactive map with real-time position updates, status indicators, and telemetry data
+                        Interactive asset tracking with SR PM project management and utilization monitoring
                     </div>
                 </div>
             </div>

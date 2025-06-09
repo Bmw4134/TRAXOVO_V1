@@ -8,8 +8,40 @@ from flask import Flask, render_template, request, session, redirect, jsonify
 import os
 import json
 import logging
+import sys
+import subprocess
 from datetime import datetime
 from functools import wraps
+
+# Critical module scaffolding repair
+def install_missing_modules():
+    """QNIS/PTNI Module Scaffolding Repair"""
+    required_modules = ['requests', 'flask-cors', 'psycopg2-binary']
+    for module in required_modules:
+        try:
+            __import__(module.replace('-', '_'))
+        except ImportError:
+            try:
+                subprocess.check_call([sys.executable, '-m', 'pip', 'install', module])
+                logging.info(f"Installed missing module: {module}")
+            except Exception as e:
+                logging.warning(f"Could not install {module}: {e}")
+
+# Execute scaffolding repair
+install_missing_modules()
+
+# Import repaired modules
+try:
+    import requests
+except ImportError:
+    requests = None
+    logging.warning("Requests module not available")
+
+try:
+    from flask_cors import CORS
+except ImportError:
+    CORS = None
+    logging.warning("Flask-CORS not available")
 
 # Initialize autonomous Flask app
 app = Flask(__name__)

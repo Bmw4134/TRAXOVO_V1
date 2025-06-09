@@ -1945,6 +1945,14 @@
                 if (data.success) {
                     alert('GAUGE API credentials saved successfully! Live data connection active.');
                     document.querySelector('.modal').remove();
+                    
+                    // Update status indicator
+                    const statusIndicator = document.getElementById('gauge-status-indicator');
+                    if (statusIndicator) {
+                        statusIndicator.textContent = 'Connected';
+                        statusIndicator.style.color = '#00ff9f';
+                    }
+                    
                     // Refresh the dashboard data
                     loadSectionData('safety');
                     loadAutomationStatus();

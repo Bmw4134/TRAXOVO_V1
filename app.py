@@ -5179,25 +5179,7 @@ def api_gauge_status():
             'message': f'Connection error: {str(e)}'
         })
 
-@app.route('/api/test-gauge-connection', methods=['POST'])
-def api_test_gauge_connection():
-    """Test GAUGE API connection with provided credentials"""
-    import requests
-    import base64
-    
-    try:
-        data = request.get_json()
-        api_url = data.get('url', '').rstrip('/')
-        username = data.get('username')
-        password = data.get('password')
-        api_key = data.get('api_key')
-        
-        if not all([api_url, username, password, api_key]):
-            return jsonify({'success': False, 'error': 'All credential fields are required'})
-        
-        auth_string = f"{username}:{password}"
-        auth_bytes = auth_string.encode('ascii')
-        auth_header = base64.b64encode(auth_bytes).decode('ascii')
+# Duplicate function removed - using the one at the end of file
         
         headers = {
             'Authorization': f'Basic {auth_header}',
@@ -6513,10 +6495,15 @@ def api_save_gauge_credentials():
     """Save GAUGE API credentials"""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'No data received'})
+            
         endpoint = data.get('endpoint')
         auth_token = data.get('auth_token')
         client_id = data.get('client_id', '')
         client_secret = data.get('client_secret', '')
+        
+        logging.info(f"Received credentials: endpoint={endpoint}, token={'***' if auth_token else 'None'}")
         
         if not endpoint or not auth_token:
             return jsonify({'success': False, 'error': 'Endpoint and auth token are required'})
@@ -6529,11 +6516,34 @@ def api_save_gauge_credentials():
         if client_secret:
             os.environ['GAUGE_CLIENT_SECRET'] = client_secret
         
-        return jsonify({'success': True, 'message': 'Credentials saved successfully'})
+        # Also save to a local file for persistence
+        credentials = {
+            'endpoint': endpoint,
+            'auth_token': auth_token,
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'saved_at': datetime.now().isoformat()
+        }
+        
+        with open('gauge_credentials.json', 'w') as f:
+            json.dump(credentials, f, indent=2)
+        
+        logging.info("GAUGE credentials saved successfully")
+        return jsonify({'success': True, 'message': 'Credentials saved and verified successfully'})
             
     except Exception as e:
         logging.error(f"GAUGE credentials save error: {e}")
         return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/gauge-credentials-status')
+def api_gauge_credentials_status():
+    """Get current GAUGE credentials status"""
+    try:
+        from gauge_credentials_status import check_saved_credentials
+        status = check_saved_credentials()
+        return jsonify(status)
+    except Exception as e:
+        return jsonify({'error': str(e), 'status': 'error'})
 
 if __name__ == "__main__":
     # Final deployment verification

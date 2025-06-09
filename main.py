@@ -115,13 +115,13 @@ def access_portal():
 def watson_auth():
     """Dual-Tier Authentication: Superuser + Regular User Access"""
     username = request.form.get('username', '').strip().lower()
-    password = request.form.get('password', '').strip().lower()
+    password = request.form.get('password', '').strip()
     
     # Tier 1: Exclusive superuser access - only nexus, brett, or watson
     superuser_credentials = {
-        'nexus': 'nexus',
-        'brett': 'nexus', 
-        'watson': 'nexus'
+        'nexus': 'Btpp$1513!',
+        'brett': 'Btpp$1513!', 
+        'watson': 'Btpp$1513!'
     }
     
     if username in superuser_credentials and password == superuser_credentials[username]:

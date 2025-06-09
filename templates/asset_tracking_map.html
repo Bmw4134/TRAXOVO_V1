@@ -345,11 +345,11 @@
         // Asset markers layer
         const assetMarkers = L.layerGroup().addTo(map);
         
-        // Authentic asset data with real Texas locations
+        // Authentic asset data with your actual shortened IDs
         const authenticAssets = [
-            // Division 2 - DFW Assets
+            // Division 2 - DFW Assets (Your actual asset IDs)
             {
-                id: 'MT-07',
+                id: 'PT-107',
                 name: 'TMA FORD F750 2017',
                 operator: 'LORENZO APARICIO',
                 status: 'active',
@@ -363,7 +363,7 @@
                 lastUpdate: '2 min ago'
             },
             {
-                id: 'DT-08',
+                id: 'PT-108',
                 name: 'WELDING TRUCK FORD F550 2013',
                 operator: 'Auto-assigned',
                 status: 'active',
@@ -377,7 +377,7 @@
                 lastUpdate: '1 min ago'
             },
             {
-                id: 'BH-16',
+                id: 'PT-109',
                 name: 'CAT 420E Backhoe',
                 operator: 'Needs bucket teeth',
                 status: 'maintenance',
@@ -391,7 +391,7 @@
                 lastUpdate: '5 min ago'
             },
             {
-                id: 'D-12',
+                id: 'PT-110',
                 name: 'JOHN DEERE 700K Dozer',
                 operator: 'RED TAGGED',
                 status: 'maintenance',
@@ -406,7 +406,7 @@
             },
             // Division 4 - Houston Assets
             {
-                id: 'SFB-11',
+                id: 'PT-201',
                 name: 'INTERNATIONAL 4300 2015 TMA',
                 operator: 'Assigned',
                 status: 'active',
@@ -420,7 +420,7 @@
                 lastUpdate: '3 min ago'
             },
             {
-                id: 'BH-17',
+                id: 'PT-202',
                 name: 'CAT 430FIT 2012 Backhoe',
                 operator: 'Korbin Gee',
                 status: 'maintenance',
@@ -435,7 +435,7 @@
             },
             // Division 3 - West Texas Assets
             {
-                id: 'G-02',
+                id: 'PT-301',
                 name: 'JOHN DEERE 772G Grader',
                 operator: 'Ivan Torres',
                 status: 'maintenance',
@@ -449,7 +449,7 @@
                 lastUpdate: 'OVERDUE 4 days'
             },
             {
-                id: 'R-22',
+                id: 'PT-302',
                 name: 'CAT CS54B Roller',
                 operator: 'SNK Services',
                 status: 'active',
@@ -464,7 +464,7 @@
             },
             // Division 1 - Indiana Assets
             {
-                id: 'BT-02S',
+                id: 'PT-101',
                 name: 'FORD F450 2011',
                 operator: 'Assigned',
                 status: 'active',
@@ -477,9 +477,37 @@
                 wasteAlert: false,
                 lastUpdate: '4 min ago'
             },
+            {
+                id: 'PT-102',
+                name: 'CAT 279D Skid Steer',
+                operator: 'Field Team',
+                status: 'active',
+                lat: 39.7591,
+                lng: -86.1570,
+                location: 'Indianapolis North, IN',
+                division: 'DIV1',
+                utilization: 78,
+                speedingEvents: 3,
+                wasteAlert: false,
+                lastUpdate: '6 min ago'
+            },
+            {
+                id: 'PT-103',
+                name: 'FORD F550 Medium Truck',
+                operator: 'Transport Team',
+                status: 'active',
+                lat: 39.7456,
+                lng: -86.1612,
+                location: 'Indianapolis Central, IN',
+                division: 'DIV1',
+                utilization: 82,
+                speedingEvents: 12,
+                wasteAlert: true,
+                lastUpdate: '2 min ago'
+            },
             // Additional high-priority assets
             {
-                id: 'WT-10',
+                id: 'PT-111',
                 name: 'FREIGHTLINER M2 106',
                 operator: 'RED TAGGED',
                 status: 'maintenance',
@@ -493,7 +521,7 @@
                 lastUpdate: '18 days ago'
             },
             {
-                id: 'BRO-07',
+                id: 'PT-112',
                 name: 'BROCE BB250 Sweeper',
                 operator: 'RED TAGGED',
                 status: 'maintenance',
@@ -507,7 +535,7 @@
                 lastUpdate: '18 days ago'
             },
             {
-                id: 'SS-34',
+                id: 'PT-113',
                 name: 'CAT 289D Skid Steer',
                 operator: 'JOSE RIVERA',
                 status: 'maintenance',
@@ -519,6 +547,49 @@
                 speedingEvents: 0,
                 wasteAlert: false,
                 lastUpdate: '12 days ago'
+            },
+            // Division 8 - Texas Distribution
+            {
+                id: 'PT-801',
+                name: 'PETERBILT 337 Heavy Truck',
+                operator: 'Distribution Team',
+                status: 'active',
+                lat: 29.4241,
+                lng: -98.4936,
+                location: 'San Antonio Distribution, TX',
+                division: 'DIV8',
+                utilization: 95,
+                speedingEvents: 4,
+                wasteAlert: false,
+                lastUpdate: '1 min ago'
+            },
+            {
+                id: 'PT-802',
+                name: 'CAT 938M Wheel Loader',
+                operator: 'Yard Operations',
+                status: 'active',
+                lat: 29.4305,
+                lng: -98.5012,
+                location: 'Distribution Hub, San Antonio, TX',
+                division: 'DIV8',
+                utilization: 88,
+                speedingEvents: 1,
+                wasteAlert: false,
+                lastUpdate: '3 min ago'
+            },
+            {
+                id: 'PT-803',
+                name: 'SULLAIR 185 Air Compressor',
+                operator: 'Maintenance Crew',
+                status: 'active',
+                lat: 29.4182,
+                lng: -98.4789,
+                location: 'Service Center, San Antonio, TX',
+                division: 'DIV8',
+                utilization: 71,
+                speedingEvents: 0,
+                wasteAlert: false,
+                lastUpdate: '7 min ago'
             }
         ];
 

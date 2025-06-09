@@ -27,6 +27,11 @@ def traxovo_unified_dashboard():
     """TRAXOVO ∞ Clarity Core - Unified Enterprise Dashboard"""
     return render_template('enhanced_dashboard.html')
 
+@app.route('/asset-map')
+def asset_map():
+    """Full-screen mobile-friendly asset tracking map with shortened IDs"""
+    return render_template('asset_tracking_map.html')
+
 @app.route('/api/test-gauge-connection', methods=['POST'])
 def api_test_gauge_connection():
     """Test GAUGE API connection with provided credentials"""

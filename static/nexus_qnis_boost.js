@@ -254,6 +254,119 @@ class NexusQNISBoost {
         }
     }
     
+    optimizeForMobile() {
+        document.body.classList.remove('qnis-tablet', 'qnis-desktop');
+        this.applyMobileLayout();
+        this.enableTouchOptimizations();
+    }
+    
+    optimizeForTablet() {
+        document.body.classList.remove('qnis-mobile', 'qnis-desktop');
+        this.applyTabletLayout();
+        this.enableHybridOptimizations();
+    }
+    
+    optimizeForDesktop() {
+        document.body.classList.remove('qnis-mobile', 'qnis-tablet');
+        this.applyDesktopLayout();
+        this.enableMouseOptimizations();
+    }
+    
+    applyMobileLayout() {
+        const style = document.createElement('style');
+        style.textContent = `
+            .dashboard-grid { grid-template-columns: 1fr !important; }
+            .metric-card { margin-bottom: 15px !important; }
+            .chart-container { height: 250px !important; }
+            .nlp-interface { bottom: 60px !important; }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    applyTabletLayout() {
+        const style = document.createElement('style');
+        style.textContent = `
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .metric-card { margin-bottom: 20px !important; }
+            .chart-container { height: 300px !important; }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    applyDesktopLayout() {
+        const style = document.createElement('style');
+        style.textContent = `
+            .dashboard-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important; }
+            .metric-card { margin-bottom: 25px !important; }
+            .chart-container { height: 350px !important; }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    enableTouchOptimizations() {
+        document.body.classList.add('touch-optimized');
+        this.addTouchGestures();
+    }
+    
+    enableHybridOptimizations() {
+        document.body.classList.add('hybrid-optimized');
+        this.addHybridInteractions();
+    }
+    
+    enableMouseOptimizations() {
+        document.body.classList.add('mouse-optimized');
+        this.addMouseInteractions();
+    }
+    
+    addTouchGestures() {
+        // Touch gesture support for mobile devices
+        let touchStartY = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = touchStartY - touchEndY;
+            
+            if (Math.abs(diff) > 50) {
+                this.handleSwipeGesture(diff > 0 ? 'up' : 'down');
+            }
+        });
+    }
+    
+    addHybridInteractions() {
+        // Hybrid touch and mouse support for tablets
+        this.addTouchGestures();
+        this.addMouseInteractions();
+    }
+    
+    addMouseInteractions() {
+        // Enhanced mouse interactions for desktop
+        document.addEventListener('wheel', (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                this.handleZoomGesture(e.deltaY < 0 ? 'in' : 'out');
+            }
+        });
+    }
+    
+    handleSwipeGesture(direction) {
+        console.log(`QNIS: Swipe ${direction} detected`);
+        if (direction === 'up') {
+            this.showQuickActions();
+        } else if (direction === 'down') {
+            this.hideQuickActions();
+        }
+    }
+    
+    handleZoomGesture(direction) {
+        console.log(`QNIS: Zoom ${direction} detected`);
+        const currentZoom = parseFloat(document.body.style.zoom || '1');
+        const newZoom = direction === 'in' ? currentZoom + 0.1 : currentZoom - 0.1;
+        document.body.style.zoom = Math.max(0.5, Math.min(2.0, newZoom));
+    }
+    
     cascadeToChildDashboards() {
         const childFrames = document.querySelectorAll('iframe[data-dashboard]');
         childFrames.forEach(frame => {

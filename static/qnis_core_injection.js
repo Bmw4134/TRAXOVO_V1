@@ -42,14 +42,15 @@ class QNISCore {
             this.updateDashboardMetrics(data);
         };
         
-        // Fallback WebSocket for high-frequency updates
-        if (window.WebSocket) {
-            this.wsMetrics = new WebSocket(`ws://${window.location.host}/ws/qnis-metrics`);
-            this.wsMetrics.onmessage = (event) => {
-                const metrics = JSON.parse(event.data);
-                this.processHighFrequencyMetrics(metrics);
-            };
-        }
+        // Secure EventSource for high-frequency updates (replaces insecure WebSocket)
+        this.metricsSocket.onerror = (error) => {
+            console.log('QNIS: Metrics connection error, attempting reconnect...');
+            setTimeout(() => this.setupRealTimeMetrics(), 5000);
+        };
+        
+        this.metricsSocket.onopen = () => {
+            console.log('QNIS: Real-time metrics connection established');
+        };
     }
     
     updateDashboardMetrics(data) {

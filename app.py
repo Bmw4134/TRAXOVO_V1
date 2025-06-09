@@ -6141,7 +6141,8 @@ def api_qnis_realtime_metrics():
                 yield f"data: {json.dumps(metrics)}\n\n"
                 time.sleep(30)
     
-    return Response(generate_metrics(), mimetype='text/event-stream')
+    from flask import Response as FlaskResponse
+    return FlaskResponse(generate_metrics(), mimetype='text/event-stream')
 
 @app.route('/api/qnis/health-check', methods=['HEAD', 'GET'])
 def api_qnis_health_check():

@@ -746,22 +746,38 @@
             display: none;
             opacity: 0;
             transform: translateY(20px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
         }
         
         .login-screen.active {
-            display: flex;
-            opacity: 1;
-            transform: translateY(0);
+            display: flex !important;
+            opacity: 1 !important;
+            transform: translateY(0) !important;
         }
         
         .main-dashboard {
             display: none;
             opacity: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
         }
         
         .main-dashboard.active {
-            display: block;
-            opacity: 1;
+            display: block !important;
+            opacity: 1 !important;
+        }
+        
+        .landing-screen.hidden {
+            display: none !important;
         }
         
         /* Responsive */
@@ -900,7 +916,7 @@
                     </div>
                 </div>
                 
-                <button class="access-button" onclick="showLogin()">
+                <button class="access-button" id="accessButton" onclick="showLogin()" style="cursor: pointer;">
                     <span class="button-text">Access Executive Dashboard</span>
                     <span class="button-arrow">→</span>
                 </button>
@@ -1072,27 +1088,42 @@
         const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
         const ACTIVITY_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours of inactivity
         
-        // Landing to Login Transition
+        // Landing to Login Transition - NEXUS Quantum Fix
         function showLogin() {
+            console.log('NEXUS: showLogin() triggered');
             const landingScreen = document.getElementById('landingScreen');
             const loginScreen = document.getElementById('loginScreen');
             
             if (landingScreen && loginScreen) {
+                console.log('NEXUS: Elements found, executing transition');
+                
+                // Force hide landing screen
                 landingScreen.style.opacity = '0';
                 landingScreen.style.transform = 'translateY(-20px)';
+                landingScreen.classList.add('hidden');
+                
+                // Force show login screen
+                loginScreen.style.display = 'flex';
+                loginScreen.style.position = 'fixed';
+                loginScreen.style.top = '0';
+                loginScreen.style.left = '0';
+                loginScreen.style.width = '100%';
+                loginScreen.style.height = '100%';
+                loginScreen.style.zIndex = '1000';
+                loginScreen.classList.add('active');
                 
                 setTimeout(() => {
                     landingScreen.style.display = 'none';
-                    loginScreen.style.display = 'flex';
-                    loginScreen.classList.add('active');
-                    
-                    setTimeout(() => {
-                        loginScreen.style.opacity = '1';
-                        loginScreen.style.transform = 'translateY(0)';
-                    }, 100);
-                }, 600);
+                    loginScreen.style.opacity = '1';
+                    loginScreen.style.transform = 'translateY(0)';
+                }, 100);
+            } else {
+                console.error('NEXUS: Elements not found', {landingScreen, loginScreen});
             }
         }
+        
+        // Backup click handler for access button
+        window.showLogin = showLogin;
         
         // Session Management
         function saveSession() {
@@ -1834,8 +1865,72 @@
             });
         }
         
+        // NEXUS Quantum Click Handler System
+        function setupNexusClickHandlers() {
+            console.log('NEXUS: Setting up quantum click handlers');
+            
+            // Access button handlers
+            const accessButton = document.getElementById('accessButton');
+            if (accessButton) {
+                // Remove existing handlers
+                accessButton.onclick = null;
+                
+                // Add multiple handler types for maximum compatibility
+                accessButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('NEXUS: Access button clicked via addEventListener');
+                    showLogin();
+                });
+                
+                accessButton.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('NEXUS: Access button clicked via onclick');
+                    showLogin();
+                };
+                
+                // Touch events for mobile
+                accessButton.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    console.log('NEXUS: Access button touched');
+                    showLogin();
+                });
+                
+                console.log('NEXUS: Access button handlers attached');
+            } else {
+                console.error('NEXUS: Access button not found');
+            }
+            
+            // Login form handler
+            const loginForm = document.querySelector('.login-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+                console.log('NEXUS: Login form handler attached');
+            }
+            
+            // Modal handlers
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('[onclick*="openModal"]')) {
+                    e.preventDefault();
+                    const modalType = e.target.getAttribute('onclick').match(/openModal\('([^']+)'\)/)[1];
+                    openModal(modalType);
+                }
+            });
+            
+            // Logout handlers
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('[onclick*="logout"]') || e.target.textContent === 'Logout') {
+                    e.preventDefault();
+                    logout();
+                }
+            });
+        }
+        
         // Initialize on load
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('NEXUS: DOM loaded, initializing systems');
+            
             // Initialize quantum matrix effects
             initializeQuantumMatrix();
             createMatrixParticles();
@@ -1843,20 +1938,31 @@
             
             // Setup navigation and event listeners
             setupNavigation();
+            setupNexusClickHandlers();
             
             // Check for existing session on page load
             if (checkExistingSession()) {
+                console.log('NEXUS: Existing session found, bypassing landing');
                 const landingScreen = document.getElementById('landingScreen');
                 const mainDashboard = document.getElementById('mainDashboard');
                 
-                landingScreen.style.display = 'none';
-                mainDashboard.style.display = 'block';
-                mainDashboard.classList.add('active');
-                mainDashboard.style.opacity = '1';
+                if (landingScreen) landingScreen.style.display = 'none';
+                if (mainDashboard) {
+                    mainDashboard.style.display = 'block';
+                    mainDashboard.classList.add('active');
+                    mainDashboard.style.opacity = '1';
+                }
                 
                 initializeDashboard();
                 setupActivityTimeout();
+            } else {
+                console.log('NEXUS: No existing session, showing landing page');
             }
+        });
+        
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('NEXUS: JavaScript error detected:', e.error);
         });
     </script>
 </body>

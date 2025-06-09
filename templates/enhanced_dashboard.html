@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO ∞ Enterprise Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0 20px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .nav-tabs {
+            display: flex;
+            margin-left: 40px;
+        }
+
+        .nav-tab {
+            padding: 8px 16px;
+            margin-right: 20px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-tab.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .nav-tab:hover {
+            background: #e0e7ff;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 60px;
+            width: 250px;
+            height: calc(100vh - 60px);
+            background: #fff;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background: #f3f4f6;
+        }
+
+        .sidebar-item.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .sidebar-item i {
+            margin-right: 10px;
+            width: 16px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            min-height: calc(100vh - 60px);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .content-section {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .section-content {
+            padding: 20px;
+        }
+
+        .safety-overview {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        .safety-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .safety-metric {
+            text-align: center;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+
+        .safety-score {
+            font-size: 28px;
+            font-weight: bold;
+            color: #059669;
+        }
+
+        .risk-factors-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .risk-factors-table th,
+        .risk-factors-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .risk-factors-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .maintenance-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .maintenance-table th,
+        .maintenance-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .maintenance-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-off {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .fuel-level {
+            display: flex;
+            align-items: center;
+        }
+
+        .fuel-bar {
+            width: 50px;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin-right: 8px;
+            overflow: hidden;
+        }
+
+        .fuel-fill {
+            height: 100%;
+            background: #059669;
+            transition: width 0.3s;
+        }
+
+        .dispatch-map {
+            height: 500px;
+            background: #f8fafc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .performance-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .performance-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .trend-up {
+            color: #059669;
+        }
+
+        .trend-down {
+            color: #dc2626;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">TRAXOVO ∞</div>
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-section="safety">Safety Overview</div>
+            <div class="nav-tab" data-section="maintenance">Maintenance</div>
+            <div class="nav-tab" data-section="dispatch">Dispatch</div>
+            <div class="nav-tab" data-section="fuel">Fuel & Energy</div>
+            <div class="nav-tab" data-section="training">Training</div>
+            <div class="nav-tab" data-section="reports">Reports</div>
+            <div class="nav-tab" data-section="assets">Assets</div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-title">Fleet Management</div>
+            <div class="sidebar-item active" data-section="safety">
+                <i class="fas fa-shield-alt"></i>
+                Safety Overview
+            </div>
+            <div class="sidebar-item" data-section="maintenance">
+                <i class="fas fa-wrench"></i>
+                Maintenance
+            </div>
+            <div class="sidebar-item" data-section="dispatch">
+                <i class="fas fa-map-marked-alt"></i>
+                Dispatch
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-title">Analytics</div>
+            <div class="sidebar-item" data-section="fuel">
+                <i class="fas fa-gas-pump"></i>
+                Fuel & Energy
+            </div>
+            <div class="sidebar-item" data-section="training">
+                <i class="fas fa-graduation-cap"></i>
+                Training
+            </div>
+            <div class="sidebar-item" data-section="reports">
+                <i class="fas fa-chart-bar"></i>
+                Reports
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-title">Management</div>
+            <div class="sidebar-item" data-section="assets">
+                <i class="fas fa-truck"></i>
+                Assets
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Safety Overview Section -->
+        <div id="safety-section" class="section-content">
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="safety-score">--</div>
+                    <div class="metric-label">Safety Score</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="total-events">--</div>
+                    <div class="metric-label">Total Events</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="coaching-events">--</div>
+                    <div class="metric-label">Coaching Events</div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-header">
+                    <div class="section-title">Risk Factors</div>
+                    <div>Last 7 days</div>
+                </div>
+                <div class="section-content">
+                    <table class="risk-factors-table">
+                        <thead>
+                            <tr>
+                                <th>Risk Factor</th>
+                                <th>Events</th>
+                                <th>Base Risk</th>
+                                <th>Score Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody id="risk-factors-table">
+                            <tr>
+                                <td colspan="4" class="loading">Loading risk factors...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Maintenance Section -->
+        <div id="maintenance-section" class="section-content hidden">
+            <div class="content-section">
+                <div class="section-header">
+                    <div class="section-title">Maintenance Status</div>
+                    <div>Real-time monitoring</div>
+                </div>
+                <div class="section-content">
+                    <table class="maintenance-table">
+                        <thead>
+                            <tr>
+                                <th>Asset</th>
+                                <th>Make</th>
+                                <th>Model</th>
+                                <th>Year</th>
+                                <th>Battery Voltage</th>
+                                <th>Engine Hours</th>
+                                <th>Odometer (mi)</th>
+                                <th>Lamp Codes</th>
+                                <th>Unresolved Defects</th>
+                                <th>Active Faults</th>
+                            </tr>
+                        </thead>
+                        <tbody id="maintenance-table">
+                            <tr>
+                                <td colspan="10" class="loading">Loading maintenance data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dispatch Section -->
+        <div id="dispatch-section" class="section-content hidden">
+            <div class="content-section">
+                <div class="section-header">
+                    <div class="section-title">Live Dispatch Map</div>
+                    <div>Real-time asset tracking</div>
+                </div>
+                <div class="section-content">
+                    <div class="dispatch-map" id="dispatch-map">
+                        Loading dispatch map...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fuel & Energy Section -->
+        <div id="fuel-section" class="section-content hidden">
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="idle-cost">--</div>
+                    <div class="metric-label">Idle Cost Savings</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="efficiency-score">--</div>
+                    <div class="metric-label">Efficiency Score</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="emissions">--</div>
+                    <div class="metric-label">CO2 Emissions</div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-header">
+                    <div class="section-title">Vehicle Performance</div>
+                </div>
+                <div class="section-content">
+                    <div class="performance-grid" id="performance-grid">
+                        <div class="loading">Loading performance data...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training Section -->
+        <div id="training-section" class="section-content hidden">
+            <div class="content-section">
+                <div class="section-header">
+                    <div class="section-title">Training Overview</div>
+                </div>
+                <div class="section-content">
+                    <div class="loading">Loading training data...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reports-section" class="section-content hidden">
+            <div class="content-section">
+                <div class="section-header">
+                    <div class="section-title">Available Reports</div>
+                </div>
+                <div class="section-content">
+                    <div class="loading">Loading reports...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assets Section -->
+        <div id="assets-section" class="section-content hidden">
+            <div class="content-section">
+                <div class="section-header">
+                    <div class="section-title">Asset Overview</div>
+                </div>
+                <div class="section-content">
+                    <table class="maintenance-table">
+                        <thead>
+                            <tr>
+                                <th>Asset ID</th>
+                                <th>Location</th>
+                                <th>Last Trip</th>
+                                <th>Status</th>
+                                <th>Fuel Level</th>
+                                <th>Current Owner</th>
+                                <th>License Plate</th>
+                                <th>Tags</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assets-table">
+                            <tr>
+                                <td colspan="8" class="loading">Loading asset data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation handling
+        document.querySelectorAll('.nav-tab, .sidebar-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                showSection(section);
+                
+                // Update active states
+                document.querySelectorAll('.nav-tab, .sidebar-item').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll(`[data-section="${section}"]`).forEach(el => el.classList.add('active'));
+            });
+        });
+
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(`${sectionName}-section`).classList.remove('hidden');
+            
+            // Load data for the section
+            loadSectionData(sectionName);
+        }
+
+        async function loadSectionData(section) {
+            switch(section) {
+                case 'safety':
+                    await loadSafetyData();
+                    break;
+                case 'maintenance':
+                    await loadMaintenanceData();
+                    break;
+                case 'dispatch':
+                    await loadDispatchData();
+                    break;
+                case 'fuel':
+                    await loadFuelData();
+                    break;
+                case 'assets':
+                    await loadAssetsData();
+                    break;
+            }
+        }
+
+        async function loadSafetyData() {
+            try {
+                const response = await fetch('/api/safety-overview');
+                const data = await response.json();
+                
+                document.getElementById('safety-score').textContent = data.safety_score.overall;
+                document.getElementById('total-events').textContent = data.events.coaching_events + data.events.events_to_review;
+                document.getElementById('coaching-events').textContent = data.events.coaching_events;
+                
+                const tableBody = document.getElementById('risk-factors-table');
+                tableBody.innerHTML = data.risk_factors.map(factor => `
+                    <tr>
+                        <td>${factor.name}</td>
+                        <td>${factor.events}</td>
+                        <td>${factor.base_risk}</td>
+                        <td>${factor.score}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading safety data:', error);
+            }
+        }
+
+        async function loadMaintenanceData() {
+            try {
+                const response = await fetch('/api/maintenance-status');
+                const data = await response.json();
+                
+                const tableBody = document.getElementById('maintenance-table');
+                tableBody.innerHTML = data.maintenance_items.map(item => `
+                    <tr>
+                        <td>${item.asset_id}</td>
+                        <td>${item.make}</td>
+                        <td>${item.model}</td>
+                        <td>${item.year}</td>
+                        <td>${item.battery_voltage}V</td>
+                        <td>${item.engine_hours.toLocaleString()}</td>
+                        <td>${item.odometer.toLocaleString()}</td>
+                        <td><span class="status-badge ${item.lamp_codes === 'Off' ? 'status-off' : ''}">${item.lamp_codes}</span></td>
+                        <td>${item.unresolved_defects}</td>
+                        <td>${item.active_faults}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading maintenance data:', error);
+            }
+        }
+
+        async function loadDispatchData() {
+            document.getElementById('dispatch-map').innerHTML = `
+                <div style="text-align: center;">
+                    <h3>Live Asset Tracking</h3>
+                    <p>152 authenticated jobsites with real-time telemetry</p>
+                    <p style="margin-top: 20px;">Integration with QNIS/PTNI unified mapping system</p>
+                </div>
+            `;
+        }
+
+        async function loadFuelData() {
+            try {
+                const response = await fetch('/api/fuel-energy');
+                const data = await response.json();
+                
+                document.getElementById('idle-cost').textContent = data.costs.idle_cost_savings;
+                document.getElementById('efficiency-score').textContent = data.metrics.driver_efficiency_score;
+                document.getElementById('emissions').textContent = data.metrics.emissions;
+                
+                const grid = document.getElementById('performance-grid');
+                grid.innerHTML = data.vehicle_performance.map(vehicle => `
+                    <div class="performance-card">
+                        <div class="performance-value">${vehicle.efficiency} ${vehicle.efficiency_unit}</div>
+                        <div class="metric-label">${vehicle.asset_id}</div>
+                        <div style="margin-top: 10px; font-size: 12px; color: #666;">${vehicle.fuel_consumed}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading fuel data:', error);
+            }
+        }
+
+        async function loadAssetsData() {
+            try {
+                const response = await fetch('/api/asset-details');
+                const data = await response.json();
+                
+                const tableBody = document.getElementById('assets-table');
+                tableBody.innerHTML = data.assets.map(asset => `
+                    <tr>
+                        <td>${asset.asset_id}</td>
+                        <td>${asset.location}</td>
+                        <td>${asset.last_trip}</td>
+                        <td><span class="status-badge status-off">${asset.status}</span></td>
+                        <td>
+                            <div class="fuel-level">
+                                <div class="fuel-bar">
+                                    <div class="fuel-fill" style="width: ${asset.fuel_level}"></div>
+                                </div>
+                                ${asset.fuel_level}
+                            </div>
+                        </td>
+                        <td>${asset.current_owner}</td>
+                        <td>${asset.license_plate}</td>
+                        <td>${asset.tags.join(', ')}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading assets data:', error);
+            }
+        }
+
+        // Initialize with safety overview
+        loadSectionData('safety');
+    </script>
+</body>
+</html>

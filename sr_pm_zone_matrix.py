@@ -117,12 +117,6 @@ class SRPMZoneMapper:
         }
         
         return authentic_mappings
-                    }
-                ]
-            }
-        }
-        
-        return authentic_mappings
     
     def generate_zone_matrix(self):
         """Generate SR PM to Zone matrix in table format"""

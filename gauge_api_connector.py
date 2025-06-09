@@ -1,129 +1,321 @@
 """
-GAUGE API Connector for Real Asset Data
-Connects to live GAUGE API endpoints for authentic asset tracking
+Real GAUGE API Connector - Using authentic credentials from environment
+Implements full telemetry, asset tracking, and real-time data integration
 """
 
 import os
 import requests
+import json
 import logging
-from datetime import datetime
-from typing import Dict, List, Any
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional
 
 class GaugeAPIConnector:
-    """Connect to live GAUGE API for real asset data"""
-    
     def __init__(self):
-        self.api_key = os.environ.get('GAUGE_API_KEY')
-        self.api_url = os.environ.get('GAUGE_API_URL')
-        self.headers = {
-            'Authorization': f'Bearer {self.api_key}',
-            'Content-Type': 'application/json'
-        }
+        # Load credentials from environment secrets
+        self.api_endpoint = os.environ.get('GAUGE_API_ENDPOINT')
+        self.auth_token = os.environ.get('GAUGE_AUTH_TOKEN') 
+        self.client_id = os.environ.get('GAUGE_CLIENT_ID')
+        self.client_secret = os.environ.get('GAUGE_CLIENT_SECRET')
         
-        # Fallback data only if API fails
-        self.fallback_data = {
-            'total_assets': 529,
-            'active_assets': 461,
-            'utilization_rate': 87.1,
-            'annual_savings': 368500,
-            'organizations': {
-                'ragle_inc': {'assets': 284, 'active': 247},
-                'select_maintenance': {'assets': 198, 'active': 172},
-                'unified_specialties': {'assets': 47, 'active': 42}
-            }
-        }
+        self.session = requests.Session()
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'User-Agent': 'TRAXOVO-NEXUS-API/1.0'
+        })
         
-    def call_gauge_api(self, endpoint: str) -> Dict[str, Any]:
-        """Make authenticated API call to GAUGE system"""
+        self.authenticated = False
+        self.access_token = None
+        self.last_auth_time = None
+        
+        if self.auth_token:
+            self.session.headers.update({'Authorization': f'Bearer {self.auth_token}'})
+            self.authenticated = True
+    
+    def authenticate(self):
+        """Authenticate with GAUGE API using provided credentials"""
+        if not self.api_endpoint or not self.client_id:
+            logging.error("GAUGE API credentials not configured")
+            return False
+        
         try:
-            if not self.api_key or not self.api_url:
-                logging.warning("GAUGE API credentials not configured, using fallback data")
-                return None
-                
-            url = f"{self.api_url.rstrip('/')}/{endpoint.lstrip('/')}"
+            auth_url = f"{self.api_endpoint}/oauth/token"
+            auth_data = {
+                'grant_type': 'client_credentials',
+                'client_id': self.client_id,
+                'client_secret': self.client_secret,
+                'scope': 'read:assets read:telemetry read:maintenance'
+            }
             
-            # Handle SSL certificate issues for GAUGE API
-            response = requests.get(
-                url, 
-                headers=self.headers, 
-                timeout=10,
-                verify=False  # Bypass SSL verification for GAUGE API
-            )
+            response = self.session.post(auth_url, json=auth_data, timeout=30)
             
             if response.status_code == 200:
-                logging.info(f"GAUGE API success: {endpoint}")
-                return response.json()
+                token_data = response.json()
+                self.access_token = token_data.get('access_token')
+                self.session.headers.update({
+                    'Authorization': f'Bearer {self.access_token}'
+                })
+                self.authenticated = True
+                self.last_auth_time = datetime.now()
+                logging.info("✓ GAUGE API authentication successful")
+                return True
             else:
-                logging.error(f"GAUGE API error {response.status_code}: {response.text}")
-                return None
+                logging.error(f"GAUGE API auth failed: {response.status_code} - {response.text}")
+                return False
                 
         except Exception as e:
-            logging.error(f"GAUGE API connection failed: {e}")
-            return None
+            logging.error(f"GAUGE API authentication error: {e}")
+            return False
     
-    def get_fleet_efficiency(self):
-        """Get fleet efficiency from live GAUGE API"""
-        data = self.call_gauge_api('/api/fleet/efficiency')
-        return data.get('efficiency_percentage', 94.2) if data else 94.2
+    def test_connection(self):
+        """Test GAUGE API connection and authentication"""
+        if not self.authenticated and not self.authenticate():
+            return {
+                'status': 'error',
+                'message': 'Failed to authenticate with GAUGE API',
+                'connected': False,
+                'last_sync': None
+            }
+        
+        try:
+            # Test with health check endpoint
+            health_url = f"{self.api_endpoint}/api/v1/health"
+            response = self.session.get(health_url, timeout=15)
+            
+            if response.status_code == 200:
+                return {
+                    'status': 'connected',
+                    'message': 'GAUGE API connection successful',
+                    'connected': True,
+                    'last_sync': datetime.now().isoformat(),
+                    'endpoint': self.api_endpoint,
+                    'response_time': f"{response.elapsed.total_seconds():.2f}s"
+                }
+            else:
+                return {
+                    'status': 'error',
+                    'message': f'GAUGE API returned {response.status_code}',
+                    'connected': False,
+                    'last_sync': None
+                }
+                
+        except requests.exceptions.Timeout:
+            return {
+                'status': 'timeout',
+                'message': 'GAUGE API connection timeout',
+                'connected': False,
+                'last_sync': None
+            }
+        except Exception as e:
+            return {
+                'status': 'error',
+                'message': f'Connection error: {str(e)}',
+                'connected': False,
+                'last_sync': None
+            }
     
-    def get_attendance_rate(self):
-        """Get attendance rate from live GAUGE API"""
-        data = self.call_gauge_api('/api/workforce/attendance')
-        return data.get('attendance_rate', 97.8) if data else 97.8
+    def get_fleet_assets(self):
+        """Retrieve complete fleet asset inventory from GAUGE API"""
+        if not self.authenticated and not self.authenticate():
+            return []
+        
+        try:
+            assets_url = f"{self.api_endpoint}/api/v1/assets"
+            response = self.session.get(assets_url, timeout=30)
+            
+            if response.status_code == 200:
+                assets_data = response.json()
+                return self.process_asset_data(assets_data)
+            else:
+                logging.error(f"Failed to fetch assets: {response.status_code}")
+                return []
+                
+        except Exception as e:
+            logging.error(f"Error fetching fleet assets: {e}")
+            return []
     
-    def get_asset_utilization(self):
-        """Get asset utilization from live GAUGE API"""
-        data = self.call_gauge_api('/api/assets/utilization')
-        return data.get('utilization_rate', self.fallback_data['utilization_rate']) if data else self.fallback_data['utilization_rate']
+    def get_real_time_telemetry(self, asset_ids: List[str] = None):
+        """Get real-time telemetry data for specified assets"""
+        if not self.authenticated and not self.authenticate():
+            return {}
+        
+        try:
+            telemetry_url = f"{self.api_endpoint}/api/v1/telemetry/live"
+            params = {}
+            if asset_ids:
+                params['asset_ids'] = ','.join(asset_ids)
+            
+            response = self.session.get(telemetry_url, params=params, timeout=30)
+            
+            if response.status_code == 200:
+                telemetry_data = response.json()
+                return self.process_telemetry_data(telemetry_data)
+            else:
+                logging.error(f"Failed to fetch telemetry: {response.status_code}")
+                return {}
+                
+        except Exception as e:
+            logging.error(f"Error fetching telemetry: {e}")
+            return {}
     
-    def calculate_monthly_savings(self):
-        """Get monthly savings from live GAUGE API"""
-        data = self.call_gauge_api('/api/financial/savings')
-        if data:
-            return data.get('monthly_savings', self.fallback_data['annual_savings'] / 12)
-        return self.fallback_data['annual_savings'] / 12
+    def get_maintenance_schedule(self):
+        """Retrieve maintenance scheduling data from GAUGE API"""
+        if not self.authenticated and not self.authenticate():
+            return []
+        
+        try:
+            maintenance_url = f"{self.api_endpoint}/api/v1/maintenance/schedule"
+            response = self.session.get(maintenance_url, timeout=30)
+            
+            if response.status_code == 200:
+                maintenance_data = response.json()
+                return self.process_maintenance_data(maintenance_data)
+            else:
+                logging.error(f"Failed to fetch maintenance data: {response.status_code}")
+                return []
+                
+        except Exception as e:
+            logging.error(f"Error fetching maintenance data: {e}")
+            return []
     
-    def get_asset_count(self):
-        """Get total asset count from live GAUGE API"""
-        data = self.call_gauge_api('/api/assets/count')
-        return data.get('total_assets', self.fallback_data['total_assets']) if data else self.fallback_data['total_assets']
+    def get_asset_locations(self):
+        """Get GPS locations for all fleet assets"""
+        if not self.authenticated and not self.authenticate():
+            return {}
+        
+        try:
+            locations_url = f"{self.api_endpoint}/api/v1/assets/locations"
+            response = self.session.get(locations_url, timeout=30)
+            
+            if response.status_code == 200:
+                location_data = response.json()
+                return self.process_location_data(location_data)
+            else:
+                logging.error(f"Failed to fetch locations: {response.status_code}")
+                return {}
+                
+        except Exception as e:
+            logging.error(f"Error fetching asset locations: {e}")
+            return {}
     
-    def get_live_asset_positions(self):
-        """Get real-time asset positions from GAUGE API"""
-        data = self.call_gauge_api('/api/assets/positions')
-        if data and 'assets' in data:
-            return data['assets']
-        return []
+    def process_asset_data(self, raw_data):
+        """Process raw asset data from GAUGE API"""
+        processed_assets = []
+        
+        assets = raw_data.get('assets', []) if isinstance(raw_data, dict) else raw_data
+        
+        for asset in assets:
+            processed_asset = {
+                'asset_id': asset.get('id'),
+                'asset_type': asset.get('type'),
+                'make': asset.get('make'),
+                'model': asset.get('model'),
+                'year': asset.get('year'),
+                'serial_number': asset.get('serial_number'),
+                'status': asset.get('status', 'active'),
+                'location': asset.get('last_known_location'),
+                'engine_hours': asset.get('engine_hours', 0),
+                'odometer': asset.get('odometer', 0),
+                'fuel_level': asset.get('fuel_level'),
+                'battery_voltage': asset.get('battery_voltage'),
+                'last_update': asset.get('last_update'),
+                'division': asset.get('division'),
+                'project': asset.get('current_project')
+            }
+            processed_assets.append(processed_asset)
+        
+        return processed_assets
     
-    def get_system_metrics(self):
-        """Get system performance metrics"""
-        return {
-            'uptime_percentage': 99.7,
-            'response_time_ms': 230,
-            'data_accuracy': 98.5
+    def process_telemetry_data(self, raw_data):
+        """Process real-time telemetry data"""
+        processed_telemetry = {}
+        
+        telemetry = raw_data.get('telemetry', {}) if isinstance(raw_data, dict) else raw_data
+        
+        for asset_id, data in telemetry.items():
+            processed_telemetry[asset_id] = {
+                'timestamp': data.get('timestamp'),
+                'location': {
+                    'latitude': data.get('latitude'),
+                    'longitude': data.get('longitude'),
+                    'altitude': data.get('altitude')
+                },
+                'engine': {
+                    'hours': data.get('engine_hours'),
+                    'rpm': data.get('engine_rpm'),
+                    'temperature': data.get('engine_temp'),
+                    'oil_pressure': data.get('oil_pressure')
+                },
+                'fuel': {
+                    'level': data.get('fuel_level'),
+                    'consumption_rate': data.get('fuel_consumption'),
+                    'tank_capacity': data.get('tank_capacity')
+                },
+                'operational': {
+                    'status': data.get('operational_status'),
+                    'idle_time': data.get('idle_time'),
+                    'working_time': data.get('working_time'),
+                    'utilization': data.get('utilization_pct')
+                }
+            }
+        
+        return processed_telemetry
+    
+    def process_maintenance_data(self, raw_data):
+        """Process maintenance scheduling data"""
+        processed_maintenance = []
+        
+        maintenance_items = raw_data.get('maintenance', []) if isinstance(raw_data, dict) else raw_data
+        
+        for item in maintenance_items:
+            processed_item = {
+                'asset_id': item.get('asset_id'),
+                'maintenance_type': item.get('type'),
+                'due_date': item.get('due_date'),
+                'due_hours': item.get('due_hours'),
+                'priority': item.get('priority', 'medium'),
+                'description': item.get('description'),
+                'estimated_cost': item.get('estimated_cost'),
+                'estimated_downtime': item.get('estimated_downtime'),
+                'vendor': item.get('vendor'),
+                'status': item.get('status', 'scheduled')
+            }
+            processed_maintenance.append(processed_item)
+        
+        return processed_maintenance
+    
+    def process_location_data(self, raw_data):
+        """Process GPS location data"""
+        processed_locations = {}
+        
+        locations = raw_data.get('locations', {}) if isinstance(raw_data, dict) else raw_data
+        
+        for asset_id, location in locations.items():
+            processed_locations[asset_id] = {
+                'latitude': location.get('lat'),
+                'longitude': location.get('lng'),
+                'timestamp': location.get('timestamp'),
+                'address': location.get('address'),
+                'site_name': location.get('site_name'),
+                'geofence': location.get('geofence'),
+                'speed': location.get('speed'),
+                'heading': location.get('heading')
+            }
+        
+        return processed_locations
+    
+    def get_comprehensive_dashboard_data(self):
+        """Get all data needed for comprehensive dashboard"""
+        dashboard_data = {
+            'connection_status': self.test_connection(),
+            'fleet_assets': self.get_fleet_assets(),
+            'telemetry': self.get_real_time_telemetry(),
+            'maintenance': self.get_maintenance_schedule(),
+            'locations': self.get_asset_locations(),
+            'last_updated': datetime.now().isoformat()
         }
-    
-    def get_performance_summary(self):
-        """Get performance summary from authenticated sources"""
-        return {
-            'efficiency': self.get_fleet_efficiency(),
-            'utilization': self.get_asset_utilization(),
-            'savings': self.calculate_monthly_savings(),
-            'attendance': self.get_attendance_rate()
-        }
+        
+        return dashboard_data
 
-def get_live_gauge_data() -> Dict[str, Any]:
-    """Get live data from authenticated TRAXOVO sources"""
-    
-    connector = GaugeAPIConnector()
-    
-    return {
-        'assets_tracked': connector.get_asset_count(),
-        'system_uptime': connector.get_system_metrics()['uptime_percentage'],
-        'annual_savings': connector.authenticated_data['annual_savings'],
-        'utilization_rate': connector.get_asset_utilization(),
-        'fleet_efficiency': connector.get_fleet_efficiency(),
-        'attendance_rate': connector.get_attendance_rate(),
-        'last_updated': datetime.now().isoformat(),
-        'data_source': 'TRAXOVO_AUTHENTICATED_DATA'
-    }
+# Initialize global GAUGE connector
+gauge_connector = GaugeAPIConnector()

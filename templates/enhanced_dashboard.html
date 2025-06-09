@@ -623,10 +623,10 @@
         }
     </style>
 </head>
-<body>
-    <div class="header">
-        <div class="logo">TRAXOVO ∞</div>
-        <div class="nav-tabs">
+<body class="traxovo-container nexus-stable-layout nexus-gpu-accelerated">
+    <div class="header nexus-layer-nav nexus-stable-layout">
+        <div class="logo nexus-text-wrap">TRAXOVO ∞</div>
+        <div class="nav-tabs nexus-flex nexus-flex-row">
             <div class="nav-tab active" data-section="safety">Safety Overview</div>
             <div class="nav-tab" data-section="maintenance">Maintenance</div>
             <div class="nav-tab" data-section="dispatch">Dispatch</div>
@@ -645,9 +645,9 @@
         </div>
     </div>
 
-    <div class="sidebar">
-        <div class="sidebar-section">
-            <div class="sidebar-title">Fleet Management</div>
+    <div class="sidebar nexus-layer-sidebar nexus-stable-layout">
+        <div class="sidebar-section nexus-flex nexus-flex-column">
+            <div class="sidebar-title nexus-text-wrap">Fleet Management</div>
             <div class="sidebar-item active" data-section="safety">
                 <i class="fas fa-shield-alt"></i>
                 Safety Overview
@@ -703,30 +703,30 @@
         <span class="status-text">GAUGE STREAM LIVE</span>
     </div>
 
-    <div class="main-content">
+    <div class="main-content nexus-layer-content nexus-stable-layout">
         <!-- Safety Overview Section -->
-        <div id="safety-section" class="section-content">
-            <div class="dashboard-grid">
-                <div class="metric-card">
+        <div id="safety-section" class="section-content nexus-flex nexus-flex-column">
+            <div class="dashboard-grid nexus-grid-layout">
+                <div class="metric-card nexus-card-stable">
                     <div class="metric-value" id="safety-score">--</div>
                     <div class="metric-label">Safety Score</div>
                 </div>
-                <div class="metric-card">
+                <div class="metric-card nexus-card-stable">
                     <div class="metric-value" id="total-events">--</div>
                     <div class="metric-label">Total Events</div>
                 </div>
-                <div class="metric-card">
+                <div class="metric-card nexus-card-stable">
                     <div class="metric-value" id="coaching-events">--</div>
                     <div class="metric-label">Coaching Events</div>
                 </div>
             </div>
 
-            <div class="content-section">
-                <div class="section-header">
-                    <div class="section-title">Risk Factors</div>
-                    <div>Last 7 days</div>
+            <div class="content-section nexus-section-stable">
+                <div class="section-header nexus-flex nexus-flex-row">
+                    <div class="section-title nexus-text-wrap">Risk Factors</div>
+                    <div class="nexus-text-wrap">Last 7 days</div>
                 </div>
-                <div class="section-content">
+                <div class="section-content nexus-container-fluid">
                     <table class="risk-factors-table">
                         <thead>
                             <tr>

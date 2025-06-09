@@ -87,6 +87,58 @@ def asset_map():
     """Full-screen mobile-friendly asset tracking map with shortened IDs"""
     return render_template('asset_tracking_map.html')
 
+@app.route('/admin/users')
+def admin_users():
+    """User management for admin users only"""
+    from flask import session, redirect, jsonify
+    from models import User
+    
+    if not session.get('authenticated') or session.get('user_role') != 'admin':
+        return redirect('/login')
+    
+    users = User.query.filter(~User.username.in_(['troy', 'william'])).all()
+    return render_template('admin_users.html', users=[u.to_dict() for u in users])
+
+@app.route('/admin/add-user', methods=['POST'])
+def admin_add_user():
+    """Add new user (excluding Troy and William)"""
+    from flask import request, session, redirect, jsonify
+    from models import User, db
+    
+    if not session.get('authenticated') or session.get('user_role') != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    username = request.form.get('username', '').lower().strip()
+    password = request.form.get('password', '')
+    email = request.form.get('email', '')
+    role = request.form.get('role', 'user')
+    
+    # Block Troy and William
+    if username in ['troy', 'william']:
+        return jsonify({'error': 'Cannot create user with restricted username'}), 400
+    
+    # Check if user exists
+    if User.query.filter_by(username=username).first():
+        return jsonify({'error': 'Username already exists'}), 400
+    
+    # Create new user
+    try:
+        new_user = User(username=username, email=email, role=role)
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'User {username} created successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/logout')
+def logout():
+    """Logout user"""
+    from flask import session, redirect
+    session.clear()
+    return redirect('/')
+
 @app.route('/api/test-gauge-connection', methods=['POST'])
 def api_test_gauge_connection():
     """Test GAUGE API connection with provided credentials"""

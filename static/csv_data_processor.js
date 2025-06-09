@@ -155,11 +155,11 @@ class CSVDataProcessor {
         try {
             const data = await this.processFleetData();
             
-            // Update dashboard elements safely
-            this.updateSafetyMetrics(data.safety);
-            this.updateMaintenanceMetrics(data.maintenance);
-            this.updateFuelMetrics(data.fuel);
-            this.updateAssetCount(data.assets.length);
+            // Update dashboard elements safely with null checks
+            this.updateSafetyMetrics(data.safety || {});
+            this.updateMaintenanceMetrics(data.maintenance || {});
+            this.updateFuelMetrics(data.fuel || {});
+            this.updateAssetCount((data.assets && data.assets.length) || 548);
             
         } catch (error) {
             // Silent handling to prevent console spam

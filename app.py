@@ -99,12 +99,7 @@ def asset_map():
     # Temporary: Allow access for testing
     return render_template('asset_tracking_map.html')
 
-@app.route('/logout')
-def logout():
-    """Logout and return to landing page"""
-    session.clear()
-    flash('Successfully logged out', 'info')
-    return redirect('/')
+# Logout route defined below to avoid duplicates
 
 # GAUGE Zone Management API Endpoints
 @app.route('/api/automation/execute', methods=['POST'])
@@ -1477,7 +1472,7 @@ def login():
 def logout():
     """Logout and clear session"""
     session.clear()
-    return redirect(url_for('index'))
+    return redirect('/')
 
 @app.route('/dashboard')
 def executive_dashboard():

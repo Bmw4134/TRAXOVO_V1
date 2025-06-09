@@ -125,6 +125,9 @@ def watson_auth():
     username = request.form.get('username', '').strip().lower()
     password = request.form.get('password', '').strip()
     
+    # Debug logging
+    logging.info(f"Authentication attempt - Username: '{username}', Password length: {len(password)}")
+    
     # Tier 1: Exclusive superuser access - only nexus, brett, or watson
     superuser_credentials = {
         'nexus': 'Btpp$1513!',
@@ -132,14 +135,18 @@ def watson_auth():
         'watson': 'Btpp$1513!'
     }
     
-    if username in superuser_credentials and password == superuser_credentials[username]:
-        session['watson_authenticated'] = True
-        session['authenticated'] = True
-        session['username'] = username
-        session['user_level'] = 'nexus_superuser'
-        session['authentication_time'] = datetime.now().isoformat()
-        logging.info(f"NEXUS Superuser authenticated: {username} - Full system access granted")
-        return redirect('/dashboard')
+    # Debug the credential check
+    if username in superuser_credentials:
+        expected_password = superuser_credentials[username]
+        logging.info(f"Found superuser '{username}', checking password match: {password == expected_password}")
+        if password == expected_password:
+            session['watson_authenticated'] = True
+            session['authenticated'] = True
+            session['username'] = username
+            session['user_level'] = 'nexus_superuser'
+            session['authentication_time'] = datetime.now().isoformat()
+            logging.info(f"NEXUS Superuser authenticated: {username} - Full system access granted")
+            return redirect('/dashboard')
     
     # Tier 2: Regular user access - first name for both username and password
     if username == password and len(username) >= 2 and username.isalpha():

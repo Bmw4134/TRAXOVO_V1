@@ -5152,9 +5152,12 @@ def api_traxovo_fleet_recommendations():
 
 @app.route('/qnis-attendance-matrix')
 def qnis_attendance_matrix():
-    """QNIS Unified Attendance Matrix Interface"""
-    if not session.get('authenticated'):
-        return redirect('/')
+    """QNIS Unified Attendance Matrix Interface - Direct Access"""
+    return render_template('qnis_attendance_matrix.html')
+
+@app.route('/attendance-matrix')
+def attendance_matrix_direct():
+    """Direct access to QNIS Attendance Matrix"""
     return render_template('qnis_attendance_matrix.html')
 
 @app.route('/api/qnis/upload-attendance-data', methods=['POST'])

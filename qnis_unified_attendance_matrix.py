@@ -644,6 +644,163 @@ class QNISUnifiedAttendanceMatrix:
                 } for row in attendance_data
             ]
         }
+    
+    def _generate_asset_utilization_report(self, parameters, conn):
+        """Generate asset utilization analytics report"""
+        cursor = conn.cursor()
+        
+        start_date = parameters.get('start_date', datetime.now().date() - timedelta(days=30))
+        end_date = parameters.get('end_date', datetime.now().date())
+        
+        cursor.execute('''
+            SELECT 
+                asset_id,
+                COUNT(*) as usage_days,
+                SUM(time_on_site_hours) as total_hours,
+                AVG(time_on_site_hours) as avg_daily_hours,
+                geofence_zone,
+                project_code
+            FROM asset_time_on_site 
+            WHERE recorded_timestamp BETWEEN ? AND ?
+            GROUP BY asset_id, geofence_zone
+            ORDER BY total_hours DESC
+        ''', (start_date, end_date))
+        
+        asset_data = cursor.fetchall()
+        
+        return {
+            "report_type": "asset_utilization",
+            "period": f"{start_date} to {end_date}",
+            "total_assets": len(set([row[0] for row in asset_data])),
+            "utilization_data": [
+                {
+                    "asset_id": row[0],
+                    "usage_days": row[1],
+                    "total_hours": row[2],
+                    "avg_daily_hours": round(row[3], 2),
+                    "zone": row[4],
+                    "project": row[5]
+                } for row in asset_data
+            ]
+        }
+    
+    def _generate_driving_analytics(self, parameters, conn):
+        """Generate comprehensive driving analytics"""
+        cursor = conn.cursor()
+        
+        start_date = parameters.get('start_date', datetime.now().date() - timedelta(days=30))
+        end_date = parameters.get('end_date', datetime.now().date())
+        
+        cursor.execute('''
+            SELECT 
+                driver_id,
+                COUNT(*) as trip_count,
+                SUM(total_miles) as total_miles,
+                SUM(driving_time_hours) as total_hours,
+                AVG(total_miles) as avg_trip_miles,
+                start_geofence,
+                end_geofence
+            FROM driving_history 
+            WHERE trip_date BETWEEN ? AND ?
+            GROUP BY driver_id, start_geofence, end_geofence
+            ORDER BY total_miles DESC
+        ''', (start_date, end_date))
+        
+        driving_data = cursor.fetchall()
+        
+        return {
+            "report_type": "driving_analytics",
+            "period": f"{start_date} to {end_date}",
+            "total_drivers": len(set([row[0] for row in driving_data])),
+            "driving_data": [
+                {
+                    "driver_id": row[0],
+                    "trip_count": row[1],
+                    "total_miles": row[2],
+                    "total_hours": row[3],
+                    "avg_trip_miles": round(row[4], 2),
+                    "start_zone": row[5],
+                    "end_zone": row[6]
+                } for row in driving_data
+            ]
+        }
+    
+    def _generate_geofence_analysis(self, parameters, conn):
+        """Generate geofence zone analysis"""
+        cursor = conn.cursor()
+        
+        start_date = parameters.get('start_date', datetime.now().date() - timedelta(days=30))
+        end_date = parameters.get('end_date', datetime.now().date())
+        
+        # Analyze attendance by geofence zone
+        cursor.execute('''
+            SELECT 
+                geofence_zone,
+                COUNT(*) as attendance_events,
+                SUM(total_hours) as total_hours,
+                COUNT(DISTINCT employee_id) as unique_employees
+            FROM attendance_matrix 
+            WHERE date BETWEEN ? AND ? AND geofence_zone IS NOT NULL
+            GROUP BY geofence_zone
+            ORDER BY total_hours DESC
+        ''', (start_date, end_date))
+        
+        geofence_data = cursor.fetchall()
+        
+        return {
+            "report_type": "geofence_analysis",
+            "period": f"{start_date} to {end_date}",
+            "zone_analytics": [
+                {
+                    "zone": row[0] or "unassigned",
+                    "attendance_events": row[1],
+                    "total_hours": row[2],
+                    "unique_employees": row[3],
+                    "avg_hours_per_employee": round(row[2] / row[3], 2) if row[3] > 0 else 0
+                } for row in geofence_data
+            ]
+        }
+    
+    def _generate_discrepancy_report(self, parameters, conn):
+        """Generate data discrepancy analysis report"""
+        cursor = conn.cursor()
+        
+        start_date = parameters.get('start_date', datetime.now().date() - timedelta(days=30))
+        end_date = parameters.get('end_date', datetime.now().date())
+        
+        # Find attendance records without matching timecard data
+        cursor.execute('''
+            SELECT 
+                am.employee_id,
+                am.employee_name,
+                am.date,
+                am.total_hours as attendance_hours,
+                am.data_source,
+                COUNT(*) as record_count
+            FROM attendance_matrix am
+            WHERE am.date BETWEEN ? AND ?
+            GROUP BY am.employee_id, am.date, am.data_source
+            HAVING COUNT(*) > 1
+            ORDER BY am.employee_id, am.date
+        ''', (start_date, end_date))
+        
+        discrepancy_data = cursor.fetchall()
+        
+        return {
+            "report_type": "discrepancy_report",
+            "period": f"{start_date} to {end_date}",
+            "discrepancies_found": len(discrepancy_data),
+            "discrepancy_details": [
+                {
+                    "employee_id": row[0],
+                    "employee_name": row[1],
+                    "date": row[2],
+                    "attendance_hours": row[3],
+                    "data_source": row[4],
+                    "duplicate_records": row[5]
+                } for row in discrepancy_data
+            ]
+        }
 
 def process_uploaded_file(file_path: str, file_type: str, system_source: str = None):
     """Main function to process uploaded attendance/asset files"""
@@ -656,7 +813,7 @@ def process_uploaded_file(file_path: str, file_type: str, system_source: str = N
     elif file_type == "activity_detail":
         return matrix.upload_activity_detail_report(file_path)
     elif file_type == "timecards":
-        return matrix.upload_timecards(file_path, system_source or "unknown")
+        return matrix.upload_timecards(file_path, system_source if system_source else "unknown")
     else:
         return {"error": "Unknown file type", "supported_types": [
             "driving_history", "assets_time_on_site", "activity_detail", "timecards"

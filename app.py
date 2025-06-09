@@ -5150,6 +5150,131 @@ def api_traxovo_fleet_recommendations():
             "timestamp": datetime.now().isoformat()
         })
 
+@app.route('/qnis-attendance-matrix')
+def qnis_attendance_matrix():
+    """QNIS Unified Attendance Matrix Interface"""
+    if not session.get('authenticated'):
+        return redirect('/')
+    return render_template('qnis_attendance_matrix.html')
+
+@app.route('/api/qnis/upload-attendance-data', methods=['POST'])
+def api_qnis_upload_attendance_data():
+    """Upload and process attendance/asset data files"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file provided'})
+        
+        file = request.files['file']
+        file_type = request.form.get('file_type', 'unknown')
+        system_source = request.form.get('system_source', 'unknown')
+        
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'})
+        
+        # Save uploaded file temporarily
+        import tempfile
+        import os
+        temp_dir = tempfile.mkdtemp()
+        file_path = os.path.join(temp_dir, file.filename)
+        file.save(file_path)
+        
+        # Process file with QNIS matrix
+        from qnis_unified_attendance_matrix import process_uploaded_file
+        result = process_uploaded_file(file_path, file_type, system_source)
+        
+        # Clean up temp file
+        os.remove(file_path)
+        os.rmdir(temp_dir)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        })
+
+@app.route('/api/qnis/generate-attendance-report', methods=['POST'])
+def api_qnis_generate_attendance_report():
+    """Generate comprehensive attendance analytics reports"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        data = request.get_json()
+        report_type = data.get('report_type', 'attendance_summary')
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        
+        from qnis_unified_attendance_matrix import QNISUnifiedAttendanceMatrix
+        matrix = QNISUnifiedAttendanceMatrix()
+        
+        parameters = {
+            'start_date': start_date,
+            'end_date': end_date
+        }
+        
+        result = matrix.generate_comprehensive_report(report_type, parameters)
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        })
+
+@app.route('/api/qnis/attendance-overview')
+def api_qnis_attendance_overview():
+    """Get overview statistics for QNIS attendance matrix"""
+    if not session.get('authenticated'):
+        return jsonify({'status': 'error', 'message': 'Authentication required'})
+    
+    try:
+        from qnis_unified_attendance_matrix import QNISUnifiedAttendanceMatrix
+        import sqlite3
+        
+        matrix = QNISUnifiedAttendanceMatrix()
+        conn = sqlite3.connect(matrix.database_file)
+        cursor = conn.cursor()
+        
+        # Get employee count
+        cursor.execute('SELECT COUNT(DISTINCT employee_id) FROM attendance_matrix')
+        total_employees = cursor.fetchone()[0] or 0
+        
+        # Get asset count
+        cursor.execute('SELECT COUNT(DISTINCT asset_id) FROM asset_time_on_site')
+        total_assets = cursor.fetchone()[0] or 0
+        
+        # Get total hours last 30 days
+        from datetime import datetime, timedelta
+        thirty_days_ago = datetime.now().date() - timedelta(days=30)
+        cursor.execute('SELECT SUM(total_hours) FROM attendance_matrix WHERE date >= ?', (thirty_days_ago,))
+        total_hours = cursor.fetchone()[0] or 0
+        
+        # Get geofence events
+        cursor.execute('SELECT COUNT(*) FROM attendance_matrix WHERE geofence_zone IS NOT NULL')
+        geofence_events = cursor.fetchone()[0] or 0
+        
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'total_employees': total_employees,
+            'total_assets': total_assets,
+            'total_hours': int(total_hours),
+            'geofence_events': geofence_events,
+            'consciousness_level': 15
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        })
+
 @app.route('/api/traxovo/agent-status')
 def api_traxovo_agent_status():
     """Get TRAXOVO agent status - Requires Authentication"""

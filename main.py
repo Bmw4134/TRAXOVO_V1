@@ -134,11 +134,7 @@ def watson_auth():
     # Return to landing with error indicator
     return redirect('/?auth_error=1')
 
-@app.route('/logout')
-def logout():
-    """Clear session and return to landing page"""
-    session.clear()
-    return redirect('/')
+
 
 @app.route('/login')
 def login_page():
@@ -205,11 +201,7 @@ def enterprise_dashboard():
     """TRAXOVO ∞ Enterprise Dashboard"""
     return render_template('enhanced_dashboard.html')
 
-@app.route('/logout')
-def logout():
-    """Logout user"""
-    session.clear()
-    return redirect('/')
+
 
 # Watson superuser API endpoints
 @app.route('/api/watson-superuser-status')

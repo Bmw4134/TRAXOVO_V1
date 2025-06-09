@@ -18,6 +18,7 @@ from nexus_auth_gatekeeper import setup_auth_routes, require_auth, verify_deploy
 from gauge_zone_mapper import GaugeZoneMapper
 from qnis_deployment_validator import QNISDeploymentValidator, get_real_deployment_metrics
 from csv_error_handler import csv_handler, get_fleet_metrics
+from equipment_billing_processor import equipment_processor
 import openai
 # Enhanced dashboard routes will be defined directly in this file
 
@@ -6826,6 +6827,55 @@ def api_asset_data():
     except Exception as e:
         logging.error(f"Asset data error: {e}")
         return jsonify({'error': str(e), 'total_assets': 0})
+
+@app.route('/api/equipment-billing')
+def equipment_billing():
+    """Equipment Billing API - Internal Monthly Fixed Rates"""
+    try:
+        billing_data = equipment_processor.calculate_monthly_billing()
+        return jsonify(billing_data)
+    except Exception as e:
+        logging.error(f"Equipment billing error: {e}")
+        return jsonify({'error': str(e), 'status': 'failed'})
+
+@app.route('/api/equipment-profitability')
+def equipment_profitability():
+    """Equipment Profitability Analysis API"""
+    try:
+        profitability_data = equipment_processor.get_equipment_profitability_analysis()
+        return jsonify(profitability_data)
+    except Exception as e:
+        logging.error(f"Equipment profitability error: {e}")
+        return jsonify({'error': str(e), 'status': 'failed'})
+
+@app.route('/api/qnis-chat', methods=['POST'])
+def qnis_chat():
+    """QNIS Level 15 Chat Interface"""
+    try:
+        data = request.get_json()
+        message = data.get('message', '')
+        
+        # QNIS context from equipment billing and fleet data
+        fleet_metrics = get_fleet_metrics()
+        billing_data = equipment_processor.calculate_monthly_billing()
+        
+        context = f"""
+        Current Fleet Status: {fleet_metrics.get('success_rate', 0)}% processing success
+        Total Assets: {fleet_metrics.get('total_assets', 0)}
+        Equipment Billing: ${billing_data.get('total_billing', 0):,.2f} monthly
+        Platform: TRAXOVO ∞ Clarity Core - QNIS Level 15
+        """
+        
+        system_prompt = f"""You are QNIS (Quantum Neural Intelligence System) Level 15, an advanced AI assistant for TRAXOVO ∞ Clarity Core enterprise platform.
+
+Current Context: {context}
+
+You have access to:
+- Real-time fleet management data for 548 assets
+- Equipment billing with internal monthly fixed rates
+- Safety metrics, maintenance tracking, fuel analytics
+- Multi-division operations across 152 jobsites
+
 Be professional, knowledgeable, and helpful. Highlight specific platform capabilities and demonstrate deep understanding of enterprise operations. Keep responses concise but informative."""
         # Import OpenAI client
         from openai import OpenAI

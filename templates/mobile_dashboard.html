@@ -12,23 +12,25 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
-            background: #000;
-            color: #fff;
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #e0e6ed;
             overflow-x: hidden;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
+            min-height: 100vh;
         }
 
-        /* Mobile App Header */
+        /* Enterprise Command Header */
         .app-header {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            padding: 20px 20px 15px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
+            padding: 16px 20px 12px 20px;
+            border-bottom: 2px solid rgba(64, 168, 255, 0.2);
             position: sticky;
             top: 0;
             z-index: 100;
+            backdrop-filter: blur(20px);
         }
 
         .header-content {
@@ -38,9 +40,11 @@
         }
 
         .app-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #00ff88;
+            font-size: 16px;
+            font-weight: 600;
+            color: #40a8ff;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .header-stats {
@@ -48,30 +52,32 @@
             color: #888;
         }
 
-        /* Clean Navigation Tabs */
+        /* Enterprise Navigation Control */
         .nav-tabs {
             display: flex;
-            background: #1a1a1a;
+            background: linear-gradient(90deg, #0f1419 0%, #1a2332 100%);
             padding: 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 2px solid rgba(64, 168, 255, 0.15);
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
 
         .nav-tab {
             flex: 1;
-            min-width: 80px;
-            padding: 15px 10px;
+            min-width: 100px;
+            padding: 14px 12px;
             text-align: center;
             background: none;
             border: none;
-            color: #888;
-            font-size: 12px;
-            font-weight: 500;
+            color: #8596a5;
+            font-size: 11px;
+            font-weight: 600;
             cursor: pointer;
             position: relative;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s ease;
             overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .nav-tab::before {
@@ -81,10 +87,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 136, 0.05));
+            background: linear-gradient(135deg, rgba(64, 168, 255, 0.08), rgba(64, 168, 255, 0.03));
             transform: scaleX(0);
             transform-origin: left;
-            transition: transform 0.3s ease;
+            transition: transform 0.2s ease;
         }
 
         .nav-tab:active::before {
@@ -92,12 +98,11 @@
         }
 
         .nav-tab:active {
-            transform: scale(0.95);
-            color: #00ff88;
+            color: #40a8ff;
         }
 
         .nav-tab.active {
-            color: #00ff88;
+            color: #40a8ff;
             transform: scale(1.05);
         }
 
@@ -142,99 +147,98 @@
         }
 
         .metric-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 20px;
+            background: linear-gradient(135deg, rgba(15, 20, 25, 0.8) 0%, rgba(26, 35, 50, 0.4) 100%);
+            border: 1px solid rgba(64, 168, 255, 0.15);
+            border-radius: 6px;
+            padding: 16px;
             text-align: center;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
             position: relative;
             overflow: hidden;
             cursor: pointer;
+            backdrop-filter: blur(8px);
         }
 
         .metric-card::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.1), transparent);
-            transition: left 0.6s ease;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(64, 168, 255, 0.06), rgba(64, 168, 255, 0.02));
+            transform: scale(0);
+            transform-origin: center;
+            transition: transform 0.15s ease;
+            border-radius: 6px;
         }
 
-        .metric-card:hover::before {
-            left: 100%;
+        .metric-card:active::before {
+            transform: scale(1);
         }
 
         .metric-card:active {
-            transform: scale(0.96) rotateZ(1deg);
-            background: rgba(0, 255, 136, 0.08);
-            border-color: rgba(0, 255, 136, 0.3);
-            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.2);
-        }
-
-        .metric-card:hover {
-            transform: translateY(-2px) scale(1.02);
-            border-color: rgba(0, 255, 136, 0.2);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+            border-color: rgba(64, 168, 255, 0.25);
         }
 
         .metric-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #00ff88;
-            margin-bottom: 5px;
-            transition: all 0.3s ease;
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+            font-size: 22px;
+            font-weight: 600;
+            color: #e0e6ed;
+            margin-bottom: 4px;
+            transition: all 0.15s ease;
         }
 
         .metric-card:active .metric-value {
-            transform: scale(1.1);
-            text-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+            color: #40a8ff;
         }
 
         .metric-label {
-            font-size: 12px;
-            color: #888;
+            font-size: 10px;
+            color: #8596a5;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: color 0.3s ease;
+            letter-spacing: 0.3px;
+            transition: color 0.15s ease;
+            font-weight: 500;
         }
 
         .metric-card:active .metric-label {
-            color: #00ff88;
+            color: #40a8ff;
         }
 
-        /* Clean Section Cards */
+        /* Enterprise Data Modules */
         .section-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 35, 50, 0.6) 100%);
+            border: 1px solid rgba(64, 168, 255, 0.12);
+            border-radius: 8px;
+            margin-bottom: 16px;
             overflow: hidden;
+            backdrop-filter: blur(10px);
         }
 
         .section-header {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px 20px 12px 20px;
+            border-bottom: 1px solid rgba(64, 168, 255, 0.08);
+            background: linear-gradient(90deg, rgba(64, 168, 255, 0.03) 0%, transparent 100%);
         }
 
         .section-title {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
-            color: #fff;
-            margin-bottom: 5px;
+            color: #e0e6ed;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .section-subtitle {
-            font-size: 12px;
-            color: #888;
+            font-size: 11px;
+            color: #8596a5;
+            font-weight: 500;
         }
 
         .section-content {
-            padding: 20px;
+            padding: 16px 20px;
         }
 
         /* Mobile-Optimized Tables */
@@ -263,10 +267,10 @@
             color: #fff;
         }
 
-        /* Status Indicators */
-        .status-green { color: #00ff88; }
-        .status-yellow { color: #ffa500; }
-        .status-red { color: #ff4757; }
+        /* Enterprise Status Indicators */
+        .status-green { color: #52c41a; font-weight: 500; }
+        .status-yellow { color: #faad14; font-weight: 500; }
+        .status-red { color: #ff4d4f; font-weight: 500; }
 
         /* Hidden sections */
         .tab-content {

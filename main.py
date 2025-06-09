@@ -223,6 +223,12 @@ def authenticate():
     
     return redirect('/login?error=invalid_credentials')
 
+@app.route('/logout')
+def logout():
+    """Handle user logout"""
+    session.clear()
+    return redirect('/')
+
 @app.route('/customize-dashboard')
 @require_auth
 def customize_dashboard():

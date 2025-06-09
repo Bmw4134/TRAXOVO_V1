@@ -183,7 +183,7 @@ def api_asset_details():
                 },
                 'utilization': 75 + (hash(asset[0]) % 25),
                 'maintenance_status': 'Current' if hash(asset[0]) % 5 != 0 else 'Due Soon',
-                'zone_assignment': f'Zone {580 + (hash(asset[0]) % 3)}'
+                'zone_assignment': f'Project {["2023-032", "2024-004", "2024-012", "2024-030", "2023-007", "2023-006"][hash(asset[0]) % 6]}'
             }
             asset_details.append(asset_detail)
         
@@ -5382,26 +5382,42 @@ def samsara_level_dashboard():
 @app.route('/api/safety-overview')
 def api_safety_overview():
     """Safety overview with risk factors, events, and scores"""
-    return jsonify({
-        'safety_score': {
-            'overall': 94.2,
-            'trend': '+2.1%',
-            'last_period': '7 days'
-        },
-        'events': {
-            'coaching_events': 0,
-            'events_to_review': 0,
-            'unassigned_events': 0,
-            'sessions_due': 0
-        },
-        'risk_factors': [
-            {'name': 'Crash', 'events': 0, 'base_risk': '1,500 mi', 'score': '9 pts'},
-            {'name': 'Harsh Driving', 'events': 0, 'base_risk': '1,500 mi', 'score': '9 pts'},
-            {'name': 'Policy Violations', 'events': 0, 'base_risk': 'Never Occur', 'score': '9 pts'},
-            {'name': 'Cellphone Use', 'events': 0, 'base_risk': 'Never Occur', 'score': '9 pts'},
-            {'name': 'Distracted Driving', 'events': 0, 'base_risk': '1,500 mi', 'score': '9 pts'},
-            {'name': 'Traffic Signs & Signals', 'events': 0, 'base_risk': '1,500 mi', 'score': '9 pts'},
-            {'name': 'Speeding', 'events': 0, 'base_risk': '0% of drive time', 'score': '9 pts'}
+    try:
+        # Return complete safety data structure
+        safety_data = {
+            'safety_score': {
+                'overall': 94.2,
+                'trend': '+2.1%',
+                'last_period': '7 days'
+            },
+            'events': {
+                'coaching_events': 0,
+                'events_to_review': 0,
+                'unassigned_events': 0,
+                'sessions_due': 0
+            },
+            'risk_factors': [
+                {'name': 'Crash', 'events': 0, 'base_risk': '1,500 mi', 'score': '9 pts'},
+                {'name': 'Harsh Driving', 'events': 0, 'base_risk': '1,500 mi', 'score': '9 pts'},
+                {'name': 'Policy Violations', 'events': 0, 'base_risk': 'Never Occur', 'score': '9 pts'},
+                {'name': 'Cellphone Use', 'events': 0, 'base_risk': 'Never Occur', 'score': '9 pts'},
+                {'name': 'Distracted Driving', 'events': 0, 'base_risk': '1,500 mi', 'score': '9 pts'},
+                {'name': 'Traffic Signs & Signals', 'events': 0, 'base_risk': '1,500 mi', 'score': '9 pts'},
+                {'name': 'Speeding', 'events': 0, 'base_risk': '0% of drive time', 'score': '9 pts'}
+            ],
+            'charts': {
+                'distance_driven': {'value': 0, 'unit': 'mi'},
+                'time_driven': {'value': 0, 'unit': 'h'}
+            },
+            'status': 'success'
+        }
+        return jsonify(safety_data)
+    except Exception as e:
+        logging.error(f"Safety overview error: {e}")
+        return jsonify({
+            'error': 'Safety data temporarily unavailable',
+            'status': 'error'
+        }), 500e': 'Speeding', 'events': 0, 'base_risk': '0% of drive time', 'score': '9 pts'}
         ]
     })
 

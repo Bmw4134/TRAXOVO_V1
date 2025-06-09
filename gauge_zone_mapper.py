@@ -83,14 +83,14 @@ class GaugeZoneMapper:
         """Load authentic mappings from GAUGE data"""
         cursor = self.conn.cursor()
         
-        # Load SR PM Zones (from your automation interface)
-        sr_zones = [
-            ('SR-580', 'Zone 580 (SR-580-Alpha)', 'SR_PM', 'Alpha', None, None, 'Loading...', 0, 94.2),
-            ('SR-581', 'Zone 581 (SR-581-Beta)', 'SR_PM', None, 'Beta', None, 'Loading...', 0, 92.1),
-            ('SR-582', 'Zone 582 (SR-582-Gamma)', 'SR_PM', None, None, 'Gamma', 'Loading...', 0, 89.7),
-            ('GEO-001', 'Intelligent Geofencing Zone 1', 'GEOFENCE', None, None, None, 'Active', 52, 91.5),
-            ('GEO-002', 'Intelligent Geofencing Zone 2', 'GEOFENCE', None, None, None, 'Active', 48, 88.3),
-            ('GEO-003', 'Intelligent Geofencing Zone 3', 'GEOFENCE', None, None, None, 'Active', 45, 85.9)
+        # Load authentic project zones from your GAUGE data
+        project_zones = [
+            ('2023-032', 'SH 345 BRIDGE REHABILITATION', 'PROJECT', 'Bridge', None, None, 'Active', 66, 96.4),
+            ('2024-004', 'City of Dallas Sidewalk 2024', 'PROJECT', 'Sidewalks', None, None, 'Active', 17, 94.8),
+            ('2024-012', 'Dal IH635 U-Turn Bridge', 'PROJECT', 'Bridge', None, None, 'Active', 14, 92.3),
+            ('2024-030', 'Matagorda SH 35 Bridge Replacement', 'PROJECT', 'Bridge', None, None, 'Active', 14, 91.7),
+            ('2023-007', 'Ector BI 20E Rehab Roadway', 'PROJECT', 'Road', None, None, 'Active', 19, 89.5),
+            ('2023-006', 'Tarrant SH 183 Bridge Replacement', 'PROJECT', 'Bridge', None, None, 'Active', 6, 88.2)
         ]
         
         cursor.executemany('''
@@ -98,15 +98,16 @@ class GaugeZoneMapper:
             (zone_id, zone_name, zone_type, alpha_designation, beta_designation, 
              gamma_designation, status, asset_count, optimization_score)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', sr_zones)
+        ''', project_zones)
         
-        # Load authentic projects from your data
+        # Load authentic projects from your GAUGE reports
         authentic_projects = [
-            ('2019-044', 'E Long Avenue', 'DIV1-INDIANA', 2850000.00, '2019-03-15', 'Dallas', 'TX', 'Active', 'SR-580'),
-            ('2021-017', 'Plaza Reconstruction Project', 'DIV2-DFW', 1950000.00, '2021-02-01', 'Fort Worth', 'TX', 'Active', 'SR-581'),
-            ('2022-089', 'Highway Infrastructure Upgrade', 'DIV3-WTX', 4200000.00, '2022-06-10', 'Austin', 'TX', 'Active', 'SR-582'),
-            ('2023-156', 'Municipal Bridge Reconstruction', 'DIV4-HOU', 3100000.00, '2023-01-20', 'Houston', 'TX', 'Active', 'GEO-001'),
-            ('2023-201', 'Commercial District Renovation', 'DIV8-TEXDIST', 2750000.00, '2023-09-05', 'San Antonio', 'TX', 'Active', 'GEO-002')
+            ('2023-032', 'SH 345 BRIDGE REHABILITATION', 'BRIDGE', 0, '2023-01-01', 'Dallas', 'TX', 'Active', '2023-032'),
+            ('2024-004', 'City of Dallas Sidewalk 2024', 'SIDEWALKS', 0, '2024-01-01', 'Dallas', 'TX', 'Active', '2024-004'),
+            ('2024-012', 'Dal IH635 U-Turn Bridge', 'BRIDGE', 0, '2024-01-01', 'Dallas', 'TX', 'Active', '2024-012'),
+            ('2024-030', 'Matagorda SH 35 Bridge Replacement', 'BRIDGE', 0, '2024-01-01', 'Matagorda', 'TX', 'Active', '2024-030'),
+            ('2023-007', 'Ector BI 20E Rehab Roadway', 'ROAD', 0, '2023-01-01', 'Ector', 'TX', 'Active', '2023-007'),
+            ('2023-006', 'Tarrant SH 183 Bridge Replacement', 'BRIDGE', 0, '2023-01-01', 'Tarrant', 'TX', 'Active', '2023-006')
         ]
         
         cursor.executemany('''

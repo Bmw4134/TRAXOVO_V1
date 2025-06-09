@@ -22,13 +22,9 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "nexus-qnis-key")
 
 @app.route('/')
-def clarity_core_dashboard():
-    """TRAXOVO ∞ Clarity Core Dashboard"""
-    return render_template_string(CLARITY_CORE_TEMPLATE)
-
 @app.route('/traxovo')
-def traxovo_level_dashboard():
-    """TRAXOVO ∞ Clarity Core - Enterprise Dashboard"""
+def traxovo_unified_dashboard():
+    """TRAXOVO ∞ Clarity Core - Unified Enterprise Dashboard"""
     return render_template('enhanced_dashboard.html')
 
 @app.route('/api/test-gauge-connection', methods=['POST'])
@@ -519,41 +515,7 @@ def qnis_stream():
     
     return Response(generate(), mimetype='text/event-stream')
 
-@app.route('/executive')
-def executive_dashboard():
-    """Executive Dashboard with comprehensive metrics"""
-    return render_template_string(EXECUTIVE_DASHBOARD_TEMPLATE)
-
-@app.route('/fleet')
-def fleet_management():
-    """QNIS/PTNI Unified Asset Telemetry Map"""
-    try:
-        return render_template_string(QNIS_PTNI_TELEMETRY_MAP)
-    except NameError:
-        # Template defined later in file, use inline template
-        return render_template_string("""
-        <!DOCTYPE html>
-        <html><head><title>QNIS/PTNI Loading...</title></head>
-        <body style="background: #0f0f23; color: white; display: flex; justify-content: center; align-items: center; height: 100vh;">
-        <div>QNIS/PTNI Telemetry System Initializing...</div>
-        <script>setTimeout(() => location.reload(), 2000);</script>
-        </body></html>
-        """)
-
-@app.route('/analytics')
-def analytics_dashboard():
-    """Analytics Dashboard with AI insights"""
-    return render_template_string(ANALYTICS_DASHBOARD_TEMPLATE)
-
-@app.route('/geofence')
-def geofence_dashboard():
-    """Geofence Monitoring Dashboard"""
-    return render_template_string(GEOFENCE_DASHBOARD_TEMPLATE)
-
-@app.route('/ai')
-def ai_intelligence():
-    """AI Intelligence Dashboard"""
-    return render_template_string(AI_INTELLIGENCE_TEMPLATE)
+# All dashboard features are now integrated into the unified /traxovo dashboard
 
 @app.route('/api/daily-driver-report', methods=['POST'])
 def process_daily_driver_report():

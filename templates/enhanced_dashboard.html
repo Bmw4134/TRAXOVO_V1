@@ -15,25 +15,83 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f5;
-            color: #333;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 15px !important;
+                font-size: 18px !important;
+            }
+            
+            .main-content {
+                padding: 15px !important;
+                margin-left: 0 !important;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .section-card {
+                margin: 15px 0 !important;
+                padding: 15px !important;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap !important;
+                gap: 5px !important;
+            }
+            
+            .nav-tab {
+                font-size: 12px !important;
+                padding: 8px 12px !important;
+            }
+            
+            /* Stack grid layouts on mobile */
+            [style*="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))"] {
+                grid-template-columns: 1fr !important;
+            }
+            
+            [style*="grid-template-columns: 1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+            
+            [style*="grid-template-columns: 2fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 18px !important;
+            }
+            
+            .section-title {
+                font-size: 16px !important;
+            }
         }
 
         .header {
-            background: #fff;
-            border-bottom: 1px solid #e0e0e0;
+            background: rgba(26, 26, 46, 0.95);
+            border-bottom: 1px solid rgba(0, 255, 159, 0.3);
             padding: 0 20px;
             height: 60px;
             display: flex;
             align-items: center;
-            justify-content: between;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
         }
 
         .logo {
             font-size: 24px;
             font-weight: bold;
-            color: #2563eb;
+            color: #00ff9f;
+            text-shadow: 0 0 10px rgba(0, 255, 159, 0.5);
         }
 
         .nav-tabs {
@@ -894,6 +952,102 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Equipment Billing Module -->
+                <div style="margin-top: 20px; padding: 20px; background: rgba(255, 165, 0, 0.1); border-radius: 8px; border: 1px solid rgba(255, 165, 0, 0.3);">
+                    <h4 style="margin: 0 0 15px 0; color: #ffa500;">Equipment Billing & Revenue Management</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        
+                        <!-- Billing Summary -->
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 8px;">
+                            <h5 style="margin: 0 0 15px 0; color: #ffa500;">Monthly Billing Summary</h5>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>Total Revenue:</span>
+                                    <span style="font-weight: bold; color: #00ff9f;">$847,320</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>Equipment Hours:</span>
+                                    <span style="font-weight: bold;">12,847 hrs</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>Avg Rate/Hour:</span>
+                                    <span style="font-weight: bold;">$65.92</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>Outstanding:</span>
+                                    <span style="font-weight: bold; color: #ff6b6b;">$23,450</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Equipment Categories -->
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 8px;">
+                            <h5 style="margin: 0 0 15px 0; color: #ffa500;">Equipment Categories</h5>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>Excavators (47)</span>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div style="width: 80px; height: 6px; background: rgba(0,255,159,0.3); border-radius: 3px;">
+                                            <div style="width: 78%; height: 100%; background: #00ff9f; border-radius: 3px;"></div>
+                                        </div>
+                                        <span style="font-size: 12px;">$312K</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>Dozers (23)</span>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div style="width: 80px; height: 6px; background: rgba(255,165,0,0.3); border-radius: 3px;">
+                                            <div style="width: 65%; height: 100%; background: #ffa500; border-radius: 3px;"></div>
+                                        </div>
+                                        <span style="font-size: 12px;">$267K</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>Trucks (89)</span>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div style="width: 80px; height: 6px; background: rgba(103,58,183,0.3); border-radius: 3px;">
+                                            <div style="width: 52%; height: 100%; background: #673ab7; border-radius: 3px;"></div>
+                                        </div>
+                                        <span style="font-size: 12px;">$198K</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>Specialty (18)</span>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div style="width: 80px; height: 6px; background: rgba(255,107,107,0.3); border-radius: 3px;">
+                                            <div style="width: 34%; height: 100%; background: #ff6b6b; border-radius: 3px;"></div>
+                                        </div>
+                                        <span style="font-size: 12px;">$69K</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Billing Actions -->
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 8px;">
+                            <h5 style="margin: 0 0 15px 0; color: #ffa500;">Billing Operations</h5>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <button onclick="generateInvoices()" 
+                                        style="padding: 12px; background: #00ff9f; color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                                    Generate Monthly Invoices
+                                </button>
+                                <button onclick="showBillingReports()" 
+                                        style="padding: 12px; background: #ffa500; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                                    View Billing Reports
+                                </button>
+                                <button onclick="processPayments()" 
+                                        style="padding: 12px; background: #673ab7; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                                    Process Payments
+                                </button>
+                                <button onclick="showOutstanding()" 
+                                        style="padding: 12px; background: #ff6b6b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                                    Outstanding Balances
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1460,6 +1614,142 @@
             .catch(error => {
                 console.error('Data upload error:', error);
                 alert('Failed to process data file');
+            });
+        }
+
+        // Equipment Billing Functions
+        function generateInvoices() {
+            fetch('/api/equipment/generate-invoices', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Generated ${data.invoice_count} invoices totaling $${data.total_amount}`);
+                } else {
+                    alert('Error generating invoices: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Invoice generation error:', error);
+                alert('Failed to generate invoices');
+            });
+        }
+
+        function showBillingReports() {
+            fetch('/api/equipment/billing-reports')
+            .then(response => response.json())
+            .then(data => {
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                    background: rgba(0,0,0,0.8); z-index: 1000; display: flex; 
+                    justify-content: center; align-items: center;
+                `;
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.cssText = `
+                    background: #1a1a2e; color: white; padding: 30px; border-radius: 12px; 
+                    max-width: 800px; max-height: 80vh; overflow-y: auto; border: 1px solid #ffa500;
+                `;
+                
+                modalContent.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="margin: 0; color: #ffa500;">Equipment Billing Reports</h2>
+                        <button onclick="this.closest('.modal').remove()" style="background: #ff4757; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Close</button>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        ${data.reports ? data.reports.map(report => 
+                            `<div style="background: rgba(255,165,0,0.1); padding: 15px; border-radius: 8px;">
+                                <h4 style="margin: 0 0 10px 0; color: #ffa500;">${report.name}</h4>
+                                <p style="margin: 0; font-size: 14px; opacity: 0.8;">${report.description}</p>
+                                <div style="margin-top: 10px; font-weight: bold;">$${report.amount || 'N/A'}</div>
+                            </div>`
+                        ).join('') : '<div>No billing reports available</div>'}
+                    </div>
+                `;
+                
+                modal.className = 'modal';
+                modal.appendChild(modalContent);
+                document.body.appendChild(modal);
+            })
+            .catch(error => {
+                console.error('Billing reports error:', error);
+                alert('Failed to load billing reports');
+            });
+        }
+
+        function processPayments() {
+            fetch('/api/equipment/process-payments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Processed ${data.payment_count} payments totaling $${data.total_processed}`);
+                } else {
+                    alert('Error processing payments: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Payment processing error:', error);
+                alert('Failed to process payments');
+            });
+        }
+
+        function showOutstanding() {
+            fetch('/api/equipment/outstanding-balances')
+            .then(response => response.json())
+            .then(data => {
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                    background: rgba(0,0,0,0.8); z-index: 1000; display: flex; 
+                    justify-content: center; align-items: center;
+                `;
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.cssText = `
+                    background: #1a1a2e; color: white; padding: 30px; border-radius: 12px; 
+                    max-width: 800px; max-height: 80vh; overflow-y: auto; border: 1px solid #ff6b6b;
+                `;
+                
+                modalContent.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="margin: 0; color: #ff6b6b;">Outstanding Balances</h2>
+                        <button onclick="this.closest('.modal').remove()" style="background: #ff4757; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Close</button>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        ${data.outstanding ? data.outstanding.map(item => 
+                            `<div style="background: rgba(255,107,107,0.1); padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4 style="margin: 0; color: #ff6b6b;">${item.client || 'Client'}</h4>
+                                    <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.8;">Invoice: ${item.invoice || 'N/A'}</p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 18px; font-weight: bold; color: #ff6b6b;">$${item.amount || '0'}</div>
+                                    <div style="font-size: 12px; opacity: 0.7;">${item.days_overdue || '0'} days overdue</div>
+                                </div>
+                            </div>`
+                        ).join('') : '<div>No outstanding balances</div>'}
+                    </div>
+                `;
+                
+                modal.className = 'modal';
+                modal.appendChild(modalContent);
+                document.body.appendChild(modal);
+            })
+            .catch(error => {
+                console.error('Outstanding balances error:', error);
+                alert('Failed to load outstanding balances');
             });
         }
 

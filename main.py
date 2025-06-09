@@ -3,12 +3,15 @@ TRAXOVO NEXUS Main Application Entry Point
 Simplified startup for QNIS Clarity Core
 """
 
-from flask import Flask, render_template, render_template_string, jsonify, Response
+from flask import Flask, render_template, render_template_string, jsonify, Response, request, session, redirect, url_for
 import os
 import json
 import logging
 from datetime import datetime
 from gauge_api_connector import get_live_gauge_data
+from traxovo_asset_extractor import get_traxovo_dashboard_metrics, extract_traxovo_assets
+from automation_engine import AutomationEngine
+from nexus_master_control import NexusMasterControl
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -66,8 +69,18 @@ def executive_dashboard():
 
 @app.route('/fleet')
 def fleet_management():
-    """Fleet Management Dashboard"""
-    return render_template_string(FLEET_MANAGEMENT_TEMPLATE)
+    """Fleet Management Dashboard with Daily Driver Reports"""
+    try:
+        # Get real TRAXOVO asset data
+        asset_data = extract_traxovo_assets()
+        dashboard_metrics = get_traxovo_dashboard_metrics()
+        
+        return render_template_string(FLEET_MANAGEMENT_TEMPLATE, 
+                                    asset_data=asset_data,
+                                    dashboard_metrics=dashboard_metrics)
+    except Exception as e:
+        logging.error(f"Fleet dashboard error: {e}")
+        return render_template_string(FLEET_MANAGEMENT_TEMPLATE)
 
 @app.route('/analytics')
 def analytics_dashboard():
@@ -83,6 +96,209 @@ def geofence_dashboard():
 def ai_intelligence():
     """AI Intelligence Dashboard"""
     return render_template_string(AI_INTELLIGENCE_TEMPLATE)
+
+@app.route('/api/daily-driver-report', methods=['POST'])
+def process_daily_driver_report():
+    """Process daily driver report data"""
+    try:
+        from traxovo_agent_integration import TRAXOVOAgent
+        
+        agent = TRAXOVOAgent()
+        driver_data = request.get_json()
+        
+        result = agent.daily_driver_report(driver_data)
+        return jsonify(result)
+        
+    except Exception as e:
+        logging.error(f"Daily driver report processing error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/upload-csv', methods=['POST'])
+def upload_csv():
+    """Upload and process CSV files for fleet data"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        if file and file.filename and file.filename.endswith('.csv'):
+            import csv
+            import io
+            
+            # Read CSV data
+            stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
+            csv_reader = csv.DictReader(stream)
+            csv_data = list(csv_reader)
+            
+            # Process based on CSV type
+            csv_type = request.form.get('csv_type', 'general')
+            
+            if csv_type == 'driving_history':
+                result = process_driving_history_csv(csv_data)
+            elif csv_type == 'speeding_report':
+                result = process_speeding_report_csv(csv_data)
+            elif csv_type == 'asset_utilization':
+                result = process_asset_utilization_csv(csv_data)
+            else:
+                result = process_general_csv(csv_data)
+            
+            return jsonify(result)
+        
+        return jsonify({'error': 'Invalid file format. Please upload a CSV file.'}), 400
+        
+    except Exception as e:
+        logging.error(f"CSV upload error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+def process_driving_history_csv(data):
+    """Process driving history CSV data"""
+    try:
+        total_records = len(data)
+        
+        # Extract key metrics from CSV rows
+        miles_values = []
+        hours_values = []
+        
+        for row in data:
+            # Check for Miles column
+            if 'Miles' in row and row['Miles']:
+                try:
+                    miles_values.append(float(row['Miles']))
+                except ValueError:
+                    pass
+            
+            # Check for Hours or Time column
+            time_value = row.get('Hours') or row.get('Time') or row.get('Duration')
+            if time_value:
+                try:
+                    hours_values.append(float(time_value))
+                except ValueError:
+                    pass
+        
+        total_miles = sum(miles_values)
+        avg_miles = total_miles / len(miles_values) if miles_values else 0
+        total_hours = sum(hours_values)
+        avg_hours = total_hours / len(hours_values) if hours_values else 0
+        
+        # Generate automation insights
+        insights = []
+        if avg_miles > 300:
+            insights.append("High daily mileage detected - consider route optimization")
+        if avg_hours > 10:
+            insights.append("Extended work hours - monitor driver fatigue")
+        
+        return {
+            'status': 'success',
+            'csv_type': 'driving_history',
+            'records_processed': total_records,
+            'metrics': {
+                'total_miles': float(total_miles),
+                'avg_miles_per_day': float(avg_miles),
+                'total_hours': float(total_hours),
+                'avg_hours_per_day': float(avg_hours)
+            },
+            'automation_insights': insights,
+            'processed_timestamp': datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        return {'error': str(e)}
+
+def process_speeding_report_csv(data):
+    """Process speeding report CSV data"""
+    try:
+        total_violations = len(data)
+        
+        # Extract speed values
+        speed_values = []
+        critical_violations = 0
+        
+        for row in data:
+            speed_field = row.get('Speed') or row.get('speed') or row.get('SPEED')
+            if speed_field:
+                try:
+                    speed = float(speed_field)
+                    speed_values.append(speed)
+                    if speed > 80:
+                        critical_violations += 1
+                except ValueError:
+                    pass
+        
+        max_speed = max(speed_values) if speed_values else 0
+        avg_speed = sum(speed_values) / len(speed_values) if speed_values else 0
+        
+        insights = []
+        if critical_violations > 0:
+            insights.append(f"{critical_violations} critical speeding violations require immediate attention")
+        if total_violations > 10:
+            insights.append("High violation count - implement driver training program")
+        
+        return {
+            'status': 'success',
+            'csv_type': 'speeding_report',
+            'total_violations': total_violations,
+            'critical_violations': critical_violations,
+            'metrics': {
+                'max_speed_recorded': float(max_speed),
+                'avg_violation_speed': float(avg_speed)
+            },
+            'safety_insights': insights,
+            'processed_timestamp': datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        return {'error': str(e)}
+
+def process_asset_utilization_csv(data):
+    """Process asset utilization CSV data"""
+    try:
+        total_assets = len(data)
+        
+        # Calculate utilization metrics
+        if 'Utilization' in data.columns:
+            avg_utilization = data['Utilization'].mean()
+            low_utilization = len(data[data['Utilization'] < 70])
+        else:
+            avg_utilization = 0
+            low_utilization = 0
+        
+        insights = []
+        if low_utilization > 0:
+            insights.append(f"{low_utilization} assets with low utilization - consider reallocation")
+        if avg_utilization > 85:
+            insights.append("High average utilization - consider fleet expansion")
+        
+        return {
+            'status': 'success',
+            'csv_type': 'asset_utilization',
+            'total_assets': total_assets,
+            'metrics': {
+                'avg_utilization': float(avg_utilization),
+                'low_utilization_count': low_utilization
+            },
+            'optimization_insights': insights,
+            'processed_timestamp': datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        return {'error': str(e)}
+
+def process_general_csv(data):
+    """Process general CSV data"""
+    try:
+        return {
+            'status': 'success',
+            'csv_type': 'general',
+            'records_processed': len(data),
+            'columns': list(data.columns),
+            'processed_timestamp': datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        return {'error': str(e)}
 
 # QNIS Clarity Core Template
 CLARITY_CORE_TEMPLATE = """
@@ -849,6 +1065,57 @@ FLEET_MANAGEMENT_TEMPLATE = """
     <main class="fleet-content">
         <h1 class="fleet-title">Fleet Management Console</h1>
         
+        <!-- Daily Driver Report Automation Section -->
+        <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 255, 255, 0.3); border-radius: 15px; padding: 30px; margin-bottom: 30px;">
+            <h2 style="color: #00ffff; margin-bottom: 20px; font-size: 24px;">Daily Driver Report Automation</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 20px;">
+                <div>
+                    <h3 style="color: #ffffff; margin-bottom: 15px;">CSV Data Upload</h3>
+                    <form id="csvUploadForm" enctype="multipart/form-data" style="margin-bottom: 20px;">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; color: rgba(255, 255, 255, 0.8); margin-bottom: 5px;">CSV File Type:</label>
+                            <select name="csv_type" style="width: 100%; padding: 10px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 5px; color: white;">
+                                <option value="driving_history">Driving History</option>
+                                <option value="speeding_report">Speeding Report</option>
+                                <option value="asset_utilization">Asset Utilization</option>
+                                <option value="general">General CSV</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; color: rgba(255, 255, 255, 0.8); margin-bottom: 5px;">Select CSV File:</label>
+                            <input type="file" name="file" accept=".csv" required style="width: 100%; padding: 10px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 5px; color: white;">
+                        </div>
+                        <button type="submit" style="background: linear-gradient(45deg, #00ffff, #ff00ff); border: none; padding: 12px 25px; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">
+                            Process CSV Data
+                        </button>
+                    </form>
+                </div>
+                
+                <div>
+                    <h3 style="color: #ffffff; margin-bottom: 15px;">Manual Driver Report</h3>
+                    <form id="driverReportForm" style="margin-bottom: 20px;">
+                        <div style="margin-bottom: 10px;">
+                            <input type="text" name="driver_id" placeholder="Driver ID" required style="width: 100%; padding: 8px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 5px; color: white; margin-bottom: 8px;">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                            <input type="number" name="hours_worked" placeholder="Hours Worked" step="0.1" required style="padding: 8px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 5px; color: white;">
+                            <input type="number" name="miles_driven" placeholder="Miles Driven" required style="padding: 8px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 5px; color: white;">
+                        </div>
+                        <input type="text" name="equipment_used" placeholder="Equipment Used" style="width: 100%; padding: 8px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 5px; color: white; margin-bottom: 10px;">
+                        <button type="submit" style="background: linear-gradient(45deg, #00ff88, #00ffff); border: none; padding: 10px 20px; border-radius: 6px; color: white; font-weight: 600; cursor: pointer;">
+                            Submit Report
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div id="processingResults" style="background: rgba(0, 0, 0, 0.3); border-radius: 10px; padding: 20px; min-height: 100px; margin-top: 20px;">
+                <h4 style="color: #00ffff; margin-bottom: 10px;">Processing Results</h4>
+                <div id="resultsContent" style="color: rgba(255, 255, 255, 0.8);">Ready to process data...</div>
+            </div>
+        </div>
+
         <div class="organization-grid">
             <div class="org-card">
                 <div class="org-name">Ragle Inc</div>
@@ -892,6 +1159,105 @@ FLEET_MANAGEMENT_TEMPLATE = """
                 </div>
             </div>
         </div>
+        
+        <script>
+            // CSV Upload Form Handler
+            document.getElementById('csvUploadForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const resultsDiv = document.getElementById('resultsContent');
+                
+                resultsDiv.innerHTML = 'Processing CSV file...';
+                
+                fetch('/api/upload-csv', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        resultsDiv.innerHTML = `<div style="color: #ff4444;">Error: ${data.error}</div>`;
+                    } else {
+                        let resultsHTML = `
+                            <div style="color: #00ff88; margin-bottom: 10px;">✓ CSV Processing Complete</div>
+                            <div><strong>Type:</strong> ${data.csv_type}</div>
+                            <div><strong>Records Processed:</strong> ${data.records_processed || data.total_violations || data.total_assets}</div>
+                        `;
+                        
+                        if (data.metrics) {
+                            resultsHTML += '<div style="margin-top: 10px;"><strong>Metrics:</strong></div>';
+                            Object.entries(data.metrics).forEach(([key, value]) => {
+                                resultsHTML += `<div>• ${key}: ${typeof value === 'number' ? value.toFixed(2) : value}</div>`;
+                            });
+                        }
+                        
+                        if (data.automation_insights || data.safety_insights || data.optimization_insights) {
+                            const insights = data.automation_insights || data.safety_insights || data.optimization_insights;
+                            resultsHTML += '<div style="margin-top: 10px; color: #ffff00;"><strong>Automation Insights:</strong></div>';
+                            insights.forEach(insight => {
+                                resultsHTML += `<div>• ${insight}</div>`;
+                            });
+                        }
+                        
+                        resultsDiv.innerHTML = resultsHTML;
+                    }
+                })
+                .catch(error => {
+                    resultsDiv.innerHTML = `<div style="color: #ff4444;">Upload failed: ${error.message}</div>`;
+                });
+            });
+            
+            // Driver Report Form Handler
+            document.getElementById('driverReportForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const reportData = {
+                    driver_id: formData.get('driver_id'),
+                    report_date: new Date().toISOString().split('T')[0],
+                    hours_worked: parseFloat(formData.get('hours_worked')),
+                    miles_driven: parseInt(formData.get('miles_driven')),
+                    equipment_used: formData.get('equipment_used')
+                };
+                
+                const resultsDiv = document.getElementById('resultsContent');
+                resultsDiv.innerHTML = 'Processing driver report...';
+                
+                fetch('/api/daily-driver-report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(reportData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        resultsDiv.innerHTML = `<div style="color: #ff4444;">Error: ${data.error}</div>`;
+                    } else {
+                        let resultsHTML = `
+                            <div style="color: #00ff88; margin-bottom: 10px;">✓ Driver Report Processed</div>
+                            <div><strong>Driver ID:</strong> ${data.driver_id}</div>
+                            <div><strong>Status:</strong> ${data.status}</div>
+                        `;
+                        
+                        if (data.automation_insights) {
+                            resultsHTML += '<div style="margin-top: 10px; color: #ffff00;"><strong>Automation Insights:</strong></div>';
+                            data.automation_insights.forEach(insight => {
+                                resultsHTML += `<div>• ${insight}</div>`;
+                            });
+                        }
+                        
+                        resultsDiv.innerHTML = resultsHTML;
+                        document.getElementById('driverReportForm').reset();
+                    }
+                })
+                .catch(error => {
+                    resultsDiv.innerHTML = `<div style="color: #ff4444;">Processing failed: ${error.message}</div>`;
+                });
+            });
+        </script>
     </main>
 </body>
 </html>

@@ -579,42 +579,40 @@ def api_maintenance_status():
 
 @app.route('/api/gauge-status')
 def api_gauge_status():
-    """GAUGE API integration status and connection health"""
-    return jsonify({
-        'gauge_connection': {
-            'status': 'connected',
-            'last_sync': '2025-06-09T17:55:00Z',
-            'api_version': '3.2.1',
-            'data_points_synced': 2847,
-            'sync_frequency': '30 seconds',
-            'connection_health': 98.7
-        },
-        'asset_coverage': {
-            'total_assets_monitored': 548,
-            'active_telemetry': 487,
-            'gps_enabled': 534,
-            'engine_data_available': 521,
-            'maintenance_schedules_synced': 548
-        },
-        'data_quality': {
-            'accuracy_percentage': 99.2,
-            'missing_data_points': 23,
-            'stale_data_assets': 12,
-            'last_data_validation': '2025-06-09T17:30:00Z'
-        },
-        'performance_metrics': {
-            'avg_response_time_ms': 145,
-            'uptime_percentage': 99.8,
-            'error_rate': 0.2,
-            'data_throughput_mbps': 12.4
-        },
-        'alerts': [
-            'DT-08: GPS signal intermittent - last update 45 minutes ago',
-            'BH-16: Engine data delayed - investigating connection',
-            'LD-05: Multiple sensor failures - maintenance required'
-        ],
-        'status': 'operational'
-    })
+    """Real GAUGE API connection status with environment credentials"""
+    try:
+        from gauge_api_connector import gauge_connector
+        connection_status = gauge_connector.test_connection()
+        
+        return jsonify({
+            'gauge_connection': connection_status,
+            'credentials_configured': {
+                'endpoint': bool(gauge_connector.api_endpoint),
+                'auth_token': bool(gauge_connector.auth_token),
+                'client_id': bool(gauge_connector.client_id),
+                'client_secret': bool(gauge_connector.client_secret)
+            },
+            'integration_status': 'active' if connection_status.get('connected') else 'pending',
+            'last_updated': datetime.now().isoformat(),
+            'authentic_api': True
+        })
+    except Exception as e:
+        logging.error(f"GAUGE status error: {e}")
+        return jsonify({
+            'gauge_connection': {
+                'status': 'error',
+                'message': f'Connection error: {str(e)}',
+                'connected': False
+            },
+            'credentials_configured': {
+                'endpoint': bool(os.environ.get('GAUGE_API_ENDPOINT')),
+                'auth_token': bool(os.environ.get('GAUGE_AUTH_TOKEN')),
+                'client_id': bool(os.environ.get('GAUGE_CLIENT_ID')),
+                'client_secret': bool(os.environ.get('GAUGE_CLIENT_SECRET'))
+            },
+            'integration_status': 'error',
+            'authentic_api': True
+        })
 
 @app.route('/api/asset-overview')
 def api_asset_overview():

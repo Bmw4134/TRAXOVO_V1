@@ -15,7 +15,6 @@ class QNISVectorMatrix {
     init() {
         this.setupRealTimeDataConnectors();
         this.initializeKPIDashboard();
-        this.createVectorVisualizations();
         this.startRealTimeUpdates();
     }
 

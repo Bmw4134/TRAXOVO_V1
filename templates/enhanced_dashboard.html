@@ -318,6 +318,7 @@
             <div class="nav-tab" data-section="training">Training</div>
             <div class="nav-tab" data-section="reports">Reports</div>
             <div class="nav-tab" data-section="assets">Assets</div>
+            <div class="nav-tab" data-section="settings">Settings</div>
         </div>
     </div>
 
@@ -359,6 +360,10 @@
             <div class="sidebar-item" data-section="assets">
                 <i class="fas fa-truck"></i>
                 Assets
+            </div>
+            <div class="sidebar-item" data-section="settings">
+                <i class="fas fa-cog"></i>
+                API Settings
             </div>
         </div>
     </div>
@@ -536,6 +541,70 @@
                 </div>
             </div>
         </div>
+
+        <!-- Settings Section -->
+        <div id="settings-section" class="section-content hidden">
+            <div class="content-section">
+                <div class="section-header">
+                    <div class="section-title">GAUGE API Configuration</div>
+                    <div>Enter your authentic GAUGE API credentials</div>
+                </div>
+                <div class="section-content">
+                    <div style="max-width: 600px;">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">API Endpoint URL</label>
+                            <input type="url" id="gauge-api-url" placeholder="https://api.gaugesmart.com" 
+                                   style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Username</label>
+                            <input type="text" id="gauge-username" placeholder="bwatson" 
+                                   style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Password</label>
+                            <input type="password" id="gauge-password" placeholder="Enter your password" 
+                                   style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">API Key</label>
+                            <input type="text" id="gauge-api-key" placeholder="Enter your API key" 
+                                   style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <button onclick="testGaugeConnection()" 
+                                    style="background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px;">
+                                Test Connection
+                            </button>
+                            <button onclick="saveGaugeCredentials()" 
+                                    style="background: #059669; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer;">
+                                Save Credentials
+                            </button>
+                        </div>
+                        
+                        <div id="connection-status" style="padding: 12px; border-radius: 6px; margin-top: 20px; display: none;">
+                        </div>
+                        
+                        <div style="margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 8px;">
+                            <h4 style="margin: 0 0 15px 0;">Current API Status</h4>
+                            <div id="api-status-display">
+                                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                    <div style="width: 10px; height: 10px; border-radius: 50%; background: #dc2626; margin-right: 10px;"></div>
+                                    <span>GAUGE API: Disconnected</span>
+                                </div>
+                                <div style="font-size: 12px; color: #666;">
+                                    Enter credentials above to connect to authentic GAUGE API
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -581,6 +650,143 @@
                 case 'assets':
                     await loadAssetsData();
                     break;
+                case 'settings':
+                    await loadSettingsData();
+                    break;
+            }
+        }
+
+        async function loadSettingsData() {
+            // Load current API status
+            try {
+                const response = await fetch('/api/gauge-status');
+                const data = await response.json();
+                updateAPIStatus(data);
+            } catch (error) {
+                console.error('Error loading API status:', error);
+            }
+        }
+
+        async function testGaugeConnection() {
+            const url = document.getElementById('gauge-api-url').value;
+            const username = document.getElementById('gauge-username').value;
+            const password = document.getElementById('gauge-password').value;
+            const apiKey = document.getElementById('gauge-api-key').value;
+
+            if (!url || !username || !password || !apiKey) {
+                showConnectionStatus('Please fill in all credential fields', 'error');
+                return;
+            }
+
+            showConnectionStatus('Testing connection...', 'info');
+
+            try {
+                const response = await fetch('/api/test-gauge-connection', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        username: username,
+                        password: password,
+                        api_key: apiKey
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showConnectionStatus('Connection successful! GAUGE API is responding.', 'success');
+                    updateAPIStatus({connected: true, message: 'Connected to GAUGE API'});
+                } else {
+                    showConnectionStatus(`Connection failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showConnectionStatus(`Connection error: ${error.message}`, 'error');
+            }
+        }
+
+        async function saveGaugeCredentials() {
+            const url = document.getElementById('gauge-api-url').value;
+            const username = document.getElementById('gauge-username').value;
+            const password = document.getElementById('gauge-password').value;
+            const apiKey = document.getElementById('gauge-api-key').value;
+
+            if (!url || !username || !password || !apiKey) {
+                showConnectionStatus('Please fill in all credential fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/save-gauge-credentials', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        username: username,
+                        password: password,
+                        api_key: apiKey
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showConnectionStatus('Credentials saved successfully!', 'success');
+                    updateAPIStatus({connected: true, message: 'GAUGE API credentials configured'});
+                } else {
+                    showConnectionStatus(`Save failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showConnectionStatus(`Save error: ${error.message}`, 'error');
+            }
+        }
+
+        function showConnectionStatus(message, type) {
+            const statusDiv = document.getElementById('connection-status');
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = message;
+            
+            if (type === 'success') {
+                statusDiv.style.background = '#d1fae5';
+                statusDiv.style.color = '#059669';
+                statusDiv.style.border = '1px solid #a7f3d0';
+            } else if (type === 'error') {
+                statusDiv.style.background = '#fef2f2';
+                statusDiv.style.color = '#dc2626';
+                statusDiv.style.border = '1px solid #fecaca';
+            } else {
+                statusDiv.style.background = '#eff6ff';
+                statusDiv.style.color = '#2563eb';
+                statusDiv.style.border = '1px solid #bfdbfe';
+            }
+        }
+
+        function updateAPIStatus(status) {
+            const statusDisplay = document.getElementById('api-status-display');
+            if (status.connected) {
+                statusDisplay.innerHTML = `
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <div style="width: 10px; height: 10px; border-radius: 50%; background: #059669; margin-right: 10px;"></div>
+                        <span>GAUGE API: Connected</span>
+                    </div>
+                    <div style="font-size: 12px; color: #666;">
+                        ${status.message}
+                    </div>
+                `;
+            } else {
+                statusDisplay.innerHTML = `
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <div style="width: 10px; height: 10px; border-radius: 50%; background: #dc2626; margin-right: 10px;"></div>
+                        <span>GAUGE API: Disconnected</span>
+                    </div>
+                    <div style="font-size: 12px; color: #666;">
+                        ${status.message || 'Enter credentials above to connect to authentic GAUGE API'}
+                    </div>
+                `;
             }
         }
 

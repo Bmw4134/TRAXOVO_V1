@@ -335,8 +335,35 @@
     </div>
 
     <script>
-        // Auto-focus username field
-        document.getElementById('username').focus();
+        // iOS scrolling fix
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        }
+
+        if (isIOS()) {
+            // Force proper scrolling behavior for iOS
+            document.body.style.height = 'auto';
+            document.body.style.minHeight = '100vh';
+            document.body.style.overflowY = 'scroll';
+            document.body.style.webkitOverflowScrolling = 'touch';
+            document.body.style.position = 'static';
+            
+            // Ensure html element allows scrolling
+            document.documentElement.style.height = 'auto';
+            document.documentElement.style.overflowY = 'scroll';
+            
+            // Enable touch events for scrolling
+            document.addEventListener('touchstart', function() {}, { passive: true });
+            document.addEventListener('touchmove', function() {}, { passive: true });
+        }
+
+        // Auto-focus username field (delayed for iOS compatibility)
+        setTimeout(function() {
+            if (document.getElementById('username')) {
+                document.getElementById('username').focus();
+            }
+        }, 100);
 
         // Handle URL error parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -344,8 +371,10 @@
         
         if (error === 'invalid_credentials') {
             const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = 'Invalid username or password. Please try again.';
-            errorDiv.style.display = 'block';
+            if (errorDiv) {
+                errorDiv.textContent = 'Invalid username or password. Please try again.';
+                errorDiv.style.display = 'block';
+            }
         }
         
         // Clean enterprise authentication - no popups

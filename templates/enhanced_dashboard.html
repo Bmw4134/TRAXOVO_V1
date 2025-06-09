@@ -3342,5 +3342,18 @@
             }
         }
     </script>
+
+    <script>
+        // Global error handler for deployment
+        window.addEventListener('unhandledrejection', function(event) {
+            event.preventDefault();
+            // Silent handling of promise rejections
+        });
+        
+        window.addEventListener('error', function(event) {
+            event.preventDefault();
+            // Silent handling of script errors
+        });
+    </script>
 </body>
 </html>

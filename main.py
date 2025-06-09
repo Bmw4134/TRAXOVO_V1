@@ -448,13 +448,133 @@ def api_asset_drill_down():
 
 @app.route('/api/maintenance-status')
 def api_maintenance_status():
-    """Maintenance status and scheduling data"""
+    """Maintenance status and scheduling data with comprehensive asset breakdown"""
     return jsonify({
-        'assets_due_service': 12,
-        'overdue_maintenance': 3,
-        'scheduled_this_week': 8,
-        'maintenance_cost_ytd': 284750,
-        'service_efficiency': 94.2
+        'maintenance_summary': {
+            'total_assets': 548,
+            'assets_current': 487,
+            'overdue_service': 23,
+            'scheduled_this_week': 45,
+            'maintenance_cost_ytd': 284750,
+            'service_efficiency': 94.2,
+            'avg_downtime_hours': 2.3
+        },
+        'maintenance_items': [
+            {
+                'asset_id': 'DT-02',
+                'make': 'Caterpillar',
+                'model': '420F',
+                'year': 2022,
+                'battery_voltage': 12.8,
+                'engine_hours': 2847,
+                'odometer': 15420,
+                'lamp_codes': 'Off',
+                'unresolved_defects': 0,
+                'active_faults': 0,
+                'next_service': '500 HR PM',
+                'hours_to_service': 47,
+                'last_service_date': '2025-06-01',
+                'maintenance_status': 'Current',
+                'priority': 'Normal'
+            },
+            {
+                'asset_id': 'DT-08',
+                'make': 'John Deere',
+                'model': '850K',
+                'year': 2021,
+                'battery_voltage': 12.6,
+                'engine_hours': 3156,
+                'odometer': 18790,
+                'lamp_codes': 'Engine',
+                'unresolved_defects': 1,
+                'active_faults': 2,
+                'next_service': '250 HR PM',
+                'hours_to_service': -23,
+                'last_service_date': '2025-05-15',
+                'maintenance_status': 'Overdue',
+                'priority': 'High'
+            },
+            {
+                'asset_id': 'BH-16',
+                'make': 'Komatsu',
+                'model': 'PC360',
+                'year': 2020,
+                'battery_voltage': 11.9,
+                'engine_hours': 4521,
+                'odometer': 22340,
+                'lamp_codes': 'Hydraulic',
+                'unresolved_defects': 2,
+                'active_faults': 1,
+                'next_service': '500 HR PM',
+                'hours_to_service': 156,
+                'last_service_date': '2025-05-28',
+                'maintenance_status': 'Scheduled',
+                'priority': 'Medium'
+            },
+            {
+                'asset_id': 'EX-12',
+                'make': 'Volvo',
+                'model': 'EC220',
+                'year': 2023,
+                'battery_voltage': 13.1,
+                'engine_hours': 1234,
+                'odometer': 8970,
+                'lamp_codes': 'Off',
+                'unresolved_defects': 0,
+                'active_faults': 0,
+                'next_service': '250 HR PM',
+                'hours_to_service': 89,
+                'last_service_date': '2025-06-05',
+                'maintenance_status': 'Current',
+                'priority': 'Normal'
+            },
+            {
+                'asset_id': 'LD-05',
+                'make': 'Case',
+                'model': '621G',
+                'year': 2019,
+                'battery_voltage': 12.4,
+                'engine_hours': 5890,
+                'odometer': 31200,
+                'lamp_codes': 'Trans',
+                'unresolved_defects': 3,
+                'active_faults': 2,
+                'next_service': '500 HR PM',
+                'hours_to_service': -67,
+                'last_service_date': '2025-04-20',
+                'maintenance_status': 'Critical',
+                'priority': 'Urgent'
+            }
+        ],
+        'upcoming_services': [
+            {
+                'asset_id': 'DT-02',
+                'service_type': '500 HR PM',
+                'scheduled_date': '2025-06-15',
+                'estimated_hours': 4,
+                'cost_estimate': 850
+            },
+            {
+                'asset_id': 'EX-12',
+                'service_type': '250 HR PM',
+                'scheduled_date': '2025-06-12',
+                'estimated_hours': 2,
+                'cost_estimate': 420
+            },
+            {
+                'asset_id': 'BH-16',
+                'service_type': '500 HR PM',
+                'scheduled_date': '2025-06-18',
+                'estimated_hours': 6,
+                'cost_estimate': 1200
+            }
+        ],
+        'maintenance_alerts': [
+            'DT-08: Service overdue by 23 hours - immediate attention required',
+            'LD-05: Critical maintenance required - multiple fault codes active',
+            'BH-16: Hydraulic system warning - schedule inspection'
+        ],
+        'status': 'success'
     })
 
 @app.route('/api/fuel-energy')

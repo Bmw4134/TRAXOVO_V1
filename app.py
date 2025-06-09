@@ -6816,16 +6816,10 @@ def api_asset_data():
     except Exception as e:
         logging.error(f"Asset data error: {e}")
         return jsonify({'error': str(e), 'total_assets': 0})
-- GAUGE API integration for authentic polygon mapping
-- Browser automation suite with iframe/X-Frame bypass
-- Enterprise-grade security and quantum intelligence features
-
 Be professional, knowledgeable, and helpful. Highlight specific platform capabilities and demonstrate deep understanding of enterprise operations. Keep responses concise but informative."""
-
         # Import OpenAI client
         from openai import OpenAI
         client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
-        
         # Generate QNIS response using GPT-4o
         response = client.chat.completions.create(
             model="gpt-4o",  # the newest OpenAI model is "gpt-4o" which was released May 13, 2024
@@ -6836,29 +6830,25 @@ Be professional, knowledgeable, and helpful. Highlight specific platform capabil
             max_tokens=500,
             temperature=0.7
         )
-        
         qnis_response = response.choices[0].message.content
-        
         return jsonify({
             'response': qnis_response,
             'context': context,
             'timestamp': datetime.now().isoformat()
         })
-        
     except Exception as e:
         print(f"QNIS LLM Error: {e}")
         return jsonify({
             'response': 'I apologize, but I\'m experiencing a temporary processing issue. Please try again in a moment, or proceed to the enterprise dashboard for full access to all platform capabilities.',
             'error': True
         }), 500
-
+    """
 @app.route('/api/qnis-deployment-status')
 def qnis_deployment_status():
     """QNIS/PTNI deployment validation and real metrics"""
     try:
         validator = QNISDeploymentValidator()
         metrics = validator.get_deployment_metrics()
-        
         return jsonify({
             'deployment_status': 'production_ready',
             'authentic_data_files': metrics.get('authentic_data_files', 0),
@@ -6870,20 +6860,17 @@ def qnis_deployment_status():
             'real_time_updates': True,
             'timestamp': datetime.now().isoformat()
         })
-        
     except Exception as e:
         logging.error(f"QNIS deployment validation error: {e}")
         return jsonify({
             'deployment_status': 'checking',
             'error': str(e)
         }), 500
-
 @app.route('/api/fix-csv-processing', methods=['POST'])
 def fix_csv_processing():
     """Fix CSV processing errors with advanced error handling"""
     try:
         fix_results = csv_handler.fix_csv_processing_errors()
-        
         return jsonify({
             'success': fix_results.get('success', True),
             'files_processed': fix_results.get('files_processed', 0),
@@ -6894,14 +6881,12 @@ def fix_csv_processing():
             'message': f"Processed {fix_results.get('files_processed', 0)} of {fix_results.get('total_files', 0)} CSV files",
             'timestamp': datetime.now().isoformat()
         })
-        
     except Exception as e:
         logging.error(f"CSV processing error: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
-
 if __name__ == "__main__":
     # Final deployment verification
     verify_deployment()

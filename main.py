@@ -250,7 +250,27 @@ CLARITY_CORE_TEMPLATE = """
         </div>
     </main>
     
+    <script src="/static/qnis-core.js"></script>
     <script>
+        // Initialize QNIS with fleet management configuration
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize QNIS Core
+            initializeQNIS({
+                assetMap: "./data/fleet.json",
+                predictionModel: "adaptive",
+                enableSelfHealing: true
+            });
+
+            // Mount PTNI for fleet optimization
+            mountPTNI({
+                watchPaths: ["./dashboards/*", "./fleet/*"],
+                autoFlag: true,
+                hooks: ["asset-tracker", "geofence", "equipmentAI"]
+            });
+            
+            console.log('TRAXOVO ∞ Clarity Core - QNIS Level 15 Active');
+        });
+        
         // Real-time metrics updates
         function updateMetrics() {
             fetch('/api/qnis/realtime-metrics')
@@ -280,8 +300,6 @@ CLARITY_CORE_TEMPLATE = """
         
         // Initial load
         updateMetrics();
-        
-        console.log('TRAXOVO ∞ Clarity Core - QNIS Level 15 Active');
     </script>
 </body>
 </html>

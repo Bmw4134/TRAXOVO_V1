@@ -229,6 +229,22 @@ class NexusQNISBoost {
         this.adaptiveSystem.cascade();
     }
     
+    showQuickActions() {
+        const quickActions = document.querySelector('.quick-actions');
+        if (quickActions) {
+            quickActions.style.display = 'block';
+            quickActions.classList.add('show');
+        }
+    }
+    
+    hideQuickActions() {
+        const quickActions = document.querySelector('.quick-actions');
+        if (quickActions) {
+            quickActions.style.display = 'none';
+            quickActions.classList.remove('show');
+        }
+    }
+    
     analyzeViewport() {
         const viewport = {
             width: window.innerWidth,
@@ -239,6 +255,100 @@ class NexusQNISBoost {
         
         this.currentViewport = viewport;
         this.applyViewportOptimizations(viewport);
+    }
+    
+    detectDeviceType() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        const viewport = this.currentViewport || { width: window.innerWidth };
+        
+        if (/mobile|android|iphone|ipod|blackberry|iemobile|opera mini/i.test(userAgent)) {
+            return 'mobile';
+        } else if (/tablet|ipad/i.test(userAgent) || (viewport.width >= 768 && viewport.width < 1024)) {
+            return 'tablet';
+        } else {
+            return 'desktop';
+        }
+    }
+    
+    optimizeForDevice() {
+        const deviceType = this.detectDeviceType();
+        
+        switch (deviceType) {
+            case 'mobile':
+                this.optimizeForMobile();
+                break;
+            case 'tablet':
+                this.optimizeForTablet();
+                break;
+            case 'desktop':
+                this.optimizeForDesktop();
+                break;
+            default:
+                this.optimizeForDesktop();
+        }
+        
+        return deviceType;
+    }
+    
+    applyUserPreferences() {
+        const preferences = this.getUserPreferences();
+        
+        if (preferences.theme) {
+            document.body.setAttribute('data-theme', preferences.theme);
+        }
+        
+        if (preferences.density) {
+            document.body.setAttribute('data-density', preferences.density);
+        }
+        
+        if (preferences.animations === false) {
+            document.body.classList.add('reduced-motion');
+        }
+    }
+    
+    getUserPreferences() {
+        try {
+            const stored = localStorage.getItem('qnis_user_preferences');
+            return stored ? JSON.parse(stored) : {
+                theme: 'dark',
+                density: 'comfortable',
+                animations: true
+            };
+        } catch (e) {
+            return {
+                theme: 'dark',
+                density: 'comfortable', 
+                animations: true
+            };
+        }
+    }
+    
+    getVisibleElements() {
+        const visibleElements = [];
+        const allElements = document.querySelectorAll('.metric-card, .chart-container, .dashboard-widget');
+        
+        allElements.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+                visibleElements.push(el);
+            }
+        });
+        
+        return visibleElements;
+    }
+    
+    prioritizeRenderingFor(elements) {
+        elements.forEach((el, index) => {
+            el.style.zIndex = 1000 + index;
+            el.classList.add('priority-render');
+        });
+    }
+    
+    deferNonCriticalUpdates() {
+        const nonCritical = document.querySelectorAll('.secondary-widget, .background-animation');
+        nonCritical.forEach(el => {
+            el.classList.add('deferred-update');
+        });
     }
     
     applyViewportOptimizations(viewport) {

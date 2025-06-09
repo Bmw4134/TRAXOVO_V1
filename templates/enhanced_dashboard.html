@@ -2396,7 +2396,7 @@
             })
             .catch(error => {
                 console.error('Outstanding balances error:', error);
-                alert('Failed to load outstanding balances');
+                showEnterpriseModal('Data Load Failed', 'Unable to retrieve outstanding balance information', 'error');
             });
         }
 

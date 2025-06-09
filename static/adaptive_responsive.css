@@ -1,0 +1,328 @@
+/* QNIS/PTNI Adaptive Responsive Scaling Engine */
+/* Quantum Intelligence Level 15 - Enterprise Scaling */
+
+/* Base Adaptive Variables */
+:root {
+    --adaptive-scale-mobile: 0.85;
+    --adaptive-scale-tablet: 0.95;
+    --adaptive-scale-desktop: 1.0;
+    --adaptive-scale-ultrawide: 1.1;
+    
+    --quantum-spacing-xs: 4px;
+    --quantum-spacing-sm: 8px;
+    --quantum-spacing-md: 16px;
+    --quantum-spacing-lg: 24px;
+    --quantum-spacing-xl: 32px;
+    
+    --adaptive-font-micro: 10px;
+    --adaptive-font-small: 12px;
+    --adaptive-font-base: 14px;
+    --adaptive-font-medium: 16px;
+    --adaptive-font-large: 18px;
+    --adaptive-font-xl: 24px;
+}
+
+/* Quantum Breakpoint System */
+/* Mobile First - 320px and up */
+@media screen and (min-width: 320px) {
+    .dashboard-container {
+        padding: var(--quantum-spacing-sm);
+        font-size: var(--adaptive-font-small);
+    }
+    
+    .metric-card {
+        min-height: 80px;
+        padding: var(--quantum-spacing-sm);
+        margin-bottom: var(--quantum-spacing-sm);
+    }
+    
+    .metric-value {
+        font-size: calc(var(--adaptive-font-large) * var(--adaptive-scale-mobile));
+    }
+    
+    .asset-grid {
+        grid-template-columns: 1fr;
+        gap: var(--quantum-spacing-sm);
+    }
+    
+    .project-manager-portal {
+        padding: var(--quantum-spacing-sm);
+    }
+    
+    .modal-overlay .modal-content {
+        margin: var(--quantum-spacing-sm);
+        max-width: calc(100vw - 32px);
+    }
+    
+    /* Touch Optimized Controls */
+    button, .clickable {
+        min-height: 44px;
+        min-width: 44px;
+        padding: var(--quantum-spacing-sm) var(--quantum-spacing-md);
+    }
+    
+    select {
+        min-height: 44px;
+        font-size: var(--adaptive-font-base);
+    }
+}
+
+/* Tablet Portrait - 768px and up */
+@media screen and (min-width: 768px) {
+    .dashboard-container {
+        padding: var(--quantum-spacing-md);
+        font-size: var(--adaptive-font-base);
+    }
+    
+    .metric-card {
+        min-height: 100px;
+        padding: var(--quantum-spacing-md);
+    }
+    
+    .metric-value {
+        font-size: calc(var(--adaptive-font-xl) * var(--adaptive-scale-tablet));
+    }
+    
+    .asset-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--quantum-spacing-md);
+    }
+    
+    .project-overview {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .modal-overlay .modal-content {
+        max-width: 600px;
+        margin: var(--quantum-spacing-xl);
+    }
+    
+    /* Enhanced Tablet Navigation */
+    .navigation-controls {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+/* Tablet Landscape / Small Desktop - 1024px and up */
+@media screen and (min-width: 1024px) {
+    .dashboard-container {
+        padding: var(--quantum-spacing-lg);
+        font-size: var(--adaptive-font-medium);
+    }
+    
+    .metric-card {
+        min-height: 120px;
+        padding: var(--quantum-spacing-lg);
+    }
+    
+    .metric-value {
+        font-size: calc(var(--adaptive-font-xl) * var(--adaptive-scale-desktop));
+    }
+    
+    .asset-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--quantum-spacing-lg);
+    }
+    
+    .project-overview {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .modal-overlay .modal-content {
+        max-width: 700px;
+    }
+    
+    /* Desktop Hover States */
+    .asset-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 255, 159, 0.15);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}
+
+/* Large Desktop - 1440px and up */
+@media screen and (min-width: 1440px) {
+    .dashboard-container {
+        padding: var(--quantum-spacing-xl);
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .metric-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--quantum-spacing-xl);
+    }
+    
+    .asset-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    
+    .project-asset-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+/* Ultra-wide Desktop - 1920px and up */
+@media screen and (min-width: 1920px) {
+    .dashboard-container {
+        max-width: 1800px;
+        padding: calc(var(--quantum-spacing-xl) * 1.5);
+    }
+    
+    .metric-value {
+        font-size: calc(var(--adaptive-font-xl) * var(--adaptive-scale-ultrawide));
+    }
+    
+    .asset-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: calc(var(--quantum-spacing-xl) * 1.25);
+    }
+    
+    /* Ultra-wide specific optimizations */
+    .dashboard-sections {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: calc(var(--quantum-spacing-xl) * 2);
+    }
+}
+
+/* Adaptive Height Constraints */
+@media screen and (max-height: 600px) {
+    .modal-overlay .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .dashboard-container {
+        padding-top: var(--quantum-spacing-sm);
+        padding-bottom: var(--quantum-spacing-sm);
+    }
+}
+
+/* High DPI / Retina Display Optimizations */
+@media screen and (-webkit-min-device-pixel-ratio: 2), 
+       screen and (min-resolution: 192dpi) {
+    .metric-card,
+    .asset-card {
+        border-width: 0.5px;
+    }
+    
+    .glass-morphism {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
+}
+
+/* Dark Mode Adaptive Enhancements */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-primary: #0d1117;
+        --background-secondary: #161b22;
+        --text-primary: #f0f6fc;
+        --accent-primary: #00ff9f;
+    }
+}
+
+/* Reduced Motion Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Print Optimizations */
+@media print {
+    .dashboard-container {
+        background: white;
+        color: black;
+        padding: 20px;
+    }
+    
+    .metric-card,
+    .asset-card {
+        border: 1px solid #000;
+        background: white;
+        page-break-inside: avoid;
+    }
+    
+    .modal-overlay {
+        display: none;
+    }
+}
+
+/* Advanced Responsive Grid System */
+.adaptive-grid {
+    display: grid;
+    gap: var(--quantum-spacing-md);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+}
+
+@media screen and (min-width: 768px) {
+    .adaptive-grid {
+        grid-template-columns: repeat(auto-fit, minmax(min(50%, 300px), 1fr));
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .adaptive-grid {
+        grid-template-columns: repeat(auto-fit, minmax(min(33.333%, 350px), 1fr));
+    }
+}
+
+@media screen and (min-width: 1440px) {
+    .adaptive-grid {
+        grid-template-columns: repeat(auto-fit, minmax(min(25%, 400px), 1fr));
+    }
+}
+
+/* Quantum Intelligence Container Queries */
+@container (min-width: 300px) {
+    .adaptive-card {
+        padding: var(--quantum-spacing-md);
+    }
+}
+
+@container (min-width: 500px) {
+    .adaptive-card {
+        padding: var(--quantum-spacing-lg);
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: var(--quantum-spacing-md);
+    }
+}
+
+/* Performance Optimizations */
+.gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+.smooth-scroll {
+    scroll-behavior: smooth;
+}
+
+/* Focus Management for Accessibility */
+.focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+}
+
+/* Adaptive Loading States */
+.loading-skeleton {
+    background: linear-gradient(90deg, 
+        rgba(255,255,255,0.1) 25%, 
+        rgba(255,255,255,0.2) 50%, 
+        rgba(255,255,255,0.1) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}

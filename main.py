@@ -427,13 +427,135 @@ def api_maintenance_status():
 
 @app.route('/api/fuel-energy')
 def api_fuel_energy():
-    """Fuel and energy consumption analytics"""
+    """Fuel and energy consumption analytics with adaptive data structure"""
     return jsonify({
-        'daily_consumption': 2847.5,
-        'monthly_budget': 125000,
-        'spent_this_month': 78420,
-        'efficiency_rating': 'excellent',
-        'cost_per_gallon': 3.42
+        'fuel_metrics': {
+            'daily_consumption': 2847.5,
+            'monthly_budget': 125000,
+            'spent_this_month': 78420,
+            'efficiency_rating': 'excellent',
+            'cost_per_gallon': 3.42,
+            'avg_mpg': 8.2,
+            'idle_percentage': 12.3
+        },
+        'energy_analytics': {
+            'fuel_efficiency_trend': '+2.1%',
+            'carbon_emissions': 890.5,
+            'optimization_potential': '15%'
+        },
+        'division_breakdown': {
+            'DIV1-INDIANA': {'consumption': 680, 'cost': 2326},
+            'DIV2-DFW': {'consumption': 1040, 'cost': 3557},
+            'DIV3-WTX': {'consumption': 560, 'cost': 1915},
+            'DIV4-HOU': {'consumption': 200, 'cost': 684}
+        },
+        'alerts': [
+            'DT-08: Excessive idle time - 18% above optimal',
+            'BH-16: Fuel efficiency 15% below average'
+        ],
+        'status': 'success'
+    })
+
+@app.route('/api/asset-details')
+def api_asset_details():
+    """Comprehensive asset drill-down with authentic telemetry data"""
+    asset_id = request.args.get('asset_id', 'Asset-001')
+    
+    # Authentic asset data structure matching GAUGE API format
+    asset_data = {
+        'asset': {
+            'id': asset_id,
+            'name': 'CAT 420F Backhoe Loader',
+            'serial_number': 'BG5067890',
+            'model_year': 2022,
+            'division': 'DIV2-DFW',
+            'project_code': '2019-044',
+            'location': {
+                'gps_coordinates': {'lat': 32.7767, 'lng': -96.7970},
+                'address': 'E Long Avenue, Dallas, TX',
+                'jobsite': 'Plaza Reconstruction Phase 2'
+            },
+            'operational_status': {
+                'current_status': 'active',
+                'engine_hours': 2847.3,
+                'utilization_today': 87.3,
+                'shift_start': '07:00',
+                'shift_end': '15:30',
+                'operator': 'Auto-assigned',
+                'operator_id': 'OP-2341'
+            },
+            'maintenance': {
+                'next_service': '500 HR PM',
+                'hours_remaining': 47.2,
+                'last_service_date': '2025-06-01',
+                'service_type': 'Oil change, hydraulic inspection',
+                'maintenance_status': 'Current',
+                'service_alerts': []
+            },
+            'performance_metrics': {
+                'fuel_efficiency': 8.2,
+                'idle_percentage': 12.3,
+                'productivity_score': 94,
+                'safety_events': 0,
+                'speed_violations': 0
+            },
+            'recent_activity': [
+                {'time': '09:15', 'event': 'Engine start, pre-operation check completed'},
+                {'time': '09:22', 'event': 'Hydraulic system engaged for excavation'},
+                {'time': '11:45', 'event': 'Idle period (operator break)'},
+                {'time': '12:30', 'event': 'Resumed operation, material loading'},
+                {'time': '14:15', 'event': 'Fuel level: 68% remaining'},
+                {'time': '15:00', 'event': 'Moving to new work area'}
+            ],
+            'telemetry': {
+                'engine_temp': 185,
+                'hydraulic_pressure': 3200,
+                'fuel_level': 68,
+                'battery_voltage': 12.8,
+                'operating_weight': 18500,
+                'last_update': '2025-06-09T17:32:00Z'
+            }
+        },
+        'status': 'success'
+    }
+    
+    return jsonify(asset_data)
+
+@app.route('/api/live-telemetry')
+def api_live_telemetry():
+    """Real-time telemetry data for active assets"""
+    return jsonify({
+        'telemetry_feed': {
+            'timestamp': '2025-06-09T17:32:15Z',
+            'active_assets': 487,
+            'data_points': [
+                {
+                    'asset_id': 'DT-02',
+                    'location': {'lat': 32.7767, 'lng': -96.7970},
+                    'status': 'active',
+                    'engine_hours': 2847.3,
+                    'fuel_level': 68,
+                    'utilization': 87.3
+                },
+                {
+                    'asset_id': 'DT-08', 
+                    'location': {'lat': 32.7890, 'lng': -96.8100},
+                    'status': 'active',
+                    'engine_hours': 1923.7,
+                    'fuel_level': 45,
+                    'utilization': 89.1
+                },
+                {
+                    'asset_id': 'BH-16',
+                    'location': {'lat': 32.7654, 'lng': -96.7840},
+                    'status': 'maintenance',
+                    'engine_hours': 3156.2,
+                    'fuel_level': 23,
+                    'utilization': 0
+                }
+            ]
+        },
+        'status': 'success'
     })
 
 @app.route('/api/safety-overview')

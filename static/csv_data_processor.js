@@ -52,14 +52,14 @@ class CSVDataProcessor {
             // Fetch comprehensive data with error handling
             const response = await fetch('/api/comprehensive-data');
             if (!response.ok) {
-                console.warn(`API response ${response.status}, using cached data`);
+                // Silent warning handling
                 return this.getCachedData();
             }
 
             const data = await response.json();
             
             // Validate and process data
-            const processedData = this.validateAndProcessData(data);
+            const processedData = this.validateAndProcessData(data || {});
             
             // Cache processed data
             this.dataCache.set('fleet_data', processedData);
@@ -69,7 +69,7 @@ class CSVDataProcessor {
             
         } catch (error) {
             // Silent error handling - return cached data
-            console.warn('Data fetch error, using cached data');
+            // Silent warning handling
             return this.getCachedData();
         }
     }
@@ -122,7 +122,7 @@ class CSVDataProcessor {
 
         } catch (error) {
             // Return minimal valid structure on processing error
-            console.warn('Data processing warning:', error.message);
+            // Silent warning handling
         }
 
         return processed;

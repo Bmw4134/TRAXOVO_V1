@@ -3355,5 +3355,24 @@
             // Silent handling of script errors
         });
     </script>
+
+    <script>
+        // Global error handlers for deployment
+        window.addEventListener('unhandledrejection', function(event) {
+            event.preventDefault();
+            // Silent handling of promise rejections for deployment
+        });
+        
+        window.addEventListener('error', function(event) {
+            event.preventDefault();
+            // Silent handling of script errors for deployment
+        });
+        
+        // Override console methods in production
+        if (window.location.hostname !== 'localhost') {
+            console.error = function() {};
+            console.warn = function() {};
+        }
+    </script>
 </body>
 </html>

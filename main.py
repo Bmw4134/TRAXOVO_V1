@@ -2295,10 +2295,10 @@ QNIS_PTNI_TELEMETRY_MAP = """
             <div class="filter-group">
                 <label class="filter-label">Zone Filter</label>
                 <select class="filter-select" id="zoneFilter">
-                    <option>All Zones</option>
-                    <option>Zone 580 - DFW Metro</option>
-                    <option>Zone 581 - Central Dallas</option>
-                    <option>Zone 582 - Houston</option>
+                    <option>All Project Zones</option>
+                    <option>Zone 580 - Ragle Inc Projects</option>
+                    <option>Zone 581 - Select Maintenance Projects</option>
+                    <option>Zone 582 - Unified Specialties Projects</option>
                 </select>
             </div>
 
@@ -2402,25 +2402,31 @@ QNIS_PTNI_TELEMETRY_MAP = """
             attribution: 'TRAXOVO QNIS/PTNI Telemetry'
         }).addTo(map);
 
-        // Define zone boundaries
+        // Define project zone boundaries
         const zones = {
             '580': {
-                name: 'DFW Metro Zone',
+                name: 'Ragle Inc Project Zone',
                 bounds: [[32.9998, -97.3890], [32.6998, -97.1890], [32.6998, -97.3890], [32.9998, -97.3890]],
                 color: '#00ff88',
-                assets: 400
+                assets: 400,
+                organization: 'Ragle Inc',
+                sr_pm: 'SR-580-Alpha'
             },
             '581': {
-                name: 'Central Dallas Zone', 
+                name: 'Select Maintenance Project Zone', 
                 bounds: [[32.8555, -97.4308], [32.5555, -97.2308], [32.5555, -97.4308], [32.8555, -97.4308]],
                 color: '#00ffff',
-                assets: 198
+                assets: 198,
+                organization: 'Select Maintenance',
+                sr_pm: 'SR-581-Beta'
             },
             '582': {
-                name: 'Houston Zone',
+                name: 'Unified Specialties Project Zone',
                 bounds: [[29.8604, -95.4698], [29.5604, -95.2698], [29.5604, -95.4698], [29.8604, -95.4698]],
                 color: '#ff00ff', 
-                assets: 47
+                assets: 47,
+                organization: 'Unified Specialties',
+                sr_pm: 'SR-582-Gamma'
             }
         };
 

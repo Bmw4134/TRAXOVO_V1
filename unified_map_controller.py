@@ -108,42 +108,48 @@ class UnifiedMapController:
             'zones': [
                 {
                     'id': '580',
-                    'name': 'DFW Metro Zone',
-                    'type': 'intelligent_boundary',
+                    'name': 'Ragle Inc Project Zone',
+                    'type': 'project_boundary',
                     'coordinates': [
                         [32.9998, -97.3890], [32.7998, -97.1890],
                         [32.6998, -97.1890], [32.6998, -97.3890]
                     ],
                     'color': '#00ff88',
-                    'alert_rules': ['asset_entry', 'asset_exit', 'overtime_threshold'],
+                    'alert_rules': ['project_milestone', 'asset_allocation', 'sr_pm_oversight'],
                     'organization': 'Ragle Inc',
-                    'asset_count': 400
+                    'asset_count': 400,
+                    'sr_pm': 'SR-580-Alpha',
+                    'active_projects': ['E Long Avenue', 'Terminal F Civil', 'NTTA Mainlanes']
                 },
                 {
                     'id': '581', 
-                    'name': 'Central Dallas Zone',
-                    'type': 'intelligent_boundary',
+                    'name': 'Select Maintenance Project Zone',
+                    'type': 'project_boundary',
                     'coordinates': [
                         [32.8555, -97.4308], [32.6555, -97.2308],
                         [32.5555, -97.2308], [32.5555, -97.4308]
                     ],
                     'color': '#00ffff',
-                    'alert_rules': ['asset_entry', 'asset_exit', 'performance_threshold'],
+                    'alert_rules': ['maintenance_schedule', 'asset_optimization', 'sr_pm_coordination'],
                     'organization': 'Select Maintenance',
-                    'asset_count': 198
+                    'asset_count': 198,
+                    'sr_pm': 'SR-581-Beta',
+                    'active_projects': ['Riverfront Bridge', 'Plano Culvert']
                 },
                 {
                     'id': '582',
-                    'name': 'Houston Zone',
-                    'type': 'intelligent_boundary', 
+                    'name': 'Unified Specialties Project Zone',
+                    'type': 'project_boundary', 
                     'coordinates': [
                         [29.8604, -95.4698], [29.6604, -95.2698],
                         [29.5604, -95.2698], [29.5604, -95.4698]
                     ],
                     'color': '#ff00ff',
-                    'alert_rules': ['asset_entry', 'asset_exit', 'utilization_threshold'],
+                    'alert_rules': ['specialty_deployment', 'resource_allocation', 'sr_pm_management'],
                     'organization': 'Unified Specialties',
-                    'asset_count': 47
+                    'asset_count': 47,
+                    'sr_pm': 'SR-582-Gamma',
+                    'active_projects': ['Matagorda Bridge', 'Liberty FM']
                 }
             ],
             'alert_system': {

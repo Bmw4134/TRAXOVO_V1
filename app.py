@@ -86,6 +86,15 @@ def dashboard():
     
     return render_template('enhanced_dashboard.html')
 
+@app.route('/asset-map')
+def asset_map():
+    """Full-screen mobile-friendly asset tracking map"""
+    # Check authentication
+    if not session.get('authenticated'):
+        return redirect('/login')
+    
+    return render_template('asset_tracking_map.html')
+
 @app.route('/logout')
 def logout():
     """Logout and return to landing page"""

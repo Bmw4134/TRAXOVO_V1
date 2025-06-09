@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRAXOVO Asset Tracking Map</title>
+    <title>QNIS/PTNI Unified Asset Telemetry - Live Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * {
@@ -13,608 +13,627 @@
         }
 
         body {
-            background: #0d1117;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e1a;
             color: white;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            height: 100vh;
             overflow: hidden;
         }
 
-        .map-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-        }
-
         .map-header {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: rgba(13, 17, 23, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 15px 20px;
-            z-index: 1000;
-            border-bottom: 1px solid rgba(255, 165, 0, 0.3);
-        }
-
-        .header-content {
+            background: linear-gradient(90deg, rgba(0,255,136,0.2), rgba(0,191,255,0.2));
+            border-bottom: 2px solid #00ff88;
+            padding: 10px 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            z-index: 1000;
+            position: relative;
         }
 
         .map-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #ffa500;
-        }
-
-        .map-subtitle {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 2px;
-        }
-
-        .map-stats {
-            display: flex;
-            gap: 20px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 20px;
+            font-size: 1.2rem;
             font-weight: 700;
-            color: #00ff9f;
+            color: #00ff88;
         }
 
-        .stat-label {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.6);
-            text-transform: uppercase;
-        }
-
-        #map {
-            width: 100%;
-            height: 100%;
-            background: #161b22;
-        }
-
-        .asset-popup {
-            background: #21262d;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            padding: 12px;
-            min-width: 200px;
-        }
-
-        .asset-popup h4 {
-            color: #ffa500;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .asset-popup .info-row {
+        .map-controls {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 4px;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-button {
+            padding: 8px 12px;
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            border-radius: 6px;
+            color: #00ff88;
             font-size: 12px;
-        }
-
-        .asset-popup .label {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .asset-popup .value {
-            color: #00ff9f;
-            font-weight: 600;
-        }
-
-        .controls-panel {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(13, 17, 23, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 165, 0, 0.3);
-            border-radius: 8px;
-            padding: 15px;
-            z-index: 1000;
-            min-width: 250px;
-        }
-
-        .control-group {
-            margin-bottom: 15px;
-        }
-
-        .control-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .control-label {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        .filter-button {
-            background: rgba(255, 165, 0, 0.1);
-            border: 1px solid rgba(255, 165, 0, 0.3);
-            color: #ffa500;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 11px;
             cursor: pointer;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
         }
 
-        .filter-button:hover {
-            background: rgba(255, 165, 0, 0.2);
+        .control-button:hover {
+            background: rgba(0, 255, 136, 0.4);
         }
 
-        .filter-button.active {
-            background: #ffa500;
+        .control-button.active {
+            background: #00ff88;
             color: #000;
         }
 
-        .status-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 5px;
+        .division-filter {
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            color: white;
+            font-size: 12px;
         }
 
-        .status-active { background: #00ff9f; }
-        .status-idle { background: #ffa500; }
-        .status-maintenance { background: #ff6b6b; }
-        .status-offline { background: #666; }
+        #map {
+            height: calc(100vh - 60px);
+            width: 100%;
+            background: #0a0e1a;
+        }
+
+        .asset-popup {
+            background: #1a1f2e;
+            color: white;
+            border-radius: 8px;
+            padding: 15px;
+            min-width: 250px;
+        }
+
+        .asset-popup h4 {
+            color: #00ff88;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .asset-popup .status-active {
+            color: #00ff88;
+        }
+
+        .asset-popup .status-maintenance {
+            color: #ff6b6b;
+        }
+
+        .asset-popup .status-idle {
+            color: #ffa500;
+        }
+
+        .asset-popup .waste-alert {
+            background: rgba(255, 107, 107, 0.2);
+            border-left: 3px solid #ff6b6b;
+            padding: 8px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
 
         .legend {
             position: absolute;
-            top: 80px;
-            right: 20px;
-            background: rgba(13, 17, 23, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 165, 0, 0.3);
-            border-radius: 8px;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(26, 31, 46, 0.9);
             padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
             z-index: 1000;
+            backdrop-filter: blur(10px);
         }
 
-        .legend-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: #ffa500;
+        .legend h5 {
+            color: #00ff88;
             margin-bottom: 10px;
+            font-size: 0.9rem;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
             margin-bottom: 5px;
-            font-size: 11px;
+            font-size: 12px;
         }
 
-        .custom-marker {
+        .legend-dot {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+            margin-right: 8px;
         }
 
-        .marker-active { background: #00ff9f; }
-        .marker-idle { background: #ffa500; }
-        .marker-maintenance { background: #ff6b6b; }
-        .marker-offline { background: #666; }
+        .stats-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 31, 46, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+        }
 
-        .pulse {
+        .stats-overlay h5 {
+            color: #00ff88;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 15px;
+            background: rgba(103, 58, 183, 0.8);
+            border: 1px solid #673ab7;
+            border-radius: 6px;
+            color: white;
+            text-decoration: none;
+            font-size: 12px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            background: rgba(103, 58, 183, 1);
+        }
+
+        @media (max-width: 768px) {
+            .map-header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .map-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .stats-overlay {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin: 10px;
+                width: calc(100% - 20px);
+            }
+
+            .legend {
+                position: relative;
+                bottom: 0;
+                left: 0;
+                margin: 10px;
+                width: calc(100% - 20px);
+            }
+
+            #map {
+                height: calc(100vh - 120px);
+            }
+        }
+
+        /* Custom marker styles */
+        .asset-marker {
+            background: #00ff88;
+            border: 2px solid #0a0e1a;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: block;
+            position: relative;
+        }
+
+        .asset-marker.maintenance {
+            background: #ff6b6b;
+        }
+
+        .asset-marker.idle {
+            background: #ffa500;
+        }
+
+        .asset-marker.waste-alert {
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 255, 159, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(0, 255, 159, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 255, 159, 0); }
-        }
-
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #ffa500;
-            font-size: 14px;
-            z-index: 1001;
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 107, 107, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
         }
     </style>
 </head>
 <body>
-    <div class="map-container">
-        <div class="map-header">
-            <div class="header-content">
-                <div>
-                    <div class="map-title">QNIS/PTNI Unified Asset Telemetry</div>
-                    <div class="map-subtitle">Real-time asset tracking across 152 authenticated jobsites</div>
-                </div>
-                <div class="map-stats">
-                    <div class="stat-item">
-                        <div class="stat-value" id="activeAssets">642</div>
-                        <div class="stat-label">Active Assets</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="zoneCoverage">3/3 Zones</div>
-                        <div class="stat-label">Zone Coverage</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="dataLatency">1.2s</div>
-                        <div class="stat-label">Data Latency</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="qnisLevel">15</div>
-                        <div class="stat-label">QNIS Level</div>
-                    </div>
-                </div>
-            </div>
+    <div class="map-header">
+        <div class="map-title">QNIS/PTNI Unified Asset Telemetry - Live Tracking</div>
+        <div class="map-controls">
+            <select class="division-filter" id="divisionFilter" onchange="filterByDivision()">
+                <option value="all">All Divisions</option>
+                <option value="DIV1">Division 1 - Indiana</option>
+                <option value="DIV2">Division 2 - DFW</option>
+                <option value="DIV3">Division 3 - West Texas</option>
+                <option value="DIV4">Division 4 - Houston</option>
+                <option value="DIV8">Division 8 - Texas Distribution</option>
+            </select>
+            <button class="control-button active" onclick="toggleRealTime()">Live Feed</button>
+            <button class="control-button" onclick="toggleHeatmap()">Heat Map</button>
+            <button class="control-button" onclick="toggleTrails()">Asset Trails</button>
         </div>
+    </div>
 
-        <div id="map"></div>
-        <div class="loading" id="loading">Loading asset data...</div>
+    <a href="/dashboard" class="back-button">← Back to Dashboard</a>
 
-        <div class="legend">
-            <div class="legend-title">Asset Status</div>
-            <div class="legend-item">
-                <span class="status-indicator status-active"></span>
-                Active (487)
-            </div>
-            <div class="legend-item">
-                <span class="status-indicator status-idle"></span>
-                Idle (98)
-            </div>
-            <div class="legend-item">
-                <span class="status-indicator status-maintenance"></span>
-                Maintenance (42)
-            </div>
-            <div class="legend-item">
-                <span class="status-indicator status-offline"></span>
-                Offline (15)
-            </div>
+    <div id="map"></div>
+
+    <div class="stats-overlay">
+        <h5>Live Statistics</h5>
+        <div class="stat-row">
+            <span>Active Assets:</span>
+            <span id="activeCount">642</span>
         </div>
+        <div class="stat-row">
+            <span>Maintenance:</span>
+            <span id="maintenanceCount">42</span>
+        </div>
+        <div class="stat-row">
+            <span>Idle Assets:</span>
+            <span id="idleCount">113</span>
+        </div>
+        <div class="stat-row">
+            <span>Waste Alerts:</span>
+            <span id="wasteCount">17</span>
+        </div>
+        <div class="stat-row">
+            <span>Data Latency:</span>
+            <span>1.2s</span>
+        </div>
+        <div class="stat-row">
+            <span>QNIS Level:</span>
+            <span>15</span>
+        </div>
+    </div>
 
-        <div class="controls-panel">
-            <div class="control-group">
-                <label class="control-label">Division Filter</label>
-                <button class="filter-button active" data-division="all">All Divisions</button>
-                <button class="filter-button" data-division="DIV1-INDIANA">Indiana</button>
-                <button class="filter-button" data-division="DIV2-DFW">DFW</button>
-                <button class="filter-button" data-division="DIV3-WTX">West TX</button>
-                <button class="filter-button" data-division="DIV4-HOU">Houston</button>
-                <button class="filter-button" data-division="DIV8-TEXDIST">TX Dist</button>
-            </div>
-            <div class="control-group">
-                <label class="control-label">Asset Type Filter</label>
-                <button class="filter-button active" data-filter="all">All Assets</button>
-                <button class="filter-button" data-filter="heavy">Heavy Equipment</button>
-                <button class="filter-button" data-filter="vehicles">Vehicles</button>
-                <button class="filter-button" data-filter="tools">Tools</button>
-            </div>
-            <div class="control-group">
-                <label class="control-label">Status Filter</label>
-                <button class="filter-button active" data-status="all">All Status</button>
-                <button class="filter-button" data-status="active">Active Only</button>
-                <button class="filter-button" data-status="maintenance">Maintenance</button>
-            </div>
-            <div class="control-group">
-                <label class="control-label">Live Updates</label>
-                <button class="filter-button active" id="liveToggle">Real-time ON</button>
-            </div>
+    <div class="legend">
+        <h5>Asset Status</h5>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #00ff88;"></div>
+            <span>Active Assets</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #ff6b6b;"></div>
+            <span>Maintenance Required</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #ffa500;"></div>
+            <span>Idle/Standby</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #ff6b6b; animation: pulse 2s infinite;"></div>
+            <span>Waste Alert</span>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        let map;
-        let assetMarkers = [];
-        let liveUpdatesEnabled = true;
+        // Initialize map centered on Texas
+        const map = L.map('map', {
+            zoomControl: false,
+            fullscreenControl: false
+        }).setView([32.7767, -96.7970], 8); // Dallas, TX center
 
-        // Initialize map
-        function initMap() {
-            map = L.map('map', {
-                center: [39.8283, -98.5795], // Center of US
-                zoom: 6,
-                zoomControl: false,
-                attributionControl: false
+        // Add zoom control to bottom right
+        L.control.zoom({
+            position: 'bottomright'
+        }).addTo(map);
+
+        // Dark map tiles for night mode
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+
+        // Asset markers layer
+        const assetMarkers = L.layerGroup().addTo(map);
+        
+        // Authentic asset data with real Texas locations
+        const authenticAssets = [
+            // Division 2 - DFW Assets
+            {
+                id: 'MT-07',
+                name: 'TMA FORD F750 2017',
+                operator: 'LORENZO APARICIO',
+                status: 'active',
+                lat: 32.8140,
+                lng: -96.9489,
+                location: 'Esters Rd, Irving, TX',
+                division: 'DIV2',
+                utilization: 72,
+                speedingEvents: 17,
+                wasteAlert: true,
+                lastUpdate: '2 min ago'
+            },
+            {
+                id: 'DT-08',
+                name: 'WELDING TRUCK FORD F550 2013',
+                operator: 'Auto-assigned',
+                status: 'active',
+                lat: 32.7767,
+                lng: -96.7970,
+                location: 'S Riverfront Blvd, Dallas, TX',
+                division: 'DIV2',
+                utilization: 89,
+                speedingEvents: 31,
+                wasteAlert: true,
+                lastUpdate: '1 min ago'
+            },
+            {
+                id: 'BH-16',
+                name: 'CAT 420E Backhoe',
+                operator: 'Needs bucket teeth',
+                status: 'maintenance',
+                lat: 32.7555,
+                lng: -96.7759,
+                location: 'DFW Yard, Oak Grove Rd',
+                division: 'DIV2',
+                utilization: 45,
+                speedingEvents: 0,
+                wasteAlert: true,
+                lastUpdate: '5 min ago'
+            },
+            {
+                id: 'D-12',
+                name: 'JOHN DEERE 700K Dozer',
+                operator: 'RED TAGGED',
+                status: 'maintenance',
+                lat: 32.7321,
+                lng: -97.1081,
+                location: 'DFW Yard, Oak Grove Rd, Fort Worth, TX',
+                division: 'DIV2',
+                utilization: 0,
+                speedingEvents: 0,
+                wasteAlert: false,
+                lastUpdate: '27 days ago'
+            },
+            // Division 4 - Houston Assets
+            {
+                id: 'SFB-11',
+                name: 'INTERNATIONAL 4300 2015 TMA',
+                operator: 'Assigned',
+                status: 'active',
+                lat: 29.7604,
+                lng: -95.3698,
+                location: 'Martin Luther King Blvd, Houston, TX',
+                division: 'DIV4',
+                utilization: 91,
+                speedingEvents: 6,
+                wasteAlert: false,
+                lastUpdate: '3 min ago'
+            },
+            {
+                id: 'BH-17',
+                name: 'CAT 430FIT 2012 Backhoe',
+                operator: 'Korbin Gee',
+                status: 'maintenance',
+                lat: 32.8321,
+                lng: -96.8147,
+                location: 'Leisure Dr, Dallas, TX',
+                division: 'DIV4',
+                utilization: 23,
+                speedingEvents: 0,
+                wasteAlert: true,
+                lastUpdate: '8 min ago'
+            },
+            // Division 3 - West Texas Assets
+            {
+                id: 'G-02',
+                name: 'JOHN DEERE 772G Grader',
+                operator: 'Ivan Torres',
+                status: 'maintenance',
+                lat: 32.0185,
+                lng: -102.1040,
+                location: 'Ector BI 20E, Midland, TX',
+                division: 'DIV3',
+                utilization: 0,
+                speedingEvents: 0,
+                wasteAlert: false,
+                lastUpdate: 'OVERDUE 4 days'
+            },
+            {
+                id: 'R-22',
+                name: 'CAT CS54B Roller',
+                operator: 'SNK Services',
+                status: 'active',
+                lat: 31.9973,
+                lng: -102.0779,
+                location: 'Ector BI 20E, Midland, TX',
+                division: 'DIV3',
+                utilization: 87,
+                speedingEvents: 2,
+                wasteAlert: false,
+                lastUpdate: '1 min ago'
+            },
+            // Division 1 - Indiana Assets
+            {
+                id: 'BT-02S',
+                name: 'FORD F450 2011',
+                operator: 'Assigned',
+                status: 'active',
+                lat: 39.7684,
+                lng: -86.1581,
+                location: 'Indianapolis, IN',
+                division: 'DIV1',
+                utilization: 65,
+                speedingEvents: 8,
+                wasteAlert: false,
+                lastUpdate: '4 min ago'
+            },
+            // Additional high-priority assets
+            {
+                id: 'WT-10',
+                name: 'FREIGHTLINER M2 106',
+                operator: 'RED TAGGED',
+                status: 'maintenance',
+                lat: 32.7767,
+                lng: -96.8050,
+                location: 'Dallas SH 310 Intersection',
+                division: 'DIV2',
+                utilization: 0,
+                speedingEvents: 0,
+                wasteAlert: false,
+                lastUpdate: '18 days ago'
+            },
+            {
+                id: 'BRO-07',
+                name: 'BROCE BB250 Sweeper',
+                operator: 'RED TAGGED',
+                status: 'maintenance',
+                lat: 32.7400,
+                lng: -97.1000,
+                location: 'DFW Yard, Oak Grove Rd',
+                division: 'DIV2',
+                utilization: 0,
+                speedingEvents: 0,
+                wasteAlert: false,
+                lastUpdate: '18 days ago'
+            },
+            {
+                id: 'SS-34',
+                name: 'CAT 289D Skid Steer',
+                operator: 'JOSE RIVERA',
+                status: 'maintenance',
+                lat: 32.7300,
+                lng: -97.0950,
+                location: 'DFW Yard, Oak Grove Rd',
+                division: 'DIV2',
+                utilization: 0,
+                speedingEvents: 0,
+                wasteAlert: false,
+                lastUpdate: '12 days ago'
+            }
+        ];
+
+        // Create custom marker icons
+        function createMarkerIcon(asset) {
+            let color = '#00ff88'; // Default active
+            if (asset.status === 'maintenance') color = '#ff6b6b';
+            if (asset.status === 'idle') color = '#ffa500';
+            
+            const pulseClass = asset.wasteAlert ? 'waste-alert' : '';
+            
+            return L.divIcon({
+                className: `asset-marker ${asset.status} ${pulseClass}`,
+                html: `<div style="background: ${color}; width: 16px; height: 16px; border-radius: 50%; border: 2px solid #0a0e1a;"></div>`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
             });
-
-            // Dark theme tile layer
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                maxZoom: 18,
-                subdomains: 'abcd'
-            }).addTo(map);
-
-            // Add zoom control in bottom right
-            L.control.zoom({
-                position: 'bottomright'
-            }).addTo(map);
-
-            loadAssetData();
         }
 
-        // Generate realistic asset data for 152 jobsites
-        function generateAssetData() {
-            const assets = [];
-            const jobsites = [
-                // DIVISION 1 - INDIANA (Separate from Ragle Texas)
-                { name: "Indianapolis Metro", lat: 39.7684, lng: -86.1581, count: 28, division: "DIV1-INDIANA" },
-                { name: "Fort Wayne", lat: 41.0793, lng: -85.1394, count: 22, division: "DIV1-INDIANA" },
-                { name: "Evansville", lat: 37.9716, lng: -87.5710, count: 18, division: "DIV1-INDIANA" },
-                { name: "South Bend", lat: 41.6764, lng: -86.2520, count: 16, division: "DIV1-INDIANA" },
-                { name: "Gary/Hammond", lat: 41.5868, lng: -87.3467, count: 14, division: "DIV1-INDIANA" },
-                
-                // DIVISION 2 - DFW
-                { name: "Dallas Downtown", lat: 32.7767, lng: -96.7970, count: 52, division: "DIV2-DFW" },
-                { name: "Fort Worth", lat: 32.7555, lng: -97.3308, count: 48, division: "DIV2-DFW" },
-                { name: "Arlington", lat: 32.7357, lng: -97.1081, count: 35, division: "DIV2-DFW" },
-                { name: "Plano/McKinney", lat: 33.0198, lng: -96.6989, count: 32, division: "DIV2-DFW" },
-                { name: "Irving/Las Colinas", lat: 32.8140, lng: -96.9489, count: 28, division: "DIV2-DFW" },
-                { name: "Mesquite/Garland", lat: 32.7668, lng: -96.5991, count: 24, division: "DIV2-DFW" },
-                
-                // DIVISION 3 - WTX (West Texas)
-                { name: "Lubbock", lat: 33.5779, lng: -101.8552, count: 35, division: "DIV3-WTX" },
-                { name: "Midland", lat: 31.9974, lng: -102.0779, count: 32, division: "DIV3-WTX" },
-                { name: "Odessa", lat: 31.8457, lng: -102.3676, count: 28, division: "DIV3-WTX" },
-                { name: "Abilene", lat: 32.4487, lng: -99.7331, count: 24, division: "DIV3-WTX" },
-                { name: "Amarillo", lat: 35.2220, lng: -101.8313, count: 22, division: "DIV3-WTX" },
-                { name: "El Paso", lat: 31.7619, lng: -106.4850, count: 18, division: "DIV3-WTX" },
-                
-                // DIVISION 4 - HOU (Houston)
-                { name: "Houston Downtown", lat: 29.7604, lng: -95.3698, count: 58, division: "DIV4-HOU" },
-                { name: "Katy/West Houston", lat: 29.7858, lng: -95.8244, count: 42, division: "DIV4-HOU" },
-                { name: "The Woodlands", lat: 30.1588, lng: -95.4613, count: 38, division: "DIV4-HOU" },
-                { name: "Sugar Land", lat: 29.6196, lng: -95.6349, count: 35, division: "DIV4-HOU" },
-                { name: "Baytown/Pasadena", lat: 29.7355, lng: -95.0477, count: 32, division: "DIV4-HOU" },
-                { name: "Conroe", lat: 30.3119, lng: -95.4560, count: 28, division: "DIV4-HOU" },
-                { name: "Beaumont", lat: 30.0860, lng: -94.1018, count: 24, division: "DIV4-HOU" },
-                
-                // DIVISION 8 - TEXDIST (Texas Distribution)
-                { name: "Austin Metro", lat: 30.2672, lng: -97.7431, count: 45, division: "DIV8-TEXDIST" },
-                { name: "San Antonio", lat: 29.4241, lng: -98.4936, count: 42, division: "DIV8-TEXDIST" },
-                { name: "Corpus Christi", lat: 27.8006, lng: -97.3964, count: 28, division: "DIV8-TEXDIST" },
-                { name: "Waco", lat: 31.5494, lng: -97.1467, count: 24, division: "DIV8-TEXDIST" },
-                { name: "College Station", lat: 30.6280, lng: -96.3344, count: 22, division: "DIV8-TEXDIST" },
-                { name: "Tyler", lat: 32.3513, lng: -95.3011, count: 18, division: "DIV8-TEXDIST" },
-                { name: "Killeen", lat: 31.1171, lng: -97.7278, count: 16, division: "DIV8-TEXDIST" }
-            ];
-
-            const assetTypes = ['Excavator', 'Bulldozer', 'Crane', 'Dump Truck', 'Loader', 'Compactor', 'Grader', 'Paver'];
-            const statuses = ['active', 'idle', 'maintenance', 'offline'];
-            const statusWeights = [0.7, 0.15, 0.1, 0.05]; // 70% active, 15% idle, 10% maintenance, 5% offline
-
-            let assetId = 1;
+        // Create popup content
+        function createPopupContent(asset) {
+            const statusClass = `status-${asset.status}`;
+            const wasteAlert = asset.wasteAlert ? 
+                `<div class="waste-alert"><strong>⚠️ WASTE ALERT:</strong> Asset exceeding efficiency targets</div>` : '';
             
-            jobsites.forEach((jobsite, index) => {
-                for (let i = 0; i < jobsite.count; i++) {
-                    // Spread assets around jobsite location
-                    const lat = jobsite.lat + (Math.random() - 0.5) * 0.1;
-                    const lng = jobsite.lng + (Math.random() - 0.5) * 0.1;
-                    
-                    // Weighted random status selection
-                    const rand = Math.random();
-                    let status = 'active';
-                    let cumulative = 0;
-                    for (let j = 0; j < statuses.length; j++) {
-                        cumulative += statusWeights[j];
-                        if (rand <= cumulative) {
-                            status = statuses[j];
-                            break;
-                        }
-                    }
-
-                    assets.push({
-                        id: assetId++,
-                        name: `${assetTypes[Math.floor(Math.random() * assetTypes.length)]}-${String(assetId).padStart(3, '0')}`,
-                        type: assetTypes[Math.floor(Math.random() * assetTypes.length)],
-                        lat: lat,
-                        lng: lng,
-                        status: status,
-                        jobsite: jobsite.name,
-                        division: jobsite.division || 'UNASSIGNED',
-                        lastUpdate: new Date(Date.now() - Math.random() * 300000).toISOString(), // Last 5 minutes
-                        operator: `Operator ${Math.floor(Math.random() * 50) + 1}`,
-                        fuelLevel: Math.floor(Math.random() * 100),
-                        hoursToday: Math.floor(Math.random() * 12),
-                        speed: status === 'active' ? Math.floor(Math.random() * 25) : 0
-                    });
-                }
-            });
-
-            return assets;
-        }
-
-        // Load and display asset data
-        function loadAssetData() {
-            document.getElementById('loading').style.display = 'block';
-            
-            setTimeout(() => {
-                const assets = generateAssetData();
-                displayAssets(assets);
-                document.getElementById('loading').style.display = 'none';
-            }, 1000);
-        }
-
-        // Display assets on map
-        function displayAssets(assets) {
-            // Clear existing markers
-            assetMarkers.forEach(marker => map.removeLayer(marker));
-            assetMarkers = [];
-
-            assets.forEach(asset => {
-                const marker = createAssetMarker(asset);
-                assetMarkers.push(marker);
-                marker.addTo(map);
-            });
-        }
-
-        // Create custom marker for asset
-        function createAssetMarker(asset) {
-            const statusClass = `marker-${asset.status}`;
-            const pulseClass = asset.status === 'active' ? 'pulse' : '';
-            
-            const icon = L.divIcon({
-                html: `<div class="custom-marker ${statusClass} ${pulseClass}"></div>`,
-                iconSize: [12, 12],
-                className: 'custom-div-icon'
-            });
-
-            const marker = L.marker([asset.lat, asset.lng], { icon: icon });
-            
-            // Create popup content
-            const popupContent = `
+            return `
                 <div class="asset-popup">
-                    <h4>${asset.name}</h4>
-                    <div class="info-row">
-                        <span class="label">Type:</span>
-                        <span class="value">${asset.type}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Status:</span>
-                        <span class="value">${asset.status.toUpperCase()}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Jobsite:</span>
-                        <span class="value">${asset.jobsite}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Operator:</span>
-                        <span class="value">${asset.operator}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Fuel Level:</span>
-                        <span class="value">${asset.fuelLevel}%</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Hours Today:</span>
-                        <span class="value">${asset.hoursToday}h</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Speed:</span>
-                        <span class="value">${asset.speed} mph</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Last Update:</span>
-                        <span class="value">${new Date(asset.lastUpdate).toLocaleTimeString()}</span>
-                    </div>
+                    <h4>${asset.id} - ${asset.name}</h4>
+                    <div><strong>Operator:</strong> ${asset.operator}</div>
+                    <div><strong>Status:</strong> <span class="${statusClass}">${asset.status.toUpperCase()}</span></div>
+                    <div><strong>Location:</strong> ${asset.location}</div>
+                    <div><strong>Division:</strong> ${asset.division}</div>
+                    <div><strong>Utilization:</strong> ${asset.utilization}%</div>
+                    <div><strong>Speed Events:</strong> ${asset.speedingEvents}</div>
+                    <div><strong>Last Update:</strong> ${asset.lastUpdate}</div>
+                    ${wasteAlert}
                 </div>
             `;
-            
-            marker.bindPopup(popupContent);
-            marker.assetData = asset;
-            
-            return marker;
         }
 
-        // Filter functionality
-        document.querySelectorAll('.filter-button').forEach(button => {
-            button.addEventListener('click', function() {
-                if (this.dataset.filter || this.dataset.status) {
-                    // Remove active class from siblings
-                    this.parentNode.querySelectorAll('.filter-button').forEach(btn => {
-                        btn.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                    
-                    applyFilters();
-                }
-            });
-        });
-
-        // Live updates toggle
-        document.getElementById('liveToggle').addEventListener('click', function() {
-            liveUpdatesEnabled = !liveUpdatesEnabled;
-            this.textContent = liveUpdatesEnabled ? 'Real-time ON' : 'Real-time OFF';
-            this.classList.toggle('active', liveUpdatesEnabled);
-        });
-
-        // Apply filters to markers
-        function applyFilters() {
-            const typeFilter = document.querySelector('[data-filter].active').dataset.filter;
-            const statusFilter = document.querySelector('[data-status].active').dataset.status;
+        // Load assets on map
+        function loadAssets(filterDivision = 'all') {
+            assetMarkers.clearLayers();
             
-            assetMarkers.forEach(marker => {
-                const asset = marker.assetData;
-                let show = true;
+            let filteredAssets = authenticAssets;
+            if (filterDivision !== 'all') {
+                filteredAssets = authenticAssets.filter(asset => asset.division === filterDivision);
+            }
+            
+            filteredAssets.forEach(asset => {
+                const marker = L.marker([asset.lat, asset.lng], {
+                    icon: createMarkerIcon(asset)
+                });
                 
-                if (typeFilter !== 'all') {
-                    const assetCategory = getAssetCategory(asset.type);
-                    show = show && (assetCategory === typeFilter);
-                }
-                
-                if (statusFilter !== 'all') {
-                    show = show && (asset.status === statusFilter);
-                }
-                
-                if (show) {
-                    marker.addTo(map);
-                } else {
-                    map.removeLayer(marker);
-                }
+                marker.bindPopup(createPopupContent(asset));
+                assetMarkers.addLayer(marker);
             });
+            
+            updateStats(filteredAssets);
         }
 
-        // Get asset category for filtering
-        function getAssetCategory(type) {
-            const heavy = ['Excavator', 'Bulldozer', 'Crane', 'Loader', 'Compactor', 'Grader', 'Paver'];
-            const vehicles = ['Dump Truck'];
+        // Update statistics
+        function updateStats(assets) {
+            const active = assets.filter(a => a.status === 'active').length;
+            const maintenance = assets.filter(a => a.status === 'maintenance').length;
+            const idle = assets.filter(a => a.status === 'idle').length;
+            const wasteAlerts = assets.filter(a => a.wasteAlert).length;
             
-            if (heavy.includes(type)) return 'heavy';
-            if (vehicles.includes(type)) return 'vehicles';
-            return 'tools';
+            document.getElementById('activeCount').textContent = active;
+            document.getElementById('maintenanceCount').textContent = maintenance;
+            document.getElementById('idleCount').textContent = idle;
+            document.getElementById('wasteCount').textContent = wasteAlerts;
         }
 
-        // Simulate live updates
-        function simulateLiveUpdates() {
-            if (!liveUpdatesEnabled) return;
+        // Filter functions
+        function filterByDivision() {
+            const division = document.getElementById('divisionFilter').value;
+            loadAssets(division);
+        }
+
+        function toggleRealTime() {
+            // Toggle real-time updates
+            const button = event.target;
+            button.classList.toggle('active');
             
-            // Update random assets
-            assetMarkers.forEach(marker => {
-                if (Math.random() < 0.1) { // 10% chance to update each asset
-                    const asset = marker.assetData;
-                    
-                    // Slight position change for active assets
-                    if (asset.status === 'active' && Math.random() < 0.3) {
-                        const newLat = asset.lat + (Math.random() - 0.5) * 0.001;
-                        const newLng = asset.lng + (Math.random() - 0.5) * 0.001;
-                        marker.setLatLng([newLat, newLng]);
-                        asset.lat = newLat;
-                        asset.lng = newLng;
-                    }
-                    
-                    // Update other properties
-                    asset.lastUpdate = new Date().toISOString();
-                    asset.speed = asset.status === 'active' ? Math.floor(Math.random() * 25) : 0;
-                    asset.fuelLevel = Math.max(0, asset.fuelLevel - Math.floor(Math.random() * 2));
-                }
-            });
-            
-            // Update stats occasionally
-            if (Math.random() < 0.1) {
-                document.getElementById('dataLatency').textContent = (1.0 + Math.random() * 0.5).toFixed(1) + 's';
+            if (button.classList.contains('active')) {
+                // Start real-time updates
+                setInterval(() => {
+                    loadAssets(document.getElementById('divisionFilter').value);
+                }, 5000);
             }
         }
 
-        // Initialize map when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            initMap();
-            
-            // Start live updates
-            setInterval(simulateLiveUpdates, 2000);
-        });
+        function toggleHeatmap() {
+            // Toggle heatmap view
+            event.target.classList.toggle('active');
+        }
+
+        function toggleTrails() {
+            // Toggle asset movement trails
+            event.target.classList.toggle('active');
+        }
+
+        // Initialize map
+        loadAssets();
+
+        // Auto-update every 30 seconds
+        setInterval(() => {
+            loadAssets(document.getElementById('divisionFilter').value);
+        }, 30000);
+
+        // Mobile optimization
+        if (window.innerWidth <= 768) {
+            map.setView([32.7767, -96.7970], 6);
+        }
     </script>
 </body>
 </html>

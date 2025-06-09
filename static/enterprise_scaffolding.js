@@ -278,21 +278,72 @@ class TRAXOVOEnterpriseScaffolding {
     // Interactive drill-down functions
     drillDownAssetType(assetType) {
         console.log(`Drilling down into asset type: ${assetType}`);
-        this.switchToAssetsTab();
+        // Switch to assets section
+        const assetsTab = document.querySelector('[data-section="assets"]');
+        if (assetsTab) {
+            assetsTab.click();
+        }
         this.filterAssetsByType(assetType);
-        this.showAssetTypeDetails(assetType);
     }
 
     drillDownDivision(division) {
         console.log(`Drilling down into division: ${division}`);
-        this.switchToAssetsTab();
+        // Switch to assets section  
+        const assetsTab = document.querySelector('[data-section="assets"]');
+        if (assetsTab) {
+            assetsTab.click();
+        }
         this.filterAssetsByDivision(division);
-        this.showDivisionDetails(division);
     }
 
     viewMaintenanceDetails(assetId) {
         console.log(`Viewing maintenance details for: ${assetId}`);
         this.showMaintenanceModal(assetId);
+    }
+
+    viewAssetDetails(assetType) {
+        console.log(`Viewing asset details for: ${assetType}`);
+        this.drillDownAssetType(assetType);
+    }
+
+    scheduleMainenance(assetType) {
+        console.log(`Scheduling maintenance for: ${assetType}`);
+        alert(`Maintenance scheduling for ${assetType} assets - integrate with GAUGE API`);
+    }
+
+    viewDivisionDetails(division) {
+        console.log(`Viewing division details for: ${division}`);
+        this.drillDownDivision(division);
+    }
+
+    generateReport(division) {
+        console.log(`Generating report for: ${division}`);
+        alert(`Generating comprehensive report for ${division}`);
+    }
+
+    scheduleService(assetId) {
+        console.log(`Scheduling service for: ${assetId}`);
+        alert(`Service scheduling for asset ${assetId} - integrate with maintenance system`);
+    }
+
+    viewAssetLocation(assetId) {
+        console.log(`Viewing location for: ${assetId}`);
+        alert(`GPS tracking for asset ${assetId} - requires GAUGE API integration`);
+    }
+
+    filterAssetsByType(assetType) {
+        console.log(`Filtering assets by type: ${assetType}`);
+        // Implementation for asset filtering
+    }
+
+    filterAssetsByDivision(division) {
+        console.log(`Filtering assets by division: ${division}`);
+        // Implementation for division filtering
+    }
+
+    showMaintenanceModal(assetId) {
+        console.log(`Showing maintenance modal for: ${assetId}`);
+        // Implementation for maintenance modal
     }
 
     // Enhanced utility functions

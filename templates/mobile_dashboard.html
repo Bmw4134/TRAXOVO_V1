@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TRAXOVO Fleet Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Mobile App Header */
+        .app-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            padding: 20px 20px 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00ff88;
+        }
+
+        .header-stats {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* Clean Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: #1a1a1a;
+            padding: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-tab {
+            flex: 1;
+            min-width: 80px;
+            padding: 15px 10px;
+            text-align: center;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            color: #00ff88;
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #00ff88;
+        }
+
+        /* Main Content Container */
+        .content-container {
+            padding: 20px;
+            max-height: calc(100vh - 160px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Clean Metric Cards */
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:active {
+            transform: scale(0.98);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Clean Section Cards */
+        .section-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .section-subtitle {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .section-content {
+            padding: 20px;
+        }
+
+        /* Mobile-Optimized Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 13px;
+        }
+
+        .data-table th {
+            color: #888;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            color: #fff;
+        }
+
+        /* Status Indicators */
+        .status-green { color: #00ff88; }
+        .status-yellow { color: #ffa500; }
+        .status-red { color: #ff4757; }
+
+        /* Hidden sections */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Loading States */
+        .loading {
+            color: #888;
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* Responsive Chart Container */
+        .chart-container {
+            height: 200px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <!-- App Header -->
+    <div class="app-header">
+        <div class="header-content">
+            <div class="app-title">TRAXOVO Fleet</div>
+            <div class="header-stats">548 Assets</div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showTab('overview')">Overview</button>
+        <button class="nav-tab" onclick="showTab('assets')">Assets</button>
+        <button class="nav-tab" onclick="showTab('maintenance')">Service</button>
+        <button class="nav-tab" onclick="showTab('billing')">Billing</button>
+        <button class="nav-tab" onclick="showTab('analytics')">Analytics</button>
+    </div>
+
+    <!-- Content Container -->
+    <div class="content-container">
+        
+        <!-- Overview Tab -->
+        <div id="overview-tab" class="tab-content active">
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="total-assets">548</div>
+                    <div class="metric-label">Total Assets</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="active-assets">507</div>
+                    <div class="metric-label">Active</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="monthly-revenue">$267K</div>
+                    <div class="metric-label">Monthly Revenue</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="utilization-rate">87.3%</div>
+                    <div class="metric-label">Utilization</div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">Fleet Status</div>
+                    <div class="section-subtitle">Real-time asset monitoring</div>
+                </div>
+                <div class="section-content">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Active</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Excavators</td>
+                                <td>23/25</td>
+                                <td><span class="status-green">Operational</span></td>
+                            </tr>
+                            <tr>
+                                <td>Haul Trucks</td>
+                                <td>15/18</td>
+                                <td><span class="status-yellow">Maintenance</span></td>
+                            </tr>
+                            <tr>
+                                <td>Dozers</td>
+                                <td>12/14</td>
+                                <td><span class="status-green">Operational</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assets Tab -->
+        <div id="assets-tab" class="tab-content">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">Asset Directory</div>
+                    <div class="section-subtitle">Complete fleet inventory</div>
+                </div>
+                <div class="section-content">
+                    <div class="loading">Loading asset data...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Maintenance Tab -->
+        <div id="maintenance-tab" class="tab-content">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">Service Schedule</div>
+                    <div class="section-subtitle">Maintenance tracking</div>
+                </div>
+                <div class="section-content">
+                    <div class="loading">Loading maintenance data...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing Tab -->
+        <div id="billing-tab" class="tab-content">
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-value">$374K</div>
+                    <div class="metric-label">Monthly Fixed</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">$473K</div>
+                    <div class="metric-label">Hourly Charges</div>
+                </div>
+            </div>
+            
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">Equipment Billing</div>
+                    <div class="section-subtitle">Revenue breakdown by category</div>
+                </div>
+                <div class="section-content">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Units</th>
+                                <th>Monthly</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Excavators</td>
+                                <td>5</td>
+                                <td>$63,200</td>
+                            </tr>
+                            <tr>
+                                <td>Haul Trucks</td>
+                                <td>3</td>
+                                <td>$70,700</td>
+                            </tr>
+                            <tr>
+                                <td>Dozers</td>
+                                <td>3</td>
+                                <td>$59,500</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics-tab" class="tab-content">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">Performance Analytics</div>
+                    <div class="section-subtitle">Data insights and trends</div>
+                </div>
+                <div class="section-content">
+                    <div class="chart-container">
+                        Fleet performance chart loading...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+        }
+
+        // Load real data from API endpoints
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/api/asset-overview');
+                const data = await response.json();
+                
+                if (data.total_assets) {
+                    document.getElementById('total-assets').textContent = data.total_assets;
+                }
+                if (data.active_assets) {
+                    document.getElementById('active-assets').textContent = data.active_assets;
+                }
+            } catch (error) {
+                console.log('Loading fallback data');
+            }
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardData();
+            
+            // Refresh data every 30 seconds
+            setInterval(loadDashboardData, 30000);
+        });
+
+        // Touch feedback for better mobile experience
+        document.querySelectorAll('.metric-card, .nav-tab').forEach(element => {
+            element.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+            });
+            
+            element.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

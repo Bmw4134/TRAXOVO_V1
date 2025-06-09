@@ -251,9 +251,16 @@ def save_customization():
 @require_auth
 def enterprise_dashboard():
     """TRAXOVO ∞ Enterprise Dashboard"""
-    user_level = session.get('user_level', 'standard_user')
-    template = 'enhanced_dashboard.html' if user_level == 'nexus_superuser' else 'user_dashboard.html'
-    return render_template(template)
+    # Mobile device detection
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'ipad', 'ipod', 'android', 'mobile'])
+    
+    if is_mobile:
+        return render_template('mobile_dashboard.html')
+    else:
+        user_level = session.get('user_level', 'standard_user')
+        template = 'enhanced_dashboard.html' if user_level == 'nexus_superuser' else 'user_dashboard.html'
+        return render_template(template)
 
 
 

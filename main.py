@@ -134,6 +134,12 @@ def watson_auth():
     # Return to landing with error indicator
     return redirect('/?auth_error=1')
 
+@app.route('/logout')
+def logout():
+    """Clear session and return to landing page"""
+    session.clear()
+    return redirect('/')
+
 @app.route('/login')
 def login_page():
     """Login page - QNIS authentication"""

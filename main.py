@@ -98,8 +98,15 @@ def require_auth(f):
 
 # Core application routes
 @app.route('/')
-def landing_page():
-    """Watson User Landing Page - TRAXOVO ∞ Clarity Core Access Portal"""
+def intro_landing():
+    """Watson Intro Landing - Pre-Authentication Experience"""
+    if session.get('authenticated') or session.get('watson_authenticated'):
+        return redirect('/dashboard')
+    return render_template('watson_intro_landing.html')
+
+@app.route('/access')
+def access_portal():
+    """Watson Access Portal - Authentication Gateway"""
     if session.get('authenticated') or session.get('watson_authenticated'):
         return redirect('/dashboard')
     return render_template('watson_landing.html')

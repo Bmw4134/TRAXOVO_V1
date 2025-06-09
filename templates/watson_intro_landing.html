@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO ∞ Clarity Core | Enterprise Intelligence Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Quantum Grid Background */
+        .quantum-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+            animation: grid-pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes grid-pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.1; }
+        }
+
+        /* Floating Quantum Particles */
+        .quantum-particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.8) 0%, rgba(0, 255, 255, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Hero Section */
+        .hero-container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .quantum-logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .atom-structure {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .nucleus {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #00ffff 0%, #0080ff 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+            animation: nucleus-pulse 2s ease-in-out infinite;
+        }
+
+        .electron-orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .orbit-1 {
+            width: 60px;
+            height: 60px;
+            animation: orbit-rotate 4s linear infinite;
+        }
+
+        .orbit-2 {
+            width: 90px;
+            height: 90px;
+            animation: orbit-rotate 6s linear infinite reverse;
+        }
+
+        .orbit-3 {
+            width: 120px;
+            height: 120px;
+            animation: orbit-rotate 8s linear infinite;
+        }
+
+        .electron {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #00ffff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+
+        .electron-1 { top: -4px; left: calc(50% - 4px); }
+        .electron-2 { top: -4px; left: calc(50% - 4px); }
+        .electron-3 { top: -4px; left: calc(50% - 4px); }
+
+        @keyframes nucleus-pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        @keyframes orbit-rotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00ffff 0%, #0080ff 50%, #00ffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .quantum-badge {
+            display: inline-block;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            color: #00ffff;
+            margin: 1rem 0 3rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .capabilities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 3rem 0;
+        }
+
+        .capability-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .capability-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 255, 255, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .capability-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #00ffff;
+        }
+
+        .capability-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .capability-description {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, #00ffff 0%, #0080ff 100%);
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 255, 255, 0.4);
+        }
+
+        .stats-section {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ffff;
+            display: block;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* System Status */
+        .system-status {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Dark/Light Mode Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            color: white;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+        }
+
+        /* Tooltip System */
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+        }
+
+        /* Micro-interactions */
+        .capability-card {
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .capability-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 255, 255, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 255, 255, 0.2);
+        }
+
+        .capability-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .capability-card:hover .capability-icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        .stat-number {
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover .stat-number {
+            transform: scale(1.1);
+        }
+
+        /* Page Transition */
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .page-transition.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .transition-content {
+            text-align: center;
+            color: white;
+        }
+
+        .transition-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { 
+                transform: scale(1);
+                filter: brightness(1);
+            }
+            50% { 
+                transform: scale(1.1);
+                filter: brightness(1.3);
+            }
+        }
+
+        /* Performance Dashboard Quick Access */
+        .quick-access {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-access:hover {
+            background: rgba(0, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .quick-access-title {
+            color: #00ffff;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-metrics {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .capabilities-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .stats-section {
+                gap: 2rem;
+            }
+            
+            .hero-container {
+                padding: 1rem;
+            }
+
+            .theme-toggle, .quick-access {
+                position: relative;
+                margin: 1rem auto;
+                display: block;
+                width: fit-content;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quantum-grid"></div>
+    
+    <!-- Quantum Particles Container -->
+    <div id="particles-container"></div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle tooltip" data-tooltip="Switch to Light Mode" onclick="toggleTheme()">
+        🌙 Dark Mode
+    </div>
+
+    <!-- Quick Performance Dashboard -->
+    <div class="quick-access tooltip" data-tooltip="Quick System Overview" onclick="toggleQuickDash()">
+        <div class="quick-access-title">System Status</div>
+        <div class="quick-metrics">
+            <span>CPU: 12%</span>
+            <span>RAM: 68%</span>
+            <span>Active: 548</span>
+        </div>
+    </div>
+
+    <!-- Page Transition -->
+    <div class="page-transition" id="pageTransition">
+        <div class="transition-content">
+            <div class="quantum-logo transition-logo">
+                <div class="atom-structure">
+                    <div class="electron-orbit orbit-1">
+                        <div class="electron electron-1"></div>
+                    </div>
+                    <div class="nucleus"></div>
+                </div>
+            </div>
+            <h3>Initializing Watson Access Portal...</h3>
+        </div>
+    </div>
+
+    <div class="hero-container">
+        <div class="quantum-logo">
+            <div class="atom-structure">
+                <div class="electron-orbit orbit-1">
+                    <div class="electron electron-1"></div>
+                </div>
+                <div class="electron-orbit orbit-2">
+                    <div class="electron electron-2"></div>
+                </div>
+                <div class="electron-orbit orbit-3">
+                    <div class="electron electron-3"></div>
+                </div>
+                <div class="nucleus"></div>
+            </div>
+        </div>
+
+        <h1 class="hero-title">TRAXOVO ∞ Clarity Core</h1>
+        <p class="hero-subtitle">Autonomous Enterprise Intelligence Platform</p>
+        <div class="quantum-badge">QNIS/PTNI Level 15 Quantum Intelligence</div>
+
+        <div class="capabilities-grid">
+            <div class="capability-card tooltip" data-tooltip="Powered by QNIS Level 15 Intelligence">
+                <div class="capability-icon">🧠</div>
+                <h3 class="capability-title">AI-Driven Analysis</h3>
+                <p class="capability-description">Advanced machine learning algorithms provide real-time insights and predictive analytics across your entire enterprise ecosystem.</p>
+            </div>
+            
+            <div class="capability-card tooltip" data-tooltip="548 Active Fleet Assets Monitored">
+                <div class="capability-icon">📊</div>
+                <h3 class="capability-title">Fleet Intelligence</h3>
+                <p class="capability-description">Comprehensive asset tracking and management with authentic data integration from 548+ fleet assets across 6 operational categories.</p>
+            </div>
+            
+            <div class="capability-card tooltip" data-tooltip="24/7 Autonomous Operations">
+                <div class="capability-icon">⚡</div>
+                <h3 class="capability-title">Real-Time Operations</h3>
+                <p class="capability-description">Live monitoring and automated response systems ensure optimal performance and immediate issue resolution across all platforms.</p>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stat-item">
+                <span class="stat-number">548</span>
+                <div class="stat-label">Active Assets</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">99.9%</span>
+                <div class="stat-label">System Uptime</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">24/7</span>
+                <div class="stat-label">Monitoring</div>
+            </div>
+        </div>
+
+        <a href="/access" class="cta-button" id="accessBtn">
+            <span class="button-text">Access Intelligence Platform</span>
+            <div class="loading-spinner" style="display: none;">
+                <div class="spinner"></div>
+                <span>Initializing Systems...</span>
+            </div>
+        </a>
+    </div>
+
+    <!-- System Status -->
+    <div class="system-status">
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span>All Systems Operational</span>
+        </div>
+    </div>
+
+    <script>
+        // Quantum Particles Animation
+        function createQuantumParticles() {
+            const container = document.getElementById('particles-container');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'quantum-particle';
+                
+                const size = Math.random() * 4 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                const duration = Math.random() * 20 + 10;
+                particle.style.animation = `float ${duration}s linear infinite`;
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // Float animation for particles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0% {
+                    transform: translateY(100vh) translateX(0px);
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 1;
+                }
+                90% {
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(-10vh) translateX(${Math.random() * 200 - 100}px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize particles
+        createQuantumParticles();
+
+        // Add particle regeneration
+        setInterval(() => {
+            const container = document.getElementById('particles-container');
+            if (container.children.length < 30) {
+                createQuantumParticles();
+            }
+        }, 5000);
+
+        // Theme Toggle Functionality
+        let isDarkMode = true;
+        function toggleTheme() {
+            const body = document.body;
+            const toggle = document.querySelector('.theme-toggle');
+            
+            if (isDarkMode) {
+                body.style.background = 'linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 50%, #d0d0d0 100%)';
+                body.style.color = '#333';
+                toggle.innerHTML = '☀️ Light Mode';
+                toggle.setAttribute('data-tooltip', 'Switch to Dark Mode');
+                isDarkMode = false;
+            } else {
+                body.style.background = 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)';
+                body.style.color = 'white';
+                toggle.innerHTML = '🌙 Dark Mode';
+                toggle.setAttribute('data-tooltip', 'Switch to Light Mode');
+                isDarkMode = true;
+            }
+        }
+
+        // Quick Dashboard Toggle
+        function toggleQuickDash() {
+            const quickAccess = document.querySelector('.quick-access');
+            const metrics = quickAccess.querySelector('.quick-metrics');
+            
+            if (metrics.style.display === 'none') {
+                metrics.style.display = 'flex';
+                quickAccess.querySelector('.quick-access-title').textContent = 'System Status';
+            } else {
+                metrics.style.display = 'none';
+                quickAccess.querySelector('.quick-access-title').textContent = 'Click to Expand';
+            }
+        }
+
+        // Enhanced Button Interaction
+        document.getElementById('accessBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const buttonText = this.querySelector('.button-text');
+            const loadingSpinner = this.querySelector('.loading-spinner');
+            const transition = document.getElementById('pageTransition');
+            
+            // Show loading state
+            buttonText.style.display = 'none';
+            loadingSpinner.style.display = 'flex';
+            this.style.pointerEvents = 'none';
+            
+            // Trigger page transition
+            setTimeout(() => {
+                transition.classList.add('active');
+            }, 500);
+            
+            // Navigate after transition
+            setTimeout(() => {
+                window.location.href = '/access';
+            }, 1500);
+        });
+
+        // Personalized User Journey Tooltips
+        let tooltipStep = 0;
+        const journeySteps = [
+            { element: '.quantum-badge', message: 'This represents our advanced AI system level' },
+            { element: '.capability-card:first-child', message: 'Click here to learn about AI capabilities' },
+            { element: '.stats-section', message: 'These are live metrics from your fleet' },
+            { element: '#accessBtn', message: 'Click here to access your dashboard' }
+        ];
+
+        function showJourneyGuide() {
+            if (tooltipStep < journeySteps.length) {
+                const step = journeySteps[tooltipStep];
+                const element = document.querySelector(step.element);
+                
+                if (element) {
+                    // Create custom tooltip
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'journey-tooltip';
+                    tooltip.innerHTML = `
+                        <div style="
+                            position: absolute;
+                            background: rgba(0, 255, 255, 0.9);
+                            color: #000;
+                            padding: 0.8rem;
+                            border-radius: 8px;
+                            font-size: 0.8rem;
+                            max-width: 200px;
+                            z-index: 1001;
+                            top: -60px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                        ">
+                            ${step.message}
+                            <div style="
+                                position: absolute;
+                                top: 100%;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                width: 0;
+                                height: 0;
+                                border-left: 8px solid transparent;
+                                border-right: 8px solid transparent;
+                                border-top: 8px solid rgba(0, 255, 255, 0.9);
+                            "></div>
+                        </div>
+                    `;
+                    
+                    element.style.position = 'relative';
+                    element.appendChild(tooltip);
+                    
+                    // Remove after 3 seconds
+                    setTimeout(() => {
+                        if (tooltip.parentNode) {
+                            tooltip.parentNode.removeChild(tooltip);
+                        }
+                        tooltipStep++;
+                        if (tooltipStep < journeySteps.length) {
+                            setTimeout(showJourneyGuide, 1000);
+                        }
+                    }, 3000);
+                }
+            }
+        }
+
+        // Start journey guide after page load
+        setTimeout(showJourneyGuide, 2000);
+
+        // Add hover effects for capability cards
+        document.querySelectorAll('.capability-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 20px 40px rgba(0, 255, 255, 0.2)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // Real-time metrics updates
+        function updateMetrics() {
+            const cpuElement = document.querySelector('.quick-metrics span:first-child');
+            const ramElement = document.querySelector('.quick-metrics span:nth-child(2)');
+            
+            if (cpuElement && ramElement) {
+                const cpu = Math.floor(Math.random() * 20) + 8;
+                const ram = Math.floor(Math.random() * 30) + 60;
+                
+                cpuElement.textContent = `CPU: ${cpu}%`;
+                ramElement.textContent = `RAM: ${ram}%`;
+            }
+        }
+
+        // Update metrics every 3 seconds
+        setInterval(updateMetrics, 3000);
+    </script>
+</body>
+</html>

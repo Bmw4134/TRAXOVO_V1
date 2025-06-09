@@ -289,6 +289,15 @@
 
         <div class="controls-panel">
             <div class="control-group">
+                <label class="control-label">Division Filter</label>
+                <button class="filter-button active" data-division="all">All Divisions</button>
+                <button class="filter-button" data-division="DIV1-INDIANA">Indiana</button>
+                <button class="filter-button" data-division="DIV2-DFW">DFW</button>
+                <button class="filter-button" data-division="DIV3-WTX">West TX</button>
+                <button class="filter-button" data-division="DIV4-HOU">Houston</button>
+                <button class="filter-button" data-division="DIV8-TEXDIST">TX Dist</button>
+            </div>
+            <div class="control-group">
                 <label class="control-label">Asset Type Filter</label>
                 <button class="filter-button active" data-filter="all">All Assets</button>
                 <button class="filter-button" data-filter="heavy">Heavy Equipment</button>
@@ -415,6 +424,7 @@
                         lng: lng,
                         status: status,
                         jobsite: jobsite.name,
+                        division: jobsite.division || 'UNASSIGNED',
                         lastUpdate: new Date(Date.now() - Math.random() * 300000).toISOString(), // Last 5 minutes
                         operator: `Operator ${Math.floor(Math.random() * 50) + 1}`,
                         fuelLevel: Math.floor(Math.random() * 100),

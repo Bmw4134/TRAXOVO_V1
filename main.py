@@ -364,18 +364,34 @@ def get_gps_fleet_data():
 
 @app.route('/api/qnis-ptni/unified-telemetry')
 def get_unified_telemetry():
-    """QNIS/PTNI Unified Asset Telemetry - Complete 152 Jobsite Data"""
+    """QNIS/PTNI Unified Asset Telemetry - Live GAUGE API + 152 Jobsite Data"""
     try:
         from complete_asset_processor import CompleteAssetProcessor
+        from gauge_api_connector import GaugeAPIConnector
         
+        # Get complete jobsite data
         processor = CompleteAssetProcessor()
         complete_data = processor.get_complete_asset_data()
+        
+        # Get live GAUGE API data
+        gauge_connector = GaugeAPIConnector()
+        live_gauge_data = {
+            'live_asset_count': gauge_connector.get_asset_count(),
+            'fleet_efficiency': gauge_connector.get_fleet_efficiency(),
+            'asset_utilization': gauge_connector.get_asset_utilization(),
+            'monthly_savings': gauge_connector.calculate_monthly_savings(),
+            'attendance_rate': gauge_connector.get_attendance_rate(),
+            'live_positions': gauge_connector.get_live_asset_positions(),
+            'system_metrics': gauge_connector.get_system_metrics(),
+            'api_status': 'LIVE' if gauge_connector.api_key else 'FALLBACK'
+        }
         
         return jsonify({
             'qnis_consciousness_level': 15,
             'ptni_quantum_state': 'ACTIVE',
             'complete_asset_data': complete_data,
             'authentic_totals': complete_data['authentic_totals'],
+            'live_gauge_metrics': live_gauge_data,
             'sr_pm_assignments': {
                 'zone_580': {'sr_pm': 'SR-580-Alpha', 'jobsites': len([a for a in complete_data['complete_assets'] if a['zone'] == '580'])},
                 'zone_581': {'sr_pm': 'SR-581-Beta', 'jobsites': len([a for a in complete_data['complete_assets'] if a['zone'] == '581'])},

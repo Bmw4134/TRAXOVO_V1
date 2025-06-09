@@ -21,6 +21,56 @@
             box-sizing: border-box;
         }
 
+        /* Mobile-first responsive fixes */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+                -webkit-text-size-adjust: 100%;
+                overflow-x: hidden;
+            }
+            
+            .dashboard-container {
+                padding: 10px !important;
+                margin: 0 !important;
+            }
+            
+            .metric-card, .content-section, .section-card {
+                margin-bottom: 15px !important;
+                padding: 15px !important;
+                min-height: auto !important;
+            }
+            
+            .grid-layout {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+            
+            .chart-container {
+                height: 250px !important;
+                overflow: hidden;
+            }
+            
+            table {
+                font-size: 12px !important;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .header-section {
+                padding: 15px !important;
+                text-align: center;
+            }
+            
+            .metric-value {
+                font-size: 1.8rem !important;
+            }
+            
+            .metric-label {
+                font-size: 0.9rem !important;
+            }
+        }
+
         /* Global dark theme overrides for visibility */
         body, div, span, p, h1, h2, h3, h4, h5, h6, td, th, table {
             color: rgba(255, 255, 255, 0.9) !important;
@@ -3486,6 +3536,46 @@
     </script>
 
     <script>
+        // Mobile touch and scroll optimization for iPhone
+        function initializeMobileOptimizations() {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Enable smooth scrolling for all containers
+                document.body.style.webkitOverflowScrolling = 'touch';
+                document.body.style.overflowX = 'hidden';
+                
+                // Fix table scrolling on mobile
+                const tables = document.querySelectorAll('table');
+                tables.forEach(table => {
+                    const wrapper = document.createElement('div');
+                    wrapper.style.overflowX = 'auto';
+                    wrapper.style.webkitOverflowScrolling = 'touch';
+                    wrapper.style.maxWidth = '100%';
+                    table.parentNode.insertBefore(wrapper, table);
+                    wrapper.appendChild(table);
+                });
+                
+                // Optimize chart containers for touch
+                const chartContainers = document.querySelectorAll('.chart-container, canvas');
+                chartContainers.forEach(container => {
+                    container.style.touchAction = 'pan-x pan-y';
+                    container.style.maxWidth = '100%';
+                });
+                
+                // Add touch-friendly button sizing
+                const buttons = document.querySelectorAll('button');
+                buttons.forEach(button => {
+                    button.style.minHeight = '44px';
+                    button.style.minWidth = '44px';
+                });
+                
+                // Enable passive touch listeners
+                document.addEventListener('touchstart', function() {}, { passive: true });
+                document.addEventListener('touchmove', function() {}, { passive: true });
+            }
+        }
+
         // Global error handlers for deployment
         window.addEventListener('unhandledrejection', function(event) {
             event.preventDefault();
@@ -3502,6 +3592,12 @@
             console.error = function() {};
             console.warn = function() {};
         }
+
+        // Initialize mobile optimizations on load
+        document.addEventListener('DOMContentLoaded', initializeMobileOptimizations);
+        
+        // Re-initialize after dynamic content loads
+        setTimeout(initializeMobileOptimizations, 2000);
     </script>
 </body>
 </html>

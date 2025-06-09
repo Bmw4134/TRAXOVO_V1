@@ -102,15 +102,25 @@ def asset_map():
 @app.route('/logout', methods=['GET', 'POST'])
 def user_logout():
     """Logout route for dashboard"""
-    session.clear()
-    return redirect('/')
+    try:
+        session.clear()
+        response = redirect('/')
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        return response
+    except Exception as e:
+        logging.error(f"Logout error: {e}")
+        return redirect('/')
 
 # Alternative logout route for reliability
-@app.route('/auth/logout')
+@app.route('/auth/logout', methods=['GET', 'POST'])
 def auth_logout():
     """Alternative logout route"""
-    session.clear()
-    return redirect('/')
+    try:
+        session.clear()
+        return redirect('/')
+    except Exception as e:
+        logging.error(f"Auth logout error: {e}")
+        return redirect('/')
 
 # GAUGE Zone Management API Endpoints
 @app.route('/api/automation/execute', methods=['POST'])

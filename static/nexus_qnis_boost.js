@@ -819,6 +819,75 @@ class NexusQNISBoost {
         }
     }
     
+    // Missing methods implementation
+    detectDeviceType() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+        const isTablet = /ipad|tablet|kindle|silk|playbook/i.test(userAgent);
+        
+        if (isMobile && !isTablet) {
+            return 'mobile';
+        } else if (isTablet) {
+            return 'tablet';
+        } else {
+            return 'desktop';
+        }
+    }
+    
+    optimizeForDesktop() {
+        this.applyDesktopLayout();
+        this.enableMouseOptimizations();
+        document.body.classList.add('desktop-optimized');
+        console.log('QNIS: Desktop optimization applied');
+    }
+    
+    startNLPSession() {
+        this.nlpSystem.isActive = true;
+        this.nlpIndexing = true;
+        
+        // Initialize NLP container if not exists
+        if (!document.getElementById('qnis-nlp-container')) {
+            this.createNLPInterface();
+        }
+        
+        console.log('QNIS: NLP session started');
+        this.updateBackendPanel();
+    }
+    
+    createNLPInterface() {
+        const nlpContainer = document.createElement('div');
+        nlpContainer.id = 'qnis-nlp-container';
+        nlpContainer.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 320px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            z-index: 10000;
+            display: none;
+            backdrop-filter: blur(10px);
+        `;
+        
+        nlpContainer.innerHTML = `
+            <div class="nlp-header" style="color: #00ff88; font-weight: bold; margin-bottom: 15px; cursor: move;">
+                QNIS Live NLP Query
+            </div>
+            <input type="text" id="nlp-live-input" placeholder="Ask anything about your data..." 
+                   class="nlp-query-input" style="margin-bottom: 10px;">
+            <button onclick="NEXUS_QNIS.processLiveQuery()" 
+                    style="background: #00ff88; color: black; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">
+                Query
+            </button>
+            <div id="nlp-results" style="margin-top: 15px; color: #fff; font-size: 14px;"></div>
+        `;
+        
+        document.body.appendChild(nlpContainer);
+        this.makeDraggable(nlpContainer);
+    }
+
     // Global method bindings
     setupGlobalMethods() {
         window.NEXUS_QNIS = {

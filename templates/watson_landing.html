@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO ∞ Clarity Core - Watson Access Portal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .landing-container {
+            text-align: center;
+            z-index: 10;
+            max-width: 800px;
+            padding: 2rem;
+        }
+
+        .quantum-logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #00ff9f, #00bcd4, #3f51b5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: quantumPulse 3s infinite;
+        }
+
+        @keyframes quantumPulse {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.05); filter: brightness(1.2); }
+        }
+
+        .main-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #ffffff, #00ff9f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
+        }
+
+        .quantum-level {
+            display: inline-block;
+            background: rgba(0, 255, 159, 0.1);
+            border: 1px solid rgba(0, 255, 159, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            margin-bottom: 3rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .watson-auth-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 2rem 0;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .auth-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #00ff9f;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: #00ff9f;
+            box-shadow: 0 0 20px rgba(0, 255, 159, 0.3);
+        }
+
+        .auth-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .watson-button {
+            background: linear-gradient(135deg, #00ff9f 0%, #00bcd4 100%);
+            color: #0f0f23;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .watson-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 159, 0.4);
+        }
+
+        .watson-button:active {
+            transform: translateY(0);
+        }
+
+        .access-info {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(0, 255, 159, 0.05);
+            border: 1px solid rgba(0, 255, 159, 0.2);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .quantum-particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00ff9f;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: floatParticle 20s infinite linear;
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        .system-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 255, 159, 0.1);
+            border: 1px solid rgba(0, 255, 159, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: #00ff9f;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+            animation: statusPulse 2s infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation" id="particleContainer"></div>
+    
+    <div class="landing-container">
+        <div class="quantum-logo">
+            <i class="fas fa-atom"></i>
+        </div>
+        
+        <h1 class="main-title">TRAXOVO ∞ Clarity Core</h1>
+        <p class="subtitle">Autonomous Enterprise Intelligence Platform</p>
+        <div class="quantum-level">QNIS/PTNI Level 15 Quantum Intelligence</div>
+        
+        <div class="watson-auth-panel">
+            <h2 class="auth-title">
+                <i class="fas fa-user-shield"></i>
+                Watson Superuser Access
+            </h2>
+            
+            <form class="auth-form" action="/watson-auth" method="POST">
+                <div class="input-group">
+                    <input type="text" name="username" class="auth-input" placeholder="Username" required>
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" name="password" class="auth-input" placeholder="Password" required>
+                </div>
+                
+                <button type="submit" class="watson-button">
+                    <i class="fas fa-rocket"></i>
+                    Initialize TRAXOVO Systems
+                </button>
+            </form>
+            
+            <div class="access-info">
+                <i class="fas fa-info-circle"></i>
+                Universal access credentials: <strong>nexus</strong> for both username and password
+                <br>
+                Authenticated users gain full access to 548 asset fleet management with GAUGE API integration
+            </div>
+        </div>
+    </div>
+    
+    <div class="system-status">
+        <span class="status-indicator"></span>
+        All Systems Operational
+    </div>
+
+    <script>
+        // Create floating quantum particles
+        function createParticles() {
+            const container = document.getElementById('particleContainer');
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'quantum-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Initialize particles
+        createParticles();
+
+        // Add form interaction effects
+        document.querySelectorAll('.auth-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+
+        // Simulate system initialization on form submit
+        document.querySelector('.auth-form').addEventListener('submit', function(e) {
+            const button = document.querySelector('.watson-button');
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing Systems...';
+            button.style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%)';
+        });
+    </script>
+</body>
+</html>

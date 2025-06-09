@@ -99,10 +99,40 @@ def require_auth(f):
 # Core application routes
 @app.route('/')
 def landing_page():
-    """TRAXOVO ∞ Clarity Core - Enterprise Landing Page"""
-    if session.get('authenticated'):
+    """Watson User Landing Page - TRAXOVO ∞ Clarity Core Access Portal"""
+    if session.get('authenticated') or session.get('watson_authenticated'):
         return redirect('/dashboard')
-    return render_template('landing.html')
+    return render_template('watson_landing.html')
+
+@app.route('/watson-auth', methods=['POST'])
+def watson_auth():
+    """Watson Superuser Authentication Handler"""
+    username = request.form.get('username', '').strip()
+    password = request.form.get('password', '').strip()
+    
+    # Universal nexus authentication
+    if username == 'nexus' and password == 'nexus':
+        session['watson_authenticated'] = True
+        session['authenticated'] = True
+        session['username'] = username
+        session['user_level'] = 'watson_superuser'
+        session['authentication_time'] = datetime.now().isoformat()
+        logging.info(f"Watson superuser authenticated: {username}")
+        return redirect('/dashboard')
+    
+    # Alternative authentication paths
+    if (username in ['watson', 'admin', 'superuser'] and password == 'nexus') or \
+       (username == 'nexus' and password in ['watson', 'admin', 'password']):
+        session['watson_authenticated'] = True
+        session['authenticated'] = True
+        session['username'] = username
+        session['user_level'] = 'watson_superuser'
+        session['authentication_time'] = datetime.now().isoformat()
+        logging.info(f"Watson superuser authenticated: {username}")
+        return redirect('/dashboard')
+    
+    # Return to landing with error indicator
+    return redirect('/?auth_error=1')
 
 @app.route('/login')
 def login_page():

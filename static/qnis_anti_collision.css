@@ -1,0 +1,193 @@
+/* QNIS/PTNI Anti-Collision System */
+/* Resolves UI element clashing without deletion */
+
+/* Grid System Enhancement */
+.enterprise-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
+    gap: 1.5rem !important;
+    padding: 1rem !important;
+    position: relative !important;
+    z-index: 2 !important;
+    box-sizing: border-box !important;
+}
+
+/* Element Positioning Fix */
+.enterprise-card, .metric-card, .kpi-card {
+    position: relative !important;
+    z-index: 3 !important;
+    margin-bottom: 1rem !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+}
+
+/* Hover State Protection */
+.enterprise-card:hover, .metric-card:hover, .kpi-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+    z-index: 10 !important;
+}
+
+/* QNIS Drill-down Animation */
+.drill-down-active {
+    animation: qnisDrillDown 0.3s ease-out !important;
+    z-index: 15 !important;
+}
+
+@keyframes qnisDrillDown {
+    0% { transform: scale(1); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+    50% { transform: scale(1.02); box-shadow: 0 12px 40px rgba(0, 123, 255, 0.2); }
+    100% { transform: scale(1); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); }
+}
+
+/* Contextual Tab System */
+.qnis-tab-system {
+    position: relative !important;
+    z-index: 5 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.qnis-tab-content {
+    position: relative !important;
+    z-index: 4 !important;
+    padding: 1.5rem !important;
+    min-height: calc(100vh - 120px) !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Vector Matrix Overlay Protection */
+.qnis-vector-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    pointer-events: none !important;
+    z-index: 100 !important;
+    background: linear-gradient(45deg, transparent 49%, rgba(0, 123, 255, 0.02) 50%, transparent 51%) !important;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+    .enterprise-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+        padding: 0.5rem !important;
+    }
+    
+    .qnis-tab-content {
+        padding: 1rem !important;
+        min-height: calc(100vh - 100px) !important;
+    }
+    
+    .enterprise-card, .metric-card, .kpi-card {
+        margin-bottom: 0.75rem !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    .enterprise-grid {
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)) !important;
+        gap: 2rem !important;
+        padding: 1.5rem !important;
+    }
+}
+
+/* Container Wrapper Protection */
+.qnis-contextual-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    z-index: 1 !important;
+    box-sizing: border-box !important;
+}
+
+/* Dashboard Layout Fix */
+.dashboard-content {
+    position: relative !important;
+    z-index: 3 !important;
+    padding: 1rem !important;
+    box-sizing: border-box !important;
+}
+
+/* Card Content Protection */
+.card-content, .enterprise-content {
+    position: relative !important;
+    z-index: 5 !important;
+    padding: 1rem !important;
+    box-sizing: border-box !important;
+}
+
+/* Chart Container Fix */
+.chart-container, .graph-container {
+    position: relative !important;
+    z-index: 6 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Navigation Protection */
+.nav-container, .navigation {
+    position: relative !important;
+    z-index: 8 !important;
+    box-sizing: border-box !important;
+}
+
+/* Modal and Overlay Protection */
+.modal, .overlay {
+    position: fixed !important;
+    z-index: 1000 !important;
+    box-sizing: border-box !important;
+}
+
+/* Text and Content Protection */
+h1, h2, h3, h4, h5, h6, p, span, div {
+    box-sizing: border-box !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+/* Button and Interactive Element Protection */
+button, .btn, .button, input, select, textarea {
+    position: relative !important;
+    z-index: 7 !important;
+    box-sizing: border-box !important;
+}
+
+/* Table Protection */
+table, .table {
+    position: relative !important;
+    z-index: 4 !important;
+    width: 100% !important;
+    table-layout: fixed !important;
+    box-sizing: border-box !important;
+}
+
+/* Scroll Protection */
+.scrollable {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Flex Layout Protection */
+.flex, .d-flex {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    box-sizing: border-box !important;
+}
+
+/* Clear Float Protection */
+.clearfix::after {
+    content: "" !important;
+    display: table !important;
+    clear: both !important;
+}

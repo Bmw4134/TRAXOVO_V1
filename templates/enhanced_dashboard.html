@@ -896,7 +896,7 @@
                             SR PM Project Portal
                         </button>
                     </div>
-                    <div id="embeddedAssetMap" style="display: none; margin-top: 20px; height: 600px; border: 2px solid #00ff9f; border-radius: 8px; position: relative;">
+                    <div id="embeddedAssetMap" style="display: block; margin-top: 20px; height: 600px; border: 2px solid #00ff9f; border-radius: 8px; position: relative;">
                         <div style="padding: 15px; background: rgba(0, 255, 159, 0.1); border-bottom: 1px solid rgba(0, 255, 159, 0.3);">
                             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                                 <select id="divisionSelect" onchange="filterAssetsByDivision()" style="padding: 8px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 4px; color: white;">
@@ -921,7 +921,7 @@
                     </div>
                     
                     <!-- SR PM Project Manager Portal -->
-                    <div id="projectManagerPortal" style="display: none; margin-top: 20px; border: 2px solid #673ab7; border-radius: 8px; background: rgba(103, 58, 183, 0.05);">
+                    <div id="projectManagerPortal" style="display: block; margin-top: 20px; border: 2px solid #673ab7; border-radius: 8px; background: rgba(103, 58, 183, 0.05);">
                         <div style="padding: 20px; border-bottom: 1px solid rgba(103, 58, 183, 0.3);">
                             <h3 style="margin: 0 0 15px 0; color: #673ab7;">SR PM/PE Project Management Portal</h3>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
@@ -988,6 +988,146 @@
                     
                     <div style="margin-top: 15px; font-size: 12px; color: rgba(255, 255, 255, 0.6);">
                         Interactive asset tracking with SR PM project management and utilization monitoring
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden Maintenance Dashboard with Authentic Data -->
+        <div class="section-card" style="margin-top: 30px;">
+            <div class="section-header">
+                <div class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                    </svg>
+                    Maintenance Module - Live Asset Status
+                </div>
+                <div>Real maintenance data from uploaded service schedules and red/yellow tags</div>
+            </div>
+            <div class="section-content">
+                <!-- Red/Yellow Tagged Assets -->
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #ff6b6b; margin-bottom: 15px;">Critical Maintenance Alerts (Red/Yellow Tags)</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                        <div style="background: rgba(255, 107, 107, 0.1); border: 2px solid #ff6b6b; border-radius: 8px; padding: 15px;">
+                            <h5 style="color: #ff6b6b; margin: 0 0 10px 0;">🔴 RED TAG - D-12 JOHN DEERE 700K Dozer</h5>
+                            <div style="font-size: 12px; line-height: 1.4;">
+                                <strong>Issue:</strong> Final drive is damaged<br>
+                                <strong>Tagged:</strong> 5/13/25 by Clint Mize<br>
+                                <strong>Days Tagged:</strong> 27 days<br>
+                                <strong>Location:</strong> DFW Yard, Oak Grove Rd, Fort Worth, TX
+                            </div>
+                        </div>
+                        <div style="background: rgba(255, 107, 107, 0.1); border: 2px solid #ff6b6b; border-radius: 8px; padding: 15px;">
+                            <h5 style="color: #ff6b6b; margin: 0 0 10px 0;">🔴 RED TAG - WT-10 FREIGHTLINER M2 106</h5>
+                            <div style="font-size: 12px; line-height: 1.4;">
+                                <strong>Issue:</strong> Water pump replacement needed<br>
+                                <strong>Tagged:</strong> 5/22/25 by Clint Mize<br>
+                                <strong>Days Tagged:</strong> 18 days<br>
+                                <strong>Location:</strong> Dallas SH 310 Intersection, Central Expy
+                            </div>
+                        </div>
+                        <div style="background: rgba(255, 107, 107, 0.1); border: 2px solid #ff6b6b; border-radius: 8px; padding: 15px;">
+                            <h5 style="color: #ff6b6b; margin: 0 0 10px 0;">🔴 RED TAG - BRO-07 BROCE BB250 Sweeper</h5>
+                            <div style="font-size: 12px; line-height: 1.4;">
+                                <strong>Issue:</strong> Pump rebuild required<br>
+                                <strong>Tagged:</strong> 5/22/25 by Clint Mize<br>
+                                <strong>Days Tagged:</strong> 18 days<br>
+                                <strong>Location:</strong> DFW Yard, Oak Grove Rd, Fort Worth, TX
+                            </div>
+                        </div>
+                        <div style="background: rgba(255, 107, 107, 0.1); border: 2px solid #ff6b6b; border-radius: 8px; padding: 15px;">
+                            <h5 style="color: #ff6b6b; margin: 0 0 10px 0;">🔴 RED TAG - SS-34 CAT 289D Skid Steer</h5>
+                            <div style="font-size: 12px; line-height: 1.4;">
+                                <strong>Issue:</strong> Fuel tank replacement needed<br>
+                                <strong>Tagged:</strong> 5/28/25 by Clint Mize<br>
+                                <strong>Days Tagged:</strong> 12 days<br>
+                                <strong>Operator:</strong> JOSE RIVERA<br>
+                                <strong>Location:</strong> DFW Yard, Oak Grove Rd, Fort Worth, TX
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Due Assets (Highest Priority) -->
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #ffa500; margin-bottom: 15px;">Overdue & Critical Service Schedule</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                        <div style="background: rgba(255, 165, 0, 0.1); border: 1px solid #ffa500; border-radius: 8px; padding: 15px;">
+                            <h5 style="color: #ffa500; margin: 0 0 10px 0;">⚠️ G-02 JOHN DEERE 772G Grader</h5>
+                            <div style="font-size: 12px; line-height: 1.4;">
+                                <strong>Service:</strong> 500HR PM Due<br>
+                                <strong>Hours Until:</strong> 0 (OVERDUE)<br>
+                                <strong>Mechanic:</strong> Ivan Torres<br>
+                                <strong>Status:</strong> Open for 4 days<br>
+                                <strong>Location:</strong> Dallas SH 310, Central Expy
+                            </div>
+                        </div>
+                        <div style="background: rgba(255, 165, 0, 0.1); border: 1px solid #ffa500; border-radius: 8px; padding: 15px;">
+                            <h5 style="color: #ffa500; margin: 0 0 10px 0;">⚠️ S-10 KENWORTH T880 Heavy Truck</h5>
+                            <div style="font-size: 12px; line-height: 1.4;">
+                                <strong>Service:</strong> 1500HR PM Due<br>
+                                <strong>Hours Until:</strong> 1 (CRITICAL)<br>
+                                <strong>Mechanic:</strong> Ivan Torres<br>
+                                <strong>Status:</strong> Open for 4 days<br>
+                                <strong>Location:</strong> DFW Yard, Oak Grove Rd
+                            </div>
+                        </div>
+                        <div style="background: rgba(255, 165, 0, 0.1); border: 1px solid #ffa500; border-radius: 8px; padding: 15px;">
+                            <h5 style="color: #ffa500; margin: 0 0 10px 0;">⚠️ R-22 CAT CS54B Roller</h5>
+                            <div style="font-size: 12px; line-height: 1.4;">
+                                <strong>Service:</strong> 500HR PM Due<br>
+                                <strong>Hours Until:</strong> 1<br>
+                                <strong>Mechanic:</strong> SNK Services<br>
+                                <strong>Status:</strong> Open for 4 days<br>
+                                <strong>Location:</strong> Ector BI 20E, Midland, TX
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assets Without Service Schedule -->
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #673ab7; margin-bottom: 15px;">Assets Missing Preventative Maintenance Schedule</h4>
+                    <div style="background: rgba(103, 58, 183, 0.1); border: 1px solid #673ab7; border-radius: 8px; padding: 15px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 12px;">
+                            <div><strong>BT-02S</strong> - FORD F450 2011 (190,390 miles)</div>
+                            <div><strong>CM-01</strong> - CAT CT660 2015 (91,099 miles)</div>
+                            <div><strong>CM-02</strong> - KENWORTH T880 2014 (207,696 miles)</div>
+                            <div><strong>MT-16</strong> - KENWORTH T370 2013 Lube Truck</div>
+                            <div><strong>BT-03s</strong> - FORD F550 2024 Bucket Truck (2,316 miles)</div>
+                            <div><strong>DT-08</strong> - FORD F550 2013 Welding Truck (213,496 miles)</div>
+                            <div><strong>MT-09</strong> - FORD F550 2019 (LORENZO APARICIO)</div>
+                            <div><strong>MT-11</strong> - FORD F550 2018 (Vicente Najera)</div>
+                        </div>
+                        <div style="margin-top: 15px; padding: 10px; background: rgba(255, 107, 107, 0.1); border-radius: 4px;">
+                            <strong style="color: #ff6b6b;">Action Required:</strong> 475 total assets without preventative maintenance schedules. Schedule creation needed to prevent breakdowns and ensure compliance.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Service History -->
+                <div>
+                    <h4 style="color: #00ff9f; margin-bottom: 15px;">Recent Service Activity</h4>
+                    <div style="background: rgba(0, 255, 159, 0.05); border: 1px solid rgba(0, 255, 159, 0.3); border-radius: 8px; padding: 15px; max-height: 300px; overflow-y: auto;">
+                        <div style="display: grid; gap: 10px; font-size: 12px;">
+                            <div style="padding: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px;">
+                                <strong>BH-17 CAT 430FIT Backhoe</strong> - 06/06/2025<br>
+                                Fixed hydraulic leaks and replaced stabilizer pads. Used good backup alarm installed.
+                            </div>
+                            <div style="padding: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px;">
+                                <strong>AC-12 SULLAIR 185 Air Compressor</strong> - 06/04/2025<br>
+                                Temperature sensor fault repaired. Running fine after sensor replacement.
+                            </div>
+                            <div style="padding: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px;">
+                                <strong>BH-16 CAT 420E Backhoe</strong> - 05/06/2025<br>
+                                Replaced battery and 2 bucket teeth. Caleb confirmed operation restored.
+                            </div>
+                            <div style="padding: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px;">
+                                <strong>BH-17 CAT 430FIT Backhoe</strong> - 05/09/2025<br>
+                                Cut bar off, removed old teeth, installed new bucket teeth. Work assigned to Korbin.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

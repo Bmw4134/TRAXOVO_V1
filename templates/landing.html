@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO ∞ Clarity Core - Enterprise Intelligence Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 50%, #2d1b3d 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 0 20px;
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 1200px;
+            z-index: 2;
+        }
+
+        .logo-container {
+            margin-bottom: 40px;
+        }
+
+        .main-logo {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00ff9f, #00d4ff, #673ab7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: -2px;
+        }
+
+        .tagline {
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        .qnis-level {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(103, 58, 183, 0.2);
+            border: 1px solid #673ab7;
+            border-radius: 25px;
+            font-size: 14px;
+            color: #673ab7;
+            font-weight: 600;
+            margin-bottom: 60px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: left;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #00ff9f;
+            box-shadow: 0 10px 30px rgba(0, 255, 159, 0.2);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #00ff9f, #00d4ff);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #00ff9f;
+        }
+
+        .feature-description {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        .cta-section {
+            margin: 80px 0 40px 0;
+        }
+
+        .login-button {
+            display: inline-block;
+            padding: 18px 40px;
+            background: linear-gradient(45deg, #00ff9f, #00d4ff);
+            color: #000;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 255, 159, 0.3);
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 255, 159, 0.5);
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin: 60px 0;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #00ff9f;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .background-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            z-index: 1;
+        }
+
+        .floating-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #00ff9f;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-logo {
+                font-size: 2.5rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation">
+        <!-- Animated background particles -->
+        <div class="floating-particle" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
+        <div class="floating-particle" style="top: 60%; left: 80%; animation-delay: 2s;"></div>
+        <div class="floating-particle" style="top: 80%; left: 20%; animation-delay: 4s;"></div>
+        <div class="floating-particle" style="top: 30%; left: 70%; animation-delay: 1s;"></div>
+        <div class="floating-particle" style="top: 50%; left: 50%; animation-delay: 3s;"></div>
+    </div>
+
+    <div class="hero-section">
+        <div class="hero-content">
+            <div class="logo-container">
+                <h1 class="main-logo">TRAXOVO ∞ Clarity Core</h1>
+                <p class="tagline">Advanced Autonomous Enterprise Intelligence Platform</p>
+                <div class="qnis-level">QNIS Quantum Intelligence Level 15</div>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">SR PM Project Management</h3>
+                    <p class="feature-description">Real-time asset tracking and utilization monitoring across 152 authenticated jobsites with waste prevention alerts and maintenance optimization.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🗺️</div>
+                    <h3 class="feature-title">Live Asset Telemetry</h3>
+                    <p class="feature-description">QNIS/PTNI unified asset tracking with 1.2s data latency, intelligent geofencing, and comprehensive fleet management across all divisions.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <h3 class="feature-title">Maintenance Intelligence</h3>
+                    <p class="feature-description">Authentic maintenance data integration with red/yellow tag tracking, service schedules, and predictive maintenance recommendations.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Advanced Analytics</h3>
+                    <p class="feature-description">Multi-AI powered analysis with comprehensive data visualization, performance optimization, and real-time organizational insights.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3 class="feature-title">Enterprise Security</h3>
+                    <p class="feature-description">Secure enterprise synchronization protocols with quantum-level encryption and authenticated access control systems.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">Automation Engine</h3>
+                    <p class="feature-description">Intelligent automation with master control protocols, self-healing systems, and continuous optimization algorithms.</p>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <div class="stat-item">
+                    <div class="stat-number">642</div>
+                    <div class="stat-label">Active Assets</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">152</div>
+                    <div class="stat-label">Jobsites</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">1.2s</div>
+                    <div class="stat-label">Data Latency</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">99.7%</div>
+                    <div class="stat-label">System Integrity</div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <a href="/login" class="login-button">Access Enterprise Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 TRAXOVO ∞ Clarity Core - Advanced Enterprise Intelligence Platform</p>
+        <p>Built with AI and Brett - Autonomous Intelligence Integration</p>
+    </div>
+</body>
+</html>

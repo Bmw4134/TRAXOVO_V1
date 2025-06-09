@@ -43,6 +43,55 @@ db.init_app(app)
 
 # Database tables will be created when needed
 
+# TRIFECTA Authentication Flow Routes
+@app.route('/')
+def landing_page():
+    """Landing page - first step of TRIFECTA flow"""
+    return render_template('landing.html')
+
+@app.route('/login')
+def login_page():
+    """Login page - second step of TRIFECTA flow"""
+    return render_template('login.html')
+
+@app.route('/authenticate', methods=['POST'])
+def authenticate():
+    """Handle login authentication"""
+    username = request.form.get('username', '').lower()
+    password = request.form.get('password', '')
+    
+    # Demo authentication for TRIFECTA flow
+    valid_credentials = ['admin', 'brett', 'pm', 'traxovo', 'jdd']
+    
+    if username in valid_credentials:
+        session['authenticated'] = True
+        session['username'] = username
+        return redirect('/dashboard')
+    else:
+        return redirect('/login?error=invalid')
+
+@app.route('/demo-access')
+def demo_access():
+    """Direct demo access to dashboard"""
+    session['authenticated'] = True
+    session['username'] = 'demo'
+    return redirect('/dashboard')
+
+@app.route('/dashboard')
+def dashboard():
+    """Main dashboard - third step of TRIFECTA flow"""
+    # Check authentication
+    if not session.get('authenticated'):
+        return redirect('/login')
+    
+    return render_template('enhanced_dashboard.html')
+
+@app.route('/logout')
+def logout():
+    """Logout and return to landing page"""
+    session.clear()
+    return redirect('/')
+
 # Enhanced dashboard routes defined directly in main app
 
 # TRAXOVO Landing Page Template

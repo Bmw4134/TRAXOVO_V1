@@ -20,34 +20,75 @@ class SRPMZoneMapper:
         # From your DailyUsage file: Asset 210003 (AMMAR I. ELHAMAD) in TEXDIST zone
         # From your DailyUsage file: Asset 210013 (MATTHEW C. SHAYLOR) in Fort Worth area
         
+        # Using authentic GAUGE polygon mappings from developers
         authentic_mappings = {
-            # Bridge Projects Zone
-            "BRIDGE_ZONE": {
-                "sr_pm": "SR-BRIDGE-001",
-                "assets": [
+            # Dallas/Fort Worth Metro Projects - GAUGE Zone 580
+            "DALLAS_FORT_WORTH_PROJECTS": {
+                "gauge_zone": "zone_580",
+                "sr_pm": "Dallas Heavy Highway Division",
+                "polygon_bounds": {
+                    "north": 33.2,
+                    "south": 32.5,
+                    "east": -96.5,
+                    "west": -97.5
+                },
+                "projects": [
                     {
-                        "id": "EX-15",
-                        "type": "CAT 324D 2010 Excavator",
-                        "project": "2024-030",
-                        "description": "Matagorda SH 35 Bridge Replacement",
-                        "location": "Bay City, TX",
-                        "coordinates": [28.9838542938232, -95.9977035522461],
-                        "status": "active"
+                        "project_id": "2019-044",
+                        "description": "E. Long Avenue",
+                        "contract_amount": 6950939.61,
+                        "city": "Fort Worth",
+                        "state": "TX",
+                        "status": "Active",
+                        "assets": [
+                            {
+                                "id": "210003",
+                                "type": "FORD F150 2024 Personal Vehicle",
+                                "operator": "AMMAR I. ELHAMAD",
+                                "location": "North Richland Hills, TX",
+                                "coordinates": [32.8399, -97.1932]
+                            },
+                            {
+                                "id": "210013",
+                                "type": "JEEP WRANGLER",
+                                "operator": "MATTHEW C. SHAYLOR",
+                                "location": "Fort Worth Area",
+                                "coordinates": [32.7555, -97.3308]
+                            }
+                        ]
+                    },
+                    {
+                        "project_id": "2021-017",
+                        "description": "Plano Collin Creek Culvert Imp",
+                        "contract_amount": 22480670.86,
+                        "city": "Plano",
+                        "state": "TX",
+                        "status": "Active"
                     }
                 ]
             },
             
-            # TEXDIST Zone (Texas Distribution)
-            "TEXDIST_ZONE": {
-                "sr_pm": "SR-TEXDIST-001", 
-                "assets": [
+            # Houston Metro Projects - GAUGE Zone 581
+            "HOUSTON_METRO_PROJECTS": {
+                "gauge_zone": "zone_581",
+                "sr_pm": "Houston Operations",
+                "polygon_bounds": {
+                    "north": 30.2,
+                    "south": 29.2,
+                    "east": -95.0,
+                    "west": -95.8
+                },
+                "projects": [
                     {
-                        "id": "210003",
-                        "type": "FORD F150 2024 Personal Vehicle",
-                        "operator": "AMMAR I. ELHAMAD",
-                        "location": "North Richland Hills, TX",
-                        "coordinates": [32.8399, -97.1932],
-                        "status": "active"
+                        "project_id": "2024-030",
+                        "description": "Matagorda SH 35 Bridge Replacement",
+                        "location": "Bay City, TX",
+                        "status": "Active",
+                        "assets": [
+                            {
+                                "id": "EX-15",
+                                "type": "CAT 324D 2010 Excavator",
+                                "coordinates": [28.9838542938232, -95.9977035522461]
                     },
                     {
                         "id": "210013", 

@@ -470,6 +470,267 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
+        /* Enhanced Landing Page Styles */
+        .quantum-matrix-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .quantum-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.3;
+        }
+        
+        .matrix-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--traxovo-accent);
+            border-radius: 50%;
+            animation: particleFloat 8s linear infinite;
+        }
+        
+        .landing-content {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .hero-section {
+            text-align: center;
+        }
+        
+        .value-proposition {
+            margin: 3rem 0;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .value-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--traxovo-accent);
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 20px var(--traxovo-glow);
+        }
+        
+        .value-description {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        .benefits-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        
+        .benefit-item {
+            background: var(--traxovo-glass);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: left;
+            transition: all 0.4s ease;
+        }
+        
+        .benefit-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--traxovo-accent);
+            box-shadow: 0 15px 30px var(--traxovo-glow);
+        }
+        
+        .benefit-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .benefit-content h3 {
+            color: var(--traxovo-accent);
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .benefit-content p {
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+        
+        .live-metrics {
+            margin: 4rem 0;
+        }
+        
+        .metrics-title {
+            font-size: 2rem;
+            color: var(--traxovo-accent);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .metrics-grid-landing {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .metric-showcase {
+            background: var(--traxovo-glass);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+        
+        .metric-showcase:hover {
+            transform: scale(1.05);
+            border-color: var(--traxovo-accent);
+            box-shadow: 0 10px 25px var(--traxovo-glow);
+        }
+        
+        .metric-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--traxovo-accent);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 15px var(--traxovo-glow);
+        }
+        
+        .metric-label {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        .consciousness-showcase {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .consciousness-ring {
+            width: 120px;
+            height: 120px;
+            border: 3px solid var(--traxovo-accent);
+            border-radius: 50%;
+            position: relative;
+            animation: consciousnessRotate 10s linear infinite;
+        }
+        
+        .consciousness-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--traxovo-glass);
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--traxovo-accent);
+        }
+        
+        .consciousness-level {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--traxovo-accent);
+            text-shadow: 0 0 10px var(--traxovo-glow);
+        }
+        
+        .consciousness-info {
+            text-align: left;
+        }
+        
+        .consciousness-title {
+            font-size: 1.5rem;
+            color: var(--traxovo-accent);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .consciousness-desc {
+            opacity: 0.8;
+            font-size: 1rem;
+        }
+        
+        .access-button {
+            background: linear-gradient(135deg, var(--traxovo-accent), var(--traxovo-orange));
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            margin: 2rem 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 10px 30px var(--traxovo-glow);
+        }
+        
+        .access-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px var(--traxovo-glow);
+        }
+        
+        .button-arrow {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .access-button:hover .button-arrow {
+            transform: translateX(5px);
+        }
+        
+        .executive-notice {
+            opacity: 0.7;
+            font-style: italic;
+            margin-top: 1rem;
+        }
+        
+        /* Quantum Animations */
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) translateX(100px); opacity: 0; }
+        }
+        
+        @keyframes consciousnessRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .metrics-grid {
@@ -494,15 +755,128 @@
                 width: 90%;
                 padding: 2rem;
             }
+            
+            .value-title {
+                font-size: 2rem;
+            }
+            
+            .benefits-showcase {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid-landing {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .consciousness-showcase {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Landing Screen -->
+    <!-- Landing Screen with Dynamic Quantum Matrix -->
     <div class="landing-screen" id="landingScreen">
-        <div class="landing-logo">TRAXOVO ∞</div>
-        <div class="landing-subtitle">Clarity Core Intelligence Platform</div>
-        <button class="access-button" onclick="showLogin()">Access Platform</button>
+        <!-- Quantum Matrix Background -->
+        <div class="quantum-matrix-overlay">
+            <canvas id="quantumCanvas" class="quantum-canvas"></canvas>
+            <div class="matrix-particles" id="matrixParticles"></div>
+        </div>
+        
+        <div class="landing-content">
+            <div class="hero-section">
+                <div class="landing-logo">TRAXOVO ∞</div>
+                <div class="landing-subtitle">Clarity Core Intelligence Platform</div>
+                
+                <!-- Value Proposition -->
+                <div class="value-proposition">
+                    <h2 class="value-title">Transform Fleet Operations with Quantum Intelligence</h2>
+                    <p class="value-description">
+                        TRAXOVO leverages advanced AI and real-time telematics to optimize your entire fleet ecosystem. 
+                        Our quantum-enhanced platform delivers unprecedented insights into asset utilization, 
+                        predictive maintenance, and operational efficiency - saving companies up to $368K annually.
+                    </p>
+                </div>
+                
+                <!-- Key Benefits -->
+                <div class="benefits-showcase">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🎯</div>
+                        <div class="benefit-content">
+                            <h3>Predictive Analytics</h3>
+                            <p>AI-powered forecasting prevents costly breakdowns before they happen</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">📊</div>
+                        <div class="benefit-content">
+                            <h3>Real-Time Monitoring</h3>
+                            <p>Live asset tracking across all organizations with instant alerts</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">💰</div>
+                        <div class="benefit-content">
+                            <h3>Cost Optimization</h3>
+                            <p>Reduce operational costs by up to 25% through intelligent routing</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">⚡</div>
+                        <div class="benefit-content">
+                            <h3>Executive Insights</h3>
+                            <p>Comprehensive dashboards with drill-down capabilities for leadership</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Live Performance Metrics -->
+                <div class="live-metrics">
+                    <div class="metrics-title">Live Fleet Performance</div>
+                    <div class="metrics-grid-landing">
+                        <div class="metric-showcase">
+                            <div class="metric-number" id="landingAssets">529</div>
+                            <div class="metric-label">Assets Under Management</div>
+                        </div>
+                        <div class="metric-showcase">
+                            <div class="metric-number" id="landingUtilization">87.1%</div>
+                            <div class="metric-label">Fleet Utilization Rate</div>
+                        </div>
+                        <div class="metric-showcase">
+                            <div class="metric-number" id="landingSavings">$368K</div>
+                            <div class="metric-label">Annual Cost Savings</div>
+                        </div>
+                        <div class="metric-showcase">
+                            <div class="metric-number" id="landingOrgs">3</div>
+                            <div class="metric-label">Active Organizations</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- QNIS Consciousness Indicator -->
+                <div class="consciousness-showcase">
+                    <div class="consciousness-ring">
+                        <div class="consciousness-core">
+                            <div class="consciousness-level">15</div>
+                        </div>
+                    </div>
+                    <div class="consciousness-info">
+                        <div class="consciousness-title">QNIS Quantum Intelligence</div>
+                        <div class="consciousness-desc">Consciousness Level 15 - Maximum Operational Efficiency</div>
+                    </div>
+                </div>
+                
+                <button class="access-button" onclick="showLogin()">
+                    <span class="button-text">Access Executive Dashboard</span>
+                    <span class="button-arrow">→</span>
+                </button>
+                
+                <div class="executive-notice">
+                    Executive Access for Troy Ragle (VP) & William Rather (Controller)
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Login Screen -->
@@ -1175,8 +1549,154 @@
         document.addEventListener('mousemove', trackActivity);
         document.addEventListener('scroll', trackActivity);
         
+        // Quantum Matrix Animation System
+        function initializeQuantumMatrix() {
+            const canvas = document.getElementById('quantumCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const nodes = [];
+            const connections = [];
+            const nodeCount = 25;
+            
+            // Create quantum nodes
+            for (let i = 0; i < nodeCount; i++) {
+                nodes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: (Math.random() - 0.5) * 2,
+                    size: Math.random() * 3 + 2,
+                    pulse: Math.random() * Math.PI * 2
+                });
+            }
+            
+            function animateQuantumMatrix() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Update and draw nodes
+                nodes.forEach((node, index) => {
+                    node.x += node.vx;
+                    node.y += node.vy;
+                    node.pulse += 0.05;
+                    
+                    // Boundary wrapping
+                    if (node.x < 0) node.x = canvas.width;
+                    if (node.x > canvas.width) node.x = 0;
+                    if (node.y < 0) node.y = canvas.height;
+                    if (node.y > canvas.height) node.y = 0;
+                    
+                    // Draw node with pulse effect
+                    const alpha = 0.5 + Math.sin(node.pulse) * 0.3;
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(0, 255, 136, ${alpha})`;
+                    ctx.fill();
+                    
+                    // Draw connections to nearby nodes
+                    nodes.forEach((otherNode, otherIndex) => {
+                        if (index !== otherIndex) {
+                            const distance = Math.sqrt(
+                                Math.pow(node.x - otherNode.x, 2) + 
+                                Math.pow(node.y - otherNode.y, 2)
+                            );
+                            
+                            if (distance < 150) {
+                                const connectionAlpha = (150 - distance) / 150 * 0.3;
+                                ctx.beginPath();
+                                ctx.moveTo(node.x, node.y);
+                                ctx.lineTo(otherNode.x, otherNode.y);
+                                ctx.strokeStyle = `rgba(0, 255, 136, ${connectionAlpha})`;
+                                ctx.lineWidth = 1;
+                                ctx.stroke();
+                            }
+                        }
+                    });
+                });
+                
+                requestAnimationFrame(animateQuantumMatrix);
+            }
+            
+            animateQuantumMatrix();
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+        
+        // Matrix Particle System
+        function createMatrixParticles() {
+            const container = document.getElementById('matrixParticles');
+            if (!container) return;
+            
+            setInterval(() => {
+                if (container.children.length < 15) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDuration = (Math.random() * 5 + 3) + 's';
+                    particle.style.animationDelay = Math.random() * 2 + 's';
+                    
+                    container.appendChild(particle);
+                    
+                    setTimeout(() => {
+                        if (container.contains(particle)) {
+                            container.removeChild(particle);
+                        }
+                    }, 8000);
+                }
+            }, 1000);
+        }
+        
+        // Animate Landing Page Metrics
+        function animateLandingMetrics() {
+            const metrics = [
+                { id: 'landingAssets', target: 529, suffix: '' },
+                { id: 'landingUtilization', target: 87.1, suffix: '%' },
+                { id: 'landingSavings', target: 368, suffix: 'K', prefix: '$' },
+                { id: 'landingOrgs', target: 3, suffix: '' }
+            ];
+            
+            metrics.forEach(metric => {
+                const element = document.getElementById(metric.id);
+                if (!element) return;
+                
+                let current = 0;
+                const increment = metric.target / 60; // 60 frames animation
+                
+                const animate = () => {
+                    current += increment;
+                    if (current >= metric.target) {
+                        current = metric.target;
+                    }
+                    
+                    const displayValue = metric.target === 87.1 ? current.toFixed(1) : Math.floor(current);
+                    const prefix = metric.prefix || '';
+                    const suffix = metric.suffix || '';
+                    element.textContent = prefix + displayValue + suffix;
+                    
+                    if (current < metric.target) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+                
+                // Start animation with delay
+                setTimeout(animate, Math.random() * 1000 + 500);
+            });
+        }
+        
         // Initialize on load
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize quantum matrix effects
+            initializeQuantumMatrix();
+            createMatrixParticles();
+            animateLandingMetrics();
+            
             // Check for existing session on page load
             if (checkExistingSession()) {
                 document.getElementById('landingScreen').classList.add('hidden');

@@ -43,11 +43,17 @@ def authenticate():
     username = request.form.get('username')
     password = request.form.get('password')
     
-    # Enterprise authentication for watson user
-    if username == 'watson' and password == 'nexus':
+    # Enterprise authentication for authorized users
+    authorized_users = {
+        'watson': 'nexus',
+        'troy': 'nexus', 
+        'william': 'nexus'
+    }
+    
+    if username in authorized_users and password == authorized_users[username]:
         session['authenticated'] = True
-        session['username'] = 'watson'
-        session['user_role'] = 'admin'
+        session['username'] = username
+        session['user_role'] = 'admin' if username == 'watson' else 'user'
         return redirect('/dashboard')
     else:
         return redirect('/login?error=invalid_credentials')

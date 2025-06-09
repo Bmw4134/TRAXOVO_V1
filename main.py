@@ -109,7 +109,15 @@ def access_portal():
     """Watson Access Portal - Authentication Gateway"""
     if session.get('authenticated') or session.get('watson_authenticated'):
         return redirect('/dashboard')
-    return render_template('watson_landing.html')
+    
+    # Mobile device detection for iOS scrolling fix
+    user_agent = request.headers.get('User-Agent', '').lower()
+    is_mobile = any(device in user_agent for device in ['iphone', 'ipad', 'ipod', 'android', 'mobile'])
+    
+    if is_mobile:
+        return render_template('mobile_login.html')
+    else:
+        return render_template('watson_landing.html')
 
 @app.route('/watson-auth', methods=['POST'])
 def watson_auth():

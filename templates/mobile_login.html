@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - TRAXOVO ∞ Clarity Core</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e1a;
+            color: white;
+            padding: 20px;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding-top: 50px;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff88, #0099ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #999;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #1a1a1a;
+            color: white;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #00ff88, #0099ff);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .error-message {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff4444;
+            color: #ff4444;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-link a {
+            color: #00ff88;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="logo">TRAXOVO ∞</h1>
+        <p class="subtitle">Enterprise Intelligence Access</p>
+        
+        <div id="error-message" class="error-message"></div>
+        
+        <form class="login-form" method="POST" action="/login">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="login-btn">Access Enterprise Dashboard</button>
+        </form>
+        
+        <div class="back-link">
+            <a href="/">&larr; Back to Landing Page</a>
+        </div>
+    </div>
+
+    <script>
+        // Handle URL error parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        
+        if (error === 'invalid_credentials') {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = 'Invalid username or password. Please try again.';
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

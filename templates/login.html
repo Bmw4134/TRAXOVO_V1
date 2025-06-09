@@ -16,10 +16,17 @@
             background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 50%, #2d1b3d 100%);
             color: white;
             min-height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px 20px 40px 20px;
+        }
+        
+        .page-wrapper {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            min-height: calc(100vh - 40px);
+            width: 100%;
         }
 
         .login-container {
@@ -196,11 +203,22 @@
 
         /* Mobile Responsive Design */
         @media (max-width: 768px) {
+            body {
+                padding: 10px 10px 30px 10px;
+            }
+            
+            .page-wrapper {
+                min-height: calc(100vh - 20px);
+                align-items: flex-start;
+                padding-top: 20px;
+            }
+            
             .login-container {
                 padding: 30px 20px;
-                margin: 10px;
+                margin: 0;
                 max-width: 95%;
                 border-radius: 15px;
+                width: 100%;
             }
             
             .logo {
@@ -240,12 +258,20 @@
 
         @media (max-width: 480px) {
             body {
-                padding: 10px;
+                padding: 5px 5px 25px 5px;
+            }
+            
+            .page-wrapper {
+                min-height: calc(100vh - 10px);
+                align-items: flex-start;
+                padding-top: 10px;
             }
             
             .login-container {
                 padding: 25px 15px;
-                margin: 5px;
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
             }
             
             .logo {
@@ -264,7 +290,8 @@
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <div class="page-wrapper">
+        <div class="login-container">
         <h1 class="logo">TRAXOVO ∞</h1>
         <p class="subtitle">Enterprise Intelligence Access</p>
         <div class="qnis-badge">QNIS Level 15 Authentication</div>
@@ -309,6 +336,7 @@
 
         <div class="back-link">
             <a href="/">&larr; Back to Landing Page</a>
+        </div>
         </div>
     </div>
 

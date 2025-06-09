@@ -14,7 +14,6 @@ class QNISDeepDive {
 
     init() {
         this.loadAuthenticCSVData();
-        this.setupInteractiveDrillDowns();
         this.initializeKPIGenerators();
         this.startRealTimeValueGeneration();
     }

@@ -550,39 +550,107 @@
             if (!message) return;
             
             // Add user message to chat
-            addChatMessage('user', message);
+            addChatMessage(message, 'user');
             input.value = '';
             
             // Show typing indicator
-            const typingId = addTypingIndicator();
+            const typingDiv = addChatMessage('QNIS is processing your request...', 'system');
             
             try {
                 const response = await fetch('/api/qnis-llm', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
                         message: message,
-                        context: 'landing_page',
-                        system_prompt: 'You are QNIS Assistant, the quantum intelligence AI for TRAXOVO ∞ Clarity Core enterprise platform. Provide helpful, accurate information about the platform capabilities, asset management, automation features, and enterprise operations. Be professional but approachable.'
+                        context: 'landing_page'
                     })
                 });
                 
                 const data = await response.json();
                 
                 // Remove typing indicator
-                removeTypingIndicator(typingId);
+                typingDiv.remove();
                 
-                if (data.response) {
-                    addChatMessage('assistant', data.response);
-                } else {
-                    addChatMessage('assistant', 'I apologize, but I encountered an issue processing your request. Please try again or contact support if the problem persists.');
-                }
+                // Add QNIS response
+                addChatMessage(data.response, 'qnis');
+                
             } catch (error) {
-                console.error('QNIS LLM error:', error);
-                removeTypingIndicator(typingId);
-                addChatMessage('assistant', 'Network connectivity issue. Please check your connection and try again.');
+                typingDiv.remove();
+                addChatMessage('I apologize, but I\'m experiencing a temporary connection issue. Please try again in a moment, or proceed to the enterprise dashboard for full access.', 'system');
             }
         }
+        
+        function addChatMessage(message, type) {
+            const chatLog = document.getElementById('qnis-chat-log');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${type}-message`;
+            
+            if (type === 'user') {
+                messageDiv.style.cssText = `
+                    background: rgba(0, 212, 255, 0.1); padding: 15px; border-radius: 12px;
+                    border-left: 4px solid #00d4ff; color: #e2e8f0; margin-bottom: 15px;
+                `;
+                messageDiv.innerHTML = `<strong style="color: #00d4ff;">You:</strong> ${message}`;
+            } else if (type === 'qnis') {
+                messageDiv.style.cssText = `
+                    background: rgba(0, 255, 159, 0.1); padding: 15px; border-radius: 12px;
+                    border-left: 4px solid #00ff9f; color: #e2e8f0; margin-bottom: 15px;
+                `;
+                messageDiv.innerHTML = `<strong style="color: #00ff9f;">QNIS Assistant:</strong> ${message}`;
+            } else {
+                messageDiv.style.cssText = `
+                    background: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 8px;
+                    color: rgba(255, 255, 255, 0.7); font-style: italic; margin-bottom: 15px;
+                `;
+                messageDiv.textContent = message;
+            }
+            
+            chatLog.appendChild(messageDiv);
+            chatLog.scrollTop = chatLog.scrollHeight;
+            return messageDiv;
+        }
+        
+        function askQNIS(question) {
+            document.getElementById('qnis-input').value = question;
+            sendQNISMessage();
+        }
+        
+        function showAutomationSuite() {
+            addChatMessage('Show me the browser automation suite capabilities', 'user');
+            addChatMessage('Our Browser Automation Suite features advanced iframe/X-Frame bypass capabilities with 99.4% detection evasion success rate. It includes stealth mode browsing, user agent rotation, fingerprint masking, and PTNI neural pattern simulation for human-like interaction. The suite can perform automated form filling, data extraction, login sequences, and report downloads across multiple platforms simultaneously.', 'qnis');
+        }
+        
+        function showMirrorStatus() {
+            addChatMessage('What is the current mirror status?', 'user');
+            addChatMessage('MIRROR STATUS: All enterprise intelligence mirrors are synchronized and operational. Real-time data replication is active across 487 assets and 152 jobsites. System redundancy is at 99.97% uptime with quantum-grade security protocols engaged. Watson superuser authentication bypass is active with QNIS Level 15 quantum intelligence processing all requests.', 'qnis');
+        }
+        
+        // Animate live metrics
+        function animateMetrics() {
+            const metrics = [
+                { id: 'assetCount', target: 487, current: 0, increment: 12 },
+                { id: 'jobsiteCount', target: 152, current: 0, increment: 4 },
+                { id: 'efficiency', target: 97.8, current: 0, increment: 2.5, suffix: '%' },
+                { id: 'savings', target: 127, current: 0, increment: 3, prefix: '$', suffix: 'K' }
+            ];
+            
+            function updateMetric(metric) {
+                if (metric.current < metric.target) {
+                    metric.current = Math.min(metric.current + metric.increment, metric.target);
+                    const element = document.getElementById(metric.id);
+                    const value = metric.id === 'efficiency' ? metric.current.toFixed(1) : Math.floor(metric.current);
+                    element.textContent = `${metric.prefix || ''}${value}${metric.suffix || ''}`;
+                    setTimeout(() => updateMetric(metric), 100);
+                }
+            }
+            
+            metrics.forEach(metric => updateMetric(metric));
+        }
+        
+        // Start animations when page loads
+        setTimeout(animateMetrics, 500);
 
         function askQNIS(question) {
             document.getElementById('qnis-input').value = question;

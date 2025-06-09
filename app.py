@@ -6799,6 +6799,62 @@ def api_asset_data():
         logging.error(f"Asset data error: {e}")
         return jsonify({'error': str(e), 'total_assets': 0})
 
+@app.route('/api/qnis-llm', methods=['POST'])
+def qnis_llm_chat():
+    """QNIS/PTNI Quantum Intelligence Assistant for Landing Page"""
+    try:
+        data = request.json
+        message = data.get('message', '').strip()
+        context = data.get('context', 'general')
+        
+        if not message:
+            return jsonify({'error': 'Message is required'}), 400
+        
+        # QNIS System Prompt for Enterprise Intelligence
+        system_prompt = """You are QNIS Assistant, the quantum intelligence AI for TRAXOVO ∞ Clarity Core enterprise platform. 
+
+You provide expert guidance on:
+- Asset tracking and management across 487 active assets
+- Real-time fleet monitoring across 152 authenticated jobsites  
+- Project management optimization and resource allocation
+- Maintenance intelligence and predictive analytics
+- Automation engine capabilities and workflow optimization
+- GAUGE API integration for authentic polygon mapping
+- Browser automation suite with iframe/X-Frame bypass
+- Enterprise-grade security and quantum intelligence features
+
+Be professional, knowledgeable, and helpful. Highlight specific platform capabilities and demonstrate deep understanding of enterprise operations. Keep responses concise but informative."""
+
+        # Import OpenAI client
+        from openai import OpenAI
+        client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+        
+        # Generate QNIS response using GPT-4o
+        response = client.chat.completions.create(
+            model="gpt-4o",  # the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": message}
+            ],
+            max_tokens=500,
+            temperature=0.7
+        )
+        
+        qnis_response = response.choices[0].message.content
+        
+        return jsonify({
+            'response': qnis_response,
+            'context': context,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"QNIS LLM Error: {e}")
+        return jsonify({
+            'response': 'I apologize, but I\'m experiencing a temporary processing issue. Please try again in a moment, or proceed to the enterprise dashboard for full access to all platform capabilities.',
+            'error': True
+        }), 500
+
 if __name__ == "__main__":
     # Final deployment verification
     verify_deployment()

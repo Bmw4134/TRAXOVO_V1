@@ -1,0 +1,4 @@
+Zone,SR_PM,Asset_ID,Asset_Type,Operator,Project,Location,Status,Lat,Lng
+BRIDGE,SR-BRIDGE-001,EX-15,CAT 324D 2010 Excavator,Field Operations,2024-030,"Bay City, TX",active,28.9838542938232,-95.9977035522461
+TEXDIST,SR-TEXDIST-001,210003,FORD F150 2024 Personal Vehicle,AMMAR I. ELHAMAD,N/A,"North Richland Hills, TX",active,32.8399,-97.1932
+TEXDIST,SR-TEXDIST-001,210013,JEEP WRANGLER 2024 Pickup Truck,MATTHEW C. SHAYLOR,N/A,"Fort Worth, TX",active,32.8399,-97.1944

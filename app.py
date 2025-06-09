@@ -17,6 +17,7 @@ from nexus_simple_unified import get_unified_demo_interface, get_unified_executi
 from nexus_auth_gatekeeper import setup_auth_routes, require_auth, verify_deployment
 from gauge_zone_mapper import GaugeZoneMapper
 from qnis_deployment_validator import QNISDeploymentValidator, get_real_deployment_metrics
+from csv_error_handler import csv_handler, get_fleet_metrics
 import openai
 # Enhanced dashboard routes will be defined directly in this file
 
@@ -7195,21 +7196,23 @@ def qnis_deployment_status():
 
 @app.route('/api/fix-csv-processing', methods=['POST'])
 def fix_csv_processing():
-    """Fix CSV processing errors with QNIS validation"""
+    """Fix CSV processing errors with advanced error handling"""
     try:
-        validator = QNISDeploymentValidator()
-        fix_results = validator.fix_csv_processing_errors()
+        fix_results = csv_handler.fix_csv_processing_errors()
         
         return jsonify({
-            'success': True,
-            'files_fixed': fix_results.get('total_fixed', 0),
-            'encoding_issues_resolved': fix_results.get('encoding_issues_resolved', True),
-            'message': f"Fixed {fix_results.get('total_fixed', 0)} CSV files with encoding issues",
+            'success': fix_results.get('success', True),
+            'files_processed': fix_results.get('files_processed', 0),
+            'total_files': fix_results.get('total_files', 0),
+            'success_rate': fix_results.get('success_rate', 0),
+            'total_assets': fix_results.get('total_assets', 0),
+            'fleet_summary': fix_results.get('fleet_summary', {}),
+            'message': f"Processed {fix_results.get('files_processed', 0)} of {fix_results.get('total_files', 0)} CSV files",
             'timestamp': datetime.now().isoformat()
         })
         
     except Exception as e:
-        logging.error(f"CSV fix error: {e}")
+        logging.error(f"CSV processing error: {e}")
         return jsonify({
             'success': False,
             'error': str(e)

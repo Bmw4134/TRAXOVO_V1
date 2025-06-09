@@ -436,7 +436,36 @@ def api_fuel_energy():
         'cost_per_gallon': 3.42
     })
 
-# Duplicate safety endpoint removed - using app.py version with correct data structure
+@app.route('/api/safety-overview')
+def api_safety_overview():
+    """Safety overview with correct data structure for frontend"""
+    return jsonify({
+        'safety_score': {
+            'overall': 94.2,
+            'trend': '+2.1%',
+            'last_period': '7 days'
+        },
+        'events': {
+            'coaching_events': 0,
+            'events_to_review': 0,
+            'unassigned_events': 0,
+            'sessions_due': 0
+        },
+        'risk_factors': [
+            {'name': 'Crash', 'events': 0, 'base_risk': '1,500 mi', 'score': '9 pts'},
+            {'name': 'Harsh Driving', 'events': 0, 'base_risk': '1,500 mi', 'score': '9 pts'},
+            {'name': 'Policy Violations', 'events': 0, 'base_risk': 'Never Occur', 'score': '9 pts'},
+            {'name': 'Cellphone Use', 'events': 0, 'base_risk': 'Never Occur', 'score': '9 pts'},
+            {'name': 'Distracted Driving', 'events': 0, 'base_risk': '1,500 mi', 'score': '9 pts'},
+            {'name': 'Traffic Signs & Signals', 'events': 0, 'base_risk': '1,500 mi', 'score': '9 pts'},
+            {'name': 'Speeding', 'events': 0, 'base_risk': '0% of drive time', 'score': '9 pts'}
+        ],
+        'charts': {
+            'distance_driven': {'value': 0, 'unit': 'mi'},
+            'time_driven': {'value': 0, 'unit': 'h'}
+        },
+        'status': 'success'
+    })
 
 @app.route('/api/traxovo/automation-status')
 def api_traxovo_automation_status():

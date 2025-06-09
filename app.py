@@ -5488,7 +5488,7 @@ def samsara_level_dashboard():
 def api_safety_overview():
     """Safety overview with risk factors, events, and scores"""
     try:
-        # Return complete safety data structure
+        # Return complete safety data structure matching frontend expectations
         safety_data = {
             'safety_score': {
                 'overall': 94.2,

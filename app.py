@@ -100,8 +100,9 @@ def asset_map():
     return render_template('asset_tracking_map.html')
 
 @app.route('/logout')
-def logout():
+def user_logout():
     """Logout route for dashboard"""
+    from flask import session, redirect
     session.clear()
     return redirect('/')
 
@@ -5522,56 +5523,6 @@ def api_safety_overview():
             'status': 'error'
         }), 500
 
-@app.route('/api/maintenance-status')
-def api_maintenance_status():
-    """Maintenance status for all assets"""
-    try:
-        # Get authentic asset data from your database
-        import sqlite3
-        conn = sqlite3.connect('authentic_assets.db')
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            SELECT asset_id, asset_name, make, model, status, last_service_date
-            FROM authentic_assets 
-            WHERE status = "Active"
-            ORDER BY last_service_date DESC
-            LIMIT 20
-        ''')
-        
-        assets = cursor.fetchall()
-        conn.close()
-        
-        maintenance_items = []
-        for asset in assets:
-            maintenance_items.append({
-                'asset_id': asset[0],
-                'asset_name': asset[1],
-                'make': asset[2] if asset[2] else 'CAT',
-                'model': asset[3] if asset[3] else 'EXCAVATOR',
-                'status': asset[4],
-                'last_service': asset[5] if asset[5] else '2024-05-15',
-                'next_service_due': '2024-07-15',
-                'service_hours': 2847 + (hash(asset[0]) % 500),
-                'maintenance_cost_ytd': 1250 + (hash(asset[0]) % 2000)
-            })
-        
-        return jsonify({
-            'assets_due_service': 12,
-            'overdue_maintenance': 3,
-            'scheduled_this_week': 8,
-            'maintenance_cost_ytd': 284750,
-            'service_efficiency': 94.2,
-            'maintenance_items': maintenance_items
-        })
-        
-    except Exception as e:
-        logging.error(f"Maintenance status error: {e}")
-        return jsonify({
-            'error': 'Maintenance data temporarily unavailable',
-            'status': 'error'
-        }), 500
-
 @app.route('/api/fuel-energy')
 def api_fuel_energy():
     """Fuel and energy analytics"""
@@ -5658,19 +5609,6 @@ def api_asset_drill_down():
         logging.error(f"Asset drill down error: {e}")
         return jsonify({
             'error': 'Asset data temporarily unavailable',
-            'status': 'error'
-        }), 500
-
-@app.route('/api/asset-details')
-def api_asset_details():
-    """Get detailed asset information with drill-down capabilities"""
-    try:
-        # Return the same data as asset drill-down for consistency
-        return api_asset_drill_down()
-    except Exception as e:
-        logging.error(f"Asset details error: {e}")
-        return jsonify({
-            'error': 'Asset details temporarily unavailable',
             'status': 'error'
         }), 500
 
@@ -6745,16 +6683,6 @@ setup_auth_routes(app)
 # Protected Routes with Authentication Gatekeeper
 @app.route('/dashboard')
 @require_auth(['admin', 'demo'])
-def dashboard():
-    """Main dashboard - requires authentication"""
-    user_role = session.get('user_role')
-    if user_role == 'admin':
-        return get_unified_executive_interface()
-    else:
-        return get_unified_demo_interface()
-
-
-
 @app.route('/nexus-dashboard')
 @app.route('/unified-platform')
 @app.route('/ptni')

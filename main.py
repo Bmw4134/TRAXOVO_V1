@@ -113,11 +113,11 @@ def access_portal():
 
 @app.route('/watson-auth', methods=['POST'])
 def watson_auth():
-    """Watson Superuser Authentication Handler - Exclusive Access Control"""
+    """Dual-Tier Authentication: Superuser + Regular User Access"""
     username = request.form.get('username', '').strip().lower()
     password = request.form.get('password', '').strip().lower()
     
-    # Exclusive superuser access - only nexus, brett, or watson
+    # Tier 1: Exclusive superuser access - only nexus, brett, or watson
     superuser_credentials = {
         'nexus': 'nexus',
         'brett': 'nexus', 
@@ -132,6 +132,16 @@ def watson_auth():
         session['authentication_time'] = datetime.now().isoformat()
         logging.info(f"NEXUS Superuser authenticated: {username} - Full system access granted")
         return redirect('/dashboard')
+    
+    # Tier 2: Regular user access - first name for both username and password
+    if username == password and len(username) >= 2 and username.isalpha():
+        session['authenticated'] = True
+        session['username'] = username.capitalize()
+        session['user_level'] = 'standard_user'
+        session['authentication_time'] = datetime.now().isoformat()
+        session['first_login'] = True  # Flag for customization flow
+        logging.info(f"Standard user authenticated: {username.capitalize()}")
+        return redirect('/customize-dashboard')
     
     # All other attempts are rejected
     logging.warning(f"Authentication failed for: {username}")
@@ -198,11 +208,37 @@ def authenticate():
     
     return redirect('/login?error=invalid_credentials')
 
+@app.route('/customize-dashboard')
+@require_auth
+def customize_dashboard():
+    """User Dashboard Customization Page"""
+    if session.get('user_level') == 'nexus_superuser':
+        return redirect('/dashboard')
+    return render_template('customize_dashboard.html')
+
+@app.route('/save-customization', methods=['POST'])
+@require_auth
+def save_customization():
+    """Save user dashboard customization preferences"""
+    preferences = {
+        'dashboard_theme': request.form.get('theme', 'dark'),
+        'preferred_widgets': request.form.getlist('widgets'),
+        'notification_settings': request.form.get('notifications', 'enabled'),
+        'data_refresh_rate': request.form.get('refresh_rate', '30')
+    }
+    
+    session['user_preferences'] = preferences
+    session['first_login'] = False
+    logging.info(f"User {session.get('username')} saved customization preferences")
+    return redirect('/dashboard')
+
 @app.route('/dashboard')
 @require_auth
 def enterprise_dashboard():
     """TRAXOVO ∞ Enterprise Dashboard"""
-    return render_template('enhanced_dashboard.html')
+    user_level = session.get('user_level', 'standard_user')
+    template = 'enhanced_dashboard.html' if user_level == 'nexus_superuser' else 'user_dashboard.html'
+    return render_template(template)
 
 
 

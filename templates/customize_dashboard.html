@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customize Your Dashboard - TRAXOVO ∞</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .customize-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .welcome-header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .welcome-header p {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+        }
+
+        .user-greeting {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .customization-form {
+            display: grid;
+            gap: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid #74b9ff;
+        }
+
+        .form-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #74b9ff;
+            box-shadow: 0 0 0 3px rgba(116, 185, 255, 0.1);
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .checkbox-item:hover {
+            border-color: #74b9ff;
+            background: #f0f7ff;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .radio-item:hover {
+            border-color: #74b9ff;
+            background: #f0f7ff;
+        }
+
+        .radio-item input[type="radio"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .submit-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn-customize {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.3);
+        }
+
+        .btn-customize:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(116, 185, 255, 0.4);
+        }
+
+        .skip-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #74b9ff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .skip-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="customize-container">
+        <div class="welcome-header">
+            <h1><i class="fas fa-user-cog"></i> Welcome to TRAXOVO ∞</h1>
+            <p>Let's customize your dashboard experience</p>
+        </div>
+
+        <div class="user-greeting">
+            <h2>Hello, {{ session.username }}!</h2>
+            <p>Set up your personalized dashboard preferences to get the most out of your fleet management experience.</p>
+        </div>
+
+        <form action="/save-customization" method="POST" class="customization-form">
+            <div class="form-section">
+                <h3><i class="fas fa-palette"></i> Dashboard Theme</h3>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="theme-dark" name="theme" value="dark" checked>
+                        <label for="theme-dark">Dark Mode</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="theme-light" name="theme" value="light">
+                        <label for="theme-light">Light Mode</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="theme-auto" name="theme" value="auto">
+                        <label for="theme-auto">Auto (System)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3><i class="fas fa-th-large"></i> Dashboard Widgets</h3>
+                <p style="margin-bottom: 15px; color: #7f8c8d;">Select which data widgets you'd like to see on your dashboard:</p>
+                <div class="checkbox-grid">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="widget-assets" name="widgets" value="asset_overview" checked>
+                        <label for="widget-assets">Asset Overview</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="widget-maintenance" name="widgets" value="maintenance_status" checked>
+                        <label for="widget-maintenance">Maintenance Status</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="widget-fuel" name="widgets" value="fuel_energy" checked>
+                        <label for="widget-fuel">Fuel & Energy</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="widget-safety" name="widgets" value="safety_overview" checked>
+                        <label for="widget-safety">Safety Overview</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="widget-performance" name="widgets" value="performance_metrics">
+                        <label for="widget-performance">Performance Metrics</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="widget-analytics" name="widgets" value="analytics_reports">
+                        <label for="widget-analytics">Analytics Reports</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3><i class="fas fa-bell"></i> Notifications</h3>
+                <div class="form-group">
+                    <label for="notifications">Notification Preferences:</label>
+                    <select id="notifications" name="notifications" class="form-control">
+                        <option value="enabled">All Notifications</option>
+                        <option value="critical">Critical Only</option>
+                        <option value="disabled">Disabled</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3><i class="fas fa-sync-alt"></i> Data Refresh</h3>
+                <div class="form-group">
+                    <label for="refresh_rate">Dashboard Refresh Rate:</label>
+                    <select id="refresh_rate" name="refresh_rate" class="form-control">
+                        <option value="15">Every 15 seconds</option>
+                        <option value="30" selected>Every 30 seconds</option>
+                        <option value="60">Every minute</option>
+                        <option value="300">Every 5 minutes</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="submit-section">
+                <button type="submit" class="btn-customize">
+                    <i class="fas fa-save"></i> Save Preferences & Continue
+                </button>
+                <br>
+                <a href="/dashboard" class="skip-link">Skip customization for now</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Add interactive effects
+        document.querySelectorAll('.checkbox-item, .radio-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const input = this.querySelector('input');
+                if (input.type === 'checkbox') {
+                    input.checked = !input.checked;
+                } else if (input.type === 'radio') {
+                    input.checked = true;
+                }
+            });
+        });
+
+        // Prevent double-clicking on inputs
+        document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
+            input.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+    </script>
+</body>
+</html>

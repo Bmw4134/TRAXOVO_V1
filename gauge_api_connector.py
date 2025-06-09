@@ -15,7 +15,7 @@ class GaugeAPIConnector:
     def __init__(self):
         self.username = "bwatson"
         self.password = "Plsw@2900413477"
-        self.base_url = "https://gaugesmart.com"  # Correct GAUGE platform endpoint
+        self.base_url = "https://gaugecorp.com"  # Updated GAUGE platform endpoint
         self.session = requests.Session()
         self.authenticated = False
         self.api_key = None

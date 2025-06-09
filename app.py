@@ -15,6 +15,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from nexus_wow_tester import wow_tester
 from nexus_simple_unified import get_unified_demo_interface, get_unified_executive_interface, process_ai_prompt_simple, analyze_file_simple
 from nexus_auth_gatekeeper import setup_auth_routes, require_auth, verify_deployment
+from enhanced_dashboard import enhanced_bp
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -41,6 +42,9 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 db.init_app(app)
 
 # Database tables will be created when needed
+
+# Register enhanced dashboard blueprint
+app.register_blueprint(enhanced_bp, url_prefix='/enhanced')
 
 # TRAXOVO Landing Page Template
 TRAXOVO_LANDING_PAGE = """
@@ -5040,6 +5044,11 @@ def api_nexus_trillion_optimization():
         }), 500
 
 # Comprehensive Status API integrated into existing endpoint structure
+
+@app.route('/samsara')
+def samsara_level_dashboard():
+    """TRAXOVO ∞ Clarity Core - Samsara-Level Enterprise Dashboard"""
+    return render_template('enhanced_dashboard.html')
 
 @app.route('/embedded-browser')
 @require_auth

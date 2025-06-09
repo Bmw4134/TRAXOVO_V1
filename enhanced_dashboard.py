@@ -7,6 +7,9 @@ from flask import Blueprint, render_template, jsonify, request
 from datetime import datetime, timedelta
 import json
 import random
+import requests
+import base64
+import os
 
 enhanced_bp = Blueprint('enhanced', __name__)
 
@@ -266,8 +269,15 @@ def test_gauge_connection():
             'Content-Type': 'application/json'
         }
         
-        # Test the connection
-        response = requests.get(f"{api_url}/vehicles", headers=headers, timeout=10, verify=False)
+        # Test the connection using your specific AssetList endpoint
+        if '28dcba94c01e453fa8e9215a068f30e4' in api_url:
+            # Use the exact endpoint structure you provided
+            test_url = api_url
+        else:
+            # Construct the AssetList endpoint
+            test_url = f"{api_url}/AssetList/28dcba94c01e453fa8e9215a068f30e4"
+        
+        response = requests.get(test_url, headers=headers, timeout=10, verify=False)
         
         if response.status_code == 200:
             return jsonify({

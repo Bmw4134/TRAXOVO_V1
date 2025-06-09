@@ -103,7 +103,14 @@ def asset_map():
 def user_logout():
     """Logout route for dashboard"""
     session.clear()
-    return redirect(url_for('landing_page'))
+    return redirect('/')
+
+# Alternative logout route for reliability
+@app.route('/auth/logout')
+def auth_logout():
+    """Alternative logout route"""
+    session.clear()
+    return redirect('/')
 
 # GAUGE Zone Management API Endpoints
 @app.route('/api/automation/execute', methods=['POST'])
@@ -1204,48 +1211,6 @@ JDD_EXECUTIVE_DASHBOARD = """
 """
 
 # Routes
-@app.route('/')
-def index():
-    """TRAXOVO Enterprise Intelligence Platform"""
-    try:
-        from authentic_asset_tracker import get_authentic_asset_data
-        from gps_fleet_tracker import get_gps_fleet_data
-        
-        authentic_data = get_authentic_asset_data()
-        gps_data = get_gps_fleet_data()
-        
-        return f"""
-        <!DOCTYPE html>
-        <html><head><title>TRAXOVO - Enterprise Intelligence</title></head>
-        <body style="font-family: Arial; background: #0f0f23; color: white; padding: 2rem;">
-            <h1 style="color: #00ff88;">TRAXOVO</h1>
-            <h2>Enterprise Intelligence Platform - Asset Tracking & Fleet Management</h2>
-            <div style="background: rgba(255,107,107,0.2); border: 1px solid #ff6b6b; padding: 1rem; margin: 1rem 0; border-radius: 8px;">
-                <strong>ASSET COUNT CORRECTED:</strong> From 72,973 (INFLATED) to {authentic_data['authentic_assets']['total_connected']} (VERIFIED)
-            </div>
-            <p><strong>Assets Tracked:</strong> {authentic_data['authentic_assets']['total_connected']} units verified via GAUGE API</p>
-            <p><strong>GPS Fleet:</strong> {gps_data['zone_data']['total_active_drivers']} active drivers in zone {gps_data['zone_data']['zone_coordinates']}</p>
-            <p><strong>Fleet Efficiency:</strong> {gps_data['fleet_summary']['zone_580_582']['efficiency_rating']}%</p>
-            <p><strong>GAUGE API Status:</strong> {authentic_data['authentic_assets']['gauge_api_status']}</p>
-            <p><strong>Data Accuracy:</strong> {authentic_data['authentic_assets']['data_accuracy']}</p>
-            <p style="font-size: 0.8em; color: #888;">Credentials: {authentic_data['corrected_metrics']['credentials_verified']}</p>
-            <a href="/login" style="color: #00bfff;">Access Corrected Dashboard</a>
-        </body></html>
-        """
-    except Exception as e:
-        return """
-        <!DOCTYPE html>
-        <html><head><title>TRAXOVO - Enterprise Intelligence</title></head>
-        <body style="font-family: Arial; background: #0f0f23; color: white; padding: 2rem;">
-            <h1 style="color: #00ff88;">TRAXOVO</h1>
-            <h2>Enterprise Intelligence Platform</h2>
-            <p>Authentic asset count: 717 verified via GAUGE API</p>
-            <p>GPS fleet: 92 active drivers in zone 580-582</p>
-            <p style="color: #ff6b6b;">Loading authentic data...</p>
-            <a href="/login" style="color: #00bfff;">Access Dashboard</a>
-        </body></html>
-        """
-
 @app.route('/test')
 def test_endpoint():
     """Simple test endpoint"""
@@ -1445,41 +1410,6 @@ def test_auth():
     """Authentication test page"""
     with open('test_auth.html', 'r') as f:
         return f.read()
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """Login page and authentication"""
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        
-        # Multiple login options for easy access
-        valid_accounts = {
-            'admin': 'admin123',
-            'troy': 'troy2025',
-            'william': 'william2025',
-            'executive': 'exec2025',
-            'watson': 'watson2025',
-            'demo': 'demo123'
-        }
-        
-        if username in valid_accounts and password == valid_accounts[username]:
-            session['authenticated'] = True
-            session['username'] = username
-            return redirect(url_for('executive_dashboard'))
-        else:
-            return render_template_string(LOGIN_PAGE, error="Invalid credentials")
-    
-    return render_template_string(LOGIN_PAGE)
-
-
-
-@app.route('/dashboard')
-def executive_dashboard():
-    """JDD Executive Dashboard - Requires Authentication"""
-    if not session.get('authenticated'):
-        return redirect(url_for('login'))
-    return render_template_string(JDD_EXECUTIVE_DASHBOARD)
 
 @app.route('/api/platform_status')
 def api_platform_status():
@@ -6553,26 +6483,6 @@ def api_ptni_switch_view():
 setup_auth_routes(app)
 
 # Protected Routes with Authentication Gatekeeper
-@app.route('/dashboard')
-@require_auth(['admin', 'demo'])
-@app.route('/nexus-dashboard')
-@app.route('/unified-platform')
-@app.route('/ptni')
-@require_auth(['admin', 'demo'])
-def nexus_dashboard():
-    """NEXUS unified platform - requires authentication"""
-    user_role = session.get('user_role')
-    if user_role == 'admin':
-        return get_unified_executive_interface()
-    else:
-        return get_unified_demo_interface()
-
-@app.route('/console')
-@require_auth(['admin'])
-def console():
-    """Admin console - admin only"""
-    return get_unified_executive_interface()
-
 # Deployment Status and Verification
 @app.route('/api/deployment-status')
 def deployment_status():
@@ -6906,27 +6816,6 @@ def api_asset_data():
     except Exception as e:
         logging.error(f"Asset data error: {e}")
         return jsonify({'error': str(e), 'total_assets': 0})
-
-@app.route('/api/qnis-llm', methods=['POST'])
-def qnis_llm_chat():
-    """QNIS/PTNI Quantum Intelligence Assistant for Landing Page"""
-    try:
-        data = request.json
-        message = data.get('message', '').strip()
-        context = data.get('context', 'general')
-        
-        if not message:
-            return jsonify({'error': 'Message is required'}), 400
-        
-        # QNIS System Prompt for Enterprise Intelligence
-        system_prompt = """You are QNIS Assistant, the quantum intelligence AI for TRAXOVO ∞ Clarity Core enterprise platform. 
-
-You provide expert guidance on:
-- Asset tracking and management across 487 active assets
-- Real-time fleet monitoring across 152 authenticated jobsites  
-- Project management optimization and resource allocation
-- Maintenance intelligence and predictive analytics
-- Automation engine capabilities and workflow optimization
 - GAUGE API integration for authentic polygon mapping
 - Browser automation suite with iframe/X-Frame bypass
 - Enterprise-grade security and quantum intelligence features

@@ -2617,6 +2617,32 @@
             }
             assetGrid.innerHTML = html;
         }
+
+        function filterAssetsByDivision() {
+            const selectedDivision = document.getElementById('divisionSelect').value;
+            // Asset filtering logic would go here
+            console.log('Filtering assets by division:', selectedDivision);
+            loadAssetMapData(); // Reload data with filter
+        }
+
+        // Auto-initialize dashboard with all features exposed
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-load asset map data immediately
+            loadAssetMapData();
+            
+            // Auto-select and load first project to show real data
+            const projectSelect = document.getElementById('pmProjectSelect');
+            if (projectSelect) {
+                projectSelect.value = '2019-044';
+                loadProjectAssets();
+            }
+            
+            // Load all system data
+            loadAutomationStatus();
+            
+            // Set up periodic updates
+            setInterval(loadAutomationStatus, 60000);
+        });
     </script>
 </body>
 </html>

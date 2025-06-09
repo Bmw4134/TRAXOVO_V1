@@ -1801,6 +1801,156 @@
             });
         }
 
+        // GAUGE API Credentials Modal
+        function showGaugeCredentialsModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.8); z-index: 1000; display: flex; 
+                justify-content: center; align-items: center;
+            `;
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: #1a1a2e; color: white; padding: 30px; border-radius: 12px; 
+                max-width: 500px; width: 90%; border: 1px solid #ffa500;
+            `;
+            
+            modalContent.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; color: #ffa500;">GAUGE API Credentials</h2>
+                    <button onclick="this.closest('.modal').remove()" style="background: #ff4757; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Close</button>
+                </div>
+
+                <form id="gaugeCredentialsForm" style="display: flex; flex-direction: column; gap: 20px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; color: #00ff9f;">API Endpoint:</label>
+                        <input type="url" id="gaugeEndpoint" name="endpoint" placeholder="https://api.gauge.com/v1" 
+                               style="width: 100%; padding: 12px; border-radius: 4px; border: 1px solid #444; background: #2a2a3e; color: white;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; color: #00ff9f;">Auth Token:</label>
+                        <input type="password" id="gaugeToken" name="token" placeholder="Your GAUGE API token" 
+                               style="width: 100%; padding: 12px; border-radius: 4px; border: 1px solid #444; background: #2a2a3e; color: white;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; color: #00ff9f;">Client ID:</label>
+                        <input type="text" id="gaugeClientId" name="client_id" placeholder="Your client ID" 
+                               style="width: 100%; padding: 12px; border-radius: 4px; border: 1px solid #444; background: #2a2a3e; color: white;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; color: #00ff9f;">Client Secret:</label>
+                        <input type="password" id="gaugeClientSecret" name="client_secret" placeholder="Your client secret" 
+                               style="width: 100%; padding: 12px; border-radius: 4px; border: 1px solid #444; background: #2a2a3e; color: white;">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                        <button type="button" onclick="testGaugeConnection()" 
+                                style="padding: 12px; background: #00ff9f; color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                            Test Connection
+                        </button>
+                        <button type="button" onclick="saveGaugeCredentials()" 
+                                style="padding: 12px; background: #ffa500; color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                            Save & Connect
+                        </button>
+                    </div>
+                </form>
+
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255, 165, 0, 0.1); border-radius: 6px;">
+                    <h4 style="margin: 0 0 10px 0; color: #ffa500;">GAUGE API Integration</h4>
+                    <p style="margin: 0; font-size: 14px; line-height: 1.5;">
+                        Enter your GAUGE API credentials to connect to live fleet data from 152 authenticated jobsites. 
+                        This will enable real-time asset tracking, telemetry, and comprehensive fleet management.
+                    </p>
+                </div>
+            `;
+            
+            modal.className = 'modal';
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+        }
+
+        function testGaugeConnection() {
+            const endpoint = document.getElementById('gaugeEndpoint').value;
+            const token = document.getElementById('gaugeToken').value;
+            const clientId = document.getElementById('gaugeClientId').value;
+            const clientSecret = document.getElementById('gaugeClientSecret').value;
+
+            if (!endpoint || !token) {
+                alert('Please enter at least the API endpoint and auth token');
+                return;
+            }
+
+            fetch('/api/test-gauge-connection', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    endpoint: endpoint,
+                    auth_token: token,
+                    client_id: clientId,
+                    client_secret: clientSecret
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('GAUGE API connection successful! Ready to save credentials.');
+                } else {
+                    alert('Connection failed: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Connection test error:', error);
+                alert('Failed to test connection');
+            });
+        }
+
+        function saveGaugeCredentials() {
+            const endpoint = document.getElementById('gaugeEndpoint').value;
+            const token = document.getElementById('gaugeToken').value;
+            const clientId = document.getElementById('gaugeClientId').value;
+            const clientSecret = document.getElementById('gaugeClientSecret').value;
+
+            if (!endpoint || !token) {
+                alert('Please enter at least the API endpoint and auth token');
+                return;
+            }
+
+            fetch('/api/save-gauge-credentials', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    endpoint: endpoint,
+                    auth_token: token,
+                    client_id: clientId,
+                    client_secret: clientSecret
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('GAUGE API credentials saved successfully! Live data connection active.');
+                    document.querySelector('.modal').remove();
+                    // Refresh the dashboard data
+                    loadSectionData('safety');
+                    loadAutomationStatus();
+                } else {
+                    alert('Failed to save credentials: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Save credentials error:', error);
+                alert('Failed to save credentials');
+            });
+        }
+
         // Initialize with safety overview and automation status
         loadSectionData('safety');
         loadAutomationStatus();

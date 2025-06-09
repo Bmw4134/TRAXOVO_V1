@@ -21,6 +21,14 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "nexus-qnis-key")
 
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///traxovo.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize database
+from models import init_database
+init_database(app)
+
 @app.route('/')
 def landing_page():
     """TRAXOVO ∞ Clarity Core - Enterprise Landing Page"""
@@ -35,17 +43,29 @@ def login_page():
 def authenticate():
     """Handle login authentication"""
     from flask import request, session, redirect
+    from models import User, db
+    from datetime import datetime
     
     username = request.form.get('username')
     password = request.form.get('password')
     
-    # Enterprise authentication for watson user
-    if username == 'watson' and password == 'nexus':
+    # Database authentication
+    user = User.query.filter_by(username=username, is_active=True).first()
+    
+    if user and user.check_password(password):
+        # Update last login
+        user.last_login = datetime.utcnow()
+        db.session.commit()
+        
+        # Set session
         session['authenticated'] = True
-        session['username'] = 'watson'
+        session['username'] = user.username
+        session['user_role'] = user.role
+        session['user_id'] = user.id
+        
         return redirect('/dashboard')
     else:
-        return redirect('/login?error=1')
+        return redirect('/login?error=invalid_credentials')
 
 @app.route('/dashboard')
 def enterprise_dashboard():

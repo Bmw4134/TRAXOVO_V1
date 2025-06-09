@@ -241,9 +241,9 @@
             <span>or</span>
         </div>
 
-        <a href="/demo-access" class="demo-login">
-            Demo Access - SR PM Portal
-        </a>
+        <div class="authentication-note">
+            <strong>Enterprise Access:</strong> watson / nexus
+        </div>
 
         <div class="security-info">
             Secured with quantum-level encryption and enterprise synchronization protocols
@@ -258,28 +258,9 @@
         // Auto-focus username field
         document.getElementById('username').focus();
 
-        // Handle form submission
+        // Clean enterprise authentication - no popups
         document.querySelector('.login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            // Simple demo authentication
-            if (username.toLowerCase() === 'admin' || 
-                username.toLowerCase() === 'brett' || 
-                username.toLowerCase() === 'pm' ||
-                username.toLowerCase() === 'traxovo') {
-                window.location.href = '/dashboard';
-            } else {
-                alert('Demo credentials: admin/admin, brett/brett, pm/pm, or traxovo/traxovo');
-            }
-        });
-
-        // Demo access button
-        document.querySelector('.demo-login').addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.href = '/dashboard';
+            // Allow normal form submission to server
         });
     </script>
 </body>

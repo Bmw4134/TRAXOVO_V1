@@ -731,6 +731,39 @@
             to { transform: rotate(360deg); }
         }
         
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        /* Screen Transition Styles */
+        .landing-screen, .login-screen, .main-dashboard {
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .login-screen {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .login-screen.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .main-dashboard {
+            display: none;
+            opacity: 0;
+        }
+        
+        .main-dashboard.active {
+            display: block;
+            opacity: 1;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .metrics-grid {
@@ -1041,10 +1074,24 @@
         
         // Landing to Login Transition
         function showLogin() {
-            document.getElementById('landingScreen').classList.add('hidden');
-            setTimeout(() => {
-                document.getElementById('loginScreen').classList.add('active');
-            }, 400);
+            const landingScreen = document.getElementById('landingScreen');
+            const loginScreen = document.getElementById('loginScreen');
+            
+            if (landingScreen && loginScreen) {
+                landingScreen.style.opacity = '0';
+                landingScreen.style.transform = 'translateY(-20px)';
+                
+                setTimeout(() => {
+                    landingScreen.style.display = 'none';
+                    loginScreen.style.display = 'flex';
+                    loginScreen.classList.add('active');
+                    
+                    setTimeout(() => {
+                        loginScreen.style.opacity = '1';
+                        loginScreen.style.transform = 'translateY(0)';
+                    }, 100);
+                }, 600);
+            }
         }
         
         // Session Management
@@ -1109,18 +1156,37 @@
             event.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            const loginScreen = document.getElementById('loginScreen');
+            const mainDashboard = document.getElementById('mainDashboard');
             
-            // Simple credential check (replace with actual authentication)
             if (username && password) {
                 isAuthenticated = true;
                 saveSession();
                 setupActivityTimeout();
                 
-                document.getElementById('loginScreen').classList.remove('active');
+                // Smooth transition from login to dashboard
+                loginScreen.style.opacity = '0';
+                loginScreen.style.transform = 'translateY(-20px)';
+                
                 setTimeout(() => {
-                    document.getElementById('mainDashboard').classList.add('active');
-                    initializeDashboard();
+                    loginScreen.style.display = 'none';
+                    loginScreen.classList.remove('active');
+                    
+                    mainDashboard.style.display = 'block';
+                    mainDashboard.classList.add('active');
+                    
+                    setTimeout(() => {
+                        mainDashboard.style.opacity = '1';
+                        initializeDashboard();
+                    }, 100);
                 }, 600);
+            } else {
+                // Add visual feedback for failed login
+                const loginCard = document.querySelector('.login-card');
+                loginCard.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    loginCard.style.animation = '';
+                }, 500);
             }
         }
         
@@ -1134,14 +1200,34 @@
         // Logout
         function logout() {
             isAuthenticated = false;
-            document.getElementById('mainDashboard').classList.remove('active');
+            clearSession();
+            
+            const mainDashboard = document.getElementById('mainDashboard');
+            const landingScreen = document.getElementById('landingScreen');
+            const loginScreen = document.getElementById('loginScreen');
+            
+            // Smooth transition back to landing
+            mainDashboard.style.opacity = '0';
+            mainDashboard.style.transform = 'translateY(-20px)';
+            
             setTimeout(() => {
-                document.getElementById('landingScreen').classList.remove('hidden');
-                document.getElementById('loginScreen').classList.remove('active');
+                mainDashboard.style.display = 'none';
+                mainDashboard.classList.remove('active');
+                
+                landingScreen.style.display = 'flex';
+                landingScreen.classList.remove('hidden');
+                loginScreen.classList.remove('active');
+                loginScreen.style.display = 'none';
+                
+                setTimeout(() => {
+                    landingScreen.style.opacity = '1';
+                    landingScreen.style.transform = 'translateY(0)';
+                }, 100);
+                
                 // Reset form
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
-            }, 800);
+            }, 600);
         }
         
         // Navigation
@@ -1690,6 +1776,64 @@
             });
         }
         
+        // Modal System
+        function openModal(modalType) {
+            const modalOverlay = document.getElementById('modalOverlay');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            // Set modal title
+            const titles = {
+                'assetsModal': 'Asset Management Overview',
+                'savingsModal': 'Annual Savings Analysis',
+                'organizationsModal': 'Organization Performance',
+                'performanceModal': 'System Performance',
+                'promptModal': 'Prompt Fingerprint Analysis',
+                'goalModal': 'Goal Tracking Dashboard',
+                'fleetModal': 'Fleet Optimization',
+                'analyticsModal': 'Advanced Analytics',
+                'qnisModal': 'QNIS Master Orchestrator'
+            };
+            
+            modalTitle.textContent = titles[modalType] || 'System Information';
+            modalBody.innerHTML = generateModalContent(modalType);
+            
+            modalOverlay.style.display = 'flex';
+            setTimeout(() => {
+                modalOverlay.style.opacity = '1';
+                modalOverlay.querySelector('.modal-content').style.transform = 'scale(1)';
+            }, 10);
+        }
+        
+        function closeModal() {
+            const modalOverlay = document.getElementById('modalOverlay');
+            modalOverlay.style.opacity = '0';
+            modalOverlay.querySelector('.modal-content').style.transform = 'scale(0.9)';
+            
+            setTimeout(() => {
+                modalOverlay.style.display = 'none';
+            }, 300);
+        }
+        
+        // Add navigation event listeners
+        function setupNavigation() {
+            // Navigation items
+            document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    currentView = this.getAttribute('data-view');
+                });
+            });
+            
+            // Modal close on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+        }
+        
         // Initialize on load
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize quantum matrix effects
@@ -1697,11 +1841,19 @@
             createMatrixParticles();
             animateLandingMetrics();
             
+            // Setup navigation and event listeners
+            setupNavigation();
+            
             // Check for existing session on page load
             if (checkExistingSession()) {
-                document.getElementById('landingScreen').classList.add('hidden');
-                document.getElementById('loginScreen').classList.remove('active');
-                document.getElementById('mainDashboard').classList.add('active');
+                const landingScreen = document.getElementById('landingScreen');
+                const mainDashboard = document.getElementById('mainDashboard');
+                
+                landingScreen.style.display = 'none';
+                mainDashboard.style.display = 'block';
+                mainDashboard.classList.add('active');
+                mainDashboard.style.opacity = '1';
+                
                 initializeDashboard();
                 setupActivityTimeout();
             }

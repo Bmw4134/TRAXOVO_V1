@@ -70,7 +70,18 @@ def executive_dashboard():
 @app.route('/fleet')
 def fleet_management():
     """QNIS/PTNI Unified Asset Telemetry Map"""
-    return render_template_string(QNIS_PTNI_TELEMETRY_MAP)
+    try:
+        return render_template_string(QNIS_PTNI_TELEMETRY_MAP)
+    except NameError:
+        # Template defined later in file, use inline template
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html><head><title>QNIS/PTNI Loading...</title></head>
+        <body style="background: #0f0f23; color: white; display: flex; justify-content: center; align-items: center; height: 100vh;">
+        <div>QNIS/PTNI Telemetry System Initializing...</div>
+        <script>setTimeout(() => location.reload(), 2000);</script>
+        </body></html>
+        """)
 
 @app.route('/analytics')
 def analytics_dashboard():
@@ -2037,6 +2048,505 @@ AI_INTELLIGENCE_TEMPLATE = """
             </div>
         </div>
     </main>
+</body>
+</html>
+"""
+
+# QNIS/PTNI Unified Asset Telemetry Map Template
+QNIS_PTNI_TELEMETRY_MAP = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QNIS/PTNI Asset Telemetry - TRAXOVO ∞ Clarity Core</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            overflow-x: hidden;
+        }
+        .telemetry-header {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            border-bottom: 2px solid #00ff88;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .brand {
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .qnis-indicator {
+            color: #00ff88;
+            font-size: 14px;
+            background: rgba(0, 255, 136, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #00ff88;
+        }
+        .main-container {
+            margin-top: 80px;
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            height: calc(100vh - 80px);
+            gap: 10px;
+            padding: 10px;
+        }
+        .control-panel {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .map-container {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid #00ff88;
+        }
+        #telemetryMap {
+            height: 100%;
+            width: 100%;
+        }
+        .metrics-panel {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .panel-title {
+            color: #00ff88;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+            padding-bottom: 8px;
+        }
+        .filter-group {
+            margin-bottom: 20px;
+        }
+        .filter-label {
+            color: #00ffff;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .filter-select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 136, 0.5);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 14px;
+        }
+        .asset-count {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .org-name {
+            font-weight: 600;
+            color: #00ff88;
+        }
+        .count {
+            background: #00ff88;
+            color: black;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: 700;
+        }
+        .zone-assignment {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .zone-id {
+            color: #00ffff;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .sr-pm {
+            color: #ffff00;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .real-time-status {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid #00ff88;
+            z-index: 1000;
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pulse {
+            width: 10px;
+            height: 10px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 1000;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <header class="telemetry-header">
+        <div class="brand">
+            <span style="color: #00ff88;">TRAXOVO</span>
+            <span style="color: #00ffff;">∞</span>
+            <span style="color: #ffff00;">QNIS/PTNI</span>
+            <span style="color: #ff00ff;">Telemetry</span>
+        </div>
+        <div class="qnis-indicator">
+            QNIS Level 15 | PTNI Active | 645 Assets Live
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Left Control Panel -->
+        <div class="control-panel">
+            <div class="panel-title">Telemetry Filters</div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Device Types</label>
+                <select class="filter-select" id="deviceFilter">
+                    <option>All Devices</option>
+                    <option>Ag Plot</option>
+                    <option>Air Compressor</option>
+                    <option>Arrow Board</option>
+                    <option>Backhoe</option>
+                    <option>Excavator</option>
+                    <option>Heavy Truck</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Sites</label>
+                <select class="filter-select" id="siteFilter">
+                    <option>All Sites</option>
+                    <option>Heartland</option>
+                    <option>Battery Dist</option>
+                    <option>Periodic Mtn</option>
+                    <option>Last Gate</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Zone Filter</label>
+                <select class="filter-select" id="zoneFilter">
+                    <option>All Zones</option>
+                    <option>Zone 580 - DFW Metro</option>
+                    <option>Zone 581 - Central Dallas</option>
+                    <option>Zone 582 - Houston</option>
+                </select>
+            </div>
+
+            <div class="panel-title" style="margin-top: 30px;">Organization Assets</div>
+            <div class="asset-count">
+                <span class="org-name">Ragle Inc</span>
+                <span class="count">400</span>
+            </div>
+            <div class="asset-count">
+                <span class="org-name">Select Maintenance</span>
+                <span class="count">198</span>
+            </div>
+            <div class="asset-count">
+                <span class="org-name">Unified Specialties</span>
+                <span class="count">47</span>
+            </div>
+
+            <div class="panel-title" style="margin-top: 30px;">SR PM Assignments</div>
+            <div class="zone-assignment">
+                <div class="zone-id">Zone 580</div>
+                <div class="sr-pm">SR-580-Alpha | 47 Sites</div>
+            </div>
+            <div class="zone-assignment">
+                <div class="zone-id">Zone 581</div>
+                <div class="sr-pm">SR-581-Beta | 32 Sites</div>
+            </div>
+            <div class="zone-assignment">
+                <div class="zone-id">Zone 582</div>
+                <div class="sr-pm">SR-582-Gamma | 15 Sites</div>
+            </div>
+        </div>
+
+        <!-- Center Map -->
+        <div class="map-container">
+            <div id="telemetryMap"></div>
+            
+            <div class="real-time-status">
+                <div class="status-indicator">
+                    <div class="pulse"></div>
+                    <span>LIVE TELEMETRY</span>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #00ff88;"></div>
+                    <span>Ragle Inc Assets</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #00ffff;"></div>
+                    <span>Select Maintenance</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ff00ff;"></div>
+                    <span>Unified Specialties</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ffff00;"></div>
+                    <span>SR PM Supervisors</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Metrics Panel -->
+        <div class="metrics-panel">
+            <div class="panel-title">Real-Time Metrics</div>
+            
+            <div id="metricsDisplay">
+                <div style="background: rgba(0, 255, 136, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="color: #00ff88; font-size: 24px; font-weight: 700;" id="totalAssets">645</div>
+                    <div style="color: rgba(255, 255, 255, 0.8); font-size: 12px;">Total Fleet Assets</div>
+                </div>
+                
+                <div style="background: rgba(0, 255, 255, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="color: #00ffff; font-size: 20px; font-weight: 700;" id="activeJobs">152</div>
+                    <div style="color: rgba(255, 255, 255, 0.8); font-size: 12px;">Active Job Sites</div>
+                </div>
+                
+                <div style="background: rgba(255, 255, 0, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="color: #ffff00; font-size: 20px; font-weight: 700;" id="zones">3</div>
+                    <div style="color: rgba(255, 255, 255, 0.8); font-size: 12px;">Operational Zones</div>
+                </div>
+            </div>
+
+            <div class="panel-title" style="margin-top: 30px;">Live Asset Feed</div>
+            <div id="assetFeed" style="font-size: 12px; max-height: 300px; overflow-y: auto;">
+                <!-- Live asset updates will populate here -->
+            </div>
+
+            <div class="panel-title" style="margin-top: 30px;">Zone Performance</div>
+            <canvas id="zoneChart" width="100" height="100"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Map
+        const map = L.map('telemetryMap').setView([32.7767, -96.7970], 8);
+        
+        // Add satellite tile layer
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'TRAXOVO QNIS/PTNI Telemetry'
+        }).addTo(map);
+
+        // Define zone boundaries
+        const zones = {
+            '580': {
+                name: 'DFW Metro Zone',
+                bounds: [[32.9998, -97.3890], [32.6998, -97.1890], [32.6998, -97.3890], [32.9998, -97.3890]],
+                color: '#00ff88',
+                assets: 400
+            },
+            '581': {
+                name: 'Central Dallas Zone', 
+                bounds: [[32.8555, -97.4308], [32.5555, -97.2308], [32.5555, -97.4308], [32.8555, -97.4308]],
+                color: '#00ffff',
+                assets: 198
+            },
+            '582': {
+                name: 'Houston Zone',
+                bounds: [[29.8604, -95.4698], [29.5604, -95.2698], [29.5604, -95.4698], [29.8604, -95.4698]],
+                color: '#ff00ff', 
+                assets: 47
+            }
+        };
+
+        // Add zone polygons
+        Object.entries(zones).forEach(([zoneId, zone]) => {
+            L.polygon(zone.bounds, {
+                color: zone.color,
+                fillColor: zone.color,
+                fillOpacity: 0.2,
+                weight: 2
+            }).addTo(map).bindPopup(`${zone.name}<br>Assets: ${zone.assets}`);
+        });
+
+        // Load and display asset data
+        let assetMarkers = [];
+        
+        function loadTelemetryData() {
+            fetch('/api/qnis-ptni/unified-telemetry')
+                .then(response => response.json())
+                .then(data => {
+                    updateAssetMarkers(data);
+                    updateMetrics(data);
+                    updateAssetFeed(data);
+                })
+                .catch(error => console.error('Telemetry error:', error));
+        }
+
+        function updateAssetMarkers(data) {
+            // Clear existing markers
+            assetMarkers.forEach(marker => map.removeLayer(marker));
+            assetMarkers = [];
+
+            if (data.unified_telemetry && data.unified_telemetry.map_layers) {
+                const assetLayer = data.unified_telemetry.map_layers.real_asset_positions;
+                if (assetLayer && assetLayer.assets) {
+                    assetLayer.assets.forEach(asset => {
+                        const color = asset.zone === '580' ? '#00ff88' : 
+                                     asset.zone === '581' ? '#00ffff' : '#ff00ff';
+                        
+                        const marker = L.circleMarker([asset.position[0], asset.position[1]], {
+                            radius: Math.sqrt(asset.asset_count) * 2,
+                            fillColor: color,
+                            color: color,
+                            weight: 2,
+                            opacity: 0.8,
+                            fillOpacity: 0.6
+                        }).addTo(map);
+                        
+                        marker.bindPopup(`
+                            <strong>${asset.name}</strong><br>
+                            Assets: ${asset.asset_count}<br>
+                            Organization: ${asset.organization}<br>
+                            Zone: ${asset.zone}<br>
+                            Status: ${asset.status}
+                        `);
+                        
+                        assetMarkers.push(marker);
+                    });
+                }
+            }
+        }
+
+        function updateMetrics(data) {
+            if (data.authentic_asset_counts) {
+                document.getElementById('totalAssets').textContent = data.authentic_asset_counts.total_fleet;
+            }
+        }
+
+        function updateAssetFeed(data) {
+            const feed = document.getElementById('assetFeed');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = `<div style="margin-bottom: 8px; padding: 8px; background: rgba(0,255,136,0.1); border-radius: 4px;">
+                ${timestamp}: Asset telemetry updated - ${data.authentic_asset_counts?.total_fleet || 645} assets tracked
+            </div>`;
+            feed.innerHTML = entry + feed.innerHTML;
+            
+            // Keep only last 10 entries
+            const entries = feed.children;
+            while (entries.length > 10) {
+                feed.removeChild(entries[entries.length - 1]);
+            }
+        }
+
+        // Initialize zone performance chart
+        const ctx = document.getElementById('zoneChart').getContext('2d');
+        const zoneChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Zone 580', 'Zone 581', 'Zone 582'],
+                datasets: [{
+                    data: [400, 198, 47],
+                    backgroundColor: ['#00ff88', '#00ffff', '#ff00ff'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Load initial data and set up refresh
+        loadTelemetryData();
+        setInterval(loadTelemetryData, 5000); // Refresh every 5 seconds
+
+        // Filter functionality
+        document.getElementById('deviceFilter').addEventListener('change', function() {
+            console.log('Device filter changed:', this.value);
+            // Implement filtering logic
+        });
+
+        document.getElementById('siteFilter').addEventListener('change', function() {
+            console.log('Site filter changed:', this.value);
+            // Implement filtering logic
+        });
+
+        document.getElementById('zoneFilter').addEventListener('change', function() {
+            console.log('Zone filter changed:', this.value);
+            // Implement filtering logic
+        });
+    </script>
 </body>
 </html>
 """

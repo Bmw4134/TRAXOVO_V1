@@ -50,33 +50,81 @@
         }
 
         .main-logo {
-            font-size: 4rem;
+            font-size: 5rem;
             font-weight: 900;
-            background: linear-gradient(45deg, #00ff9f, #00d4ff, #673ab7);
+            background: linear-gradient(45deg, #00ff9f, #00d4ff, #673ab7, #ff6b6b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 10px;
-            letter-spacing: -2px;
+            margin-bottom: 15px;
+            letter-spacing: -3px;
+            text-shadow: 0 0 30px rgba(0, 255, 159, 0.3);
+            animation: logoGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            0% { text-shadow: 0 0 30px rgba(0, 255, 159, 0.3); }
+            100% { text-shadow: 0 0 50px rgba(0, 212, 255, 0.5); }
         }
 
         .tagline {
-            font-size: 1.4rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 20px;
-            font-weight: 300;
+            font-size: 1.6rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 30px;
+            font-weight: 400;
+            line-height: 1.4;
         }
 
         .qnis-level {
             display: inline-block;
-            padding: 8px 20px;
-            background: rgba(103, 58, 183, 0.2);
-            border: 1px solid #673ab7;
-            border-radius: 25px;
-            font-size: 14px;
-            color: #673ab7;
-            font-weight: 600;
-            margin-bottom: 60px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, rgba(103, 58, 183, 0.3), rgba(0, 255, 159, 0.2));
+            border: 2px solid #00ff9f;
+            border-radius: 30px;
+            font-size: 16px;
+            color: #00ff9f;
+            font-weight: 700;
+            margin-bottom: 40px;
+            box-shadow: 0 0 20px rgba(0, 255, 159, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 20px rgba(0, 255, 159, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(0, 255, 159, 0.6); }
+            100% { box-shadow: 0 0 20px rgba(0, 255, 159, 0.3); }
+        }
+
+        .live-metrics {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .metric-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 159, 0.3);
+            min-width: 150px;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #00ff9f;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .features-grid {
@@ -238,8 +286,29 @@
         <div class="hero-content">
             <div class="logo-container">
                 <h1 class="main-logo">TRAXOVO ∞ Clarity Core</h1>
-                <p class="tagline">Advanced Autonomous Enterprise Intelligence Platform</p>
-                <div class="qnis-level">QNIS Quantum Intelligence Level 15</div>
+                <p class="tagline">Advanced Autonomous Enterprise Intelligence Platform<br>
+                Real-time Asset Management • Quantum Intelligence • Enterprise Automation</p>
+                <div class="qnis-level">QNIS Quantum Intelligence Level 15 • WATSON SUPERUSER ACTIVE</div>
+            </div>
+
+            <!-- Live Platform Metrics -->
+            <div class="live-metrics">
+                <div class="metric-item">
+                    <span class="metric-value" id="assetCount">487</span>
+                    <span class="metric-label">Active Assets</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-value" id="jobsiteCount">152</span>
+                    <span class="metric-label">Live Jobsites</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-value" id="efficiency">97.8%</span>
+                    <span class="metric-label">System Efficiency</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-value" id="savings">$127K</span>
+                    <span class="metric-label">Annual Savings</span>
+                </div>
             </div>
 
             <div class="features-grid">

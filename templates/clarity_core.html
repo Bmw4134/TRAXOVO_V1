@@ -1394,9 +1394,30 @@
             }, 600);
         }
         
+        // Chart instances
+        let attendanceChart, assetChart, drivingChart;
+        
         // Navigation
         document.querySelectorAll('.nav-item[data-view]').forEach(item => {
             item.addEventListener('click', function() {
+                const viewName = this.getAttribute('data-view');
+                
+                // Hide all views
+                document.querySelectorAll('.dashboard-view').forEach(view => {
+                    view.style.display = 'none';
+                });
+                
+                // Show selected view
+                const targetView = document.getElementById(viewName + 'View');
+                if (targetView) {
+                    targetView.style.display = 'block';
+                    
+                    // Initialize charts if switching to attendance view
+                    if (viewName === 'attendance' && !attendanceChart) {
+                        setTimeout(() => initializeAttendanceCharts(), 100);
+                    }
+                }
+                
                 document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
                 this.classList.add('active');
                 currentView = this.dataset.view;

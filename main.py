@@ -4,7 +4,7 @@ Complete production-ready application with PostgreSQL integration
 """
 
 import os
-from flask import Flask, render_template_string, request, jsonify, session, redirect, url_for, flash
+from flask import Flask, render_template, render_template_string, request, jsonify, session, redirect, url_for, flash
 from datetime import datetime, date, timedelta
 import json
 import time
@@ -26,30 +26,13 @@ def landing():
     if 'user' in session:
         return redirect(url_for('dashboard'))
     
-    return render_template_string("""
-<!DOCTYPE html>
-<html>
-<head>
-    <title>NEXUS COMMAND - Production Platform</title>
-    <style>
-        body { 
-            background: linear-gradient(135deg, #0a0a0a, #1a1a2e, #16213e);
-            color: white; 
-            font-family: Arial, sans-serif;
-            margin: 0; 
-            padding: 20px;
-            min-height: 100vh;
-        }
-        .container { max-width: 800px; margin: 0 auto; text-align: center; }
-        .login-box { 
-            background: rgba(0,0,0,0.7); 
-            padding: 40px; 
-            border-radius: 15px; 
-            margin-top: 100px;
-            border: 2px solid #00ffff;
-        }
-        .form-group { margin: 20px 0; }
-        input { 
+    return render_template('premium_landing.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Authentication endpoint with production-ready security"""
+    if request.method == 'GET':
+        return redirect(url_for('landing')) 
             width: 100%; 
             padding: 15px; 
             background: #333; 

@@ -3,7 +3,7 @@ TRAXOVO NEXUS Main Application Entry Point
 Simplified startup for QNIS Clarity Core
 """
 
-from flask import Flask, render_template, jsonify, Response
+from flask import Flask, render_template, render_template_string, jsonify, Response
 import os
 import json
 import logging

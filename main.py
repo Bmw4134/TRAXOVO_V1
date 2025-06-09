@@ -257,13 +257,22 @@ def process_asset_utilization_csv(data):
     try:
         total_assets = len(data)
         
-        # Calculate utilization metrics
-        if 'Utilization' in data.columns:
-            avg_utilization = data['Utilization'].mean()
-            low_utilization = len(data[data['Utilization'] < 70])
-        else:
-            avg_utilization = 0
-            low_utilization = 0
+        # Extract utilization values
+        utilization_values = []
+        low_utilization = 0
+        
+        for row in data:
+            util_field = row.get('Utilization') or row.get('utilization') or row.get('Usage') or row.get('usage')
+            if util_field:
+                try:
+                    util = float(util_field.replace('%', '')) if isinstance(util_field, str) else float(util_field)
+                    utilization_values.append(util)
+                    if util < 70:
+                        low_utilization += 1
+                except ValueError:
+                    pass
+        
+        avg_utilization = sum(utilization_values) / len(utilization_values) if utilization_values else 0
         
         insights = []
         if low_utilization > 0:

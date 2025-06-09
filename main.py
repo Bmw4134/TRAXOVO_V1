@@ -436,19 +436,7 @@ def api_fuel_energy():
         'cost_per_gallon': 3.42
     })
 
-@app.route('/api/safety-overview')
-def api_safety_overview():
-    """Safety overview with risk factors"""
-    return jsonify({
-        'overall_safety_score': 94.2,
-        'risk_factors': {
-            'speeding_incidents': 3,
-            'hard_braking_events': 12,
-            'after_hours_usage': 8,
-            'maintenance_overdue': 2
-        },
-        'compliance_status': 'excellent'
-    })
+# Duplicate safety endpoint removed - using app.py version with correct data structure
 
 @app.route('/api/traxovo/automation-status')
 def api_traxovo_automation_status():

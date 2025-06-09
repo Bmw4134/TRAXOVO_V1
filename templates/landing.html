@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAXOVO ∞ Clarity Core - Enterprise Intelligence Platform</title>
+    <link rel="stylesheet" href="/static/enterprise_polish.css">
     <style>
         * {
             margin: 0;
@@ -12,11 +13,12 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 50%, #2d1b3d 100%);
             color: white;
             min-height: 100vh;
             overflow-x: hidden;
+            letter-spacing: -0.025em;
         }
 
         .hero-section {
@@ -135,17 +137,44 @@
         }
 
         .feature-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 30px;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.05) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            border-radius: 20px;
+            padding: 32px;
             text-align: left;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px) saturate(180%);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00ff9f, transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
         .feature-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(0, 255, 159, 0.1);
+            border-color: rgba(0, 255, 159, 0.3);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
             border-color: #00ff9f;
             box-shadow: 0 10px 30px rgba(0, 255, 159, 0.2);
         }

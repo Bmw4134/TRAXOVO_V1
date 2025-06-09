@@ -22,10 +22,45 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "nexus-qnis-key")
 
 @app.route('/')
-@app.route('/traxovo')
-def traxovo_unified_dashboard():
-    """TRAXOVO ∞ Clarity Core - Unified Enterprise Dashboard"""
+def landing_page():
+    """TRAXOVO ∞ Clarity Core - Enterprise Landing Page"""
+    return render_template('landing.html')
+
+@app.route('/login')
+def login_page():
+    """Login page - step 2 of TRIFECTA flow"""
+    return render_template('login.html')
+
+@app.route('/authenticate', methods=['POST'])
+def authenticate():
+    """Handle login authentication"""
+    from flask import request, session, redirect
+    
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    # Enterprise authentication for watson user
+    if username == 'watson' and password == 'nexus':
+        session['authenticated'] = True
+        session['username'] = 'watson'
+        return redirect('/dashboard')
+    else:
+        return redirect('/login?error=1')
+
+@app.route('/dashboard')
+def enterprise_dashboard():
+    """TRAXOVO ∞ Enterprise Dashboard - step 3 of TRIFECTA flow"""
+    from flask import session, redirect
+    
+    if not session.get('authenticated'):
+        return redirect('/login')
+    
     return render_template('enhanced_dashboard.html')
+
+@app.route('/traxovo')
+def traxovo_redirect():
+    """Legacy redirect to maintain compatibility"""
+    return redirect('/dashboard')
 
 @app.route('/asset-map')
 def asset_map():

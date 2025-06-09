@@ -2005,6 +2005,22 @@
                 
                 const data = await response.json();
                 
+                // Handle new structured fuel metrics data
+                if (data && data.fuel_metrics) {
+                    updateFuelMetrics(data);
+                    
+                    // Update division breakdown if available
+                    if (data.division_breakdown) {
+                        displayDivisionBreakdown(data.division_breakdown);
+                    }
+                    
+                    // Display alerts if available
+                    if (data.alerts && data.alerts.length > 0) {
+                        displayFuelAlerts(data.alerts);
+                    }
+                }
+                
+                // Legacy data handling for backward compatibility
                 if (data && data.fuel_data) {
                     const tableBody = document.getElementById('fuel-table');
                     if (tableBody) {
@@ -2021,31 +2037,73 @@
                             </tr>
                         `).join('');
                     }
-                    
-                    // Update fuel summary
-                    if (data.summary) {
-                        const summaryEl = document.getElementById('fuel-summary');
-                        if (summaryEl) {
-                            summaryEl.innerHTML = `
-                                <div class="metric-card">
-                                    <h4>Total Fuel Used</h4>
-                                    <span class="metric-value">${data.summary.total_fuel_consumed || 0} gal</span>
-                                </div>
-                                <div class="metric-card">
-                                    <h4>Average MPG</h4>
-                                    <span class="metric-value">${data.summary.average_mpg || 0}</span>
-                                </div>
-                                <div class="metric-card">
-                                    <h4>Today's Cost</h4>
-                                    <span class="metric-value">$${data.summary.total_cost_today || 0}</span>
-                                </div>
-                            `;
-                        }
-                    }
                 }
             } catch (error) {
                 console.error('Error loading fuel data:', error);
+                displayFuelErrorState();
             }
+        }
+
+        function updateFuelMetrics(data) {
+            const metrics = data.fuel_metrics;
+            
+            // Update primary dashboard metrics
+            updateElementText('daily-consumption', `${metrics.daily_consumption?.toLocaleString() || 'N/A'} gal`);
+            updateElementText('monthly-budget', `$${metrics.monthly_budget?.toLocaleString() || 'N/A'}`);
+            updateElementText('spent-this-month', `$${metrics.spent_this_month?.toLocaleString() || 'N/A'}`);
+            updateElementText('fuel-efficiency', metrics.efficiency_rating || 'N/A');
+            updateElementText('cost-per-gallon', `$${metrics.cost_per_gallon || 'N/A'}`);
+            updateElementText('avg-mpg', `${metrics.avg_mpg || 'N/A'} MPG`);
+            updateElementText('idle-percentage', `${metrics.idle_percentage || 'N/A'}%`);
+            
+            // Update energy analytics if available
+            if (data.energy_analytics) {
+                const analytics = data.energy_analytics;
+                updateElementText('fuel-trend', analytics.fuel_efficiency_trend || 'N/A');
+                updateElementText('carbon-emissions', `${analytics.carbon_emissions || 'N/A'} kg CO2`);
+                updateElementText('optimization-potential', analytics.optimization_potential || 'N/A');
+            }
+        }
+
+        function displayDivisionBreakdown(divisions) {
+            const breakdownContainer = document.getElementById('division-breakdown');
+            if (breakdownContainer) {
+                const html = Object.entries(divisions).map(([division, data]) => `
+                    <div class="division-card">
+                        <h4>${division}</h4>
+                        <div class="division-metrics">
+                            <span>Consumption: ${data.consumption} gal</span>
+                            <span>Cost: $${data.cost?.toLocaleString()}</span>
+                        </div>
+                    </div>
+                `).join('');
+                breakdownContainer.innerHTML = html;
+            }
+        }
+
+        function displayFuelAlerts(alerts) {
+            const alertsContainer = document.getElementById('fuel-alerts');
+            if (alertsContainer) {
+                const html = alerts.map(alert => `
+                    <div class="alert-item">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>${alert}</span>
+                    </div>
+                `).join('');
+                alertsContainer.innerHTML = html;
+            }
+        }
+
+        function updateElementText(elementId, text) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = text;
+            }
+        }
+
+        function displayFuelErrorState() {
+            const errorElements = ['daily-consumption', 'monthly-budget', 'spent-this-month', 'fuel-efficiency'];
+            errorElements.forEach(id => updateElementText(id, 'Error loading'));
         }
 
         async function loadDispatchData() {

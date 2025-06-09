@@ -11,16 +11,29 @@
             box-sizing: border-box;
         }
 
+        html {
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 50%, #2d1b3d 100%);
-            background-attachment: fixed;
+            background: #0a0e1a;
             color: white;
             margin: 0;
-            padding: 40px 20px;
+            padding: 0;
+            height: auto;
             min-height: 100vh;
-            overflow-y: scroll;
+            position: relative;
+        }
+
+        .scroll-container {
+            height: 100vh;
+            overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 50%, #2d1b3d 100%);
+            padding: 40px 20px;
         }
 
         .login-container {
@@ -198,9 +211,8 @@
 
         /* Mobile Responsive Design */
         @media (max-width: 768px) {
-            body {
+            .scroll-container {
                 padding: 20px 15px;
-                background-attachment: scroll;
             }
             
             .login-container {
@@ -247,7 +259,7 @@
         }
 
         @media (max-width: 480px) {
-            body {
+            .scroll-container {
                 padding: 15px 10px;
             }
             
@@ -274,7 +286,8 @@
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <div class="scroll-container">
+        <div class="login-container">
         <h1 class="logo">TRAXOVO ∞</h1>
         <p class="subtitle">Enterprise Intelligence Access</p>
         <div class="qnis-badge">QNIS Level 15 Authentication</div>
@@ -319,6 +332,7 @@
 
         <div class="back-link">
             <a href="/">&larr; Back to Landing Page</a>
+        </div>
         </div>
     </div>
 

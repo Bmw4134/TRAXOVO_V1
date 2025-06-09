@@ -25,6 +25,126 @@ def clarity_core_dashboard():
     """TRAXOVO ∞ Clarity Core Dashboard"""
     return render_template_string(CLARITY_CORE_TEMPLATE)
 
+@app.route('/samsara')
+def samsara_level_dashboard():
+    """TRAXOVO ∞ Clarity Core - Samsara-Level Enterprise Dashboard"""
+    return render_template('enhanced_dashboard.html')
+
+@app.route('/api/test-gauge-connection', methods=['POST'])
+def api_test_gauge_connection():
+    """Test GAUGE API connection with provided credentials"""
+    import requests
+    import base64
+    
+    try:
+        data = request.get_json()
+        api_url = data.get('url', '').rstrip('/')
+        username = data.get('username')
+        password = data.get('password')
+        api_key = data.get('api_key')
+        
+        if not all([api_url, username, password, api_key]):
+            return jsonify({'success': False, 'error': 'All credential fields are required'})
+        
+        auth_string = f"{username}:{password}"
+        auth_bytes = auth_string.encode('ascii')
+        auth_header = base64.b64encode(auth_bytes).decode('ascii')
+        
+        headers = {
+            'Authorization': f'Basic {auth_header}',
+            'X-API-Key': api_key,
+            'Content-Type': 'application/json'
+        }
+        
+        # Test the connection using your specific AssetList endpoint
+        if '28dcba94c01e453fa8e9215a068f30e4' in api_url:
+            test_url = api_url
+        else:
+            test_url = f"{api_url}/AssetList/28dcba94c01e453fa8e9215a068f30e4"
+        
+        response = requests.get(test_url, headers=headers, timeout=10, verify=False)
+        
+        if response.status_code == 200:
+            return jsonify({
+                'success': True,
+                'message': 'Connection successful',
+                'data': response.json() if response.content else {}
+            })
+        elif response.status_code == 401:
+            return jsonify({'success': False, 'error': 'Authentication failed - check username/password'})
+        elif response.status_code == 403:
+            return jsonify({'success': False, 'error': 'Access forbidden - check API key'})
+        elif response.status_code == 404:
+            return jsonify({'success': False, 'error': 'API endpoint not found - check URL'})
+        else:
+            return jsonify({'success': False, 'error': f'HTTP {response.status_code}: {response.text[:200]}'})
+            
+    except requests.exceptions.ConnectionError:
+        return jsonify({'success': False, 'error': 'Cannot connect to API endpoint - check URL'})
+    except requests.exceptions.Timeout:
+        return jsonify({'success': False, 'error': 'Connection timeout - API may be slow'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': f'Connection test failed: {str(e)}'})
+
+@app.route('/api/save-gauge-credentials', methods=['POST'])
+def api_save_gauge_credentials():
+    """Save GAUGE API credentials to environment"""
+    try:
+        data = request.get_json()
+        api_url = data.get('url', '').rstrip('/')
+        username = data.get('username')
+        password = data.get('password')
+        api_key = data.get('api_key')
+        
+        if not all([api_url, username, password, api_key]):
+            return jsonify({'success': False, 'error': 'All credential fields are required'})
+        
+        # Save to environment variables
+        os.environ['GAUGE_API_ENDPOINT'] = api_url
+        os.environ['GAUGE_AUTH_TOKEN'] = api_key
+        os.environ['GAUGE_CLIENT_ID'] = username
+        os.environ['GAUGE_CLIENT_SECRET'] = password
+        
+        # Save to credentials file for persistence
+        credentials = {
+            'endpoint': api_url,
+            'username': username,
+            'password': password,
+            'api_key': api_key,
+            'saved_at': datetime.now().isoformat()
+        }
+        
+        with open('gauge_credentials.json', 'w') as f:
+            json.dump(credentials, f, indent=2)
+        
+        return jsonify({
+            'success': True,
+            'message': 'GAUGE API credentials saved successfully'
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': f'Failed to save credentials: {str(e)}'})
+
+@app.route('/api/gauge-status')
+def api_gauge_status():
+    """Get current GAUGE API connection status"""
+    try:
+        if os.environ.get('GAUGE_API_ENDPOINT') and os.environ.get('GAUGE_AUTH_TOKEN'):
+            return jsonify({
+                'connected': True,
+                'message': 'Connected to GAUGE API with environment credentials'
+            })
+        else:
+            return jsonify({
+                'connected': False,
+                'message': 'No GAUGE API credentials configured'
+            })
+    except Exception as e:
+        return jsonify({
+            'connected': False,
+            'message': f'Connection error: {str(e)}'
+        })
+
 @app.route('/api/qnis/realtime-metrics')
 def realtime_metrics():
     """Real-time QNIS metrics endpoint"""

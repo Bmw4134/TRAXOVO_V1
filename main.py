@@ -364,22 +364,27 @@ def get_gps_fleet_data():
 
 @app.route('/api/qnis-ptni/unified-telemetry')
 def get_unified_telemetry():
-    """QNIS/PTNI Unified Asset Telemetry - Consolidated Single Endpoint"""
+    """QNIS/PTNI Unified Asset Telemetry - Complete 152 Jobsite Data"""
     try:
-        from unified_map_controller import UnifiedMapController
+        from complete_asset_processor import CompleteAssetProcessor
         
-        controller = UnifiedMapController()
-        unified_data = controller.get_unified_map_data()
+        processor = CompleteAssetProcessor()
+        complete_data = processor.get_complete_asset_data()
         
         return jsonify({
             'qnis_consciousness_level': 15,
             'ptni_quantum_state': 'ACTIVE',
-            'unified_telemetry': unified_data,
-            'authentic_asset_counts': {
-                'ragle_inc': 400,
-                'select_maintenance': 198, 
-                'unified_specialties': 47,
-                'total_fleet': 645
+            'complete_asset_data': complete_data,
+            'authentic_totals': complete_data['authentic_totals'],
+            'sr_pm_assignments': {
+                'zone_580': {'sr_pm': 'SR-580-Alpha', 'jobsites': len([a for a in complete_data['complete_assets'] if a['zone'] == '580'])},
+                'zone_581': {'sr_pm': 'SR-581-Beta', 'jobsites': len([a for a in complete_data['complete_assets'] if a['zone'] == '581'])},
+                'zone_582': {'sr_pm': 'SR-582-Gamma', 'jobsites': len([a for a in complete_data['complete_assets'] if a['zone'] == '582'])}
+            },
+            'intelligent_geofencing': {
+                'total_zones': 3,
+                'project_boundaries': complete_data['zones'],
+                'alert_rules': ['project_milestone', 'asset_allocation', 'sr_pm_oversight']
             },
             'real_time_status': 'LIVE',
             'last_sync': datetime.now().isoformat()
@@ -2459,54 +2464,73 @@ QNIS_PTNI_TELEMETRY_MAP = """
             assetMarkers.forEach(marker => map.removeLayer(marker));
             assetMarkers = [];
 
-            if (data.unified_telemetry && data.unified_telemetry.map_layers) {
-                const assetLayer = data.unified_telemetry.map_layers.real_asset_positions;
-                if (assetLayer && assetLayer.assets) {
-                    assetLayer.assets.forEach(asset => {
-                        const color = asset.zone === '580' ? '#00ff88' : 
-                                     asset.zone === '581' ? '#00ffff' : '#ff00ff';
-                        
-                        const marker = L.circleMarker([asset.position[0], asset.position[1]], {
-                            radius: Math.sqrt(asset.asset_count) * 2,
-                            fillColor: color,
-                            color: color,
-                            weight: 2,
-                            opacity: 0.8,
-                            fillOpacity: 0.6
-                        }).addTo(map);
-                        
-                        marker.bindPopup(`
-                            <strong>${asset.name}</strong><br>
-                            Assets: ${asset.asset_count}<br>
-                            Organization: ${asset.organization}<br>
-                            Zone: ${asset.zone}<br>
-                            Status: ${asset.status}
-                        `);
-                        
-                        assetMarkers.push(marker);
-                    });
-                }
+            if (data.complete_asset_data && data.complete_asset_data.complete_assets) {
+                data.complete_asset_data.complete_assets.forEach(asset => {
+                    const color = asset.zone === '580' ? '#00ff88' : 
+                                 asset.zone === '581' ? '#00ffff' : '#ff00ff';
+                    
+                    // Scale marker based on asset count (minimum 3px, max 15px)
+                    const radius = Math.max(3, Math.min(15, Math.sqrt(asset.assets_count + 1) * 2));
+                    
+                    const marker = L.circleMarker([asset.position[0], asset.position[1]], {
+                        radius: radius,
+                        fillColor: color,
+                        color: color,
+                        weight: 2,
+                        opacity: 0.8,
+                        fillOpacity: asset.assets_count > 0 ? 0.8 : 0.3
+                    }).addTo(map);
+                    
+                    marker.bindPopup(`
+                        <strong>${asset.name}</strong><br>
+                        Job Number: ${asset.job_number}<br>
+                        Assets On-Site: ${asset.assets_count}<br>
+                        Category: ${asset.category}<br>
+                        Organization: ${asset.organization}<br>
+                        Zone: ${asset.zone}<br>
+                        Status: ${asset.status}
+                    `);
+                    
+                    assetMarkers.push(marker);
+                });
             }
         }
 
         function updateMetrics(data) {
-            if (data.authentic_asset_counts) {
-                document.getElementById('totalAssets').textContent = data.authentic_asset_counts.total_fleet;
+            if (data.authentic_totals) {
+                document.getElementById('totalAssets').textContent = data.authentic_totals.total_assets;
+                document.getElementById('activeJobs').textContent = data.authentic_totals.total_jobsites;
             }
         }
 
         function updateAssetFeed(data) {
             const feed = document.getElementById('assetFeed');
             const timestamp = new Date().toLocaleTimeString();
-            const entry = `<div style="margin-bottom: 8px; padding: 8px; background: rgba(0,255,136,0.1); border-radius: 4px;">
-                ${timestamp}: Asset telemetry updated - ${data.authentic_asset_counts?.total_fleet || 645} assets tracked
-            </div>`;
-            feed.innerHTML = entry + feed.innerHTML;
             
-            // Keep only last 10 entries
-            const entries = feed.children;
-            while (entries.length > 10) {
-                feed.removeChild(entries[entries.length - 1]);
+            if (data.complete_asset_data && data.complete_asset_data.complete_assets) {
+                // Show top active jobsites with assets
+                const activeJobsites = data.complete_asset_data.complete_assets
+                    .filter(asset => asset.assets_count > 0)
+                    .sort((a, b) => b.assets_count - a.assets_count)
+                    .slice(0, 8);
+                
+                let feedContent = activeJobsites.map(asset => 
+                    `<div class="feed-item" style="margin-bottom: 6px; padding: 6px; background: rgba(0,255,136,0.1); border-radius: 4px; font-size: 12px;">
+                        [${timestamp}] ${asset.job_number || asset.name}: ${asset.assets_count} assets • ${asset.organization} • ${asset.category}
+                    </div>`
+                ).join('');
+                
+                // Add SR PM assignments
+                if (data.sr_pm_assignments) {
+                    feedContent += `
+                        <div style="margin: 10px 0 5px 0; font-weight: bold; color: #00ff88;">SR PM Zone Assignments:</div>
+                        <div class="feed-item" style="margin-bottom: 4px; padding: 4px; background: rgba(0,255,255,0.1); border-radius: 4px; font-size: 11px;">Zone 580: ${data.sr_pm_assignments.zone_580.jobsites} jobsites → ${data.sr_pm_assignments.zone_580.sr_pm}</div>
+                        <div class="feed-item" style="margin-bottom: 4px; padding: 4px; background: rgba(0,255,255,0.1); border-radius: 4px; font-size: 11px;">Zone 581: ${data.sr_pm_assignments.zone_581.jobsites} jobsites → ${data.sr_pm_assignments.zone_581.sr_pm}</div>
+                        <div class="feed-item" style="margin-bottom: 4px; padding: 4px; background: rgba(255,0,255,0.1); border-radius: 4px; font-size: 11px;">Zone 582: ${data.sr_pm_assignments.zone_582.jobsites} jobsites → ${data.sr_pm_assignments.zone_582.sr_pm}</div>
+                    `;
+                }
+                
+                feed.innerHTML = feedContent;
             }
         }
 
@@ -2517,7 +2541,7 @@ QNIS_PTNI_TELEMETRY_MAP = """
             data: {
                 labels: ['Zone 580', 'Zone 581', 'Zone 582'],
                 datasets: [{
-                    data: [400, 198, 47],
+                    data: [0, 0, 0], // Will be updated with real data
                     backgroundColor: ['#00ff88', '#00ffff', '#ff00ff'],
                     borderWidth: 0
                 }]

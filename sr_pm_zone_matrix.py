@@ -89,14 +89,34 @@ class SRPMZoneMapper:
                                 "id": "EX-15",
                                 "type": "CAT 324D 2010 Excavator",
                                 "coordinates": [28.9838542938232, -95.9977035522461]
-                    },
+                            }
+                        ]
+                    }
+                ]
+            },
+            
+            # Austin/Central Texas Projects - GAUGE Zone 582
+            "AUSTIN_CENTRAL_TEXAS_PROJECTS": {
+                "gauge_zone": "zone_582",
+                "sr_pm": "Austin Operations",
+                "polygon_bounds": {
+                    "north": 30.6,
+                    "south": 30.0,
+                    "east": -97.5,
+                    "west": -98.0
+                },
+                "projects": [
                     {
-                        "id": "210013", 
-                        "type": "JEEP WRANGLER 2024 Pickup Truck",
-                        "operator": "MATTHEW C. SHAYLOR",
-                        "location": "Fort Worth, TX",
-                        "coordinates": [32.8399, -97.1944],
-                        "status": "active"
+                        "project_id": "2023-156",
+                        "description": "Austin Infrastructure Upgrade",
+                        "location": "Austin, TX",
+                        "status": "Active"
+                    }
+                ]
+            }
+        }
+        
+        return authentic_mappings
                     }
                 ]
             }

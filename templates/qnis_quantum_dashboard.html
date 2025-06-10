@@ -160,6 +160,19 @@
             </div>
         </header>
         
+        <!-- FORCED MOBILE TOGGLE - INJECTED IMMEDIATELY -->
+        <div id="force-mobile-toggle" style="position: fixed !important; top: 20px !important; right: 20px !important; z-index: 999999 !important; display: block !important; pointer-events: auto !important; background: rgba(0, 0, 0, 0.1) !important; border-radius: 30px !important; padding: 3px !important;">
+            <button id="force-toggle-btn" onclick="forceToggleMobileDesktop()" style="background: linear-gradient(45deg, #00d4ff, #00ff88) !important; color: #000 !important; border: none !important; border-radius: 25px !important; padding: 12px 18px !important; font-size: 13px !important; font-weight: 800 !important; cursor: pointer !important; box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5) !important; display: flex !important; align-items: center !important; gap: 8px !important; min-height: 44px !important; touch-action: manipulation !important; transform: scale(1) !important; transition: all 0.2s ease !important;">
+                <span id="toggle-icon" style="font-size: 16px !important;">🖥️</span>
+                <span id="toggle-label" style="font-size: 12px !important; font-weight: 900 !important;">DESKTOP</span>
+            </button>
+        </div>
+        
+        <!-- VIEW MODE CONFIRMATION -->
+        <div id="view-mode-confirmation" style="position: fixed !important; top: 80px !important; right: 20px !important; z-index: 999998 !important; background: rgba(0, 212, 255, 0.9) !important; color: #000 !important; padding: 8px 16px !important; border-radius: 20px !important; font-size: 11px !important; font-weight: 700 !important; display: none !important; animation: slideIn 0.3s ease !important;">
+            <span id="confirmation-text">MOBILE VIEW ACTIVE</span>
+        </div>
+        
         <!-- QNIS Sidebar Zone -->
         <aside class="qnis-sidebar-zone">
             <div class="qnis-sidebar-section">
@@ -2965,6 +2978,120 @@
         window.addEventListener('unhandledrejection', function(event) {
             console.log('QNIS: Promise rejection handled by quantum system');
             event.preventDefault();
+        });
+    </script>
+
+    <!-- FORCED MOBILE/DESKTOP TOGGLE SYSTEM -->
+    <script>
+        // Force render client state and toggle functionality
+        let isDesktopMode = localStorage.getItem('traxovo-desktop-mode') === 'true';
+        
+        function forceToggleMobileDesktop() {
+            const toggleBtn = document.getElementById('force-toggle-btn');
+            const toggleIcon = document.getElementById('toggle-icon');
+            const toggleLabel = document.getElementById('toggle-label');
+            const confirmation = document.getElementById('view-mode-confirmation');
+            const confirmationText = document.getElementById('confirmation-text');
+            
+            // Toggle state
+            isDesktopMode = !isDesktopMode;
+            
+            // Update button appearance with visual feedback
+            toggleBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                toggleBtn.style.transform = 'scale(1)';
+            }, 150);
+            
+            if (isDesktopMode) {
+                // Switch to desktop mode
+                toggleIcon.textContent = '📱';
+                toggleLabel.textContent = 'MOBILE';
+                confirmationText.textContent = 'DESKTOP VIEW ACTIVE';
+                
+                // Apply desktop mode styles
+                document.body.style.minWidth = '1200px';
+                document.body.style.transform = 'scale(0.8)';
+                document.body.style.transformOrigin = 'top left';
+                document.body.style.width = '125%';
+                
+                // Update meta viewport for desktop experience
+                let viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    viewport.setAttribute('content', 'width=1200, initial-scale=0.8, user-scalable=yes');
+                }
+                
+            } else {
+                // Switch to mobile mode
+                toggleIcon.textContent = '🖥️';
+                toggleLabel.textContent = 'DESKTOP';
+                confirmationText.textContent = 'MOBILE VIEW ACTIVE';
+                
+                // Apply mobile mode styles
+                document.body.style.minWidth = '';
+                document.body.style.transform = '';
+                document.body.style.transformOrigin = '';
+                document.body.style.width = '';
+                
+                // Reset meta viewport for mobile experience
+                let viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
+                }
+            }
+            
+            // Show confirmation with animation
+            confirmation.style.display = 'block';
+            confirmation.style.opacity = '0';
+            confirmation.style.transform = 'translateX(100px)';
+            
+            setTimeout(() => {
+                confirmation.style.opacity = '1';
+                confirmation.style.transform = 'translateX(0)';
+                confirmation.style.transition = 'all 0.3s ease';
+            }, 50);
+            
+            // Hide confirmation after 2 seconds
+            setTimeout(() => {
+                confirmation.style.opacity = '0';
+                confirmation.style.transform = 'translateX(100px)';
+                setTimeout(() => {
+                    confirmation.style.display = 'none';
+                }, 300);
+            }, 2000);
+            
+            // Persist state
+            localStorage.setItem('traxovo-desktop-mode', isDesktopMode.toString());
+            console.log('View mode toggled:', isDesktopMode ? 'Desktop' : 'Mobile');
+        }
+        
+        // Initialize state on page load
+        function initializeViewMode() {
+            const toggleIcon = document.getElementById('toggle-icon');
+            const toggleLabel = document.getElementById('toggle-label');
+            
+            if (isDesktopMode) {
+                forceToggleMobileDesktop(); // Apply desktop mode
+            }
+            
+            // Ensure toggle is always visible
+            const forceToggle = document.getElementById('force-mobile-toggle');
+            if (forceToggle) {
+                forceToggle.style.display = 'block';
+                forceToggle.style.visibility = 'visible';
+                forceToggle.style.opacity = '1';
+            }
+        }
+        
+        // Force initialization when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeViewMode);
+        } else {
+            initializeViewMode();
+        }
+        
+        // Additional force render on window load
+        window.addEventListener('load', function() {
+            setTimeout(initializeViewMode, 100);
         });
     </script>
 </body>

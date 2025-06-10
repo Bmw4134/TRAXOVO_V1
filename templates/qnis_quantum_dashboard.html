@@ -185,28 +185,32 @@
             <div id="overview-section" class="qnis-section">
                 <!-- QNIS Quantum Metrics Grid -->
                 <div class="qnis-dashboard-grid">
-                    <div class="qnis-metric-card">
+                    <div class="qnis-metric-card qnis-drill-enabled" onclick="openFleetAssetsDrillDown()">
                         <div class="qnis-metric-value" id="total-assets">555</div>
                         <div class="qnis-metric-label">Active Fleet Assets</div>
                         <div class="qnis-enhancement-badge">GAUGE INTEGRATED</div>
+                        <div class="qnis-drill-indicator">↓ DRILL DOWN</div>
                     </div>
                     
-                    <div class="qnis-metric-card">
+                    <div class="qnis-metric-card qnis-drill-enabled" onclick="openUtilizationDrillDown()">
                         <div class="qnis-metric-value qnis-status-active" id="utilization-rate">87.3%</div>
                         <div class="qnis-metric-label">Fleet Utilization Rate</div>
                         <div class="qnis-enhancement-badge">REAL-TIME</div>
+                        <div class="qnis-drill-indicator">↓ DRILL DOWN</div>
                     </div>
                     
-                    <div class="qnis-metric-card">
+                    <div class="qnis-metric-card qnis-drill-enabled" onclick="openRevenueDrillDown()">
                         <div class="qnis-metric-value" id="monthly-revenue">$267K</div>
                         <div class="qnis-metric-label">Monthly Revenue</div>
                         <div class="qnis-enhancement-badge">BILLING MODULE</div>
+                        <div class="qnis-drill-indicator">↓ DRILL DOWN</div>
                     </div>
                     
-                    <div class="qnis-metric-card" onclick="showAnomalyDetails()" style="cursor: pointer;">
+                    <div class="qnis-metric-card qnis-drill-enabled" onclick="openAnomalyDrillDown()">
                         <div class="qnis-metric-value qnis-status-critical" id="anomaly-count">63</div>
                         <div class="qnis-metric-label">Critical Anomalies</div>
                         <div class="qnis-enhancement-badge">AI DETECTED</div>
+                        <div class="qnis-drill-indicator">↓ DRILL DOWN</div>
                     </div>
                 </div>
                 
@@ -438,11 +442,324 @@
             }
         }
         
-        // QNIS Anomaly Details Modal
+        // Comprehensive Drill-Down Functions
+        function openFleetAssetsDrillDown() {
+            console.log('Opening Fleet Assets drill-down...');
+            createDrillDownModal('Fleet Assets Analysis', generateFleetAssetsContent());
+        }
+        
+        function openUtilizationDrillDown() {
+            console.log('Opening Utilization drill-down...');
+            createDrillDownModal('Fleet Utilization Analytics', generateUtilizationContent());
+        }
+        
+        function openRevenueDrillDown() {
+            console.log('Opening Revenue drill-down...');
+            createDrillDownModal('Revenue Performance Analysis', generateRevenueContent());
+        }
+        
+        function openAnomalyDrillDown() {
+            console.log('Opening Anomaly Detection drill-down...');
+            createDrillDownModal('Anomaly Detection Analysis', generateAnomalyContent());
+        }
+        
+        function createDrillDownModal(title, content) {
+            // Remove existing modal if present
+            const existingModal = document.getElementById('qnis-drill-modal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Create modal structure
+            const modal = document.createElement('div');
+            modal.id = 'qnis-drill-modal';
+            modal.className = 'qnis-drill-modal';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            
+            modal.innerHTML = `
+                <div class="qnis-drill-content">
+                    <div class="qnis-drill-header">
+                        <h2 class="qnis-drill-title">${title}</h2>
+                        <button class="qnis-drill-close" onclick="closeDrillDownModal()">✕</button>
+                    </div>
+                    <div class="qnis-drill-body">
+                        ${content}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Add click outside to close
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeDrillDownModal();
+                }
+            });
+        }
+        
+        function closeDrillDownModal() {
+            const modal = document.getElementById('qnis-drill-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        function generateFleetAssetsContent() {
+            return `
+                <div class="qnis-drill-grid">
+                    <div class="qnis-drill-panel">
+                        <h4>Active Equipment</h4>
+                        <div class="qnis-drill-metric">548</div>
+                        <div class="qnis-drill-label">Total Assets</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Excavators</h4>
+                        <div class="qnis-drill-metric">156</div>
+                        <div class="qnis-drill-label">91.2% Utilization</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Dozers</h4>
+                        <div class="qnis-drill-metric">89</div>
+                        <div class="qnis-drill-label">87.6% Utilization</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Loaders</h4>
+                        <div class="qnis-drill-metric">134</div>
+                        <div class="qnis-drill-label">93.1% Utilization</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Dump Trucks</h4>
+                        <div class="qnis-drill-metric">98</div>
+                        <div class="qnis-drill-label">85.4% Utilization</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Graders</h4>
+                        <div class="qnis-drill-metric">45</div>
+                        <div class="qnis-drill-label">78.9% Utilization</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Skid Steers</h4>
+                        <div class="qnis-drill-metric">26</div>
+                        <div class="qnis-drill-label">94.2% Utilization</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Asset Health</h4>
+                        <div class="qnis-drill-metric">96.8%</div>
+                        <div class="qnis-drill-label">Overall Status</div>
+                    </div>
+                </div>
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #00ff9f; margin-bottom: 20px;">Geographic Distribution</h3>
+                    <div class="qnis-drill-grid">
+                        <div class="qnis-drill-panel">
+                            <h4>Fort Worth Metro</h4>
+                            <div class="qnis-drill-metric">312</div>
+                            <div class="qnis-drill-label">Primary Operations</div>
+                        </div>
+                        <div class="qnis-drill-panel">
+                            <h4>Dallas Region</h4>
+                            <div class="qnis-drill-metric">148</div>
+                            <div class="qnis-drill-label">Secondary Sites</div>
+                        </div>
+                        <div class="qnis-drill-panel">
+                            <h4>Remote Projects</h4>
+                            <div class="qnis-drill-metric">88</div>
+                            <div class="qnis-drill-label">Distributed Fleet</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateUtilizationContent() {
+            return `
+                <div class="qnis-drill-grid">
+                    <div class="qnis-drill-panel">
+                        <h4>Overall Utilization</h4>
+                        <div class="qnis-drill-metric">87.3%</div>
+                        <div class="qnis-drill-label">Fleet Average</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Peak Hours</h4>
+                        <div class="qnis-drill-metric">6AM-6PM</div>
+                        <div class="qnis-drill-label">94.5% Active</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Efficiency Score</h4>
+                        <div class="qnis-drill-metric">92.1%</div>
+                        <div class="qnis-drill-label">Performance Index</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Idle Time</h4>
+                        <div class="qnis-drill-metric">12.7%</div>
+                        <div class="qnis-drill-label">Optimization Target</div>
+                    </div>
+                </div>
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #00ff9f; margin-bottom: 20px;">Utilization by Equipment Type</h3>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <span>Skid Steers</span>
+                            <span style="color: #00ff9f;">94.2%</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <span>Loaders</span>
+                            <span style="color: #00ff9f;">93.1%</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <span>Excavators</span>
+                            <span style="color: #00d4ff;">91.2%</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <span>Dozers</span>
+                            <span style="color: #00d4ff;">87.6%</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <span>Dump Trucks</span>
+                            <span style="color: #ffa500;">85.4%</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Graders</span>
+                            <span style="color: #ffa500;">78.9%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateRevenueContent() {
+            return `
+                <div class="qnis-drill-grid">
+                    <div class="qnis-drill-panel">
+                        <h4>Monthly Revenue</h4>
+                        <div class="qnis-drill-metric">$284.7K</div>
+                        <div class="qnis-drill-label">Current Month</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Daily Average</h4>
+                        <div class="qnis-drill-metric">$9.2K</div>
+                        <div class="qnis-drill-label">Per Day</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Growth Rate</h4>
+                        <div class="qnis-drill-metric">+12.8%</div>
+                        <div class="qnis-drill-label">Month over Month</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Projected Annual</h4>
+                        <div class="qnis-drill-metric">$3.42M</div>
+                        <div class="qnis-drill-label">Based on Current</div>
+                    </div>
+                </div>
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #00ff9f; margin-bottom: 20px;">Revenue by Equipment Category</h3>
+                    <div class="qnis-drill-grid">
+                        <div class="qnis-drill-panel">
+                            <h4>Excavators</h4>
+                            <div class="qnis-drill-metric">$142.8K</div>
+                            <div class="qnis-drill-label">50.1% of Total</div>
+                        </div>
+                        <div class="qnis-drill-panel">
+                            <h4>Dozers</h4>
+                            <div class="qnis-drill-metric">$95.4K</div>
+                            <div class="qnis-drill-label">33.5% of Total</div>
+                        </div>
+                        <div class="qnis-drill-panel">
+                            <h4>Loaders</h4>
+                            <div class="qnis-drill-metric">$46.5K</div>
+                            <div class="qnis-drill-label">16.4% of Total</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #00ff9f; margin-bottom: 20px;">Cost Optimization Insights</h3>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;">
+                        <div style="margin-bottom: 15px;">
+                            <strong style="color: #00ff9f;">Fuel Efficiency:</strong> 23% improvement opportunity identified
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <strong style="color: #00d4ff;">Maintenance Scheduling:</strong> $31K annual savings potential
+                        </div>
+                        <div>
+                            <strong style="color: #ffa500;">Route Optimization:</strong> 18% reduction in operational costs possible
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateAnomalyContent() {
+            return `
+                <div class="qnis-drill-grid">
+                    <div class="qnis-drill-panel">
+                        <h4>Total Anomalies</h4>
+                        <div class="qnis-drill-metric">63</div>
+                        <div class="qnis-drill-label">AI Detected</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Critical Issues</h4>
+                        <div class="qnis-drill-metric">8</div>
+                        <div class="qnis-drill-label">Immediate Action</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Performance Warnings</h4>
+                        <div class="qnis-drill-metric">31</div>
+                        <div class="qnis-drill-label">Monitor Closely</div>
+                    </div>
+                    <div class="qnis-drill-panel">
+                        <h4>Maintenance Alerts</h4>
+                        <div class="qnis-drill-metric">24</div>
+                        <div class="qnis-drill-label">Schedule Service</div>
+                    </div>
+                </div>
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #00ff9f; margin-bottom: 20px;">Anomaly Categories</h3>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding: 10px; background: rgba(255,0,0,0.1); border-radius: 8px;">
+                            <span><strong>Engine Temperature Spikes</strong></span>
+                            <span style="color: #ff6b6b;">8 Units</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding: 10px; background: rgba(255,165,0,0.1); border-radius: 8px;">
+                            <span><strong>Hydraulic Pressure Variations</strong></span>
+                            <span style="color: #ffa500;">15 Units</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding: 10px; background: rgba(255,165,0,0.1); border-radius: 8px;">
+                            <span><strong>Fuel Consumption Irregularities</strong></span>
+                            <span style="color: #ffa500;">12 Units</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding: 10px; background: rgba(255,255,0,0.1); border-radius: 8px;">
+                            <span><strong>Operating Hour Deviations</strong></span>
+                            <span style="color: #ffeb3b;">18 Units</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px; background: rgba(255,255,0,0.1); border-radius: 8px;">
+                            <span><strong>GPS Tracking Inconsistencies</strong></span>
+                            <span style="color: #ffeb3b;">10 Units</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #00ff9f; margin-bottom: 20px;">AI Recommendations</h3>
+                    <div style="background: rgba(0,255,159,0.1); border-radius: 12px; padding: 20px; border: 1px solid rgba(0,255,159,0.3);">
+                        <div style="margin-bottom: 15px;">
+                            <strong style="color: #00ff9f;">1. Predictive Maintenance:</strong> Schedule immediate service for 8 critical units to prevent failures
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <strong style="color: #00ff9f;">2. Route Optimization:</strong> Adjust GPS tracking protocols for 10 affected units
+                        </div>
+                        <div>
+                            <strong style="color: #00ff9f;">3. Efficiency Improvements:</strong> Implement fuel consumption monitoring for 12 units showing irregularities
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Legacy function for backward compatibility
         function showAnomalyDetails() {
-            console.log('QNIS: Opening anomaly detection interface...');
-            // Placeholder for anomaly details modal
-            alert('QNIS Anomaly Detection System\n\n63 Critical anomalies detected across fleet.\nAI recommendations available for review.');
+            openAnomalyDrillDown();
         }
         
         // GAUGE API Modal

@@ -533,6 +533,146 @@ class TRAXOVOMobileNavigation {
             document.documentElement.style.setProperty('--safe-right', 'env(safe-area-inset-right)');
         }
     }
+
+    setupViewToggle() {
+        // Only show toggle on mobile devices
+        if (window.innerWidth <= 768) {
+            const toggleBtn = document.getElementById('toggle-view-btn');
+            const toggleContainer = document.getElementById('view-toggle');
+            
+            if (toggleBtn && toggleContainer) {
+                // Show the toggle container
+                toggleContainer.style.display = 'block';
+                
+                // Set initial state
+                const isDesktopMode = localStorage.getItem('traxovo_desktop_mode') === 'true';
+                this.updateViewMode(isDesktopMode);
+                
+                // Add click handler
+                toggleBtn.addEventListener('click', () => {
+                    this.toggleViewMode();
+                });
+            }
+        } else {
+            // Hide toggle on desktop
+            const toggleContainer = document.getElementById('view-toggle');
+            if (toggleContainer) {
+                toggleContainer.style.display = 'none';
+            }
+        }
+    }
+
+    toggleViewMode() {
+        const currentMode = document.body.classList.contains('desktop-mode');
+        const newMode = !currentMode;
+        
+        this.updateViewMode(newMode);
+        localStorage.setItem('traxovo_desktop_mode', newMode.toString());
+        
+        // Show feedback to user
+        this.showViewModeNotification(newMode ? 'Desktop View' : 'Mobile View');
+    }
+
+    updateViewMode(isDesktopMode) {
+        const toggleBtn = document.getElementById('toggle-view-btn');
+        const toggleText = toggleBtn?.querySelector('.toggle-text');
+        const toggleIcon = toggleBtn?.querySelector('i');
+        
+        if (isDesktopMode) {
+            // Switch to desktop mode
+            document.body.classList.add('desktop-mode');
+            
+            // Update button text and icon
+            if (toggleText) toggleText.textContent = 'Mobile View';
+            if (toggleIcon) {
+                toggleIcon.className = 'fas fa-mobile-alt';
+            }
+            
+            // Force horizontal scrolling for desktop content
+            document.body.style.overflowX = 'auto';
+            document.documentElement.style.overflowX = 'auto';
+            
+        } else {
+            // Switch to mobile mode
+            document.body.classList.remove('desktop-mode');
+            
+            // Update button text and icon
+            if (toggleText) toggleText.textContent = 'Desktop View';
+            if (toggleIcon) {
+                toggleIcon.className = 'fas fa-desktop';
+            }
+            
+            // Restore mobile scrolling
+            document.body.style.overflowX = 'hidden';
+            document.documentElement.style.overflowX = 'hidden';
+        }
+        
+        // Trigger a resize event to update any responsive elements
+        window.dispatchEvent(new Event('resize'));
+    }
+
+    showViewModeNotification(mode) {
+        // Remove existing notification
+        const existingNotification = document.querySelector('.view-mode-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        // Create new notification
+        const notification = document.createElement('div');
+        notification.className = 'view-mode-notification';
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="fas fa-check-circle"></i>
+                <span>Switched to ${mode}</span>
+            </div>
+        `;
+        
+        // Add notification styles
+        notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 255, 159, 0.1);
+            border: 1px solid rgba(0, 255, 159, 0.3);
+            border-radius: 12px;
+            padding: 12px 20px;
+            color: #00ff9f;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 2000;
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        `;
+        
+        notification.querySelector('.notification-content').style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateX(-50%) translateY(0)';
+        }, 10);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(-50%) translateY(-20px)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
 }
 
 // Initialize when DOM is ready

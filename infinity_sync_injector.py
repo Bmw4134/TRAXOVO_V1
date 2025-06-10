@@ -6,8 +6,18 @@ Voice-activated command processing with Watson Supreme Intelligence integration
 import os
 import json
 import logging
-import speech_recognition as sr
-import pyttsx3
+# Voice processing libraries - optional dependencies
+try:
+    import speech_recognition as sr
+    SPEECH_RECOGNITION_AVAILABLE = True
+except ImportError:
+    SPEECH_RECOGNITION_AVAILABLE = False
+
+try:
+    import pyttsx3
+    TEXT_TO_SPEECH_AVAILABLE = True
+except ImportError:
+    TEXT_TO_SPEECH_AVAILABLE = False
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from watson_supreme import watson_supreme

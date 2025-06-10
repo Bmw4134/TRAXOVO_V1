@@ -6904,7 +6904,7 @@ Be professional, knowledgeable, and helpful. Highlight specific platform capabil
             'response': 'I apologize, but I\'m experiencing a temporary processing issue. Please try again in a moment, or proceed to the enterprise dashboard for full access to all platform capabilities.',
             'error': True
         }), 500
-    """
+
 @app.route('/api/qnis-deployment-status')
 def qnis_deployment_status():
     """QNIS/PTNI deployment validation and real metrics"""
@@ -6928,6 +6928,7 @@ def qnis_deployment_status():
             'deployment_status': 'checking',
             'error': str(e)
         }), 500
+
 @app.route('/api/fix-csv-processing', methods=['POST'])
 def fix_csv_processing():
     """Fix CSV processing errors with advanced error handling"""

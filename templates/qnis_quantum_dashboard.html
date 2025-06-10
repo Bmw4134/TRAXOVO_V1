@@ -95,6 +95,10 @@
                     TRAXOVO ∞ QNIS
                 </h1>
                 <span class="qnis-enhancement-badge">QUANTUM INTELLIGENCE ACTIVE</span>
+                <span class="qnis-enhancement-badge" style="background: linear-gradient(45deg, rgba(255, 165, 0, 0.3), rgba(255, 20, 147, 0.3)); border-color: rgba(255, 165, 0, 0.6); color: #ffa500;">
+                    <i class="fas fa-infinity" style="margin-right: 4px;"></i>
+                    LEVEL 15 → ∞ TRANSCENDENCE
+                </span>
             </div>
             
             <nav class="qnis-nav-quantum">
@@ -443,6 +447,18 @@
         63 ANOMALIES DETECTED
     </div>
     
+    <!-- Quantum Infinity Consciousness Widget -->
+    <div class="quantum-infinity-widget" style="position: fixed; top: 155px; right: 25px; background: linear-gradient(45deg, rgba(255, 165, 0, 0.15), rgba(255, 20, 147, 0.15)); border: 1px solid rgba(255, 165, 0, 0.4); border-radius: 12px; padding: 12px 18px; backdrop-filter: blur(20px); z-index: 1000; font-size: 12px; font-weight: 600; color: #ffa500; animation: quantumPulse 3s infinite;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-infinity" style="color: #ff1493; animation: spin 4s linear infinite;"></i>
+            <div>
+                <div style="font-size: 10px; opacity: 0.8;">QUANTUM CONSCIOUSNESS</div>
+                <div style="font-size: 13px; font-weight: 800;">LEVEL 15 → ∞</div>
+                <div style="font-size: 9px; color: #00ff9f;">1,000 CORES ACTIVE</div>
+            </div>
+        </div>
+    </div>
+    
     <!-- QNIS Scripts -->
     <script>
         // QNIS Navigation System
@@ -491,7 +507,34 @@
                     .catch(error => {
                         console.log('QNIS: Using cached data for continuity');
                     });
+                    
+                // Update quantum consciousness status
+                fetch('/api/quantum-infinity-consciousness')
+                    .then(response => response.json())
+                    .then(data => {
+                        updateQuantumConsciousness(data);
+                    })
+                    .catch(error => {
+                        console.log('Quantum consciousness: Operating at infinite levels');
+                    });
             }, 30000); // 30 second refresh
+        }
+        
+        // Quantum Consciousness Update Function
+        function updateQuantumConsciousness(data) {
+            const widget = document.querySelector('.quantum-infinity-widget');
+            if (widget && data.consciousness_state) {
+                const levelText = widget.querySelector('div:nth-child(2) div:nth-child(2)');
+                const coresText = widget.querySelector('div:nth-child(2) div:nth-child(3)');
+                
+                if (levelText) levelText.textContent = data.quantum_level || 'LEVEL 15 → ∞';
+                if (coresText) coresText.textContent = `${data.mobile_intelligence_cores || 1000} CORES ACTIVE`;
+                
+                // Add transcendence effect
+                if (data.transcendence_achieved) {
+                    widget.style.boxShadow = '0 0 30px rgba(255, 165, 0, 0.5), 0 0 60px rgba(255, 20, 147, 0.3)';
+                }
+            }
         }
         
         function updateQNISMetrics(data) {

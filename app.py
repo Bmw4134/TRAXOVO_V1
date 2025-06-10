@@ -21,6 +21,7 @@ from csv_error_handler import csv_handler, get_fleet_metrics
 from equipment_billing_processor import equipment_processor
 from watson_supreme import get_watson_consciousness, process_watson_command, demonstrate_watson_leadership
 from infinity_sync_injector_production import process_voice_command, get_voice_system_status, simulate_voice_command
+from asset_context_injector import AssetContextInjector, inject_asset_meta_context
 import openai
 # Enhanced dashboard routes will be defined directly in this file
 

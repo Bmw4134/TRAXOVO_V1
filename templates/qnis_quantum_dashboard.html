@@ -3248,5 +3248,20 @@
             document.body.appendChild(nuclearToggle);
         });
     </script>
+
+    <!-- Gesture Navigation System Integration -->
+    <script src="{{ url_for('static', filename='gesture_navigation.js') }}"></script>
+    <script>
+        // Initialize gesture navigation with asset parsing capabilities
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize gesture navigation after QNIS systems
+            setTimeout(() => {
+                if (typeof initializeGestureNavigation === 'function') {
+                    initializeGestureNavigation();
+                    console.log('✓ Gesture navigation system activated');
+                }
+            }, 1000);
+        });
+    </script>
 </body>
 </html>

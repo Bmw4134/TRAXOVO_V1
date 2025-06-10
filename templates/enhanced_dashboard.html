@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/static/enterprise_polish.css">
     <link rel="stylesheet" href="/static/adaptive_responsive.css">
     <link rel="stylesheet" href="/static/qnis_anti_collision.css">
+    <link rel="stylesheet" href="/static/dashboard_ui_patch.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/static/enterprise_scaffolding.js"></script>
@@ -953,6 +954,12 @@
         <span class="status-text">GAUGE STREAM LIVE</span>
     </div>
 
+    <!-- KaizenGPT Sync Status -->
+    <div class="kaizen-sync-status">
+        <i class="fas fa-brain"></i>
+        KaizenGPT SYNC ACTIVE
+    </div>
+
     <div class="main-content nexus-layer-content nexus-stable-layout">
         <!-- TRAXOVO Fleet Management Overview -->
         <div id="safety-section" class="section-content nexus-flex nexus-flex-column">
@@ -968,6 +975,19 @@
                 <div class="metric-card nexus-card-stable">
                     <div class="metric-value" id="coaching-events">$267K</div>
                     <div class="metric-label">Monthly Revenue</div>
+                </div>
+                <div class="metric-card nexus-card-stable anomaly-detection-card" onclick="showAnomalyDetails()" style="cursor: pointer;">
+                    <div class="metric-value" id="totalAnomalies" style="color: #ef4444;">63</div>
+                    <div class="metric-label">
+                        <span class="anomaly-badge">ANOMALIES DETECTED</span>
+                        <div style="font-size: 11px; margin-top: 4px; color: rgba(255,255,255,0.7);">
+                            Fleet Health: <span id="fleetHealthScore">85%</span>
+                        </div>
+                    </div>
+                    <div class="real-time-indicator" style="position: absolute; top: 12px; right: 12px;">
+                        <div class="real-time-pulse"></div>
+                        <span style="font-size: 10px;">LIVE</span>
+                    </div>
                 </div>
             </div>
 

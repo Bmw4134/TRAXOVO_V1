@@ -186,17 +186,37 @@ class NexusCommandIntegration:
     
     def export_full_intelligence(self) -> Dict:
         """Export complete intelligence analysis matching the deployed system"""
+        
+        # Integrate free API intelligence
+        try:
+            from free_api_integrations import get_free_api_intelligence
+            free_intelligence = get_free_api_intelligence()
+        except Exception as e:
+            free_intelligence = {"status": "integration_pending", "error": str(e)}
+        
+        # Integrate fleet location intelligence
+        try:
+            from fleet_location_tracker import get_fleet_location_tracker
+            tracker = get_fleet_location_tracker()
+            fleet_intelligence = tracker.get_location_intelligence_summary()
+        except Exception as e:
+            fleet_intelligence = {"status": "tracker_pending", "error": str(e)}
+        
         return {
             "nexus_command": self.get_command_center_status(),
             "lifecycle_analysis": self.get_lifecycle_costing_analysis(),
             "system_portal": self.get_system_access_portal(),
+            "free_api_intelligence": free_intelligence,
+            "fleet_intelligence": fleet_intelligence,
             "enterprise_capabilities": {
                 "ai_quantum_intelligence": True,
                 "fleet_management": True,
                 "business_intelligence": True,
                 "digital_workspace": True,
                 "enterprise_security": True,
-                "mobile_optimized": True
+                "mobile_optimized": True,
+                "free_api_integrations": True,
+                "location_intelligence": True
             },
             "deployment_status": "PRODUCTION_READY",
             "last_updated": datetime.now().isoformat()

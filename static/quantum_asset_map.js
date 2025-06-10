@@ -67,12 +67,12 @@ class QuantumAssetMap {
                     "assets_assigned": 15,
                     "start_date": "2019-04-15",
                     "completion": "85%",
-                    "project_value": 2450000,
+                    "project_value": 6950940,
                     "zone": "fw_primary"
                 },
                 {
                     "id": "2021-017", 
-                    "name": "Plano Infrastructure Development",
+                    "name": "Plano Collin Creek Culvert Imp",
                     "location": "Plano, TX",
                     "city": "Plano",
                     "coordinates": [33.0198, -96.6989],
@@ -80,21 +80,34 @@ class QuantumAssetMap {
                     "assets_assigned": 23,
                     "start_date": "2021-02-01",
                     "completion": "67%",
-                    "project_value": 3850000,
+                    "project_value": 22480671,
                     "zone": "regional"
                 },
                 {
-                    "id": "2024-089",
-                    "name": "Arlington Commercial Complex", 
-                    "location": "Arlington, TX",
-                    "city": "Arlington",
+                    "id": "TEXDIST",
+                    "name": "Texas Distribution Operations", 
+                    "location": "Dallas, TX",
+                    "city": "Dallas",
+                    "coordinates": [32.7767, -96.7970],
+                    "status": "active",
+                    "assets_assigned": 42,
+                    "start_date": "2024-01-15", 
+                    "completion": "45%",
+                    "project_value": 15750000,
+                    "zone": "dallas_extended"
+                },
+                {
+                    "id": "EQUIP-DFW",
+                    "name": "Equipment DFW Regional Hub", 
+                    "location": "Fort Worth, TX",
+                    "city": "Fort Worth",
                     "coordinates": [32.7357, -97.1081],
                     "status": "planning",
-                    "assets_assigned": 8,
+                    "assets_assigned": 67,
                     "start_date": "2024-06-01", 
                     "completion": "12%",
-                    "project_value": 1750000,
-                    "zone": "regional"
+                    "project_value": 8500000,
+                    "zone": "fw_primary"
                 }
             ];
             

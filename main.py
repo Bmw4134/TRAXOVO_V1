@@ -268,6 +268,12 @@ def enterprise_dashboard():
         template = 'enhanced_dashboard.html' if user_level == 'nexus_superuser' else 'user_dashboard.html'
         return render_template(template)
 
+@app.route('/equipment-lifecycle')
+@require_auth
+def equipment_lifecycle():
+    """Equipment Lifecycle Management Dashboard"""
+    return render_template('equipment_lifecycle.html')
+
 
 
 # Watson superuser API endpoints

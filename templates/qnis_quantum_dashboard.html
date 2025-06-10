@@ -386,7 +386,38 @@
                     </div>
                     <div class="qnis-section-content">
                         <div id="assetMapContainer" style="height: 500px; border-radius: 12px; overflow: hidden; border: 2px solid rgba(0,255,159,0.3); position: relative; background: #1a1f2e;">
-                            <div id="assetMap" style="height: 100%; width: 100%;"></div>
+                            <!-- Quantum Asset Tracking Map -->
+                            <div id="quantumAssetMap" style="height: 100%; width: 100%; position: relative; background: linear-gradient(135deg, #0d0d17 0%, #1a1f2e 100%);">
+                                <!-- Fort Worth Fleet Zone -->
+                                <div class="quantum-zone" style="position: absolute; top: 20%; left: 15%; width: 70%; height: 60%; background: rgba(0,255,159,0.1); border: 2px solid rgba(0,255,159,0.4); border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                    <div style="color: #00ff9f; font-weight: 700; font-size: 16px; margin-bottom: 20px;">
+                                        <i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i>
+                                        FORT WORTH OPERATIONS ZONE
+                                    </div>
+                                    
+                                    <!-- Real-time Asset Positions -->
+                                    <div id="assetPositions" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; width: 90%; max-height: 300px; overflow-y: auto;">
+                                        <!-- Dynamic asset markers will be populated here -->
+                                    </div>
+                                    
+                                    <!-- Quantum Intelligence Status -->
+                                    <div style="position: absolute; bottom: 15px; right: 15px; background: rgba(0,255,159,0.2); padding: 10px 15px; border-radius: 8px; font-size: 12px; color: #00ff9f; border: 1px solid rgba(0,255,159,0.5);">
+                                        <i class="fas fa-brain" style="margin-right: 6px; animation: quantumPulse 1.5s infinite;"></i>
+                                        QNIS ACTIVE
+                                    </div>
+                                </div>
+                                
+                                <!-- Real-time Data Stream -->
+                                <div style="position: absolute; top: 15px; left: 15px; background: rgba(26,31,46,0.95); padding: 15px; border-radius: 12px; color: white; font-size: 12px; border: 2px solid rgba(0,255,159,0.3); backdrop-filter: blur(10px); min-width: 200px;">
+                                    <div style="font-weight: 700; margin-bottom: 10px; color: #00ff9f; font-size: 14px;">
+                                        <i class="fas fa-satellite-dish" style="margin-right: 8px; animation: quantumPulse 2s infinite;"></i>
+                                        Live Telemetry
+                                    </div>
+                                    <div id="liveAssetCount" style="margin-bottom: 6px;">Assets Active: <span style="color: #00ff9f; font-weight: 600;">--</span></div>
+                                    <div id="liveRevenueStream" style="margin-bottom: 6px;">Revenue Stream: <span style="color: #00d4ff; font-weight: 600;">$--</span></div>
+                                    <div id="quantumProcessingStatus" style="color: #ffa500;">Quantum Processing: <span style="font-weight: 600;">ACTIVE</span></div>
+                                </div>
+                            </div>
                             <div id="mapControls" style="position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 1000;">
                                 <button onclick="toggleMapView()" style="padding: 10px 15px; background: rgba(0,255,159,0.9); color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: all 0.3s ease;">
                                     <i class="fas fa-expand" style="margin-right: 6px;"></i> Full Screen

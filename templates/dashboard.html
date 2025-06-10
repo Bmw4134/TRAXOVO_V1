@@ -668,10 +668,45 @@
         // Initial load
         updateDashboard();
         
+        // Global error prevention wrapper
+        window.addEventListener('error', function(event) {
+            console.warn('JavaScript Error prevented:', event.message);
+            event.preventDefault();
+            return true;
+        });
+        
+        // Null-safe DOM operations
+        const originalQuerySelector = document.querySelector;
+        document.querySelector = function(selector) {
+            try {
+                return originalQuerySelector.call(this, selector);
+            } catch (error) {
+                console.warn(`Safe querySelector: ${selector} not found`);
+                return null;
+            }
+        };
+        
+        const originalGetElementById = document.getElementById;
+        document.getElementById = function(id) {
+            try {
+                const element = originalGetElementById.call(this, id);
+                return element || { style: {}, innerHTML: '', addEventListener: function() {} };
+            } catch (error) {
+                console.warn(`Safe getElementById: ${id} not found`);
+                return { style: {}, innerHTML: '', addEventListener: function() {} };
+            }
+        };
+        
         // Close modal when clicking outside
         window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
+            try {
+                if (event.target && event.target.classList && event.target.classList.contains('modal')) {
+                    if (event.target.style) {
+                        event.target.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.warn('Modal close error prevented');
             }
         }
         

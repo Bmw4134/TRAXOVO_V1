@@ -7187,6 +7187,167 @@ def movement_analytics():
             'error': str(e)
         })
 
+@app.route('/agent-status', methods=['GET', 'POST'])
+def watson_agent_status():
+    """Watson-only agent status route with fingerprint authentication"""
+    try:
+        from watson_agent_status import watson_agent
+        
+        # Verify Watson session role
+        session_data = {
+            "role": session.get("watson_role", ""),
+            "authenticated": session.get("watson_authenticated", False)
+        }
+        
+        if not watson_agent.verify_session_role(session_data):
+            return jsonify({
+                "error": "Access denied - Watson session required",
+                "status": "forbidden"
+            }), 403
+        
+        if request.method == 'POST':
+            data = request.get_json()
+            action = data.get('action', '')
+            
+            if action == 'get_status':
+                return jsonify(watson_agent.get_agent_status())
+            elif action == 'toggle_deploy':
+                deploy_action = data.get('deploy_action', 'enable')
+                return jsonify(watson_agent.toggle_deployment(deploy_action))
+            elif action == 'snapshot_state':
+                return jsonify(watson_agent.snapshot_state())
+            elif action == 'lockdown_route':
+                enable = data.get('enable', True)
+                return jsonify(watson_agent.lockdown_route(enable))
+            else:
+                return jsonify({
+                    "error": "Invalid action",
+                    "valid_actions": ["get_status", "toggle_deploy", "snapshot_state", "lockdown_route"]
+                }), 400
+        
+        # GET request - return agent status
+        return jsonify(watson_agent.get_agent_status())
+        
+    except Exception as e:
+        logging.error(f"Watson agent status error: {e}")
+        return jsonify({
+            "error": str(e),
+            "status": "error",
+            "route": "/agent-status",
+            "access": "WatsonOnly"
+        }), 500
+
+@app.route('/watson/authenticate', methods=['POST'])
+def watson_fingerprint_auth():
+    """Watson fingerprint authentication endpoint"""
+    try:
+        from watson_agent_status import watson_agent
+        
+        data = request.get_json()
+        fingerprint_data = data.get('fingerprint', '')
+        
+        if not fingerprint_data:
+            return jsonify({
+                "error": "Fingerprint data required",
+                "status": "invalid"
+            }), 400
+        
+        if watson_agent.authenticate_fingerprint(fingerprint_data):
+            session['watson_role'] = 'Watson'
+            session['watson_authenticated'] = True
+            session['watson_session_start'] = datetime.now().isoformat()
+            
+            return jsonify({
+                "status": "authenticated",
+                "role": "Watson",
+                "modules": watson_agent.modules,
+                "functions": watson_agent.functions,
+                "session_start": session['watson_session_start']
+            })
+        else:
+            return jsonify({
+                "error": "Fingerprint authentication failed",
+                "status": "denied"
+            }), 401
+            
+    except Exception as e:
+        logging.error(f"Watson authentication error: {e}")
+        return jsonify({
+            "error": str(e),
+            "status": "error"
+        }), 500
+
+@app.route('/api/qnis/override-refresh', methods=['POST'])
+def qnis_override_refresh():
+    """QNIS override patch for forcing dashboard card refresh"""
+    try:
+        from qnis_override_patch import qnis_patch
+        
+        # Execute dashboard sync with zero suppression
+        sync_result = qnis_patch.execute_dashboard_sync()
+        
+        if sync_result.get('override_status') == 'ACTIVE':
+            return jsonify({
+                'status': 'success',
+                'message': 'QNIS override patch executed',
+                'asset_data': sync_result['asset_card'],
+                'revenue_data': sync_result['revenue_card'],
+                'zero_suppression': 'CONFIRMED_FIXED',
+                'sync_timestamp': sync_result['sync_timestamp']
+            })
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': 'QNIS override patch failed',
+                'error': sync_result.get('error', 'Unknown error')
+            }), 500
+            
+    except Exception as e:
+        logging.error(f"QNIS override refresh error: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': 'QNIS override patch execution failed',
+            'error': str(e)
+        }), 500
+
+@app.route('/api/qnis/force-asset-refresh')
+def qnis_force_asset_refresh():
+    """Force refresh asset card with authentic data"""
+    try:
+        from qnis_override_patch import qnis_patch
+        asset_data = qnis_patch.force_asset_card_refresh()
+        
+        return jsonify({
+            'status': 'success',
+            'asset_card': asset_data,
+            'zero_suppression': 'ACTIVE'
+        })
+    except Exception as e:
+        logging.error(f"QNIS asset refresh error: {e}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/api/qnis/force-revenue-refresh')
+def qnis_force_revenue_refresh():
+    """Force refresh revenue card with authentic data"""
+    try:
+        from qnis_override_patch import qnis_patch
+        revenue_data = qnis_patch.force_revenue_card_refresh()
+        
+        return jsonify({
+            'status': 'success',
+            'revenue_card': revenue_data,
+            'zero_suppression': 'ACTIVE'
+        })
+    except Exception as e:
+        logging.error(f"QNIS revenue refresh error: {e}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
 @app.route('/api/equipment/billing-reports', methods=['GET'])
 def equipment_billing_reports():
     """Get equipment billing reports"""

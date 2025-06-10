@@ -87,12 +87,12 @@ def demo_access():
 
 @app.route('/dashboard')
 def dashboard():
-    """Main dashboard - direct access for watson"""
+    """QNIS Quantum Intelligence Dashboard - Enterprise Grade"""
     # Auto-authenticate for production deployment
     session['authenticated'] = True
     session['username'] = 'watson'
     
-    return render_template('enhanced_dashboard.html')
+    return render_template('qnis_quantum_dashboard.html')
 
 @app.route('/asset-map')
 def asset_map():

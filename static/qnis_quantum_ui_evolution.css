@@ -1,0 +1,568 @@
+/*
+QNIS/PTNIS Quantum UI Evolution System
+Advanced Enterprise Intelligence Interface
+*/
+
+/* Quantum Grid Foundation */
+.qnis-quantum-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: 70px 1fr;
+    grid-template-areas: 
+        "qnis-nav qnis-header"
+        "qnis-sidebar qnis-main";
+    height: 100vh;
+    gap: 0;
+    background: linear-gradient(135deg, 
+        rgba(13, 13, 23, 0.98) 0%,
+        rgba(26, 26, 46, 0.95) 50%,
+        rgba(13, 13, 23, 0.98) 100%);
+}
+
+/* QNIS Header Quantum Enhancement */
+.qnis-header-zone {
+    grid-area: qnis-header;
+    background: linear-gradient(90deg, 
+        rgba(0, 255, 159, 0.1) 0%,
+        rgba(0, 212, 255, 0.1) 50%,
+        rgba(255, 165, 0, 0.1) 100%);
+    border-bottom: 2px solid rgba(0, 255, 159, 0.3);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.qnis-header-zone::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, 
+        transparent 0%,
+        rgba(0, 255, 159, 0.05) 30%,
+        rgba(0, 212, 255, 0.05) 70%,
+        transparent 100%);
+    animation: quantumSweep 4s ease-in-out infinite;
+}
+
+@keyframes quantumSweep {
+    0%, 100% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+}
+
+/* QNIS Navigation Quantum Tabs */
+.qnis-nav-quantum {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.qnis-nav-tab {
+    position: relative;
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 255, 159, 0.2);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+}
+
+.qnis-nav-tab::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent,
+        rgba(0, 255, 159, 0.3),
+        transparent);
+    transition: left 0.5s;
+}
+
+.qnis-nav-tab:hover {
+    background: rgba(0, 255, 159, 0.1);
+    border-color: rgba(0, 255, 159, 0.4);
+    color: #00ff9f;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 255, 159, 0.2);
+}
+
+.qnis-nav-tab:hover::before {
+    left: 100%;
+}
+
+.qnis-nav-tab.active {
+    background: linear-gradient(45deg, 
+        rgba(0, 255, 159, 0.2) 0%,
+        rgba(0, 212, 255, 0.2) 100%);
+    border-color: rgba(0, 255, 159, 0.6);
+    color: white;
+    box-shadow: 0 0 30px rgba(0, 255, 159, 0.4);
+}
+
+/* QNIS Sidebar Quantum Intelligence */
+.qnis-sidebar-zone {
+    grid-area: qnis-sidebar;
+    background: linear-gradient(180deg, 
+        rgba(26, 26, 46, 0.95) 0%,
+        rgba(13, 13, 23, 0.98) 100%);
+    border-right: 2px solid rgba(0, 255, 159, 0.3);
+    backdrop-filter: blur(20px);
+    padding: 30px 20px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 255, 159, 0.3) transparent;
+}
+
+.qnis-sidebar-zone::-webkit-scrollbar {
+    width: 6px;
+}
+
+.qnis-sidebar-zone::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.qnis-sidebar-zone::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, 
+        rgba(0, 255, 159, 0.6) 0%,
+        rgba(0, 212, 255, 0.6) 100%);
+    border-radius: 10px;
+}
+
+/* QNIS Sidebar Sections */
+.qnis-sidebar-section {
+    margin-bottom: 35px;
+}
+
+.qnis-section-title {
+    font-size: 12px;
+    color: #00ff9f;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 15px;
+    font-weight: 700;
+    position: relative;
+    padding-left: 15px;
+}
+
+.qnis-section-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(45deg, #00ff9f, #00d4ff);
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(0, 255, 159, 0.6);
+}
+
+.qnis-sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.qnis-sidebar-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent,
+        rgba(0, 255, 159, 0.1),
+        transparent);
+    transition: left 0.4s;
+}
+
+.qnis-sidebar-item:hover {
+    background: rgba(0, 255, 159, 0.1);
+    border-color: rgba(0, 255, 159, 0.3);
+    color: #00ff9f;
+    transform: translateX(8px);
+}
+
+.qnis-sidebar-item:hover::before {
+    left: 100%;
+}
+
+.qnis-sidebar-item.active {
+    background: linear-gradient(90deg, 
+        rgba(0, 255, 159, 0.2) 0%,
+        rgba(0, 212, 255, 0.1) 100%);
+    border-color: rgba(0, 255, 159, 0.5);
+    color: white;
+    box-shadow: 0 0 20px rgba(0, 255, 159, 0.3);
+}
+
+.qnis-sidebar-item i {
+    margin-right: 12px;
+    width: 18px;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* QNIS Main Content Quantum Zone */
+.qnis-main-zone {
+    grid-area: qnis-main;
+    padding: 30px;
+    overflow-y: auto;
+    background: linear-gradient(135deg, 
+        rgba(13, 13, 23, 0.95) 0%,
+        rgba(26, 26, 46, 0.90) 50%,
+        rgba(13, 13, 23, 0.95) 100%);
+    position: relative;
+}
+
+.qnis-main-zone::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(0, 255, 159, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(0, 212, 255, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* QNIS Quantum Dashboard Grid */
+.qnis-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+    margin-bottom: 35px;
+    position: relative;
+    z-index: 1;
+}
+
+/* QNIS Quantum Metric Cards */
+.qnis-metric-card {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.03) 100%);
+    border: 1px solid rgba(0, 255, 159, 0.2);
+    border-radius: 20px;
+    padding: 30px;
+    backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.qnis-metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(0, 255, 159, 0.05) 0%,
+        transparent 50%,
+        rgba(0, 212, 255, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.4s;
+}
+
+.qnis-metric-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(0, 255, 159, 0.4);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(0, 255, 159, 0.2);
+}
+
+.qnis-metric-card:hover::before {
+    opacity: 1;
+}
+
+.qnis-metric-value {
+    font-size: 42px;
+    font-weight: 800;
+    background: linear-gradient(45deg, #00ff9f, #00d4ff, #ffa500);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+    text-shadow: 0 0 30px rgba(0, 255, 159, 0.3);
+    position: relative;
+    z-index: 2;
+}
+
+.qnis-metric-label {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    position: relative;
+    z-index: 2;
+}
+
+/* QNIS Content Sections */
+.qnis-content-section {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.03) 100%);
+    border: 1px solid rgba(0, 255, 159, 0.2);
+    border-radius: 20px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+    position: relative;
+}
+
+.qnis-section-header {
+    padding: 25px 30px;
+    border-bottom: 1px solid rgba(0, 255, 159, 0.2);
+    background: linear-gradient(90deg, 
+        rgba(0, 255, 159, 0.1) 0%,
+        rgba(0, 212, 255, 0.1) 100%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.qnis-section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+.qnis-section-content {
+    padding: 30px;
+}
+
+/* QNIS Quantum Tables */
+.qnis-quantum-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 255, 159, 0.1);
+}
+
+.qnis-quantum-table thead {
+    background: linear-gradient(90deg, 
+        rgba(0, 255, 159, 0.2) 0%,
+        rgba(0, 212, 255, 0.2) 100%);
+}
+
+.qnis-quantum-table th {
+    padding: 18px 16px;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(0, 255, 159, 0.3);
+}
+
+.qnis-quantum-table td {
+    padding: 16px;
+    color: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.qnis-quantum-table tbody tr:hover {
+    background: rgba(0, 255, 159, 0.08);
+}
+
+/* QNIS Mobile Responsive Quantum */
+@media (max-width: 1024px) {
+    .qnis-quantum-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: 70px auto 1fr;
+        grid-template-areas: 
+            "qnis-header"
+            "qnis-sidebar"
+            "qnis-main";
+    }
+    
+    .qnis-sidebar-zone {
+        max-height: 200px;
+        padding: 20px;
+    }
+    
+    .qnis-nav-quantum {
+        overflow-x: auto;
+        gap: 15px;
+    }
+    
+    .qnis-nav-tab {
+        white-space: nowrap;
+        min-width: 120px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .qnis-main-zone {
+        padding: 20px 15px;
+    }
+    
+    .qnis-dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .qnis-metric-card {
+        padding: 25px 20px;
+    }
+    
+    .qnis-metric-value {
+        font-size: 36px;
+    }
+    
+    .qnis-section-header {
+        padding: 20px;
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .qnis-section-content {
+        padding: 20px;
+    }
+    
+    .qnis-quantum-table {
+        font-size: 12px;
+    }
+    
+    .qnis-quantum-table th,
+    .qnis-quantum-table td {
+        padding: 12px 8px;
+    }
+}
+
+/* QNIS Quantum Animations */
+@keyframes quantumPulse {
+    0%, 100% { 
+        box-shadow: 0 0 20px rgba(0, 255, 159, 0.3);
+        transform: scale(1);
+    }
+    50% { 
+        box-shadow: 0 0 40px rgba(0, 255, 159, 0.5);
+        transform: scale(1.02);
+    }
+}
+
+@keyframes quantumGlow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+}
+
+/* QNIS Loading States */
+.qnis-loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.qnis-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent,
+        rgba(0, 255, 159, 0.2),
+        transparent);
+    animation: quantumLoad 2s infinite;
+}
+
+@keyframes quantumLoad {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* QNIS Status Indicators */
+.qnis-status-active {
+    color: #00ff9f;
+    animation: quantumGlow 2s infinite;
+}
+
+.qnis-status-warning {
+    color: #ffa500;
+    animation: quantumPulse 3s infinite;
+}
+
+.qnis-status-critical {
+    color: #ef4444;
+    animation: quantumPulse 1s infinite;
+}
+
+/* QNIS Quantum Buttons */
+.qnis-quantum-btn {
+    background: linear-gradient(45deg, #00ff9f, #00d4ff);
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 24px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.qnis-quantum-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent);
+    transition: left 0.5s;
+}
+
+.qnis-quantum-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 255, 159, 0.4);
+}
+
+.qnis-quantum-btn:hover::before {
+    left: 100%;
+}
+
+.qnis-quantum-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(0, 255, 159, 0.3);
+}

@@ -101,19 +101,24 @@ class TRAXOVOEnterpriseScaffolding {
         // Direct CSV data structure for immediate dashboard population
         const csvData = {
             fleet_summary: {
-                total_assets: 281,
-                active_today: 250,
+                total_assets: 612,
+                active_today: 550,
                 maintenance_due: 23,
                 critical_alerts: 7,
                 utilization_rate: 87.3,
                 revenue_today: 284750
             },
             asset_categories: {
-                pickup_trucks: {count: 180, active: 165, utilization: 91.7},
-                excavators: {count: 32, active: 29, utilization: 90.6},
-                skid_steers: {count: 32, active: 28, utilization: 87.5},
-                heavy_trucks: {count: 30, active: 27, utilization: 90.0},
-                dozers: {count: 7, active: 6, utilization: 85.7}
+                pickup_trucks: {count: 134, active: 120, utilization: 89.6},
+                message_boards: {count: 68, active: 62, utilization: 91.2},
+                arrow_boards: {count: 54, active: 49, utilization: 90.7},
+                flatbed_trailers: {count: 38, active: 34, utilization: 89.5},
+                cargo_trailers: {count: 37, active: 33, utilization: 89.2},
+                heavy_trucks: {count: 27, active: 24, utilization: 88.9},
+                excavators: {count: 26, active: 23, utilization: 88.5},
+                skid_steers: {count: 23, active: 21, utilization: 91.3},
+                tma_trucks: {count: 23, active: 20, utilization: 87.0},
+                light_plants: {count: 22, active: 19, utilization: 86.4}
             }
         };
         

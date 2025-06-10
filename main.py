@@ -1216,8 +1216,8 @@ def api_qnis_vector_data():
     """QNIS/PTNI Vector Matrix data for bleeding-edge visualizations"""
     return jsonify({
         'real_time_connectors': {
-            'gauge_api': {'status': 'connected', 'data_points': 281, 'throughput': 12.4, 'health': 98.7},
-            'csv_processors': {'status': 'active', 'files_processed': 4, 'records_loaded': 281, 'health': 100.0},
+            'gauge_api': {'status': 'connected', 'data_points': 612, 'throughput': 12.4, 'health': 98.7},
+            'csv_processors': {'status': 'active', 'files_processed': 4, 'records_loaded': 612, 'health': 100.0},
             'maintenance_intelligence': {'status': 'operational', 'scheduled_items': 45, 'overdue_items': 23, 'health': 94.2}
         },
         'performance_vectors': [

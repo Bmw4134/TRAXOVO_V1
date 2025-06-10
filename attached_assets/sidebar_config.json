@@ -1,9 +1,0 @@
-{
-  "modules": [
-    "diff_watcher",
-    "goal_tracker",
-    "prompt_dna_parser",
-    "intelligence_layers",
-    "click_sync_analyzer"
-  ]
-}

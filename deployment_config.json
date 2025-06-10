@@ -1,101 +1,15 @@
 {
-  "deployment_mode": "FINAL_PRODUCTION",
-  "system_hash": "TRAXOVO-NEXUS-QIE-6B8F4A2E",
-  "deployment_timestamp": "2025-06-09T17:42:39Z",
-  "configuration": {
-    "ui_framework": "premium_grade",
-    "theme_system": "adaptive_dark_light",
-    "mobile_optimization": "mobile_first",
-    "device_support": ["iOS", "Android", "Desktop", "Tablet"],
-    "display_modes": ["Retina_HD", "4K", "Mobile_Portrait", "Mobile_Landscape"],
-    "interaction_layer": "haptic_enabled",
-    "spa_behavior": "seamless_transitions",
-    "data_sources": "real_only_no_mock"
+  "name": "nexus-command-production",
+  "build": {
+    "dockerfile": "Dockerfile.production"
   },
-  "systems": {
-    "TRAXOVO": {
-      "status": "PRODUCTION_READY",
-      "data_source": "authentic_fleet_api",
-      "ui_theme": "quantum_consciousness",
-      "mobile_responsive": true,
-      "real_time_sync": true
-    },
-    "NEXUS_COMMAND": {
-      "status": "PRODUCTION_READY",
-      "intelligence_layers": ["ASI", "AGI", "AI", "ML", "Quantum"],
-      "dashboard_type": "executive_command_center",
-      "animations": "neural_network_enhanced"
-    },
-    "QIE_LANDING": {
-      "status": "PREMIUM_DEPLOYED",
-      "layout": "responsive_grid",
-      "showcase_mode": "ai_powered",
-      "interaction_feedback": "real_time"
-    },
-    "DWC_PORTAL": {
-      "status": "ENTERPRISE_READY",
-      "consulting_interface": "professional_grade",
-      "lead_capture": "intelligent_forms"
-    },
-    "JDD_PLATFORM": {
-      "status": "BUSINESS_OPTIMIZED",
-      "enterprise_features": "full_suite",
-      "integration_apis": "live_connected"
+  "deployment": {
+    "autoscale": {
+      "min": 1,
+      "max": 3
     }
   },
-  "visual_standards": {
-    "color_palette": {
-      "primary": "#00ffff",
-      "secondary": "#0066cc",
-      "accent": "#00ff00",
-      "background": "radial-gradient(circle, #000011, #000033, #001155)",
-      "text": "#ffffff",
-      "success": "#00ff00",
-      "warning": "#ffff00",
-      "error": "#ff0000"
-    },
-    "typography": {
-      "primary_font": "Courier New, monospace",
-      "secondary_font": "Arial, sans-serif",
-      "heading_sizes": ["36px", "24px", "20px", "18px"],
-      "body_sizes": ["16px", "14px", "12px"]
-    },
-    "animations": {
-      "neural_pulse": "3s ease-in-out infinite",
-      "quantum_rotation": "6s linear infinite",
-      "coherence_flow": "4s ease-in-out infinite",
-      "asset_pulse": "2.5s ease-in-out infinite"
-    },
-    "breakpoints": {
-      "mobile": "768px",
-      "tablet": "1024px",
-      "desktop": "1200px",
-      "large": "1600px"
-    }
-  },
-  "deployment_features": {
-    "progressive_web_app": true,
-    "offline_capability": true,
-    "push_notifications": true,
-    "biometric_auth": true,
-    "voice_commands": true,
-    "gesture_controls": true,
-    "real_time_collaboration": true,
-    "advanced_analytics": true
-  },
-  "security_config": {
-    "ssl_enforcement": true,
-    "api_authentication": "jwt_token",
-    "data_encryption": "aes_256",
-    "session_management": "secure_tokens",
-    "audit_logging": "comprehensive"
-  },
-  "performance_optimization": {
-    "code_splitting": true,
-    "lazy_loading": true,
-    "image_optimization": true,
-    "cdn_integration": true,
-    "caching_strategy": "intelligent",
-    "compression": "gzip_brotli"
+  "environment": {
+    "production": true
   }
 }

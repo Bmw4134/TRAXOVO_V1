@@ -2983,15 +2983,77 @@
 
     <!-- FORCED MOBILE/DESKTOP TOGGLE SYSTEM -->
     <script>
+        // IMMEDIATE INJECTION - CREATE TOGGLE BEFORE ANY OTHER PROCESSING
+        (function() {
+            // Create toggle container immediately
+            const toggleContainer = document.createElement('div');
+            toggleContainer.id = 'emergency-mobile-toggle';
+            toggleContainer.innerHTML = `
+                <button id="emergency-toggle-btn" style="
+                    position: fixed !important;
+                    top: 15px !important;
+                    right: 15px !important;
+                    z-index: 2147483647 !important;
+                    background: linear-gradient(45deg, #00d4ff, #00ff88) !important;
+                    color: #000 !important;
+                    border: none !important;
+                    border-radius: 25px !important;
+                    padding: 14px 20px !important;
+                    font-size: 13px !important;
+                    font-weight: 900 !important;
+                    cursor: pointer !important;
+                    box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6) !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 8px !important;
+                    min-height: 48px !important;
+                    touch-action: manipulation !important;
+                    user-select: none !important;
+                    font-family: Arial, sans-serif !important;
+                    -webkit-tap-highlight-color: transparent !important;
+                    pointer-events: auto !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                ">
+                    <span id="emergency-icon" style="font-size: 16px !important;">🖥️</span>
+                    <span id="emergency-label" style="font-size: 12px !important;">DESKTOP</span>
+                </button>
+                <div id="emergency-confirmation" style="
+                    position: fixed !important;
+                    top: 75px !important;
+                    right: 15px !important;
+                    z-index: 2147483646 !important;
+                    background: rgba(0, 212, 255, 0.9) !important;
+                    color: #000 !important;
+                    padding: 8px 16px !important;
+                    border-radius: 20px !important;
+                    font-size: 11px !important;
+                    font-weight: 700 !important;
+                    display: none !important;
+                    font-family: Arial, sans-serif !important;
+                ">
+                    <span id="emergency-confirmation-text">VIEW MODE CHANGED</span>
+                </div>
+            `;
+            
+            // Inject immediately into document
+            if (document.head) {
+                document.head.appendChild(toggleContainer);
+            } else {
+                document.documentElement.appendChild(toggleContainer);
+            }
+        })();
+
         // Force render client state and toggle functionality
         let isDesktopMode = localStorage.getItem('traxovo-desktop-mode') === 'true';
         
         function forceToggleMobileDesktop() {
-            const toggleBtn = document.getElementById('force-toggle-btn');
-            const toggleIcon = document.getElementById('toggle-icon');
-            const toggleLabel = document.getElementById('toggle-label');
-            const confirmation = document.getElementById('view-mode-confirmation');
-            const confirmationText = document.getElementById('confirmation-text');
+            // Use emergency elements that were injected immediately
+            const toggleBtn = document.getElementById('emergency-toggle-btn');
+            const toggleIcon = document.getElementById('emergency-icon');
+            const toggleLabel = document.getElementById('emergency-label');
+            const confirmation = document.getElementById('emergency-confirmation');
+            const confirmationText = document.getElementById('emergency-confirmation-text');
             
             // Toggle state
             isDesktopMode = !isDesktopMode;
@@ -3066,19 +3128,26 @@
         
         // Initialize state on page load
         function initializeViewMode() {
-            const toggleIcon = document.getElementById('toggle-icon');
-            const toggleLabel = document.getElementById('toggle-label');
+            // Bind click handler to emergency button
+            const emergencyBtn = document.getElementById('emergency-toggle-btn');
+            if (emergencyBtn) {
+                emergencyBtn.addEventListener('click', forceToggleMobileDesktop);
+                emergencyBtn.addEventListener('touchstart', forceToggleMobileDesktop);
+                console.log('Emergency toggle button initialized with click handlers');
+            }
             
+            // Apply saved desktop mode if previously set
             if (isDesktopMode) {
                 forceToggleMobileDesktop(); // Apply desktop mode
             }
             
-            // Ensure toggle is always visible
-            const forceToggle = document.getElementById('force-mobile-toggle');
-            if (forceToggle) {
-                forceToggle.style.display = 'block';
-                forceToggle.style.visibility = 'visible';
-                forceToggle.style.opacity = '1';
+            // Force visibility of emergency toggle
+            const emergencyToggle = document.getElementById('emergency-mobile-toggle');
+            if (emergencyToggle) {
+                emergencyToggle.style.display = 'block';
+                emergencyToggle.style.visibility = 'visible';
+                emergencyToggle.style.opacity = '1';
+                console.log('Emergency toggle container forced visible');
             }
         }
         

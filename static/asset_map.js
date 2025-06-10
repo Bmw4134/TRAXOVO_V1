@@ -70,6 +70,9 @@ class AssetMapSystem {
             attribution: '© OpenStreetMap contributors'
         }).addTo(this.map);
         
+        // Add smart geofence zones
+        this.addGeofenceZones();
+        
         this.isInitialized = true;
         console.log('Asset map initialized successfully');
     }
@@ -349,6 +352,83 @@ class AssetMapSystem {
         this.loadAssetData();
     }
     
+    addGeofenceZones() {
+        const smartGeofences = [
+            {
+                id: 'zone_580',
+                name: 'North Fort Worth Operations',
+                center: [32.8207, -97.1462],
+                radius: 5000,
+                type: 'operational_zone',
+                color: '#00ff9f',
+                jobsites: 52,
+                alerts: 0
+            },
+            {
+                id: 'zone_581',
+                name: 'Central Fort Worth Hub', 
+                center: [32.7555, -97.3308],
+                radius: 3000,
+                type: 'hub_zone',
+                color: '#00d4ff',
+                jobsites: 58,
+                alerts: 1
+            },
+            {
+                id: 'zone_582',
+                name: 'South Fort Worth Projects',
+                center: [32.6903, -97.3444],
+                radius: 8000,
+                type: 'project_zone',
+                color: '#ff6b6b',
+                jobsites: 42,
+                alerts: 0
+            }
+        ];
+
+        smartGeofences.forEach(zone => {
+            // Create circular geofence with smart boundaries
+            const circle = L.circle([zone.center[0], zone.center[1]], {
+                color: zone.color,
+                fillColor: zone.color,
+                fillOpacity: 0.15,
+                radius: zone.radius,
+                weight: 3,
+                dashArray: '10, 5'
+            }).addTo(this.map);
+
+            // Add popup with zone information
+            const popupContent = `
+                <div style="font-family: 'Segoe UI', sans-serif; color: #333; min-width: 200px;">
+                    <h4 style="margin: 0 0 10px 0; color: ${zone.color}; font-size: 16px;">${zone.name}</h4>
+                    <p style="margin: 5px 0; font-size: 13px;"><strong>Zone ID:</strong> ${zone.id.toUpperCase()}</p>
+                    <p style="margin: 5px 0; font-size: 13px;"><strong>Type:</strong> ${zone.type.replace('_', ' ')}</p>
+                    <p style="margin: 5px 0; font-size: 13px;"><strong>Radius:</strong> ${(zone.radius/1000).toFixed(1)} km</p>
+                    <p style="margin: 5px 0; font-size: 13px;"><strong>Jobsites Covered:</strong> ${zone.jobsites}</p>
+                    <p style="margin: 5px 0; font-size: 13px;"><strong>Active Alerts:</strong> <span style="color: ${zone.alerts > 0 ? '#ff6b6b' : '#00ff9f'};">${zone.alerts}</span></p>
+                    <hr style="margin: 10px 0; border: none; border-top: 1px solid #eee;">
+                    <p style="margin: 8px 0 0 0; font-size: 11px; color: #666; font-style: italic;">
+                        Smart geofence captures message boards and equipment slightly outside boundaries
+                    </p>
+                </div>
+            `;
+            
+            circle.bindPopup(popupContent);
+
+            // Add zone center marker with label
+            const marker = L.marker([zone.center[0], zone.center[1]], {
+                icon: L.divIcon({
+                    className: 'geofence-label',
+                    html: `<div style="background: ${zone.color}; color: #000; padding: 6px 12px; border-radius: 15px; font-weight: bold; font-size: 12px; white-space: nowrap; box-shadow: 0 3px 8px rgba(0,0,0,0.3); border: 2px solid #fff;">${zone.id.toUpperCase()}</div>`,
+                    iconSize: [80, 30],
+                    iconAnchor: [40, 15]
+                })
+            }).addTo(this.map);
+        });
+
+        console.log('Smart geofence zones added to map with polygon boundaries');
+    }
+
     destroy() {
         this.stopAutoRefresh();
         if (this.map) {

@@ -1,30 +1,50 @@
 /* TRAXOVO Layout Fix - Prevent Widget Clashing */
 
-/* Fix overlapping widgets on the right side */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-gap: 20px;
-    padding: 20px;
-    overflow-x: hidden;
+/* Fix main dashboard grid to prevent overlapping */
+.qnis-dashboard-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px !important;
+    margin-bottom: 40px !important;
+    width: 100% !important;
 }
 
-/* Ensure proper spacing for performance metrics */
-.performance-metrics {
-    margin-top: 30px;
-    margin-bottom: 30px;
-    clear: both;
+/* Ensure metric cards don't overflow */
+.qnis-metric-card {
+    width: 100% !important;
+    min-height: 120px !important;
+    box-sizing: border-box !important;
 }
 
-/* Fix QNIS Performance Analytics positioning */
-.qnis-analytics-section {
-    position: relative;
-    z-index: 1;
-    margin: 30px 0;
-    padding: 20px;
-    background: rgba(0, 15, 35, 0.95);
-    border-radius: 10px;
-    border: 1px solid rgba(0, 255, 136, 0.3);
+/* Fix content sections to stack properly */
+.qnis-content-section {
+    width: 100% !important;
+    margin: 30px 0 !important;
+    clear: both !important;
+    display: block !important;
+}
+
+/* Performance analytics section positioning */
+.qnis-performance-analytics {
+    width: 100% !important;
+    margin: 40px 0 !important;
+    clear: both !important;
+    display: block !important;
+}
+
+/* Performance metrics grid fix */
+.qnis-performance-metrics-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+    width: 100% !important;
+    margin: 20px 0 !important;
+}
+
+/* Individual performance metric cards */
+.qnis-performance-metric {
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 /* Fleet categories table fixes */

@@ -1,0 +1,145 @@
+/* TRAXOVO Text Visibility Fix - Ensure all text is visible on dark backgrounds */
+
+/* Force all text elements to be white/visible */
+body, html {
+    color: #ffffff !important;
+    background: #0d0d17 !important;
+}
+
+/* Dashboard cards and containers */
+.dashboard-card,
+.metric-card,
+.performance-card,
+.asset-card,
+.revenue-card {
+    color: #ffffff !important;
+    background: rgba(26, 32, 56, 0.8) !important;
+}
+
+/* All text elements */
+h1, h2, h3, h4, h5, h6,
+p, span, div, td, th,
+.metric-value, .metric-label,
+.card-title, .card-content {
+    color: #ffffff !important;
+}
+
+/* Specific dashboard elements */
+.metric-number {
+    color: #00ff9f !important;
+    font-weight: 700 !important;
+}
+
+.metric-title {
+    color: #ffffff !important;
+    opacity: 0.9 !important;
+}
+
+/* Table elements */
+table, tbody, thead, tr, td, th {
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Input and form elements */
+input, select, textarea, button {
+    color: #ffffff !important;
+    background: rgba(26, 32, 56, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Modal content */
+.modal-content,
+.modal-body,
+.modal-header,
+.modal-footer {
+    color: #ffffff !important;
+    background: rgba(13, 13, 23, 0.95) !important;
+}
+
+/* Navigation elements */
+.nav-link,
+.navbar-brand,
+.breadcrumb-item {
+    color: #ffffff !important;
+}
+
+/* Status indicators */
+.status-active {
+    color: #00ff9f !important;
+}
+
+.status-warning {
+    color: #ffa500 !important;
+}
+
+.status-critical {
+    color: #ff4444 !important;
+}
+
+/* Asset overview cards */
+.asset-overview-card .card-body {
+    background: rgba(26, 32, 56, 0.8) !important;
+    color: #ffffff !important;
+}
+
+/* Revenue analysis section */
+.revenue-analysis {
+    color: #ffffff !important;
+}
+
+.revenue-metric {
+    color: #00ff9f !important;
+}
+
+/* Equipment categories */
+.equipment-category {
+    color: #ffffff !important;
+}
+
+.equipment-count {
+    color: #00ff9f !important;
+    font-weight: 700 !important;
+}
+
+/* Performance indicators */
+.performance-indicator {
+    color: #ffffff !important;
+}
+
+.performance-value {
+    color: #00ff9f !important;
+}
+
+/* Drill-down sections */
+.drill-down-section {
+    color: #ffffff !important;
+}
+
+.drill-down-item {
+    color: #ffffff !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Chart labels and legends */
+.chart-label,
+.chart-legend,
+.chart-title {
+    color: #ffffff !important;
+}
+
+/* Override any conflicting styles */
+* {
+    color: inherit !important;
+}
+
+/* Ensure readability for all dashboard content */
+.dashboard-container * {
+    color: #ffffff !important;
+}
+
+/* Special handling for highlighted text */
+::selection {
+    background: rgba(0, 255, 159, 0.3) !important;
+    color: #ffffff !important;
+}

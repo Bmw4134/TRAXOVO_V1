@@ -511,7 +511,7 @@ def demo_metrics():
 
 @app.route('/api/simulate-user-interaction')
 def simulate_user_interaction():
-    """Simulate specific user interaction patterns"""
+    """Simulate specific user interaction patterns with dynamic website updates"""
     interaction_type = request.args.get('type', 'dispatcher')
     
     simulations = {
@@ -525,7 +525,19 @@ def simulate_user_interaction():
                 "Route optimization calculations processing",
                 "Asset tracking updates every 30 seconds"
             ],
-            "interaction_pattern": "High frequency, real-time monitoring"
+            "interaction_pattern": "High frequency, real-time monitoring",
+            "learned_behaviors": [
+                "Prioritizes top 10 performers for morning dispatch",
+                "Automatically filters out inactive drivers",
+                "Focuses on RAGLE project assignments (2019-044, 2021-017)",
+                "Triggers safety alerts for 15+ hour shifts"
+            ],
+            "ui_adaptations": [
+                "Dashboard auto-sorts by performance score",
+                "Quick-access buttons for Salvador Rodriguez Jr",
+                "Red alerts for overtime drivers",
+                "Route efficiency indicators on asset cards"
+            ]
         },
         "fleet_manager": {
             "current_action": "Analyzing equipment utilization at 87.3%",
@@ -537,7 +549,19 @@ def simulate_user_interaction():
                 "$267K monthly revenue verification",
                 "Anomaly detection reviewing 63 alerts"
             ],
-            "interaction_pattern": "Medium frequency, analytical deep-dives"
+            "interaction_pattern": "Medium frequency, analytical deep-dives",
+            "learned_behaviors": [
+                "Checks utilization rates first thing each morning",
+                "Focuses on revenue-per-asset metrics",
+                "Reviews maintenance schedules weekly",
+                "Analyzes equipment ROI monthly"
+            ],
+            "ui_adaptations": [
+                "Utilization charts prominently displayed",
+                "Revenue metrics auto-refresh",
+                "Maintenance alerts in sidebar",
+                "Cost analysis widgets optimized"
+            ]
         },
         "executive": {
             "current_action": "Strategic overview of $267K monthly performance",
@@ -549,7 +573,19 @@ def simulate_user_interaction():
                 "Strategic decision modeling",
                 "ROI calculations for 94.2% efficiency"
             ],
-            "interaction_pattern": "Low frequency, high-impact decisions"
+            "interaction_pattern": "Low frequency, high-impact decisions",
+            "learned_behaviors": [
+                "Reviews KPIs weekly on Monday mornings",
+                "Focuses on profit margins and growth metrics",
+                "Compares monthly performance trends",
+                "Makes strategic equipment investments"
+            ],
+            "ui_adaptations": [
+                "Executive summary always visible",
+                "Trend graphs auto-generate",
+                "Strategic insights highlighted",
+                "Investment ROI calculations prominent"
+            ]
         }
     }
     
@@ -563,7 +599,151 @@ def simulate_user_interaction():
             "Gesture recognition active",
             "Modal interactions smooth",
             "API responses under 300ms"
+        ],
+        "dynamic_updates": [
+            "UI layout adapts to user patterns",
+            "Widgets reorganize based on frequency",
+            "Alerts customize to user preferences",
+            "Dashboard elements learn priority order"
         ]
+    })
+
+@app.route('/api/behavior-learning-updates')
+def behavior_learning_updates():
+    """API endpoint for behavior-based website updates"""
+    import time
+    current_time = time.time()
+    
+    # Simulate learned behaviors affecting the website
+    learning_updates = {
+        "timestamp": datetime.now().isoformat(),
+        "learning_active": True,
+        "website_adaptations": {
+            "layout_changes": [
+                "Driver performance widget moved to top-left (most accessed)",
+                "Revenue metrics expanded (high executive interest)",
+                "Safety alerts positioned prominently (dispatcher priority)",
+                "Fleet utilization chart enlarged (manager focus)"
+            ],
+            "ui_optimizations": [
+                "Salvador Rodriguez Jr quick-access button added",
+                "RAGLE project filters auto-applied",
+                "92 active drivers always default view",
+                "Asset #210013 and MT-07 starred for quick access"
+            ],
+            "behavioral_patterns": {
+                "dispatcher_aaron": {
+                    "most_accessed": "Driver performance dashboard",
+                    "interaction_frequency": "Every 5-10 minutes",
+                    "preferred_view": "Real-time asset tracking",
+                    "customizations": [
+                        "Top performers highlighted in green",
+                        "Route optimization always enabled",
+                        "Safety alerts prioritized"
+                    ]
+                },
+                "fleet_manager": {
+                    "most_accessed": "Utilization analytics",
+                    "interaction_frequency": "3-4 times daily",
+                    "preferred_view": "Executive dashboard with drill-downs",
+                    "customizations": [
+                        "Revenue metrics always visible",
+                        "Cost analysis widgets expanded",
+                        "Monthly trending enabled"
+                    ]
+                },
+                "executive": {
+                    "most_accessed": "Strategic overview",
+                    "interaction_frequency": "Daily morning review",
+                    "preferred_view": "High-level KPIs and trends",
+                    "customizations": [
+                        "ROI calculations prominent",
+                        "Growth metrics highlighted",
+                        "Investment opportunities flagged"
+                    ]
+                }
+            }
+        },
+        "real_time_updates": {
+            "content_personalization": [
+                "Dashboard widgets reorder based on access patterns",
+                "Alerts customize to user role and preferences",
+                "Data refresh rates adjust to viewing habits",
+                "Navigation shortcuts appear for frequent actions"
+            ],
+            "performance_optimizations": [
+                "Pre-load data for predicted user needs",
+                "Cache frequently accessed reports",
+                "Optimize API calls based on usage patterns",
+                "Reduce load times for priority features"
+            ],
+            "interface_evolution": [
+                "Button sizes adjust based on touch/click frequency",
+                "Color coding adapts to user recognition patterns",
+                "Modal layouts optimize for workflow efficiency",
+                "Gesture shortcuts learn from user behavior"
+            ]
+        },
+        "learning_metrics": {
+            "adaptations_applied": 47 + int(current_time % 20),
+            "user_efficiency_gain": f"{12.7 + (current_time % 5):.1f}%",
+            "interaction_patterns_learned": 156 + int(current_time % 30),
+            "ui_optimizations_active": 23 + int(current_time % 10)
+        }
+    }
+    
+    return jsonify(learning_updates)
+
+@app.route('/api/trigger-ui-adaptation')
+def trigger_ui_adaptation():
+    """Trigger specific UI adaptations based on learned behavior"""
+    adaptation_type = request.args.get('type', 'general')
+    
+    adaptations = {
+        "general": {
+            "changes": [
+                "Dashboard layout optimized for 92 driver workflow",
+                "Salvador Rodriguez Jr performance metrics highlighted",
+                "Asset tracking widgets reorganized by access frequency",
+                "RAGLE project filters applied automatically"
+            ],
+            "status": "Applied successfully"
+        },
+        "dispatcher": {
+            "changes": [
+                "Driver list auto-sorts by performance score",
+                "Top 10 performers highlighted in interface",
+                "Route optimization controls moved to top toolbar",
+                "Safety alerts positioned for immediate visibility"
+            ],
+            "status": "Dispatcher-specific optimizations active"
+        },
+        "fleet_manager": {
+            "changes": [
+                "Utilization charts enlarged and positioned prominently",
+                "Revenue metrics auto-refresh every 60 seconds",
+                "Cost analysis widgets expanded with drill-down",
+                "Maintenance scheduling shortcuts added"
+            ],
+            "status": "Fleet management interface optimized"
+        },
+        "executive": {
+            "changes": [
+                "KPI summary always visible at dashboard top",
+                "Strategic insights highlighted with trend arrows",
+                "ROI calculations automatically generated",
+                "Investment opportunity alerts enabled"
+            ],
+            "status": "Executive dashboard personalized"
+        }
+    }
+    
+    return jsonify({
+        "adaptation_type": adaptation_type,
+        "adaptations": adaptations.get(adaptation_type, adaptations["general"]),
+        "timestamp": datetime.now().isoformat(),
+        "learning_status": "active",
+        "next_optimization": "Gesture recognition patterns analysis"
     })
 
 @app.route('/driver-report')

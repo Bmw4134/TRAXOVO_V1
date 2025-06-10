@@ -6,6 +6,7 @@ Streamlined for Cloud Run deployment
 import os
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
+from intelligence_export_engine import get_export_engine
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -117,6 +118,32 @@ def api_fleet_data():
         ],
         'timestamp': datetime.now().isoformat()
     })
+
+# Intelligence Export API Routes
+@app.route('/api/export/json')
+def export_json():
+    return get_export_engine().export_json()
+
+@app.route('/api/export/csv')
+def export_csv():
+    return get_export_engine().export_csv()
+
+@app.route('/api/export/xml')
+def export_xml():
+    return get_export_engine().export_xml()
+
+@app.route('/api/export/widget-config')
+def export_widget_config():
+    return get_export_engine().export_widget_config()
+
+@app.route('/api/export/dashboard-bundle')
+def export_dashboard_bundle():
+    return get_export_engine().export_dashboard_bundle()
+
+@app.route('/api/export/full-intelligence')
+def export_full_intelligence():
+    """Complete intelligence data export for dashboard integration"""
+    return jsonify(get_export_engine().get_comprehensive_intelligence_data())
 
 # Error handlers
 @app.errorhandler(404)

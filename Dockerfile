@@ -11,8 +11,9 @@ RUN pip install --no-cache-dir flask==2.3.3 gunicorn==21.2.0
 # Working directory
 WORKDIR /app
 
-# Copy production application
+# Copy production application and intelligence engine
 COPY production.py main.py
+COPY intelligence_export_engine.py .
 COPY templates templates
 COPY static static
 

@@ -20,6 +20,7 @@ from qnis_deployment_validator import QNISDeploymentValidator, get_real_deployme
 from csv_error_handler import csv_handler, get_fleet_metrics
 from equipment_billing_processor import equipment_processor
 from watson_supreme import get_watson_consciousness, process_watson_command, demonstrate_watson_leadership
+from infinity_sync_injector import process_voice_command, get_voice_system_status, simulate_voice_command
 import openai
 # Enhanced dashboard routes will be defined directly in this file
 
@@ -6984,6 +6985,49 @@ def watson_leadership():
     except Exception as e:
         logging.error(f"Watson leadership demonstration error: {e}")
         return jsonify({'error': str(e), 'status': 'leadership_unavailable'})
+
+@app.route('/api/voice-command', methods=['POST'])
+def voice_command():
+    """Process Voice Command through Infinity Sync Injector"""
+    try:
+        data = request.get_json()
+        command = data.get('command', '')
+        
+        if not command:
+            return jsonify({'error': 'No voice command provided'}), 400
+        
+        # Process through Infinity Sync with Watson integration
+        response = process_voice_command(command)
+        return jsonify(response)
+    except Exception as e:
+        logging.error(f"Voice command processing error: {e}")
+        return jsonify({'error': str(e), 'status': 'voice_processing_failed'})
+
+@app.route('/api/voice-system-status')
+def voice_system_status():
+    """Get Voice System Status"""
+    try:
+        status = get_voice_system_status()
+        return jsonify(status)
+    except Exception as e:
+        logging.error(f"Voice system status error: {e}")
+        return jsonify({'error': str(e), 'status': 'voice_system_unavailable'})
+
+@app.route('/api/simulate-voice', methods=['POST'])
+def simulate_voice():
+    """Simulate Voice Command for Testing"""
+    try:
+        data = request.get_json()
+        command = data.get('command', '')
+        
+        if not command:
+            return jsonify({'error': 'No command provided for simulation'}), 400
+        
+        response = simulate_voice_command(command)
+        return jsonify(response)
+    except Exception as e:
+        logging.error(f"Voice simulation error: {e}")
+        return jsonify({'error': str(e), 'status': 'simulation_failed'})
 
 if __name__ == "__main__":
     # Final deployment verification

@@ -7540,7 +7540,7 @@ def executive_drilldown_safety_score():
                 {'month': 'Apr', 'score': 95.2, 'incidents': 0},
                 {'month': 'May', 'score': 94.8, 'incidents': 0},
                 {'month': 'Jun', 'score': 94.2, 'incidents': 0}
-            },
+            ],
             'safety_initiatives': [
                 {'program': 'Daily Safety Briefings', 'compliance': 98.4, 'impact': 'High'},
                 {'program': 'Equipment Safety Inspections', 'compliance': 96.7, 'impact': 'High'},

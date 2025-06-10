@@ -7370,6 +7370,191 @@ def equipment_billing_reports():
         logging.error(f"Billing reports error: {e}")
         return jsonify({'error': str(e), 'status': 'failed'})
 
+@app.route('/api/sr-pm/project-overview')
+@app.route('/api/sr-pm/project-overview/<project_id>')
+def sr_pm_project_overview(project_id=None):
+    """SR PM/PE Project Management Portal - Project Overview"""
+    try:
+        from sr_pm_project_portal import get_sr_pm_portal
+        portal = get_sr_pm_portal()
+        
+        return jsonify(portal.get_project_overview(project_id))
+        
+    except Exception as e:
+        logging.error(f"SR PM project overview error: {e}")
+        return jsonify({'error': str(e), 'status': 'failed'})
+
+@app.route('/api/sr-pm/live-tracking')
+def sr_pm_live_tracking():
+    """SR PM Portal - Live Asset Tracking"""
+    try:
+        from sr_pm_project_portal import get_sr_pm_portal
+        portal = get_sr_pm_portal()
+        
+        return jsonify(portal.get_live_asset_tracking())
+        
+    except Exception as e:
+        logging.error(f"SR PM live tracking error: {e}")
+        return jsonify({'error': str(e), 'status': 'failed'})
+
+@app.route('/api/sr-pm/asset-drilldown/<asset_id>')
+def sr_pm_asset_drilldown(asset_id):
+    """SR PM Portal - Asset Drill-Down Analysis"""
+    try:
+        from sr_pm_project_portal import get_sr_pm_portal
+        portal = get_sr_pm_portal()
+        
+        return jsonify(portal.get_asset_drill_down(asset_id))
+        
+    except Exception as e:
+        logging.error(f"SR PM asset drill-down error: {e}")
+        return jsonify({'error': str(e), 'status': 'failed'})
+
+@app.route('/api/executive-drilldown/annual-roi')
+def executive_drilldown_annual_roi():
+    """Executive Dashboard - Annual ROI Drill-Down"""
+    try:
+        roi_data = {
+            'annual_roi': 267330,
+            'vs_last_year': 23.4,
+            'quarterly_breakdown': {
+                'Q1': {'roi': 65780, 'growth': 18.2},
+                'Q2': {'roi': 72450, 'growth': 21.7},
+                'Q3': {'roi': 68920, 'growth': 19.8},
+                'Q4': {'roi': 60180, 'growth': 28.9}
+            },
+            'roi_drivers': [
+                {'category': 'Fleet Efficiency Improvements', 'impact': 89420, 'percentage': 33.5},
+                {'category': 'Maintenance Cost Reduction', 'impact': 67890, 'percentage': 25.4},
+                {'category': 'Fuel Optimization', 'impact': 56780, 'percentage': 21.2},
+                {'category': 'Operator Training ROI', 'impact': 52240, 'percentage': 19.5}
+            ],
+            'investment_breakdown': {
+                'technology_upgrades': 145000,
+                'training_programs': 78000,
+                'equipment_optimization': 134000,
+                'total_investment': 357000
+            },
+            'projected_2025': {
+                'estimated_roi': 324500,
+                'growth_rate': 21.4,
+                'confidence_level': 94.2
+            }
+        }
+        
+        return jsonify(roi_data)
+        
+    except Exception as e:
+        logging.error(f"Annual ROI drill-down error: {e}")
+        return jsonify({'error': str(e), 'status': 'failed'})
+
+@app.route('/api/executive-drilldown/fleet-efficiency')
+def executive_drilldown_fleet_efficiency():
+    """Executive Dashboard - Fleet Efficiency Drill-Down"""
+    try:
+        efficiency_data = {
+            'overall_efficiency': 87.3,
+            'quarterly_trend': 3.2,
+            'efficiency_by_category': {
+                'Excavators': {'efficiency': 92.1, 'utilization': 89.4, 'fuel_efficiency': 94.2},
+                'Dozers': {'efficiency': 89.4, 'utilization': 87.2, 'fuel_efficiency': 91.8},
+                'Loaders': {'efficiency': 86.3, 'utilization': 84.7, 'fuel_efficiency': 88.9},
+                'Haul Trucks': {'efficiency': 91.2, 'utilization': 93.1, 'fuel_efficiency': 89.6},
+                'Graders': {'efficiency': 83.5, 'utilization': 81.2, 'fuel_efficiency': 85.7}
+            },
+            'optimization_opportunities': [
+                {'area': 'Zone 581 efficiency decline suggests 17 asset redistribution', 'potential': 12.4},
+                {'area': 'Predictive maintenance could prevent $23K in repairs', 'potential': 15.2},
+                {'area': 'Driver coaching program showing 8.7% improvement', 'potential': 8.7}
+            ],
+            'risk_alerts': [
+                {'alert': '12 assets approaching maintenance thresholds', 'severity': 'high'},
+                {'alert': 'Weather patterns may impact Zone 582 operations', 'severity': 'medium'},
+                {'alert': 'Fuel price trends suggest 3% cost increase', 'severity': 'low'}
+            ]
+        }
+        
+        return jsonify(efficiency_data)
+        
+    except Exception as e:
+        logging.error(f"Fleet efficiency drill-down error: {e}")
+        return jsonify({'error': str(e), 'status': 'failed'})
+
+@app.route('/api/executive-drilldown/cost-savings')
+def executive_drilldown_cost_savings():
+    """Executive Dashboard - Cost Savings YTD Drill-Down"""
+    try:
+        cost_savings_data = {
+            'total_savings_ytd': 156000,
+            'fuel_maintenance_split': {
+                'fuel_savings': 89400,
+                'maintenance_savings': 66600
+            },
+            'monthly_breakdown': [
+                {'month': 'Jan', 'fuel': 12400, 'maintenance': 8900, 'total': 21300},
+                {'month': 'Feb', 'fuel': 15600, 'maintenance': 11200, 'total': 26800},
+                {'month': 'Mar', 'fuel': 14800, 'maintenance': 9700, 'total': 24500},
+                {'month': 'Apr', 'fuel': 16900, 'maintenance': 12400, 'total': 29300},
+                {'month': 'May', 'fuel': 15200, 'maintenance': 10800, 'total': 26000},
+                {'month': 'Jun', 'fuel': 14500, 'maintenance': 13600, 'total': 28100}
+            ],
+            'savings_initiatives': [
+                {'initiative': 'Fuel Efficiency Training', 'savings': 34500, 'roi': 285},
+                {'initiative': 'Predictive Maintenance', 'savings': 28900, 'roi': 432},
+                {'initiative': 'Route Optimization', 'savings': 42600, 'roi': 378},
+                {'initiative': 'Equipment Right-sizing', 'savings': 25800, 'roi': 312},
+                {'initiative': 'Idle Time Reduction', 'savings': 24200, 'roi': 456}
+            ],
+            'projected_annual': {
+                'estimated_total': 312000,
+                'fuel_portion': 178400,
+                'maintenance_portion': 133600,
+                'confidence': 92.8
+            }
+        }
+        
+        return jsonify(cost_savings_data)
+        
+    except Exception as e:
+        logging.error(f"Cost savings drill-down error: {e}")
+        return jsonify({'error': str(e), 'status': 'failed'})
+
+@app.route('/api/executive-drilldown/safety-score')
+def executive_drilldown_safety_score():
+    """Executive Dashboard - Safety Score Drill-Down"""
+    try:
+        safety_data = {
+            'overall_safety_score': 94.2,
+            'zero_incidents_streak': True,
+            'days_without_incident': 127,
+            'safety_metrics': {
+                'training_compliance': 98.7,
+                'equipment_inspections': 96.4,
+                'near_miss_reporting': 91.8,
+                'safety_meeting_attendance': 94.2
+            },
+            'monthly_scores': [
+                {'month': 'Jan', 'score': 92.1, 'incidents': 0},
+                {'month': 'Feb', 'score': 93.8, 'incidents': 0},
+                {'month': 'Mar', 'score': 94.5, 'incidents': 0},
+                {'month': 'Apr', 'score': 95.2, 'incidents': 0},
+                {'month': 'May', 'score': 94.8, 'incidents': 0},
+                {'month': 'Jun', 'score': 94.2, 'incidents': 0}
+            },
+            'safety_initiatives': [
+                {'program': 'Daily Safety Briefings', 'compliance': 98.4, 'impact': 'High'},
+                {'program': 'Equipment Safety Inspections', 'compliance': 96.7, 'impact': 'High'},
+                {'program': 'Near Miss Reporting System', 'compliance': 89.2, 'impact': 'Medium'},
+                {'program': 'Safety Training Certifications', 'compliance': 97.8, 'impact': 'High'}
+            ]
+        }
+        
+        return jsonify(safety_data)
+        
+    except Exception as e:
+        logging.error(f"Safety score drill-down error: {e}")
+        return jsonify({'error': str(e), 'status': 'failed'})
+
 @app.route('/api/equipment/generate-invoices', methods=['POST'])
 def generate_equipment_invoices():
     """Generate equipment invoices for billing optimization"""

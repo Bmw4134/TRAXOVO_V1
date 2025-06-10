@@ -3215,6 +3215,35 @@
         window.addEventListener('load', function() {
             setTimeout(initializeViewMode, 100);
         });
+
+        // NUCLEAR OPTION - Create visible toggle now
+        window.nuclearMobileToggle = function() {
+            const currentMode = localStorage.getItem('traxovo-desktop-mode') === 'true';
+            const newMode = !currentMode;
+            
+            if (newMode) {
+                document.body.style.transform = 'scale(0.8)';
+                document.body.style.transformOrigin = 'top left';
+                document.body.style.minWidth = '1200px';
+                document.body.style.width = '125%';
+                alert('Desktop view activated');
+            } else {
+                document.body.style.transform = '';
+                document.body.style.transformOrigin = '';
+                document.body.style.minWidth = '';
+                document.body.style.width = '';
+                alert('Mobile view activated');
+            }
+            
+            localStorage.setItem('traxovo-desktop-mode', newMode.toString());
+        };
+
+        // Inject nuclear toggle immediately
+        document.addEventListener('DOMContentLoaded', function() {
+            const nuclearToggle = document.createElement('div');
+            nuclearToggle.innerHTML = '<button onclick="window.nuclearMobileToggle()" style="position: fixed !important; top: 20px !important; right: 20px !important; z-index: 2147483647 !important; background: #ff4757 !important; color: white !important; border: 3px solid white !important; padding: 20px !important; border-radius: 50px !important; font-size: 16px !important; font-weight: 900 !important; cursor: pointer !important; box-shadow: 0 20px 50px rgba(255,71,87,0.8) !important; min-height: 60px !important; display: flex !important; align-items: center !important; gap: 15px !important;">🖥️ DESKTOP</button>';
+            document.body.appendChild(nuclearToggle);
+        });
     </script>
 </body>
 </html>

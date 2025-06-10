@@ -1,15 +1,19 @@
 """
 NEXUS COMMAND - Watson Intelligence Platform
-Production-ready application with authentication and premium UI/UX
+Production-ready application optimized for Cloud Run deployment
 """
 
 import os
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 from datetime import datetime
-import json
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "nexus_watson_supreme_production")
+
+# Production configuration
+app.config['ENV'] = 'production'
+app.config['DEBUG'] = False
+app.config['TESTING'] = False
 
 # Initialize user database
 USERS = {

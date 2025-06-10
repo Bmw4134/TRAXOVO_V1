@@ -18,16 +18,19 @@ RUN useradd --create-home --shell /bin/bash app
 # Set working directory
 WORKDIR /app
 
-# Copy and install Python dependencies first (for better caching)
-COPY requirements.txt .
+# Copy and install minimal Python dependencies first (for better caching)
+COPY production_requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+    && pip install --no-cache-dir -r production_requirements.txt
 
 # Copy only essential application files
 COPY main.py .
-COPY models.py .
+COPY start_production.sh .
 COPY templates/ templates/
 COPY static/ static/
+
+# Make startup script executable
+RUN chmod +x start_production.sh
 
 # Change ownership to app user
 RUN chown -R app:app /app
@@ -36,5 +39,5 @@ USER app
 # Single port exposure for Cloud Run
 EXPOSE $PORT
 
-# Production-ready command without reload
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --preload main:app"]
+# Production-ready startup
+CMD ["./start_production.sh"]

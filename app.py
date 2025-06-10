@@ -7424,7 +7424,21 @@ def asset_tracking_map():
     """Asset Tracking Map with Real-Time GPS"""
     return render_template('asset_tracking_map.html')
 
+@app.route('/demo')
+def demo_access():
+    """Direct demo access to dashboard"""
+    session['authenticated'] = True
+    session['user_id'] = 'demo_user'
+    session['username'] = 'Demo User'
+    return redirect('/dashboard')
 
+@app.route('/mobile-demo')
+def mobile_demo_access():
+    """Direct mobile demo access with intelligence panel"""
+    session['authenticated'] = True
+    session['user_id'] = 'mobile_demo_user'
+    session['username'] = 'Mobile Demo'
+    return redirect('/dashboard')
 
 if __name__ == "__main__":
     # Final deployment verification

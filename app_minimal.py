@@ -1622,6 +1622,14 @@ def api_ptni_intelligent_search():
             'timestamp': datetime.now().isoformat()
         }), 500
 
+@app.route('/api/nexus-intelligence')
+def api_nexus_intelligence():
+    """NEXUS Intelligence Export - Enterprise Platform Analytics"""
+    from nexus_command_integration import get_nexus_integration
+    
+    nexus = get_nexus_integration()
+    return jsonify(nexus.export_full_intelligence())
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""

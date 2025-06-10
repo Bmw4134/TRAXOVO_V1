@@ -3048,6 +3048,55 @@
             setTimeout(createMobileToggle, 500);
         })();
 
+        // Global ultra toggle function
+        window.ultraToggle = function() {
+            const isDesktopMode = localStorage.getItem('traxovo-desktop-mode') === 'true';
+            const newMode = !isDesktopMode;
+            
+            // Update button appearance
+            const btn = document.getElementById('ultra-toggle-btn');
+            const label = document.getElementById('ultra-label');
+            
+            if (newMode) {
+                // Switch to desktop mode
+                btn.innerHTML = '<span style="font-size: 18px;">📱</span><span id="ultra-label">MOBILE</span>';
+                document.body.style.minWidth = '1200px';
+                document.body.style.transform = 'scale(0.8)';
+                document.body.style.transformOrigin = 'top left';
+                document.body.style.width = '125%';
+                
+                // Update viewport
+                let viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    viewport.setAttribute('content', 'width=1200, initial-scale=0.8, user-scalable=yes');
+                }
+            } else {
+                // Switch to mobile mode
+                btn.innerHTML = '<span style="font-size: 18px;">🖥️</span><span id="ultra-label">DESKTOP</span>';
+                document.body.style.minWidth = '';
+                document.body.style.transform = '';
+                document.body.style.transformOrigin = '';
+                document.body.style.width = '';
+                
+                // Reset viewport
+                let viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
+                }
+            }
+            
+            // Save state
+            localStorage.setItem('traxovo-desktop-mode', newMode.toString());
+            
+            // Visual feedback
+            btn.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+            }, 150);
+            
+            console.log('Ultra toggle activated:', newMode ? 'Desktop' : 'Mobile');
+        };
+
         // Force render client state and toggle functionality
         let isDesktopMode = localStorage.getItem('traxovo-desktop-mode') === 'true';
         

@@ -2329,11 +2329,18 @@
         function initializeMobileIntelligence() {
             console.log('QNIS: Initializing mobile intelligence systems...');
             
-            if (window.innerWidth <= 768) {
-                createMobileIntelligencePanel();
-                initializeDynamicPerformanceVectors();
-                enableMobileDrillDowns();
-                setupMobileDataStreams();
+            // Enhanced mobile detection for all mobile devices
+            const isMobile = window.innerWidth <= 768 || 
+                           /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                console.log('Mobile device detected - creating intelligence panel');
+                setTimeout(() => {
+                    createMobileIntelligencePanel();
+                    initializeDynamicPerformanceVectors();
+                    enableMobileDrillDowns();
+                    setupMobileDataStreams();
+                }, 1000); // Delayed initialization for better loading
             }
         }
 
@@ -2825,18 +2832,30 @@
             initializeMobileIntelligence();
             initializeDynamicPerformanceVectors();
             
-            // Auto-expand intelligence panel for first-time users
+            // Auto-expand intelligence panel for mobile users and force creation
             setTimeout(() => {
-                if (window.innerWidth <= 768) {
+                const isMobile = window.innerWidth <= 768 || 
+                               /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                               
+                if (isMobile) {
+                    // Force create panel if it doesn't exist
+                    if (!document.getElementById('mobile-intelligence-panel')) {
+                        console.log('Force creating mobile panel...');
+                        createMobileIntelligencePanel();
+                    }
+                    
                     const panel = document.getElementById('mobile-intelligence-panel');
                     if (panel) {
                         panel.classList.add('expanded');
+                        console.log('Mobile intelligence panel expanded');
+                        
+                        // Keep it expanded longer for user to notice
                         setTimeout(() => {
                             panel.classList.remove('expanded');
-                        }, 3000);
+                        }, 5000);
                     }
                 }
-            }, 2000);
+            }, 1500);
             
             console.log('QNIS: System ready. Quantum UI evolution active.');
         });

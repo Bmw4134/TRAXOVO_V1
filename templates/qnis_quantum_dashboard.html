@@ -20,7 +20,7 @@
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
           crossorigin=""/>
     <script src="{{ url_for('static', filename='gesture_navigation.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='asset_map.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='quantum_asset_map.js') }}" defer></script>
     <script src="{{ url_for('static', filename='mobile_navigation_complete.js') }}" defer></script>
     <script src="{{ url_for('static', filename='enterprise_drilldown_modals.js') }}" defer></script>
     <style>
@@ -424,21 +424,38 @@
                                 <!-- Fort Worth Operations Grid -->
                                 <div class="quantum-grid-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0,255,159,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,159,0.1) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.3;"></div>
                                 
-                                <!-- Zone 580 - North Fort Worth Operations -->
-                                <div class="geofence-zone zone-580" style="position: absolute; top: 15%; left: 20%; width: 25%; height: 30%; border: 2px solid #00ff9f; border-radius: 15px; background: rgba(0,255,159,0.1); backdrop-filter: blur(5px);" onclick="showZoneDetails('zone_580')">
-                                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: #00ff9f; color: #000; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap;">ZONE 580</div>
-                                    <div style="padding: 15px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
-                                        <div style="font-size: 12px; font-weight: 600; color: #00ff9f;">North Operations</div>
-                                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
-                                            <!-- Asset indicators -->
+                                <!-- Fort Worth Primary Operations Zone -->
+                                <div class="geofence-zone zone-fw-primary" style="position: absolute; top: 20%; left: 15%; width: 55%; height: 45%; border: 2px solid #00ff9f; border-radius: 20px; background: rgba(0,255,159,0.08); backdrop-filter: blur(5px);" onclick="showZoneDetails('zone_fw_primary')">
+                                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: #00ff9f; color: #000; padding: 6px 16px; border-radius: 15px; font-size: 12px; font-weight: 700; white-space: nowrap;">FORT WORTH PRIMARY</div>
+                                    <div style="padding: 20px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #00ff9f;">Core Operations Zone</div>
+                                        <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin: 15px 0;">
+                                            <!-- Primary fleet indicators -->
                                             <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50%; animation: quantumPulse 2s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50%;"></div>
                                             <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50%; animation: quantumPulse 2.5s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50();"></div>
                                             <div class="asset-dot maintenance" style="width: 8px; height: 8px; background: #ffa500; border-radius: 50%;"></div>
                                             <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50%; animation: quantumPulse 1.8s infinite;"></div>
-                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50%;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50();"></div>
                                             <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50%; animation: quantumPulse 3s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50();"></div>
+                                            <div class="asset-dot maintenance" style="width: 8px; height: 8px; background: #ffa500; border-radius: 50();"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50%; animation: quantumPulse 2.2s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50();"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50%; animation: quantumPulse 1.5s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50();"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50(); animation: quantumPulse 2.8s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50();"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50(); animation: quantumPulse 3.2s infinite;"></div>
+                                            <div class="asset-dot maintenance" style="width: 8px; height: 8px; background: #ffa500; border-radius: 50();"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50();"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50%; animation: quantumPulse 1.8s infinite;"></div>
                                         </div>
-                                        <div style="font-size: 10px; color: rgba(255,255,255,0.7);">52 Jobsites | 0 Alerts</div>
+                                        <div style="font-size: 11px; color: rgba(255,255,255,0.8); display: flex; justify-content: space-between;">
+                                            <span>312 Active Assets</span>
+                                            <span>67 Project Sites</span>
+                                        </div>
                                     </div>
                                 </div>
                                 

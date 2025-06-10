@@ -6,7 +6,7 @@ packages = ["cairo", "cargo", "espeak-ng", "ffmpeg-full", "freetype", "geckodriv
 
 [deployment]
 deploymentTarget = "cloudrun"
-run = ["sh", "-c", "npm run dev"]
+run = ["sh", "-c", "gcloud builds submit --config cloudbuild.yaml"]
 
 [workflows]
 runButton = "Run Clean App"

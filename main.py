@@ -1289,6 +1289,87 @@ def api_current_user():
         'session_start': datetime.now().isoformat()
     })
 
+@app.route('/daily-drivers')
+def daily_drivers():
+    """Daily driver reporting dashboard - No auth required"""
+    try:
+        return render_template('daily_driver_dashboard.html')
+    except:
+        # Return simple HTML if template doesn't exist
+        return '''
+<!DOCTYPE html>
+<html>
+<head><title>RAGLE Daily Drivers</title></head>
+<body>
+<h1>RAGLE Daily Driver Dashboard</h1>
+<div id="driver-data">Loading 253 drivers...</div>
+<script>
+fetch('/api/daily-driver-data')
+.then(r => r.json())
+.then(data => {
+    document.getElementById('driver-data').innerHTML = 
+        `<p>Total Drivers: ${data.total_drivers}</p>
+         <p>Active Drivers: ${data.active_drivers}</p>
+         <ul>${data.top_performers.map(d => 
+            `<li>${d.name} - ${d.total_hours} hours</li>`
+         ).join('')}</ul>`;
+});
+</script>
+</body>
+</html>'''
+
+@app.route('/driver-report')
+def driver_report():
+    """Driver report direct access - No auth required"""
+    try:
+        return render_template('driver_report_direct.html')
+    except:
+        return redirect('/daily-drivers')
+
+@app.route('/api/daily-driver-data')
+def api_daily_driver_data():
+    """API endpoint for daily driver data from RAGLE hours"""
+    try:
+        from daily_driver_reporting_engine import DailyDriverReportingEngine
+        
+        # Initialize and load driver data
+        engine = DailyDriverReportingEngine()
+        if not engine.load_ragle_hours_data():
+            return jsonify({"error": "Failed to load hours data"}), 500
+            
+        if not engine.extract_driver_information():
+            return jsonify({"error": "Failed to extract driver information"}), 500
+            
+        # Get driver profiles with actual hours
+        drivers = []
+        for name, profile in engine.driver_profiles.items():
+            drivers.append({
+                "name": profile['name'],
+                "total_hours": profile['total_hours'], 
+                "days_worked": profile['days_worked'],
+                "projects": len(profile['projects_assigned']),
+                "status": "Active" if profile['total_hours'] > 0 else "Inactive",
+                "last_activity": profile['last_activity'].strftime("%Y-%m-%d") if profile['last_activity'] else "N/A",
+                "record_count": profile['record_count']
+            })
+        
+        # Sort by total hours descending
+        drivers.sort(key=lambda x: x['total_hours'], reverse=True)
+        
+        # Calculate active drivers (those with hours > 0)
+        active_drivers = [d for d in drivers if d['status'] == 'Active']
+        
+        return jsonify({
+            "total_drivers": len(drivers),
+            "active_drivers": len(active_drivers),
+            "drivers": drivers,
+            "top_performers": drivers[:10],
+            "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/comprehensive-data')
 def api_comprehensive_data():
     """Complete dashboard data combining CSV and GAUGE API"""

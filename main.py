@@ -1444,6 +1444,313 @@ def driver_report():
     except:
         return redirect('/daily-drivers')
 
+@app.route('/browser-automation')
+def browser_automation():
+    """Browser-in-browser automation suite with OneDrive integration"""
+    return '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TRAXOVO Browser Automation Suite</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); 
+            color: white; 
+            min-height: 100vh; 
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: 100vh;
+        }
+        .sidebar {
+            background: rgba(0,0,0,0.5);
+            border-right: 1px solid rgba(0,255,136,0.3);
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        .main-content {
+            display: flex;
+            flex-direction: column;
+        }
+        .toolbar {
+            background: rgba(0,255,136,0.1);
+            border-bottom: 1px solid rgba(0,255,136,0.3);
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .browser-frame {
+            flex: 1;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .browser-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .automation-btn {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #1a1a2e;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .automation-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,255,136,0.3);
+        }
+        .url-bar {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 5px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .automation-panel {
+            margin-bottom: 2rem;
+        }
+        .automation-panel h3 {
+            color: #00ff88;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        .automation-item {
+            background: rgba(0,255,136,0.1);
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 5px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .automation-item:hover {
+            background: rgba(0,255,136,0.2);
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        .status-active { background: #00ff88; }
+        .status-inactive { background: #666; }
+        .pip-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 200px;
+            background: rgba(0,0,0,0.9);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+            z-index: 1000;
+        }
+        .pip-header {
+            background: rgba(0,255,136,0.2);
+            padding: 0.5rem;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        .pip-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin-left: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="automation-panel">
+                <h3>OneDrive Integration</h3>
+                <div class="automation-item" onclick="loadOneDrive()">
+                    <span class="status-indicator status-active"></span>
+                    Connect OneDrive
+                </div>
+                <div class="automation-item" onclick="extractFiles()">
+                    <span class="status-indicator status-inactive"></span>
+                    Extract ZIP Files
+                </div>
+                <div class="automation-item" onclick="processSpreadsheets()">
+                    <span class="status-indicator status-inactive"></span>
+                    Process Excel Files
+                </div>
+            </div>
+            
+            <div class="automation-panel">
+                <h3>GAUGE Integration</h3>
+                <div class="automation-item" onclick="connectGauge()">
+                    <span class="status-indicator status-active"></span>
+                    GAUGE Smart Hub
+                </div>
+                <div class="automation-item" onclick="syncFleetData()">
+                    <span class="status-indicator status-inactive"></span>
+                    Sync Fleet Data
+                </div>
+                <div class="automation-item" onclick="extractAssets()">
+                    <span class="status-indicator status-inactive"></span>
+                    Extract Assets
+                </div>
+            </div>
+            
+            <div class="automation-panel">
+                <h3>Browser Automation</h3>
+                <div class="automation-item" onclick="enablePiP()">
+                    <span class="status-indicator status-inactive"></span>
+                    Picture-in-Picture
+                </div>
+                <div class="automation-item" onclick="bypassFrameBlocking()">
+                    <span class="status-indicator status-active"></span>
+                    Bypass X-Frame
+                </div>
+                <div class="automation-item" onclick="autoLogin()">
+                    <span class="status-indicator status-inactive"></span>
+                    Auto Login
+                </div>
+            </div>
+            
+            <div class="automation-panel">
+                <h3>Data Collection</h3>
+                <div class="automation-item" onclick="scrapeData()">
+                    <span class="status-indicator status-inactive"></span>
+                    Web Scraping
+                </div>
+                <div class="automation-item" onclick="apiIntegration()">
+                    <span class="status-indicator status-active"></span>
+                    API Integration
+                </div>
+                <div class="automation-item" onclick="exportData()">
+                    <span class="status-indicator status-inactive"></span>
+                    Export Data
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="toolbar">
+                <button class="automation-btn" onclick="goBack()">←</button>
+                <button class="automation-btn" onclick="goForward()">→</button>
+                <button class="automation-btn" onclick="refresh()">⟲</button>
+                <input type="text" class="url-bar" id="urlBar" value="https://onedrive.live.com" placeholder="Enter URL...">
+                <button class="automation-btn" onclick="navigate()">Go</button>
+                <button class="automation-btn" onclick="automate()">Automate</button>
+            </div>
+            
+            <div class="browser-frame">
+                <iframe id="browserFrame" class="browser-iframe" src="about:blank"></iframe>
+            </div>
+        </div>
+    </div>
+    
+    <div class="pip-container" id="pipContainer">
+        <div class="pip-header">
+            <span>Picture-in-Picture</span>
+            <button class="pip-close" onclick="closePiP()">×</button>
+        </div>
+        <iframe id="pipFrame" style="width: 100%; height: calc(100% - 40px); border: none;"></iframe>
+    </div>
+
+    <script>
+        let currentUrl = '';
+        
+        function navigate() {
+            const url = document.getElementById('urlBar').value;
+            document.getElementById('browserFrame').src = url;
+            currentUrl = url;
+        }
+        
+        function loadOneDrive() {
+            document.getElementById('urlBar').value = 'https://onedrive.live.com';
+            navigate();
+            updateStatus('OneDrive loading...', 'active');
+        }
+        
+        function connectGauge() {
+            document.getElementById('urlBar').value = 'https://gauge.smarthub.com';
+            navigate();
+            updateStatus('Connecting to GAUGE...', 'active');
+        }
+        
+        function enablePiP() {
+            const pipContainer = document.getElementById('pipContainer');
+            const pipFrame = document.getElementById('pipFrame');
+            pipFrame.src = currentUrl;
+            pipContainer.style.display = 'block';
+            updateStatus('Picture-in-Picture enabled', 'active');
+        }
+        
+        function closePiP() {
+            document.getElementById('pipContainer').style.display = 'none';
+        }
+        
+        function automate() {
+            // Start automation sequence
+            fetch('/api/automation-suite', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    action: 'start_automation',
+                    url: currentUrl,
+                    tasks: ['extract_data', 'bypass_frames', 'collect_files']
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                updateStatus('Automation active: ' + data.message, 'active');
+            });
+        }
+        
+        function extractFiles() {
+            fetch('/api/extract-onedrive-files', {method: 'POST'})
+            .then(r => r.json())
+            .then(data => updateStatus('Extracted ' + data.count + ' files', 'active'));
+        }
+        
+        function processSpreadsheets() {
+            fetch('/api/process-spreadsheets', {method: 'POST'})
+            .then(r => r.json())
+            .then(data => updateStatus('Processed ' + data.count + ' spreadsheets', 'active'));
+        }
+        
+        function syncFleetData() {
+            fetch('/api/sync-fleet-data', {method: 'POST'})
+            .then(r => r.json())
+            .then(data => updateStatus('Synced ' + data.assets + ' assets', 'active'));
+        }
+        
+        function updateStatus(message, status) {
+            console.log('[AUTOMATION]', message);
+            // Update UI status indicators
+        }
+        
+        function goBack() { window.history.back(); }
+        function goForward() { window.history.forward(); }
+        function refresh() { document.getElementById('browserFrame').src = currentUrl; }
+        
+        // Initialize
+        loadOneDrive();
+    </script>
+</body>
+</html>'''
+
 @app.route('/api/daily-driver-data')
 def api_daily_driver_data():
     """API endpoint for daily driver data from RAGLE hours"""

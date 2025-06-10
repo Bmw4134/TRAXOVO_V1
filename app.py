@@ -7555,6 +7555,54 @@ def sr_pm_asset_drilldown(asset_id):
         logging.error(f"SR PM asset drill-down error: {e}")
         return jsonify({'error': str(e), 'status': 'failed'})
 
+@app.route('/api/authentic-ragle-projects')
+def get_authentic_ragle_projects():
+    """Get authentic RAGLE INC project data from accounting system"""
+    try:
+        from authentic_jobs_processor import AuthenticJobsProcessor
+        
+        processor = AuthenticJobsProcessor()
+        processor.load_authentic_jobs_data()
+        
+        ragle_projects = processor.get_ragle_projects()
+        
+        # Transform authentic data for platform display
+        projects = []
+        for job in ragle_projects:
+            project = {
+                "id": f"RAGLE-{len(projects)+1:03d}",
+                "name": job['project_name'],
+                "owner": job['owner'],
+                "location": job['locations'].split(',')[0] if job['locations'] else "Dallas, TX",
+                "area": job['area'],
+                "status": "active" if job['contract_amount'] > 5000000 else "planning",
+                "contract_amount": job['contract_amount'],
+                "total_cost": job['total_cost'],
+                "estimator": job['estimator'],
+                "low_bid_date": job['low_bid_date'],
+                "profit_margin": ((job['contract_amount'] - job['total_cost']) / job['contract_amount'] * 100) if job['contract_amount'] > 0 else 0
+            }
+            projects.append(project)
+        
+        summary = processor.get_project_summary()
+        
+        return jsonify({
+            "projects": projects,
+            "total_projects": summary['ragle_projects'],
+            "total_contract_value": summary['total_contract_value'],
+            "ragle_projects": summary['ragle_projects'],
+            "select_projects": summary['select_projects'],
+            "dfw_projects": summary['dfw_projects'],
+            "houston_projects": summary['hou_projects'],
+            "estimators": summary['estimators'],
+            "last_updated": "2025-06-10T21:35:00Z",
+            "data_source": "RAGLE_INC_AUTHENTIC_JOBS"
+        })
+        
+    except Exception as e:
+        logging.error(f"Authentic RAGLE jobs data error: {e}")
+        return jsonify({'error': str(e), 'status': 'failed'})
+
 @app.route('/api/executive-drilldown/annual-roi')
 def executive_drilldown_annual_roi():
     """Executive Dashboard - Annual ROI Drill-Down"""

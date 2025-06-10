@@ -602,18 +602,7 @@
             color: #00ff9f;
         }
 
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 60px;
-            width: 250px;
-            height: calc(100vh - 60px);
-            background: rgba(26, 26, 46, 0.95);
-            border-right: 1px solid rgba(0, 255, 159, 0.3);
-            padding: 20px;
-            overflow-y: auto;
-            backdrop-filter: blur(10px);
-        }
+        /* Override inline sidebar styles - use external CSS classes */
 
         .sidebar-section {
             margin-bottom: 30px;
@@ -653,12 +642,7 @@
             width: 16px;
         }
 
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-            min-height: calc(100vh - 60px);
-            background: transparent;
-        }
+        /* Use external CSS for main-content layout */
 
         .dashboard-grid {
             display: grid;
@@ -873,7 +857,7 @@
     </style>
 </head>
 <body class="traxovo-container nexus-stable-layout nexus-gpu-accelerated">
-    <div class="header nexus-layer-nav nexus-stable-layout">
+    <div class="top-nav header-ribbon nexus-layer-nav nexus-stable-layout">
         <div class="logo nexus-text-wrap">TRAXOVO ∞</div>
         <div class="nav-tabs nexus-flex nexus-flex-row">
             <div class="nav-tab active" data-section="safety">Safety Overview</div>
@@ -962,7 +946,8 @@
         KaizenGPT SYNC ACTIVE
     </div>
 
-    <div class="main-content nexus-layer-content nexus-stable-layout">
+    <div class="main-dashboard">
+        <div class="content-area main-content nexus-layer-content nexus-stable-layout">
         <!-- TRAXOVO Fleet Management Overview -->
         <div id="safety-section" class="section-content nexus-flex nexus-flex-column">
             <div class="dashboard-grid nexus-grid-layout">

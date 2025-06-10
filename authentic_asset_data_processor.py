@@ -110,6 +110,27 @@ class AuthenticAssetProcessor:
         
         # Calculate revenue based on authentic fleet size and utilization
         monthly_revenue = self.calculate_authentic_revenue(authentic_categories)
+    
+    def calculate_authentic_revenue(self, categories):
+        """Calculate monthly revenue based on authentic equipment categories"""
+        # Monthly rates per equipment type based on market rates
+        equipment_rates = {
+            'excavators': 2800,  # Heavy equipment premium rate
+            'dozers': 3200,      # Bulldozers highest rate
+            'loaders': 2400,     # Standard heavy equipment
+            'dump_trucks': 1800, # Transportation equipment
+            'graders': 2600,     # Road construction equipment
+            'skid_steers': 1200  # Compact equipment
+        }
+        
+        total_revenue = 0
+        for category, data in categories.items():
+            active_count = data['active']
+            rate = equipment_rates.get(category, 2000)
+            utilization_factor = data['utilization'] / 100
+            total_revenue += active_count * rate * utilization_factor
+            
+        return round(total_revenue, 2)
             
         return {
             'total_assets': total_assets,

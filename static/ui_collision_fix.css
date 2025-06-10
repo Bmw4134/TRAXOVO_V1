@@ -1,0 +1,134 @@
+/* TRAXOVO UI Collision Prevention System */
+
+/* Fix overlapping status badges */
+.status-badges-container {
+    position: fixed !important;
+    top: 15px !important;
+    right: 15px !important;
+    z-index: 1000 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    align-items: flex-end !important;
+    pointer-events: none !important;
+    max-width: 280px !important;
+}
+
+.status-badges-container .status-badge {
+    pointer-events: auto !important;
+    display: inline-block !important;
+    padding: 6px 14px !important;
+    border-radius: 20px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    backdrop-filter: blur(10px) !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* DWC Commands Module styling */
+.dwc-commands-badge {
+    background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+    color: white !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* KaizenGPT Sync styling */
+.kaizen-sync-badge {
+    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+    color: white !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Ensure header elements don't overlap */
+.main-header {
+    position: relative !important;
+    z-index: 900 !important;
+    padding-right: 300px !important; /* Space for status badges */
+}
+
+/* Navigation elements spacing */
+.navigation-menu {
+    margin-right: 300px !important;
+}
+
+/* Prevent sidebar overlap */
+.sidebar-navigation {
+    z-index: 800 !important;
+}
+
+/* Main content area adjustments */
+.dashboard-content {
+    padding-top: 80px !important; /* Space for fixed elements */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 1200px) {
+    .status-badges-container {
+        top: 10px !important;
+        right: 10px !important;
+        max-width: 200px !important;
+    }
+    
+    .main-header {
+        padding-right: 220px !important;
+    }
+    
+    .navigation-menu {
+        margin-right: 220px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .status-badges-container {
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        flex-direction: row !important;
+        justify-content: center !important;
+        margin: 10px !important;
+        max-width: 100% !important;
+    }
+    
+    .main-header {
+        padding-right: 20px !important;
+    }
+    
+    .navigation-menu {
+        margin-right: 20px !important;
+    }
+    
+    .dashboard-content {
+        padding-top: 100px !important;
+    }
+}
+
+/* Fix any floating action buttons */
+.floating-action-button {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    z-index: 1100 !important;
+}
+
+/* Ensure tooltips don't clash */
+.tooltip {
+    z-index: 1200 !important;
+}
+
+/* Modal overlays */
+.modal-overlay {
+    z-index: 1300 !important;
+}
+
+/* Notification system positioning */
+.notification-container {
+    position: fixed !important;
+    top: 100px !important;
+    right: 15px !important;
+    z-index: 1150 !important;
+    max-width: 300px !important;
+}

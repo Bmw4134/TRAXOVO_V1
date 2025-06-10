@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='enterprise_ui_polish.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='mobile_premium.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='mobile_complete_fix.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='ui_collision_fix.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='enterprise_premium_ui.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="{{ url_for('static', filename='gesture_navigation.js') }}" defer></script>
@@ -160,17 +162,16 @@
             </div>
         </header>
         
-        <!-- FORCED MOBILE TOGGLE - INJECTED IMMEDIATELY -->
-        <div id="force-mobile-toggle" style="position: fixed !important; top: 20px !important; right: 20px !important; z-index: 999999 !important; display: block !important; pointer-events: auto !important; background: rgba(0, 0, 0, 0.1) !important; border-radius: 30px !important; padding: 3px !important;">
-            <button id="force-toggle-btn" onclick="forceToggleMobileDesktop()" style="background: linear-gradient(45deg, #00d4ff, #00ff88) !important; color: #000 !important; border: none !important; border-radius: 25px !important; padding: 12px 18px !important; font-size: 13px !important; font-weight: 800 !important; cursor: pointer !important; box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5) !important; display: flex !important; align-items: center !important; gap: 8px !important; min-height: 44px !important; touch-action: manipulation !important; transform: scale(1) !important; transition: all 0.2s ease !important;">
-                <span id="toggle-icon" style="font-size: 16px !important;">🖥️</span>
-                <span id="toggle-label" style="font-size: 12px !important; font-weight: 900 !important;">DESKTOP</span>
-            </button>
-        </div>
-        
-        <!-- VIEW MODE CONFIRMATION -->
-        <div id="view-mode-confirmation" style="position: fixed !important; top: 80px !important; right: 20px !important; z-index: 999998 !important; background: rgba(0, 212, 255, 0.9) !important; color: #000 !important; padding: 8px 16px !important; border-radius: 20px !important; font-size: 11px !important; font-weight: 700 !important; display: none !important; animation: slideIn 0.3s ease !important;">
-            <span id="confirmation-text">MOBILE VIEW ACTIVE</span>
+        <!-- STATUS BADGES CONTAINER - COLLISION PREVENTION -->
+        <div class="status-badges-container">
+            <div class="status-badge dwc-commands-badge">
+                <i class="fas fa-terminal" style="margin-right: 6px;"></i>
+                DWC COMMANDS MODULE
+            </div>
+            <div class="status-badge kaizen-sync-badge">
+                <i class="fas fa-sync-alt" style="margin-right: 6px; animation: spin 2s linear infinite;"></i>
+                KaizenGPT SYNC ACTIVE
+            </div>
         </div>
         
         <!-- QNIS Sidebar Zone -->

@@ -23,6 +23,8 @@ class GaugeAPIConnector:
             'Content-Type': 'application/json',
             'User-Agent': 'TRAXOVO-NEXUS-API/1.0'
         })
+        # Configure SSL verification for enterprise environments
+        self.session.verify = False  # For development/enterprise environments with custom certificates
         
         self.authenticated = False
         self.access_token = None

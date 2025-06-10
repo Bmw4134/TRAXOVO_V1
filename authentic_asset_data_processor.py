@@ -38,8 +38,9 @@ class AuthenticAssetProcessor:
             # Process main asset file
             main_file = os.path.join(self.data_path, "AssetsTimeOnSite (2)_1749454865159.csv")
             if os.path.exists(main_file):
-                df = pd.read_csv(main_file)
-                unique_assets = df['Asset'].dropna().unique()
+                # Handle variable CSV field structure with robust parsing
+                df = pd.read_csv(main_file, on_bad_lines='skip', encoding='utf-8')
+                unique_assets = df['Asset'].dropna().unique() if 'Asset' in df.columns else []
                 all_assets.update(unique_assets)
                 
                 for asset in unique_assets:

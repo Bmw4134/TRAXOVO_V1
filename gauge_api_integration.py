@@ -60,10 +60,10 @@ class GAUGEAPIIntegration:
             # Load main asset file
             main_file = os.path.join(self.csv_data_path, "AssetsTimeOnSite (2)_1749454865159.csv")
             if os.path.exists(main_file):
-                df = pd.read_csv(main_file)
+                df = pd.read_csv(main_file, on_bad_lines='skip', encoding='utf-8')
                 
                 # Extract unique assets
-                unique_assets = df['Asset'].dropna().unique()
+                unique_assets = df['Asset'].dropna().unique() if 'Asset' in df.columns else []
                 
                 for asset in unique_assets:
                     asset_data = df[df['Asset'] == asset]

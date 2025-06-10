@@ -7440,6 +7440,47 @@ def mobile_demo_access():
     session['username'] = 'Mobile Demo'
     return redirect('/dashboard')
 
+@app.route('/api/enhanced-driver-data')
+def enhanced_driver_data():
+    """Enhanced driver data with auto-updating formulas"""
+    try:
+        # Import and run the auto-updating formula engine
+        from auto_updating_formula_engine import initialize_auto_updating_system
+        
+        engine = initialize_auto_updating_system()
+        
+        # Get enhanced data with formulas
+        enhanced_data = {
+            'driver_reporting': engine.processed_drivers,
+            'formula_templates': engine.formula_templates,
+            'copy_paste_ready': True,
+            'auto_update_enabled': True,
+            'data_sources': ['ActivityDetail', 'DrivingHistory', 'AttendanceMatrix']
+        }
+        
+        return jsonify(enhanced_data)
+        
+    except Exception as e:
+        logging.error(f"Enhanced driver data error: {e}")
+        return jsonify({'error': str(e), 'status': 'formula_processing_failed'})
+
+@app.route('/api/legacy-gauge-formulas')
+def legacy_gauge_formulas():
+    """Process legacy GAUGE formulas from asset list"""
+    try:
+        from legacy_gauge_processor import process_legacy_gauge_file
+        
+        file_path = 'attached_assets/asset list export - with legacy formulas_1749571821518.xlsx'
+        if os.path.exists(file_path):
+            result = process_legacy_gauge_file(file_path)
+            return jsonify(result)
+        else:
+            return jsonify({'error': 'Legacy formula file not found'}), 404
+            
+    except Exception as e:
+        logging.error(f"Legacy GAUGE formula error: {e}")
+        return jsonify({'error': str(e), 'status': 'legacy_processing_failed'})
+
 if __name__ == "__main__":
     # Final deployment verification
     verify_deployment()

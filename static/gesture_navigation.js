@@ -1,880 +1,717 @@
 /**
- * TRAXOVO Gesture-Based Navigation System
- * Intuitive touch, mouse, and keyboard navigation for enterprise dashboard
+ * TRAXOVO ∞ Clarity Core - Intuitive Gesture-Based Navigation System
+ * Premium enterprise gesture controls for enhanced user experience
  */
 
-class GestureNavigationSystem {
+// Asset metadata parsing utility
+function parseAssetMeta(assetId) {
+    if (!assetId) return { driverName: "", rawId: "" };
+
+    const matchParentheses = assetId.match(/\((.*?)\)/);
+    const matchDash = assetId.split(" - ");
+
+    const driverName = matchDash.length > 1
+        ? matchDash[1].trim()
+        : matchParentheses
+        ? matchParentheses[1].trim()
+        : assetId.trim();
+
+    const rawId = matchDash[0].replace(/[^0-9]/g, "").trim();
+    return { driverName, rawId };
+}
+
+class GestureNavigationController {
     constructor() {
         this.isEnabled = true;
-        this.touchStartPos = { x: 0, y: 0 };
-        this.touchEndPos = { x: 0, y: 0 };
-        this.gestureThreshold = 50; // Minimum distance for gesture recognition
-        this.currentSection = 'overview';
-        this.sections = ['overview', 'analytics', 'maintenance', 'safety', 'billing', 'assets'];
-        this.activeGesture = null;
-        this.gestureStartTime = 0;
-        this.isMultiTouch = false;
-        this.lastTapTime = 0;
-        this.tapThreshold = 300; // Double tap threshold
+        this.gestureThreshold = 50;
+        this.velocityThreshold = 0.5;
+        this.touchStartX = 0;
+        this.touchStartY = 0;
+        this.touchEndX = 0;
+        this.touchEndY = 0;
+        this.touchStartTime = 0;
+        this.currentSection = 0;
+        this.sections = [];
+        this.isDragging = false;
+        this.dragStartX = 0;
+        this.dragStartY = 0;
         
-        this.initializeGestures();
-        this.createGestureIndicators();
+        this.init();
+    }
+
+    init() {
+        this.identifySections();
+        this.setupTouchEvents();
+        this.setupMouseEvents();
         this.setupKeyboardShortcuts();
+        this.createGestureIndicators();
+        console.log('✓ Gesture navigation system activated');
     }
-    
-    initializeGestures() {
-        console.log('Initializing TRAXOVO gesture navigation system...');
-        
-        // Touch gestures for mobile/tablet
-        document.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
-        document.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
-        document.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
-        
-        // Mouse gestures for desktop
-        document.addEventListener('mousedown', this.handleMouseDown.bind(this));
-        document.addEventListener('mousemove', this.handleMouseMove.bind(this));
-        document.addEventListener('mouseup', this.handleMouseUp.bind(this));
-        
-        // Wheel gestures
-        document.addEventListener('wheel', this.handleWheel.bind(this), { passive: false });
-        
-        // Pinch zoom gestures
-        document.addEventListener('gesturestart', this.handleGestureStart.bind(this), { passive: false });
-        document.addEventListener('gesturechange', this.handleGestureChange.bind(this), { passive: false });
-        document.addEventListener('gestureend', this.handleGestureEnd.bind(this), { passive: false });
-        
-        console.log('✓ Gesture navigation system active');
+
+    identifySections() {
+        // Identify main dashboard sections for navigation
+        this.sections = [
+            { element: document.querySelector('.qnis-dashboard-section'), name: 'QNIS Dashboard' },
+            { element: document.querySelector('.sr-pm-section'), name: 'SR PM Portal' },
+            { element: document.querySelector('.asset-tracking-section'), name: 'Asset Tracking' },
+            { element: document.querySelector('.analytics-section'), name: 'Analytics' }
+        ].filter(section => section.element);
+
+        // Add KPI cards as navigable sections with enhanced asset metadata
+        const kpiCards = document.querySelectorAll('.kpi-card, .metric-card, .metric-item');
+        kpiCards.forEach((card, index) => {
+            const assetId = card.dataset.assetId || card.querySelector('[data-asset-id]')?.dataset.assetId;
+            const cardTitle = card.querySelector('h3, .metric-title, .kpi-title')?.textContent || `KPI Card ${index + 1}`;
+            
+            let sectionName = cardTitle;
+            let assetMeta = null;
+            
+            if (assetId) {
+                assetMeta = parseAssetMeta(assetId);
+                if (assetMeta.driverName) {
+                    sectionName = `${cardTitle} - ${assetMeta.driverName}`;
+                }
+            }
+            
+            this.sections.push({
+                element: card,
+                name: sectionName,
+                type: 'kpi',
+                assetId: assetId,
+                assetMeta: assetMeta,
+                originalTitle: cardTitle
+            });
+        });
+
+        // Add asset-specific elements from tracking data
+        const assetElements = document.querySelectorAll('[data-asset-id], .asset-item, .equipment-item');
+        assetElements.forEach((element, index) => {
+            if (!element.classList.contains('kpi-card') && !element.classList.contains('metric-card')) {
+                const assetId = element.dataset.assetId || element.textContent;
+                const assetMeta = parseAssetMeta(assetId);
+                
+                this.sections.push({
+                    element: element,
+                    name: assetMeta.driverName ? `Asset ${assetMeta.rawId} - ${assetMeta.driverName}` : `Asset ${index + 1}`,
+                    type: 'asset',
+                    assetId: assetId,
+                    assetMeta: assetMeta
+                });
+            }
+        });
     }
-    
-    // Touch Gesture Handlers
+
+    setupTouchEvents() {
+        document.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
+        document.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
+        document.addEventListener('touchend', (e) => this.handleTouchEnd(e), { passive: false });
+    }
+
+    setupMouseEvents() {
+        document.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+        document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        document.addEventListener('mouseup', (e) => this.handleMouseUp(e));
+        document.addEventListener('wheel', (e) => this.handleWheel(e), { passive: false });
+    }
+
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            if (!this.isEnabled) return;
+
+            switch(e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    this.navigateLeft();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    this.navigateRight();
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    this.navigateUp();
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    this.navigateDown();
+                    break;
+                case 'Enter':
+                case ' ':
+                    e.preventDefault();
+                    this.activateCurrentSection();
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    this.closeActiveModal();
+                    break;
+            }
+        });
+    }
+
     handleTouchStart(e) {
         if (!this.isEnabled) return;
         
-        this.gestureStartTime = Date.now();
+        this.touchStartX = e.touches[0].clientX;
+        this.touchStartY = e.touches[0].clientY;
+        this.touchStartTime = Date.now();
         
-        if (e.touches.length === 1) {
-            // Single touch
-            this.touchStartPos = {
-                x: e.touches[0].clientX,
-                y: e.touches[0].clientY
-            };
-            this.isMultiTouch = false;
-            
-            // Check for double tap
-            const currentTime = Date.now();
-            if (currentTime - this.lastTapTime < this.tapThreshold) {
-                this.handleDoubleTap(e);
-            }
-            this.lastTapTime = currentTime;
-            
-        } else if (e.touches.length === 2) {
-            // Two finger gestures
-            this.isMultiTouch = true;
-            this.handleTwoFingerStart(e);
-        } else if (e.touches.length === 3) {
-            // Three finger gestures
-            this.handleThreeFingerStart(e);
-        }
-        
-        this.showGestureIndicator('touch-start');
+        // Add visual feedback
+        this.addTouchFeedback(e.touches[0].clientX, e.touches[0].clientY);
     }
-    
+
     handleTouchMove(e) {
-        if (!this.isEnabled || e.touches.length === 0) return;
+        if (!this.isEnabled) return;
         
-        if (e.touches.length === 1 && !this.isMultiTouch) {
-            // Single finger swipe
-            this.touchEndPos = {
-                x: e.touches[0].clientX,
-                y: e.touches[0].clientY
-            };
-            
-            const deltaX = this.touchEndPos.x - this.touchStartPos.x;
-            const deltaY = this.touchEndPos.y - this.touchStartPos.y;
-            
-            // Show swipe direction indicator
-            if (Math.abs(deltaX) > 20 || Math.abs(deltaY) > 20) {
-                this.showSwipeIndicator(deltaX, deltaY);
-            }
-        } else if (e.touches.length === 2) {
-            // Two finger gestures (pinch/rotate)
-            this.handleTwoFingerMove(e);
+        // Prevent default scrolling for gesture recognition
+        if (Math.abs(e.touches[0].clientX - this.touchStartX) > 10) {
+            e.preventDefault();
         }
     }
-    
+
     handleTouchEnd(e) {
         if (!this.isEnabled) return;
         
-        const gestureTime = Date.now() - this.gestureStartTime;
+        this.touchEndX = e.changedTouches[0].clientX;
+        this.touchEndY = e.changedTouches[0].clientY;
         
-        if (!this.isMultiTouch && e.changedTouches.length === 1) {
-            const deltaX = this.touchEndPos.x - this.touchStartPos.x;
-            const deltaY = this.touchEndPos.y - this.touchStartPos.y;
-            
-            this.processSwipeGesture(deltaX, deltaY, gestureTime);
-        }
+        const deltaX = this.touchEndX - this.touchStartX;
+        const deltaY = this.touchEndY - this.touchStartY;
+        const deltaTime = Date.now() - this.touchStartTime;
+        const velocity = Math.sqrt(deltaX * deltaX + deltaY * deltaY) / deltaTime;
         
-        this.hideGestureIndicator();
-        this.activeGesture = null;
+        this.processGesture(deltaX, deltaY, velocity);
+        this.removeTouchFeedback();
     }
-    
-    processSwipeGesture(deltaX, deltaY, gestureTime) {
-        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        
-        if (distance < this.gestureThreshold) return; // Not a significant gesture
-        
-        const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY);
-        const velocity = distance / gestureTime;
-        
-        if (isHorizontal) {
-            if (deltaX > 0) {
-                // Swipe right - Previous section
-                this.navigateToPreviousSection();
-                this.showGestureResult('← Previous Section');
-            } else {
-                // Swipe left - Next section
-                this.navigateToNextSection();
-                this.showGestureResult('Next Section →');
-            }
-        } else {
-            if (deltaY > 0) {
-                // Swipe down - Show main menu
-                this.showMainMenu();
-                this.showGestureResult('↓ Main Menu');
-            } else {
-                // Swipe up - Quick actions
-                this.showQuickActions();
-                this.showGestureResult('↑ Quick Actions');
-            }
-        }
-    }
-    
-    // Two Finger Gestures
-    handleTwoFingerStart(e) {
-        e.preventDefault();
-        const touch1 = e.touches[0];
-        const touch2 = e.touches[1];
-        
-        this.initialDistance = this.getDistance(touch1, touch2);
-        this.initialAngle = this.getAngle(touch1, touch2);
-    }
-    
-    handleTwoFingerMove(e) {
-        if (e.touches.length !== 2) return;
-        
-        const touch1 = e.touches[0];
-        const touch2 = e.touches[1];
-        
-        const currentDistance = this.getDistance(touch1, touch2);
-        const currentAngle = this.getAngle(touch1, touch2);
-        
-        // Pinch to zoom
-        const scaleChange = currentDistance / this.initialDistance;
-        if (scaleChange > 1.2) {
-            this.handlePinchOut();
-        } else if (scaleChange < 0.8) {
-            this.handlePinchIn();
-        }
-        
-        // Rotation gesture
-        const angleChange = currentAngle - this.initialAngle;
-        if (Math.abs(angleChange) > 15) {
-            this.handleRotation(angleChange);
-        }
-    }
-    
-    handlePinchOut() {
-        // Zoom in / Expand current section
-        this.expandCurrentSection();
-        this.showGestureResult('🔍 Expanded View');
-    }
-    
-    handlePinchIn() {
-        // Zoom out / Return to overview
-        this.returnToOverview();
-        this.showGestureResult('📋 Overview Mode');
-    }
-    
-    handleRotation(angle) {
-        if (angle > 0) {
-            // Clockwise rotation - Next metric
-            this.navigateToNextMetric();
-            this.showGestureResult('↻ Next Metric');
-        } else {
-            // Counter-clockwise rotation - Previous metric
-            this.navigateToPreviousMetric();
-            this.showGestureResult('↺ Previous Metric');
-        }
-    }
-    
-    // Three Finger Gestures
-    handleThreeFingerStart(e) {
-        e.preventDefault();
-        this.activeGesture = 'three-finger';
-    }
-    
-    handleThreeFingerSwipe(deltaX, deltaY) {
-        if (Math.abs(deltaY) > Math.abs(deltaX)) {
-            if (deltaY > 0) {
-                // Three finger swipe down - Dashboard settings
-                this.openDashboardSettings();
-                this.showGestureResult('⚙️ Dashboard Settings');
-            } else {
-                // Three finger swipe up - System status
-                this.showSystemStatus();
-                this.showGestureResult('📊 System Status');
-            }
-        } else {
-            if (deltaX > 0) {
-                // Three finger swipe right - Previous dashboard
-                this.switchToPreviousDashboard();
-                this.showGestureResult('← Previous Dashboard');
-            } else {
-                // Three finger swipe left - Next dashboard
-                this.switchToNextDashboard();
-                this.showGestureResult('Next Dashboard →');
-            }
-        }
-    }
-    
-    // Mouse Gesture Handlers
+
     handleMouseDown(e) {
-        if (!this.isEnabled || e.button !== 2) return; // Right mouse button
+        if (!this.isEnabled || e.button !== 0) return;
         
-        this.mouseStartPos = { x: e.clientX, y: e.clientY };
-        this.isMouseGestureActive = true;
-        e.preventDefault();
+        this.isDragging = true;
+        this.dragStartX = e.clientX;
+        this.dragStartY = e.clientY;
+        
+        // Add visual feedback for mouse gestures
+        this.addTouchFeedback(e.clientX, e.clientY);
     }
-    
+
     handleMouseMove(e) {
-        if (!this.isMouseGestureActive) return;
+        if (!this.isEnabled || !this.isDragging) return;
         
-        const deltaX = e.clientX - this.mouseStartPos.x;
-        const deltaY = e.clientY - this.mouseStartPos.y;
+        const deltaX = e.clientX - this.dragStartX;
+        const deltaY = e.clientY - this.dragStartY;
         
-        this.showMouseGestureTrail(e.clientX, e.clientY);
+        // Show gesture preview
+        this.showGesturePreview(deltaX, deltaY);
     }
-    
+
     handleMouseUp(e) {
-        if (!this.isMouseGestureActive) return;
+        if (!this.isEnabled || !this.isDragging) return;
         
-        const deltaX = e.clientX - this.mouseStartPos.x;
-        const deltaY = e.clientY - this.mouseStartPos.y;
+        const deltaX = e.clientX - this.dragStartX;
+        const deltaY = e.clientY - this.dragStartY;
         
-        this.processMouseGesture(deltaX, deltaY);
-        this.isMouseGestureActive = false;
-        this.clearMouseGestureTrail();
+        this.isDragging = false;
+        this.processGesture(deltaX, deltaY, 1);
+        this.removeTouchFeedback();
+        this.hideGesturePreview();
     }
-    
-    processMouseGesture(deltaX, deltaY) {
-        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        
-        if (distance < 30) return; // Too small to be a gesture
-        
-        // Recognize common mouse gesture patterns
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            // Horizontal gestures
-            if (deltaX > 0) {
-                this.navigateBack();
-                this.showGestureResult('← Back');
-            } else {
-                this.navigateForward();
-                this.showGestureResult('Forward →');
-            }
-        } else {
-            // Vertical gestures
-            if (deltaY > 0) {
-                this.refreshCurrentView();
-                this.showGestureResult('↻ Refresh');
-            } else {
-                this.minimizeCurrentView();
-                this.showGestureResult('↑ Minimize');
-            }
-        }
-        
-        // Complex gesture patterns
-        if (this.isCircularGesture(deltaX, deltaY)) {
-            this.openContextMenu();
-            this.showGestureResult('⚙️ Context Menu');
-        }
-    }
-    
-    // Wheel Gesture Handler
+
     handleWheel(e) {
         if (!this.isEnabled) return;
         
         if (e.ctrlKey) {
-            // Ctrl + Wheel = Zoom
             e.preventDefault();
+            
             if (e.deltaY < 0) {
                 this.zoomIn();
-                this.showGestureResult('🔍 Zoom In');
             } else {
                 this.zoomOut();
-                this.showGestureResult('🔍 Zoom Out');
-            }
-        } else if (e.shiftKey) {
-            // Shift + Wheel = Horizontal scroll
-            e.preventDefault();
-            if (e.deltaY < 0) {
-                this.scrollLeft();
-            } else {
-                this.scrollRight();
             }
         }
     }
-    
-    // Keyboard Shortcuts
-    setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-            if (!this.isEnabled) return;
-            
-            // Check for modifier combinations
-            const isCtrl = e.ctrlKey || e.metaKey;
-            const isShift = e.shiftKey;
-            const isAlt = e.altKey;
-            
-            // Navigation shortcuts
-            switch(e.key) {
-                case 'ArrowLeft':
-                    if (isCtrl) {
-                        this.navigateToPreviousSection();
-                        this.showGestureResult('← Previous Section');
-                        e.preventDefault();
-                    }
-                    break;
-                    
-                case 'ArrowRight':
-                    if (isCtrl) {
-                        this.navigateToNextSection();
-                        this.showGestureResult('Next Section →');
-                        e.preventDefault();
-                    }
-                    break;
-                    
-                case 'ArrowUp':
-                    if (isCtrl) {
-                        this.showQuickActions();
-                        this.showGestureResult('↑ Quick Actions');
-                        e.preventDefault();
-                    }
-                    break;
-                    
-                case 'ArrowDown':
-                    if (isCtrl) {
-                        this.showMainMenu();
-                        this.showGestureResult('↓ Main Menu');
-                        e.preventDefault();
-                    }
-                    break;
-                    
-                case 'Escape':
-                    this.returnToOverview();
-                    this.showGestureResult('📋 Overview Mode');
-                    e.preventDefault();
-                    break;
-                    
-                case 'Space':
-                    if (isCtrl) {
-                        this.openCommandPalette();
-                        this.showGestureResult('⌘ Command Palette');
-                        e.preventDefault();
-                    }
-                    break;
+
+    processGesture(deltaX, deltaY, velocity) {
+        const absX = Math.abs(deltaX);
+        const absY = Math.abs(deltaY);
+        
+        // Require minimum gesture distance
+        if (absX < this.gestureThreshold && absY < this.gestureThreshold) {
+            return;
+        }
+        
+        // Determine gesture type
+        if (absX > absY) {
+            // Horizontal gesture
+            if (deltaX > 0) {
+                this.handleSwipeRight(velocity);
+            } else {
+                this.handleSwipeLeft(velocity);
             }
-            
-            // Quick access shortcuts (Alt + Number)
-            if (isAlt && !isNaN(e.key)) {
-                const sectionIndex = parseInt(e.key) - 1;
-                if (sectionIndex >= 0 && sectionIndex < this.sections.length) {
-                    this.navigateToSection(this.sections[sectionIndex]);
-                    this.showGestureResult(`${e.key} ${this.sections[sectionIndex]}`);
-                    e.preventDefault();
-                }
+        } else {
+            // Vertical gesture
+            if (deltaY > 0) {
+                this.handleSwipeDown(velocity);
+            } else {
+                this.handleSwipeUp(velocity);
             }
+        }
+    }
+
+    handleSwipeLeft(velocity) {
+        console.log('Gesture: Swipe Left');
+        this.showGestureNotification('← Swipe Left', 'Navigating to next section');
+        this.navigateRight(); // Counter-intuitive but follows mobile convention
+    }
+
+    handleSwipeRight(velocity) {
+        console.log('Gesture: Swipe Right');
+        this.showGestureNotification('→ Swipe Right', 'Navigating to previous section');
+        this.navigateLeft();
+    }
+
+    handleSwipeUp(velocity) {
+        console.log('Gesture: Swipe Up');
+        this.showGestureNotification('↑ Swipe Up', 'Opening drill-down view');
+        this.navigateUp();
+    }
+
+    handleSwipeDown(velocity) {
+        console.log('Gesture: Swipe Down');
+        this.showGestureNotification('↓ Swipe Down', 'Closing active view');
+        this.navigateDown();
+    }
+
+    navigateLeft() {
+        if (this.sections.length === 0) return;
+        
+        this.currentSection = (this.currentSection - 1 + this.sections.length) % this.sections.length;
+        this.highlightCurrentSection();
+        this.scrollToSection(this.sections[this.currentSection]);
+    }
+
+    navigateRight() {
+        if (this.sections.length === 0) return;
+        
+        this.currentSection = (this.currentSection + 1) % this.sections.length;
+        this.highlightCurrentSection();
+        this.scrollToSection(this.sections[this.currentSection]);
+    }
+
+    navigateUp() {
+        const currentElement = this.sections[this.currentSection]?.element;
+        if (currentElement) {
+            // Try to open drill-down modal if it's a KPI card
+            if (currentElement.classList.contains('kpi-card') || currentElement.classList.contains('metric-card')) {
+                this.activateCurrentSection();
+            } else {
+                // Navigate to parent section
+                this.navigateToParentSection();
+            }
+        }
+    }
+
+    navigateDown() {
+        // Close any open modals or navigate to child sections
+        const activeModal = document.querySelector('.enterprise-modal.show');
+        if (activeModal) {
+            this.closeActiveModal();
+        } else {
+            this.navigateToChildSection();
+        }
+    }
+
+    activateCurrentSection() {
+        const section = this.sections[this.currentSection];
+        if (!section) return;
+        
+        const element = section.element;
+        
+        // Simulate click to activate drill-down
+        if (element.classList.contains('kpi-card') || element.classList.contains('metric-card')) {
+            const clickEvent = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window
+            });
+            element.dispatchEvent(clickEvent);
+            this.showGestureNotification('⚡ Activated', `Opening ${section.name} details`);
+        }
+    }
+
+    closeActiveModal() {
+        const activeModal = document.querySelector('.enterprise-modal.show');
+        if (activeModal) {
+            const closeButton = activeModal.querySelector('.modal-close');
+            if (closeButton) {
+                closeButton.click();
+            }
+            this.showGestureNotification('✖ Closed', 'Modal view closed');
+        }
+    }
+
+    highlightCurrentSection() {
+        // Remove previous highlights
+        document.querySelectorAll('.gesture-highlight').forEach(el => {
+            el.classList.remove('gesture-highlight');
+        });
+        
+        // Add highlight to current section
+        const currentElement = this.sections[this.currentSection]?.element;
+        if (currentElement) {
+            currentElement.classList.add('gesture-highlight');
+        }
+    }
+
+    scrollToSection(section) {
+        if (!section || !section.element) return;
+        
+        section.element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center'
         });
     }
-    
-    // Navigation Actions
-    navigateToNextSection() {
-        const currentIndex = this.sections.indexOf(this.currentSection);
-        const nextIndex = (currentIndex + 1) % this.sections.length;
-        this.navigateToSection(this.sections[nextIndex]);
+
+    zoomIn() {
+        const dashboard = document.querySelector('.dashboard-container');
+        if (dashboard) {
+            const currentScale = parseFloat(dashboard.style.transform?.match(/scale\(([\d.]+)\)/)?.[1] || '1');
+            const newScale = Math.min(currentScale * 1.1, 2);
+            dashboard.style.transform = `scale(${newScale})`;
+            dashboard.style.transformOrigin = 'center center';
+            this.showGestureNotification('🔍 Zoom In', `Scale: ${Math.round(newScale * 100)}%`);
+        }
     }
-    
-    navigateToPreviousSection() {
-        const currentIndex = this.sections.indexOf(this.currentSection);
-        const prevIndex = currentIndex === 0 ? this.sections.length - 1 : currentIndex - 1;
-        this.navigateToSection(this.sections[prevIndex]);
+
+    zoomOut() {
+        const dashboard = document.querySelector('.dashboard-container');
+        if (dashboard) {
+            const currentScale = parseFloat(dashboard.style.transform?.match(/scale\(([\d.]+)\)/)?.[1] || '1');
+            const newScale = Math.max(currentScale * 0.9, 0.5);
+            dashboard.style.transform = `scale(${newScale})`;
+            dashboard.style.transformOrigin = 'center center';
+            this.showGestureNotification('🔍 Zoom Out', `Scale: ${Math.round(newScale * 100)}%`);
+        }
     }
-    
-    navigateToSection(section) {
-        this.currentSection = section;
+
+    addTouchFeedback(x, y) {
+        const feedback = document.createElement('div');
+        feedback.className = 'gesture-touch-feedback';
+        feedback.style.cssText = `
+            position: fixed;
+            left: ${x}px;
+            top: ${y}px;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.3) 0%, transparent 70%);
+            border: 2px solid rgba(102, 126, 234, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%) scale(0);
+            animation: gestureRipple 0.3s ease-out forwards;
+        `;
         
-        // Trigger navigation based on section
-        switch(section) {
-            case 'overview':
-                if (typeof showSection === 'function') showSection('overview');
-                break;
-            case 'analytics':
-                if (typeof showSection === 'function') showSection('analytics');
-                break;
-            case 'maintenance':
-                if (typeof showSection === 'function') showSection('maintenance');
-                break;
-            case 'safety':
-                if (typeof showSection === 'function') showSection('safety');
-                break;
-            case 'billing':
-                if (typeof showSection === 'function') showSection('billing');
-                break;
-            case 'assets':
-                if (typeof showSection === 'function') showSection('assets');
-                break;
+        document.body.appendChild(feedback);
+        
+        setTimeout(() => {
+            if (feedback.parentNode) {
+                feedback.parentNode.removeChild(feedback);
+            }
+        }, 300);
+    }
+
+    removeTouchFeedback() {
+        const feedbacks = document.querySelectorAll('.gesture-touch-feedback');
+        feedbacks.forEach(feedback => {
+            feedback.style.animation = 'gestureRippleOut 0.2s ease-out forwards';
+        });
+    }
+
+    showGesturePreview(deltaX, deltaY) {
+        let preview = document.querySelector('.gesture-preview');
+        if (!preview) {
+            preview = document.createElement('div');
+            preview.className = 'gesture-preview';
+            preview.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 20px;
+                border-radius: 12px;
+                font-size: 18px;
+                font-weight: 600;
+                z-index: 10001;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.2s ease;
+            `;
+            document.body.appendChild(preview);
         }
         
-        this.updateSectionIndicator(section);
-    }
-    
-    showMainMenu() {
-        // Show/hide main navigation menu
-        const sidebar = document.querySelector('.qnis-sidebar-zone');
-        if (sidebar) {
-            sidebar.classList.toggle('expanded');
+        const absX = Math.abs(deltaX);
+        const absY = Math.abs(deltaY);
+        
+        if (absX > this.gestureThreshold || absY > this.gestureThreshold) {
+            let gesture = '';
+            if (absX > absY) {
+                gesture = deltaX > 0 ? '→ Navigate Previous' : '← Navigate Next';
+            } else {
+                gesture = deltaY > 0 ? '↓ Close View' : '↑ Open Details';
+            }
+            
+            preview.textContent = gesture;
+            preview.style.opacity = '1';
         }
     }
-    
-    showQuickActions() {
-        // Show quick actions overlay
-        this.createQuickActionsOverlay();
-    }
-    
-    expandCurrentSection() {
-        // Expand current section to fullscreen
-        const mainZone = document.querySelector('.qnis-main-zone');
-        if (mainZone) {
-            mainZone.classList.toggle('expanded-view');
+
+    hideGesturePreview() {
+        const preview = document.querySelector('.gesture-preview');
+        if (preview) {
+            preview.style.opacity = '0';
+            setTimeout(() => {
+                if (preview.parentNode) {
+                    preview.parentNode.removeChild(preview);
+                }
+            }, 200);
         }
     }
-    
-    returnToOverview() {
-        this.navigateToSection('overview');
-    }
-    
-    // Visual Feedback
-    createGestureIndicators() {
-        // Create gesture indicator container
-        const indicatorContainer = document.createElement('div');
-        indicatorContainer.id = 'gesture-indicators';
-        indicatorContainer.style.cssText = `
+
+    showGestureNotification(gesture, description) {
+        const notification = document.createElement('div');
+        notification.className = 'gesture-notification';
+        notification.innerHTML = `
+            <div class="gesture-icon">${gesture}</div>
+            <div class="gesture-description">${description}</div>
+        `;
+        notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
-            z-index: 10001;
-            pointer-events: none;
-        `;
-        document.body.appendChild(indicatorContainer);
-        
-        // Create gesture result display
-        const resultDisplay = document.createElement('div');
-        resultDisplay.id = 'gesture-result';
-        resultDisplay.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 255, 159, 0.9);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px 25px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
             z-index: 10002;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         `;
-        document.body.appendChild(resultDisplay);
-    }
-    
-    showGestureIndicator(type) {
-        const indicator = document.getElementById('gesture-indicators');
-        if (!indicator) return;
         
-        indicator.innerHTML = `
-            <div style="
-                background: rgba(0, 255, 159, 0.2);
-                border: 2px solid rgba(0, 255, 159, 0.6);
-                border-radius: 50%;
-                width: 40px;
-                height: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #00ff9f;
-                font-size: 18px;
-                animation: pulse 1s infinite;
-            ">
-                ⚡
-            </div>
-        `;
-    }
-    
-    showSwipeIndicator(deltaX, deltaY) {
-        let arrow = '→';
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            arrow = deltaX > 0 ? '→' : '←';
-        } else {
-            arrow = deltaY > 0 ? '↓' : '↑';
-        }
+        document.body.appendChild(notification);
         
-        const indicator = document.getElementById('gesture-indicators');
-        if (indicator) {
-            indicator.innerHTML = `
-                <div style="
-                    background: rgba(0, 212, 255, 0.2);
-                    border: 2px solid rgba(0, 212, 255, 0.6);
-                    border-radius: 25px;
-                    padding: 10px 15px;
-                    color: #00d4ff;
-                    font-size: 20px;
-                    font-weight: bold;
-                ">
-                    ${arrow}
-                </div>
-            `;
-        }
-    }
-    
-    showGestureResult(message) {
-        const resultDisplay = document.getElementById('gesture-result');
-        if (!resultDisplay) return;
-        
-        resultDisplay.textContent = message;
-        resultDisplay.style.opacity = '1';
-        resultDisplay.style.transform = 'translate(-50%, -50%) scale(1.1)';
-        
+        // Animate in
         setTimeout(() => {
-            resultDisplay.style.opacity = '0';
-            resultDisplay.style.transform = 'translate(-50%, -50%) scale(1)';
+            notification.style.transform = 'translateX(0)';
+        }, 10);
+        
+        // Animate out
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
         }, 2000);
     }
-    
-    hideGestureIndicator() {
-        const indicator = document.getElementById('gesture-indicators');
-        if (indicator) {
-            indicator.innerHTML = '';
-        }
-    }
-    
-    updateSectionIndicator(section) {
-        // Update UI to show current section
-        const sidebarItems = document.querySelectorAll('.qnis-sidebar-item');
-        sidebarItems.forEach(item => {
-            item.classList.remove('active');
-            if (item.dataset.section === section) {
-                item.classList.add('active');
-            }
-        });
-    }
-    
-    createQuickActionsOverlay() {
-        // Remove existing overlay
-        const existing = document.getElementById('quick-actions-overlay');
-        if (existing) existing.remove();
-        
-        const overlay = document.createElement('div');
-        overlay.id = 'quick-actions-overlay';
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        `;
-        
-        overlay.innerHTML = `
-            <div style="
-                background: linear-gradient(135deg, rgba(26, 26, 46, 0.98), rgba(15, 15, 35, 0.98));
-                border: 2px solid rgba(0, 255, 159, 0.4);
-                border-radius: 20px;
-                padding: 40px;
-                max-width: 600px;
-                width: 90%;
-            ">
-                <h2 style="color: #00ff9f; margin-bottom: 30px; text-align: center;">Quick Actions</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                    <button onclick="openFleetAssetsDrillDown(); document.getElementById('quick-actions-overlay').remove();" style="
-                        background: rgba(0, 255, 159, 0.1);
-                        border: 1px solid rgba(0, 255, 159, 0.3);
-                        color: white;
-                        padding: 15px;
-                        border-radius: 10px;
-                        cursor: pointer;
-                    ">📊 Fleet Analysis</button>
-                    <button onclick="openAnomalyDrillDown(); document.getElementById('quick-actions-overlay').remove();" style="
-                        background: rgba(255, 165, 0, 0.1);
-                        border: 1px solid rgba(255, 165, 0, 0.3);
-                        color: white;
-                        padding: 15px;
-                        border-radius: 10px;
-                        cursor: pointer;
-                    ">⚠️ Anomaly Detection</button>
-                    <button onclick="openRevenueDrillDown(); document.getElementById('quick-actions-overlay').remove();" style="
-                        background: rgba(0, 212, 255, 0.1);
-                        border: 1px solid rgba(0, 212, 255, 0.3);
-                        color: white;
-                        padding: 15px;
-                        border-radius: 10px;
-                        cursor: pointer;
-                    ">💰 Revenue Analysis</button>
-                    <button onclick="openUtilizationDrillDown(); document.getElementById('quick-actions-overlay').remove();" style="
-                        background: rgba(0, 255, 159, 0.1);
-                        border: 1px solid rgba(0, 255, 159, 0.3);
-                        color: white;
-                        padding: 15px;
-                        border-radius: 10px;
-                        cursor: pointer;
-                    ">⚡ Utilization Metrics</button>
+
+    createGestureIndicators() {
+        const indicators = document.createElement('div');
+        indicators.className = 'gesture-indicators';
+        indicators.innerHTML = `
+            <div class="gesture-help-button" onclick="gestureController.toggleHelp()">
+                <span>🤚</span>
+            </div>
+            <div class="gesture-help-panel" id="gestureHelp" style="display: none;">
+                <h3>Gesture Controls</h3>
+                <div class="gesture-help-item">
+                    <span class="gesture-symbol">←→</span>
+                    <span class="gesture-text">Swipe left/right: Navigate sections</span>
                 </div>
-                <button onclick="document.getElementById('quick-actions-overlay').remove();" style="
-                    position: absolute;
-                    top: 15px;
-                    right: 15px;
-                    background: none;
-                    border: 1px solid rgba(255, 255, 255, 0.3);
-                    color: white;
-                    width: 30px;
-                    height: 30px;
-                    border-radius: 50%;
-                    cursor: pointer;
-                ">✕</button>
+                <div class="gesture-help-item">
+                    <span class="gesture-symbol">↑</span>
+                    <span class="gesture-text">Swipe up: Open details</span>
+                </div>
+                <div class="gesture-help-item">
+                    <span class="gesture-symbol">↓</span>
+                    <span class="gesture-text">Swipe down: Close view</span>
+                </div>
+                <div class="gesture-help-item">
+                    <span class="gesture-symbol">⌨️</span>
+                    <span class="gesture-text">Arrow keys: Navigate</span>
+                </div>
+                <div class="gesture-help-item">
+                    <span class="gesture-symbol">Ctrl+Wheel</span>
+                    <span class="gesture-text">Zoom in/out</span>
+                </div>
             </div>
         `;
+        indicators.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10003;
+        `;
         
-        document.body.appendChild(overlay);
-        
-        // Auto-hide after 10 seconds
-        setTimeout(() => {
-            if (overlay.parentNode) {
-                overlay.remove();
-            }
-        }, 10000);
+        document.body.appendChild(indicators);
     }
-    
-    // Utility Functions
-    getDistance(touch1, touch2) {
-        const dx = touch2.clientX - touch1.clientX;
-        const dy = touch2.clientY - touch1.clientY;
-        return Math.sqrt(dx * dx + dy * dy);
+
+    toggleHelp() {
+        const helpPanel = document.getElementById('gestureHelp');
+        if (helpPanel) {
+            helpPanel.style.display = helpPanel.style.display === 'none' ? 'block' : 'none';
+        }
     }
-    
-    getAngle(touch1, touch2) {
-        const dx = touch2.clientX - touch1.clientX;
-        const dy = touch2.clientY - touch1.clientY;
-        return Math.atan2(dy, dx) * 180 / Math.PI;
+
+    navigateToParentSection() {
+        // Implementation for navigating to parent sections
+        console.log('Navigating to parent section');
     }
-    
-    isCircularGesture(deltaX, deltaY) {
-        // Simple circular gesture detection
-        return Math.abs(deltaX) > 50 && Math.abs(deltaY) > 50;
+
+    navigateToChildSection() {
+        // Implementation for navigating to child sections
+        console.log('Navigating to child section');
     }
-    
-    // Additional Navigation Methods
-    navigateBack() {
-        window.history.back();
-    }
-    
-    navigateForward() {
-        window.history.forward();
-    }
-    
-    refreshCurrentView() {
-        window.location.reload();
-    }
-    
-    minimizeCurrentView() {
-        // Implementation for minimizing current view
-        console.log('Minimizing current view...');
-    }
-    
-    zoomIn() {
-        document.body.style.zoom = parseFloat(document.body.style.zoom || 1) + 0.1;
-    }
-    
-    zoomOut() {
-        document.body.style.zoom = Math.max(0.5, parseFloat(document.body.style.zoom || 1) - 0.1);
-    }
-    
-    scrollLeft() {
-        window.scrollBy(-100, 0);
-    }
-    
-    scrollRight() {
-        window.scrollBy(100, 0);
-    }
-    
-    openCommandPalette() {
-        // Implementation for command palette
-        console.log('Opening command palette...');
-    }
-    
-    openDashboardSettings() {
-        // Implementation for dashboard settings
-        console.log('Opening dashboard settings...');
-    }
-    
-    showSystemStatus() {
-        // Implementation for system status
-        console.log('Showing system status...');
-    }
-    
-    switchToPreviousDashboard() {
-        // Implementation for switching dashboards
-        console.log('Switching to previous dashboard...');
-    }
-    
-    switchToNextDashboard() {
-        // Implementation for switching dashboards
-        console.log('Switching to next dashboard...');
-    }
-    
-    openContextMenu() {
-        // Implementation for context menu
-        console.log('Opening context menu...');
-    }
-    
-    handleDoubleTap(e) {
-        // Double tap to toggle fullscreen mode
-        this.expandCurrentSection();
-        this.showGestureResult('⛶ Toggle Fullscreen');
-    }
-    
-    navigateToNextMetric() {
-        // Navigate to next metric card
-        console.log('Navigating to next metric...');
-    }
-    
-    navigateToPreviousMetric() {
-        // Navigate to previous metric card
-        console.log('Navigating to previous metric...');
-    }
-    
-    // Enable/Disable Gestures
-    enable() {
-        this.isEnabled = true;
-        console.log('Gesture navigation enabled');
-    }
-    
+
     disable() {
         this.isEnabled = false;
         console.log('Gesture navigation disabled');
     }
-    
-    // Mouse trail for gesture visualization
-    showMouseGestureTrail(x, y) {
-        const trail = document.createElement('div');
-        trail.style.cssText = `
-            position: fixed;
-            left: ${x}px;
-            top: ${y}px;
-            width: 4px;
-            height: 4px;
-            background: rgba(0, 255, 159, 0.8);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            animation: fadeOut 1s forwards;
-        `;
-        
-        document.body.appendChild(trail);
-        
-        setTimeout(() => {
-            if (trail.parentNode) {
-                trail.remove();
-            }
-        }, 1000);
-    }
-    
-    clearMouseGestureTrail() {
-        // Trails are automatically cleared by their timeout
+
+    enable() {
+        this.isEnabled = true;
+        console.log('Gesture navigation enabled');
     }
 }
 
-// Initialize gesture navigation system
-let gestureNav;
+// CSS animations for gesture feedback
+const gestureStyles = document.createElement('style');
+gestureStyles.textContent = `
+    @keyframes gestureRipple {
+        0% {
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 1;
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.7;
+        }
+    }
 
-document.addEventListener('DOMContentLoaded', function() {
-    gestureNav = new GestureNavigationSystem();
-    
-    // Add CSS animations
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.7; }
+    @keyframes gestureRippleOut {
+        0% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.7;
         }
-        
-        @keyframes fadeOut {
-            0% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(0.5); }
+        100% {
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 0;
         }
-        
-        .qnis-main-zone.expanded-view {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 9998;
-            background: rgba(13, 13, 23, 0.98);
-            backdrop-filter: blur(20px);
-        }
-        
-        .qnis-sidebar-zone.expanded {
-            transform: translateX(0);
-        }
-        
-        .gesture-hint {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 255, 159, 0.1);
-            border: 1px solid rgba(0, 255, 159, 0.3);
-            color: #00ff9f;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 12px;
-            z-index: 10001;
-            opacity: 0.8;
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // Show initial gesture hint
-    setTimeout(() => {
-        const hint = document.createElement('div');
-        hint.className = 'gesture-hint';
-        hint.textContent = 'Swipe left/right to navigate • Pinch to zoom • Double tap for fullscreen';
-        document.body.appendChild(hint);
-        
-        setTimeout(() => {
-            if (hint.parentNode) {
-                hint.remove();
-            }
-        }, 5000);
-    }, 2000);
-});
+    }
 
-// Export for external use
-window.GestureNavigationSystem = GestureNavigationSystem;
-window.gestureNav = gestureNav;
+    .gesture-highlight {
+        outline: 3px solid #667eea !important;
+        outline-offset: 2px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.4) !important;
+    }
+
+    .gesture-help-button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .gesture-help-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .gesture-help-panel {
+        position: absolute;
+        bottom: 70px;
+        right: 0;
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        min-width: 280px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .gesture-help-panel h3 {
+        margin: 0 0 15px 0;
+        color: #667eea;
+        font-size: 18px;
+    }
+
+    .gesture-help-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        padding: 8px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .gesture-symbol {
+        width: 60px;
+        text-align: center;
+        font-weight: bold;
+        color: #667eea;
+    }
+
+    .gesture-text {
+        flex: 1;
+        font-size: 14px;
+    }
+
+    .gesture-notification .gesture-icon {
+        font-size: 20px;
+        margin-bottom: 4px;
+    }
+
+    .gesture-notification .gesture-description {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+`;
+
+document.head.appendChild(gestureStyles);
+
+// Initialize gesture controller when DOM is ready
+let gestureController;
+
+function initializeGestureNavigation() {
+    if (typeof GestureNavigationController !== 'undefined') {
+        gestureController = new GestureNavigationController();
+        window.gestureController = gestureController;
+        console.log('✓ Intuitive gesture-based navigation prototype activated');
+    }
+}
+
+// Auto-initialize
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeGestureNavigation);
+} else {
+    initializeGestureNavigation();
+}
+
+// Export for global access
+window.GestureNavigationController = GestureNavigationController;

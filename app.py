@@ -7083,6 +7083,96 @@ def api_gauge_credentials_status():
     except Exception as e:
         return jsonify({'error': str(e), 'status': 'error'})
 
+@app.route('/api/asset-intelligence', methods=['POST'])
+def api_asset_intelligence():
+    """Intelligent asset query processing with context injection"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'No query data received'})
+        
+        user_query = data.get('query', '')
+        if not user_query:
+            return jsonify({'success': False, 'error': 'Query text is required'})
+        
+        # Initialize asset context injector
+        asset_injector = AssetContextInjector()
+        
+        # Extract asset context from query
+        context = asset_injector.inject_asset_context(user_query)
+        asset_ids = asset_injector.extract_asset_ids_from_text(user_query)
+        
+        # Process assets if found
+        processed_assets = []
+        if asset_ids:
+            processed_assets = asset_injector.batch_process_assets(asset_ids)
+        
+        # Generate intelligent response context
+        response_data = {
+            'success': True,
+            'query': user_query,
+            'detected_assets': len(asset_ids),
+            'asset_context': context,
+            'processed_assets': processed_assets,
+            'suggestions': asset_injector.generate_smart_suggestions(user_query[:10]) if len(user_query) < 50 else [],
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        # Add equipment insights if assets detected
+        if processed_assets:
+            equipment_insights = []
+            for asset_data in processed_assets:
+                metadata = asset_data['metadata']
+                if metadata.get('equipment_type'):
+                    equipment_insights.append({
+                        'asset_id': asset_data['original'],
+                        'type': metadata['equipment_type'],
+                        'description': asset_data['description'],
+                        'operator': metadata.get('driver_name', 'Unknown'),
+                        'location': metadata.get('location_code', 'Not specified'),
+                        'status': metadata.get('status_code', 'Active')
+                    })
+            
+            response_data['equipment_insights'] = equipment_insights
+        
+        logging.info(f"Asset intelligence processed: {len(asset_ids)} assets detected in query")
+        return jsonify(response_data)
+        
+    except Exception as e:
+        logging.error(f"Asset intelligence error: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/asset-suggestions')
+def api_asset_suggestions():
+    """Get asset ID suggestions for autocomplete"""
+    try:
+        partial_input = request.args.get('q', '')
+        if len(partial_input) < 2:
+            return jsonify({'suggestions': []})
+        
+        # Sample known assets from Fort Worth fleet
+        known_assets = [
+            "#210013 - MATTHEW C. SHAYLOR",
+            "MT-07 - JAMES WILSON",
+            "DT-08 - MARIA RODRIGUEZ",
+            "BH-16 - DAVID CHEN",
+            "EX-12 - SARAH JOHNSON",
+            "CR-23 - MICHAEL BROWN",
+            "LD-19 - LISA GARCIA",
+            "BZ-15 - ROBERT TAYLOR",
+            "SK-11 - JENNIFER MARTINEZ",
+            "TR-25 - WILLIAM ANDERSON"
+        ]
+        
+        asset_injector = AssetContextInjector()
+        suggestions = asset_injector.generate_smart_suggestions(partial_input, known_assets)
+        
+        return jsonify({'suggestions': suggestions})
+        
+    except Exception as e:
+        logging.error(f"Asset suggestions error: {e}")
+        return jsonify({'suggestions': []})
+
 @app.route('/asset-tracking-map')
 def asset_tracking_map():
     """Live Asset Tracking Map - Real-time telemetry across 152 jobsites"""

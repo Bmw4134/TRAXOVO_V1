@@ -3250,6 +3250,7 @@
     </script>
 
     <!-- Gesture Navigation System Integration -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='gesture_navigation_styles.css') }}">
     <script src="{{ url_for('static', filename='gesture_navigation.js') }}"></script>
     <script>
         // Initialize gesture navigation with asset parsing capabilities
@@ -3259,6 +3260,67 @@
                 if (typeof initializeGestureNavigation === 'function') {
                     initializeGestureNavigation();
                     console.log('✓ Gesture navigation system activated');
+                    
+                    // Test asset intelligence integration
+                    window.testAssetIntelligence = function(query) {
+                        fetch('/api/asset-intelligence', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ query: query })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Asset Intelligence Response:', data);
+                            if (data.success && data.detected_assets > 0) {
+                                showAssetContextPopup(data);
+                            }
+                        })
+                        .catch(error => {
+                            console.log('Asset intelligence using local parsing:', error);
+                            // Fallback to local parsing
+                            const assetData = parseAssetMeta(query);
+                            if (assetData.driverName || assetData.rawId) {
+                                console.log('Local asset parsing result:', assetData);
+                            }
+                        });
+                    };
+                    
+                    // Asset context popup display
+                    window.showAssetContextPopup = function(data) {
+                        const popup = document.createElement('div');
+                        popup.className = 'asset-context-popup visible';
+                        popup.innerHTML = `
+                            <div class="asset-context-header">
+                                <i class="fas fa-search"></i>
+                                Asset Intelligence Detected
+                            </div>
+                            ${data.processed_assets.map(asset => `
+                                <div class="asset-context-item">
+                                    <div class="asset-id">${asset.original}</div>
+                                    <div class="asset-description">${asset.description}</div>
+                                    <div class="asset-metadata">
+                                        ${asset.metadata.driver_name ? `<div class="asset-metadata-item"><span class="asset-metadata-label">Operator:</span> ${asset.metadata.driver_name}</div>` : ''}
+                                        ${asset.metadata.equipment_type ? `<div class="asset-metadata-item"><span class="asset-metadata-label">Type:</span> ${asset.metadata.equipment_type}</div>` : ''}
+                                        ${asset.metadata.location_code ? `<div class="asset-metadata-item"><span class="asset-metadata-label">Location:</span> ${asset.metadata.location_code}</div>` : ''}
+                                        ${asset.metadata.status_code ? `<div class="asset-metadata-item"><span class="asset-metadata-label">Status:</span> ${asset.metadata.status_code}</div>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                            <button onclick="this.parentElement.remove()" style="background: #00ff9f; color: #000; border: none; border-radius: 8px; padding: 10px 20px; margin-top: 15px; cursor: pointer; font-weight: 600;">Close</button>
+                        `;
+                        document.body.appendChild(popup);
+                        
+                        setTimeout(() => {
+                            popup.remove();
+                        }, 8000);
+                    };
+                    
+                    // Demonstration examples
+                    console.log('🚀 TRAXOVO Gesture Navigation & Asset Intelligence Ready');
+                    console.log('Try: testAssetIntelligence("#210013 - MATTHEW C. SHAYLOR")');
+                    console.log('Try: testAssetIntelligence("MT-07 - JAMES WILSON needs maintenance")');
                 }
             }, 1000);
         });

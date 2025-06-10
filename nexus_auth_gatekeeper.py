@@ -260,10 +260,9 @@ def get_access_matrix():
 def setup_auth_routes(app):
     """Setup authentication routes"""
     
-    @app.route('/')
-    @app.route('/landing.html')
-    def landing_page():
-        """Public landing page with login gate"""
+    @app.route('/nexus-landing')
+    def nexus_landing_page():
+        """Nexus authentication landing page"""
         return get_landing_page()
     
     @app.route('/api/nexus-authenticate', methods=['POST'])

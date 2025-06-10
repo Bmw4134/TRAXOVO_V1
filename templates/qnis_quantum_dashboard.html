@@ -1033,27 +1033,21 @@
             `;
         }
         
-        // Dynamic Performance Vector Analysis
+        // Dynamic Performance Vector Analysis - DISABLED to prevent server overload
         function initializeDynamicPerformanceVectors() {
-            console.log('QNIS: Initializing dynamic performance vector analysis...');
+            console.log('QNIS: Performance vector analysis disabled to prevent API overload');
             
-            // Fetch real-time performance data
-            fetch('/api/performance-vector-analysis')
-                .then(response => response.json())
-                .then(data => {
-                    updatePerformanceVectorDisplay(data);
-                    setupPerformanceVectorDrillDowns(data);
-                })
-                .catch(error => {
-                    console.error('Performance vector data error:', error);
-                    // Fallback to CSV data processing
-                    processCsvPerformanceData();
-                });
+            // Use fallback CSV data to prevent excessive API calls
+            processCsvPerformanceData();
             
-            // Auto-refresh every 60 seconds to reduce server load
-            setInterval(() => {
-                refreshPerformanceVectorData();
-            }, 60000);
+            // Controlled refresh - only once every 5 minutes
+            setTimeout(() => {
+                if (window.performanceVectorLastRefresh && Date.now() - window.performanceVectorLastRefresh < 300000) {
+                    return; // Skip if less than 5 minutes
+                }
+                window.performanceVectorLastRefresh = Date.now();
+                processCsvPerformanceData();
+            }, 300000);
         }
 
         function updatePerformanceVectorDisplay(data) {

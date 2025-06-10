@@ -2983,65 +2983,69 @@
 
     <!-- FORCED MOBILE/DESKTOP TOGGLE SYSTEM -->
     <script>
-        // IMMEDIATE INJECTION - CREATE TOGGLE BEFORE ANY OTHER PROCESSING
+        // ULTRA AGGRESSIVE IMMEDIATE INJECTION
         (function() {
-            // Create toggle container immediately
-            const toggleContainer = document.createElement('div');
-            toggleContainer.id = 'emergency-mobile-toggle';
-            toggleContainer.innerHTML = `
-                <button id="emergency-toggle-btn" style="
-                    position: fixed !important;
-                    top: 15px !important;
-                    right: 15px !important;
-                    z-index: 2147483647 !important;
-                    background: linear-gradient(45deg, #00d4ff, #00ff88) !important;
-                    color: #000 !important;
-                    border: none !important;
-                    border-radius: 25px !important;
-                    padding: 14px 20px !important;
-                    font-size: 13px !important;
-                    font-weight: 900 !important;
-                    cursor: pointer !important;
-                    box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6) !important;
-                    display: flex !important;
-                    align-items: center !important;
-                    gap: 8px !important;
-                    min-height: 48px !important;
-                    touch-action: manipulation !important;
-                    user-select: none !important;
-                    font-family: Arial, sans-serif !important;
-                    -webkit-tap-highlight-color: transparent !important;
-                    pointer-events: auto !important;
-                    visibility: visible !important;
-                    opacity: 1 !important;
-                ">
-                    <span id="emergency-icon" style="font-size: 16px !important;">🖥️</span>
-                    <span id="emergency-label" style="font-size: 12px !important;">DESKTOP</span>
-                </button>
-                <div id="emergency-confirmation" style="
-                    position: fixed !important;
-                    top: 75px !important;
-                    right: 15px !important;
-                    z-index: 2147483646 !important;
-                    background: rgba(0, 212, 255, 0.9) !important;
-                    color: #000 !important;
-                    padding: 8px 16px !important;
-                    border-radius: 20px !important;
-                    font-size: 11px !important;
-                    font-weight: 700 !important;
-                    display: none !important;
-                    font-family: Arial, sans-serif !important;
-                ">
-                    <span id="emergency-confirmation-text">VIEW MODE CHANGED</span>
-                </div>
-            `;
-            
-            // Inject immediately into document
-            if (document.head) {
-                document.head.appendChild(toggleContainer);
-            } else {
-                document.documentElement.appendChild(toggleContainer);
+            function createMobileToggle() {
+                // Remove any existing toggle first
+                const existing = document.getElementById('ultra-mobile-toggle');
+                if (existing) existing.remove();
+                
+                // Create the toggle with absolute positioning
+                const style = document.createElement('style');
+                style.textContent = `
+                    #ultra-mobile-toggle {
+                        position: fixed !important;
+                        top: 20px !important;
+                        right: 20px !important;
+                        z-index: 2147483647 !important;
+                        pointer-events: auto !important;
+                        display: block !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                    }
+                    #ultra-toggle-btn {
+                        background: linear-gradient(45deg, #00d4ff, #00ff88) !important;
+                        color: #000 !important;
+                        border: none !important;
+                        border-radius: 25px !important;
+                        padding: 15px 22px !important;
+                        font-size: 14px !important;
+                        font-weight: 900 !important;
+                        cursor: pointer !important;
+                        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.7) !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        gap: 10px !important;
+                        min-height: 50px !important;
+                        touch-action: manipulation !important;
+                        user-select: none !important;
+                        font-family: Arial, sans-serif !important;
+                        -webkit-tap-highlight-color: transparent !important;
+                        transform: scale(1) !important;
+                        transition: transform 0.2s ease !important;
+                    }
+                    #ultra-toggle-btn:active {
+                        transform: scale(0.95) !important;
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                const toggleHtml = '<div id="ultra-mobile-toggle"><button id="ultra-toggle-btn" onclick="window.ultraToggle()"><span style="font-size: 18px;">🖥️</span><span id="ultra-label">DESKTOP</span></button></div>';
+                document.body.insertAdjacentHTML('afterbegin', toggleHtml);
+                
+                console.log('Ultra mobile toggle injected successfully');
             }
+            
+            // Create toggle immediately if DOM ready, otherwise wait
+            if (document.body) {
+                createMobileToggle();
+            } else {
+                document.addEventListener('DOMContentLoaded', createMobileToggle);
+            }
+            
+            // Also try after a short delay to ensure it appears
+            setTimeout(createMobileToggle, 100);
+            setTimeout(createMobileToggle, 500);
         })();
 
         // Force render client state and toggle functionality

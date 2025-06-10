@@ -507,13 +507,39 @@
     </div>
     
     <script>
+        // Error prevention system
+        window.safeGetElement = function(selector) {
+            try {
+                const element = document.querySelector(selector);
+                return element || null;
+            } catch (error) {
+                console.warn(`Element not found: ${selector}`);
+                return null;
+            }
+        };
+        
+        window.safeSetStyle = function(selector, property, value) {
+            const element = window.safeGetElement(selector);
+            if (element && element.style) {
+                element.style[property] = value;
+                return true;
+            }
+            return false;
+        };
+        
         function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'block';
-            loadModalContent(modalId);
+            const modal = window.safeGetElement('#' + modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                loadModalContent(modalId);
+            }
         }
         
         function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
+            const modal = window.safeGetElement('#' + modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
         }
         
         function loadModalContent(modalId) {
@@ -554,10 +580,16 @@
             fetch(endpoint)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById(contentId).innerHTML = formatData(data, modalId);
+                    const content = window.safeGetElement('#' + contentId);
+                    if (content) {
+                        content.innerHTML = formatData(data, modalId);
+                    }
                 })
                 .catch(error => {
-                    document.getElementById(contentId).innerHTML = '<p>Error loading data: ' + error.message + '</p>';
+                    const content = window.safeGetElement('#' + contentId);
+                    if (content) {
+                        content.innerHTML = '<p>Error loading data: ' + error.message + '</p>';
+                    }
                 });
         }
         

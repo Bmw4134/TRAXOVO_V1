@@ -3,7 +3,7 @@ QNIS/PTNIS Quantum UI Evolution System
 Advanced Enterprise Intelligence Interface
 */
 
-/* Quantum Grid Foundation */
+/* Quantum Grid Foundation - Fixed Scaling */
 .qnis-quantum-grid {
     display: grid;
     grid-template-columns: 280px 1fr;
@@ -12,11 +12,46 @@ Advanced Enterprise Intelligence Interface
         "qnis-nav qnis-header"
         "qnis-sidebar qnis-main";
     height: 100vh;
+    width: 100%;
     gap: 0;
+    overflow-x: hidden;
     background: linear-gradient(135deg, 
         rgba(13, 13, 23, 0.98) 0%,
         rgba(26, 26, 46, 0.95) 50%,
         rgba(13, 13, 23, 0.98) 100%);
+}
+
+/* Responsive Grid Fixes */
+@media (max-width: 1200px) {
+    .qnis-quantum-grid {
+        grid-template-columns: 260px 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .qnis-quantum-grid {
+        grid-template-areas: 
+            "qnis-header qnis-header"
+            "qnis-main qnis-main";
+        grid-template-columns: 1fr;
+        grid-template-rows: 70px 1fr;
+    }
+    
+    .qnis-sidebar-zone {
+        position: fixed;
+        left: -280px;
+        top: 70px;
+        height: calc(100vh - 70px);
+        width: 280px;
+        z-index: 2000;
+        transition: left 0.3s ease;
+        background: rgba(13, 13, 23, 0.98);
+        backdrop-filter: blur(20px);
+    }
+    
+    .qnis-sidebar-zone.mobile-open {
+        left: 0;
+    }
 }
 
 /* QNIS Header Quantum Enhancement */

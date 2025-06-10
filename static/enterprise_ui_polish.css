@@ -1,0 +1,617 @@
+/**
+ * TRAXOVO Enterprise UI Polish - Billion Dollar Company Standards
+ * Inspired by AWS Console, Palantir Foundry, Microsoft Azure, Google Cloud
+ */
+
+/* Reset and Base Enterprise Styling */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    /* Enterprise Color Palette - Inspired by AWS/Azure */
+    --enterprise-primary: #0066cc;
+    --enterprise-secondary: #232f3e;
+    --enterprise-accent: #ff9900;
+    --enterprise-success: #00875a;
+    --enterprise-warning: #ff8b00;
+    --enterprise-danger: #de350b;
+    --enterprise-info: #0073e6;
+    
+    /* Sophisticated Neutrals */
+    --enterprise-bg-primary: #fafbfc;
+    --enterprise-bg-secondary: #ffffff;
+    --enterprise-bg-elevated: #ffffff;
+    --enterprise-border-subtle: #dfe1e6;
+    --enterprise-border-medium: #c1c7d0;
+    --enterprise-text-primary: #172b4d;
+    --enterprise-text-secondary: #6b778c;
+    --enterprise-text-disabled: #97a0af;
+    
+    /* Dark Theme Variables */
+    --enterprise-dark-bg: #0f1419;
+    --enterprise-dark-surface: #1a1f2e;
+    --enterprise-dark-elevated: #232937;
+    --enterprise-dark-border: #2c3548;
+    --enterprise-dark-text: #ffffff;
+    --enterprise-dark-text-secondary: #8993a4;
+    
+    /* Spacing Scale (AWS-inspired) */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-xxl: 48px;
+    
+    /* Typography Scale */
+    --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    --font-family-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    
+    /* Shadow System (Material Design 3.0 inspired) */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    /* Border Radius Scale */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+    
+    /* Animation Timing */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-medium: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Body Styling */
+body {
+    font-family: var(--font-family-primary) !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    color: var(--enterprise-text-primary) !important;
+    background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%) !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+
+/* Enterprise Header - AWS Console Style */
+.qnis-header-zone {
+    background: rgba(26, 31, 46, 0.98) !important;
+    border-bottom: 1px solid rgba(0, 255, 159, 0.2) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
+    padding: 0 var(--space-xl) !important;
+    height: 72px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+}
+
+/* Override existing styles that clash */
+.qnis-header-zone * {
+    color: white !important;
+}
+
+.qnis-header-zone h1,
+.qnis-header-zone .qnis-logo-section h1 {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    color: #00ff9f !important;
+    letter-spacing: -0.025em !important;
+    text-shadow: 0 0 20px rgba(0, 255, 159, 0.3) !important;
+}
+
+.qnis-logo-section {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.qnis-logo-section h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--enterprise-text-primary);
+    letter-spacing: -0.025em;
+}
+
+.qnis-logo-section .enterprise-badge {
+    background: linear-gradient(135deg, var(--enterprise-primary), var(--enterprise-info));
+    color: white;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Navigation Tabs - Palantir Style */
+.qnis-nav-tabs {
+    display: flex;
+    gap: var(--space-xs);
+    background: none;
+}
+
+.qnis-nav-tab {
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    color: var(--enterprise-text-secondary);
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    position: relative;
+}
+
+.qnis-nav-tab:hover {
+    background: var(--enterprise-bg-primary);
+    color: var(--enterprise-text-primary);
+    border-color: var(--enterprise-border-subtle);
+}
+
+.qnis-nav-tab.active {
+    background: var(--enterprise-primary);
+    color: white;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+}
+
+.qnis-nav-tab i {
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+/* Action Buttons - Azure Style */
+.qnis-quantum-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--enterprise-border-medium);
+    border-radius: var(--radius-md);
+    background: var(--enterprise-bg-secondary);
+    color: var(--enterprise-text-primary);
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.qnis-quantum-btn:hover {
+    background: var(--enterprise-bg-primary);
+    border-color: var(--enterprise-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.qnis-quantum-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.qnis-quantum-btn.primary {
+    background: var(--enterprise-primary);
+    color: white;
+    border-color: var(--enterprise-primary);
+}
+
+.qnis-quantum-btn.primary:hover {
+    background: #0052a3;
+    border-color: #0052a3;
+}
+
+/* Sidebar - Google Cloud Style */
+.qnis-sidebar-zone {
+    background: var(--enterprise-bg-secondary);
+    border-right: 1px solid var(--enterprise-border-subtle);
+    width: 280px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+    padding: var(--space-lg) 0;
+}
+
+.qnis-sidebar-section {
+    margin-bottom: var(--space-xl);
+}
+
+.qnis-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--enterprise-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-md);
+    padding: 0 var(--space-lg);
+}
+
+.qnis-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    color: var(--enterprise-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border-left: 3px solid transparent;
+    position: relative;
+}
+
+.qnis-sidebar-item:hover {
+    background: var(--enterprise-bg-primary);
+    color: var(--enterprise-text-primary);
+}
+
+.qnis-sidebar-item.active {
+    background: rgba(0, 102, 204, 0.08);
+    color: var(--enterprise-primary);
+    border-left-color: var(--enterprise-primary);
+    font-weight: 600;
+}
+
+.qnis-sidebar-item i {
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Main Content Area */
+.qnis-main-content {
+    flex: 1;
+    padding: var(--space-xl);
+    overflow-y: auto;
+    height: calc(100vh - 64px);
+    background: var(--enterprise-bg-primary);
+}
+
+/* Metric Cards - AWS CloudWatch Style */
+.qnis-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.qnis-metric-card {
+    background: var(--enterprise-bg-secondary);
+    border: 1px solid var(--enterprise-border-subtle);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    cursor: pointer;
+    transition: all var(--transition-medium);
+    position: relative;
+    overflow: hidden;
+}
+
+.qnis-metric-card:hover {
+    border-color: var(--enterprise-primary);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.qnis-metric-card.qnis-drill-enabled::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, transparent 50%, var(--enterprise-primary) 50%);
+    opacity: 0.1;
+}
+
+.qnis-metric-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--enterprise-text-primary);
+    margin-bottom: var(--space-sm);
+    font-variant-numeric: tabular-nums;
+}
+
+.qnis-metric-label {
+    font-size: 14px;
+    color: var(--enterprise-text-secondary);
+    font-weight: 500;
+    margin-bottom: var(--space-sm);
+}
+
+.qnis-enhancement-badge {
+    display: inline-block;
+    background: var(--enterprise-accent);
+    color: white;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.qnis-drill-indicator {
+    position: absolute;
+    bottom: var(--space-md);
+    right: var(--space-md);
+    font-size: 12px;
+    color: var(--enterprise-primary);
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.qnis-metric-card:hover .qnis-drill-indicator {
+    opacity: 1;
+}
+
+/* Content Sections */
+.qnis-content-section {
+    background: var(--enterprise-bg-secondary);
+    border: 1px solid var(--enterprise-border-subtle);
+    border-radius: var(--radius-xl);
+    margin-bottom: var(--space-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.qnis-section-header {
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--enterprise-border-subtle);
+    background: linear-gradient(135deg, var(--enterprise-bg-secondary) 0%, var(--enterprise-bg-primary) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.qnis-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--enterprise-text-primary);
+    margin: 0;
+}
+
+.qnis-section-content {
+    padding: var(--space-lg);
+}
+
+/* Tables - Enterprise Grade */
+.qnis-quantum-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.qnis-quantum-table th {
+    background: var(--enterprise-bg-primary);
+    color: var(--enterprise-text-secondary);
+    font-weight: 600;
+    text-align: left;
+    padding: var(--space-md);
+    border-bottom: 2px solid var(--enterprise-border-subtle);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.qnis-quantum-table td {
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--enterprise-border-subtle);
+    color: var(--enterprise-text-primary);
+    vertical-align: middle;
+}
+
+.qnis-quantum-table tr:hover {
+    background: var(--enterprise-bg-primary);
+}
+
+/* Status Indicators */
+.qnis-status-active {
+    color: var(--enterprise-success);
+    font-weight: 600;
+}
+
+.qnis-status-warning {
+    color: var(--enterprise-warning);
+    font-weight: 600;
+}
+
+.qnis-status-critical {
+    color: var(--enterprise-danger);
+    font-weight: 600;
+}
+
+/* Modal System - Palantir Inspired */
+.qnis-drill-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: modalFadeIn var(--transition-medium);
+}
+
+.qnis-drill-content {
+    background: var(--enterprise-bg-secondary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: modalSlideIn var(--transition-medium);
+}
+
+.qnis-drill-header {
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--enterprise-border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--enterprise-bg-primary);
+}
+
+.qnis-drill-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--enterprise-text-primary);
+    margin: 0;
+}
+
+.qnis-drill-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--enterprise-text-secondary);
+    cursor: pointer;
+    padding: var(--space-sm);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.qnis-drill-close:hover {
+    background: var(--enterprise-bg-primary);
+    color: var(--enterprise-text-primary);
+}
+
+.qnis-drill-body {
+    padding: var(--space-lg);
+    overflow-y: auto;
+    max-height: calc(90vh - 100px);
+}
+
+/* Animations */
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Asset Map Enhancements */
+#assetMapContainer {
+    border: 1px solid var(--enterprise-border-subtle);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    background: var(--enterprise-bg-secondary);
+}
+
+#mapControls button {
+    background: var(--enterprise-bg-secondary);
+    border: 1px solid var(--enterprise-border-medium);
+    color: var(--enterprise-text-primary);
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+}
+
+#mapControls button:hover {
+    background: var(--enterprise-primary);
+    color: white;
+    border-color: var(--enterprise-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+#mapLegend {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--enterprise-border-subtle);
+    border-radius: var(--radius-lg);
+    color: var(--enterprise-text-primary);
+    font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .qnis-sidebar-zone {
+        width: 240px;
+    }
+    
+    .qnis-metrics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: var(--space-md);
+    }
+}
+
+@media (max-width: 768px) {
+    .qnis-header-zone {
+        padding: 0 var(--space-md);
+    }
+    
+    .qnis-nav-tabs {
+        gap: var(--space-xs);
+    }
+    
+    .qnis-nav-tab {
+        padding: var(--space-sm);
+        font-size: 12px;
+    }
+    
+    .qnis-nav-tab span {
+        display: none;
+    }
+    
+    .qnis-main-content {
+        padding: var(--space-lg);
+    }
+    
+    .qnis-metrics-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+    }
+}
+
+/* Focus States for Accessibility */
+.qnis-nav-tab:focus,
+.qnis-quantum-btn:focus,
+.qnis-sidebar-item:focus {
+    outline: 2px solid var(--enterprise-primary);
+    outline-offset: 2px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    :root {
+        --enterprise-border-subtle: #000000;
+        --enterprise-text-secondary: #000000;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

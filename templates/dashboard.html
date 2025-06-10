@@ -2,9 +2,116 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TRAXOVO NEXUS - Executive Dashboard</title>
+    <link rel="stylesheet" href="/static/mobile_iphone_fix.css">
     <style>
+        /* Mobile Navigation and Full Site Toggle */
+        .mobile-nav-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+            display: none;
+        }
+        
+        .mobile-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .desktop-toggle {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .desktop-toggle:hover {
+            background: rgba(0, 255, 136, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .mobile-menu-toggle {
+            background: none;
+            border: none;
+            color: #00ff88;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .mobile-nav-menu {
+            display: none;
+            background: rgba(26, 26, 46, 0.95);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .mobile-nav-menu.active {
+            display: block;
+        }
+        
+        .mobile-nav-item {
+            display: block;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 3px solid #00ff88;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-nav-item:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: translateX(5px);
+        }
+        
+        /* Show mobile nav on small screens */
+        @media screen and (max-width: 768px) {
+            .mobile-nav-header {
+                display: block;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 15px;
+            }
+        }
+        
+        /* Desktop view force toggle */
+        .force-desktop {
+            min-width: 1200px !important;
+        }
+        
+        .force-desktop .mobile-nav-header {
+            display: none !important;
+        }
+        
+        .force-desktop .main-grid {
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)) !important;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -200,6 +307,30 @@
     </style>
 </head>
 <body>
+    <!-- Mobile Navigation Header -->
+    <div class="mobile-nav-header">
+        <div class="mobile-controls">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="color: #00ff88; font-weight: bold;">📱 TRAXOVO Mobile</span>
+            </div>
+            <button class="desktop-toggle" onclick="toggleDesktopView()">🖥️ Full Site</button>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="color: #00ff88; margin: 0; font-size: 1.2rem;">Executive Dashboard</h2>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+        </div>
+        <div class="mobile-nav-menu" id="mobileNavMenu">
+            <a href="#assets" class="mobile-nav-item" onclick="scrollToSection('assets')">📊 Asset Overview</a>
+            <a href="#performance" class="mobile-nav-item" onclick="scrollToSection('performance')">📈 Performance</a>
+            <a href="#fleet" class="mobile-nav-item" onclick="scrollToSection('fleet')">🚛 Fleet Tracking</a>
+            <a href="#analytics" class="mobile-nav-item" onclick="scrollToSection('analytics')">🧠 Analytics</a>
+            <a href="#apis" class="mobile-nav-item" onclick="scrollToSection('apis')">🔗 API Management</a>
+            <a href="/telematics-map" class="mobile-nav-item">🗺️ Maps & GPS</a>
+            <a href="/crypto-dashboard" class="mobile-nav-item">💰 Trading</a>
+            <a href="/browser-automation" class="mobile-nav-item">🤖 Automation</a>
+        </div>
+    </div>
+    
     <div class="header">
         <h1>🚀 TRAXOVO NEXUS</h1>
         <p>Executive Intelligence Platform with QNIS Quantum Enhancement</p>
@@ -511,6 +642,60 @@
                 event.target.style.display = 'none';
             }
         }
+        
+        // Mobile Navigation Functions
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileNavMenu');
+            menu.classList.toggle('active');
+        }
+        
+        function toggleDesktopView() {
+            const body = document.body;
+            const isDesktop = body.classList.contains('force-desktop');
+            
+            if (isDesktop) {
+                body.classList.remove('force-desktop');
+                localStorage.setItem('traxovo_view_mode', 'mobile');
+            } else {
+                body.classList.add('force-desktop');
+                localStorage.setItem('traxovo_view_mode', 'desktop');
+            }
+            
+            // Refresh page to apply changes
+            window.location.reload();
+        }
+        
+        function scrollToSection(section) {
+            const menu = document.getElementById('mobileNavMenu');
+            menu.classList.remove('active');
+            
+            // Scroll to relevant section
+            switch(section) {
+                case 'assets':
+                    document.querySelector('.dashboard-card').scrollIntoView({ behavior: 'smooth' });
+                    break;
+                case 'performance':
+                    document.querySelectorAll('.dashboard-card')[3].scrollIntoView({ behavior: 'smooth' });
+                    break;
+                case 'fleet':
+                    document.querySelectorAll('.dashboard-card')[2].scrollIntoView({ behavior: 'smooth' });
+                    break;
+                case 'analytics':
+                    document.querySelector('.api-showcase').scrollIntoView({ behavior: 'smooth' });
+                    break;
+                case 'apis':
+                    document.querySelector('.api-showcase').scrollIntoView({ behavior: 'smooth' });
+                    break;
+            }
+        }
+        
+        // Check stored view preference on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const viewMode = localStorage.getItem('traxovo_view_mode');
+            if (viewMode === 'desktop') {
+                document.body.classList.add('force-desktop');
+            }
+        });
     </script>
 </body>
 </html>

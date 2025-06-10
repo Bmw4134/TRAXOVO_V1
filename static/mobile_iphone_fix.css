@@ -1,0 +1,348 @@
+/* TRAXOVO iPhone Display Fix - Complete Mobile Optimization */
+
+/* iPhone Safari Viewport Fix */
+@supports (-webkit-touch-callout: none) {
+    html {
+        -webkit-text-size-adjust: 100%;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    body {
+        -webkit-overflow-scrolling: touch;
+        position: relative;
+        width: 100%;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+        background-attachment: fixed;
+    }
+}
+
+/* iPhone Specific Media Queries */
+@media only screen and (max-device-width: 812px) and (-webkit-device-pixel-ratio: 3) {
+    /* iPhone X/11/12/13/14/15 series */
+    .dashboard-container {
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        padding-top: max(env(safe-area-inset-top), 20px);
+        padding-bottom: max(env(safe-area-inset-bottom), 20px);
+    }
+    
+    .header-section {
+        margin-top: env(safe-area-inset-top);
+        padding: 20px 15px;
+    }
+    
+    .header-section h1 {
+        font-size: 2.5rem;
+        line-height: 1.2;
+        margin-bottom: 10px;
+    }
+    
+    .header-section p {
+        font-size: 1rem;
+        line-height: 1.4;
+    }
+}
+
+/* Universal iPhone Portrait */
+@media screen and (max-width: 430px) and (orientation: portrait) {
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    html {
+        font-size: 14px;
+        height: 100%;
+    }
+    
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #ffffff;
+        background: #0f0f23;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+    }
+    
+    .container, .dashboard-container {
+        width: 100%;
+        max-width: 100vw;
+        padding: 15px;
+        margin: 0;
+        box-sizing: border-box;
+    }
+    
+    /* Mobile Navigation Fix */
+    .mobile-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: rgba(15, 15, 35, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 10px 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Header Mobile Optimization */
+    .header {
+        text-align: center;
+        padding: 20px 0;
+    }
+    
+    .header h1 {
+        font-size: 2rem !important;
+        font-weight: 700;
+        margin-bottom: 8px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        color: #00ff88;
+    }
+    
+    .header p {
+        font-size: 0.9rem !important;
+        opacity: 0.9;
+        margin-bottom: 0;
+        line-height: 1.4;
+    }
+    
+    /* Metrics Grid Mobile */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin: 20px 0;
+        width: 100%;
+    }
+    
+    .metric-card {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .metric-card h3 {
+        font-size: 1rem;
+        margin-bottom: 12px;
+        color: #87ceeb;
+        font-weight: 600;
+    }
+    
+    .metric-value {
+        font-size: 2rem !important;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #00ff88;
+        line-height: 1.1;
+    }
+    
+    .metric-label {
+        font-size: 0.85rem;
+        opacity: 0.8;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    /* Status Grid Mobile */
+    .status-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 20px 0;
+    }
+    
+    .status-item {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 15px 10px;
+        text-align: center;
+        border-left: 3px solid #00ff88;
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .status-item h4 {
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+        color: #ffffff;
+        font-weight: 600;
+    }
+    
+    .status-item p {
+        font-size: 0.8rem;
+        margin: 0;
+        opacity: 0.8;
+        color: #00ff88;
+    }
+    
+    /* Dashboard Section Mobile */
+    .dashboard-section {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 20px 15px;
+        margin: 20px 0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .dashboard-section h2 {
+        font-size: 1.4rem;
+        margin-bottom: 15px;
+        color: #00ff88;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    /* Form Elements Mobile */
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-label {
+        display: block;
+        color: #00ff88;
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 12px 15px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(0, 255, 136, 0.3);
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 16px; /* Prevents zoom on iOS */
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #00ff88;
+        box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+    }
+    
+    /* Button Mobile */
+    .btn, .btn-login, .access-btn {
+        width: 100%;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        box-sizing: border-box;
+    }
+    
+    .btn-login {
+        background: linear-gradient(45deg, #00ff88, #00cc6a);
+        color: #1a1a2e;
+    }
+    
+    .access-btn {
+        background: rgba(0, 191, 255, 0.2);
+        border: 1px solid #00bfff;
+        color: #00bfff;
+    }
+    
+    /* Touch Optimizations */
+    .btn:active, .metric-card:active, .status-item:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
+    }
+    
+    /* Text Readability */
+    p, span, div {
+        line-height: 1.5;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Scrolling Performance */
+    .scrollable {
+        -webkit-overflow-scrolling: touch;
+        transform: translateZ(0);
+    }
+    
+    /* Hide elements that don't work well on mobile */
+    .desktop-only {
+        display: none !important;
+    }
+    
+    /* Ensure visibility */
+    .mobile-visible {
+        display: block !important;
+        visibility: visible !important;
+    }
+}
+
+/* Landscape iPhone */
+@media screen and (max-width: 896px) and (orientation: landscape) and (max-height: 430px) {
+    .container {
+        padding: 10px 15px;
+    }
+    
+    .header {
+        padding: 15px 0;
+    }
+    
+    .header h1 {
+        font-size: 1.8rem !important;
+        margin-bottom: 5px;
+    }
+    
+    .header p {
+        font-size: 0.8rem !important;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 15px 0;
+    }
+    
+    .metric-card {
+        padding: 15px;
+    }
+    
+    .metric-value {
+        font-size: 1.5rem !important;
+    }
+}
+
+/* iOS Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #000000;
+        color: #ffffff;
+    }
+    
+    .metric-card, .status-item, .dashboard-section {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* High DPI iPhone Displays */
+@media screen and (-webkit-min-device-pixel-ratio: 2), screen and (min-resolution: 192dpi) {
+    .metric-value, .header h1 {
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+    }
+}

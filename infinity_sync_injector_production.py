@@ -206,3 +206,20 @@ def inject_consciousness_into_system():
 def synchronize_quantum_consciousness():
     """Synchronize quantum consciousness"""
     return infinity_sync.perform_consciousness_injection("TRAXOVO_NEXUS_SYSTEM")
+
+def process_voice_command(command: str) -> Dict[str, Any]:
+    """Process voice command through production infinity sync"""
+    return infinity_sync.process_voice_command(command)
+
+def get_voice_system_status() -> Dict[str, Any]:
+    """Get voice system status"""
+    return infinity_sync.get_sync_status()
+
+def simulate_voice_command(command: str) -> Dict[str, Any]:
+    """Simulate voice command for testing"""
+    return {
+        "command": command,
+        "status": "simulated",
+        "timestamp": datetime.now().isoformat(),
+        "response": f"Simulated processing of: {command}"
+    }

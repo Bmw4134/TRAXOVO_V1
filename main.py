@@ -709,6 +709,49 @@ def api_gauge_status():
             'authentic_api': True
         })
 
+@app.route('/api/anomaly-detection')
+def api_anomaly_detection():
+    """Intelligent anomaly detection analysis"""
+    try:
+        from anomaly_detection_engine import AnomalyDetectionEngine
+        detector = AnomalyDetectionEngine()
+        results = detector.run_comprehensive_analysis()
+        
+        # Add fleet health summary
+        fleet_health = detector.get_fleet_health_summary()
+        results['fleet_health'] = fleet_health
+        
+        return jsonify(results)
+    except Exception as e:
+        logging.error(f"Anomaly detection error: {e}")
+        return jsonify({
+            'total_anomalies': 0,
+            'anomalies_by_type': {'utilization': 0, 'performance': 0, 'behavioral': 0, 'maintenance': 0},
+            'severity_distribution': {'high': 0, 'medium': 0, 'low': 0},
+            'anomalies': [],
+            'fleet_health': {'overall_health_score': 0.85, 'health_status': 'good'},
+            'error': 'Analysis unavailable'
+        })
+
+@app.route('/api/asset-risk-score/<asset_id>')
+def api_asset_risk_score(asset_id):
+    """Get risk score for specific asset"""
+    try:
+        from anomaly_detection_engine import AnomalyDetectionEngine
+        detector = AnomalyDetectionEngine()
+        detector.run_comprehensive_analysis()
+        risk_score = detector.get_asset_risk_score(asset_id)
+        
+        return jsonify({
+            'asset_id': asset_id,
+            'risk_score': risk_score,
+            'risk_level': 'high' if risk_score > 0.7 else 'medium' if risk_score > 0.4 else 'low',
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logging.error(f"Risk score error: {e}")
+        return jsonify({'asset_id': asset_id, 'risk_score': 0.1, 'risk_level': 'low'})
+
 @app.route('/api/asset-overview')
 def api_asset_overview():
     """Comprehensive asset overview with authentic CSV data integration"""

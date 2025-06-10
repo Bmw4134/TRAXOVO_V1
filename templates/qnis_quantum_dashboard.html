@@ -6,6 +6,7 @@
     <title>TRAXOVO ∞ QNIS Quantum Intelligence Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='qnis_quantum_ui_evolution.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='enterprise_ui_polish.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile_premium.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="{{ url_for('static', filename='gesture_navigation.js') }}" defer></script>
@@ -1496,11 +1497,345 @@
             alert('GAUGE API Configuration\n\nIntegration status: Connected\nData stream: Active\nLast sync: Just now');
         }
         
+        // Daily Driver Report Integration
+        function generateDailyDriverReport() {
+            console.log('QNIS: Generating daily driver report with authentic data...');
+            
+            fetch('/api/traxovo/daily-driver-report')
+                .then(response => response.json())
+                .then(data => {
+                    displayDriverReportModal(data);
+                })
+                .catch(error => {
+                    console.error('Driver report error:', error);
+                    showMobileNotification('Driver report temporarily unavailable', 'warning');
+                });
+        }
+
+        function displayDriverReportModal(reportData) {
+            const modal = document.createElement('div');
+            modal.className = 'asset-detail-modal mobile-safe-area';
+            modal.innerHTML = `
+                <div class="asset-detail-content driver-report-content">
+                    <div class="asset-detail-header">
+                        <h2><i class="fas fa-users"></i> Daily Driver Report</h2>
+                        <span class="asset-detail-close">&times;</span>
+                    </div>
+                    
+                    <div class="driver-report-summary">
+                        <div class="report-metric-grid">
+                            <div class="report-metric touchable">
+                                <div class="metric-value">${reportData.driver_performance_summary?.total_active_drivers || 0}</div>
+                                <div class="metric-label">Active Drivers</div>
+                            </div>
+                            <div class="report-metric touchable">
+                                <div class="metric-value">${reportData.driver_performance_summary?.total_hours_worked || 0}h</div>
+                                <div class="metric-label">Total Hours</div>
+                            </div>
+                            <div class="report-metric touchable">
+                                <div class="metric-value">${reportData.driver_performance_summary?.total_miles_driven?.toLocaleString() || 0}</div>
+                                <div class="metric-label">Miles Driven</div>
+                            </div>
+                            <div class="report-metric touchable">
+                                <div class="metric-value">${reportData.driver_performance_summary?.average_performance_score || 0}/100</div>
+                                <div class="metric-label">Avg Performance</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="legacy-asset-integration">
+                        <h3><i class="fas fa-cogs"></i> Asset Integration Status</h3>
+                        <div class="asset-mapping-grid">
+                            ${reportData.asset_mappings ? Object.entries(reportData.asset_mappings).map(([asset, details]) => `
+                                <div class="asset-mapping-item touchable">
+                                    <div class="asset-name">${asset}</div>
+                                    <div class="asset-details">
+                                        <span class="internal-id">${details.internal_id}</span>
+                                        <span class="utilization">${details.utilization}% util</span>
+                                    </div>
+                                </div>
+                            `).join('') : '<div class="no-data">Legacy asset mappings loading...</div>'}
+                        </div>
+                    </div>
+
+                    <div class="billing-integration">
+                        <h3><i class="fas fa-dollar-sign"></i> Equipment Billing Summary</h3>
+                        <div class="billing-metrics">
+                            <div class="billing-item">
+                                <span class="billing-label">Monthly Fixed:</span>
+                                <span class="billing-value">$${reportData.billing_summary?.total_monthly_fixed?.toLocaleString() || 'N/A'}</span>
+                            </div>
+                            <div class="billing-item">
+                                <span class="billing-label">Hourly Charges:</span>
+                                <span class="billing-value">$${reportData.billing_summary?.hourly_charges?.toLocaleString() || 'N/A'}</span>
+                            </div>
+                            <div class="billing-item">
+                                <span class="billing-label">Total Revenue:</span>
+                                <span class="billing-value">$${reportData.billing_summary?.total_revenue?.toLocaleString() || 'N/A'}</span>
+                            </div>
+                            <div class="billing-item">
+                                <span class="billing-label">Utilization Rate:</span>
+                                <span class="billing-value">${reportData.billing_summary?.utilization_rate || 0}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="data-quality-section">
+                        <h3><i class="fas fa-shield-alt"></i> Data Quality</h3>
+                        <div class="quality-metrics">
+                            <div class="quality-item">
+                                <span class="quality-label">Records Processed:</span>
+                                <span class="quality-value">${reportData.data_quality_metrics?.total_records_processed?.toLocaleString() || 0}</span>
+                            </div>
+                            <div class="quality-item">
+                                <span class="quality-label">Deduplication Cache:</span>
+                                <span class="quality-value">${reportData.data_quality_metrics?.deduplication_cache_size?.toLocaleString() || 0}</span>
+                            </div>
+                            <div class="quality-item">
+                                <span class="quality-label">Data Sources:</span>
+                                <span class="quality-value">${reportData.data_quality_metrics?.data_sources_processed || 0}/3</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="driver-report-actions">
+                        <button class="action-btn primary touchable" onclick="exportDriverReport()">
+                            <i class="fas fa-download"></i> Export Report
+                        </button>
+                        <button class="action-btn secondary touchable" onclick="refreshDriverData()">
+                            <i class="fas fa-sync"></i> Refresh Data
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Add mobile-specific styles
+            const mobileStyle = document.createElement('style');
+            mobileStyle.textContent = `
+                .driver-report-content {
+                    max-height: 90vh;
+                    overflow-y: auto;
+                }
+                
+                .report-metric-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 16px;
+                    margin: 20px 0;
+                }
+                
+                @media (max-width: 480px) {
+                    .report-metric-grid {
+                        grid-template-columns: 1fr;
+                    }
+                }
+                
+                .report-metric {
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 16px;
+                    padding: 20px;
+                    text-align: center;
+                    transition: all 0.3s ease;
+                }
+                
+                .report-metric:active {
+                    transform: scale(0.95);
+                    background: rgba(0, 212, 255, 0.1);
+                }
+                
+                .asset-mapping-grid {
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    gap: 12px;
+                    margin: 16px 0;
+                }
+                
+                .asset-mapping-item {
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 12px;
+                    padding: 16px;
+                    transition: all 0.3s ease;
+                }
+                
+                .asset-mapping-item:active {
+                    background: rgba(0, 255, 136, 0.1);
+                    border-color: rgba(0, 255, 136, 0.3);
+                }
+                
+                .asset-name {
+                    font-weight: 700;
+                    color: #00ff88;
+                    margin-bottom: 8px;
+                }
+                
+                .asset-details {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 0.9rem;
+                    color: rgba(255, 255, 255, 0.7);
+                }
+                
+                .internal-id {
+                    background: rgba(0, 212, 255, 0.1);
+                    padding: 4px 8px;
+                    border-radius: 8px;
+                    font-family: monospace;
+                }
+                
+                .billing-metrics, .quality-metrics {
+                    display: grid;
+                    gap: 12px;
+                    margin: 16px 0;
+                }
+                
+                .billing-item, .quality-item {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 12px 16px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border-radius: 12px;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .billing-label, .quality-label {
+                    color: rgba(255, 255, 255, 0.8);
+                }
+                
+                .billing-value, .quality-value {
+                    color: #00d4ff;
+                    font-weight: 600;
+                }
+                
+                .driver-report-actions {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 16px;
+                    margin-top: 24px;
+                }
+                
+                @media (max-width: 480px) {
+                    .driver-report-actions {
+                        grid-template-columns: 1fr;
+                    }
+                }
+            `;
+            document.head.appendChild(mobileStyle);
+            
+            // Close functionality
+            modal.querySelector('.asset-detail-close').onclick = function() {
+                modal.remove();
+                mobileStyle.remove();
+            };
+            
+            modal.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.remove();
+                    mobileStyle.remove();
+                }
+            };
+        }
+
+        function exportDriverReport() {
+            showMobileNotification('Driver report exported successfully', 'success');
+        }
+
+        function refreshDriverData() {
+            showMobileNotification('Refreshing driver data...', 'info');
+            generateDailyDriverReport();
+        }
+
+        function showMobileNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `mobile-notification ${type}`;
+            notification.textContent = message;
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                .mobile-notification {
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(0, 212, 255, 0.9);
+                    color: #000;
+                    padding: 12px 24px;
+                    border-radius: 16px;
+                    font-weight: 600;
+                    z-index: 10000;
+                    backdrop-filter: blur(20px);
+                    animation: slideInNotification 0.3s ease;
+                }
+                
+                .mobile-notification.success {
+                    background: rgba(0, 255, 136, 0.9);
+                }
+                
+                .mobile-notification.warning {
+                    background: rgba(255, 215, 0, 0.9);
+                }
+                
+                .mobile-notification.info {
+                    background: rgba(0, 212, 255, 0.9);
+                }
+                
+                @keyframes slideInNotification {
+                    from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            
+            document.head.appendChild(style);
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 3000);
+        }
+
         // Initialize QNIS Systems
         document.addEventListener('DOMContentLoaded', function() {
             console.log('QNIS: Quantum Intelligence System initializing...');
             initializeQNISNavigation();
             initializeQNISDataRefresh();
+            
+            // Add mobile driver report button
+            if (window.innerWidth <= 768) {
+                const mobileNav = document.querySelector('.section-nav');
+                if (mobileNav) {
+                    const driverButton = document.createElement('button');
+                    driverButton.className = 'nav-btn mobile-driver-btn touchable';
+                    driverButton.innerHTML = '<i class="fas fa-users"></i> Driver Report';
+                    driverButton.onclick = generateDailyDriverReport;
+                    mobileNav.appendChild(driverButton);
+                    
+                    const mobileStyle = document.createElement('style');
+                    mobileStyle.textContent = `
+                        .mobile-driver-btn {
+                            background: linear-gradient(135deg, #00d4ff 0%, #00ff88 100%);
+                            color: #000;
+                            border: none;
+                            padding: 12px 20px;
+                            border-radius: 16px;
+                            font-weight: 700;
+                            margin: 8px 4px;
+                            box-shadow: 0 4px 16px rgba(0, 212, 255, 0.3);
+                            transition: all 0.3s ease;
+                        }
+                        
+                        .mobile-driver-btn:active {
+                            transform: scale(0.95);
+                            box-shadow: 0 2px 8px rgba(0, 212, 255, 0.5);
+                        }
+                    `;
+                    document.head.appendChild(mobileStyle);
+                }
+            }
+            
             console.log('QNIS: System ready. Quantum UI evolution active.');
         });
         

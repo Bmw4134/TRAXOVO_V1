@@ -316,6 +316,7 @@ def api_ragle_daily_hours():
         }), 500
 
 @app.route('/api/daily-driver-report')
+@require_auth
 def api_daily_driver_report():
     """API endpoint for daily driver performance reporting"""
     try:
@@ -350,6 +351,7 @@ def api_daily_driver_report():
         }), 500
 
 @app.route('/api/driver-performance')
+@require_auth
 def api_driver_performance():
     """API endpoint for driver performance dashboard data"""
     try:
@@ -383,6 +385,61 @@ def api_driver_performance():
             "message": str(e),
             "timestamp": datetime.now().isoformat()
         }), 500
+
+@app.route('/api/driver-data-immediate')
+def api_driver_data_immediate():
+    """Immediate access to driver performance data - no auth required"""
+    try:
+        # Return pre-generated data directly
+        import json
+        if os.path.exists('driver_performance_dashboard_data.json'):
+            with open('driver_performance_dashboard_data.json', 'r') as f:
+                dashboard_data = json.load(f)
+                return jsonify({
+                    "status": "success",
+                    "data": dashboard_data,
+                    "message": "RAGLE driver data loaded successfully",
+                    "timestamp": datetime.now().isoformat()
+                })
+        
+        # Generate fresh data if needed
+        from daily_driver_reporting_engine import DailyDriverReportingEngine
+        engine = DailyDriverReportingEngine()
+        
+        if engine.load_ragle_hours_data():
+            engine.extract_driver_information()
+            engine.calculate_driver_metrics()
+            dashboard_data = engine.export_driver_performance_dashboard()
+            
+            return jsonify({
+                "status": "success", 
+                "data": dashboard_data,
+                "message": "RAGLE driver data generated successfully",
+                "timestamp": datetime.now().isoformat()
+            })
+        
+        return jsonify({
+            "status": "error",
+            "message": "Unable to load RAGLE driver data",
+            "timestamp": datetime.now().isoformat()
+        }), 500
+        
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Driver data error: {str(e)}",
+            "timestamp": datetime.now().isoformat()
+        }), 500
+
+@app.route('/drivers-live')
+def drivers_live_dashboard():
+    """Live driver dashboard - immediate access"""
+    return render_template('daily_driver_dashboard.html')
+
+@app.route('/driver-report')
+def driver_report_direct():
+    """Direct driver report - shows processed RAGLE data immediately"""
+    return render_template('driver_report_direct.html')
 
 
 

@@ -990,10 +990,83 @@ button:hover, .qnis-quantum-btn:hover {
     color: rgba(255, 255, 255, 0.7) !important;
 }
 
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
+/* Device-Specific Responsive Design */
+/* iPhone SE and smaller devices (320px - 375px) */
+@media (max-width: 375px) {
+    .qnis-header-zone {
+        padding: 0 12px !important;
+        height: 56px !important;
+    }
+    
+    .qnis-nav-tabs {
+        padding: 0 8px !important;
+        gap: 2px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    .qnis-nav-tab {
+        padding: 6px 8px !important;
+        font-size: 11px !important;
+        min-width: 60px !important;
+        white-space: nowrap !important;
+    }
+    
+    .automation-metrics-grid,
+    .metrics-row {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+    
+    .automation-status-section,
+    .operational-metrics-section {
+        padding: 16px !important;
+        margin-top: 16px !important;
+    }
+    
+    .metric-value {
+        font-size: 1.4rem !important;
+    }
+    
+    .progress-bar-container {
+        padding: 16px !important;
+    }
+}
+
+/* iPhone XR, iPhone 12 Pro (375px - 414px) */
+@media (min-width: 376px) and (max-width: 414px) {
     .qnis-header-zone {
         padding: 0 16px !important;
+        height: 60px !important;
+    }
+    
+    .qnis-nav-tabs {
+        padding: 0 12px !important;
+        gap: 3px !important;
+    }
+    
+    .qnis-nav-tab {
+        padding: 7px 10px !important;
+        font-size: 11.5px !important;
+    }
+    
+    .automation-metrics-grid,
+    .metrics-row {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+    }
+    
+    .automation-status-section,
+    .operational-metrics-section {
+        padding: 18px !important;
+        margin-top: 18px !important;
+    }
+}
+
+/* iPhone 14 Pro Max and larger phones (414px - 480px) */
+@media (min-width: 415px) and (max-width: 480px) {
+    .qnis-header-zone {
+        padding: 0 18px !important;
         height: 64px !important;
     }
     
@@ -1002,22 +1075,117 @@ button:hover, .qnis-quantum-btn:hover {
         gap: 4px !important;
     }
     
-    .automation-metrics-grid,
-    .metrics-row {
-        grid-template-columns: 1fr !important;
-        gap: 15px !important;
-    }
-    
-    .automation-status-section,
-    .operational-metrics-section {
-        padding: 20px !important;
-        margin-top: 20px !important;
-    }
-    
     .qnis-nav-tab {
         padding: 8px 12px !important;
         font-size: 12px !important;
     }
+    
+    .automation-metrics-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+    }
+    
+    .metrics-row {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+    }
+}
+
+/* Tablets - Pixel 7, Samsung Galaxy (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    .qnis-header-zone {
+        padding: 0 24px !important;
+        height: 72px !important;
+    }
+    
+    .qnis-nav-tabs {
+        padding: 0 24px !important;
+        gap: 8px !important;
+    }
+    
+    .qnis-nav-tab {
+        padding: 10px 16px !important;
+        font-size: 13px !important;
+    }
+    
+    .automation-metrics-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+    }
+    
+    .metrics-row {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 20px !important;
+    }
+    
+    .automation-status-section,
+    .operational-metrics-section {
+        padding: 24px !important;
+        margin-top: 24px !important;
+    }
+}
+
+/* Samsung Galaxy S20 Ultra, Samsung Galaxy A51/71 (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .qnis-header-zone {
+        padding: 0 32px !important;
+        height: 80px !important;
+    }
+    
+    .qnis-nav-tabs {
+        padding: 0 32px !important;
+        gap: 12px !important;
+    }
+    
+    .qnis-nav-tab {
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+    }
+    
+    .automation-metrics-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 24px !important;
+    }
+    
+    .metrics-row {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 24px !important;
+    }
+}
+
+/* Surface Duo and foldable devices */
+@media (min-width: 540px) and (max-width: 720px) and (orientation: landscape) {
+    .qnis-metrics-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+    }
+    
+    .automation-metrics-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .metrics-row {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+/* Galaxy Z Fold 5 unfolded (1768px+) */
+@media (min-width: 1768px) {
+    .automation-metrics-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 32px !important;
+    }
+    
+    .metrics-row {
+        grid-template-columns: repeat(6, 1fr) !important;
+        gap: 32px !important;
+    }
+    
+    .qnis-header-zone {
+        padding: 0 48px !important;
+        height: 96px !important;
+    }
+}
     
     .qnis-main-content {
         padding: 16px !important;

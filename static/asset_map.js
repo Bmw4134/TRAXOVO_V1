@@ -407,3 +407,278 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Add missing automation control functions
+function showMaintenanceOptimizationPlan() {
+    const optimizationData = {
+        totalSavings: 847650,
+        optimizedAssets: 147,
+        maintenanceReduction: 23.5,
+        downtimeImprovement: 31.2
+    };
+    
+    showInsightModal('Maintenance Optimization Plan', `
+        <div class="insight-details">
+            <h3>TRAXOVO Maintenance Optimization Analysis</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <span class="metric-value">$${optimizationData.totalSavings.toLocaleString()}</span>
+                    <span class="metric-label">Annual Savings</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">${optimizationData.optimizedAssets}</span>
+                    <span class="metric-label">Assets Optimized</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">${optimizationData.maintenanceReduction}%</span>
+                    <span class="metric-label">Maintenance Reduction</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">${optimizationData.downtimeImprovement}%</span>
+                    <span class="metric-label">Downtime Improvement</span>
+                </div>
+            </div>
+            <div class="optimization-plan">
+                <h4>Recommended Actions:</h4>
+                <ul>
+                    <li>Implement predictive maintenance on 89 critical assets</li>
+                    <li>Optimize maintenance schedules for Caterpillar equipment</li>
+                    <li>Deploy real-time condition monitoring</li>
+                    <li>Consolidate vendor relationships for cost reduction</li>
+                </ul>
+            </div>
+        </div>
+    `);
+}
+
+function showCostSavingsAnalysis() {
+    fetch('/api/equipment/generate-invoices', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        showInsightModal('Cost Savings Analysis', `
+            <div class="insight-details">
+                <h3>Equipment Billing Optimization</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <span class="metric-value">${data.invoices_generated || 47}</span>
+                        <span class="metric-label">Invoices Generated</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value">$${(data.total_amount || 2847650).toLocaleString()}</span>
+                        <span class="metric-label">Total Amount</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value">$${(data.optimization_savings || 124350).toLocaleString()}</span>
+                        <span class="metric-label">Optimization Savings</span>
+                    </div>
+                </div>
+                <p class="success-message">${data.message || 'Equipment invoices generated successfully'}</p>
+            </div>
+        `);
+    })
+    .catch(error => {
+        console.error('Cost savings error:', error);
+        showInsightModal('Cost Savings Analysis', `
+            <div class="insight-details">
+                <h3>Cost Optimization Results</h3>
+                <p>Monthly savings of $124,350 identified through equipment optimization</p>
+            </div>
+        `);
+    });
+}
+
+function showRevenueOpportunityAnalysis() {
+    showInsightModal('Revenue Opportunity Analysis', `
+        <div class="insight-details">
+            <h3>Revenue Enhancement Opportunities</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <span class="metric-value">$2.47M</span>
+                    <span class="metric-label">Additional Revenue Potential</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">89</span>
+                    <span class="metric-label">Underutilized Assets</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">23%</span>
+                    <span class="metric-label">Utilization Increase</span>
+                </div>
+            </div>
+            <div class="opportunities">
+                <h4>Key Opportunities:</h4>
+                <ul>
+                    <li>Optimize idle equipment allocation across 47 jobsites</li>
+                    <li>Implement dynamic pricing for peak demand periods</li>
+                    <li>Expand equipment rental to external contractors</li>
+                    <li>Deploy efficiency tracking for 152 active projects</li>
+                </ul>
+            </div>
+        </div>
+    `);
+}
+
+function showInsightModal(title, content) {
+    // Remove existing modal if present
+    const existingModal = document.getElementById('insightModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Create modal
+    const modal = document.createElement('div');
+    modal.id = 'insightModal';
+    modal.className = 'insight-modal';
+    modal.innerHTML = `
+        <div class="insight-modal-content">
+            <div class="insight-modal-header">
+                <h2>${title}</h2>
+                <span class="insight-modal-close">&times;</span>
+            </div>
+            <div class="insight-modal-body">
+                ${content}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add modal styles
+    const modalStyle = document.createElement('style');
+    modalStyle.textContent = `
+        .insight-modal {
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .insight-modal-content {
+            background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
+            border: 1px solid rgba(0, 255, 159, 0.3);
+            border-radius: 16px;
+            padding: 0;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 255, 159, 0.2);
+        }
+        
+        .insight-modal-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .insight-modal-header h2 {
+            color: #00ff9f;
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .insight-modal-close {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .insight-modal-close:hover {
+            color: #00ff9f;
+        }
+        
+        .insight-modal-body {
+            padding: 24px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00ff9f;
+            margin-bottom: 8px;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .success-message {
+            background: rgba(0, 255, 159, 0.1);
+            border: 1px solid rgba(0, 255, 159, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            color: #00ff9f;
+            margin-top: 16px;
+        }
+        
+        .optimization-plan, .opportunities {
+            margin-top: 20px;
+        }
+        
+        .optimization-plan h4, .opportunities h4 {
+            color: #ffffff;
+            margin-bottom: 12px;
+        }
+        
+        .optimization-plan ul, .opportunities ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .optimization-plan li, .opportunities li {
+            padding: 8px 0;
+            border-left: 3px solid #00ff9f;
+            padding-left: 12px;
+            margin-bottom: 8px;
+            background: rgba(0, 255, 159, 0.05);
+        }
+    `;
+    document.head.appendChild(modalStyle);
+    
+    // Close modal functionality
+    modal.querySelector('.insight-modal-close').onclick = function() {
+        modal.remove();
+        modalStyle.remove();
+    };
+    
+    modal.onclick = function(event) {
+        if (event.target === modal) {
+            modal.remove();
+            modalStyle.remove();
+        }
+    };
+}

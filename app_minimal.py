@@ -1630,6 +1630,47 @@ def api_nexus_intelligence():
     nexus = get_nexus_integration()
     return jsonify(nexus.export_full_intelligence())
 
+@app.route('/api/google-cloud-geocoding')
+def api_google_cloud_geocoding():
+    """Google Cloud Platform geocoding integration for fleet tracking"""
+    from google_cloud_integration import get_google_cloud_integration, get_fleet_location_intelligence
+    
+    gcp = get_google_cloud_integration()
+    fleet_intel = get_fleet_location_intelligence()
+    
+    # Get authentic fleet data for geocoding
+    try:
+        from authentic_asset_data_processor import get_authentic_fleet_summary
+        fleet_data = get_authentic_fleet_summary()
+        
+        if fleet_data and isinstance(fleet_data, list):
+            enhanced_tracking = fleet_intel.enhance_asset_tracking(fleet_data)
+            map_data = fleet_intel.get_fleet_map_data(enhanced_tracking.get('enhanced_tracking', []))
+            
+            return jsonify({
+                "status": "success",
+                "google_cloud_project": "geocoding-api-445715",
+                "fleet_tracking": enhanced_tracking,
+                "map_visualization": map_data,
+                "api_status": gcp.validate_api_access(),
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            return jsonify({
+                "status": "success",
+                "google_cloud_project": "geocoding-api-445715", 
+                "message": "Geocoding integration ready - fleet data pending",
+                "api_status": gcp.validate_api_access(),
+                "setup_instructions": "Add GOOGLE_CLOUD_API_KEY environment variable to enable geocoding"
+            })
+            
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Fleet geocoding integration error: {str(e)}",
+            "api_status": gcp.validate_api_access()
+        }), 500
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""

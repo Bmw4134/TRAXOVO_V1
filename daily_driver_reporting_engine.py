@@ -26,21 +26,23 @@ class DailyDriverReportingEngine:
                 logging.error(f"Hours data file not found: {data_file}")
                 return False
             
-            # Load the main HRS sheet with driver data
-            hrs_df = pd.read_excel(data_file, sheet_name='HRS', engine='openpyxl')
-            hrs_pt_df = pd.read_excel(data_file, sheet_name='HRS-PT', engine='openpyxl')
+            # Load HRS sheet with proper headers (row 4 contains headers)
+            hrs_df = pd.read_excel(data_file, sheet_name='HRS', header=4, engine='openpyxl')
+            
+            # Load HRS-PT sheet if it exists
+            try:
+                hrs_pt_df = pd.read_excel(data_file, sheet_name='HRS-PT', header=4, engine='openpyxl')
+                print(f"✓ Loaded HRS-PT data: {len(hrs_pt_df)} records")
+                # Combine full-time and part-time hours
+                self.hours_data = pd.concat([hrs_df, hrs_pt_df], ignore_index=True)
+            except:
+                # Use only HRS data if HRS-PT doesn't exist or has issues
+                self.hours_data = hrs_df
+                print("✓ Using HRS data only")
             
             print(f"✓ Loaded HRS data: {len(hrs_df)} records")
-            print(f"✓ Loaded HRS-PT data: {len(hrs_pt_df)} records")
-            
-            # Combine full-time and part-time hours
-            self.hours_data = pd.concat([hrs_df, hrs_pt_df], ignore_index=True)
-            
-            # Clean column names
-            self.hours_data.columns = self.hours_data.columns.astype(str).str.strip()
-            
-            print(f"✓ Combined hours data: {len(self.hours_data)} total records")
-            print(f"✓ Columns available: {list(self.hours_data.columns)}")
+            print(f"✓ Total combined records: {len(self.hours_data)}")
+            print(f"✓ Columns: {list(self.hours_data.columns)}")
             
             return True
             
@@ -54,37 +56,52 @@ class DailyDriverReportingEngine:
             return False
         
         try:
-            # Look for driver/operator columns in the data
-            driver_columns = []
-            for col in self.hours_data.columns:
-                if any(term in col.lower() for term in ['driver', 'operator', 'employee', 'worker', 'name']):
-                    driver_columns.append(col)
-            
-            print(f"✓ Found potential driver columns: {driver_columns}")
-            
-            # Extract unique drivers from available columns
-            drivers_found = set()
-            
-            for col in driver_columns:
-                if col in self.hours_data.columns:
-                    unique_values = self.hours_data[col].dropna().unique()
-                    for value in unique_values:
-                        if isinstance(value, str) and len(value.strip()) > 2:
-                            drivers_found.add(value.strip())
-            
-            # Create driver profiles
-            for driver_name in drivers_found:
-                self.driver_profiles[driver_name] = {
-                    'name': driver_name,
-                    'total_hours': 0,
-                    'days_worked': 0,
-                    'projects_assigned': set(),
-                    'performance_rating': 'Good',
-                    'last_activity': None
-                }
-            
-            print(f"✓ Extracted {len(self.driver_profiles)} driver profiles")
-            return True
+            # Extract unique drivers from Employee column
+            if 'Employee' in self.hours_data.columns:
+                unique_drivers = self.hours_data['Employee'].dropna().unique()
+                print(f"✓ Found {len(unique_drivers)} unique drivers in Employee column")
+                
+                # Create driver profiles with actual hours and project data
+                for driver_name in unique_drivers:
+                    driver_records = self.hours_data[self.hours_data['Employee'] == driver_name]
+                    
+                    # Calculate total hours
+                    total_hours = 0
+                    if 'Hours' in self.hours_data.columns:
+                        total_hours = float(driver_records['Hours'].fillna(0).sum())
+                    
+                    # Get unique projects
+                    projects = set()
+                    if 'ProjectDescription' in self.hours_data.columns:
+                        projects = set(driver_records['ProjectDescription'].dropna().unique())
+                    
+                    # Count working days
+                    days_worked = 0
+                    if 'Date' in self.hours_data.columns:
+                        days_worked = len(driver_records['Date'].dropna().unique())
+                    
+                    # Get latest activity
+                    last_activity = None
+                    if 'Date' in self.hours_data.columns:
+                        dates = pd.to_datetime(driver_records['Date'], errors='coerce').dropna()
+                        if not dates.empty:
+                            last_activity = dates.max()
+                    
+                    self.driver_profiles[driver_name] = {
+                        'name': driver_name,
+                        'total_hours': total_hours,
+                        'days_worked': days_worked,
+                        'projects_assigned': projects,
+                        'performance_rating': 'Good' if total_hours > 0 else 'Inactive',
+                        'last_activity': last_activity,
+                        'record_count': len(driver_records)
+                    }
+                
+                print(f"✓ Extracted {len(self.driver_profiles)} driver profiles with actual hours data")
+                return True
+            else:
+                print("❌ Employee column not found in data")
+                return False
             
         except Exception as e:
             logging.error(f"Error extracting driver information: {e}")

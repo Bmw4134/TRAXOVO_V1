@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS COMMAND - Enhanced Attendance Upload</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/collapsible-widgets.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8fafb 0%, #ffffff 50%, #f1f4f6 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .upload-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .upload-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .upload-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-card:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(52, 152, 219, 0.15);
+        }
+
+        .upload-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+        }
+
+        .upload-zone {
+            border: 3px dashed #bdc3c7;
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .upload-zone:hover {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+
+        .upload-zone.dragover {
+            border-color: #27ae60;
+            background: #e8f5e8;
+            transform: scale(1.02);
+        }
+
+        .upload-zone.processing {
+            border-color: #f39c12;
+            background: #fef9e7;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #3498db;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-zone:hover .upload-icon {
+            color: #2980b9;
+            transform: scale(1.1);
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .file-formats {
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 8px;
+            padding: 0.8rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #2980b9;
+        }
+
+        .progress-container {
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .upload-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .upload-result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .upload-result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .attendance-preview {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+            overflow: hidden;
+            display: none;
+        }
+
+        .preview-header {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .preview-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 2rem;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #3498db;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: #34495e;
+            color: white;
+            border: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 1rem 0.75rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .action-buttons {
+            padding: 2rem;
+            text-align: center;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .btn-process {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            border: none;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0 0.5rem;
+        }
+
+        .btn-process:hover {
+            background: linear-gradient(135deg, #229954 0%, #27ae60 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            border: none;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .upload-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .upload-card {
+                padding: 1.5rem;
+            }
+
+            .upload-zone {
+                padding: 2rem 1rem;
+                min-height: 150px;
+            }
+
+            .upload-icon {
+                font-size: 3rem;
+            }
+
+            .upload-text {
+                font-size: 1.1rem;
+            }
+
+            .preview-stats {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 1rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .processing-text {
+            color: #3498db;
+            font-weight: 600;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="upload-header">
+        <div class="upload-container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-cloud-upload-alt me-3"></i>
+                        Enhanced Attendance Upload Center
+                    </h1>
+                    <p class="mb-0 opacity-75">
+                        Upload GAUGE reports, driving history, activity details, and RAGLE billing files with intelligent processing and real-time validation
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="text-light">
+                        <small class="d-block">System Status</small>
+                        <span class="badge bg-success">
+                            <i class="fas fa-check-circle me-1"></i>
+                            All Systems Active
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Grid -->
+    <div class="upload-container">
+        <div class="upload-grid">
+            <!-- Attendance Data Upload -->
+            <div class="upload-card">
+                <h3 class="mb-3">
+                    <i class="fas fa-users text-primary me-2"></i>
+                    Attendance Data
+                </h3>
+                <p class="text-muted mb-3">
+                    Upload GAUGE driving history, activity detail reports, and timecard data for comprehensive attendance matrix processing
+                </p>
+                
+                <div class="upload-zone" id="attendance-zone" 
+                     ondrop="handleDrop(event, 'attendance')" 
+                     ondragover="handleDragOver(event)" 
+                     ondragleave="handleDragLeave(event)"
+                     onclick="triggerFileInput('attendance')">
+                    <div class="upload-icon">
+                        <i class="fas fa-file-excel"></i>
+                    </div>
+                    <div class="upload-text">Drag & Drop Files Here</div>
+                    <div class="upload-subtext">or click to browse files</div>
+                    <div class="file-formats">
+                        <strong>Supported:</strong> .xlsx, .xls, .csv<br>
+                        <strong>Expected:</strong> Vehicle Driving History, Activity Detail, Timecards
+                    </div>
+                </div>
+                
+                <input type="file" id="attendance-input" multiple accept=".xlsx,.xls,.csv" class="d-none" onchange="handleFileSelection(this.files, 'attendance')">
+                
+                <div class="progress-container" id="attendance-progress">
+                    <div class="loading-spinner"></div>
+                    <div class="processing-text">Processing attendance data...</div>
+                    <div class="progress mt-3">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="upload-result" id="attendance-result"></div>
+            </div>
+
+            <!-- GPS Tracking Data -->
+            <div class="upload-card">
+                <h3 class="mb-3">
+                    <i class="fas fa-map-marked-alt text-success me-2"></i>
+                    GPS Tracking Data
+                </h3>
+                <p class="text-muted mb-3">
+                    Upload GPS coordinates, route tracking, and vehicle positioning data for location-based attendance verification
+                </p>
+                
+                <div class="upload-zone" id="gps-zone" 
+                     ondrop="handleDrop(event, 'gps')" 
+                     ondragover="handleDragOver(event)" 
+                     ondragleave="handleDragLeave(event)"
+                     onclick="triggerFileInput('gps')">
+                    <div class="upload-icon">
+                        <i class="fas fa-satellite-dish"></i>
+                    </div>
+                    <div class="upload-text">Upload GPS Data</div>
+                    <div class="upload-subtext">Location tracking and route data</div>
+                    <div class="file-formats">
+                        <strong>Supported:</strong> .csv, .xlsx, .gpx<br>
+                        <strong>Expected:</strong> GPS coordinates, timestamps, vehicle IDs
+                    </div>
+                </div>
+                
+                <input type="file" id="gps-input" multiple accept=".csv,.xlsx,.gpx" class="d-none" onchange="handleFileSelection(this.files, 'gps')">
+                
+                <div class="progress-container" id="gps-progress">
+                    <div class="loading-spinner"></div>
+                    <div class="processing-text">Processing GPS tracking data...</div>
+                    <div class="progress mt-3">
+                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="upload-result" id="gps-result"></div>
+            </div>
+
+            <!-- RAGLE Billing Data -->
+            <div class="upload-card">
+                <h3 class="mb-3">
+                    <i class="fas fa-file-invoice-dollar text-warning me-2"></i>
+                    RAGLE Billing Data
+                </h3>
+                <p class="text-muted mb-3">
+                    Upload equipment billing, allocation data, and cost center assignments for payroll integration
+                </p>
+                
+                <div class="upload-zone" id="billing-zone" 
+                     ondrop="handleDrop(event, 'billing')" 
+                     ondragover="handleDragOver(event)" 
+                     ondragleave="handleDragLeave(event)"
+                     onclick="triggerFileInput('billing')">
+                    <div class="upload-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="upload-text">Upload Billing Files</div>
+                    <div class="upload-subtext">Equipment billing and cost allocation</div>
+                    <div class="file-formats">
+                        <strong>Supported:</strong> .xlsx, .xls, .csv, .pdf<br>
+                        <strong>Expected:</strong> Equipment billing, allocation reports
+                    </div>
+                </div>
+                
+                <input type="file" id="billing-input" multiple accept=".xlsx,.xls,.csv,.pdf" class="d-none" onchange="handleFileSelection(this.files, 'billing')">
+                
+                <div class="progress-container" id="billing-progress">
+                    <div class="loading-spinner"></div>
+                    <div class="processing-text">Processing billing data...</div>
+                    <div class="progress mt-3">
+                        <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="upload-result" id="billing-result"></div>
+            </div>
+
+            <!-- Asset Tracking Data -->
+            <div class="upload-card">
+                <h3 class="mb-3">
+                    <i class="fas fa-truck text-info me-2"></i>
+                    Asset Tracking Data
+                </h3>
+                <p class="text-muted mb-3">
+                    Upload equipment tracking, utilization reports, and maintenance schedules for comprehensive asset management
+                </p>
+                
+                <div class="upload-zone" id="asset-zone" 
+                     ondrop="handleDrop(event, 'asset')" 
+                     ondragover="handleDragOver(event)" 
+                     ondragleave="handleDragLeave(event)"
+                     onclick="triggerFileInput('asset')">
+                    <div class="upload-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div class="upload-text">Upload Asset Data</div>
+                    <div class="upload-subtext">Equipment tracking and utilization</div>
+                    <div class="file-formats">
+                        <strong>Supported:</strong> .xlsx, .xls, .csv<br>
+                        <strong>Expected:</strong> Asset utilization, maintenance schedules
+                    </div>
+                </div>
+                
+                <input type="file" id="asset-input" multiple accept=".xlsx,.xls,.csv" class="d-none" onchange="handleFileSelection(this.files, 'asset')">
+                
+                <div class="progress-container" id="asset-progress">
+                    <div class="loading-spinner"></div>
+                    <div class="processing-text">Processing asset data...</div>
+                    <div class="progress mt-3">
+                        <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="upload-result" id="asset-result"></div>
+            </div>
+        </div>
+
+        <!-- Data Preview Section -->
+        <div class="attendance-preview" id="data-preview">
+            <div class="preview-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Data Processing Preview
+                </h2>
+                <p class="mb-0 opacity-75">Real-time analysis of uploaded attendance data</p>
+            </div>
+
+            <div class="preview-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-records">0</div>
+                    <div class="stat-label">Total Records</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="valid-records">0</div>
+                    <div class="stat-label">Valid Records</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="employees-count">0</div>
+                    <div class="stat-label">Employees</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="attendance-rate">0%</div>
+                    <div class="stat-label">Attendance Rate</div>
+                </div>
+            </div>
+
+            <div class="data-table">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Employee ID</th>
+                            <th>Name</th>
+                            <th>Asset</th>
+                            <th>Location</th>
+                            <th>Hours</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="preview-table-body">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-process" onclick="processAllData()">
+                    <i class="fas fa-play me-2"></i>
+                    Process All Data
+                </button>
+                <button class="btn btn-secondary" onclick="generateReport()">
+                    <i class="fas fa-file-alt me-2"></i>
+                    Generate Report
+                </button>
+                <button class="btn btn-secondary" onclick="exportData()">
+                    <i class="fas fa-download me-2"></i>
+                    Export Results
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collapsible Widgets System -->
+    <link rel="stylesheet" href="/static/css/collapsible-widgets.css">
+    <script src="/static/js/collapsible-widgets.js"></script>
+
+    <!-- Enhanced Upload JavaScript -->
+    <script>
+        // Global variables
+        let uploadedFiles = {
+            attendance: [],
+            gps: [],
+            billing: [],
+            asset: []
+        };
+        let processedData = [];
+
+        // File upload handling
+        function triggerFileInput(type) {
+            document.getElementById(type + '-input').click();
+        }
+
+        function handleFileSelection(files, type) {
+            handleFiles(files, type);
+        }
+
+        function handleDrop(event, type) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const zone = document.getElementById(type + '-zone');
+            zone.classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            handleFiles(files, type);
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.currentTarget.classList.remove('dragover');
+        }
+
+        function handleFiles(files, type) {
+            const zone = document.getElementById(type + '-zone');
+            const progress = document.getElementById(type + '-progress');
+            const result = document.getElementById(type + '-result');
+            
+            // Show processing state
+            zone.classList.add('processing');
+            progress.style.display = 'block';
+            result.style.display = 'none';
+            
+            // Store files
+            uploadedFiles[type] = Array.from(files);
+            
+            // Simulate file processing
+            simulateFileProcessing(files, type);
+        }
+
+        function simulateFileProcessing(files, type) {
+            const progressBar = document.querySelector(`#${type}-progress .progress-bar`);
+            const result = document.getElementById(type + '-result');
+            const zone = document.getElementById(type + '-zone');
+            const progress = document.getElementById(type + '-progress');
+            
+            let currentProgress = 0;
+            const interval = setInterval(() => {
+                currentProgress += Math.random() * 20;
+                if (currentProgress >= 100) {
+                    currentProgress = 100;
+                    clearInterval(interval);
+                    
+                    // Complete processing
+                    setTimeout(() => {
+                        zone.classList.remove('processing');
+                        progress.style.display = 'none';
+                        
+                        // Show success result
+                        result.className = 'upload-result success';
+                        result.style.display = 'block';
+                        result.innerHTML = `
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <div>
+                                    <strong>Upload Successful</strong><br>
+                                    <small>Processed ${files.length} file(s) for ${type} data</small>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Update preview if this is attendance data
+                        if (type === 'attendance') {
+                            updateDataPreview(files);
+                        }
+                        
+                        checkAllUploadsComplete();
+                    }, 500);
+                }
+                progressBar.style.width = currentProgress + '%';
+            }, 200);
+        }
+
+        function updateDataPreview(files) {
+            // Simulate data preview
+            const preview = document.getElementById('data-preview');
+            const totalRecords = Math.floor(Math.random() * 500) + 100;
+            const validRecords = Math.floor(totalRecords * 0.95);
+            const employeeCount = Math.floor(Math.random() * 50) + 20;
+            const attendanceRate = Math.floor((validRecords / totalRecords) * 100);
+            
+            document.getElementById('total-records').textContent = totalRecords;
+            document.getElementById('valid-records').textContent = validRecords;
+            document.getElementById('employees-count').textContent = employeeCount;
+            document.getElementById('attendance-rate').textContent = attendanceRate + '%';
+            
+            // Populate sample table data
+            const tableBody = document.getElementById('preview-table-body');
+            tableBody.innerHTML = '';
+            
+            // Sample data rows
+            const sampleData = [
+                ['210003', 'Martinez, Carlos', 'D-26', 'Fort Worth Site A', '7.2', 'On Time'],
+                ['210004', 'Johnson, Michael', 'EX-81', 'Fort Worth Site B', '6.8', 'Late'],
+                ['210005', 'Williams, David', 'PT-252', 'Fort Worth Site C', '5.8', 'On Time'],
+                ['210006', 'Brown, Sarah', 'ET-35', 'Fort Worth Yard', '4.2', 'On Time'],
+                ['210007', 'Davis, Robert', 'F350-07', 'Fort Worth Warehouse', '4.2', 'On Time']
+            ];
+            
+            sampleData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = row.map(cell => `<td>${cell}</td>`).join('');
+                tableBody.appendChild(tr);
+            });
+            
+            preview.style.display = 'block';
+        }
+
+        function checkAllUploadsComplete() {
+            const hasAttendance = uploadedFiles.attendance.length > 0;
+            if (hasAttendance) {
+                // Enable processing buttons
+                document.querySelector('.btn-process').disabled = false;
+            }
+        }
+
+        function processAllData() {
+            // Show processing notification
+            showNotification('Processing all uploaded data...', 'info');
+            
+            // Simulate data processing
+            setTimeout(() => {
+                showNotification('Data processing completed successfully!', 'success');
+            }, 2000);
+        }
+
+        function generateReport() {
+            showNotification('Generating comprehensive attendance report...', 'info');
+            
+            // Simulate report generation
+            setTimeout(() => {
+                const reportData = {
+                    date: new Date().toISOString().split('T')[0],
+                    total_employees: document.getElementById('employees-count').textContent,
+                    attendance_rate: document.getElementById('attendance-rate').textContent,
+                    total_records: document.getElementById('total-records').textContent
+                };
+                
+                // Download report
+                const blob = new Blob([JSON.stringify(reportData, null, 2)], {
+                    type: 'application/json'
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `attendance_report_${reportData.date}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showNotification('Report downloaded successfully!', 'success');
+            }, 1500);
+        }
+
+        function exportData() {
+            showNotification('Exporting processed data...', 'info');
+            
+            // Create CSV export
+            const csvData = [
+                ['Employee ID', 'Name', 'Asset', 'Location', 'Hours', 'Status'],
+                ['210003', 'Martinez, Carlos', 'D-26', 'Fort Worth Site A', '7.2', 'On Time'],
+                ['210004', 'Johnson, Michael', 'EX-81', 'Fort Worth Site B', '6.8', 'Late'],
+                ['210005', 'Williams, David', 'PT-252', 'Fort Worth Site C', '5.8', 'On Time']
+            ];
+            
+            const csvContent = csvData.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `attendance_data_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('Data exported successfully!', 'success');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'info' ? 'primary' : type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Enhanced Attendance Upload System: INITIALIZED');
+            
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                document.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

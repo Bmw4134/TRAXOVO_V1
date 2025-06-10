@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        .nudges-container:not(.collapsible), .productivity-nudges:not(.collapsible), .dashboard-widgets:not(.collapsible) {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/qq-parallel-responsive.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#2c3e50">
+    <title>Smart Estimating System - NEXUS COMMAND</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        .bid-card {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .bid-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .status-pending { background: #f39c12; }
+        .status-submitted { background: #3498db; }
+        .status-won { background: #27ae60; }
+        .cost-breakdown {
+            background: rgba(52, 152, 219, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/quantum-dashboard">
+                <i class="fas fa-arrow-left me-2"></i>Smart Estimating System
+            </a>
+            <span class="badge bg-success">HCSS Bid Replacement</span>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="text-center mb-4">
+            <h1><i class="fas fa-calculator me-2"></i>Smart Estimating System</h1>
+            <p>AI-powered cost estimation replacing HCSS Bid with Texas market intelligence</p>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <h3><i class="fas fa-file-invoice-dollar me-2"></i>Active Bids</h3>
+                
+                <div class="bid-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5>Fort Worth Highway Expansion - Phase 2</h5>
+                            <p class="text-muted">Bid #TX-HW-2025-087</p>
+                            <p><strong>Client:</strong> TxDOT Fort Worth District</p>
+                        </div>
+                        <span class="bid-status status-pending">Pending Submission</span>
+                    </div>
+                    <div class="cost-breakdown">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Equipment Costs:</strong> $245,600<br>
+                                <strong>Labor Costs:</strong> $178,400<br>
+                                <strong>Materials:</strong> $892,300
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Overhead:</strong> $65,800<br>
+                                <strong>Profit Margin:</strong> $198,400<br>
+                                <strong>Total Bid:</strong> $1,580,500
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bid-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5>Commercial Development - Alliance Town Center</h5>
+                            <p class="text-muted">Bid #AL-CD-2025-034</p>
+                            <p><strong>Client:</strong> Hillwood Development</p>
+                        </div>
+                        <span class="bid-status status-submitted">Submitted</span>
+                    </div>
+                    <div class="cost-breakdown">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Equipment Costs:</strong> $156,800<br>
+                                <strong>Labor Costs:</strong> $123,600<br>
+                                <strong>Materials:</strong> $567,200
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Overhead:</strong> $42,300<br>
+                                <strong>Profit Margin:</strong> $127,100<br>
+                                <strong>Total Bid:</strong> $1,017,000
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bid-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5>Municipal Infrastructure - Water Line Extension</h5>
+                            <p class="text-muted">Bid #FW-MI-2025-021</p>
+                            <p><strong>Client:</strong> City of Fort Worth</p>
+                        </div>
+                        <span class="bid-status status-won">Won</span>
+                    </div>
+                    <div class="cost-breakdown">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Equipment Costs:</strong> $89,400<br>
+                                <strong>Labor Costs:</strong> $67,800<br>
+                                <strong>Materials:</strong> $234,600
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Overhead:</strong> $19,600<br>
+                                <strong>Profit Margin:</strong> $58,600<br>
+                                <strong>Total Bid:</strong> $470,000
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <h3><i class="fas fa-chart-line me-2"></i>Estimating Performance</h3>
+                
+                <div class="bid-card">
+                    <div class="text-center">
+                        <h2 class="text-info">18</h2>
+                        <p>Active Bids</p>
+                    </div>
+                </div>
+
+                <div class="bid-card">
+                    <div class="text-center">
+                        <h2 class="text-success">67%</h2>
+                        <p>Win Rate</p>
+                    </div>
+                </div>
+
+                <div class="bid-card">
+                    <div class="text-center">
+                        <h2 class="text-warning">$2.4M</h2>
+                        <p>Pipeline Value</p>
+                    </div>
+                </div>
+
+                <div class="bid-card">
+                    <h5><i class="fas fa-map-marker-alt me-2"></i>Texas Market Intel</h5>
+                    <ul>
+                        <li>Fort Worth market: $380.9M</li>
+                        <li>Competition analysis: Active</li>
+                        <li>Pricing optimization: 12% premium</li>
+                        <li>Market share: 3.4%</li>
+                    </ul>
+                </div>
+
+                <div class="bid-card">
+                    <h5><i class="fas fa-robot me-2"></i>AI Estimating Features</h5>
+                    <ul>
+                        <li>Historical cost analysis</li>
+                        <li>Market rate intelligence</li>
+                        <li>Risk assessment automation</li>
+                        <li>Competitor pricing analysis</li>
+                        <li>Resource optimization</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEMP Equipment Monitoring - Watson Command</title>
+    <style>
+        body {
+            background: radial-gradient(circle, #000033, #001155, #002277);
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .aemp-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            color: #00ffff;
+            font-size: 36px;
+            text-shadow: 0 0 20px #00ffff;
+            margin: 0;
+        }
+        .header p {
+            color: #cccccc;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .monitoring-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .monitor-card {
+            background: linear-gradient(135deg, rgba(0,50,100,0.8), rgba(0,30,80,0.9));
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .monitor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,255,255,0.3);
+        }
+        .monitor-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0,255,255,0.1), transparent);
+            animation: rotate 8s linear infinite;
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .card-header {
+            position: relative;
+            z-index: 2;
+            border-bottom: 2px solid #00ffff;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            color: #00ffff;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ffff;
+        }
+        .card-content {
+            position: relative;
+            z-index: 2;
+        }
+        .equipment-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .status-metric {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid #00ffff;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            margin-bottom: 5px;
+        }
+        .metric-label {
+            font-size: 12px;
+            color: #cccccc;
+            text-transform: uppercase;
+        }
+        .alert-indicator {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .status-operational { background: #00ff00; }
+        .status-warning { background: #ffff00; }
+        .status-critical { background: #ff0000; }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        .equipment-list {
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #00ffff;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .equipment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid rgba(0,255,255,0.3);
+            transition: background 0.3s ease;
+        }
+        .equipment-item:hover {
+            background: rgba(0,255,255,0.1);
+        }
+        .equipment-info {
+            display: flex;
+            align-items: center;
+        }
+        .equipment-id {
+            font-weight: bold;
+            color: #00ffff;
+            margin-right: 15px;
+        }
+        .equipment-type {
+            color: #cccccc;
+            font-size: 14px;
+        }
+        .real-time-data {
+            background: rgba(0,20,40,0.9);
+            border: 3px solid #00ffff;
+            border-radius: 20px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        .data-stream {
+            background: rgba(0,0,0,0.9);
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #00ff00;
+        }
+        .stream-line {
+            margin: 3px 0;
+            opacity: 0;
+            animation: streamAppear 0.8s ease-in forwards;
+        }
+        @keyframes streamAppear {
+            0% { opacity: 0; transform: translateX(-30px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .control-panel {
+            background: rgba(0,30,60,0.9);
+            border: 3px solid #00ffff;
+            border-radius: 20px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        .control-buttons {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .control-button {
+            background: linear-gradient(45deg, #003366, #0066cc);
+            color: #00ffff;
+            border: 2px solid #00ffff;
+            padding: 15px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .control-button:hover {
+            background: linear-gradient(45deg, #0066cc, #0099ff);
+            box-shadow: 0 0 20px #00ffff;
+            transform: translateY(-3px);
+        }
+        .alert-panel {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(0,255,255,0.95);
+            color: #000;
+            padding: 20px;
+            border-radius: 12px;
+            border: 3px solid #00ffff;
+            z-index: 2000;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(0,255,255,0.5);
+            animation: alertSlide 0.5s ease-in;
+            display: none;
+        }
+        @keyframes alertSlide {
+            0% { transform: translateX(100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #003366, #0066cc);
+            color: #00ffff;
+            border: 2px solid #00ffff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .back-button:hover {
+            background: linear-gradient(45deg, #0066cc, #0099ff);
+            box-shadow: 0 0 15px #00ffff;
+            color: #00ffff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <a href="/dashboard" class="back-button">← Back to Dashboard</a>
+    
+    <div class="aemp-container">
+        <div class="header">
+            <h1>AEMP Equipment Monitoring System</h1>
+            <p>Real-time equipment performance and health monitoring</p>
+            <p>Fort Worth Fleet Operations - Quantum Intelligence Enhanced</p>
+        </div>
+
+        <div class="monitoring-grid">
+            <!-- Fleet Overview -->
+            <div class="monitor-card">
+                <div class="card-header">
+                    <div class="card-title">Fleet Status Overview</div>
+                </div>
+                <div class="card-content">
+                    <div class="equipment-status">
+                        <div class="status-metric">
+                            <div class="metric-value">47</div>
+                            <div class="metric-label">Total Assets</div>
+                        </div>
+                        <div class="status-metric">
+                            <div class="metric-value">43</div>
+                            <div class="metric-label">Operational</div>
+                        </div>
+                        <div class="status-metric">
+                            <div class="metric-value">3</div>
+                            <div class="metric-label">Maintenance</div>
+                        </div>
+                        <div class="status-metric">
+                            <div class="metric-value">1</div>
+                            <div class="metric-label">Critical</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="monitor-card">
+                <div class="card-header">
+                    <div class="card-title">Performance Metrics</div>
+                </div>
+                <div class="card-content">
+                    <div class="equipment-status">
+                        <div class="status-metric">
+                            <div class="metric-value">97.3%</div>
+                            <div class="metric-label">Uptime</div>
+                        </div>
+                        <div class="status-metric">
+                            <div class="metric-value">89.7%</div>
+                            <div class="metric-label">Efficiency</div>
+                        </div>
+                        <div class="status-metric">
+                            <div class="metric-value">2.1hrs</div>
+                            <div class="metric-label">Avg Downtime</div>
+                        </div>
+                        <div class="status-metric">
+                            <div class="metric-value">$47,320</div>
+                            <div class="metric-label">Daily Cost</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Equipment Health -->
+            <div class="monitor-card">
+                <div class="card-header">
+                    <div class="card-title">Equipment Health Status</div>
+                </div>
+                <div class="card-content">
+                    <div class="equipment-list">
+                        <div class="equipment-item">
+                            <div class="equipment-info">
+                                <span class="alert-indicator status-operational"></span>
+                                <span class="equipment-id">EX-001</span>
+                                <span class="equipment-type">Excavator - Downtown Core</span>
+                            </div>
+                            <span>98.5%</span>
+                        </div>
+                        <div class="equipment-item">
+                            <div class="equipment-info">
+                                <span class="alert-indicator status-operational"></span>
+                                <span class="equipment-id">DZ-003</span>
+                                <span class="equipment-type">Dozer - North District</span>
+                            </div>
+                            <span>96.2%</span>
+                        </div>
+                        <div class="equipment-item">
+                            <div class="equipment-info">
+                                <span class="alert-indicator status-warning"></span>
+                                <span class="equipment-id">LD-005</span>
+                                <span class="equipment-type">Loader - West Operations</span>
+                            </div>
+                            <span>87.3%</span>
+                        </div>
+                        <div class="equipment-item">
+                            <div class="equipment-info">
+                                <span class="alert-indicator status-operational"></span>
+                                <span class="equipment-id">GR-002</span>
+                                <span class="equipment-type">Grader - East Sector</span>
+                            </div>
+                            <span>94.8%</span>
+                        </div>
+                        <div class="equipment-item">
+                            <div class="equipment-info">
+                                <span class="alert-indicator status-critical"></span>
+                                <span class="equipment-id">TR-008</span>
+                                <span class="equipment-type">Truck - Central Hub</span>
+                            </div>
+                            <span>72.1%</span>
+                        </div>
+                        <div class="equipment-item">
+                            <div class="equipment-info">
+                                <span class="alert-indicator status-operational"></span>
+                                <span class="equipment-id">CR-001</span>
+                                <span class="equipment-type">Crane - Industrial Zone</span>
+                            </div>
+                            <span>99.1%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maintenance Alerts -->
+            <div class="monitor-card">
+                <div class="card-header">
+                    <div class="card-title">Maintenance Intelligence</div>
+                </div>
+                <div class="card-content">
+                    <div class="equipment-status">
+                        <div class="status-metric">
+                            <div class="metric-value">7</div>
+                            <div class="metric-label">Scheduled</div>
+                        </div>
+                        <div class="status-metric">
+                            <div class="metric-value">2</div>
+                            <div class="metric-label">Overdue</div>
+                        </div>
+                        <div class="status-metric">
+                            <div class="metric-value">12</div>
+                            <div class="metric-label">Predicted</div>
+                        </div>
+                        <div class="status-metric">
+                            <div class="metric-value">$23,450</div>
+                            <div class="metric-label">Cost Savings</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Data Stream -->
+        <div class="real-time-data">
+            <div class="card-header">
+                <div class="card-title">Real-time AEMP Data Stream</div>
+            </div>
+            <div class="data-stream" id="aempDataStream">
+                <!-- Data stream will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="card-header">
+                <div class="card-title">AEMP Control Center</div>
+            </div>
+            <div class="control-buttons">
+                <button class="control-button" onclick="refreshData()">Refresh Data</button>
+                <button class="control-button" onclick="runDiagnostics()">Run Diagnostics</button>
+                <button class="control-button" onclick="generateReport()">Generate Report</button>
+                <button class="control-button" onclick="scheduleMaintenace()">Schedule Maintenance</button>
+                <button class="control-button" onclick="exportData()">Export Data</button>
+                <button class="control-button" onclick="optimizeFleet()">Optimize Fleet</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert-panel" id="alertPanel"></div>
+
+    <script>
+        // AEMP Data Stream
+        function createAEMPDataStream() {
+            const stream = document.getElementById('aempDataStream');
+            const messages = [
+                'EX-001: Engine temp 185°F, hydraulic pressure 3200 PSI - OPTIMAL',
+                'DZ-003: Transmission temp 195°F, track tension normal - OPERATIONAL',
+                'LD-005: Hydraulic fluid low warning - MAINTENANCE REQUIRED',
+                'GR-002: Blade wear at 75%, fuel consumption 8.2 gal/hr - GOOD',
+                'TR-008: Engine fault code P0128 detected - CRITICAL ALERT',
+                'CR-001: Load capacity 98%, boom extension optimal - EXCELLENT',
+                'CP-004: Compaction cycles 1,247 today, vibration normal - OPERATIONAL',
+                'BH-007: Bucket wear at 60%, hydraulics optimal - GOOD',
+                'Fleet telemetry sync complete - All systems monitored',
+                'Predictive maintenance algorithm updated - 3 alerts generated'
+            ];
+            
+            let messageIndex = 0;
+            setInterval(() => {
+                const line = document.createElement('div');
+                line.className = 'stream-line';
+                line.textContent = `[${new Date().toLocaleTimeString()}] ${messages[messageIndex]}`;
+                stream.appendChild(line);
+                
+                // Limit stream length
+                while (stream.children.length > 15) {
+                    stream.removeChild(stream.firstChild);
+                }
+                
+                messageIndex = (messageIndex + 1) % messages.length;
+            }, 2500);
+        }
+
+        // Control Functions
+        function showAlert(message) {
+            const alertPanel = document.getElementById('alertPanel');
+            alertPanel.textContent = message;
+            alertPanel.style.display = 'block';
+            
+            setTimeout(() => {
+                alertPanel.style.animation = 'alertSlide 0.5s ease-out reverse';
+                setTimeout(() => {
+                    alertPanel.style.display = 'none';
+                    alertPanel.style.animation = 'alertSlide 0.5s ease-in';
+                }, 500);
+            }, 4000);
+        }
+
+        function refreshData() {
+            showAlert('AEMP data refresh initiated. All equipment telemetry updated.');
+            // Simulate data refresh
+            setTimeout(() => {
+                showAlert('Data refresh complete. 47 assets synchronized.');
+            }, 2000);
+        }
+
+        function runDiagnostics() {
+            showAlert('Running comprehensive fleet diagnostics...');
+            setTimeout(() => {
+                showAlert('Diagnostics complete: 1 critical alert, 2 warnings detected.');
+            }, 3000);
+        }
+
+        function generateReport() {
+            showAlert('Generating AEMP performance report for Fort Worth fleet.');
+            setTimeout(() => {
+                showAlert('Report generated: Fleet efficiency 89.7%, cost optimization $23,450.');
+            }, 2500);
+        }
+
+        function scheduleMaintenace() {
+            showAlert('Maintenance scheduling initiated based on AEMP predictive analytics.');
+            setTimeout(() => {
+                showAlert('Maintenance scheduled: 7 preventive, 2 corrective tasks assigned.');
+            }, 2000);
+        }
+
+        function exportData() {
+            showAlert('Exporting AEMP data stream to analytics platform.');
+            setTimeout(() => {
+                showAlert('Data export complete: 24-hour operational dataset transferred.');
+            }, 1500);
+        }
+
+        function optimizeFleet() {
+            showAlert('Fleet optimization algorithm activated using AEMP intelligence.');
+            setTimeout(() => {
+                showAlert('Optimization complete: Efficiency increased 3.2%, costs reduced $8,750.');
+            }, 3500);
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            createAEMPDataStream();
+            showAlert('AEMP Equipment Monitoring System online. Fort Worth fleet connected.');
+        };
+    </script>
+</body>
+</html>

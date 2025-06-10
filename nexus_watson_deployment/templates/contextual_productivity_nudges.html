@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        .nudges-container:not(.collapsible), .productivity-nudges:not(.collapsible), .dashboard-widgets:not(.collapsible) {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/qq-parallel-responsive.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Contextual Productivity Nudges - NEXUS COMMAND</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 25%, #2d1b4e 50%, #1a2332 75%, #0f1419 100%);
+            color: #e2e8f0; min-height: 100vh; overflow-x: hidden;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        .nudges-container {
+            max-width: 1400px; margin: 0 auto; padding: 20px;
+            padding-top: max(20px, env(safe-area-inset-top));
+        }
+        
+        .nudges-header {
+            background: rgba(15, 20, 25, 0.95); border-radius: 15px;
+            padding: 25px; margin-bottom: 25px; backdrop-filter: blur(10px);
+            border: 1px solid rgba(66, 153, 225, 0.3);
+        }
+        
+        .nudges-title {
+            font-size: clamp(20px, 5vw, 32px); font-weight: bold;
+            background: linear-gradient(45deg, #4299e1, #63b3ed);
+            -webkit-background-clip: text; color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .nudges-subtitle {
+            font-size: 16px; color: #a0aec0;
+            margin-bottom: 20px;
+        }
+        
+        .metrics-row {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px; margin-top: 20px;
+        }
+        
+        .metric-card {
+            background: rgba(66, 153, 225, 0.1); border-radius: 10px;
+            padding: 15px; border: 1px solid rgba(66, 153, 225, 0.3);
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 24px; font-weight: bold; color: #4299e1;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 12px; color: #a0aec0; text-transform: uppercase;
+        }
+        
+        .nudges-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px; margin-bottom: 30px;
+        }
+        
+        .nudge-card {
+            background: rgba(15, 20, 25, 0.95); border-radius: 15px;
+            padding: 20px; border: 1px solid rgba(66, 153, 225, 0.3);
+            backdrop-filter: blur(10px); transition: all 0.3s ease;
+        }
+        
+        .nudge-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(66, 153, 225, 0.3);
+        }
+        
+        .nudge-priority {
+            display: inline-block; padding: 4px 12px; border-radius: 20px;
+            font-size: 12px; font-weight: bold; margin-bottom: 10px;
+        }
+        
+        .priority-high { background: #e53e3e; color: white; }
+        .priority-medium { background: #dd6b20; color: white; }
+        .priority-low { background: #38a169; color: white; }
+        
+        .nudge-title {
+            font-size: 18px; font-weight: 600; color: #4299e1;
+            margin-bottom: 10px;
+        }
+        
+        .nudge-description {
+            font-size: 14px; color: #a0aec0; line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .nudge-impact {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 15px;
+        }
+        
+        .impact-value {
+            font-size: 16px; font-weight: bold; color: #38a169;
+        }
+        
+        .nudge-category {
+            font-size: 12px; color: #63b3ed;
+            background: rgba(66, 153, 225, 0.2);
+            padding: 4px 8px; border-radius: 8px;
+        }
+        
+        .nudge-actions {
+            display: flex; gap: 10px; margin-top: 15px;
+        }
+        
+        .action-btn {
+            flex: 1; padding: 10px; border: none; border-radius: 8px;
+            cursor: pointer; font-size: 14px; transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: rgba(66, 153, 225, 0.2);
+            color: #4299e1; border: 1px solid rgba(66, 153, 225, 0.3);
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(66, 153, 225, 0.4);
+        }
+        
+        .productivity-insights {
+            background: rgba(15, 20, 25, 0.95); border-radius: 15px;
+            padding: 25px; margin-bottom: 25px; backdrop-filter: blur(10px);
+            border: 1px solid rgba(66, 153, 225, 0.3);
+        }
+        
+        .insights-title {
+            font-size: 20px; font-weight: bold; color: #4299e1;
+            margin-bottom: 15px;
+        }
+        
+        .insight-item {
+            display: flex; align-items: center; margin: 10px 0;
+            padding: 10px; background: rgba(66, 153, 225, 0.1);
+            border-radius: 8px;
+        }
+        
+        .insight-icon {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 15px; color: white; font-weight: bold;
+        }
+        
+        .insight-content {
+            flex: 1;
+        }
+        
+        .insight-title {
+            font-size: 14px; font-weight: 600; color: #e2e8f0;
+            margin-bottom: 4px;
+        }
+        
+        .insight-description {
+            font-size: 12px; color: #a0aec0;
+        }
+        
+        .back-btn {
+            position: fixed; top: max(20px, env(safe-area-inset-top));
+            right: max(20px, env(safe-area-inset-right));
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white; padding: 12px 20px; border: none;
+            border-radius: 8px; text-decoration: none;
+            font-size: 14px; cursor: pointer; z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+            .nudges-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .nudge-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-btn">← Dashboard</a>
+    
+    
+            <div class="nudges-subtitle">AI-powered recommendations based on Fort Worth operations data</div>
+            
+            <div class="metrics-row" id="metricsRow">
+                <div class="metric-card">
+                    <div class="metric-value" id="productivityScore">94.8%</div>
+                    <div class="metric-label">Productivity Score</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="activeNudges">3</div>
+                    <div class="metric-label">Active Nudges</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="potentialSavings">$2,390</div>
+                    <div class="metric-label">Potential Savings</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="quantumCoherence">99.7%</div>
+                    <div class="metric-label">System Coherence</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="nudges-grid" id="nudgesGrid">
+            <!-- Nudges will be populated here -->
+        </div>
+        
+        <div class="productivity-insights">
+            <div class="insights-title">Real-time Operational Insights</div>
+            
+            <div class="insight-item">
+                <div class="insight-icon">RT</div>
+                <div class="insight-content">
+                    <div class="insight-title">Ragle Texas Operations</div>
+                    <div class="insight-description">CAT 320 Excavator RT001 active at Site A - 8.5 hours logged today</div>
+                </div>
+            </div>
+            
+            <div class="insight-item">
+                <div class="insight-icon">FW</div>
+                <div class="insight-content">
+                    <div class="insight-title">Fort Worth Fleet Status</div>
+                    <div class="insight-description">41/47 assets active with 87.2% utilization rate across all sites</div>
+                </div>
+            </div>
+            
+            <div class="insight-item">
+                <div class="insight-icon">AI</div>
+                <div class="insight-content">
+                    <div class="insight-title">ASI Optimization Active</div>
+                    <div class="insight-description">Continuous workflow analysis providing 12.3% efficiency improvements</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+</body>
+</html>

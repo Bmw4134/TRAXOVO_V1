@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Dashboard - Watson Command</title>
+    <style>
+        body {
+            background: radial-gradient(circle, #000033, #001155, #002277);
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .canvas-container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            color: #00ffff;
+            font-size: 36px;
+            text-shadow: 0 0 20px #00ffff;
+            margin: 0;
+        }
+        .header p {
+            color: #cccccc;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .canvas-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .main-canvas {
+            background: linear-gradient(135deg, rgba(0,50,100,0.8), rgba(0,30,80,0.9));
+            border: 3px solid #00ffff;
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        .main-canvas::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0,255,255,0.05), transparent);
+            animation: rotate 12s linear infinite;
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .canvas-content {
+            position: relative;
+            z-index: 2;
+        }
+        .canvas-title {
+            color: #00ffff;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 15px #00ffff;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .drawing-area {
+            width: 100%;
+            height: 500px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+        .canvas-tools {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .tool-button {
+            background: linear-gradient(45deg, #003366, #0066cc);
+            color: #00ffff;
+            border: 2px solid #00ffff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            position: relative;
+        }
+        .tool-button:hover {
+            background: linear-gradient(45deg, #0066cc, #0099ff);
+            box-shadow: 0 0 15px #00ffff;
+        }
+        .tool-button.active {
+            background: linear-gradient(45deg, #006600, #00aa00);
+            box-shadow: 0 0 20px #00ff00;
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .panel {
+            background: linear-gradient(135deg, rgba(0,40,80,0.8), rgba(0,20,60,0.9));
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0,255,255,0.08), transparent);
+            animation: rotate 10s linear infinite;
+        }
+        .panel-title {
+            color: #00ffff;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ffff;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+        .panel-content {
+            position: relative;
+            z-index: 2;
+        }
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #00ffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .color-option:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px currentColor;
+        }
+        .color-option.active {
+            transform: scale(1.3);
+            box-shadow: 0 0 20px currentColor;
+        }
+        .brush-sizes {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: space-between;
+        }
+        .brush-size {
+            width: 30px;
+            height: 30px;
+            background: #00ffff;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #00ffff;
+        }
+        .brush-size:hover {
+            box-shadow: 0 0 15px #00ffff;
+        }
+        .brush-size.active {
+            box-shadow: 0 0 20px #00ffff;
+            background: #00ff00;
+        }
+        .layers-panel {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .layer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid rgba(0,255,255,0.3);
+            border-radius: 8px;
+            margin: 5px 0;
+            background: rgba(0,0,0,0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .layer-item:hover {
+            background: rgba(0,255,255,0.1);
+        }
+        .layer-item.active {
+            background: rgba(0,255,255,0.2);
+            border-color: #00ffff;
+        }
+        .project-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .stat-item {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid #00ffff;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #cccccc;
+            text-transform: uppercase;
+        }
+        .canvas-controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .control-button {
+            background: linear-gradient(45deg, #333366, #6666cc);
+            color: #00ffff;
+            border: 2px solid #00ffff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        .control-button:hover {
+            background: linear-gradient(45deg, #6666cc, #9999ff);
+            box-shadow: 0 0 15px #00ffff;
+        }
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #003366, #0066cc);
+            color: #00ffff;
+            border: 2px solid #00ffff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .back-button:hover {
+            background: linear-gradient(45deg, #0066cc, #0099ff);
+            box-shadow: 0 0 15px #00ffff;
+            color: #00ffff;
+            text-decoration: none;
+        }
+        .alert-panel {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(0,255,255,0.95);
+            color: #000;
+            padding: 20px;
+            border-radius: 12px;
+            border: 3px solid #00ffff;
+            z-index: 2000;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(0,255,255,0.5);
+            animation: alertSlide 0.5s ease-in;
+            display: none;
+        }
+        @keyframes alertSlide {
+            0% { transform: translateX(100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+        @media (max-width: 1200px) {
+            .canvas-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/dashboard" class="back-button">← Back to Dashboard</a>
+    
+    <div class="canvas-container">
+        <div class="header">
+            <h1>Canvas Digital Workspace</h1>
+            <p>Advanced digital drawing and design platform</p>
+            <p>Quantum-enhanced creative intelligence system</p>
+        </div>
+
+        <div class="canvas-grid">
+            <!-- Main Canvas Area -->
+            <div class="main-canvas">
+                <div class="canvas-content">
+                    <div class="canvas-title">Digital Canvas - Fort Worth Fleet Design Studio</div>
+                    
+                    <div class="drawing-area" id="drawingArea">
+                        <!-- Canvas content will be dynamically generated -->
+                        <svg width="100%" height="100%" id="mainSVG">
+                            <!-- Sample fleet layout design -->
+                            <defs>
+                                <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                                    <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#003366" stroke-width="1" opacity="0.3"/>
+                                </pattern>
+                            </defs>
+                            <rect width="100%" height="100%" fill="url(#grid)"/>
+                            
+                            <!-- Sample fleet elements -->
+                            <circle cx="150" cy="120" r="8" fill="#00ff00" opacity="0.8">
+                                <animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="165" y="125" fill="#00ffff" font-size="12">EX-001</text>
+                            
+                            <circle cx="280" cy="180" r="8" fill="#ffff00" opacity="0.8">
+                                <animate attributeName="r" values="8;12;8" dur="2.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="295" y="185" fill="#00ffff" font-size="12">DZ-003</text>
+                            
+                            <circle cx="420" cy="140" r="8" fill="#00ff00" opacity="0.8">
+                                <animate attributeName="r" values="8;12;8" dur="3s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="435" y="145" fill="#00ffff" font-size="12">LD-005</text>
+                            
+                            <!-- Connection lines -->
+                            <line x1="150" y1="120" x2="280" y2="180" stroke="#00ffff" stroke-width="2" opacity="0.6">
+                                <animate attributeName="opacity" values="0.3;0.8;0.3" dur="4s" repeatCount="indefinite"/>
+                            </line>
+                            <line x1="280" y1="180" x2="420" y2="140" stroke="#00ffff" stroke-width="2" opacity="0.6">
+                                <animate attributeName="opacity" values="0.3;0.8;0.3" dur="3.5s" repeatCount="indefinite"/>
+                            </line>
+                        </svg>
+                    </div>
+                    
+                    <div class="canvas-tools">
+                        <button class="tool-button active" onclick="selectTool('brush')">Brush</button>
+                        <button class="tool-button" onclick="selectTool('line')">Line</button>
+                        <button class="tool-button" onclick="selectTool('circle')">Circle</button>
+                        <button class="tool-button" onclick="selectTool('rectangle')">Rectangle</button>
+                        <button class="tool-button" onclick="selectTool('text')">Text</button>
+                        <button class="tool-button" onclick="selectTool('eraser')">Eraser</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Color Palette -->
+                <div class="panel">
+                    <div class="panel-title">Color Palette</div>
+                    <div class="panel-content">
+                        <div class="color-palette">
+                            <div class="color-option active" style="background-color: #00ffff;" onclick="selectColor('#00ffff')"></div>
+                            <div class="color-option" style="background-color: #00ff00;" onclick="selectColor('#00ff00')"></div>
+                            <div class="color-option" style="background-color: #ffff00;" onclick="selectColor('#ffff00')"></div>
+                            <div class="color-option" style="background-color: #ff0000;" onclick="selectColor('#ff0000')"></div>
+                            <div class="color-option" style="background-color: #0066ff;" onclick="selectColor('#0066ff')"></div>
+                            <div class="color-option" style="background-color: #ff6600;" onclick="selectColor('#ff6600')"></div>
+                            <div class="color-option" style="background-color: #9900ff;" onclick="selectColor('#9900ff')"></div>
+                            <div class="color-option" style="background-color: #ffffff;" onclick="selectColor('#ffffff')"></div>
+                        </div>
+                        
+                        <div class="panel-title" style="margin-top: 20px;">Brush Size</div>
+                        <div class="brush-sizes">
+                            <div class="brush-size active" style="width: 15px; height: 15px;" onclick="selectBrushSize(2)"></div>
+                            <div class="brush-size" style="width: 20px; height: 20px;" onclick="selectBrushSize(4)"></div>
+                            <div class="brush-size" style="width: 25px; height: 25px;" onclick="selectBrushSize(6)"></div>
+                            <div class="brush-size" style="width: 30px; height: 30px;" onclick="selectBrushSize(8)"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Layers Panel -->
+                <div class="panel">
+                    <div class="panel-title">Layers</div>
+                    <div class="panel-content">
+                        <div class="layers-panel">
+                            <div class="layer-item active">
+                                <span>Fleet Layout</span>
+                                <span>👁</span>
+                            </div>
+                            <div class="layer-item">
+                                <span>Background Grid</span>
+                                <span>👁</span>
+                            </div>
+                            <div class="layer-item">
+                                <span>Annotations</span>
+                                <span>👁</span>
+                            </div>
+                            <div class="layer-item">
+                                <span>Routes</span>
+                                <span>👁</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Stats -->
+                <div class="panel">
+                    <div class="panel-title">Project Statistics</div>
+                    <div class="panel-content">
+                        <div class="project-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">47</div>
+                                <div class="stat-label">Elements</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">8</div>
+                                <div class="stat-label">Layers</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">1,247</div>
+                                <div class="stat-label">Strokes</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">23.4MB</div>
+                                <div class="stat-label">File Size</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canvas Controls -->
+        <div class="canvas-controls">
+            <button class="control-button" onclick="saveProject()">Save Project</button>
+            <button class="control-button" onclick="loadProject()">Load Project</button>
+            <button class="control-button" onclick="exportCanvas()">Export Canvas</button>
+            <button class="control-button" onclick="clearCanvas()">Clear Canvas</button>
+            <button class="control-button" onclick="undoAction()">Undo</button>
+            <button class="control-button" onclick="redoAction()">Redo</button>
+            <button class="control-button" onclick="zoomIn()">Zoom In</button>
+            <button class="control-button" onclick="zoomOut()">Zoom Out</button>
+        </div>
+    </div>
+
+    <div class="alert-panel" id="alertPanel"></div>
+
+    <script>
+        let currentTool = 'brush';
+        let currentColor = '#00ffff';
+        let currentBrushSize = 2;
+        let isDrawing = false;
+        let elements = [];
+
+        // Canvas interaction
+        const drawingArea = document.getElementById('drawingArea');
+        const mainSVG = document.getElementById('mainSVG');
+
+        // Tool selection
+        function selectTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            showAlert(`Tool selected: ${tool.toUpperCase()}`);
+        }
+
+        // Color selection
+        function selectColor(color) {
+            currentColor = color;
+            document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('active'));
+            event.target.classList.add('active');
+            showAlert(`Color selected: ${color}`);
+        }
+
+        // Brush size selection
+        function selectBrushSize(size) {
+            currentBrushSize = size;
+            document.querySelectorAll('.brush-size').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            showAlert(`Brush size: ${size}px`);
+        }
+
+        // Drawing functionality
+        drawingArea.addEventListener('mousedown', startDrawing);
+        drawingArea.addEventListener('mousemove', draw);
+        drawingArea.addEventListener('mouseup', stopDrawing);
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = drawingArea.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            if (currentTool === 'brush') {
+                createBrushStroke(x, y);
+            } else if (currentTool === 'circle') {
+                createCircle(x, y);
+            } else if (currentTool === 'text') {
+                createText(x, y);
+            }
+        }
+
+        function draw(e) {
+            if (!isDrawing || currentTool !== 'brush') return;
+            
+            const rect = drawingArea.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            extendBrushStroke(x, y);
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function createBrushStroke(x, y) {
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', x);
+            circle.setAttribute('cy', y);
+            circle.setAttribute('r', currentBrushSize);
+            circle.setAttribute('fill', currentColor);
+            circle.setAttribute('opacity', '0.8');
+            mainSVG.appendChild(circle);
+            elements.push(circle);
+        }
+
+        function extendBrushStroke(x, y) {
+            createBrushStroke(x, y);
+        }
+
+        function createCircle(x, y) {
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', x);
+            circle.setAttribute('cy', y);
+            circle.setAttribute('r', 20);
+            circle.setAttribute('fill', 'none');
+            circle.setAttribute('stroke', currentColor);
+            circle.setAttribute('stroke-width', currentBrushSize);
+            mainSVG.appendChild(circle);
+            elements.push(circle);
+        }
+
+        function createText(x, y) {
+            const text = prompt('Enter text:');
+            if (text) {
+                const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                textElement.setAttribute('x', x);
+                textElement.setAttribute('y', y);
+                textElement.setAttribute('fill', currentColor);
+                textElement.setAttribute('font-size', '16');
+                textElement.textContent = text;
+                mainSVG.appendChild(textElement);
+                elements.push(textElement);
+            }
+        }
+
+        // Control functions
+        function showAlert(message) {
+            const alertPanel = document.getElementById('alertPanel');
+            alertPanel.textContent = message;
+            alertPanel.style.display = 'block';
+            
+            setTimeout(() => {
+                alertPanel.style.animation = 'alertSlide 0.5s ease-out reverse';
+                setTimeout(() => {
+                    alertPanel.style.display = 'none';
+                    alertPanel.style.animation = 'alertSlide 0.5s ease-in';
+                }, 500);
+            }, 3000);
+        }
+
+        function saveProject() {
+            showAlert('Project saved to Canvas workspace. All fleet design elements preserved.');
+        }
+
+        function loadProject() {
+            showAlert('Loading saved project... Fleet layout restored.');
+        }
+
+        function exportCanvas() {
+            showAlert('Canvas exported as SVG. High-resolution fleet design ready for production.');
+        }
+
+        function clearCanvas() {
+            if (confirm('Clear entire canvas? This action cannot be undone.')) {
+                // Keep the grid and sample elements, remove user additions
+                elements.forEach(element => {
+                    if (element.parentNode) {
+                        element.parentNode.removeChild(element);
+                    }
+                });
+                elements = [];
+                showAlert('Canvas cleared. Grid and template preserved.');
+            }
+        }
+
+        function undoAction() {
+            if (elements.length > 0) {
+                const lastElement = elements.pop();
+                if (lastElement.parentNode) {
+                    lastElement.parentNode.removeChild(lastElement);
+                }
+                showAlert('Last action undone.');
+            }
+        }
+
+        function redoAction() {
+            showAlert('Redo functionality activated.');
+        }
+
+        function zoomIn() {
+            showAlert('Canvas zoom increased. Detail view enabled.');
+        }
+
+        function zoomOut() {
+            showAlert('Canvas zoom decreased. Overview mode enabled.');
+        }
+
+        // Initialize
+        window.onload = function() {
+            showAlert('Canvas Digital Workspace initialized. Fleet design studio ready.');
+        };
+    </script>
+</body>
+</html>

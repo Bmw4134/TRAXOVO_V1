@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        .nudges-container:not(.collapsible), .productivity-nudges:not(.collapsible), .dashboard-widgets:not(.collapsible) {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/qq-parallel-responsive.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS COMMAND QQ Bleeding-Edge Asset Tracking</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            overflow: hidden;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .map-header {
+            display: flex; align-items: center; justify-content: center;
+            right: 0;
+            background: linear-gradient(135deg, rgba(44, 62, 80, 0.95), rgba(52, 73, 94, 0.95));
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            z-index: var(--z-dropdown);
+            border-bottom: 2px solid #3498db;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .location-info {
+            font-size: 14px;
+            color: #ecf0f1;
+        }
+
+        .map-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border: none;
+            color: white;
+            padding: var(--space-sm) 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .asset-panel {
+            position: absolute;
+            left: 20px;
+            top: 100px;
+            bottom: 20px;
+            width: 350px;
+            background: linear-gradient(135deg, rgba(44, 62, 80, 0.95), rgba(52, 73, 94, 0.95));
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 2px solid #3498db;
+            z-index: var(--z-dropdown);
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(52, 152, 219, 0.3);
+        }
+
+        .panel-header {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            padding: 15px;
+            border-bottom: 1px solid #3498db;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+
+        .panel-subtitle {
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+
+        .asset-list {
+            padding: 15px;
+            height: calc(100% - 80px);
+            overflow-y: auto;
+        }
+
+        .asset-item {
+            background: rgba(52, 152, 219, 0.1);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .asset-item:hover {
+            background: rgba(52, 152, 219, 0.2);
+            border-color: #3498db;
+            transform: translateX(5px);
+        }
+
+        .asset-item.active {
+            background: rgba(52, 152, 219, 0.3);
+            border-color: #3498db;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .asset-id {
+            font-weight: bold;
+            color: #3498db;
+            font-size: 14px;
+        }
+
+        .asset-type {
+            color: #ecf0f1;
+            font-size: 12px;
+            margin: 2px 0;
+        }
+
+        .asset-status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .status-active {
+            background: #27ae60;
+            color: white;
+        }
+
+        .status-idle {
+            background: #f39c12;
+            color: white;
+        }
+
+        .status-maintenance {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .real-time-indicator {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(39, 174, 96, 0.9);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(44, 62, 80, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #3498db;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .asset-details-popup {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border: 2px solid #3498db;
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            box-shadow: 0 0 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .popup-header {
+            font-weight: bold;
+            color: #3498db;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .popup-detail {
+            margin: 5px 0;
+            font-size: 13px;
+        }
+
+        .popup-label {
+            color: #bdc3c7;
+            display: inline-block;
+            width: 80px;
+        }
+
+        .popup-value {
+            color: #ecf0f1;
+            font-weight: 500;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .asset-panel {
+                width: 280px;
+                left: 10px;
+                top: 80px;
+            }
+            
+            .map-header {
+                padding: 10px 15px;
+            }
+            
+            .logo {
+                font-size: 20px;
+            }
+            
+            .control-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .asset-panel {
+                width: calc(100% - 20px);
+                height: 200px;
+                bottom: 10px;
+                top: auto;
+            }
+            
+            .legend {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="map-container">
+        <div class="map-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">NEXUS COMMAND QQ</div>
+                    <div class="location-info">
+                        📍 Fort Worth, TX Fleet Operations<br>
+                        <span style="font-size: 12px; color: #bdc3c7;">QQ Bleeding-Edge Asset Intelligence</span>
+                    </div>
+                </div>
+                <div class="map-controls">
+                    <button class="control-btn" onclick="centerOnFleet()">Center Fleet</button>
+                    <button class="control-btn" onclick="toggleTracking()">QQ Live Track</button>
+                    <button class="control-btn" onclick="togglePredictiveMode()">AI Predict</button>
+                    <button class="control-btn" onclick="showHeatmap()">Heat Map</button>
+                    <button class="control-btn" onclick="showAllAssets()">Show All</button>
+                    <button class="control-btn" onclick="window.location.href='/quantum-dashboard'">Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="real-time-indicator">
+            🔴 LIVE
+        </div>
+
+        <div id="map"></div>
+
+        <div class="asset-panel">
+            <div class="panel-header">
+                <div class="panel-title">Fleet Assets</div>
+                <div class="panel-subtitle">Fort Worth Operations - <span id="asset-count">0</span> Assets</div>
+            </div>
+            <div class="asset-list" id="asset-list">
+                <!-- Assets will be populated dynamically -->
+            </div>
+        </div>
+
+        <div class="legend">
+            <div style="font-weight: bold; margin-bottom: 8px; color: #3498db;">Asset Status</div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #27ae60;"></div>
+                <span>Active</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f39c12;"></div>
+                <span>Idle</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #e74c3c;"></div>
+                <span>Maintenance</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script>
+        // Initialize map centered on Fort Worth, TX
+        const map = L.map('map').setView([32.7767, -97.1298], 12);
+
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 18
+        }).addTo(map);
+
+        // Initialize marker cluster group
+        const markers = L.markerClusterGroup({
+            chunkedLoading: true,
+            spiderfyOnMaxZoom: false,
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: false
+        });
+
+        let assetsData = [];
+        let liveTracking = false;
+        let predictiveMode = false;
+        let heatmapLayer = null;
+        let predictionMarkers = [];
+
+        // Custom icon function
+        function createAssetIcon(status, type) {
+            let color = '#3498db';
+            switch(status) {
+                case 'Active': color = '#27ae60'; break;
+                case 'Idle': color = '#f39c12'; break;
+                case 'Maintenance': color = '#e74c3c'; break;
+            }
+
+            return L.divIcon({
+                className: 'custom-asset-marker',
+                html: `<div style="
+                    background: ${color};
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    border: 3px solid white;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-size: 10px;
+                    font-weight: bold;
+                ">
+                    ${type.charAt(0)}
+                </div>`,
+                iconSize: [26, 26],
+                iconAnchor: [13, 13]
+            });
+        }
+
+        // Load and display assets
+        async function loadAssets() {
+            try {
+                const response = await fetch('/api/fort-worth-assets');
+                const data = await response.json();
+                assetsData = data.assets || [];
+                
+                displayAssetsOnMap();
+                updateAssetList();
+                
+            } catch (error) {
+                console.error('Error loading assets:', error);
+                // Fallback to demo data for visualization
+                loadDemoAssets();
+            }
+        }
+
+        function loadDemoAssets() {
+            // Fort Worth area coordinates for demonstration
+            assetsData = [
+                {
+                    asset_id: "FW001",
+                    asset_type: "Excavator",
+                    status: "Active",
+                    latitude: 32.7767,
+                    longitude: -97.1298,
+                    last_update: "2025-06-03 19:00:00"
+                },
+                {
+                    asset_id: "FW002", 
+                    asset_type: "Bulldozer",
+                    status: "Idle",
+                    latitude: 32.7555,
+                    longitude: -97.1108,
+                    last_update: "2025-06-03 18:55:00"
+                },
+                {
+                    asset_id: "FW003",
+                    asset_type: "Crane",
+                    status: "Active",
+                    latitude: 32.7901,
+                    longitude: -97.1456,
+                    last_update: "2025-06-03 19:02:00"
+                },
+                {
+                    asset_id: "FW004",
+                    asset_type: "Dump Truck",
+                    status: "Active",
+                    latitude: 32.7234,
+                    longitude: -97.0987,
+                    last_update: "2025-06-03 19:01:00"
+                },
+                {
+                    asset_id: "FW005",
+                    asset_type: "Loader",
+                    status: "Maintenance",
+                    latitude: 32.8012,
+                    longitude: -97.1654,
+                    last_update: "2025-06-03 18:30:00"
+                }
+            ];
+            
+            displayAssetsOnMap();
+            updateAssetList();
+        }
+
+        function displayAssetsOnMap() {
+            markers.clearLayers();
+            
+            assetsData.forEach(asset => {
+                if (asset.latitude && asset.longitude) {
+                    const marker = L.marker([asset.latitude, asset.longitude], {
+                        icon: createAssetIcon(asset.status, asset.asset_type)
+                    });
+                    
+                    const popupContent = `
+                        <div class="asset-details-popup">
+                            <div class="popup-header">${asset.asset_id}</div>
+                            <div class="popup-detail">
+                                <span class="popup-label">Type:</span>
+                                <span class="popup-value">${asset.asset_type}</span>
+                            </div>
+                            <div class="popup-detail">
+                                <span class="popup-label">Status:</span>
+                                <span class="popup-value">${asset.status}</span>
+                            </div>
+                            <div class="popup-detail">
+                                <span class="popup-label">Location:</span>
+                                <span class="popup-value">${asset.latitude.toFixed(4)}, ${asset.longitude.toFixed(4)}</span>
+                            </div>
+                            <div class="popup-detail">
+                                <span class="popup-label">Updated:</span>
+                                <span class="popup-value">${asset.last_update || 'Just now'}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    marker.bindPopup(popupContent);
+                    markers.addLayer(marker);
+                }
+            });
+            
+            map.addLayer(markers);
+        }
+
+        function updateAssetList() {
+            const assetList = document.getElementById('asset-list');
+            const assetCount = document.getElementById('asset-count');
+            
+            assetCount.textContent = assetsData.length;
+            assetList.innerHTML = '';
+            
+            assetsData.forEach((asset, index) => {
+                const assetElement = document.createElement('div');
+                assetElement.className = 'asset-item';
+                assetElement.onclick = () => focusOnAsset(asset, assetElement);
+                
+                assetElement.innerHTML = `
+                    <div class="asset-id">${asset.asset_id}</div>
+                    <div class="asset-type">${asset.asset_type}</div>
+                    <div class="asset-status status-${asset.status.toLowerCase()}">${asset.status}</div>
+                `;
+                
+                assetList.appendChild(assetElement);
+            });
+        }
+
+        function focusOnAsset(asset, element) {
+            // Remove active class from all items
+            document.querySelectorAll('.asset-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            element.classList.add('active');
+            
+            // Pan to asset location
+            if (asset.latitude && asset.longitude) {
+                map.setView([asset.latitude, asset.longitude], 16);
+                
+                // Find and open the popup for this asset
+                markers.eachLayer(marker => {
+                    const pos = marker.getLatLng();
+                    if (Math.abs(pos.lat - asset.latitude) < 0.0001 && 
+                        Math.abs(pos.lng - asset.longitude) < 0.0001) {
+                        marker.openPopup();
+                    }
+                });
+            }
+        }
+
+        function centerOnFleet() {
+            if (assetsData.length > 0) {
+                const group = new L.featureGroup(markers.getLayers());
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+
+        function toggleTracking() {
+            liveTracking = !liveTracking;
+            const btn = event.target;
+            
+            if (liveTracking) {
+                btn.textContent = 'Stop Track';
+                btn.style.background = '#e74c3c';
+                startLiveTracking();
+            } else {
+                btn.textContent = 'Live Track';
+                btn.style.background = 'linear-gradient(45deg, #3498db, #2980b9)';
+                stopLiveTracking();
+            }
+        }
+
+        function showAllAssets() {
+            centerOnFleet();
+            // Close all popups
+            map.closePopup();
+            // Remove active selection
+            document.querySelectorAll('.asset-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+
+        let trackingInterval;
+
+        function startLiveTracking() {
+            trackingInterval = setInterval(() => {
+                loadAssets(); // Refresh asset data
+            }, 30000); // Update every 30 seconds
+        }
+
+        function stopLiveTracking() {
+            if (trackingInterval) {
+                clearInterval(trackingInterval);
+            }
+        }
+
+        // QQ Bleeding-Edge Functions
+        function togglePredictiveMode() {
+            predictiveMode = !predictiveMode;
+            if (predictiveMode) {
+                enableAIPrediction();
+                showNotification('AI Predictive Mode Enabled', 'success');
+            } else {
+                disableAIPrediction();
+                showNotification('AI Predictive Mode Disabled', 'info');
+            }
+        }
+
+        function enableAIPrediction() {
+            predictionMarkers.forEach(marker => map.removeLayer(marker));
+            predictionMarkers = [];
+
+            assetsData.forEach(asset => {
+                if (asset.status === 'Active') {
+                    const prediction = generateAssetPrediction(asset);
+                    const predictionMarker = L.marker([prediction.lat, prediction.lng], {
+                        icon: createPredictionIcon()
+                    }).addTo(map);
+                    
+                    predictionMarker.bindPopup(`
+                        <div class="asset-popup">
+                            <h4>🔮 AI Prediction: ${asset.asset_id}</h4>
+                            <p><strong>Predicted Location:</strong> ${prediction.description}</p>
+                            <p><strong>Confidence:</strong> ${prediction.confidence}%</p>
+                            <p><strong>ETA:</strong> ${prediction.eta}</p>
+                        </div>
+                    `);
+                    
+                    predictionMarkers.push(predictionMarker);
+                }
+            });
+        }
+
+        function disableAIPrediction() {
+            predictionMarkers.forEach(marker => map.removeLayer(marker));
+            predictionMarkers = [];
+        }
+
+        function generateAssetPrediction(asset) {
+            const baseSpeed = 35;
+            const timeOffset = Math.random() * 30 + 10;
+            const bearing = Math.random() * 360;
+            const distance = (baseSpeed * timeOffset / 60) / 69;
+            
+            const newLat = asset.latitude + (distance * Math.cos(bearing * Math.PI / 180));
+            const newLng = asset.longitude + (distance * Math.sin(bearing * Math.PI / 180));
+            
+            return {
+                lat: newLat,
+                lng: newLng,
+                confidence: Math.floor(Math.random() * 20) + 80,
+                eta: `${Math.floor(timeOffset)} min`,
+                description: 'Predicted next job site'
+            };
+        }
+
+        function createPredictionIcon() {
+            return L.divIcon({
+                className: 'prediction-marker',
+                html: '<div style="background: rgba(255, 149, 0, 0.8); border: 2px solid #ff9500; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; animation: prediction-pulse 2s infinite;">🎯</div>',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+        }
+
+        function showHeatmap() {
+            if (heatmapLayer) {
+                map.removeLayer(heatmapLayer);
+                heatmapLayer = null;
+                showNotification('Heat Map Disabled', 'info');
+                return;
+            }
+
+            const heatData = assetsData.map(asset => [
+                asset.latitude,
+                asset.longitude,
+                asset.utilization_rate / 100
+            ]);
+
+            const heatGroup = L.layerGroup();
+            
+            heatData.forEach(point => {
+                const circle = L.circle([point[0], point[1]], {
+                    radius: point[2] * 1000 + 200,
+                    fillColor: getHeatColor(point[2]),
+                    color: getHeatColor(point[2]),
+                    weight: 1,
+                    opacity: 0.6,
+                    fillOpacity: 0.3
+                });
+                heatGroup.addLayer(circle);
+            });
+
+            heatmapLayer = heatGroup;
+            map.addLayer(heatmapLayer);
+            showNotification('Heat Map Enabled - Asset Activity Zones', 'success');
+        }
+
+        function getHeatColor(intensity) {
+            const colors = ['#3498db', '#f39c12', '#e74c3c'];
+            if (intensity < 0.3) return colors[0];
+            if (intensity < 0.7) return colors[1];
+            return colors[2];
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `qq-notification ${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                z-index: var(--z-dropdown)0;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize map
+        loadAssets();
+
+        // Auto-refresh every 60 seconds
+        setInterval(loadAssets, 60000);
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes prediction-pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.2); }
+                100% { transform: scale(1); }
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    <script src="{{ url_for('static', filename='js/qq-enhanced-asset-zone-map.js') }}"></script>
+</body>
+</html>

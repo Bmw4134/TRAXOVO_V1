@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAIZEN Final Unlock Test - NEXUS COMMAND</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #00ff00;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .unlock-header {
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .unlock-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 255, 0, 0.1), transparent);
+            animation: scan 3s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .status-card {
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .unlock-meter {
+            height: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00ff00;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .unlock-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000 0%, #ffff00 30%, #00ff00 60%, #00ffff 100%);
+            transition: width 1s ease;
+            position: relative;
+        }
+        
+        .unlock-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+        
+        .dashboard-list {
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .dashboard-item {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 5px;
+            border-left: 3px solid;
+        }
+        
+        .status-unrestricted { border-left-color: #00ff00; }
+        .status-restricted { border-left-color: #ffff00; }
+        .status-error { border-left-color: #ff0000; }
+        
+        .unlock-animation {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #00ff00; }
+            to { text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00; }
+        }
+        
+        .btn-unlock {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-unlock:hover {
+            background: rgba(0, 255, 0, 0.3);
+            color: #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+        
+        .loading-matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .matrix-text {
+            font-size: 1.2rem;
+            color: #00ff00;
+            text-align: center;
+        }
+        
+        .fingerprint-display {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #00ff00;
+            word-break: break-all;
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-matrix" id="loadingMatrix">
+        <div class="matrix-text">
+            <div class="spinner-border text-success mb-3" role="status"></div>
+            <div>EXECUTING FINAL UNLOCK TEST...</div>
+            <div class="small">TRD: Validate unlocks across all dashboards</div>
+        </div>
+    </div>
+
+    <div class="container-fluid py-4">
+        <div class="unlock-header">
+            <h1 class="unlock-animation"><i class="fas fa-unlock-alt me-2"></i>KAIZEN FINAL UNLOCK TEST</h1>
+            <p class="mb-3">TRD Validation: Unrestricted Module Access & Fingerprint Match</p>
+            <div id="overallStatus" class="h4">Initializing...</div>
+        </div>
+
+        <div class="status-grid">
+            <div class="status-card">
+                <h6><i class="fas fa-chart-pie me-2"></i>Overall Unlock Score</h6>
+                <div class="unlock-meter mb-2">
+                    <div id="overallUnlockFill" class="unlock-fill" style="width: 0%"></div>
+                </div>
+                <div id="overallScore" class="text-center h5">0%</div>
+            </div>
+
+            <div class="status-card">
+                <h6><i class="fas fa-desktop me-2"></i>Dashboard Unlock Rate</h6>
+                <div class="unlock-meter mb-2">
+                    <div id="dashboardUnlockFill" class="unlock-fill" style="width: 0%"></div>
+                </div>
+                <div id="dashboardScore" class="text-center">0 / 0 Dashboards</div>
+            </div>
+
+            <div class="status-card">
+                <h6><i class="fas fa-cubes me-2"></i>Module Access Rate</h6>
+                <div class="unlock-meter mb-2">
+                    <div id="moduleUnlockFill" class="unlock-fill" style="width: 0%"></div>
+                </div>
+                <div id="moduleScore" class="text-center">0 / 0 Modules</div>
+            </div>
+
+            <div class="status-card">
+                <h6><i class="fas fa-fingerprint me-2"></i>Fingerprint Validation</h6>
+                <div id="fingerprintStatus" class="text-center h5">
+                    <span class="pulse">VALIDATING...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="status-card">
+                    <h6><i class="fas fa-list me-2"></i>Dashboard Validation Results</h6>
+                    <div id="dashboardList" class="dashboard-list">
+                        <div class="text-center text-muted">Loading dashboard results...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="status-card mb-3">
+                    <h6><i class="fas fa-cogs me-2"></i>Module Categories</h6>
+                    <div id="moduleCategories">
+                        <div class="small mb-2">
+                            <strong>QQ Modules:</strong> <span id="qqModules">0</span>
+                        </div>
+                        <div class="small mb-2">
+                            <strong>Automation Modules:</strong> <span id="automationModules">0</span>
+                        </div>
+                        <div class="small mb-2">
+                            <strong>API Modules:</strong> <span id="apiModules">0</span>
+                        </div>
+                        <div class="small mb-2">
+                            <strong>UI Modules:</strong> <span id="uiModules">0</span>
+                        </div>
+                        <div class="small">
+                            <strong>Core Modules:</strong> <span id="coreModules">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-card mb-3">
+                    <h6><i class="fas fa-desktop me-2"></i>UI Readiness</h6>
+                    <div class="unlock-meter mb-2">
+                        <div id="uiReadinessFill" class="unlock-fill" style="width: 0%"></div>
+                    </div>
+                    <div id="uiReadinessScore" class="text-center">0%</div>
+                </div>
+
+                <div class="status-card">
+                    <h6><i class="fas fa-list-check me-2"></i>Recommendations</h6>
+                    <div id="recommendations">
+                        <div class="text-muted">Analyzing system...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button id="runUnlockTest" class="btn btn-unlock btn-lg me-3">
+                <i class="fas fa-play me-2"></i>Execute Full Unlock Test
+            </button>
+            <button id="quickStatus" class="btn btn-unlock">
+                <i class="fas fa-tachometer-alt me-2"></i>Quick Status Check
+            </button>
+        </div>
+
+        <div class="status-card mt-4" id="fingerprintDetails" style="display: none;">
+            <h6><i class="fas fa-fingerprint me-2"></i>System Fingerprint Details</h6>
+            <div id="fingerprintDisplay" class="fingerprint-display"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class UnlockTestDashboard {
+            constructor() {
+                this.init();
+                this.loadQuickStatus();
+            }
+
+            init() {
+                document.getElementById('runUnlockTest').addEventListener('click', () => {
+                    this.executeFullUnlockTest();
+                });
+
+                document.getElementById('quickStatus').addEventListener('click', () => {
+                    this.loadQuickStatus();
+                });
+            }
+
+            showLoading() {
+                document.getElementById('loadingMatrix').style.display = 'flex';
+            }
+
+            hideLoading() {
+                document.getElementById('loadingMatrix').style.display = 'none';
+            }
+
+            async loadQuickStatus() {
+                try {
+                    const response = await fetch('/api/unlock-status');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.updateQuickStatus(data.unlock_status);
+                    } else {
+                        this.showError('Quick status check failed: ' + data.error);
+                    }
+                } catch (error) {
+                    this.showError('Quick status check error: ' + error.message);
+                }
+            }
+
+            updateQuickStatus(status) {
+                // Update overall status
+                document.getElementById('overallStatus').textContent = 
+                    `System Status: ${status.status} (${status.overall_readiness}%)`;
+                
+                this.animateProgressBar('overallUnlockFill', 'overallScore', status.overall_readiness);
+                
+                // Update dashboard count
+                document.getElementById('dashboardScore').textContent = 
+                    `${status.dashboards_discovered} Dashboards Discovered`;
+                this.animateProgressBar('dashboardUnlockFill', null, 100);
+                
+                // Update module access
+                document.getElementById('moduleScore').textContent = 
+                    `${status.unrestricted_modules_percentage}% Unrestricted`;
+                this.animateProgressBar('moduleUnlockFill', null, status.unrestricted_modules_percentage);
+                
+                // Update fingerprint status
+                const fingerprintEl = document.getElementById('fingerprintStatus');
+                if (status.fingerprint_match) {
+                    fingerprintEl.innerHTML = '<span class="text-success">VALIDATED ✓</span>';
+                } else {
+                    fingerprintEl.innerHTML = '<span class="text-warning">PENDING</span>';
+                }
+                
+                // Update UI readiness
+                this.animateProgressBar('uiReadinessFill', 'uiReadinessScore', status.ui_readiness_score);
+            }
+
+            async executeFullUnlockTest() {
+                this.showLoading();
+                
+                try {
+                    const response = await fetch('/api/final-unlock-test');
+                    const data = await response.json();
+                    
+                    this.hideLoading();
+                    
+                    if (data.success) {
+                        this.displayFullResults(data.validation_results);
+                    } else {
+                        this.showError('Full unlock test failed: ' + data.error);
+                    }
+                } catch (error) {
+                    this.hideLoading();
+                    this.showError('Full unlock test error: ' + error.message);
+                }
+            }
+
+            displayFullResults(results) {
+                const summary = results.unlock_summary;
+                
+                // Update overall status
+                document.getElementById('overallStatus').textContent = 
+                    `Final Status: ${summary.unlock_status} (${summary.overall_unlock_score}%)`;
+                
+                // Animate progress bars
+                this.animateProgressBar('overallUnlockFill', 'overallScore', summary.overall_unlock_score);
+                this.animateProgressBar('dashboardUnlockFill', null, summary.dashboard_unlock_rate);
+                this.animateProgressBar('moduleUnlockFill', null, summary.module_unlock_rate);
+                this.animateProgressBar('uiReadinessFill', 'uiReadinessScore', results.ui_readiness_status.ui_readiness_score);
+                
+                // Update dashboard score
+                const dashboardCount = results.dashboards_validated.length;
+                const unrestrictedDashboards = results.dashboards_validated.filter(d => d.unlock_status === 'unrestricted').length;
+                document.getElementById('dashboardScore').textContent = 
+                    `${unrestrictedDashboards} / ${dashboardCount} Unrestricted`;
+                
+                // Update module score
+                const moduleStats = results.module_access_status.access_statistics;
+                document.getElementById('moduleScore').textContent = 
+                    `${moduleStats.unrestricted_count} / ${moduleStats.total_scanned} Unrestricted`;
+                
+                // Update fingerprint status
+                const fingerprintEl = document.getElementById('fingerprintStatus');
+                if (summary.fingerprint_validation_status === 'PASSED') {
+                    fingerprintEl.innerHTML = '<span class="text-success">VALIDATED ✓</span>';
+                } else {
+                    fingerprintEl.innerHTML = '<span class="text-warning">PENDING</span>';
+                }
+                
+                // Display dashboard list
+                this.displayDashboardList(results.dashboards_validated);
+                
+                // Display module categories
+                this.displayModuleCategories(results.module_access_status.module_categories);
+                
+                // Display recommendations
+                this.displayRecommendations(summary.recommendations);
+                
+                // Show fingerprint details
+                if (results.fingerprint_validation.system_fingerprint) {
+                    this.displayFingerprintDetails(results.fingerprint_validation);
+                }
+            }
+
+            displayDashboardList(dashboards) {
+                const container = document.getElementById('dashboardList');
+                
+                const dashboardHtml = dashboards.map(dashboard => {
+                    const statusClass = dashboard.unlock_status === 'unrestricted' ? 'status-unrestricted' :
+                                       dashboard.unlock_status === 'restricted' ? 'status-restricted' : 'status-error';
+                    
+                    return `
+                        <div class="dashboard-item ${statusClass}">
+                            <div class="d-flex justify-content-between">
+                                <span><strong>${dashboard.dashboard_name}</strong></span>
+                                <span class="small">${dashboard.unlock_status.toUpperCase()}</span>
+                            </div>
+                            <div class="small text-muted">${dashboard.dashboard_route}</div>
+                            ${dashboard.access_restrictions.length > 0 ? 
+                                `<div class="small text-warning">Restrictions: ${dashboard.access_restrictions.join(', ')}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+                
+                container.innerHTML = dashboardHtml;
+            }
+
+            displayModuleCategories(categories) {
+                document.getElementById('qqModules').textContent = categories.qq_modules.length;
+                document.getElementById('automationModules').textContent = categories.automation_modules.length;
+                document.getElementById('apiModules').textContent = categories.api_modules.length;
+                document.getElementById('uiModules').textContent = categories.ui_modules.length;
+                document.getElementById('coreModules').textContent = categories.core_modules.length;
+            }
+
+            displayRecommendations(recommendations) {
+                const container = document.getElementById('recommendations');
+                
+                const recommendationsHtml = recommendations.map(rec => 
+                    `<div class="small mb-1"><i class="fas fa-arrow-right me-2"></i>${rec}</div>`
+                ).join('');
+                
+                container.innerHTML = recommendationsHtml || '<div class="text-success">All systems optimal</div>';
+            }
+
+            displayFingerprintDetails(fingerprintData) {
+                const container = document.getElementById('fingerprintDisplay');
+                const details = document.getElementById('fingerprintDetails');
+                
+                container.textContent = JSON.stringify(fingerprintData, null, 2);
+                details.style.display = 'block';
+            }
+
+            animateProgressBar(fillId, textId, percentage) {
+                const fill = document.getElementById(fillId);
+                const text = textId ? document.getElementById(textId) : null;
+                
+                setTimeout(() => {
+                    fill.style.width = `${percentage}%`;
+                    if (text) {
+                        text.textContent = `${percentage}%`;
+                    }
+                }, 100);
+            }
+
+            showError(message) {
+                const alert = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                document.querySelector('.container-fluid').insertAdjacentHTML('afterbegin', alert);
+            }
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            new UnlockTestDashboard();
+        });
+    </script>
+</body>
+</html>

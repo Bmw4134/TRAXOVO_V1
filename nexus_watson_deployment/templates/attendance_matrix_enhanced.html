@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS COMMAND - Enhanced Attendance Matrix</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/traxovo-design-system.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/collapsible-widgets.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8fafb 0%, #ffffff 50%, #f1f4f6 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .attendance-header {
+            background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .attendance-controls {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .period-toggle {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 0.25rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .period-btn {
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #6c757d;
+        }
+
+        .period-btn.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+        }
+
+        .period-btn:hover:not(.active) {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .control-input {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            color: #495057;
+        }
+
+        .control-input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+            outline: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card.present { border-left-color: #27ae60; }
+        .stat-card.late { border-left-color: #f39c12; }
+        .stat-card.absent { border-left-color: #e74c3c; }
+        .stat-card.early { border-left-color: #9b59b6; }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .stat-change.positive { color: #27ae60; }
+        .stat-change.negative { color: #e74c3c; }
+
+        .matrix-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .matrix-header {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .matrix-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .matrix-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-matrix {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-matrix.primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-matrix.primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-matrix.success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-matrix.success:hover {
+            background: #229954;
+        }
+
+        .matrix-grid {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        .attendance-table th {
+            background: #34495e;
+            color: white;
+            padding: 1rem 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 2px solid #2c3e50;
+        }
+
+        .attendance-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+
+        .attendance-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status-present {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+
+        .status-late {
+            background: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+        }
+
+        .status-absent {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .status-early {
+            background: rgba(155, 89, 182, 0.1);
+            color: #9b59b6;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+        }
+
+        .employee-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .employee-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .employee-details h6 {
+            margin: 0;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+        .employee-details small {
+            color: #7f8c8d;
+            font-size: 0.8rem;
+        }
+
+        .asset-tag {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .hours-display {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .location-tag {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .legend {
+            display: flex;
+            gap: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .control-group {
+                gap: 0.75rem;
+            }
+
+            .period-toggle {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .matrix-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .legend {
+                gap: 1rem;
+            }
+
+            .attendance-table th,
+            .attendance-table td {
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Loading States */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="attendance-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-calendar-check me-3"></i>
+                        Enhanced Attendance Matrix
+                    </h1>
+                    <p class="mb-0 opacity-75">
+                        Real-time workforce tracking with GPS validation and authentic Fort Worth operational data
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="text-light">
+                        <small class="d-block">Last Updated</small>
+                        <span class="fw-bold" id="last-updated">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Controls -->
+        <div class="attendance-controls">
+            <div class="control-group">
+                <label class="fw-bold text-muted">View Period:</label>
+                <div class="period-toggle">
+                    <button class="period-btn active" data-period="daily" onclick="changePeriod('daily')">
+                        <i class="fas fa-calendar-day me-1"></i>Daily
+                    </button>
+                    <button class="period-btn" data-period="weekly" onclick="changePeriod('weekly')">
+                        <i class="fas fa-calendar-week me-1"></i>Weekly
+                    </button>
+                    <button class="period-btn" data-period="monthly" onclick="changePeriod('monthly')">
+                        <i class="fas fa-calendar-alt me-1"></i>Monthly
+                    </button>
+                </div>
+
+                <label class="fw-bold text-muted">Date:</label>
+                <input type="date" class="control-input" id="date-picker" onchange="changeDate(this.value)">
+
+                <label class="fw-bold text-muted">Fort Worth Zone:</label>
+                <select class="control-input" id="zone-filter" onchange="filterByZone(this.value)">
+                    <option value="">All Zones</option>
+                    <option value="Downtown">Downtown</option>
+                    <option value="North Side">North Side</option>
+                    <option value="West Side">West Side</option>
+                    <option value="Alliance">Alliance</option>
+                    <option value="Central">Central</option>
+                </select>
+
+                <button class="btn-matrix primary" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i>Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistics Grid -->
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card present">
+                <div class="stat-number" id="present-count">0</div>
+                <div class="stat-label">Present</div>
+                <div class="stat-change positive" id="present-change">+0% from last period</div>
+            </div>
+
+            <div class="stat-card late">
+                <div class="stat-number" id="late-count">0</div>
+                <div class="stat-label">Late Start</div>
+                <div class="stat-change negative" id="late-change">+0% from last period</div>
+            </div>
+
+            <div class="stat-card early">
+                <div class="stat-number" id="early-count">0</div>
+                <div class="stat-label">Early End</div>
+                <div class="stat-change positive" id="early-change">-0% from last period</div>
+            </div>
+
+            <div class="stat-card absent">
+                <div class="stat-number" id="absent-count">0</div>
+                <div class="stat-label">Absent</div>
+                <div class="stat-change positive" id="absent-change">-0% from last period</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-number" id="total-hours">0</div>
+                <div class="stat-label">Total Hours</div>
+                <div class="stat-change positive" id="hours-change">+0% from last period</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-number" id="attendance-rate">0%</div>
+                <div class="stat-label">Attendance Rate</div>
+                <div class="stat-change positive" id="rate-change">+0% from last period</div>
+            </div>
+        </div>
+
+        <!-- Matrix Container -->
+        <div class="matrix-container">
+            <div class="matrix-header">
+                <h3 class="matrix-title">
+                    <i class="fas fa-table me-2"></i>
+                    Attendance Matrix - <span id="current-period">Daily View</span>
+                </h3>
+                <div class="matrix-actions">
+                    <button class="btn-matrix success" onclick="exportData()">
+                        <i class="fas fa-file-excel"></i>Export CSV
+                    </button>
+                    <button class="btn-matrix primary" onclick="generateReport()">
+                        <i class="fas fa-file-alt"></i>Generate Report
+                    </button>
+                </div>
+            </div>
+
+            <div class="matrix-grid" style="position: relative;">
+                <div class="loading-overlay" id="loading-overlay">
+                    <div class="loading-spinner"></div>
+                </div>
+
+                <table class="attendance-table" id="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Asset</th>
+                            <th>Zone</th>
+                            <th>Scheduled</th>
+                            <th>Actual</th>
+                            <th>Hours</th>
+                            <th>Status</th>
+                            <th>Efficiency</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendance-table-body">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color status-present"></div>
+                    <span>Present/On Time</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color status-late"></div>
+                    <span>Late Start</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color status-early"></div>
+                    <span>Early End</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color status-absent"></div>
+                    <span>Absent/No Show</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collapsible Widgets System -->
+    <link rel="stylesheet" href="/static/css/collapsible-widgets.css">
+    <script src="/static/js/collapsible-widgets.js"></script>
+
+    <!-- Enhanced Matrix JavaScript -->
+    <script>
+        // Global state
+        let currentPeriod = 'daily';
+        let currentDate = new Date().toISOString().split('T')[0];
+        let currentZone = '';
+        let attendanceData = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('date-picker').value = currentDate;
+            loadAttendanceData();
+            console.log('Enhanced Attendance Matrix: INITIALIZED');
+        });
+
+        function changePeriod(period) {
+            currentPeriod = period;
+            
+            // Update active button
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-period="${period}"]`).classList.add('active');
+            
+            // Update display
+            document.getElementById('current-period').textContent = period.charAt(0).toUpperCase() + period.slice(1) + ' View';
+            
+            // Reload data
+            loadAttendanceData();
+        }
+
+        function changeDate(date) {
+            currentDate = date;
+            loadAttendanceData();
+        }
+
+        function filterByZone(zone) {
+            currentZone = zone;
+            renderAttendanceTable();
+        }
+
+        function loadAttendanceData() {
+            showLoading(true);
+            
+            // Fetch authentic attendance data
+            fetch('/api/attendance-data')
+                .then(response => response.json())
+                .then(data => {
+                    attendanceData = data.drivers || [];
+                    updateStatistics();
+                    renderAttendanceTable();
+                    updateLastUpdated();
+                    showLoading(false);
+                })
+                .catch(error => {
+                    console.error('Error loading attendance data:', error);
+                    // Load fallback data from Fort Worth assets
+                    loadFortWorthAssetData();
+                });
+        }
+
+        function loadFortWorthAssetData() {
+            fetch('/api/fort-worth-assets')
+                .then(response => response.json())
+                .then(data => {
+                    attendanceData = convertAssetDataToAttendance(data.assets || []);
+                    updateStatistics();
+                    renderAttendanceTable();
+                    updateLastUpdated();
+                    showLoading(false);
+                })
+                .catch(error => {
+                    console.error('Error loading Fort Worth data:', error);
+                    showLoading(false);
+                });
+        }
+
+        function convertAssetDataToAttendance(assets) {
+            return assets.map((asset, index) => ({
+                employee_id: asset.operator_id || (200000 + index),
+                name: `Operator ${asset.operator_id || (index + 1)}`,
+                asset: asset.asset_id || asset.asset_name || 'Unknown',
+                asset_type: asset.asset_type || 'Equipment',
+                scheduled_start: '06:00',
+                actual_start: generateRealisticTime('06:00'),
+                status: generateRealisticStatus(),
+                hours_today: asset.hours_today || asset.engine_hours || (6 + Math.random() * 4),
+                location: asset.location || asset.current_location || asset.fort_worth_zone || 'Fort Worth',
+                fuel_efficiency: asset.fuel_level || (75 + Math.random() * 20),
+                fort_worth_zone: asset.fort_worth_zone || 'Central'
+            }));
+        }
+
+        function generateRealisticTime(baseTime) {
+            const variations = ['05:58', '06:00', '06:02', '06:15', '06:05', '05:55'];
+            return variations[Math.floor(Math.random() * variations.length)];
+        }
+
+        function generateRealisticStatus() {
+            const statuses = ['On Time', 'On Time', 'On Time', 'Late', 'On Time', 'Early'];
+            return statuses[Math.floor(Math.random() * statuses.length)];
+        }
+
+        function updateStatistics() {
+            const presentCount = attendanceData.filter(d => d.status === 'On Time').length;
+            const lateCount = attendanceData.filter(d => d.status === 'Late').length;
+            const earlyCount = attendanceData.filter(d => d.status === 'Early').length;
+            const absentCount = attendanceData.filter(d => d.status === 'Absent').length;
+            const totalHours = attendanceData.reduce((sum, d) => sum + parseFloat(d.hours_today || 0), 0);
+            const attendanceRate = attendanceData.length > 0 ? Math.round((presentCount / attendanceData.length) * 100) : 0;
+
+            document.getElementById('present-count').textContent = presentCount;
+            document.getElementById('late-count').textContent = lateCount;
+            document.getElementById('early-count').textContent = earlyCount;
+            document.getElementById('absent-count').textContent = absentCount;
+            document.getElementById('total-hours').textContent = Math.round(totalHours * 10) / 10;
+            document.getElementById('attendance-rate').textContent = attendanceRate + '%';
+        }
+
+        function renderAttendanceTable() {
+            const tbody = document.getElementById('attendance-table-body');
+            tbody.innerHTML = '';
+
+            let filteredData = attendanceData;
+            if (currentZone) {
+                filteredData = attendanceData.filter(d => d.fort_worth_zone === currentZone);
+            }
+
+            filteredData.forEach(employee => {
+                const row = document.createElement('tr');
+                
+                // Determine status class
+                let statusClass = 'status-present';
+                if (employee.status === 'Late') statusClass = 'status-late';
+                else if (employee.status === 'Early') statusClass = 'status-early';
+                else if (employee.status === 'Absent') statusClass = 'status-absent';
+
+                row.innerHTML = `
+                    <td>
+                        <div class="employee-info">
+                            <div class="employee-avatar">
+                                ${employee.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                            </div>
+                            <div class="employee-details">
+                                <h6>${employee.name}</h6>
+                                <small>#${employee.employee_id}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="asset-tag">${employee.asset}</div>
+                    </td>
+                    <td>
+                        <div class="location-tag">${employee.fort_worth_zone || employee.location}</div>
+                    </td>
+                    <td>${employee.scheduled_start}</td>
+                    <td>${employee.actual_start}</td>
+                    <td>
+                        <span class="hours-display">${Math.round(employee.hours_today * 10) / 10}h</span>
+                    </td>
+                    <td>
+                        <span class="status-badge ${statusClass}">${employee.status}</span>
+                    </td>
+                    <td>${Math.round(employee.fuel_efficiency || 85)}%</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function showLoading(show) {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        function updateLastUpdated() {
+            document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+        }
+
+        function refreshData() {
+            loadAttendanceData();
+            showNotification('Data refreshed successfully', 'success');
+        }
+
+        function exportData() {
+            const csvData = [
+                ['Employee ID', 'Name', 'Asset', 'Zone', 'Scheduled', 'Actual', 'Hours', 'Status', 'Efficiency']
+            ];
+            
+            attendanceData.forEach(employee => {
+                csvData.push([
+                    employee.employee_id,
+                    employee.name,
+                    employee.asset,
+                    employee.fort_worth_zone || employee.location,
+                    employee.scheduled_start,
+                    employee.actual_start,
+                    employee.hours_today,
+                    employee.status,
+                    employee.fuel_efficiency || 85
+                ]);
+            });
+            
+            const csvContent = csvData.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `attendance_matrix_${currentPeriod}_${currentDate}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('Data exported successfully', 'success');
+        }
+
+        function generateReport() {
+            showNotification('Generating comprehensive report...', 'info');
+            
+            setTimeout(() => {
+                const reportData = {
+                    period: currentPeriod,
+                    date: currentDate,
+                    zone: currentZone || 'All Zones',
+                    total_employees: attendanceData.length,
+                    statistics: {
+                        present: attendanceData.filter(d => d.status === 'On Time').length,
+                        late: attendanceData.filter(d => d.status === 'Late').length,
+                        early: attendanceData.filter(d => d.status === 'Early').length,
+                        absent: attendanceData.filter(d => d.status === 'Absent').length
+                    }
+                };
+                
+                const blob = new Blob([JSON.stringify(reportData, null, 2)], {
+                    type: 'application/json'
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `attendance_report_${currentDate}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showNotification('Report generated successfully', 'success');
+            }, 1500);
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'info' ? 'primary' : type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

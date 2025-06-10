@@ -1751,38 +1751,7 @@ def browser_automation():
 </body>
 </html>'''
 
-@app.route('/api/automation-suite', methods=['POST'])
-def api_automation_suite():
-    """Browser automation suite with iframe/X-Frame bypass capabilities"""
-    try:
-        data = request.get_json()
-        action = data.get('action', 'start_automation')
-        url = data.get('url', '')
-        tasks = data.get('tasks', [])
-        
-        automation_status = {
-            "action": action,
-            "url": url,
-            "tasks_completed": len(tasks),
-            "bypassed_frames": True,
-            "data_extracted": True,
-            "files_processed": 0,
-            "message": f"Automation active on {url}",
-            "timestamp": datetime.now().isoformat()
-        }
-        
-        # Process automation tasks
-        for task in tasks:
-            if task == "extract_data":
-                automation_status["data_extracted"] = True
-            elif task == "bypass_frames":
-                automation_status["bypassed_frames"] = True
-            elif task == "collect_files":
-                automation_status["files_processed"] = len([f for f in os.listdir('attached_assets') if f.endswith('.xlsx')])
-        
-        return jsonify(automation_status)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/extract-onedrive-files', methods=['POST'])
 def api_extract_onedrive_files():

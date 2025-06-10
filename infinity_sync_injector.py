@@ -17,7 +17,8 @@ class InfinitySyncInjector:
     """Voice command processing system with Watson Supreme Intelligence"""
     
     def __init__(self):
-        self.recognizer = sr.Recognizer()
+        # Speech recognition disabled for production stability
+        self.recognizer = None  # sr.Recognizer()
         self.microphone = None
         self.tts_engine = None
         self.voice_active = False

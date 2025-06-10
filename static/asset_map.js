@@ -53,14 +53,17 @@ class AssetMapSystem {
     }
     
     createMapInstance() {
-        const mapContainer = document.getElementById('assetMap');
+        let mapContainer = document.getElementById('assetMap') || document.getElementById('quantumAssetMap');
         if (!mapContainer) {
             console.error('Asset map container not found');
             return;
         }
         
+        // Use the container ID that exists
+        const containerId = mapContainer.id;
+        
         // Initialize map
-        this.map = L.map('assetMap').setView(this.defaultCenter, this.defaultZoom);
+        this.map = L.map(containerId).setView(this.defaultCenter, this.defaultZoom);
         
         // Add tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

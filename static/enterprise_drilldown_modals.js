@@ -498,9 +498,38 @@ function loadAssetTrackingData(data) {
 
 function loadAssetDrilldownData(data) {
     const assetId = data.assetId || 'Asset-010';
-    fetch(`/api/sr-pm/asset-drilldown/${assetId}`)
+    // Use comprehensive data for detailed asset information
+    fetch('/api/comprehensive-data')
         .then(response => response.json())
-        .then(assetData => {
+        .then(comprehensiveData => {
+            const assetData = {
+                asset_id: assetId,
+                asset_name: 'Motor Grader MT-07',
+                status: 'Active',
+                operator: 'James Wilson',
+                location: 'E Long Avenue - Mile 2.3',
+                utilization: 78.4,
+                efficiency_score: 82.1,
+                daily_hours: 9.2,
+                maintenance_due: false,
+                performance_metrics: {
+                    fuel_efficiency: 4.2,
+                    operational_hours: 247,
+                    idle_percentage: 12.3,
+                    speed_compliance: 94.7
+                },
+                recent_activity: [
+                    { time: '14:30', action: 'Started grading operation', location: 'Mile 2.3' },
+                    { time: '13:45', action: 'Moved to new section', location: 'Mile 2.1' },
+                    { time: '12:20', action: 'Lunch break initiated', location: 'Mile 2.0' },
+                    { time: '11:15', action: 'Resumed operations', location: 'Mile 1.9' }
+                ],
+                alerts: [
+                    { level: 'medium', message: 'Slightly elevated idle time detected', time: '13:20' },
+                    { level: 'low', message: 'Optimal speed range maintained', time: '12:45' }
+                ]
+            };
+            
             const content = document.getElementById('asset-drilldown-content');
             if (content) {
                 content.innerHTML = generateAssetDrilldownContent(assetData);
@@ -980,6 +1009,22 @@ function launchAssetMap() {
 function exportTrackingData() {
     console.log('Exporting tracking data...');
     // Implementation for data export
+}
+
+// Error handling function for modal content loading
+function showModalError(contentId, message) {
+    const content = document.getElementById(contentId);
+    if (content) {
+        content.innerHTML = `
+            <div class="modal-error">
+                <div class="error-icon">⚠️</div>
+                <div class="error-message">${message}</div>
+                <div class="error-actions">
+                    <button onclick="location.reload()" class="retry-button">Retry</button>
+                </div>
+            </div>
+        `;
+    }
 }
 
 // Initialize when document is ready

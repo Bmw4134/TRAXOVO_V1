@@ -1291,30 +1291,148 @@ def api_current_user():
 
 @app.route('/daily-drivers')
 def daily_drivers():
-    """Daily driver reporting dashboard - No auth required"""
-    try:
-        return render_template('daily_driver_dashboard.html')
-    except:
-        # Return simple HTML if template doesn't exist
-        return '''
+    """Daily driver reporting dashboard - Direct access"""
+    # Return interactive HTML with your real RAGLE driver data
+    return '''
 <!DOCTYPE html>
 <html>
-<head><title>RAGLE Daily Drivers</title></head>
+<head>
+    <title>RAGLE Daily Driver Dashboard</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); 
+            color: white; 
+            min-height: 100vh; 
+            padding: 2rem;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            color: #00ff88;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: rgba(0,255,136,0.1);
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff88;
+        }
+        .driver-table {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table-header {
+            background: rgba(0,255,136,0.2);
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 1rem;
+            font-weight: bold;
+        }
+        .driver-row {
+            padding: 0.75rem 1rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .driver-row:hover {
+            background: rgba(0,255,136,0.1);
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
 <body>
-<h1>RAGLE Daily Driver Dashboard</h1>
-<div id="driver-data">Loading 253 drivers...</div>
-<script>
-fetch('/api/daily-driver-data')
-.then(r => r.json())
-.then(data => {
-    document.getElementById('driver-data').innerHTML = 
-        `<p>Total Drivers: ${data.total_drivers}</p>
-         <p>Active Drivers: ${data.active_drivers}</p>
-         <ul>${data.top_performers.map(d => 
-            `<li>${d.name} - ${d.total_hours} hours</li>`
-         ).join('')}</ul>`;
-});
-</script>
+    <div class="header">
+        <h1>RAGLE Daily Driver Dashboard</h1>
+        <p>Real-time driver performance from RAGLE operational data</p>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="total-drivers">--</div>
+            <div>Total Drivers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="active-drivers">--</div>
+            <div>Active Drivers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="total-hours">--</div>
+            <div>Total Hours</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="last-updated">--</div>
+            <div>Last Updated</div>
+        </div>
+    </div>
+    
+    <div class="driver-table">
+        <div class="table-header">
+            <div>Driver Name</div>
+            <div>Total Hours</div>
+            <div>Days Worked</div>
+            <div>Projects</div>
+            <div>Status</div>
+        </div>
+        <div id="driver-list" class="loading">Loading authentic RAGLE driver data...</div>
+    </div>
+
+    <script>
+        fetch('/api/daily-driver-data')
+        .then(response => response.json())
+        .then(data => {
+            // Update stats
+            document.getElementById('total-drivers').textContent = data.total_drivers;
+            document.getElementById('active-drivers').textContent = data.active_drivers;
+            document.getElementById('last-updated').textContent = data.last_updated;
+            
+            // Calculate total hours
+            const totalHours = data.drivers.reduce((sum, d) => sum + d.total_hours, 0);
+            document.getElementById('total-hours').textContent = totalHours.toFixed(1);
+            
+            // Display driver list
+            const driverList = data.drivers.map(driver => `
+                <div class="driver-row">
+                    <div>${driver.name}</div>
+                    <div>${driver.total_hours}</div>
+                    <div>${driver.days_worked}</div>
+                    <div>${driver.projects}</div>
+                    <div style="color: ${driver.status === 'Active' ? '#00ff88' : '#ff6b6b'}">${driver.status}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('driver-list').innerHTML = driverList;
+        })
+        .catch(error => {
+            document.getElementById('driver-list').innerHTML = 
+                '<div class="loading">Error loading driver data: ' + error.message + '</div>';
+        });
+    </script>
 </body>
 </html>'''
 

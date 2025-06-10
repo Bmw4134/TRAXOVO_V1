@@ -120,6 +120,24 @@ agents/
 2_ANALYTICS_ENGINE/
 1_UI_COMPONENTS/
 0_BOOTSTRAP/
+archived_modules/
+
+# Cache and temporary files
+.cache/
+.replit/
+nix/
+
+# Large data files and exports
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.csv
+*.xlsx
+*.xls
+*.pdf
+exports/
+uploads/
 
 # Deployment and configuration files not needed in container
 Dockerfile*
@@ -127,7 +145,13 @@ docker-compose*
 *.md
 *.txt
 *.sh
+*.json
 DEPLOYMENT_*
 ULTIMATE_*
 QQ_*
 TRAXOVO_*
+GAUGE*
+KAIZEN*
+MEGA_*
+QUANTUM_*
+SYSTEMSMITH*

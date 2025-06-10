@@ -11,13 +11,13 @@ RUN pip install --no-cache-dir flask==2.3.3 gunicorn==21.2.0
 # Working directory
 WORKDIR /app
 
-# Copy production application
-COPY production.py main.py
+# Copy only essential files
+COPY main.py .
 COPY templates templates
 COPY static static
 
-# Create minimal models file
-RUN echo "# Production models placeholder" > models.py
+# Minimal models file
+RUN echo "pass" > models.py
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \

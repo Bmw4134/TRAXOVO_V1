@@ -1,77 +1,133 @@
-# Development files
-*.log
-*.tmp
-*.cache
-.git/
-.gitignore
+# Reduce Docker image size by excluding unnecessary files
 
-# Large asset directories
-attached_assets/
-deployment_archive/
-legacy_archive/
-kaizen_backup/
-qq_intelligent_archive/
-infinity_trainer_bundle/
-infinity_visual_tracker/
-mobile_fleet_map/
-reports_import/
-reports_processed/
-logs/
-
-# Archive files
-*.zip
-*.tar.gz
-*.rar
-*.7z
-
-# Media files
-*.mp4
-*.mov
-*.avi
-*.heic
-*.wav
-*.mp3
-
-# Large images
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.webp
-
-# Documentation
-*.md
-README.md
-DEPLOYMENT_*.md
-TRAXOVO_*.md
-
-# Python cache
+# Python cache and build artifacts
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
 env/
 venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
+ENV/
+env.bak/
+venv.bak/
 
-# Node modules if any
-node_modules/
-npm-debug.log*
-
-# IDE files
+# IDE and editor files
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
-# OS files
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Deployment files
-deployment_*.json
-*.pkl
-*.db
+# Git
+.git/
+.gitignore
+
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Documentation and markdown files
+*.md
+README*
+CHANGELOG*
+LICENSE*
+docs/
+
+# Test files
+tests/
+test/
+*_test.py
+test_*.py
+
+# Large data files and archives
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.csv
+*.xlsx
+*.xls
+*.json
+*.log
+
+# Archive and backup directories
+archived_modules/
+backup/
+old/
+deprecated/
+
+# Development and debugging files
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Large directories that aren't needed in production
+agi_burn_suite/
+agi_evolution/
+agi_transcendence/
+agents/
+5_DATA/
+4_QA_AUTOMATION/
+3_ATTENDANCE_MODULE/
+2_ANALYTICS_ENGINE/
+1_UI_COMPONENTS/
+0_BOOTSTRAP/
+
+# Deployment and configuration files not needed in container
+Dockerfile*
+docker-compose*
+*.md
+*.txt
+*.sh
+DEPLOYMENT_*
+ULTIMATE_*
+QQ_*
+TRAXOVO_*

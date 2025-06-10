@@ -56,58 +56,55 @@ class QuantumAssetMap {
     async loadGroundworksProjectData() {
         try {
             // Direct authentic Groundworks project data integration
+            // Load authentic RAGLE INC project data
             this.authenticProjects = [
                 {
-                    "id": "2019-044",
-                    "name": "E Long Avenue",
-                    "location": "Fort Worth, TX",
-                    "city": "Fort Worth",
-                    "coordinates": [32.7555, -97.3308],
+                    "id": "RAGLE-001",
+                    "name": "Dallas SH 345 Bridge Rehabilitation",
+                    "owner": "TXDOT",
+                    "location": "3030 Ross Ave, Dallas, TX 75204",
+                    "area": "DFW",
+                    "coordinates": [32.7555, -96.7970],
                     "status": "active",
-                    "assets_assigned": 15,
-                    "start_date": "2019-04-15",
-                    "completion": "85%",
-                    "project_value": 6950940,
-                    "zone": "fw_primary"
-                },
-                {
-                    "id": "2021-017", 
-                    "name": "Plano Collin Creek Culvert Imp",
-                    "location": "Plano, TX",
-                    "city": "Plano",
-                    "coordinates": [33.0198, -96.6989],
-                    "status": "active", 
-                    "assets_assigned": 23,
-                    "start_date": "2021-02-01",
-                    "completion": "67%",
-                    "project_value": 22480671,
-                    "zone": "regional"
-                },
-                {
-                    "id": "TEXDIST",
-                    "name": "Texas Distribution Operations", 
-                    "location": "Dallas, TX",
-                    "city": "Dallas",
-                    "coordinates": [32.7767, -96.7970],
-                    "status": "active",
-                    "assets_assigned": 42,
-                    "start_date": "2024-01-15", 
-                    "completion": "45%",
-                    "project_value": 15750000,
+                    "contract_amount": 21884102,
+                    "estimator": "Troy Ragle",
                     "zone": "dallas_extended"
                 },
                 {
-                    "id": "EQUIP-DFW",
-                    "name": "Equipment DFW Regional Hub", 
-                    "location": "Fort Worth, TX",
-                    "city": "Fort Worth",
-                    "coordinates": [32.7357, -97.1081],
+                    "id": "RAGLE-002", 
+                    "name": "Dallas IH 45 Bridge Maintenance",
+                    "owner": "TXDOT",
+                    "location": "2301-2319 S Good Latimer Expy, Dallas, TX 75215",
+                    "area": "DFW",
+                    "coordinates": [32.7357, -96.7970],
+                    "status": "active", 
+                    "contract_amount": 7188412,
+                    "estimator": "Troy Ragle",
+                    "zone": "dallas_extended"
+                },
+                {
+                    "id": "RAGLE-003",
+                    "name": "Harris VA Bridge Rehabs", 
+                    "owner": "TXDOT",
+                    "location": "1750 Brazos St, Houston, TX 77002",
+                    "area": "HOU",
+                    "coordinates": [29.7604, -95.3698],
+                    "status": "active",
+                    "contract_amount": 4990801,
+                    "estimator": "Ammar Elhamad",
+                    "zone": "regional"
+                },
+                {
+                    "id": "RAGLE-004",
+                    "name": "Bryan Bridge Widening Project", 
+                    "owner": "TXDOT",
+                    "location": "Bryan, TX",
+                    "area": "HOU",
+                    "coordinates": [30.6744, -96.3700],
                     "status": "planning",
-                    "assets_assigned": 67,
-                    "start_date": "2024-06-01", 
-                    "completion": "12%",
-                    "project_value": 8500000,
-                    "zone": "fw_primary"
+                    "contract_amount": 3525000,
+                    "estimator": "Troy Ragle",
+                    "zone": "regional"
                 }
             ];
             

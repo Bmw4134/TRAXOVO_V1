@@ -6,18 +6,9 @@ Voice-activated command processing with Watson Supreme Intelligence integration
 import os
 import json
 import logging
-# Voice processing libraries - optional dependencies
-try:
-    import speech_recognition as sr
-    SPEECH_RECOGNITION_AVAILABLE = True
-except ImportError:
-    SPEECH_RECOGNITION_AVAILABLE = False
-
-try:
-    import pyttsx3
-    TEXT_TO_SPEECH_AVAILABLE = True
-except ImportError:
-    TEXT_TO_SPEECH_AVAILABLE = False
+# Voice processing libraries - disabled for deployment stability
+SPEECH_RECOGNITION_AVAILABLE = False
+TEXT_TO_SPEECH_AVAILABLE = False
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from watson_supreme import watson_supreme
@@ -107,16 +98,20 @@ class InfinitySyncInjector:
                 if any(wake_word in command for wake_word in self.wake_words):
                     return command
                     
-            except sr.UnknownValueError:
-                self.logger.debug("Could not understand audio")
-            except sr.RequestError as e:
-                self.logger.error(f"Speech recognition error: {e}")
+            except Exception as e:
+                if 'UnknownValueError' in str(type(e)):
+                    self.logger.debug("Could not understand audio")
+                elif 'RequestError' in str(type(e)):
+                    self.logger.error(f"Speech recognition error: {e}")
+                else:
+                    self.logger.error(f"Recognition error: {e}")
                 
-        except sr.WaitTimeoutError:
-            # Normal timeout, not an error
-            pass
         except Exception as e:
-            self.logger.error(f"Voice listening error: {e}")
+            if 'WaitTimeoutError' in str(type(e)):
+                # Normal timeout, not an error
+                pass
+            else:
+                self.logger.error(f"Voice listening error: {e}")
             
         return None
     

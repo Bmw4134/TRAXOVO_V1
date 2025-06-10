@@ -20,24 +20,26 @@ function parseAssetMeta(assetId) {
     return { driverName, rawId };
 }
 
-class GestureNavigationController {
-    constructor() {
-        this.isEnabled = true;
-        this.gestureThreshold = 50;
-        this.velocityThreshold = 0.5;
-        this.touchStartX = 0;
-        this.touchStartY = 0;
-        this.touchEndX = 0;
-        this.touchEndY = 0;
-        this.touchStartTime = 0;
-        this.currentSection = 0;
-        this.sections = [];
-        this.isDragging = false;
-        this.dragStartX = 0;
-        this.dragStartY = 0;
-        
-        this.init();
-    }
+// Check if GestureNavigationController already exists
+if (typeof window.GestureNavigationController === 'undefined') {
+    class GestureNavigationController {
+        constructor() {
+            this.isEnabled = true;
+            this.gestureThreshold = 50;
+            this.velocityThreshold = 0.5;
+            this.touchStartX = 0;
+            this.touchStartY = 0;
+            this.touchEndX = 0;
+            this.touchEndY = 0;
+            this.touchStartTime = 0;
+            this.currentSection = 0;
+            this.sections = [];
+            this.isDragging = false;
+            this.dragStartX = 0;
+            this.dragStartY = 0;
+            
+            this.init();
+        }
 
     init() {
         this.identifySections();
@@ -706,12 +708,13 @@ function initializeGestureNavigation() {
     }
 }
 
+    // Assign to window for global access
+    window.GestureNavigationController = GestureNavigationController;
+}
+
 // Auto-initialize
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeGestureNavigation);
 } else {
     initializeGestureNavigation();
 }
-
-// Export for global access
-window.GestureNavigationController = GestureNavigationController;

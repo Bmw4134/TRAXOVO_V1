@@ -1475,6 +1475,14 @@ def browser_automation():
     
     return render_template_string(automation_template)
 
+@app.route('/api/export/full-intelligence')
+def api_export_full_intelligence():
+    """Export complete intelligence analysis matching deployed system"""
+    from nexus_command_integration import get_nexus_integration
+    
+    nexus = get_nexus_integration()
+    return jsonify(nexus.export_full_intelligence())
+
 @app.route('/development-hub')
 def development_hub():
     """Development and integration hub"""

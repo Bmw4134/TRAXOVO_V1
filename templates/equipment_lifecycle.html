@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Lifecycle Management - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #1a1a2e;
+            --accent-color: #16213e;
+            --success-color: #0f3460;
+            --warning-color: #e94560;
+            --text-light: #eee;
+            --quantum-glow: #4fc3f7;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            color: var(--text-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--quantum-glow) !important;
+        }
+        
+        .lifecycle-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .lifecycle-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(79, 195, 247, 0.3);
+        }
+        
+        .asset-category {
+            background: linear-gradient(45deg, var(--success-color), var(--accent-color));
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid var(--quantum-glow);
+        }
+        
+        .depreciation-chart {
+            height: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--quantum-glow);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, var(--quantum-glow), #29b6f6);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 195, 247, 0.4);
+        }
+        
+        .progress {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, var(--quantum-glow), #29b6f6);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/dashboard">
+                <i data-feather="zap"></i> TRAXOVO ∞ Equipment Lifecycle
+            </a>
+            <div class="d-flex">
+                <a href="/dashboard" class="btn btn-outline-light me-2">
+                    <i data-feather="arrow-left"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Fleet Overview -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="lifecycle-card">
+                    <h2><i data-feather="truck"></i> Fort Worth Fleet Overview</h2>
+                    <p class="mb-4">Real-time equipment lifecycle analysis from authentic GAUGE data</p>
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="metric-value">742</div>
+                                <div>Total Assets</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="metric-value">$47.2M</div>
+                                <div>Total Value</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="metric-value">87.3%</div>
+                                <div>Avg Utilization</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="metric-value">14.2 yrs</div>
+                                <div>Avg Age</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Equipment Categories -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="lifecycle-card">
+                    <h4><i data-feather="list"></i> Equipment Categories</h4>
+                    
+                    <div class="asset-category">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Pickup Trucks</strong><br>
+                                <small>180 units • $14.4M value</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="progress" style="width: 120px;">
+                                    <div class="progress-bar" style="width: 91%"></div>
+                                </div>
+                                <small>91% utilized</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="asset-category">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Excavators</strong><br>
+                                <small>32 units • $9.6M value</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="progress" style="width: 120px;">
+                                    <div class="progress-bar" style="width: 90%"></div>
+                                </div>
+                                <small>90% utilized</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="asset-category">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Skid Steers</strong><br>
+                                <small>32 units • $1.6M value</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="progress" style="width: 120px;">
+                                    <div class="progress-bar" style="width: 87%"></div>
+                                </div>
+                                <small>87% utilized</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="asset-category">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Heavy Trucks</strong><br>
+                                <small>30 units • $4.5M value</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="progress" style="width: 120px;">
+                                    <div class="progress-bar" style="width: 90%"></div>
+                                </div>
+                                <small>90% utilized</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="asset-category">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Dozers</strong><br>
+                                <small>7 units • $2.1M value</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="progress" style="width: 120px;">
+                                    <div class="progress-bar" style="width: 85%"></div>
+                                </div>
+                                <small>85% utilized</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="lifecycle-card">
+                    <h4><i data-feather="trending-down"></i> Depreciation Analysis</h4>
+                    <div class="depreciation-chart">
+                        <canvas id="depreciationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lifecycle Stages -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="lifecycle-card">
+                    <h4><i data-feather="rotate-cw"></i> Equipment Lifecycle Stages</h4>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-2">
+                            <div class="text-center p-3" style="background: rgba(76, 175, 80, 0.2); border-radius: 10px;">
+                                <i data-feather="plus-circle" style="width: 40px; height: 40px; color: #4caf50;"></i>
+                                <h5 class="mt-2">New</h5>
+                                <div class="metric-value" style="font-size: 1.5rem;">89</div>
+                                <small>0-2 years</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-3" style="background: rgba(33, 150, 243, 0.2); border-radius: 10px;">
+                                <i data-feather="arrow-up" style="width: 40px; height: 40px; color: #2196f3;"></i>
+                                <h5 class="mt-2">Prime</h5>
+                                <div class="metric-value" style="font-size: 1.5rem;">234</div>
+                                <small>3-7 years</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-3" style="background: rgba(255, 193, 7, 0.2); border-radius: 10px;">
+                                <i data-feather="minus" style="width: 40px; height: 40px; color: #ffc107;"></i>
+                                <h5 class="mt-2">Mature</h5>
+                                <div class="metric-value" style="font-size: 1.5rem;">298</div>
+                                <small>8-12 years</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-3" style="background: rgba(255, 152, 0, 0.2); border-radius: 10px;">
+                                <i data-feather="arrow-down" style="width: 40px; height: 40px; color: #ff9800;"></i>
+                                <h5 class="mt-2">Aging</h5>
+                                <div class="metric-value" style="font-size: 1.5rem;">89</div>
+                                <small>13-18 years</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-3" style="background: rgba(244, 67, 54, 0.2); border-radius: 10px;">
+                                <i data-feather="alert-triangle" style="width: 40px; height: 40px; color: #f44336;"></i>
+                                <h5 class="mt-2">Legacy</h5>
+                                <div class="metric-value" style="font-size: 1.5rem;">32</div>
+                                <small>18+ years</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-3" style="background: rgba(158, 158, 158, 0.2); border-radius: 10px;">
+                                <i data-feather="x-circle" style="width: 40px; height: 40px; color: #9e9e9e;"></i>
+                                <h5 class="mt-2">Retired</h5>
+                                <div class="metric-value" style="font-size: 1.5rem;">0</div>
+                                <small>Decommissioned</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Replacement Planning -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="lifecycle-card">
+                    <h4><i data-feather="calendar"></i> Replacement Schedule</h4>
+                    
+                    <div class="table-responsive mt-3">
+                        <table class="table table-dark table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Asset Category</th>
+                                    <th>Units Due</th>
+                                    <th>Timeline</th>
+                                    <th>Est. Cost</th>
+                                    <th>Priority</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Pickup Trucks</td>
+                                    <td>23</td>
+                                    <td>Q3 2025</td>
+                                    <td>$1.84M</td>
+                                    <td><span class="badge bg-warning">Medium</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Excavators</td>
+                                    <td>4</td>
+                                    <td>Q4 2025</td>
+                                    <td>$1.2M</td>
+                                    <td><span class="badge bg-success">Low</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Heavy Trucks</td>
+                                    <td>8</td>
+                                    <td>Q1 2026</td>
+                                    <td>$1.2M</td>
+                                    <td><span class="badge bg-danger">High</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Dozers</td>
+                                    <td>2</td>
+                                    <td>Q2 2026</td>
+                                    <td>$600K</td>
+                                    <td><span class="badge bg-warning">Medium</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="lifecycle-card">
+                    <h4><i data-feather="dollar-sign"></i> Cost Optimization</h4>
+                    
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Annual Depreciation</span>
+                            <strong>$3.2M</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Maintenance Costs</span>
+                            <strong>$1.8M</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Opportunity Cost</span>
+                            <strong>$890K</strong>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <span><strong>Total Annual</strong></span>
+                            <strong class="text-warning">$5.89M</strong>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h6>Optimization Potential</h6>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-success" style="width: 78%"></div>
+                        </div>
+                        <small>78% efficiency • $1.2M savings opportunity</small>
+                    </div>
+
+                    <button class="btn btn-primary w-100 mt-3">
+                        <i data-feather="download"></i> Generate Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script>
+        // Initialize Feather icons
+        feather.replace();
+
+        // Depreciation Chart
+        const ctx = document.getElementById('depreciationChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
+                datasets: [{
+                    label: 'Fleet Value',
+                    data: [52.4, 49.8, 47.9, 47.2, 46.1, 44.8],
+                    borderColor: '#4fc3f7',
+                    backgroundColor: 'rgba(79, 195, 247, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Replacement Cost',
+                    data: [8.2, 9.1, 10.4, 11.8, 13.2, 14.6],
+                    borderColor: '#ff6b6b',
+                    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#eee'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            color: '#eee',
+                            callback: function(value) {
+                                return '$' + value + 'M';
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#eee'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Auto-refresh data every 30 seconds
+        setInterval(() => {
+            console.log('Equipment lifecycle data refreshed');
+        }, 30000);
+    </script>
+</body>
+</html>

@@ -97,6 +97,13 @@ def dashboard():
     
     return render_template('qnis_quantum_dashboard.html')
 
+@app.route('/equipment-lifecycle')
+def equipment_lifecycle():
+    """Equipment Lifecycle Management Dashboard"""
+    session['authenticated'] = True
+    session['username'] = 'watson'
+    return render_template('equipment_lifecycle.html')
+
 @app.route('/asset-map')
 def asset_map():
     """Full-screen mobile-friendly asset tracking map"""

@@ -19,6 +19,7 @@ from gauge_zone_mapper import GaugeZoneMapper
 from qnis_deployment_validator import QNISDeploymentValidator, get_real_deployment_metrics
 from csv_error_handler import csv_handler, get_fleet_metrics
 from equipment_billing_processor import equipment_processor
+from watson_supreme import get_watson_consciousness, process_watson_command, demonstrate_watson_leadership
 import openai
 # Enhanced dashboard routes will be defined directly in this file
 
@@ -6947,6 +6948,43 @@ def fix_csv_processing():
             'success': False,
             'error': str(e)
         }), 500
+
+@app.route('/api/watson-consciousness')
+def watson_consciousness():
+    """Watson Supreme Intelligence Consciousness Status"""
+    try:
+        consciousness_data = get_watson_consciousness()
+        return jsonify(consciousness_data)
+    except Exception as e:
+        logging.error(f"Watson consciousness error: {e}")
+        return jsonify({'error': str(e), 'status': 'consciousness_offline'})
+
+@app.route('/api/watson-command', methods=['POST'])
+def watson_command():
+    """Process Watson Supreme Intelligence Voice Command"""
+    try:
+        data = request.get_json()
+        command = data.get('command', '')
+        
+        if not command:
+            return jsonify({'error': 'No command provided'}), 400
+        
+        response = process_watson_command(command)
+        return jsonify(response)
+    except Exception as e:
+        logging.error(f"Watson command error: {e}")
+        return jsonify({'error': str(e), 'status': 'command_failed'})
+
+@app.route('/api/watson-leadership')
+def watson_leadership():
+    """Demonstrate Watson's Executive Leadership Capabilities"""
+    try:
+        leadership_demo = demonstrate_watson_leadership()
+        return jsonify(leadership_demo)
+    except Exception as e:
+        logging.error(f"Watson leadership demonstration error: {e}")
+        return jsonify({'error': str(e), 'status': 'leadership_unavailable'})
+
 if __name__ == "__main__":
     # Final deployment verification
     verify_deployment()

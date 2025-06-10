@@ -15,6 +15,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='modal_text_fix.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS for Asset Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
     <script src="{{ url_for('static', filename='gesture_navigation.js') }}" defer></script>
     <script src="{{ url_for('static', filename='asset_map.js') }}" defer></script>
     <script src="{{ url_for('static', filename='mobile_navigation_complete.js') }}" defer></script>
@@ -413,40 +417,103 @@
                         <div class="qnis-enhancement-badge">LIVE TRACKING</div>
                     </div>
                     <div class="qnis-section-content">
-                        <div id="assetMapContainer" style="height: 500px; border-radius: 12px; overflow: hidden; border: 2px solid rgba(0,255,159,0.3); position: relative; background: #1a1f2e;">
-                            <!-- Interactive Leaflet Map Container -->
-                            <div id="quantumAssetMap" style="height: 100%; width: 100%; position: relative;">
-                                <!-- Map will be initialized here by asset_map.js -->
-                            </div>
-                            
-                            <!-- Asset Map Controls -->
-                            <div style="position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 1000;">
-                                <button onclick="toggleMapView()" style="padding: 10px 15px; background: rgba(0,255,159,0.9); color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: all 0.3s ease;">
-                                    <i class="fas fa-expand" style="margin-right: 6px;"></i> Full Screen
-                                </button>
-                                <button onclick="refreshAssetLocations()" style="padding: 10px 15px; background: rgba(0,212,255,0.9); color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: all 0.3s ease;">
-                                    <i class="fas fa-sync" style="margin-right: 6px;"></i> Refresh
-                                </button>
-                            </div>
-                            
-                            <!-- Asset Count Legend -->
-                            <div style="position: absolute; bottom: 15px; left: 15px; background: rgba(26,31,46,0.95); padding: 15px; border-radius: 12px; color: white; font-size: 13px; border: 2px solid rgba(0,255,159,0.3); backdrop-filter: blur(10px); min-width: 180px;">
-                                <div style="font-weight: 700; margin-bottom: 10px; color: #00ff9f; font-size: 14px;">
-                                    <i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i>
-                                    Asset Status
+                        <div id="assetMapContainer" style="height: 500px; border-radius: 12px; overflow: hidden; border: 2px solid rgba(0,255,159,0.3); position: relative; background: linear-gradient(135deg, #0d0d17 0%, #1a1f2e 50%, #0d0d17 100%);">
+                            <!-- Quantum Asset Intelligence Map -->
+                            <div id="quantumAssetMap" style="height: 100%; width: 100%; position: relative; background: radial-gradient(circle at 30% 30%, rgba(0,255,159,0.1) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(0,212,255,0.1) 0%, transparent 50%);">
+                                
+                                <!-- Fort Worth Operations Grid -->
+                                <div class="quantum-grid-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0,255,159,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,159,0.1) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.3;"></div>
+                                
+                                <!-- Zone 580 - North Fort Worth Operations -->
+                                <div class="geofence-zone zone-580" style="position: absolute; top: 15%; left: 20%; width: 25%; height: 30%; border: 2px solid #00ff9f; border-radius: 15px; background: rgba(0,255,159,0.1); backdrop-filter: blur(5px);" onclick="showZoneDetails('zone_580')">
+                                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: #00ff9f; color: #000; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap;">ZONE 580</div>
+                                    <div style="padding: 15px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                                        <div style="font-size: 12px; font-weight: 600; color: #00ff9f;">North Operations</div>
+                                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                                            <!-- Asset indicators -->
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50%; animation: quantumPulse 2s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50%; animation: quantumPulse 2.5s infinite;"></div>
+                                            <div class="asset-dot maintenance" style="width: 8px; height: 8px; background: #ffa500; border-radius: 50%;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50%; animation: quantumPulse 1.8s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50%;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00ff9f; border-radius: 50%; animation: quantumPulse 3s infinite;"></div>
+                                        </div>
+                                        <div style="font-size: 10px; color: rgba(255,255,255,0.7);">52 Jobsites | 0 Alerts</div>
+                                    </div>
                                 </div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                    <span style="color: #00ff9f;">● Active:</span>
-                                    <span id="activeAssetCount">--</span>
+                                
+                                <!-- Zone 581 - Central Fort Worth Hub -->
+                                <div class="geofence-zone zone-581" style="position: absolute; top: 35%; left: 45%; width: 30%; height: 25%; border: 2px solid #00d4ff; border-radius: 15px; background: rgba(0,212,255,0.1); backdrop-filter: blur(5px);" onclick="showZoneDetails('zone_581')">
+                                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: #00d4ff; color: #000; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap;">ZONE 581</div>
+                                    <div style="padding: 15px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                                        <div style="font-size: 12px; font-weight: 600; color: #00d4ff;">Central Hub</div>
+                                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                                            <!-- Asset indicators -->
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00d4ff; border-radius: 50%; animation: quantumPulse 2s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00d4ff; border-radius: 50%;"></div>
+                                            <div class="asset-dot alert" style="width: 8px; height: 8px; background: #ff6b6b; border-radius: 50%; animation: quantumPulse 1s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00d4ff; border-radius: 50%; animation: quantumPulse 2.8s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00d4ff; border-radius: 50%;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00d4ff; border-radius: 50();"></div>
+                                            <div class="asset-dot maintenance" style="width: 8px; height: 8px; background: #ffa500; border-radius: 50%;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #00d4ff; border-radius: 50(); animation: quantumPulse 3.5s infinite;"></div>
+                                        </div>
+                                        <div style="font-size: 10px; color: rgba(255,255,255,0.7);">58 Jobsites | 1 Alert</div>
+                                    </div>
                                 </div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                    <span style="color: #ffa500;">● Maintenance:</span>
-                                    <span id="maintenanceAssetCount">--</span>
+                                
+                                <!-- Zone 582 - South Fort Worth Projects -->
+                                <div class="geofence-zone zone-582" style="position: absolute; top: 65%; left: 15%; width: 35%; height: 28%; border: 2px solid #ff6b6b; border-radius: 15px; background: rgba(255,107,107,0.1); backdrop-filter: blur(5px);" onclick="showZoneDetails('zone_582')">
+                                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: #ff6b6b; color: #000; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap;">ZONE 582</div>
+                                    <div style="padding: 15px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                                        <div style="font-size: 12px; font-weight: 600; color: #ff6b6b;">South Projects</div>
+                                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px;">
+                                            <!-- Asset indicators -->
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #ff6b6b; border-radius: 50%; animation: quantumPulse 2.2s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #ff6b6b; border-radius: 50%;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #ff6b6b; border-radius: 50(); animation: quantumPulse 1.5s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #ff6b6b; border-radius: 50();"></div>
+                                            <div class="asset-dot maintenance" style="width: 8px; height: 8px; background: #ffa500; border-radius: 50();"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #ff6b6b; border-radius: 50(); animation: quantumPulse 2.8s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #ff6b6b; border-radius: 50();"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #ff6b6b; border-radius: 50(); animation: quantumPulse 3.2s infinite;"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #ff6b6b; border-radius: 50();"></div>
+                                            <div class="asset-dot active" style="width: 8px; height: 8px; background: #ff6b6b; border-radius: 50(); animation: quantumPulse 1.8s infinite;"></div>
+                                        </div>
+                                        <div style="font-size: 10px; color: rgba(255,255,255,0.7);">42 Jobsites | 0 Alerts</div>
+                                    </div>
                                 </div>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span style="color: #ff6b6b;">● Offline:</span>
-                                    <span id="offlineAssetCount">--</span>
+                                
+                                <!-- Quantum Intelligence Overlay -->
+                                <div style="position: absolute; top: 20px; right: 20px; background: rgba(0,255,159,0.1); border: 1px solid rgba(0,255,159,0.3); border-radius: 12px; padding: 12px; backdrop-filter: blur(10px);">
+                                    <div style="font-size: 11px; font-weight: 700; color: #00ff9f; margin-bottom: 6px;">QNIS ACTIVE</div>
+                                    <div style="font-size: 9px; color: rgba(255,255,255,0.7);">Real-time monitoring</div>
+                                    <div style="font-size: 9px; color: rgba(255,255,255,0.7);">Smart geofencing</div>
                                 </div>
+                                
+                                <!-- Asset Status Panel -->
+                                <div style="position: absolute; bottom: 20px; left: 20px; background: rgba(26,31,46,0.95); border: 2px solid rgba(0,255,159,0.3); border-radius: 15px; padding: 15px; backdrop-filter: blur(15px); min-width: 200px;">
+                                    <div style="font-weight: 700; margin-bottom: 12px; color: #00ff9f; font-size: 13px;">
+                                        <i class="fas fa-analytics" style="margin-right: 8px;"></i>
+                                        Fleet Intelligence
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px;">
+                                        <span style="color: #00ff9f;">● Active Assets:</span>
+                                        <span id="activeAssetCount" style="color: #00ff9f; font-weight: 600;">395</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px;">
+                                        <span style="color: #ffa500;">● Maintenance:</span>
+                                        <span id="maintenanceAssetCount" style="color: #ffa500; font-weight: 600;">57</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 11px;">
+                                        <span style="color: #ff6b6b;">● Alerts:</span>
+                                        <span id="alertAssetCount" style="color: #ff6b6b; font-weight: 600;">1</span>
+                                    </div>
+                                    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px; font-size: 10px; color: rgba(255,255,255,0.7);">
+                                        Utilization: 84.4% | Coverage: 152 sites
+                                    </div>
+                                </div>
+                                
                             </div>
                                 
                                 <!-- Real-time Data Stream -->

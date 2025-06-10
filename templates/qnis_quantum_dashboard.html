@@ -1050,10 +1050,10 @@
                     processCsvPerformanceData();
                 });
             
-            // Auto-refresh every 30 seconds
+            // Auto-refresh every 60 seconds to reduce server load
             setInterval(() => {
                 refreshPerformanceVectorData();
-            }, 30000);
+            }, 60000);
         }
 
         function updatePerformanceVectorDisplay(data) {

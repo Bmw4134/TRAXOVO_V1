@@ -278,6 +278,12 @@ def visual_validation():
     """Visual validation dashboard for authentic RAGLE INC data"""
     return render_template('visual_validation.html')
 
+@app.route('/daily-drivers')
+@require_auth
+def daily_driver_dashboard():
+    """RAGLE INC Daily Driver Performance Dashboard"""
+    return render_template('daily_driver_dashboard.html')
+
 @app.route('/api/ragle-daily-hours')
 def api_ragle_daily_hours():
     """API endpoint for RAGLE daily hours and quantities data"""
@@ -303,6 +309,75 @@ def api_ragle_daily_hours():
             
     except Exception as e:
         logging.error(f"Error in RAGLE daily hours API: {e}")
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+            "timestamp": datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/daily-driver-report')
+def api_daily_driver_report():
+    """API endpoint for daily driver performance reporting"""
+    try:
+        from daily_driver_reporting_engine import DailyDriverReportingEngine
+        engine = DailyDriverReportingEngine()
+        
+        # Load and process authentic RAGLE driver data
+        if engine.load_ragle_hours_data():
+            engine.extract_driver_information()
+            engine.calculate_driver_metrics()
+            report = engine.generate_daily_driver_report()
+            
+            if report:
+                return jsonify({
+                    "status": "success",
+                    "driver_report": report,
+                    "timestamp": datetime.now().isoformat()
+                })
+        
+        return jsonify({
+            "status": "error",
+            "message": "Failed to generate driver report",
+            "timestamp": datetime.now().isoformat()
+        }), 500
+        
+    except Exception as e:
+        logging.error(f"Error in daily driver report API: {e}")
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+            "timestamp": datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/driver-performance')
+def api_driver_performance():
+    """API endpoint for driver performance dashboard data"""
+    try:
+        # Load pre-generated dashboard data
+        import os
+        if os.path.exists('driver_performance_dashboard_data.json'):
+            with open('driver_performance_dashboard_data.json', 'r') as f:
+                import json
+                dashboard_data = json.load(f)
+                return jsonify({
+                    "status": "success",
+                    "performance_data": dashboard_data,
+                    "timestamp": datetime.now().isoformat()
+                })
+        
+        # Generate fresh data if file doesn't exist
+        from daily_driver_reporting_engine import DailyDriverReportingEngine
+        engine = DailyDriverReportingEngine()
+        dashboard_data = engine.export_driver_performance_dashboard()
+        
+        return jsonify({
+            "status": "success",
+            "performance_data": dashboard_data,
+            "timestamp": datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logging.error(f"Error in driver performance API: {e}")
         return jsonify({
             "status": "error",
             "message": str(e),

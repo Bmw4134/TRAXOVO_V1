@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAGLE INC - Daily Driver Performance Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid #00d4ff;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            color: #00d4ff;
+        }
+
+        .dashboard-container {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .status-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .status-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.3);
+        }
+
+        .status-card .icon {
+            font-size: 3rem;
+            color: #00d4ff;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .status-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .status-card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: #00ff88;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .performance-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .performance-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #00d4ff;
+            text-align: center;
+        }
+
+        .driver-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .driver-item {
+            background: rgba(0, 0, 0, 0.2);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #00ff88;
+            transition: background-color 0.3s ease;
+        }
+
+        .driver-item:hover {
+            background: rgba(0, 212, 255, 0.2);
+        }
+
+        .driver-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .driver-stats {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .metrics-table th,
+        .metrics-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .metrics-table th {
+            background: rgba(0, 212, 255, 0.3);
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.5rem;
+            color: #00d4ff;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #00d4ff;
+            color: #1e3c72;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
+        }
+
+        .timestamp {
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .performance-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-bar {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-tachometer-alt"></i> RAGLE INC</h1>
+        <div class="subtitle">Daily Driver Performance Dashboard</div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="status-bar">
+            <div class="status-card">
+                <div class="icon"><i class="fas fa-users"></i></div>
+                <h3>Total Drivers</h3>
+                <div class="value" id="totalDrivers">--</div>
+            </div>
+            <div class="status-card">
+                <div class="icon"><i class="fas fa-user-check"></i></div>
+                <h3>Active Drivers</h3>
+                <div class="value" id="activeDrivers">--</div>
+            </div>
+            <div class="status-card">
+                <div class="icon"><i class="fas fa-clock"></i></div>
+                <h3>Total Records</h3>
+                <div class="value" id="totalRecords">--</div>
+            </div>
+            <div class="status-card">
+                <div class="icon"><i class="fas fa-chart-line"></i></div>
+                <h3>Performance</h3>
+                <div class="value" id="performanceRating">Good</div>
+            </div>
+        </div>
+
+        <div class="performance-grid">
+            <div class="performance-section">
+                <h2><i class="fas fa-list"></i> Driver Profiles</h2>
+                <div id="driverList" class="driver-list">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading driver data...
+                    </div>
+                </div>
+            </div>
+
+            <div class="performance-section">
+                <h2><i class="fas fa-chart-bar"></i> Performance Metrics</h2>
+                <div id="metricsContainer">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading metrics...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="timestamp" id="lastUpdate">
+            Last updated: --
+        </div>
+    </div>
+
+    <button class="refresh-btn" onclick="refreshData()">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+
+    <script>
+        let driverData = null;
+
+        async function loadDriverPerformanceData() {
+            try {
+                const response = await fetch('/api/driver-performance');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    driverData = data.performance_data;
+                    updateDashboard();
+                } else {
+                    console.error('Failed to load driver data:', data.message);
+                    showError('Failed to load driver performance data');
+                }
+            } catch (error) {
+                console.error('Error loading driver data:', error);
+                showError('Error connecting to driver performance API');
+            }
+        }
+
+        function updateDashboard() {
+            if (!driverData) return;
+
+            // Update status cards
+            const summary = driverData.driver_summary || {};
+            document.getElementById('totalDrivers').textContent = summary.total_drivers || 0;
+            document.getElementById('activeDrivers').textContent = summary.active_drivers || 0;
+            document.getElementById('totalRecords').textContent = 
+                driverData.performance_metrics?.fleet_summary?.total_records || 0;
+            document.getElementById('performanceRating').textContent = 
+                summary.performance_rating || 'Good';
+
+            // Update driver list
+            updateDriverList();
+
+            // Update metrics
+            updateMetrics();
+
+            // Update timestamp
+            document.getElementById('lastUpdate').textContent = 
+                `Last updated: ${new Date().toLocaleString()}`;
+        }
+
+        function updateDriverList() {
+            const driverListContainer = document.getElementById('driverList');
+            const driverList = driverData.driver_list || [];
+
+            if (driverList.length === 0) {
+                driverListContainer.innerHTML = '<div class="loading">No driver data available</div>';
+                return;
+            }
+
+            let html = '';
+            driverList.slice(0, 10).forEach(driverName => {
+                html += `
+                    <div class="driver-item">
+                        <div class="driver-name">${driverName}</div>
+                        <div class="driver-stats">Status: Active | Performance: Good</div>
+                    </div>
+                `;
+            });
+
+            if (driverList.length > 10) {
+                html += `<div class="driver-item" style="text-align: center; opacity: 0.7;">
+                    ... and ${driverList.length - 10} more drivers
+                </div>`;
+            }
+
+            driverListContainer.innerHTML = html;
+        }
+
+        function updateMetrics() {
+            const metricsContainer = document.getElementById('metricsContainer');
+            const metrics = driverData.performance_metrics || {};
+
+            let html = '<table class="metrics-table">';
+            html += '<thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>';
+
+            // Add fleet summary metrics
+            const fleetSummary = metrics.fleet_summary || {};
+            for (const [key, value] of Object.entries(fleetSummary)) {
+                if (key !== 'report_date') {
+                    const displayKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    html += `<tr><td>${displayKey}</td><td>${value}</td></tr>`;
+                }
+            }
+
+            html += '</tbody></table>';
+            metricsContainer.innerHTML = html;
+        }
+
+        function showError(message) {
+            document.getElementById('driverList').innerHTML = 
+                `<div class="loading" style="color: #ff6b6b;"><i class="fas fa-exclamation-triangle"></i> ${message}</div>`;
+            document.getElementById('metricsContainer').innerHTML = 
+                `<div class="loading" style="color: #ff6b6b;"><i class="fas fa-exclamation-triangle"></i> ${message}</div>`;
+        }
+
+        function refreshData() {
+            const refreshBtn = document.querySelector('.refresh-btn i');
+            refreshBtn.classList.add('fa-spin');
+            
+            loadDriverPerformanceData().finally(() => {
+                setTimeout(() => {
+                    refreshBtn.classList.remove('fa-spin');
+                }, 1000);
+            });
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadDriverPerformanceData);
+
+        // Auto-refresh every 5 minutes
+        setInterval(loadDriverPerformanceData, 300000);
+    </script>
+</body>
+</html>

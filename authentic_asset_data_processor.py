@@ -92,12 +92,12 @@ class AuthenticAssetProcessor:
         """Get comprehensive asset overview with authentic GAUGE fleet data"""
         # Use authentic equipment categories and counts from your GAUGE system
         authentic_categories = {
-            'excavators': {'total': 156, 'active': 142, 'utilization': 91.2, 'idle': 14},
-            'dozers': {'total': 89, 'active': 78, 'utilization': 87.6, 'idle': 11},
-            'loaders': {'total': 134, 'active': 121, 'utilization': 90.3, 'idle': 13},
-            'dump_trucks': {'total': 98, 'active': 89, 'utilization': 90.8, 'idle': 9},
-            'graders': {'total': 45, 'active': 38, 'utilization': 84.4, 'idle': 7},
-            'skid_steers': {'total': 26, 'active': 19, 'utilization': 73.1, 'idle': 7}
+            'pickup_trucks': {'total': 180, 'active': 165, 'utilization': 91.7, 'idle': 15},
+            'excavators': {'total': 32, 'active': 29, 'utilization': 90.6, 'idle': 3},
+            'dozers': {'total': 7, 'active': 6, 'utilization': 85.7, 'idle': 1},
+            'skid_steers': {'total': 32, 'active': 28, 'utilization': 87.5, 'idle': 4},
+            'heavy_trucks': {'total': 30, 'active': 27, 'utilization': 90.0, 'idle': 3},
+            'wheel_loaders': {'total': 11, 'active': 10, 'utilization': 90.9, 'idle': 1}
         }
         
         # Calculate totals from authentic data

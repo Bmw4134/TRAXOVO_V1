@@ -273,6 +273,42 @@ def equipment_lifecycle():
     """Equipment Lifecycle Management Dashboard"""
     return render_template('equipment_lifecycle.html')
 
+@app.route('/validation')
+def visual_validation():
+    """Visual validation dashboard for authentic RAGLE INC data"""
+    return render_template('visual_validation.html')
+
+@app.route('/api/ragle-daily-hours')
+def api_ragle_daily_hours():
+    """API endpoint for RAGLE daily hours and quantities data"""
+    try:
+        from ragle_daily_hours_processor import RagleDailyHoursProcessor
+        processor = RagleDailyHoursProcessor()
+        
+        # Load and process data
+        success = processor.load_daily_hours_data()
+        
+        if success:
+            return jsonify({
+                "status": "success",
+                "data": processor.get_summary_report(),
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            return jsonify({
+                "status": "error",
+                "message": "Failed to load RAGLE daily hours data",
+                "timestamp": datetime.now().isoformat()
+            }), 500
+            
+    except Exception as e:
+        logging.error(f"Error in RAGLE daily hours API: {e}")
+        return jsonify({
+            "status": "error",
+            "message": str(e),
+            "timestamp": datetime.now().isoformat()
+        }), 500
+
 
 
 # Watson superuser API endpoints

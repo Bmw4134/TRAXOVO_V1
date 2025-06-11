@@ -198,7 +198,7 @@ if (require.main === module) {
     });
     
     console.log('\n4. Asset Validation:');
-    const testValidation = ['', 'MT', 'MT-07 - JAMES WILSON', 'A'.repeat(150)];
+    const testValidation = ['', 'EX', 'EX-210013 - MATTHEW C. SHAYLOR', 'A'.repeat(150)];
     testValidation.forEach(test => {
         const validation = validateAssetId(test);
         console.log(`"${test}" → ${validation.valid ? 'VALID' : 'INVALID: ' + validation.error}`);

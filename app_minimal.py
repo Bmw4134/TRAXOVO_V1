@@ -742,46 +742,14 @@ def authenticate():
 
 @app.route('/dashboard')
 def dashboard():
-    """Main TRAXOVO Dashboard - FORCE CACHE BYPASS"""
+    """Main TRAXOVO Dashboard - AUTHENTIC PERSONNEL ONLY"""
     from flask import make_response
-    import time
-    
-    # NUCLEAR CACHE DESTROYER - Force complete refresh
-    timestamp = str(int(time.time() * 1000))
-    
-    force_refresh_html = f'''<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>TRAXOVO Force Refresh</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <script>
-        // DESTROY ALL CACHE IMMEDIATELY
-        localStorage.clear();
-        sessionStorage.clear();
-        if ('caches' in window) {{
-            caches.keys().then(names => names.forEach(name => caches.delete(name)));
-        }}
-        
-        // IMMEDIATE FORCE REDIRECT - NO DELAY
-        window.location.replace('/authentic-dashboard?t={timestamp}&personnel=MATTHEW_C_SHAYLOR&authentic=true&kill_cache=true');
-    </script>
-</head>
-<body style="background: #000; color: #00ff00; font-family: monospace; padding: 20px;">
-    <h1>🚀 TRAXOVO CACHE DESTROYER ACTIVATED</h1>
-    <p>Forcing authentic RAGLE personnel data refresh...</p>
-    <p>Target: EX-210013 MATTHEW C. SHAYLOR</p>
-    <p>Eliminating all fictional references...</p>
-</body>
-</html>'''
-    
-    response = make_response(force_refresh_html)
+    response = make_response(render_template('authentic_dashboard.html'))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
-    response.headers['X-Timestamp'] = timestamp
+    response.headers['X-Authentic-Personnel'] = 'EX-210013-MATTHEW-C-SHAYLOR'
+    response.headers['X-Force-Refresh'] = 'true'
     return response
 
 @app.route('/authentic-dashboard')

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO ∞ - Force Refresh</title>
+    <script>
+        // NUCLEAR CACHE DESTROYER - FORCE COMPLETE RELOAD
+        if (typeof(Storage) !== "undefined") {
+            localStorage.clear();
+            sessionStorage.clear();
+        }
+        
+        // Clear all browser caches
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                names.forEach(function(name) {
+                    caches.delete(name);
+                });
+            });
+        }
+        
+        // Force immediate redirect with timestamp
+        const timestamp = new Date().getTime();
+        window.location.replace('/dashboard?nuclear_refresh=' + timestamp + '&authentic_only=true&personnel=MATTHEW_C_SHAYLOR&cache_destroyed=true');
+    </script>
+</head>
+<body>
+    <h1>Forcing Cache Refresh...</h1>
+    <p>Redirecting to authentic RAGLE dashboard...</p>
+</body>
+</html>

@@ -14,10 +14,8 @@
             sessionStorage.clear();
         }
         
-        // Check if we need to force refresh - if so, do it immediately
-        if (!window.location.search.includes('cache_destroyed')) {
-            window.location.href = window.location.pathname + '?cache_destroyed=' + timestamp + '&authentic=true&personnel=EX210013';
-        }
+        // FORCE COMPLETE PAGE RELOAD - NO CACHE
+        window.location.href = 'https://f2699832-8135-4557-9ec0-8d4d723b9ba2-00-347mwnpgyu8te.janeway.replit.dev/dashboard?force_reload=' + timestamp + '&no_cache=true&authentic=MATTHEW_C_SHAYLOR';
     </script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">

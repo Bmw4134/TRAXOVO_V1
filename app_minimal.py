@@ -2376,43 +2376,6 @@ def api_integration_status():
             "status": "error",
             "message": f"Integration status error: {str(e)}"
         })
-    try:
-        integrations = {}
-        
-        # Check Trello
-        try:
-            from trello_integration import get_trello_integration
-            trello = get_trello_integration()
-            integrations['trello'] = trello.get_connection_status()
-        except Exception as e:
-            integrations['trello'] = {"status": "error", "message": str(e)}
-        
-        # Check Twilio
-        try:
-            from twilio_integration import get_twilio_integration
-            twilio = get_twilio_integration()
-            integrations['twilio'] = twilio.get_connection_status()
-        except Exception as e:
-            integrations['twilio'] = {"status": "error", "message": str(e)}
-        
-        # Check GAUGE
-        try:
-            from gauge_api_connector import get_gauge_api_connector
-            gauge = get_gauge_api_connector()
-            integrations['gauge'] = gauge.get_connection_status()
-        except Exception as e:
-            integrations['gauge'] = {"status": "error", "message": str(e)}
-        
-        return jsonify({
-            "status": "success",
-            "integrations": integrations,
-            "timestamp": datetime.now().isoformat()
-        })
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": f"Integration status error: {str(e)}"
-        })
 
 if __name__ == "__main__":
     # Initialize Supabase integration

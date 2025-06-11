@@ -108,7 +108,7 @@ class NexusTelematics {
     startMockTelemetry() {
         // Generate mock telemetry data for authentic RAGLE assets
         const mockAssets = [
-            { id: 'MT-07', name: 'JAMES WILSON', lat: 32.7357, lng: -97.1081, speed: 35 },
+            { id: 'EX-210013', name: 'MATTHEW C. SHAYLOR', lat: 32.7500, lng: -97.1200, speed: 12 },
             { id: 'EX-210013', name: 'MATTHEW C. SHAYLOR', lat: 32.7500, lng: -97.1200, speed: 42 },
             { id: 'TR-3001', name: 'Fleet Truck 3001', lat: 32.7200, lng: -97.0900, speed: 28 },
             { id: 'HD-4502', name: 'Heavy Duty 4502', lat: 32.7600, lng: -97.1300, speed: 15 }

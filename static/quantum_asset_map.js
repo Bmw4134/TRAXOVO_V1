@@ -460,7 +460,7 @@ class QuantumAssetMap {
         try {
             console.log('🚀 TRAXOVO Gesture Navigation & Asset Intelligence Ready');
             console.log('Try: testAssetIntelligence("#210013 - MATTHEW C. SHAYLOR")');
-            console.log('Try: testAssetIntelligence("MT-07 - JAMES WILSON needs maintenance")');
+            console.log('Try: testAssetIntelligence("EX-210013 - MATTHEW C. SHAYLOR operational status")');
         } catch (error) {
             console.warn('Animation setup error prevented');
         }

@@ -369,7 +369,7 @@ def landing_page():
                         <div class="map-preview">
                             <div class="map-placeholder">
                                 🗺️ DFW Region Fleet Map<br>
-                                <small>EX-210013 MATTHEW C. SHAYLOR - Active</small>
+                                <small>MATTHEW C. SHAYLOR - Personal Vehicle Active</small>
                             </div>
                         </div>
                     </div>

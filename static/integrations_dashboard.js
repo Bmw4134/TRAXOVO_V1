@@ -31,6 +31,8 @@ function updateTrelloStatus(data) {
     const boardsElement = document.getElementById('trello-boards');
     const cardsElement = document.getElementById('trello-cards');
     
+    if (!statusElement || !boardsElement || !cardsElement) return;
+    
     if (data.status === 'success' && data.data.connection.status === 'connected') {
         statusElement.textContent = 'CONNECTED';
         statusElement.style.color = '#4CAF50';
@@ -48,6 +50,8 @@ function updateTwilioStatus(data) {
     const statusElement = document.getElementById('twilio-status');
     const messagesElement = document.getElementById('twilio-messages');
     const balanceElement = document.getElementById('twilio-balance');
+    
+    if (!statusElement || !messagesElement || !balanceElement) return;
     
     if (data.status === 'success' && data.data.connection.status === 'connected') {
         statusElement.textContent = 'CONNECTED';

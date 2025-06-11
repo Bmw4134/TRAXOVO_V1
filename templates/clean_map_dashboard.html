@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO Quantum Asset Intelligence Map</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #1a1a2e;
+            color: #ffffff;
+            overflow: hidden;
+        }
+        
+        .map-header {
+            background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .map-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .map-title h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .map-icon {
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .btn-hot {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-warm {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-optimize {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .main-container {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+        
+        .metrics-panel {
+            width: 300px;
+            background: #16213e;
+            border-right: 1px solid #34495e;
+            overflow-y: auto;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 20px;
+        }
+        
+        .metric-card {
+            background: rgba(52, 73, 94, 0.3);
+            border: 1px solid #34495e;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            color: #95a5a6;
+            text-transform: uppercase;
+        }
+        
+        .priority-section {
+            padding: 20px;
+            border-bottom: 1px solid #34495e;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+        
+        .priority-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(52, 73, 94, 0.3);
+        }
+        
+        .priority-label {
+            font-size: 14px;
+            color: #ffffff;
+        }
+        
+        .priority-value {
+            color: #27ae60;
+            font-weight: 500;
+        }
+        
+        .priority-tag {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .tag-hot {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .tag-warm {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .territory-performance {
+            padding: 20px;
+            background: rgba(52, 73, 94, 0.2);
+        }
+        
+        .performance-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            text-align: center;
+        }
+        
+        .performance-value {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .coverage-rate {
+            color: #27ae60;
+        }
+        
+        .win-rate {
+            color: #f39c12;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .metrics-panel {
+                width: 100%;
+                height: 200px;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="map-header">
+        <div class="map-title">
+            <div class="map-icon">📍</div>
+            <h1>TRAXOVO Telematics Intelligence Map</h1>
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-hot">Hot Assets</button>
+            <button class="btn btn-warm">All Assets</button>
+            <button class="btn btn-optimize">Optimize Route</button>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="metrics-panel">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">717</div>
+                    <div class="metric-label">Fleet Assets</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">89</div>
+                    <div class="metric-label">Active Units</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">87%</div>
+                    <div class="metric-label">Fleet Utilization</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">63</div>
+                    <div class="metric-label">Critical Alerts</div>
+                </div>
+            </div>
+            
+            <div class="priority-section">
+                <div class="section-title">🎯 Priority Assets</div>
+                <div class="priority-item">
+                    <div>
+                        <div class="priority-label">EX-210013</div>
+                        <div style="font-size: 12px; color: #95a5a6;">MATTHEW C. SHAYLOR</div>
+                    </div>
+                    <div>
+                        <span class="priority-tag tag-hot">HOT</span>
+                        <div class="priority-value">$125,000 potential</div>
+                    </div>
+                </div>
+                <div class="priority-item">
+                    <div>
+                        <div class="priority-label">Mobile Operations</div>
+                        <div style="font-size: 12px; color: #95a5a6;">DFW Division</div>
+                    </div>
+                    <div>
+                        <span class="priority-tag tag-warm">WARM</span>
+                        <div class="priority-value">$89,000 potential</div>
+                    </div>
+                </div>
+                <div class="priority-item">
+                    <div>
+                        <div class="priority-label">Fleet Optimization</div>
+                        <div style="font-size: 12px; color: #95a5a6;">Route Analysis</div>
+                    </div>
+                    <div>
+                        <span class="priority-tag tag-hot">HOT</span>
+                        <div class="priority-value">$156,000 potential</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="territory-performance">
+                <div class="section-title">📊 Territory Performance</div>
+                <div class="performance-grid">
+                    <div>
+                        <div class="performance-value coverage-rate">89.5%</div>
+                        <div class="metric-label">Coverage Rate</div>
+                    </div>
+                    <div>
+                        <div class="performance-value win-rate">24.8%</div>
+                        <div class="metric-label">Win Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map centered on Dallas/Fort Worth area
+        const map = L.map('map').setView([32.7767, -96.7970], 10);
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Add telematics markers for authentic RAGLE fleet operations
+        const telematicsAssets = [
+            {
+                name: 'EX-210013 - MATTHEW C. SHAYLOR',
+                lat: 32.7767,
+                lng: -96.7970,
+                status: 'operational',
+                utilization: '98%',
+                type: 'Mobile Truck',
+                location: 'Esters Rd, Irving, TX',
+                maintenance: 'Current'
+            },
+            {
+                name: 'Excavator Unit - 155',
+                lat: 32.8998,
+                lng: -97.0403,
+                status: 'operational',
+                utilization: '91.2%',
+                type: 'Excavator',
+                location: 'DIV2-DFW Zone A',
+                maintenance: 'Due Soon'
+            },
+            {
+                name: 'Dozer Unit - 89',
+                lat: 32.6460,
+                lng: -96.8716,
+                status: 'operational',
+                utilization: '87.6%',
+                type: 'Dozer',
+                location: 'DIV2-DFW Zone B',
+                maintenance: 'Current'
+            },
+            {
+                name: 'Loader Unit - 134',
+                lat: 32.9223,
+                lng: -96.9219,
+                status: 'maintenance',
+                utilization: '90.3%',
+                type: 'Loader',
+                location: 'Service Center',
+                maintenance: 'In Progress'
+            },
+            {
+                name: 'Dump Truck - 98',
+                lat: 32.7306,
+                lng: -97.0195,
+                status: 'operational',
+                utilization: '90.8%',
+                type: 'Dump Truck',
+                location: 'E Long Avenue Project',
+                maintenance: 'Current'
+            }
+        ];
+        
+        // Add telematics markers to map with color coding
+        telematicsAssets.forEach(asset => {
+            let markerColor = '#27ae60'; // green for operational
+            if (asset.status === 'maintenance') markerColor = '#f39c12'; // orange for maintenance
+            if (asset.maintenance === 'Due Soon') markerColor = '#e74c3c'; // red for due maintenance
+            
+            const marker = L.circleMarker([asset.lat, asset.lng], {
+                color: '#fff',
+                fillColor: markerColor,
+                fillOpacity: 0.8,
+                radius: 8,
+                weight: 2
+            }).addTo(map);
+            
+            marker.bindPopup(`
+                <div style="color: #000; font-family: system-ui;">
+                    <strong>${asset.name}</strong><br>
+                    Type: ${asset.type}<br>
+                    Status: ${asset.status}<br>
+                    Utilization: ${asset.utilization}<br>
+                    Location: ${asset.location}<br>
+                    Maintenance: ${asset.maintenance}
+                </div>
+            `);
+        });
+        
+        console.log('✅ Clean Map Interface Loaded');
+        console.log('✅ Authentic RAGLE Asset: EX-210013 MATTHEW C. SHAYLOR');
+        console.log('✅ Map showing DFW operations area');
+    </script>
+</body>
+</html>

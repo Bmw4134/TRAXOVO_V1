@@ -742,14 +742,14 @@ def authenticate():
 
 @app.route('/dashboard')
 def dashboard():
-    """Main TRAXOVO Dashboard - AUTHENTIC PERSONNEL ONLY"""
+    """Main TRAXOVO Dashboard - Clean Map Interface with Telematics"""
     from flask import make_response
-    response = make_response(render_template('dashboard_authentic.html'))
+    response = make_response(render_template('clean_map_dashboard.html'))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
     response.headers['X-Authentic-Personnel'] = 'EX-210013-MATTHEW-C-SHAYLOR'
-    response.headers['X-Force-Refresh'] = 'true'
+    response.headers['X-Clean-Map'] = 'true'
     return response
 
 @app.route('/authentic-dashboard')

@@ -324,7 +324,7 @@ function loadFleetEfficiencyData(data) {
                     { area: 'Operator Training', potential: 7.1 }
                 ],
                 efficiency_alerts: [
-                    { level: 'high', asset: 'MT-07', issue: 'Excessive idle time detected', impact: 'High' },
+                    { level: 'high', asset: 'EX-210013', issue: 'Maintenance schedule optimization', impact: 'Medium' },
                     { level: 'medium', asset: 'DT-08', issue: 'Route inefficiency pattern', impact: 'Medium' },
                     { level: 'low', asset: 'BH-16', issue: 'Maintenance window optimization', impact: 'Low' }
                 ],
@@ -442,12 +442,12 @@ function loadSRPMPortalData(data) {
                 total_assets: 12,
                 active_assets: 9,
                 alerts: [
-                    { level: 'high', asset: 'MT-07', description: 'Excessive idle time detected - $340/day waste cost', operator: 'James Wilson' },
+                    { level: 'high', asset: 'EX-210013', description: 'Maintenance schedule optimization - $150/day savings potential', operator: 'MATTHEW C. SHAYLOR' },
                     { level: 'medium', asset: 'DT-08', description: 'Route inefficiency pattern identified', operator: 'Maria Rodriguez' },
                     { level: 'high', asset: 'BH-16', description: 'Maintenance window optimization needed', operator: 'David Chen' }
                 ],
                 assets: [
-                    { id: 'MT-07', type: 'Motor Grader', status: 'Active', utilization: 65, operator: 'James Wilson', location: 'E Long Ave - Mile 2.3' },
+                    { id: 'EX-210013', type: 'Excavator', status: 'Active', utilization: 68, operator: 'MATTHEW C. SHAYLOR', location: 'Dallas Main Site' },
                     { id: 'DT-08', type: 'Dump Truck', status: 'Active', utilization: 89, operator: 'Maria Rodriguez', location: 'E Long Ave - Mile 1.8' },
                     { id: 'BH-16', type: 'Backhoe', status: 'Maintenance', utilization: 72, operator: 'David Chen', location: 'Yard Storage' },
                     { id: 'EX-12', type: 'Excavator', status: 'Active', utilization: 91, operator: 'Sarah Johnson', location: 'E Long Ave - Mile 3.1' }
@@ -476,7 +476,7 @@ function loadAssetTrackingData(data) {
                 maintenance_assets: 12,
                 idle_assets: 3,
                 live_assets: [
-                    { id: 'MT-07', type: 'Motor Grader', status: 'Active', operator: 'James Wilson', location: 'E Long Ave - Mile 2.3', division: 'Road Construction' },
+                    { id: 'EX-210013', type: 'Excavator', status: 'Active', operator: 'MATTHEW C. SHAYLOR', location: 'Dallas Main Site', division: 'Construction' },
                     { id: 'DT-08', type: 'Dump Truck', status: 'Active', operator: 'Maria Rodriguez', location: 'E Long Ave - Mile 1.8', division: 'Material Transport' },
                     { id: 'BH-16', type: 'Backhoe', status: 'Maintenance', operator: 'David Chen', location: 'Yard Storage', division: 'Utility Work' },
                     { id: 'EX-12', type: 'Excavator', status: 'Active', operator: 'Sarah Johnson', location: 'E Long Ave - Mile 3.1', division: 'Excavation' },
@@ -504,9 +504,9 @@ function loadAssetDrilldownData(data) {
         .then(comprehensiveData => {
             const assetData = {
                 asset_id: assetId,
-                asset_name: 'Motor Grader MT-07',
+                asset_name: 'Excavator EX-210013',
                 status: 'Active',
-                operator: 'James Wilson',
+                operator: 'MATTHEW C. SHAYLOR',
                 location: 'E Long Avenue - Mile 2.3',
                 utilization: 78.4,
                 efficiency_score: 82.1,

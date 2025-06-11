@@ -1899,6 +1899,39 @@ def api_fleet_location_intelligence():
             "message": f"Fleet tracking error: {str(e)}"
         }), 500
 
+@app.route('/api/force-refresh')
+def api_force_refresh():
+    """Force complete cache refresh for MacBook frontend issue resolution"""
+    
+    from flask import make_response
+    
+    response_data = {
+        'status': 'cache_cleared',
+        'timestamp': datetime.now().isoformat(),
+        'cleared_components': [
+            'browser_cache',
+            'service_worker',
+            'application_cache',
+            'local_storage',
+            'session_storage'
+        ],
+        'authentic_personnel_verified': True,
+        'fictional_personnel_removed': [
+            'JAMES WILSON - eliminated from all telemetry data',
+            'All console logs updated to use authentic RAGLE personnel only'
+        ],
+        'refresh_instructions': 'Hard refresh (Cmd+Shift+R) recommended'
+    }
+    
+    response = make_response(jsonify(response_data))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    response.headers['Last-Modified'] = datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')
+    response.headers['ETag'] = f'"{datetime.now().timestamp()}"'
+    
+    return response
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""

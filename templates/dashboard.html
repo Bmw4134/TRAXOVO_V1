@@ -4,6 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1024, initial-scale=0.3, maximum-scale=1, user-scalable=yes">
     <title>TRAXOVO NEXUS - Executive Dashboard</title>
+    <script>
+        // MacBook Cache Destroyer - Immediate Action
+        var timestamp = Date.now();
+        
+        // Clear all storage immediately
+        if (typeof(Storage) !== "undefined") {
+            localStorage.clear();
+            sessionStorage.clear();
+        }
+        
+        // Check if we need to force refresh - if so, do it immediately
+        if (!window.location.search.includes('cache_destroyed')) {
+            window.location.href = window.location.pathname + '?cache_destroyed=' + timestamp + '&authentic=true&personnel=EX210013';
+        }
+    </script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="stylesheet" href="/static/iphone_desktop_force.css">
     <link rel="stylesheet" href="/static/mobile_iphone_fix.css">
     <link rel="stylesheet" href="/static/desktop_force_grid.css">

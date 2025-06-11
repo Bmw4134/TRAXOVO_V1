@@ -1,0 +1,125 @@
+/* iPhone Desktop Force Override System */
+/* Force desktop layout on all mobile devices */
+
+/* Override all mobile viewport restrictions */
+@viewport {
+    width: device-width;
+    initial-scale: 0.3;
+    minimum-scale: 0.1;
+    maximum-scale: 2.0;
+    user-scalable: yes;
+}
+
+/* Force desktop view on mobile devices */
+@media screen and (max-width: 768px) {
+    /* Override mobile navigation completely */
+    .mobile-nav-header {
+        display: none !important;
+    }
+    
+    /* Force desktop grid layout */
+    .main-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+        gap: 25px !important;
+        padding: 30px !important;
+        max-width: none !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+    }
+    
+    /* Force large desktop header */
+    .header h1 {
+        font-size: 3rem !important;
+        text-align: center !important;
+    }
+    
+    /* Ensure cards maintain desktop size */
+    .dashboard-card,
+    .nexus-control-card,
+    .api-showcase {
+        min-width: 300px !important;
+        width: auto !important;
+        flex: 1 1 300px !important;
+    }
+    
+    /* Force desktop button sizes */
+    .nexus-access-btn,
+    .desktop-toggle {
+        padding: 15px 30px !important;
+        font-size: 1.1rem !important;
+        min-width: 200px !important;
+    }
+    
+    /* Override any mobile-specific styling */
+    body {
+        min-width: 1024px !important;
+        zoom: 0.3 !important;
+        -webkit-text-size-adjust: none !important;
+        -moz-text-size-adjust: none !important;
+        -ms-text-size-adjust: none !important;
+    }
+    
+    /* Force desktop layout regardless of screen size */
+    html {
+        width: 1024px !important;
+        zoom: 0.3 !important;
+    }
+    
+    /* Ensure all text remains readable */
+    * {
+        -webkit-text-size-adjust: none !important;
+        -moz-text-size-adjust: none !important;
+        text-size-adjust: none !important;
+    }
+}
+
+/* Force desktop mode toggle to be always visible */
+.desktop-toggle {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    z-index: 10000 !important;
+    background: linear-gradient(45deg, #3a5998, #74c0fc) !important;
+    color: white !important;
+    font-weight: bold !important;
+    border: none !important;
+    padding: 12px 20px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 5px 15px rgba(116, 192, 252, 0.5) !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    display: block !important;
+}
+
+.desktop-toggle:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 8px 25px rgba(116, 192, 252, 0.7) !important;
+}
+
+/* Ensure NEXUS Control Center is prominently displayed */
+.nexus-control-card {
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460) !important;
+    border: 2px solid #00ff88 !important;
+    box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3) !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.nexus-control-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 15px 40px rgba(0, 255, 136, 0.5) !important;
+}
+
+/* Force all content to be scrollable horizontally if needed */
+body {
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+}
+
+/* Prevent any layout collapse on small screens */
+.container,
+.main-container {
+    min-width: 1024px !important;
+    width: 100% !important;
+}

@@ -2524,6 +2524,118 @@ def api_quick_benchmark():
             "message": f"Quick benchmark error: {str(e)}"
         })
 
+@app.route('/api/personal-nexus-auth')
+def api_personal_nexus_auth():
+    """Personal NEXUS Control authentication - exclusive access"""
+    try:
+        from personal_nexus_control import authenticate_nexus_user
+        
+        auth_result = authenticate_nexus_user()
+        
+        if auth_result.get("authenticated"):
+            session['nexus_control_token'] = auth_result.get("session_token")
+            session['nexus_access_level'] = "NEXUS_CONTROL_AUTHORITY"
+            
+        return jsonify({
+            "status": "success",
+            "authentication": auth_result,
+            "exclusive_access": True,
+            "control_authority": "NEXUS_CONTROL_AUTHORITY",
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"NEXUS authentication error: {str(e)}"
+        })
+
+@app.route('/api/personal-nexus-dashboard')
+def api_personal_nexus_dashboard():
+    """Personal NEXUS Control dashboard - exclusive access only"""
+    try:
+        from personal_nexus_control import get_nexus_dashboard
+        
+        # Get session token from session
+        session_token = session.get('nexus_control_token')
+        if not session_token:
+            return jsonify({
+                "status": "error",
+                "message": "NEXUS Control access denied - authentication required",
+                "access_granted": False
+            })
+        
+        dashboard_data = get_nexus_dashboard(session_token)
+        
+        if "error" in dashboard_data:
+            return jsonify({
+                "status": "error",
+                "message": dashboard_data["error"],
+                "access_granted": False
+            })
+        
+        return jsonify({
+            "status": "success",
+            "nexus_dashboard": dashboard_data,
+            "exclusive_access": True,
+            "user_authority": "NEXUS_CONTROL_AUTHORITY",
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"NEXUS dashboard error: {str(e)}",
+            "access_granted": False
+        })
+
+@app.route('/api/nexus-command', methods=['POST'])
+def api_nexus_command():
+    """Execute NEXUS Control commands - exclusive access only"""
+    try:
+        from personal_nexus_control import get_personal_nexus_control
+        
+        # Get session token from session
+        session_token = session.get('nexus_control_token')
+        if not session_token:
+            return jsonify({
+                "status": "error",
+                "message": "NEXUS Control access denied - authentication required",
+                "command_executed": False
+            })
+        
+        # Get command data
+        data = request.get_json() or {}
+        command = data.get('command')
+        parameters = data.get('parameters', {})
+        
+        if not command:
+            return jsonify({
+                "status": "error",
+                "message": "Command required",
+                "command_executed": False
+            })
+        
+        nexus_control = get_personal_nexus_control()
+        result = nexus_control.execute_nexus_command(session_token, command, parameters)
+        
+        return jsonify({
+            "status": "success",
+            "command_result": result,
+            "exclusive_access": True,
+            "authority": "NEXUS_CONTROL_AUTHORITY",
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"NEXUS command error: {str(e)}",
+            "command_executed": False
+        })
+
+@app.route('/personal-nexus')
+def personal_nexus():
+    """Personal NEXUS Control Center interface - exclusive access"""
+    return render_template('personal_nexus.html')
+
 if __name__ == "__main__":
     # Initialize Supabase integration
     print("Initializing TRAXOVO with Supabase integration...")

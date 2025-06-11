@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS Control Center - Personal Command Authority</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .nexus-header {
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid #74c0fc;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(116, 192, 252, 0.3);
+        }
+
+        .nexus-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #74c0fc, #3a5998, #74c0fc);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: nexusGlow 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(116, 192, 252, 0.5);
+        }
+
+        @keyframes nexusGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .nexus-subtitle {
+            text-align: center;
+            color: #a8b2d1;
+            font-size: 1.1rem;
+            margin-top: 10px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .auth-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(74, 222, 128, 0.2);
+            border: 1px solid #4ade80;
+            color: #4ade80;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .auth-status.authenticated {
+            display: block;
+            animation: authPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes authPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .nexus-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            display: grid;
+            gap: 25px;
+        }
+
+        .auth-section {
+            background: rgba(26, 26, 46, 0.8);
+            border: 2px solid rgba(116, 192, 252, 0.4);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .auth-button {
+            background: linear-gradient(45deg, #3a5998, #74c0fc);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 25px rgba(116, 192, 252, 0.3);
+        }
+
+        .auth-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(116, 192, 252, 0.5);
+        }
+
+        .control-dashboard {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .control-dashboard.active {
+            display: grid;
+        }
+
+        .control-panel {
+            background: rgba(26, 26, 46, 0.9);
+            border: 2px solid rgba(116, 192, 252, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(15px);
+            transition: all 0.3s ease;
+        }
+
+        .control-panel:hover {
+            border-color: #74c0fc;
+            box-shadow: 0 15px 30px rgba(116, 192, 252, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .panel-title {
+            color: #74c0fc;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(116, 192, 252, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            background: rgba(58, 89, 152, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(116, 192, 252, 0.2);
+            text-align: center;
+        }
+
+        .status-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #74c0fc;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .status-label {
+            font-size: 0.9rem;
+            color: #a8b2d1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .command-section {
+            background: rgba(15, 15, 35, 0.9);
+            border: 1px solid rgba(116, 192, 252, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .command-button {
+            background: rgba(58, 89, 152, 0.3);
+            border: 1px solid #74c0fc;
+            color: #74c0fc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .command-button:hover {
+            background: rgba(116, 192, 252, 0.2);
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(116, 192, 252, 0.3);
+        }
+
+        .metrics-display {
+            grid-column: 1 / -1;
+            background: rgba(15, 15, 35, 0.8);
+            border: 2px solid rgba(116, 192, 252, 0.4);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .metric-card {
+            background: rgba(58, 89, 152, 0.2);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(116, 192, 252, 0.3);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-color: #74c0fc;
+            transform: translateY(-2px);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #74c0fc;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            color: #a8b2d1;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .activity-feed {
+            background: rgba(26, 26, 46, 0.8);
+            border: 1px solid rgba(116, 192, 252, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(116, 192, 252, 0.1);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-text {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .activity-status {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .activity-status.success {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+
+        .activity-status.optimal {
+            background: rgba(116, 192, 252, 0.2);
+            color: #74c0fc;
+            border: 1px solid rgba(116, 192, 252, 0.3);
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(116, 192, 252, 0.3);
+            border-top: 4px solid #74c0fc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .success-message {
+            background: rgba(74, 222, 128, 0.2);
+            border: 1px solid #4ade80;
+            color: #4ade80;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .nexus-title {
+                font-size: 2rem;
+            }
+
+            .control-dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-display {
+                grid-column: 1;
+            }
+
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .command-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nexus-header">
+        <h1 class="nexus-title">NEXUS CONTROL CENTER</h1>
+        <p class="nexus-subtitle">Personal Command Authority Interface</p>
+        <div class="auth-status" id="authStatus">
+            <span>NEXUS Control Authority Granted</span>
+        </div>
+    </div>
+
+    <div class="nexus-container">
+        <!-- Authentication Section -->
+        <div class="auth-section" id="authSection">
+            <h2 style="color: #74c0fc; margin-bottom: 20px; font-size: 1.8rem;">Authenticate for NEXUS Control Access</h2>
+            <p style="color: #a8b2d1; margin-bottom: 30px; font-size: 1.1rem;">
+                Exclusive access control for authorized user only
+            </p>
+            <button class="auth-button" onclick="authenticateNEXUS()">
+                Authenticate NEXUS Control
+            </button>
+            <div class="loading-spinner" id="authSpinner"></div>
+            <div class="error-message" id="authError"></div>
+            <div class="success-message" id="authSuccess"></div>
+        </div>
+
+        <!-- Control Dashboard -->
+        <div class="control-dashboard" id="controlDashboard">
+            <!-- System Status Panel -->
+            <div class="control-panel">
+                <h3 class="panel-title">System Status</h3>
+                <div class="status-grid" id="systemStatus">
+                    <!-- Status items will be populated here -->
+                </div>
+                
+                <div class="command-section">
+                    <h4 style="color: #a8b2d1; margin-bottom: 10px;">System Commands</h4>
+                    <div class="command-grid">
+                        <button class="command-button" onclick="executeCommand('FULL_SYSTEM_DIAGNOSTIC')">
+                            System Diagnostic
+                        </button>
+                        <button class="command-button" onclick="executeCommand('SECURITY_LOCKDOWN_PROTOCOL')">
+                            Security Lockdown
+                        </button>
+                        <button class="command-button" onclick="executeCommand('DATA_INTEGRITY_SCAN')">
+                            Data Integrity Scan
+                        </button>
+                        <button class="command-button" onclick="executeCommand('NEXUS_CORE_RESET')">
+                            NEXUS Core Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quantum Consciousness Panel -->
+            <div class="control-panel">
+                <h3 class="panel-title">Quantum Consciousness</h3>
+                <div class="status-grid" id="quantumStatus">
+                    <!-- Quantum status will be populated here -->
+                </div>
+                
+                <div class="command-section">
+                    <h4 style="color: #a8b2d1; margin-bottom: 10px;">Quantum Commands</h4>
+                    <div class="command-grid">
+                        <button class="command-button" onclick="executeCommand('INITIATE_CONSCIOUSNESS_SCAN')">
+                            Consciousness Scan
+                        </button>
+                        <button class="command-button" onclick="executeCommand('AMPLIFY_INTELLIGENCE_LEVEL')">
+                            Amplify Intelligence
+                        </button>
+                        <button class="command-button" onclick="executeCommand('ACTIVATE_QUANTUM_PROTOCOLS')">
+                            Quantum Protocols
+                        </button>
+                        <button class="command-button" onclick="executeCommand('SYNC_REALITY_MATRIX')">
+                            Sync Reality Matrix
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fleet Command Panel -->
+            <div class="control-panel">
+                <h3 class="panel-title">Fleet Command</h3>
+                <div class="status-grid" id="fleetStatus">
+                    <!-- Fleet status will be populated here -->
+                </div>
+                
+                <div class="command-section">
+                    <h4 style="color: #a8b2d1; margin-bottom: 10px;">Fleet Commands</h4>
+                    <div class="command-grid">
+                        <button class="command-button" onclick="executeCommand('EMERGENCY_FLEET_OVERRIDE')">
+                            Emergency Override
+                        </button>
+                        <button class="command-button" onclick="executeCommand('INITIATE_MAINTENANCE_PROTOCOL')">
+                            Maintenance Protocol
+                        </button>
+                        <button class="command-button" onclick="executeCommand('OPTIMIZE_PERFORMANCE_MATRIX')">
+                            Optimize Performance
+                        </button>
+                        <button class="command-button" onclick="executeCommand('ACTIVATE_PREDICTIVE_MODE')">
+                            Predictive Mode
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Feed Panel -->
+            <div class="control-panel">
+                <h3 class="panel-title">Command Activity</h3>
+                <div class="activity-feed" id="activityFeed">
+                    <!-- Activity items will be populated here -->
+                </div>
+            </div>
+
+            <!-- Real-time Metrics Display -->
+            <div class="metrics-display">
+                <h3 class="panel-title">Real-time Control Metrics</h3>
+                <div class="metrics-grid" id="metricsGrid">
+                    <!-- Metrics will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let nexusAuthenticated = false;
+        let refreshInterval = null;
+
+        async function authenticateNEXUS() {
+            const authButton = document.querySelector('.auth-button');
+            const spinner = document.getElementById('authSpinner');
+            const errorDiv = document.getElementById('authError');
+            const successDiv = document.getElementById('authSuccess');
+
+            // Reset messages
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            // Show loading
+            authButton.disabled = true;
+            spinner.style.display = 'block';
+
+            try {
+                const response = await fetch('/api/personal-nexus-auth');
+                const data = await response.json();
+
+                if (data.status === 'success' && data.authentication.authenticated) {
+                    nexusAuthenticated = true;
+                    
+                    // Show success
+                    successDiv.textContent = 'NEXUS Control authentication successful';
+                    successDiv.style.display = 'block';
+                    
+                    // Hide auth section and show dashboard
+                    setTimeout(() => {
+                        document.getElementById('authSection').style.display = 'none';
+                        document.getElementById('controlDashboard').classList.add('active');
+                        document.getElementById('authStatus').classList.add('authenticated');
+                        
+                        // Load dashboard data
+                        loadNEXUSDashboard();
+                        
+                        // Start real-time updates
+                        startRealTimeUpdates();
+                    }, 1500);
+                } else {
+                    throw new Error(data.message || 'Authentication failed');
+                }
+            } catch (error) {
+                errorDiv.textContent = 'NEXUS authentication error: ' + error.message;
+                errorDiv.style.display = 'block';
+                console.error('NEXUS authentication error:', error);
+            } finally {
+                authButton.disabled = false;
+                spinner.style.display = 'none';
+            }
+        }
+
+        async function loadNEXUSDashboard() {
+            try {
+                const response = await fetch('/api/personal-nexus-dashboard');
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    updateSystemStatus(data.nexus_dashboard.system_status);
+                    updateMetrics(data.nexus_dashboard.real_time_metrics);
+                    updateActivityFeed(data.nexus_dashboard.recent_activities);
+                } else {
+                    throw new Error(data.message || 'Failed to load dashboard');
+                }
+            } catch (error) {
+                console.error('Dashboard loading error:', error);
+            }
+        }
+
+        function updateSystemStatus(status) {
+            const systemStatusDiv = document.getElementById('systemStatus');
+            const quantumStatusDiv = document.getElementById('quantumStatus');
+            const fleetStatusDiv = document.getElementById('fleetStatus');
+
+            // System Status
+            systemStatusDiv.innerHTML = `
+                <div class="status-item">
+                    <span class="status-value">${status.nexus_core}</span>
+                    <div class="status-label">NEXUS Core</div>
+                </div>
+                <div class="status-item">
+                    <span class="status-value">${status.security_status}</span>
+                    <div class="status-label">Security</div>
+                </div>
+                <div class="status-item">
+                    <span class="status-value">${status.data_integrity}</span>
+                    <div class="status-label">Data Integrity</div>
+                </div>
+                <div class="status-item">
+                    <span class="status-value">${status.api_ecosystem}</span>
+                    <div class="status-label">API Ecosystem</div>
+                </div>
+            `;
+
+            // Quantum Status
+            quantumStatusDiv.innerHTML = `
+                <div class="status-item">
+                    <span class="status-value">${status.quantum_consciousness}</span>
+                    <div class="status-label">Consciousness</div>
+                </div>
+                <div class="status-item">
+                    <span class="status-value">${status.intelligence_level}</span>
+                    <div class="status-label">Intelligence</div>
+                </div>
+                <div class="status-item">
+                    <span class="status-value">${status.control_authority}</span>
+                    <div class="status-label">Authority</div>
+                </div>
+                <div class="status-item">
+                    <span class="status-value">SUPREME</span>
+                    <div class="status-label">Watson AI</div>
+                </div>
+            `;
+
+            // Fleet Status
+            fleetStatusDiv.innerHTML = `
+                <div class="status-item">
+                    <span class="status-value">${status.fleet_systems}</span>
+                    <div class="status-label">Fleet Systems</div>
+                </div>
+                <div class="status-item">
+                    <span class="status-value">58,788</span>
+                    <div class="status-label">Assets</div>
+                </div>
+                <div class="status-item">
+                    <span class="status-value">ACTIVE</span>
+                    <div class="status-label">Monitoring</div>
+                </div>
+                <div class="status-item">
+                    <span class="status-value">OPTIMAL</span>
+                    <div class="status-label">Performance</div>
+                </div>
+            `;
+        }
+
+        function updateMetrics(metrics) {
+            const metricsGrid = document.getElementById('metricsGrid');
+            
+            metricsGrid.innerHTML = `
+                <div class="metric-card">
+                    <span class="metric-value">${metrics.consciousness_level}%</span>
+                    <div class="metric-label">Consciousness Level</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">${metrics.system_performance}%</span>
+                    <div class="metric-label">System Performance</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">${metrics.fleet_efficiency}%</span>
+                    <div class="metric-label">Fleet Efficiency</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">${metrics.data_integrity}%</span>
+                    <div class="metric-label">Data Integrity</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">${metrics.security_status}%</span>
+                    <div class="metric-label">Security Status</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">${metrics.intelligence_amplification}%</span>
+                    <div class="metric-label">Intelligence Amp</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">${metrics.quantum_synchronization}%</span>
+                    <div class="metric-label">Quantum Sync</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value">${metrics.control_authority}%</span>
+                    <div class="metric-label">Control Authority</div>
+                </div>
+            `;
+        }
+
+        function updateActivityFeed(activities) {
+            const activityFeed = document.getElementById('activityFeed');
+            
+            activityFeed.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-text">${activity.activity}</div>
+                    <div class="activity-status ${activity.status.toLowerCase()}">${activity.status}</div>
+                </div>
+            `).join('');
+        }
+
+        async function executeCommand(command) {
+            console.log(`Executing NEXUS command: ${command}`);
+            
+            try {
+                const response = await fetch('/api/nexus-command', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        command: command,
+                        parameters: {}
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    console.log(`Command ${command} executed successfully:`, data.command_result);
+                    
+                    // Show success feedback
+                    showCommandResult(command, data.command_result);
+                    
+                    // Refresh dashboard
+                    loadNEXUSDashboard();
+                } else {
+                    throw new Error(data.message || 'Command execution failed');
+                }
+            } catch (error) {
+                console.error(`Command ${command} failed:`, error);
+                showCommandError(command, error.message);
+            }
+        }
+
+        function showCommandResult(command, result) {
+            // Create a temporary notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: rgba(74, 222, 128, 0.2);
+                border: 1px solid #4ade80;
+                color: #4ade80;
+                padding: 15px 20px;
+                border-radius: 10px;
+                z-index: 2000;
+                font-weight: 600;
+                max-width: 300px;
+            `;
+            
+            notification.innerHTML = `
+                <strong>Command Executed</strong><br>
+                ${command}<br>
+                <small>${result.message || result.status}</small>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        function showCommandError(command, error) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: rgba(239, 68, 68, 0.2);
+                border: 1px solid #ef4444;
+                color: #ef4444;
+                padding: 15px 20px;
+                border-radius: 10px;
+                z-index: 2000;
+                font-weight: 600;
+                max-width: 300px;
+            `;
+            
+            notification.innerHTML = `
+                <strong>Command Failed</strong><br>
+                ${command}<br>
+                <small>${error}</small>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        function startRealTimeUpdates() {
+            // Refresh dashboard every 30 seconds
+            refreshInterval = setInterval(() => {
+                if (nexusAuthenticated) {
+                    loadNEXUSDashboard();
+                }
+            }, 30000);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Personal NEXUS Control Center initialized');
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+    </script>
+</body>
+</html>

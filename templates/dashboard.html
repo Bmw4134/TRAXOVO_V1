@@ -325,6 +325,7 @@
             <a href="#fleet" class="mobile-nav-item" onclick="scrollToSection('fleet')">🚛 Fleet Tracking</a>
             <a href="#analytics" class="mobile-nav-item" onclick="scrollToSection('analytics')">🧠 Analytics</a>
             <a href="#apis" class="mobile-nav-item" onclick="scrollToSection('apis')">🔗 API Management</a>
+            <a href="/personal-nexus" class="mobile-nav-item" style="background: linear-gradient(45deg, #3a5998, #74c0fc); color: white; font-weight: bold;">⚡ NEXUS Control</a>
             <a href="/telematics-map" class="mobile-nav-item">🗺️ Maps & GPS</a>
             <a href="/crypto-dashboard" class="mobile-nav-item">💰 Trading</a>
             <a href="/browser-automation" class="mobile-nav-item">🤖 Automation</a>
@@ -419,22 +420,22 @@
             </div>
         </div>
 
-        <div class="dashboard-card nexus-command-card" onclick="window.location.href='/nexus-command-center'">
-            <div class="card-title">NEXUS Command Center</div>
-            <div class="metric-large" id="nexus-status">ACTIVE</div>
-            <div class="metric-subtitle">System control and monitoring interface</div>
+        <div class="dashboard-card nexus-control-card" onclick="window.location.href='/personal-nexus'" style="background: linear-gradient(135deg, rgba(58, 89, 152, 0.4), rgba(116, 192, 252, 0.3)); border: 2px solid #74c0fc; box-shadow: 0 10px 30px rgba(116, 192, 252, 0.4);">
+            <div class="card-title" style="color: #74c0fc; font-weight: 800;">⚡ Personal NEXUS Control</div>
+            <div class="metric-large" style="color: #ffffff; text-shadow: 0 0 10px rgba(116, 192, 252, 0.6);" id="nexus-status">EXCLUSIVE ACCESS</div>
+            <div class="metric-subtitle" style="color: #a8b2d1; font-weight: 600;">Personal Command Authority Interface</div>
             <div class="nexus-quick-stats">
                 <div class="stat-item">
-                    <span class="stat-label">System Status</span>
-                    <span class="stat-value" id="nexus-system-status">OPERATIONAL</span>
+                    <span class="stat-label">Control Authority</span>
+                    <span class="stat-value" style="color: #4ade80;" id="nexus-authority">ABSOLUTE</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Active Monitors</span>
-                    <span class="stat-value" id="active-monitors">12</span>
+                    <span class="stat-label">Quantum Status</span>
+                    <span class="stat-value" style="color: #74c0fc;" id="quantum-status">SUPREME</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">Fleet Control</span>
-                    <span class="stat-value" id="fleet-control-status">ONLINE</span>
+                    <span class="stat-label">Fleet Command</span>
+                    <span class="stat-value" style="color: #fbbf24;" id="fleet-command-status">READY</span>
                 </div>
             </div>
         </div>

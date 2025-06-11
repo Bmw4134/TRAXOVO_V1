@@ -11,12 +11,35 @@
     function initializeSidebarTouch() {
         if (sidebarInitialized) return;
         
-        console.log('Initializing sidebar touch navigation...');
+        console.log('🔧 Force rebinding sidebar events - sidebar_click_fix_patch_01');
         
-        // Find all sidebar navigation elements
-        const sidebarLinks = document.querySelectorAll('.mobile-nav-item, .sidebar-nav a, .nav-link, [data-nav]');
+        // Enhanced selector targeting for all sidebar elements
+        const sidebarSelectors = [
+            '.sidebar-menu a',
+            '.mobile-nav-item', 
+            '.sidebar-nav a', 
+            '.nav-link', 
+            '[data-nav]',
+            '.sidebar a',
+            '.mobile-nav a',
+            '.navigation-item',
+            'nav a'
+        ];
+        
+        let sidebarLinks = [];
+        sidebarSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                if (!sidebarLinks.includes(el)) {
+                    sidebarLinks.push(el);
+                }
+            });
+        });
+        
         const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
         const mobileNavMenu = document.querySelector('.mobile-nav-menu');
+        
+        console.log(`🔍 Found ${sidebarLinks.length} sidebar elements to bind`);
         
         // Enhanced touch event binding for sidebar links
         sidebarLinks.forEach((link, index) => {
@@ -25,10 +48,16 @@
             link.removeEventListener('touchstart', handleTouchStart);
             link.removeEventListener('touchend', handleTouchEnd);
             
-            // Add comprehensive event listeners
-            link.addEventListener('click', handleSidebarClick, { passive: false });
-            link.addEventListener('touchstart', handleTouchStart, { passive: false });
-            link.addEventListener('touchend', handleTouchEnd, { passive: false });
+            // Force pointer events and z-index layering
+            link.style.pointerEvents = 'auto';
+            link.style.position = 'relative';
+            link.style.zIndex = '9999';
+            
+            // Add comprehensive event listeners with capture
+            link.addEventListener('click', handleSidebarClick, { passive: false, capture: true });
+            link.addEventListener('touchstart', handleTouchStart, { passive: false, capture: true });
+            link.addEventListener('touchend', handleTouchEnd, { passive: false, capture: true });
+            link.addEventListener('mousedown', handleSidebarClick, { passive: false });
             
             // Ensure proper CSS for touch compatibility
             link.style.touchAction = 'manipulation';
@@ -36,16 +65,21 @@
             link.style.webkitTouchCallout = 'none';
             link.style.webkitUserSelect = 'none';
             link.style.cursor = 'pointer';
+            link.style.display = 'block';
             
             // Validate bounding box for touch compatibility
             const rect = link.getBoundingClientRect();
             if (rect.height < 44) {
                 link.style.minHeight = '44px';
-                link.style.display = 'flex';
-                link.style.alignItems = 'center';
+                link.style.paddingTop = '8px';
+                link.style.paddingBottom = '8px';
             }
             
-            console.log(`Sidebar link ${index + 1} bound:`, link.textContent.trim());
+            // Add data attribute for verification
+            link.setAttribute('data-sidebar-bound', 'true');
+            link.setAttribute('data-bind-timestamp', Date.now());
+            
+            console.log(`✅ Sidebar link ${index + 1} force-bound:`, link.textContent.trim(), link.href || link.getAttribute('data-action'));
         });
         
         // Mobile menu toggle functionality
@@ -57,7 +91,27 @@
         }
         
         sidebarInitialized = true;
-        console.log('Sidebar touch navigation initialized successfully');
+        const timestamp = new Date().toISOString();
+        console.log(`✅ Sidebar listeners rebound [${timestamp}] - sidebar_click_fix_patch_01`);
+        
+        // Log binding status and create audit entry
+        const auditEntry = {
+            patch_id: 'sidebar_click_fix_patch_01',
+            timestamp: timestamp,
+            elements_bound: sidebarLinks.length,
+            status: 'complete',
+            pointer_events_fixed: true,
+            z_index_layering: true,
+            capture_mode: true
+        };
+        
+        // Store audit in localStorage
+        const existingAudit = JSON.parse(localStorage.getItem('sidebar_patch_audit') || '[]');
+        existingAudit.push(auditEntry);
+        localStorage.setItem('sidebar_patch_audit', JSON.stringify(existingAudit));
+        
+        // Also log to console for verification
+        console.table(auditEntry);
     }
     
     function handleSidebarClick(e) {
@@ -175,15 +229,33 @@
     
     // Initialize after DOM is ready and viewport is set
     function initialize() {
-        // Wait for viewport override to complete
+        // Wait for viewport override to complete and layout stabilization
         setTimeout(() => {
             initializeSidebarTouch();
-        }, 500);
+        }, 1000);
+        
+        // Force additional initialization after full page load
+        setTimeout(() => {
+            sidebarInitialized = false;
+            initializeSidebarTouch();
+        }, 2000);
         
         // Re-initialize on resize to handle orientation changes
         window.addEventListener('resize', () => {
-            setTimeout(initializeSidebarTouch, 300);
+            setTimeout(() => {
+                sidebarInitialized = false;
+                initializeSidebarTouch();
+            }, 500);
         });
+        
+        // Add delegation handler as backup
+        document.addEventListener('click', function(e) {
+            const target = e.target.closest('.mobile-nav-item, .sidebar-nav a, nav a');
+            if (target) {
+                console.log('🔄 Delegation handler triggered for:', target.textContent.trim());
+                handleSidebarClick.call(target, e);
+            }
+        }, true);
     }
     
     // Multiple initialization triggers to ensure compatibility

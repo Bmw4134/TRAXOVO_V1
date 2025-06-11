@@ -765,10 +765,8 @@ def dashboard():
             caches.keys().then(names => names.forEach(name => caches.delete(name)));
         }}
         
-        // Force reload with authentic personnel data
-        setTimeout(() => {{
-            window.location.replace('/authentic-dashboard?t={timestamp}&personnel=MATTHEW_C_SHAYLOR&authentic=true');
-        }}, 100);
+        // IMMEDIATE FORCE REDIRECT - NO DELAY
+        window.location.replace('/authentic-dashboard?t={timestamp}&personnel=MATTHEW_C_SHAYLOR&authentic=true&kill_cache=true');
     </script>
 </head>
 <body style="background: #000; color: #00ff00; font-family: monospace; padding: 20px;">
@@ -790,7 +788,7 @@ def dashboard():
 def authentic_dashboard():
     """Authentic RAGLE dashboard with verified personnel data"""
     from flask import make_response
-    response = make_response(render_template('dashboard.html'))
+    response = make_response(render_template('authentic_dashboard.html'))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'

@@ -15,15 +15,17 @@
         // Force desktop viewport on mobile
         const viewport = document.querySelector('meta[name="viewport"]');
         if (viewport) {
-            viewport.setAttribute('content', 'width=1024, initial-scale=0.3, maximum-scale=3.0, user-scalable=yes');
+            viewport.setAttribute('content', 'width=1024, initial-scale=0.3, maximum-scale=1, user-scalable=yes');
         } else {
             const newViewport = document.createElement('meta');
             newViewport.name = 'viewport';
-            newViewport.content = 'width=1024, initial-scale=0.3, maximum-scale=3.0, user-scalable=yes';
+            newViewport.content = 'width=1024, initial-scale=0.3, maximum-scale=1, user-scalable=yes';
             document.head.appendChild(newViewport);
         }
         
-        // Apply desktop force styles
+        // Apply desktop force styles with zoom fallback
+        document.body.style.zoom = "0.3";
+        document.body.classList.add("force-desktop-mode");
         document.body.style.minWidth = '1024px';
         document.body.style.transform = 'scale(0.3)';
         document.body.style.transformOrigin = 'top left';

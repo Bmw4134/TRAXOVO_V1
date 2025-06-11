@@ -439,6 +439,38 @@
             </div>
         </div>
 
+        <div class="dashboard-card trello-integration-card" onclick="openTrelloIntegration()">
+            <div class="card-title">Trello Project Management</div>
+            <div class="metric-large" id="trello-status">LOADING</div>
+            <div class="metric-subtitle">Fleet project boards and task management</div>
+            <div class="integration-quick-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Active Boards</span>
+                    <span class="stat-value" id="trello-boards">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Asset Cards</span>
+                    <span class="stat-value" id="trello-cards">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card twilio-integration-card" onclick="openTwilioIntegration()">
+            <div class="card-title">Twilio SMS Integration</div>
+            <div class="metric-large" id="twilio-status">LOADING</div>
+            <div class="metric-subtitle">Fleet alerts and driver communication</div>
+            <div class="integration-quick-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Messages Sent</span>
+                    <span class="stat-value" id="twilio-messages">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Account Balance</span>
+                    <span class="stat-value" id="twilio-balance">$0.00</span>
+                </div>
+            </div>
+        </div>
+
         <div class="dashboard-card" onclick="openModal('performanceModal')">
             <div class="card-title">System Performance</div>
             <div class="metric-large">99.7%</div>
@@ -1182,5 +1214,6 @@
             }
         });
     </script>
+    <script src="/static/integrations_dashboard.js"></script>
 </body>
 </html>

@@ -2248,6 +2248,152 @@ def nexus_command_center():
     """NEXUS Command Center - Control Interface"""
     return render_template('nexus_command_center.html')
 
+@app.route('/api/trello-integration')
+def api_trello_integration():
+    """Trello project management integration"""
+    try:
+        from trello_integration import get_trello_integration
+        
+        trello = get_trello_integration()
+        dashboard_data = trello.get_trello_dashboard_data()
+        
+        return jsonify({
+            "status": "success",
+            "integration": "trello",
+            "data": dashboard_data,
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Trello integration error: {str(e)}",
+            "requires_setup": True
+        })
+
+@app.route('/api/twilio-integration')
+def api_twilio_integration():
+    """Twilio SMS communication integration"""
+    try:
+        from twilio_integration import get_twilio_integration
+        
+        twilio = get_twilio_integration()
+        dashboard_data = twilio.get_twilio_dashboard_data()
+        
+        return jsonify({
+            "status": "success",
+            "integration": "twilio",
+            "data": dashboard_data,
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Twilio integration error: {str(e)}",
+            "requires_setup": True
+        })
+
+@app.route('/api/send-fleet-alert', methods=['POST'])
+def api_send_fleet_alert():
+    """Send SMS fleet alert via Twilio"""
+    try:
+        from twilio_integration import get_twilio_integration
+        
+        data = request.get_json()
+        phone = data.get('phone')
+        message = data.get('message')
+        alert_type = data.get('type', 'general')
+        
+        if not phone or not message:
+            return jsonify({"error": "Phone number and message required"})
+        
+        twilio = get_twilio_integration()
+        result = twilio.send_fleet_alert(phone, message, alert_type)
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": f"Failed to send alert: {str(e)}"})
+
+@app.route('/api/create-trello-board', methods=['POST'])
+def api_create_trello_board():
+    """Create new Trello board for fleet management"""
+    try:
+        from trello_integration import get_trello_integration
+        
+        data = request.get_json()
+        board_name = data.get('name', 'TRAXOVO Fleet Management')
+        
+        trello = get_trello_integration()
+        result = trello.create_fleet_management_board(board_name)
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": f"Failed to create board: {str(e)}"})
+
+@app.route('/api/sync-assets-to-trello', methods=['POST'])
+def api_sync_assets_to_trello():
+    """Sync fleet assets to Trello board"""
+    try:
+        from trello_integration import get_trello_integration
+        from authentic_data_processor import get_authentic_fleet_summary
+        
+        data = request.get_json()
+        board_id = data.get('board_id')
+        
+        if not board_id:
+            return jsonify({"error": "Board ID required"})
+        
+        # Get authentic asset data
+        fleet_data = get_authentic_fleet_summary()
+        assets = fleet_data.get('assets', [])
+        
+        trello = get_trello_integration()
+        result = trello.sync_fleet_assets_to_trello(board_id, assets)
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": f"Failed to sync assets: {str(e)}"})
+
+@app.route('/api/integration-status')
+def api_integration_status():
+    """Get status of all integrations"""
+    try:
+        integrations = {}
+        
+        # Check Trello
+        try:
+            from trello_integration import get_trello_integration
+            trello = get_trello_integration()
+            integrations['trello'] = trello.get_connection_status()
+        except Exception as e:
+            integrations['trello'] = {"status": "error", "message": str(e)}
+        
+        # Check Twilio
+        try:
+            from twilio_integration import get_twilio_integration
+            twilio = get_twilio_integration()
+            integrations['twilio'] = twilio.get_connection_status()
+        except Exception as e:
+            integrations['twilio'] = {"status": "error", "message": str(e)}
+        
+        # Check GAUGE
+        try:
+            from gauge_api_connector import get_gauge_api_connector
+            gauge = get_gauge_api_connector()
+            integrations['gauge'] = gauge.get_connection_status()
+        except Exception as e:
+            integrations['gauge'] = {"status": "error", "message": str(e)}
+        
+        return jsonify({
+            "status": "success",
+            "integrations": integrations,
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Integration status error: {str(e)}"
+        })
+
 if __name__ == "__main__":
     # Initialize Supabase integration
     print("Initializing TRAXOVO with Supabase integration...")

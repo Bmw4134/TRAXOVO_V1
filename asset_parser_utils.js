@@ -157,7 +157,7 @@ function generateAssetSuggestions(partialId, knownAssets = []) {
 // Test data for demonstration
 const testAssets = [
     "#210013 - MATTHEW C. SHAYLOR",
-    "MT-07 - JAMES WILSON",
+    "EX-210013 - MATTHEW C. SHAYLOR",
     "DT-08 - MARIA RODRIGUEZ", 
     "BH-16 - DAVID CHEN",
     "EX-12 - SARAH JOHNSON",

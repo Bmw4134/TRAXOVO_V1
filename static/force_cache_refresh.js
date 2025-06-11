@@ -1,56 +1,55 @@
 /**
- * Force Cache Refresh for MacBook - TRAXOVO NEXUS
- * Implements aggressive cache clearing for updated telemetry data
+ * Force Cache Refresh - Eliminates MacBook Browser Cache Issues
+ * Version: 1749649200 - Authentic Personnel Only
  */
 
-// Immediate cache clearing on load
 (function() {
     'use strict';
     
-    // Force reload all cached scripts with version parameter
-    const cacheVersion = Date.now();
+    const AUTHENTIC_VERSION = 1749649200;
     
-    // Clear all browser caches
-    if ('caches' in window) {
-        caches.keys().then(function(names) {
-            names.forEach(function(name) {
-                caches.delete(name);
-            });
-        });
-    }
-    
-    // Clear localStorage and sessionStorage
+    // Immediate cache clearing
     try {
+        // Clear all storage
         localStorage.clear();
         sessionStorage.clear();
-    } catch(e) {
-        console.log('Storage clearing failed:', e);
+        
+        // Remove specific fictional personnel cache keys
+        const fictionalKeys = ['MT-07', 'JAMES_WILSON', 'fictional_telemetry'];
+        fictionalKeys.forEach(key => {
+            localStorage.removeItem(key);
+            sessionStorage.removeItem(key);
+        });
+        
+        console.log('✓ All caches cleared - Authentic personnel only');
+        
+        // Force reload all scripts with new version
+        const scripts = document.querySelectorAll('script[src]');
+        scripts.forEach(script => {
+            if (script.src && !script.src.includes('v=' + AUTHENTIC_VERSION)) {
+                const newSrc = script.src.split('?')[0] + '?v=' + AUTHENTIC_VERSION + '&authentic=true';
+                script.src = newSrc;
+            }
+        });
+        
+        // Force reload all CSS with new version
+        const links = document.querySelectorAll('link[rel="stylesheet"]');
+        links.forEach(link => {
+            if (link.href && !link.href.includes('v=' + AUTHENTIC_VERSION)) {
+                const newHref = link.href.split('?')[0] + '?v=' + AUTHENTIC_VERSION + '&authentic=true';
+                link.href = newHref;
+            }
+        });
+        
+    } catch (error) {
+        console.warn('Cache refresh error:', error);
     }
     
-    // Force refresh telemetry data
-    window.FORCE_TELEMETRY_REFRESH = true;
-    window.CACHE_VERSION = cacheVersion;
-    
-    console.log('🔄 Force cache refresh initiated - Version:', cacheVersion);
-    
-    // Override fetch to prevent caching
-    const originalFetch = window.fetch;
-    window.fetch = function(...args) {
-        if (args[0] && args[0].includes('/api/')) {
-            const url = new URL(args[0], window.location.origin);
-            url.searchParams.set('_cache_bust', cacheVersion);
-            args[0] = url.toString();
-        }
-        return originalFetch.apply(this, args);
+    // Global force refresh function
+    window.forceAuthenticRefresh = function() {
+        const url = window.location.href.split('?')[0];
+        window.location.href = url + '?v=' + AUTHENTIC_VERSION + '&authentic=true&refresh=' + Date.now();
     };
     
-    // Force refresh after DOM loads
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(() => {
-            if (window.location.pathname.includes('dashboard')) {
-                window.location.reload(true);
-            }
-        }, 100);
-    });
-    
+    console.log('✓ Force cache refresh activated - Authentic version:', AUTHENTIC_VERSION);
 })();

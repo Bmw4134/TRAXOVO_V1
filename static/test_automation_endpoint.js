@@ -12,7 +12,7 @@ async function testAutomationEndpoint() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                assetId: 'MT-07',
+                assetId: 'EX-210013',
                 task: 'healthCheck'
             })
         });

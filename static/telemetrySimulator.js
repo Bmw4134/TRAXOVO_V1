@@ -15,21 +15,8 @@ class TelemetrySimulator {
     }
 
     initializeAssets() {
-        // Authentic RAGLE fleet assets with real operator names
+        // Authentic RAGLE fleet assets with verified operator names
         const fleetAssets = [
-            {
-                id: 'MT-07',
-                operator: 'JAMES WILSON',
-                type: 'Mobile Truck',
-                lat: 32.7357,
-                lng: -97.1081,
-                speed: 35,
-                heading: 45,
-                status: 'Active',
-                fuelLevel: 75,
-                engineHours: 2847,
-                lastMaintenance: '2025-05-15'
-            },
             {
                 id: 'EX-210013',
                 operator: 'MATTHEW C. SHAYLOR',

@@ -742,13 +742,39 @@ def authenticate():
 
 @app.route('/dashboard')
 def dashboard():
-    """Main TRAXOVO Dashboard - Clean Map Interface with Telematics"""
+    """FORCE CLEAN MAP INTERFACE - BYPASS ALL CACHE"""
+    from flask import make_response
+    import time
+    
+    # Generate timestamp to prevent any caching
+    timestamp = str(int(time.time() * 1000))
+    
+    # Force redirect to clean map
+    redirect_html = f'''<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        // NUCLEAR REDIRECT - FORCE CLEAN MAP
+        window.location.href = '/clean-map?t={timestamp}&force=true';
+    </script>
+</head>
+<body>Redirecting to clean map...</body>
+</html>'''
+    
+    response = make_response(redirect_html)
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
+@app.route('/clean-map')
+def clean_map():
+    """Clean Map Interface - Telematics Only"""
     from flask import make_response
     response = make_response(render_template('clean_map_dashboard.html'))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
-    response.headers['X-Authentic-Personnel'] = 'EX-210013-MATTHEW-C-SHAYLOR'
     response.headers['X-Clean-Map'] = 'true'
     return response
 

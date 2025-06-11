@@ -2405,4 +2405,4 @@ if __name__ == "__main__":
         print("⚠ Supabase connection failed")
     
     print("✓ TRAXOVO platform ready with 72,973 assets")
-    app.run(host="0.0.0.0", port=5001, debug=False)
+    app.run(host="0.0.0.0", port=5000, debug=False)

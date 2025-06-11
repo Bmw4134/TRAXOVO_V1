@@ -79,24 +79,47 @@
             transform: translateX(5px);
         }
         
+        /* Force desktop view class */
+        body.force-desktop .mobile-nav-header {
+            display: none !important;
+        }
+        
+        body.force-desktop .main-grid {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+            padding: 30px !important;
+        }
+        
+        body.force-desktop .header h1 {
+            font-size: 3rem !important;
+        }
+        
         /* Show mobile nav on small screens */
         @media screen and (max-width: 768px) {
             .mobile-nav-header {
                 display: block;
             }
             
-            .header {
+            body:not(.force-desktop) .header {
                 padding: 15px;
             }
             
-            .header h1 {
+            body:not(.force-desktop) .header h1 {
                 font-size: 1.8rem;
             }
             
-            .main-grid {
+            body:not(.force-desktop) .main-grid {
                 grid-template-columns: 1fr;
                 gap: 15px;
                 padding: 15px;
+            }
+            
+            /* Desktop toggle always visible on mobile */
+            .desktop-toggle {
+                display: block !important;
+                background: linear-gradient(45deg, #3a5998, #74c0fc);
+                color: white;
+                font-weight: bold;
+                box-shadow: 0 5px 15px rgba(116, 192, 252, 0.3);
             }
         }
         
@@ -1169,18 +1192,66 @@
         
         function toggleDesktopView() {
             const body = document.body;
+            const button = document.querySelector('.desktop-toggle');
             const isDesktop = body.classList.contains('force-desktop');
             
             if (isDesktop) {
                 body.classList.remove('force-desktop');
                 localStorage.setItem('traxovo_view_mode', 'mobile');
+                if (button) button.textContent = '🖥️ Full Site';
             } else {
                 body.classList.add('force-desktop');
                 localStorage.setItem('traxovo_view_mode', 'desktop');
+                if (button) button.textContent = '📱 Mobile View';
             }
             
-            // Refresh page to apply changes
-            window.location.reload();
+            // Apply immediate visual changes without reload
+            updateViewMode();
+        }
+        
+        function updateViewMode() {
+            const body = document.body;
+            const isDesktop = body.classList.contains('force-desktop');
+            
+            if (isDesktop) {
+                // Force desktop styles
+                const mainGrid = document.querySelector('.main-grid');
+                const header = document.querySelector('.header h1');
+                const mobileNav = document.querySelector('.mobile-nav-header');
+                
+                if (mainGrid) {
+                    mainGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
+                    mainGrid.style.padding = '30px';
+                    mainGrid.style.gap = '25px';
+                }
+                
+                if (header) {
+                    header.style.fontSize = '3rem';
+                }
+                
+                if (mobileNav) {
+                    mobileNav.style.display = 'none';
+                }
+            } else {
+                // Mobile styles
+                const mainGrid = document.querySelector('.main-grid');
+                const header = document.querySelector('.header h1');
+                const mobileNav = document.querySelector('.mobile-nav-header');
+                
+                if (mainGrid) {
+                    mainGrid.style.gridTemplateColumns = '1fr';
+                    mainGrid.style.padding = '15px';
+                    mainGrid.style.gap = '15px';
+                }
+                
+                if (header) {
+                    header.style.fontSize = '1.8rem';
+                }
+                
+                if (mobileNav) {
+                    mobileNav.style.display = 'block';
+                }
+            }
         }
         
         function scrollToSection(section) {
@@ -1210,8 +1281,25 @@
         // Check stored view preference on load
         document.addEventListener('DOMContentLoaded', function() {
             const viewMode = localStorage.getItem('traxovo_view_mode');
+            const button = document.querySelector('.desktop-toggle');
+            
             if (viewMode === 'desktop') {
                 document.body.classList.add('force-desktop');
+                if (button) button.textContent = '📱 Mobile View';
+            } else {
+                if (button) button.textContent = '🖥️ Full Site';
+            }
+            
+            // Apply view mode immediately
+            updateViewMode();
+            
+            // Ensure NEXUS Control Center is accessible
+            const nexusCard = document.querySelector('.nexus-control-card');
+            if (nexusCard) {
+                nexusCard.style.cursor = 'pointer';
+                nexusCard.addEventListener('click', function() {
+                    window.location.href = '/personal-nexus';
+                });
             }
         });
     </script>

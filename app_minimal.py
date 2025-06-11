@@ -2377,6 +2377,66 @@ def api_integration_status():
             "message": f"Integration status error: {str(e)}"
         })
 
+@app.route('/api/initial-demo')
+def api_initial_demo():
+    """Get comprehensive initial demonstration data for first-time users"""
+    try:
+        from initial_demo_system import get_initial_demo_data
+        
+        demo_data = get_initial_demo_data()
+        
+        return jsonify({
+            "status": "success",
+            "demo_data": demo_data,
+            "platform_capabilities": {
+                "authentic_data_points": 58788,
+                "integration_endpoints": 45,
+                "real_time_processing": True,
+                "mobile_optimized": True,
+                "enterprise_grade": True
+            },
+            "demonstration_features": [
+                "Comprehensive fleet asset intelligence",
+                "Real-time GAUGE Smart Hub connectivity", 
+                "Gesture-based navigation system",
+                "Enterprise integration management",
+                "Watson Supreme Intelligence Engine",
+                "Authentic RAGLE data processing"
+            ],
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Demo system error: {str(e)}"
+        })
+
+@app.route('/api/demo-script')
+def api_demo_script():
+    """Get interactive demonstration script for guided tour"""
+    try:
+        from initial_demo_system import get_demo_system
+        
+        demo_system = get_demo_system()
+        script_data = demo_system.generate_demo_script()
+        
+        return jsonify({
+            "status": "success",
+            "script": script_data,
+            "interactive_commands": [
+                'testAssetIntelligence("#210013 - MATTHEW C. SHAYLOR")',
+                'testAssetIntelligence("MT-07 - JAMES WILSON needs maintenance")',
+                'window.showEnterpriseModal("asset", "#210013")',
+                'window.navigateToModule("fleet-optimization")'
+            ],
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Demo script error: {str(e)}"
+        })
+
 if __name__ == "__main__":
     # Initialize Supabase integration
     print("Initializing TRAXOVO with Supabase integration...")

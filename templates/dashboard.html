@@ -1318,5 +1318,28 @@
     <script src="/static/integrations_dashboard.js"></script>
     <script src="/static/initial_demo_system.js"></script>
     <script src="/static/api_benchmark_tool.js"></script>
+    <script src="/static/nexus_telematics_map.js"></script>
+    <script src="/static/test_automation_endpoint.js"></script>
+    
+    <!-- Floating Telematics Access Button -->
+    <div id="telematics-float-btn" onclick="window.open('/telematics-map', '_blank')" style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 10000;
+        background: linear-gradient(135deg, #00ff88, #00cc66);
+        color: black;
+        padding: 15px 20px;
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: bold;
+        box-shadow: 0 4px 20px rgba(0, 255, 136, 0.4);
+        border: none;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+        🗺️ NEXUS Telematics
+    </div>
 </body>
 </html>

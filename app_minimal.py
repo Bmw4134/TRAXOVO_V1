@@ -13,6 +13,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 from supabase_integration import initialize_supabase_integration, sync_traxovo_to_supabase
+from authentic_asset_driver_mapper import AuthenticAssetDriverMapper
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -37,6 +38,9 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 
 # Initialize the app with the extension
 db.init_app(app)
+
+# Initialize authentic asset-driver mapper
+asset_mapper = AuthenticAssetDriverMapper()
 
 # TRAXOVO Landing Page Template
 TRAXOVO_TEMPLATE = """
@@ -1139,7 +1143,7 @@ def simulate_user_interaction():
     simulations = {
         "dispatcher": {
             "current_action": "Monitoring 92 active drivers",
-            "priority_assets": ["#210013 - MATTHEW C. SHAYLOR", "MT-07 - JAMES WILSON"],
+            "priority_assets": ["#210013 - MATTHEW C. SHAYLOR", "EX-210013 - MATTHEW C. SHAYLOR"],
             "workflow_steps": [
                 "Dashboard load complete",
                 "Driver list filtering to 92 active",
@@ -1917,7 +1921,7 @@ def api_force_refresh():
         ],
         'authentic_personnel_verified': True,
         'fictional_personnel_removed': [
-            'JAMES WILSON - eliminated from all telemetry data',
+            'All fictional personnel eliminated from telemetry data',
             'All console logs updated to use authentic RAGLE personnel only'
         ],
         'refresh_instructions': 'Hard refresh (Cmd+Shift+R) recommended'
@@ -2698,7 +2702,7 @@ def api_demo_script():
             "script": script_data,
             "interactive_commands": [
                 'testAssetIntelligence("#210013 - MATTHEW C. SHAYLOR")',
-                'testAssetIntelligence("MT-07 - JAMES WILSON needs maintenance")',
+                'testAssetIntelligence("EX-210013 - MATTHEW C. SHAYLOR operational status")',
                 'window.showEnterpriseModal("asset", "#210013")',
                 'window.navigateToModule("fleet-optimization")'
             ],

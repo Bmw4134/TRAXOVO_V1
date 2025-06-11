@@ -744,7 +744,7 @@ def authenticate():
 def dashboard():
     """Main TRAXOVO Dashboard - AUTHENTIC PERSONNEL ONLY"""
     from flask import make_response
-    response = make_response(render_template('authentic_dashboard.html'))
+    response = make_response(render_template('dashboard_authentic.html'))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'

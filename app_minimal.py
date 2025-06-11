@@ -6,6 +6,7 @@ Enterprise Intelligence Platform with Real Asset Data
 import os
 import json
 import logging
+import time
 from datetime import datetime
 from flask import Flask, render_template_string, render_template, jsonify, request, session, redirect
 from flask_sqlalchemy import SQLAlchemy
@@ -363,6 +364,30 @@ def index():
             data_sources=['TRAXOVO_AGENT_DB'],
             last_updated=datetime.now().isoformat()
         )
+
+@app.route('/api/automation/trigger', methods=['POST'])
+def automation_trigger():
+    """Automation trigger endpoint for telematics diagnostics"""
+    try:
+        data = request.get_json()
+        asset_id = data.get('assetId', 'unknown')
+        task = data.get('task', 'healthCheck')
+        
+        # Generate job ID
+        job_id = f"DIAG-{asset_id}-{int(time.time())}"
+        
+        # Log automation trigger
+        logging.info(f"Automation triggered: {job_id} for asset {asset_id} - task: {task}")
+        
+        return jsonify({
+            "status": "success",
+            "jobId": job_id,
+            "assetId": asset_id,
+            "task": task,
+            "timestamp": time.time()
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/asset-data')
 def api_asset_data():
@@ -1323,6 +1348,62 @@ def api_supabase_sync():
             'status': 'error',
             'timestamp': datetime.now().isoformat()
         }), 500
+
+@app.route('/telematics-map')
+def telematics_map():
+    """Telematics mapping interface"""
+    return render_template_string('''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NEXUS Telematics Suite</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Courier New', monospace; 
+            background: #0a0a0a; 
+            color: #00ff00; 
+            overflow: hidden;
+        }
+        #telematics-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #0a0a0a;
+        }
+        #telematics-map {
+            width: 100%;
+            height: 100%;
+        }
+        .telematics-header {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="telematics-container">
+        <div class="telematics-header">
+            <h2>NEXUS Quantum Telematics</h2>
+            <p>Live Asset Tracking | PiP Video | Automation</p>
+        </div>
+        <div id="telematics-map"></div>
+    </div>
+    
+    <script src="/static/nexus_telematics_map.js"></script>
+</body>
+</html>
+    ''')
 
 @app.route('/executive-dashboard')
 def executive_dashboard():

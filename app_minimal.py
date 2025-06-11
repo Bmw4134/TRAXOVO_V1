@@ -742,29 +742,14 @@ def authenticate():
 
 @app.route('/dashboard')
 def dashboard():
-    """QUANTUM CLEAN MAP INTERFACE - COMPLETE CACHE BYPASS"""
+    """DIRECT QUANTUM CLEAN MAP - NO REDIRECT"""
     from flask import make_response
-    import time
-    
-    # Generate timestamp to prevent any caching
-    timestamp = str(int(time.time() * 1000))
-    
-    # Force redirect to quantum clean map
-    redirect_html = f'''<!DOCTYPE html>
-<html>
-<head>
-    <script>
-        // QUANTUM REDIRECT - FORCE CLEAN MAP INTERFACE
-        window.location.href = '/quantum-map?t={timestamp}&quantum=true';
-    </script>
-</head>
-<body>Loading TRAXOVO Clean Map Interface...</body>
-</html>'''
-    
-    response = make_response(redirect_html)
+    response = make_response(render_template('quantum_clean_map.html'))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
+    response.headers['X-Quantum-Clean-Map'] = 'true'
+    response.headers['X-Authentic-Personnel'] = 'EX-210013-MATTHEW-C-SHAYLOR'
     return response
 
 @app.route('/quantum-map')

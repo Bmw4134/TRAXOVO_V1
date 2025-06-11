@@ -17,6 +17,10 @@ def require_auth():
 def landing_page():
     """TRAXOVO Enterprise Landing Page - Visual Branded Experience"""
     
+    # If user is already authenticated, redirect to dashboard
+    if session.get('authenticated') == True:
+        return redirect('/dashboard')
+    
     html_content = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -369,7 +373,7 @@ def landing_page():
                         <div class="map-preview">
                             <div class="map-placeholder">
                                 🗺️ DFW Region Fleet Map<br>
-                                <small>MATTHEW C. SHAYLOR - Personal Vehicle Active</small>
+                                <small>Employee ID 210013 - MATTHEW C. SHAYLOR - Personal Vehicle Active</small>
                             </div>
                         </div>
                     </div>

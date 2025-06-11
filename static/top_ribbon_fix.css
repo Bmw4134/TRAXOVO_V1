@@ -1,0 +1,249 @@
+/**
+ * Top Ribbon Fix - Enables flex wrap, spacing, and prioritizes DESKTOP button
+ * Deployment: mobile_final_push_v1
+ */
+
+/* Ribbon toolbar improvements */
+.ribbon-toolbar {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 10px 15px !important;
+    background: linear-gradient(135deg, #1a1a2e, #16213e) !important;
+    border-bottom: 2px solid #00ff88 !important;
+    min-height: 50px !important;
+    overflow: visible !important;
+}
+
+/* Desktop button priority styling */
+.desktop-toggle,
+.mobile-toggle,
+[data-toggle="desktop"],
+[data-toggle="mobile"] {
+    order: -10 !important;
+    background: rgba(0, 255, 136, 0.2) !important;
+    border: 2px solid #00ff88 !important;
+    color: #00ff88 !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    min-width: 80px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+}
+
+.desktop-toggle:hover,
+.mobile-toggle:hover,
+[data-toggle="desktop"]:hover,
+[data-toggle="mobile"]:hover {
+    background: rgba(0, 255, 136, 0.4) !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3) !important;
+}
+
+/* Ribbon button reordering */
+.ribbon-toolbar .btn,
+.ribbon-toolbar button,
+.ribbon-toolbar .control {
+    flex-shrink: 0 !important;
+    margin: 2px !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    border-radius: 6px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.ribbon-toolbar .btn:hover,
+.ribbon-toolbar button:hover,
+.ribbon-toolbar .control:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(0, 255, 136, 0.5) !important;
+}
+
+/* Priority order for ribbon items */
+.ribbon-toolbar .desktop-toggle { order: -10 !important; }
+.ribbon-toolbar .mobile-toggle { order: -9 !important; }
+.ribbon-toolbar .menu-toggle { order: -8 !important; }
+.ribbon-toolbar .nav-toggle { order: -7 !important; }
+.ribbon-toolbar .search { order: -6 !important; }
+.ribbon-toolbar .filter { order: -5 !important; }
+.ribbon-toolbar .sort { order: -4 !important; }
+.ribbon-toolbar .export { order: -3 !important; }
+.ribbon-toolbar .settings { order: -2 !important; }
+.ribbon-toolbar .help { order: -1 !important; }
+
+/* Responsive spacing adjustments */
+@media (max-width: 768px) {
+    .ribbon-toolbar {
+        gap: 6px !important;
+        padding: 8px 12px !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .desktop-toggle,
+    .mobile-toggle {
+        min-width: 70px !important;
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+    }
+    
+    .ribbon-toolbar .btn,
+    .ribbon-toolbar button,
+    .ribbon-toolbar .control {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+        margin: 1px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .ribbon-toolbar {
+        gap: 4px !important;
+        padding: 6px 8px !important;
+    }
+    
+    .desktop-toggle,
+    .mobile-toggle {
+        min-width: 60px !important;
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+    }
+    
+    .ribbon-toolbar .btn,
+    .ribbon-toolbar button,
+    .ribbon-toolbar .control {
+        padding: 3px 6px !important;
+        font-size: 10px !important;
+    }
+}
+
+/* Desktop specific enhancements */
+@media (min-width: 769px) {
+    .ribbon-toolbar {
+        gap: 12px !important;
+        padding: 12px 20px !important;
+        min-height: 60px !important;
+    }
+    
+    .desktop-toggle,
+    .mobile-toggle {
+        min-width: 100px !important;
+        padding: 10px 20px !important;
+        font-size: 14px !important;
+    }
+    
+    .ribbon-toolbar .btn,
+    .ribbon-toolbar button,
+    .ribbon-toolbar .control {
+        padding: 8px 16px !important;
+        font-size: 13px !important;
+        margin: 3px !important;
+    }
+}
+
+/* Flex item behavior */
+.ribbon-toolbar > * {
+    flex-shrink: 0 !important;
+}
+
+/* Prevent text overflow */
+.ribbon-toolbar * {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Active state for desktop toggle */
+.desktop-toggle.active,
+.mobile-toggle.active,
+[data-toggle="desktop"].active,
+[data-toggle="mobile"].active {
+    background: #00ff88 !important;
+    color: #1a1a2e !important;
+    border-color: #00ff88 !important;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.5) !important;
+}
+
+/* Ensure proper z-index for ribbon */
+.ribbon-toolbar {
+    position: relative !important;
+    z-index: 998 !important;
+}
+
+/* Dropdown and submenu spacing */
+.ribbon-toolbar .dropdown,
+.ribbon-toolbar .submenu {
+    position: relative !important;
+}
+
+.ribbon-toolbar .dropdown-menu,
+.ribbon-toolbar .submenu-items {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    z-index: 999 !important;
+    background: rgba(26, 26, 46, 0.95) !important;
+    border: 1px solid rgba(0, 255, 136, 0.3) !important;
+    border-radius: 6px !important;
+    padding: 5px !important;
+    min-width: 150px !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+/* Icon spacing in ribbon */
+.ribbon-toolbar .icon,
+.ribbon-toolbar i,
+.ribbon-toolbar svg {
+    margin-right: 5px !important;
+    width: 16px !important;
+    height: 16px !important;
+    vertical-align: middle !important;
+}
+
+/* Loading state for ribbon items */
+.ribbon-toolbar .loading {
+    opacity: 0.6 !important;
+    pointer-events: none !important;
+    position: relative !important;
+}
+
+.ribbon-toolbar .loading::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 12px !important;
+    height: 12px !important;
+    border: 2px solid transparent !important;
+    border-top: 2px solid #00ff88 !important;
+    border-radius: 50% !important;
+    animation: spin 1s linear infinite !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Accessibility improvements */
+.ribbon-toolbar button:focus,
+.ribbon-toolbar .btn:focus {
+    outline: 2px solid #00ff88 !important;
+    outline-offset: 2px !important;
+}
+
+/* Print media adjustments */
+@media print {
+    .ribbon-toolbar {
+        display: none !important;
+    }
+}

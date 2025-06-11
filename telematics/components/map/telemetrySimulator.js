@@ -18,8 +18,8 @@ class TelemetrySimulator {
         // Authentic RAGLE fleet assets with real operator names
         const fleetAssets = [
             {
-                id: 'MT-07',
-                operator: 'JAMES WILSON',
+                id: 'EX-210013',
+                operator: 'MATTHEW C. SHAYLOR',
                 type: 'Mobile Truck',
                 lat: 32.7357,
                 lng: -97.1081,

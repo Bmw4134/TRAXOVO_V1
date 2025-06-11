@@ -418,6 +418,26 @@
                 </div>
             </div>
         </div>
+
+        <div class="dashboard-card nexus-command-card" onclick="window.location.href='/nexus-command-center'">
+            <div class="card-title">NEXUS Command Center</div>
+            <div class="metric-large" id="nexus-status">ACTIVE</div>
+            <div class="metric-subtitle">System control and monitoring interface</div>
+            <div class="nexus-quick-stats">
+                <div class="stat-item">
+                    <span class="stat-label">System Status</span>
+                    <span class="stat-value" id="nexus-system-status">OPERATIONAL</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Active Monitors</span>
+                    <span class="stat-value" id="active-monitors">12</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Fleet Control</span>
+                    <span class="stat-value" id="fleet-control-status">ONLINE</span>
+                </div>
+            </div>
+        </div>
         
         <div class="dashboard-card" onclick="openModal('performanceModal')">
             <div class="card-title">System Performance</div>

@@ -7,7 +7,7 @@ import os
 import json
 import logging
 from datetime import datetime
-from flask import Flask, render_template_string, jsonify, request, session, redirect
+from flask import Flask, render_template_string, render_template, jsonify, request, session, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -2242,6 +2242,11 @@ def api_code_snippet():
             "status": "error",
             "message": f"Code snippet error: {str(e)}"
         })
+
+@app.route('/nexus-command-center')
+def nexus_command_center():
+    """NEXUS Command Center - Control Interface"""
+    return render_template('nexus_command_center.html')
 
 if __name__ == "__main__":
     # Initialize Supabase integration

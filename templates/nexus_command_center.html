@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS Command Center - TRAXOVO Control Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 100%);
+            color: #00ff88;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .command-center-header {
+            background: linear-gradient(90deg, rgba(0,255,136,0.1) 0%, rgba(0,255,136,0.05) 100%);
+            border-bottom: 2px solid #00ff88;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .command-center-header h1 {
+            font-size: 2.5em;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0,255,136,0.5);
+            margin-bottom: 10px;
+        }
+
+        .system-status {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(0,255,136,0.2);
+            border-radius: 20px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+            padding: 20px;
+            height: calc(100vh - 120px);
+        }
+
+        .control-panel {
+            background: rgba(0,255,136,0.05);
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-panel:hover {
+            border-color: #00ff88;
+            box-shadow: 0 0 30px rgba(0,255,136,0.3);
+            transform: translateY(-5px);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(0,255,136,0.2);
+            padding-bottom: 10px;
+        }
+
+        .panel-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .panel-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00ff88;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .system-monitor {
+            grid-column: 1 / 3;
+            grid-row: 1;
+        }
+
+        .fleet-control {
+            grid-column: 3;
+            grid-row: 1 / 3;
+        }
+
+        .api-gateway {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .data-streams {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .command-terminal {
+            grid-column: 1 / 4;
+            grid-row: 3;
+            max-height: 300px;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .metric-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(0,255,136,0.1);
+        }
+
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #00ff88;
+            display: block;
+        }
+
+        .metric-label {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .control-btn {
+            padding: 8px 16px;
+            background: linear-gradient(45deg, rgba(0,255,136,0.2), rgba(0,255,136,0.1));
+            border: 1px solid #00ff88;
+            border-radius: 6px;
+            color: #00ff88;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .control-btn:hover {
+            background: rgba(0,255,136,0.3);
+            box-shadow: 0 0 15px rgba(0,255,136,0.4);
+            transform: translateY(-2px);
+        }
+
+        .control-btn.critical {
+            border-color: #ff4444;
+            color: #ff4444;
+            background: linear-gradient(45deg, rgba(255,68,68,0.2), rgba(255,68,68,0.1));
+        }
+
+        .control-btn.critical:hover {
+            background: rgba(255,68,68,0.3);
+            box-shadow: 0 0 15px rgba(255,68,68,0.4);
+        }
+
+        .live-feed {
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .log-timestamp {
+            color: #666;
+            margin-right: 10px;
+        }
+
+        .log-success { color: #00ff88; }
+        .log-warning { color: #ffd93d; }
+        .log-error { color: #ff4444; }
+        .log-info { color: #00bfff; }
+
+        .terminal-interface {
+            background: rgba(0,0,0,0.8);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0,255,136,0.3);
+        }
+
+        .terminal-output {
+            height: 150px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .terminal-input {
+            display: flex;
+            align-items: center;
+        }
+
+        .terminal-prompt {
+            color: #00ff88;
+            margin-right: 10px;
+        }
+
+        .terminal-command {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            outline: none;
+        }
+
+        .system-visualization {
+            position: relative;
+            height: 120px;
+            background: radial-gradient(circle, rgba(0,255,136,0.1) 0%, transparent 70%);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .node {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .connection {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00ff88, transparent);
+            animation: pulse-line 2s infinite;
+        }
+
+        @keyframes pulse-line {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .alert-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,68,68,0.9);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .alert-banner.show {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 1200px) {
+            .control-grid {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto auto auto;
+            }
+            
+            .system-monitor {
+                grid-column: 1 / 3;
+                grid-row: 1;
+            }
+            
+            .fleet-control {
+                grid-column: 1 / 3;
+                grid-row: 2;
+            }
+            
+            .api-gateway {
+                grid-column: 1;
+                grid-row: 3;
+            }
+            
+            .data-streams {
+                grid-column: 2;
+                grid-row: 3;
+            }
+            
+            .command-terminal {
+                grid-column: 1 / 3;
+                grid-row: 4;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .control-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(5, auto);
+            }
+            
+            .system-monitor,
+            .fleet-control,
+            .api-gateway,
+            .data-streams,
+            .command-terminal {
+                grid-column: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="alert-banner" id="alert-banner">
+        NEXUS ALERT: System monitoring active
+    </div>
+
+    <div class="command-center-header">
+        <h1>NEXUS COMMAND CENTER</h1>
+        <div class="system-status" id="system-status">OPERATIONAL</div>
+    </div>
+
+    <div class="control-grid">
+        <!-- System Monitor -->
+        <div class="control-panel system-monitor">
+            <div class="panel-header">
+                <span class="panel-title">System Monitor</span>
+                <div class="panel-status"></div>
+            </div>
+            
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <span class="metric-value" id="cpu-usage">67%</span>
+                    <div class="metric-label">CPU Usage</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value" id="memory-usage">4.2GB</span>
+                    <div class="metric-label">Memory</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value" id="active-connections">284</span>
+                    <div class="metric-label">Connections</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value" id="uptime">99.7%</span>
+                    <div class="metric-label">Uptime</div>
+                </div>
+            </div>
+
+            <div class="system-visualization" id="system-viz">
+                <!-- Dynamic nodes and connections will be added here -->
+            </div>
+
+            <div class="control-buttons">
+                <button class="control-btn" onclick="refreshSystems()">Refresh Systems</button>
+                <button class="control-btn" onclick="runDiagnostics()">Run Diagnostics</button>
+                <button class="control-btn critical" onclick="emergencyStop()">Emergency Stop</button>
+            </div>
+        </div>
+
+        <!-- Fleet Control -->
+        <div class="control-panel fleet-control">
+            <div class="panel-header">
+                <span class="panel-title">Fleet Control</span>
+                <div class="panel-status"></div>
+            </div>
+
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <span class="metric-value" id="active-assets">574</span>
+                    <div class="metric-label">Active Assets</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value" id="alerts">3</span>
+                    <div class="metric-label">Alerts</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value" id="efficiency">87.3%</span>
+                    <div class="metric-label">Efficiency</div>
+                </div>
+            </div>
+
+            <div class="live-feed" id="fleet-feed">
+                <div class="log-entry log-success">
+                    <span class="log-timestamp">00:19:45</span>
+                    Fleet sync complete - 574 assets online
+                </div>
+                <div class="log-entry log-info">
+                    <span class="log-timestamp">00:19:32</span>
+                    Route optimization updated
+                </div>
+                <div class="log-entry log-warning">
+                    <span class="log-timestamp">00:18:15</span>
+                    Asset MT-07 requires maintenance
+                </div>
+            </div>
+
+            <div class="control-buttons">
+                <button class="control-btn" onclick="syncFleet()">Sync Fleet</button>
+                <button class="control-btn" onclick="optimizeRoutes()">Optimize Routes</button>
+                <button class="control-btn" onclick="maintenanceMode()">Maintenance Mode</button>
+            </div>
+        </div>
+
+        <!-- API Gateway -->
+        <div class="control-panel api-gateway">
+            <div class="panel-header">
+                <span class="panel-title">API Gateway</span>
+                <div class="panel-status"></div>
+            </div>
+
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <span class="metric-value" id="api-requests">1.2K</span>
+                    <div class="metric-label">Requests/min</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value" id="api-latency">245ms</span>
+                    <div class="metric-label">Avg Latency</div>
+                </div>
+            </div>
+
+            <div class="control-buttons">
+                <button class="control-btn" onclick="testAPIs()">Test APIs</button>
+                <button class="control-btn" onclick="clearCache()">Clear Cache</button>
+                <button class="control-btn" onclick="showAPIStats()">View Stats</button>
+            </div>
+        </div>
+
+        <!-- Data Streams -->
+        <div class="control-panel data-streams">
+            <div class="panel-header">
+                <span class="panel-title">Data Streams</span>
+                <div class="panel-status"></div>
+            </div>
+
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <span class="metric-value" id="data-throughput">58.7MB</span>
+                    <div class="metric-label">Throughput</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value" id="stream-count">12</span>
+                    <div class="metric-label">Active Streams</div>
+                </div>
+            </div>
+
+            <div class="control-buttons">
+                <button class="control-btn" onclick="resetStreams()">Reset Streams</button>
+                <button class="control-btn" onclick="exportData()">Export Data</button>
+            </div>
+        </div>
+
+        <!-- Command Terminal -->
+        <div class="control-panel command-terminal">
+            <div class="panel-header">
+                <span class="panel-title">Command Terminal</span>
+                <div class="panel-status"></div>
+            </div>
+
+            <div class="terminal-interface">
+                <div class="terminal-header">
+                    <span>NEXUS Terminal v2.1</span>
+                    <span>Session: ADMIN</span>
+                </div>
+                
+                <div class="terminal-output" id="terminal-output">
+                    <div class="log-entry log-info">NEXUS Command Center initialized</div>
+                    <div class="log-entry log-success">All systems operational</div>
+                    <div class="log-entry log-info">Type 'help' for available commands</div>
+                </div>
+
+                <div class="terminal-input">
+                    <span class="terminal-prompt">nexus@traxovo:~$</span>
+                    <input type="text" class="terminal-command" id="terminal-input" placeholder="Enter command..." onkeypress="handleTerminalInput(event)">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // System initialization
+        let systemActive = true;
+        let commandHistory = [];
+        let historyIndex = -1;
+
+        // Initialize system visualization
+        function initializeVisualization() {
+            const viz = document.getElementById('system-viz');
+            
+            // Create nodes
+            for (let i = 0; i < 8; i++) {
+                const node = document.createElement('div');
+                node.className = 'node';
+                node.style.left = Math.random() * 90 + '%';
+                node.style.top = Math.random() * 80 + '%';
+                node.style.animationDelay = Math.random() * 3 + 's';
+                viz.appendChild(node);
+            }
+
+            // Create connections
+            for (let i = 0; i < 4; i++) {
+                const connection = document.createElement('div');
+                connection.className = 'connection';
+                connection.style.left = Math.random() * 70 + '%';
+                connection.style.top = Math.random() * 80 + '%';
+                connection.style.width = Math.random() * 100 + 50 + 'px';
+                connection.style.animationDelay = Math.random() * 2 + 's';
+                viz.appendChild(connection);
+            }
+        }
+
+        // Update metrics periodically
+        function updateMetrics() {
+            if (!systemActive) return;
+
+            // CPU usage fluctuation
+            const cpuUsage = Math.floor(Math.random() * 20) + 60;
+            document.getElementById('cpu-usage').textContent = cpuUsage + '%';
+
+            // Memory usage
+            const memUsage = (Math.random() * 2 + 3.5).toFixed(1);
+            document.getElementById('memory-usage').textContent = memUsage + 'GB';
+
+            // API requests
+            const apiReqs = (Math.random() * 0.5 + 1.0).toFixed(1);
+            document.getElementById('api-requests').textContent = apiReqs + 'K';
+
+            // API latency
+            const latency = Math.floor(Math.random() * 100) + 200;
+            document.getElementById('api-latency').textContent = latency + 'ms';
+
+            // Data throughput
+            const throughput = (Math.random() * 20 + 50).toFixed(1);
+            document.getElementById('data-throughput').textContent = throughput + 'MB';
+        }
+
+        // Add log entry to fleet feed
+        function addLogEntry(message, type = 'info') {
+            const feed = document.getElementById('fleet-feed');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            
+            const timestamp = new Date().toTimeString().substr(0, 8);
+            entry.innerHTML = `<span class="log-timestamp">${timestamp}</span>${message}`;
+            
+            feed.insertBefore(entry, feed.firstChild);
+            
+            // Remove old entries
+            while (feed.children.length > 10) {
+                feed.removeChild(feed.lastChild);
+            }
+        }
+
+        // Terminal command handling
+        function handleTerminalInput(event) {
+            if (event.key === 'Enter') {
+                const input = event.target;
+                const command = input.value.trim();
+                
+                if (command) {
+                    commandHistory.unshift(command);
+                    historyIndex = -1;
+                    executeCommand(command);
+                }
+                
+                input.value = '';
+            } else if (event.key === 'ArrowUp') {
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    event.target.value = commandHistory[historyIndex];
+                }
+            } else if (event.key === 'ArrowDown') {
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    event.target.value = commandHistory[historyIndex];
+                } else if (historyIndex === 0) {
+                    historyIndex = -1;
+                    event.target.value = '';
+                }
+            }
+        }
+
+        function executeCommand(command) {
+            const output = document.getElementById('terminal-output');
+            const commandEntry = document.createElement('div');
+            commandEntry.className = 'log-entry log-info';
+            commandEntry.textContent = `nexus@traxovo:~$ ${command}`;
+            output.appendChild(commandEntry);
+
+            const responseEntry = document.createElement('div');
+            responseEntry.className = 'log-entry';
+
+            const cmd = command.toLowerCase();
+            
+            if (cmd === 'help') {
+                responseEntry.className += ' log-info';
+                responseEntry.innerHTML = `Available commands:<br>
+                help - Show this help<br>
+                status - System status<br>
+                fleet - Fleet information<br>
+                apis - API status<br>
+                benchmark - Run API benchmark<br>
+                restart - Restart services<br>
+                clear - Clear terminal`;
+            } else if (cmd === 'status') {
+                responseEntry.className += ' log-success';
+                responseEntry.textContent = 'NEXUS systems operational - All services running';
+            } else if (cmd === 'fleet') {
+                responseEntry.className += ' log-info';
+                responseEntry.textContent = '574 assets active, 3 alerts pending, 87.3% efficiency';
+            } else if (cmd === 'apis') {
+                responseEntry.className += ' log-success';
+                responseEntry.textContent = 'API Gateway operational - 1.2K req/min, 245ms avg latency';
+            } else if (cmd === 'benchmark') {
+                responseEntry.className += ' log-warning';
+                responseEntry.textContent = 'Starting API performance benchmark...';
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1000);
+            } else if (cmd === 'restart') {
+                responseEntry.className += ' log-warning';
+                responseEntry.textContent = 'Restarting NEXUS services...';
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else if (cmd === 'clear') {
+                output.innerHTML = '';
+                return;
+            } else {
+                responseEntry.className += ' log-error';
+                responseEntry.textContent = `Command not found: ${command}`;
+            }
+
+            output.appendChild(responseEntry);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // Control functions
+        function refreshSystems() {
+            addLogEntry('System refresh initiated', 'info');
+            updateMetrics();
+            setTimeout(() => {
+                addLogEntry('All systems refreshed successfully', 'success');
+            }, 1500);
+        }
+
+        function runDiagnostics() {
+            addLogEntry('Running comprehensive diagnostics...', 'warning');
+            setTimeout(() => {
+                addLogEntry('Diagnostics complete - No issues detected', 'success');
+            }, 3000);
+        }
+
+        function emergencyStop() {
+            if (confirm('Are you sure you want to initiate emergency stop?')) {
+                systemActive = false;
+                document.getElementById('system-status').textContent = 'EMERGENCY STOP';
+                document.getElementById('system-status').style.background = 'rgba(255,68,68,0.8)';
+                addLogEntry('EMERGENCY STOP ACTIVATED', 'error');
+                
+                setTimeout(() => {
+                    if (confirm('Restart systems?')) {
+                        location.reload();
+                    }
+                }, 2000);
+            }
+        }
+
+        function syncFleet() {
+            addLogEntry('Fleet synchronization started', 'info');
+            setTimeout(() => {
+                addLogEntry('Fleet sync complete - 574 assets synchronized', 'success');
+            }, 2000);
+        }
+
+        function optimizeRoutes() {
+            addLogEntry('Route optimization in progress...', 'warning');
+            setTimeout(() => {
+                addLogEntry('Routes optimized - 12% efficiency improvement', 'success');
+            }, 2500);
+        }
+
+        function maintenanceMode() {
+            addLogEntry('Entering maintenance mode', 'warning');
+            setTimeout(() => {
+                addLogEntry('Maintenance mode activated', 'info');
+            }, 1000);
+        }
+
+        function testAPIs() {
+            addLogEntry('Testing API endpoints...', 'info');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 1000);
+        }
+
+        function clearCache() {
+            addLogEntry('Clearing API cache...', 'info');
+            setTimeout(() => {
+                addLogEntry('Cache cleared successfully', 'success');
+            }, 1000);
+        }
+
+        function showAPIStats() {
+            addLogEntry('Opening API statistics dashboard...', 'info');
+            setTimeout(() => {
+                window.location.href = '/api/management-dashboard';
+            }, 500);
+        }
+
+        function resetStreams() {
+            addLogEntry('Resetting data streams...', 'warning');
+            setTimeout(() => {
+                addLogEntry('Data streams reset complete', 'success');
+            }, 1500);
+        }
+
+        function exportData() {
+            addLogEntry('Preparing data export...', 'info');
+            setTimeout(() => {
+                addLogEntry('Data export initiated', 'success');
+            }, 1000);
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeVisualization();
+            
+            // Show alert banner briefly
+            setTimeout(() => {
+                document.getElementById('alert-banner').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('alert-banner').classList.remove('show');
+                }, 3000);
+            }, 1000);
+
+            // Start metric updates
+            setInterval(updateMetrics, 5000);
+            updateMetrics();
+
+            // Add some initial log entries
+            setTimeout(() => {
+                addLogEntry('NEXUS Command Center fully operational', 'success');
+            }, 2000);
+
+            setTimeout(() => {
+                addLogEntry('All monitoring systems active', 'info');
+            }, 4000);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === '`') {
+                document.getElementById('terminal-input').focus();
+                event.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -4,6 +4,9 @@
  * Deploy Tag: QNIS_telematics_core_v1
  */
 
+// Import telemetry simulator
+import './telemetrySimulator.js';
+
 class NexusTelematics {
     constructor() {
         this.map = null;
@@ -11,6 +14,7 @@ class NexusTelematics {
         this.wsConnection = null;
         this.pipVideos = new Map();
         this.isOnline = false;
+        this.telemetrySimulator = null;
         
         this.init();
     }
@@ -74,17 +78,30 @@ class NexusTelematics {
     }
 
     connectWebSocket() {
-        // Mock WebSocket connection since we don't have a real telemetry server
-        console.log('🔗 Connecting to telemetry WebSocket...');
+        console.log('🔗 Connecting to telemetry system...');
         
-        // Simulate WebSocket connection
+        // Initialize telemetry simulator
+        if (window.TelemetrySimulator) {
+            this.telemetrySimulator = new window.TelemetrySimulator();
+            
+            // Listen for telemetry updates
+            document.addEventListener('telemetryUpdate', (event) => {
+                this.updateAsset(event.detail);
+            });
+            
+            // Start simulation
+            this.telemetrySimulator.start();
+        }
+        
         setTimeout(() => {
             this.isOnline = true;
             this.updateStatusOverlay();
-            console.log('✅ Telemetry WebSocket connected');
+            console.log('✅ Telemetry system connected');
             
-            // Start sending mock telemetry data
-            this.startMockTelemetry();
+            // Fallback to mock telemetry if simulator not available
+            if (!this.telemetrySimulator) {
+                this.startMockTelemetry();
+            }
         }, 1000);
     }
 
@@ -133,22 +150,52 @@ class NexusTelematics {
         // Update marker position
         marker.setLatLng([data.lat, data.lng]);
         
-        // Create popup with asset info and PiP button
+        // Create enhanced popup with comprehensive asset information
+        const fuelColor = data.fuelLevel > 70 ? '#00ff00' : data.fuelLevel > 30 ? '#ffff00' : '#ff0000';
+        const statusColor = data.status === 'Active' || data.status === 'Operating' ? '#00ff00' : 
+                           data.status === 'In Transit' ? '#ffff00' : '#ff6600';
+        
         const popupContent = `
-            <div style="font-family: 'Courier New', monospace;">
-                <strong>${data.id}</strong><br/>
-                <span style="color: #00ff00;">${data.name}</span><br/>
-                Speed: ${Math.round(data.speed)} mph<br/>
-                <button onclick="nexusTelematics.enablePiP('${data.id}')" 
-                        style="margin-top: 8px; padding: 4px 8px; background: #00ff00; 
-                               color: black; border: none; border-radius: 4px; cursor: pointer;">
-                    📺 Enable PiP
-                </button>
-                <button onclick="nexusTelematics.triggerDiag('${data.id}')" 
-                        style="margin-top: 4px; padding: 4px 8px; background: #ff6600; 
-                               color: white; border: none; border-radius: 4px; cursor: pointer;">
-                    🧠 Run Diagnostic
-                </button>
+            <div style="font-family: 'Courier New', monospace; min-width: 250px;">
+                <div style="background: rgba(0,0,0,0.8); padding: 10px; border-radius: 6px;">
+                    <div style="font-size: 16px; font-weight: bold; color: #00ff00; margin-bottom: 8px;">
+                        ${data.id} - ${data.operator || data.name}
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span>Speed:</span><span style="color: #00ff88;">${Math.round(data.speed)} mph</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span>Fuel:</span><span style="color: ${fuelColor};">${Math.round(data.fuelLevel || 75)}%</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span>Status:</span><span style="color: ${statusColor};">${data.status || 'Active'}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span>Engine Hours:</span><span style="color: #88ccff;">${Math.round(data.engineHours || 2847)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>Type:</span><span style="color: #cccccc;">${data.type || 'Fleet Vehicle'}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-direction: column;">
+                        <button onclick="nexusTelematics.enablePiP('${data.id}')" 
+                                style="padding: 8px 12px; background: linear-gradient(135deg, #00ff88, #00cc66); 
+                                       color: black; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                            📺 Live Video Feed
+                        </button>
+                        <button onclick="nexusTelematics.triggerDiag('${data.id}')" 
+                                style="padding: 8px 12px; background: linear-gradient(135deg, #ff6600, #cc4400); 
+                                       color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                            🔧 Run Diagnostics
+                        </button>
+                        <button onclick="nexusTelematics.viewDetails('${data.id}')" 
+                                style="padding: 8px 12px; background: linear-gradient(135deg, #0088ff, #0066cc); 
+                                       color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                            📊 Asset Details
+                        </button>
+                    </div>
+                </div>
             </div>
         `;
         
@@ -202,25 +249,125 @@ class NexusTelematics {
     }
 
     async triggerDiag(assetId) {
-        console.log(`🧠 Triggering diagnostic for asset: ${assetId}`);
+        console.log(`🔧 Running AI-powered diagnostics for ${assetId}...`);
+        
+        // Get asset data for AI analysis
+        const asset = this.assets.get(assetId) || this.telemetrySimulator?.getAsset(assetId);
         
         try {
+            // Call automation endpoint with enhanced AI diagnostic data
             const response = await fetch('/api/automation/trigger', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ assetId, task: 'healthCheck' })
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    asset_id: assetId,
+                    job_id: `DIAG-${Date.now()}`,
+                    trigger_type: 'ai_diagnostic',
+                    location: 'Dallas, TX',
+                    asset_data: asset ? {
+                        fuel_level: asset.fuelLevel,
+                        engine_hours: asset.engineHours,
+                        speed: asset.speed,
+                        status: asset.status,
+                        operator: asset.operator,
+                        type: asset.type,
+                        last_maintenance: asset.lastMaintenance
+                    } : null
+                })
             });
             
             const result = await response.json();
-            console.log('✅ Automation started:', result.jobId || 'DIAG-' + Date.now());
-            this.showNotification(`🧠 Diagnostic started for ${assetId}`, 'success');
+            console.log('📊 AI Diagnostic response:', result);
             
+            // Show enhanced notification with AI insights
+            if (result.ai_analysis) {
+                this.showNotification(`🧠 AI Analysis for ${assetId}: ${result.ai_analysis}`, 'success');
+            } else {
+                this.showNotification(`Diagnostic initiated for ${assetId}: ${result.message}`, 'success');
+            }
         } catch (error) {
-            console.error('Automation trigger error:', error);
-            // Mock successful response for demo
-            const mockJobId = 'DIAG-' + Date.now();
-            console.log('✅ Automation started (mock):', mockJobId);
-            this.showNotification(`🧠 Diagnostic started for ${assetId} (Job: ${mockJobId})`, 'success');
+            console.error('❌ Diagnostic error:', error);
+            this.showNotification(`Diagnostic failed for ${assetId}`, 'error');
+        }
+    }
+
+    viewDetails(assetId) {
+        console.log(`📊 Viewing detailed analytics for ${assetId}...`);
+        
+        const asset = this.assets.get(assetId) || this.telemetrySimulator?.getAsset(assetId);
+        
+        if (asset) {
+            // Create detailed modal with asset information
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.8); z-index: 10000; display: flex;
+                align-items: center; justify-content: center; font-family: 'Courier New', monospace;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: linear-gradient(135deg, #1a1a2e, #16213e); border: 2px solid #00ff88; 
+                           border-radius: 12px; padding: 20px; max-width: 500px; width: 90%; color: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="color: #00ff88; margin: 0;">Asset Details: ${assetId}</h2>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                                style="background: #ff4444; color: white; border: none; border-radius: 50%; 
+                                       width: 30px; height: 30px; cursor: pointer;">×</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div><strong>Operator:</strong><br/>${asset.operator || 'N/A'}</div>
+                        <div><strong>Type:</strong><br/>${asset.type || 'N/A'}</div>
+                        <div><strong>Status:</strong><br/><span style="color: ${asset.status === 'Active' ? '#00ff88' : '#ffaa00'}">${asset.status || 'Unknown'}</span></div>
+                        <div><strong>Speed:</strong><br/>${Math.round(asset.speed || 0)} mph</div>
+                        <div><strong>Fuel Level:</strong><br/><span style="color: ${(asset.fuelLevel || 75) > 50 ? '#00ff88' : '#ff4444'}">${Math.round(asset.fuelLevel || 75)}%</span></div>
+                        <div><strong>Engine Hours:</strong><br/>${Math.round(asset.engineHours || 0)}</div>
+                        <div><strong>Location:</strong><br/>${asset.lat?.toFixed(4)}, ${asset.lng?.toFixed(4)}</div>
+                        <div><strong>Last Update:</strong><br/>${new Date(asset.lastUpdate || Date.now()).toLocaleTimeString()}</div>
+                    </div>
+                    <button onclick="nexusTelematics.requestAIAnalysis('${assetId}')" 
+                            style="width: 100%; padding: 12px; background: linear-gradient(135deg, #00ff88, #00cc66); 
+                                   color: black; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                        🧠 Request AI Performance Analysis
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        } else {
+            this.showNotification(`Asset ${assetId} not found`, 'error');
+        }
+    }
+
+    async requestAIAnalysis(assetId) {
+        console.log(`🧠 Requesting AI analysis for ${assetId}...`);
+        
+        const asset = this.assets.get(assetId) || this.telemetrySimulator?.getAsset(assetId);
+        
+        try {
+            const response = await fetch('/api/ai-asset-analysis', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    asset_id: assetId,
+                    asset_data: asset
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.analysis) {
+                // Display AI analysis in notification
+                this.showNotification(`🧠 AI Analysis: ${result.analysis}`, 'success', 8000);
+            } else {
+                this.showNotification('AI analysis completed - check logs for details', 'success');
+            }
+        } catch (error) {
+            console.error('❌ AI Analysis error:', error);
+            this.showNotification('AI analysis failed - please try again', 'error');
         }
     }
 

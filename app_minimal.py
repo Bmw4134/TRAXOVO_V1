@@ -367,27 +367,129 @@ def index():
 
 @app.route('/api/automation/trigger', methods=['POST'])
 def automation_trigger():
-    """Automation trigger endpoint for telematics diagnostics"""
+    """Enhanced automation trigger endpoint with AI-powered diagnostics"""
     try:
         data = request.get_json()
-        asset_id = data.get('assetId', 'unknown')
-        task = data.get('task', 'healthCheck')
-        
-        # Generate job ID
-        job_id = f"DIAG-{asset_id}-{int(time.time())}"
+        asset_id = data.get('asset_id', data.get('assetId', 'unknown'))
+        job_id = data.get('job_id', f"DIAG-{asset_id}-{int(time.time())}")
+        trigger_type = data.get('trigger_type', data.get('task', 'healthCheck'))
+        location = data.get('location', 'Dallas, TX')
+        asset_data = data.get('asset_data')
         
         # Log automation trigger
-        logging.info(f"Automation triggered: {job_id} for asset {asset_id} - task: {task}")
+        logging.info(f"AI Automation triggered: {job_id} for asset {asset_id} - type: {trigger_type}")
         
-        return jsonify({
+        result = {
             "status": "success",
+            "message": f"Automation job {job_id} initiated for asset {asset_id}",
             "jobId": job_id,
+            "job_id": job_id,
             "assetId": asset_id,
-            "task": task,
-            "timestamp": time.time()
-        })
+            "asset_id": asset_id,
+            "trigger_type": trigger_type,
+            "task": trigger_type,
+            "location": location,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        # Add AI analysis for enhanced diagnostics
+        if trigger_type == 'ai_diagnostic' and asset_data:
+            try:
+                from openai import OpenAI
+                
+                openai_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+                
+                # Create AI analysis prompt
+                prompt = f"""Analyze this fleet asset data for {asset_id}:
+                - Fuel Level: {asset_data.get('fuel_level', 'N/A')}%
+                - Engine Hours: {asset_data.get('engine_hours', 'N/A')}
+                - Current Speed: {asset_data.get('speed', 'N/A')} mph
+                - Status: {asset_data.get('status', 'N/A')}
+                - Operator: {asset_data.get('operator', 'N/A')}
+                - Asset Type: {asset_data.get('type', 'N/A')}
+                - Last Maintenance: {asset_data.get('last_maintenance', 'N/A')}
+                
+                Provide a brief assessment of asset health, maintenance recommendations, and any operational concerns. Keep response under 100 words."""
+                
+                # Call OpenAI API
+                response = openai_client.chat.completions.create(
+                    model="gpt-4o",  # the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=150
+                )
+                
+                ai_analysis = response.choices[0].message.content
+                result['ai_analysis'] = ai_analysis
+                result['message'] = f'AI-powered diagnostic completed for {asset_id}'
+                
+                logging.info(f"AI Analysis completed for {asset_id}: {ai_analysis}")
+                
+            except Exception as ai_error:
+                logging.warning(f"AI analysis failed: {str(ai_error)}")
+                result['ai_analysis'] = f"Standard diagnostic initiated. AI analysis temporarily unavailable."
+        
+        return jsonify(result)
+        
     except Exception as e:
+        logging.error(f"Automation trigger error: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/api/ai-asset-analysis', methods=['POST'])
+def ai_asset_analysis():
+    """Dedicated AI asset analysis endpoint for comprehensive fleet intelligence"""
+    try:
+        data = request.get_json()
+        asset_id = data.get('asset_id', 'Unknown')
+        asset_data = data.get('asset_data', {})
+        
+        logging.info(f"AI Analysis requested for asset: {asset_id}")
+        
+        from openai import OpenAI
+        
+        openai_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+        
+        # Create comprehensive analysis prompt
+        prompt = f"""Provide a detailed performance analysis for fleet asset {asset_id}:
+
+        Current Metrics:
+        - Fuel Level: {asset_data.get('fuelLevel', 'N/A')}%
+        - Engine Hours: {asset_data.get('engineHours', 'N/A')}
+        - Speed: {asset_data.get('speed', 'N/A')} mph
+        - Status: {asset_data.get('status', 'N/A')}
+        - Operator: {asset_data.get('operator', 'N/A')}
+        - Asset Type: {asset_data.get('type', 'N/A')}
+        - Location: {asset_data.get('lat', 'N/A')}, {asset_data.get('lng', 'N/A')}
+        - Last Update: {asset_data.get('lastUpdate', 'N/A')}
+
+        Analyze efficiency, predict maintenance needs, identify optimization opportunities, and assess operational performance. Provide actionable insights for fleet management."""
+        
+        # Call OpenAI API for detailed analysis
+        response = openai_client.chat.completions.create(
+            model="gpt-4o",  # the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=300
+        )
+        
+        analysis = response.choices[0].message.content
+        
+        result = {
+            'status': 'success',
+            'asset_id': asset_id,
+            'analysis': analysis,
+            'timestamp': datetime.now().isoformat(),
+            'analysis_type': 'comprehensive_performance'
+        }
+        
+        logging.info(f"AI Analysis completed for {asset_id}")
+        return jsonify(result), 200
+        
+    except Exception as e:
+        logging.error(f"AI Asset Analysis error: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': 'AI analysis failed',
+            'error': str(e)
+        }), 500
 
 @app.route('/api/asset-data')
 def api_asset_data():

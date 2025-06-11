@@ -2252,40 +2252,10 @@ def nexus_command_center():
 def api_trello_integration():
     """Trello project management integration"""
     try:
-        # Direct integration data for TRAXOVO fleet management
-        dashboard_data = {
-            "connection": {"status": "setup_required"},
-            "board_count": 4,
-            "boards": [
-                {
-                    "id": "board_ragle_fleet_management",
-                    "name": "RAGLE Fleet Management - June 2025",
-                    "url": "https://trello.com/b/ragle-fleet",
-                    "lists": ["Assets Available", "In Service", "Maintenance", "Completed"],
-                    "card_count": 284
-                },
-                {
-                    "id": "board_maintenance_schedule", 
-                    "name": "Maintenance Schedule - Summer 2025",
-                    "url": "https://trello.com/b/maintenance-schedule",
-                    "lists": ["Scheduled", "In Progress", "Quality Check", "Complete"],
-                    "card_count": 67
-                }
-            ],
-            "recent_activity": [
-                {
-                    "action": "Card moved to 'In Service'",
-                    "asset": "Asset #210013 - MATTHEW C. SHAYLOR",
-                    "timestamp": datetime.now().isoformat(),
-                    "user": "Fleet Manager"
-                }
-            ],
-            "integration_health": {
-                "api_calls_today": 156,
-                "success_rate": 98.7,
-                "last_error": None
-            }
-        }
+        from integration_manager import get_integration_manager
+        
+        integration_manager = get_integration_manager()
+        dashboard_data = integration_manager.get_trello_dashboard_data()
         
         return jsonify({
             "status": "success",
@@ -2304,39 +2274,10 @@ def api_trello_integration():
 def api_twilio_integration():
     """Twilio SMS communication integration"""
     try:
-        # Direct integration data for TRAXOVO fleet communication
-        dashboard_data = {
-            "connection": {"status": "setup_required"},
-            "message_count": 342,
-            "usage": {
-                "account_balance": "$47.23",
-                "messages_sent_today": 18,
-                "messages_this_month": 342,
-                "cost_per_message": "$0.0075"
-            },
-            "recent_messages": [
-                {
-                    "to": "+1234567890",
-                    "message": "ALERT: Asset MT-07 requires immediate maintenance check",
-                    "status": "delivered",
-                    "timestamp": datetime.now().isoformat(),
-                    "type": "maintenance_alert"
-                },
-                {
-                    "to": "+1987654321", 
-                    "message": "Fleet Update: Asset #210013 deployment confirmed for Project 2024-089",
-                    "status": "delivered",
-                    "timestamp": datetime.now().isoformat(),
-                    "type": "fleet_update"
-                }
-            ],
-            "integration_health": {
-                "delivery_rate": 99.4,
-                "response_time_avg": "1.2s",
-                "failed_messages": 2,
-                "last_error": None
-            }
-        }
+        from integration_manager import get_integration_manager
+        
+        integration_manager = get_integration_manager()
+        dashboard_data = integration_manager.get_twilio_dashboard_data()
         
         return jsonify({
             "status": "success",
@@ -2355,23 +2296,15 @@ def api_twilio_integration():
 def api_create_trello_board():
     """Create new Trello board for fleet management"""
     try:
+        from integration_manager import get_integration_manager
+        
         data = request.get_json() or {}
         board_name = data.get('name', f'TRAXOVO Fleet Management {datetime.now().strftime("%Y-%m-%d")}')
         
-        # Simulate board creation
-        board_data = {
-            "id": f"board_{board_name.lower().replace(' ', '_')}_{int(datetime.now().timestamp())}",
-            "name": board_name,
-            "url": f"https://trello.com/b/{board_name.lower().replace(' ', '-')}",
-            "lists_created": ["Assets", "In Progress", "Maintenance", "Complete"],
-            "created": datetime.now().isoformat()
-        }
+        integration_manager = get_integration_manager()
+        result = integration_manager.create_trello_board(board_name)
         
-        return jsonify({
-            "success": True,
-            "board": board_data,
-            "message": f"Fleet management board '{board_name}' created successfully"
-        })
+        return jsonify(result)
     except Exception as e:
         return jsonify({
             "success": False,
@@ -2382,25 +2315,15 @@ def api_create_trello_board():
 def api_sync_assets_to_trello():
     """Sync TRAXOVO fleet assets to Trello board"""
     try:
+        from integration_manager import get_integration_manager
+        
         data = request.get_json() or {}
         board_id = data.get('board_id', 'default_board')
         
-        # Simulate asset synchronization with authentic RAGLE data
-        assets_synced = [
-            "Asset #210013 - MATTHEW C. SHAYLOR",
-            "MT-07 - JAMES WILSON",
-            "CAT 924K - Wheel Loader",
-            "John Deere 310SL - Backhoe",
-            "Caterpillar D6T - Dozer"
-        ]
+        integration_manager = get_integration_manager()
+        result = integration_manager.sync_assets_to_trello(board_id)
         
-        return jsonify({
-            "success": True,
-            "cards_created": len(assets_synced),
-            "assets_synced": assets_synced,
-            "board_id": board_id,
-            "sync_timestamp": datetime.now().isoformat()
-        })
+        return jsonify(result)
     except Exception as e:
         return jsonify({
             "success": False,
@@ -2411,6 +2334,8 @@ def api_sync_assets_to_trello():
 def api_send_fleet_alert():
     """Send SMS fleet alert via Twilio"""
     try:
+        from integration_manager import get_integration_manager
+        
         data = request.get_json() or {}
         phone = data.get('phone', '')
         message = data.get('message', '')
@@ -2422,23 +2347,10 @@ def api_send_fleet_alert():
                 "error": "Phone number and message are required"
             })
         
-        # Simulate message sending
-        message_data = {
-            "sid": f"SM{int(datetime.now().timestamp())}",
-            "to": phone,
-            "from": "+15551234567",
-            "body": message,
-            "status": "delivered",
-            "timestamp": datetime.now().isoformat(),
-            "type": alert_type,
-            "cost": "$0.0075"
-        }
+        integration_manager = get_integration_manager()
+        result = integration_manager.send_fleet_alert(phone, message, alert_type)
         
-        return jsonify({
-            "success": True,
-            "message": message_data,
-            "status": f"Fleet alert sent successfully to {phone}"
-        })
+        return jsonify(result)
     except Exception as e:
         return jsonify({
             "success": False,
@@ -2448,6 +2360,22 @@ def api_send_fleet_alert():
 @app.route('/api/integration-status')
 def api_integration_status():
     """Get status of all integrations"""
+    try:
+        from integration_manager import get_integration_manager
+        
+        integration_manager = get_integration_manager()
+        status_data = integration_manager.get_integration_status()
+        
+        return jsonify({
+            "status": "success",
+            "data": status_data,
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Integration status error: {str(e)}"
+        })
     try:
         integrations = {}
         

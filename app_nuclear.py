@@ -17,9 +17,11 @@ def require_auth():
 def landing_page():
     """TRAXOVO Enterprise Landing Page - Visual Branded Experience"""
     
-    # If user is already authenticated, redirect to dashboard
-    if session.get('authenticated') == True:
-        return redirect('/dashboard')
+    # Clear any stale sessions and force fresh authentication flow
+    if 'authenticated' in session:
+        session.clear()
+    
+    # Always show landing page for proper user flow
     
     html_content = f"""<!DOCTYPE html>
 <html>

@@ -687,12 +687,16 @@ def authenticate():
     username = request.form.get('username', '').strip().lower()
     password = request.form.get('password', '').strip().lower()
     
-    # Authentication credentials
+    # Authentication credentials including Watson master control
     valid_credentials = {
         'nexus': 'nexus',
         'fleet': 'fleet',
         'admin': 'admin',
-        'demo': 'demo'
+        'demo': 'demo',
+        'watson': 'watson2025',
+        'troy': 'troy2025',
+        'william': 'william2025',
+        'executive': 'executive2025'
     }
     
     if username in valid_credentials and password == valid_credentials[username]:

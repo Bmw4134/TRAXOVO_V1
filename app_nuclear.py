@@ -2235,6 +2235,56 @@ def api_system_status():
     
     return resp
 
+@app.route('/api/unified-dashboard')
+def api_unified_dashboard():
+    """Unified dashboard API endpoint"""
+    from unified_dashboard_system import get_user_dashboard, get_system_status
+    
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    access_level = session.get('access_level', 'BASIC')
+    employee_id = session.get('employee_id')
+    
+    if request.args.get('system_status') == 'true':
+        return jsonify(get_system_status())
+    
+    dashboard_data = get_user_dashboard(access_level, employee_id)
+    return jsonify(dashboard_data)
+
+@app.route('/api/module/<module_id>')
+def api_module_details(module_id):
+    """Get specific module details"""
+    from unified_dashboard_system import get_module_details
+    
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    access_level = session.get('access_level', 'BASIC')
+    module_data = get_module_details(module_id, access_level)
+    return jsonify(module_data)
+
+@app.route('/api/cross-module-command', methods=['POST'])
+def api_cross_module_command():
+    """Execute commands across multiple modules"""
+    from unified_dashboard_system import unified_dashboard
+    
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    access_level = session.get('access_level', 'BASIC')
+    
+    try:
+        data = request.get_json()
+        command = data.get('command')
+        modules = data.get('modules', [])
+        
+        result = unified_dashboard.execute_cross_module_command(command, modules, access_level)
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'error': f'Command execution failed: {str(e)}'}), 500
+
 @app.route('/api/watson-command', methods=['POST'])
 def api_watson_command():
     """Execute Watson NEXUS master control commands"""

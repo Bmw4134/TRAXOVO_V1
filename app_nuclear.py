@@ -2311,6 +2311,238 @@ def agent_action_canvas():
     
     return resp
 
+@app.route('/trading')
+def trading_dashboard():
+    """Autonomous Trading Engine Dashboard"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    
+    access_level = session.get('access_level', 'BASIC')
+    if access_level not in ['MASTER_CONTROL', 'EXECUTIVE', 'ADMIN']:
+        return redirect('/dashboard')
+    
+    return render_template_string('''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TRAXOVO Trading Engine</title>
+        <style>
+            body {
+                font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+                background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+                color: white;
+                margin: 0;
+                padding: 2rem;
+            }
+            .trading-header {
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+            .trading-title {
+                font-size: 2.5rem;
+                font-weight: 700;
+                background: linear-gradient(45deg, #00d4aa, #87ceeb);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 1rem;
+            }
+            .trading-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            .trading-card {
+                background: rgba(255,255,255,0.1);
+                border-radius: 16px;
+                padding: 2rem;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255,255,255,0.2);
+            }
+            .trading-metric {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #00d4aa;
+                margin-bottom: 0.5rem;
+            }
+            .nav-back {
+                position: fixed;
+                top: 2rem;
+                left: 2rem;
+                background: rgba(255,255,255,0.2);
+                padding: 1rem 2rem;
+                border-radius: 30px;
+                text-decoration: none;
+                color: white;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            }
+            .nav-back:hover {
+                background: rgba(255,255,255,0.3);
+                transform: translateY(-2px);
+            }
+        </style>
+    </head>
+    <body>
+        <a href="/dashboard" class="nav-back">← Back to Dashboard</a>
+        
+        <div class="trading-header">
+            <h1 class="trading-title">Autonomous Trading Engine</h1>
+            <p>AI-powered trading and financial optimization</p>
+        </div>
+        
+        <div class="trading-grid">
+            <div class="trading-card">
+                <h3>Portfolio Performance</h3>
+                <div class="trading-metric">+12.7%</div>
+                <p>YTD Returns</p>
+            </div>
+            
+            <div class="trading-card">
+                <h3>Active Positions</h3>
+                <div class="trading-metric">23</div>
+                <p>Currently monitoring</p>
+            </div>
+            
+            <div class="trading-card">
+                <h3>Risk Score</h3>
+                <div class="trading-metric">7.2</div>
+                <p>Moderate risk level</p>
+            </div>
+            
+            <div class="trading-card">
+                <h3>AI Confidence</h3>
+                <div class="trading-metric">94%</div>
+                <p>Model accuracy</p>
+            </div>
+        </div>
+        
+        <script>
+            console.log('TRAXOVO Trading Engine loaded');
+        </script>
+    </body>
+    </html>
+    ''', access_level=access_level)
+
+@app.route('/financial')
+def financial_control():
+    """Financial Control Center"""
+    if not session.get('authenticated'):
+        return redirect('/login')
+    
+    access_level = session.get('access_level', 'BASIC')
+    if access_level not in ['MASTER_CONTROL', 'EXECUTIVE', 'ADMIN']:
+        return redirect('/dashboard')
+    
+    return render_template_string('''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TRAXOVO Financial Control</title>
+        <style>
+            body {
+                font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+                background: linear-gradient(135deg, #2c5530 0%, #3d7c47 100%);
+                color: white;
+                margin: 0;
+                padding: 2rem;
+            }
+            .financial-header {
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+            .financial-title {
+                font-size: 2.5rem;
+                font-weight: 700;
+                background: linear-gradient(45deg, #feca57, #ff9ff3);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 1rem;
+            }
+            .financial-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            .financial-card {
+                background: rgba(255,255,255,0.1);
+                border-radius: 16px;
+                padding: 2rem;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255,255,255,0.2);
+            }
+            .financial-metric {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #feca57;
+                margin-bottom: 0.5rem;
+            }
+            .nav-back {
+                position: fixed;
+                top: 2rem;
+                left: 2rem;
+                background: rgba(255,255,255,0.2);
+                padding: 1rem 2rem;
+                border-radius: 30px;
+                text-decoration: none;
+                color: white;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            }
+            .nav-back:hover {
+                background: rgba(255,255,255,0.3);
+                transform: translateY(-2px);
+            }
+        </style>
+    </head>
+    <body>
+        <a href="/dashboard" class="nav-back">← Back to Dashboard</a>
+        
+        <div class="financial-header">
+            <h1 class="financial-title">Financial Control Center</h1>
+            <p>Real-time financial monitoring and control</p>
+        </div>
+        
+        <div class="financial-grid">
+            <div class="financial-card">
+                <h3>Total Assets</h3>
+                <div class="financial-metric">$2.4M</div>
+                <p>Fleet valuation</p>
+            </div>
+            
+            <div class="financial-card">
+                <h3>Monthly Revenue</h3>
+                <div class="financial-metric">$847K</div>
+                <p>Current month</p>
+            </div>
+            
+            <div class="financial-card">
+                <h3>Operating Costs</h3>
+                <div class="financial-metric">$523K</div>
+                <p>This month</p>
+            </div>
+            
+            <div class="financial-card">
+                <h3>Profit Margin</h3>
+                <div class="financial-metric">38.2%</div>
+                <p>Current efficiency</p>
+            </div>
+        </div>
+        
+        <script>
+            console.log('TRAXOVO Financial Control loaded');
+        </script>
+    </body>
+    </html>
+    ''', access_level=access_level)
+
 @app.route('/api/master-sync', methods=['POST'])
 def api_master_sync():
     """Execute master synchronization"""

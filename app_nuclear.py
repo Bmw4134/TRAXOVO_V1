@@ -684,26 +684,36 @@ def login_page():
 @app.route('/authenticate', methods=['POST'])
 def authenticate():
     """Handle authentication with Watson NEXUS master control"""
-    from watson_nexus_master_control import authenticate_watson_user
-    
     username = request.form.get('username', '').strip()
     password = request.form.get('password', '').strip()
     
-    # Try Watson NEXUS master control authentication first
-    auth_result = authenticate_watson_user(username, password)
+    # Watson/NEXUS master control credentials
+    master_credentials = {
+        'watson': {'password': 'watson2025', 'access_level': 'MASTER_CONTROL', 'employee_id': 'WATSON_SUPREME_AI'},
+        'nexus': {'password': 'nexus2025', 'access_level': 'NEXUS_CONTROL', 'employee_id': 'NEXUS_CONTROL_AI'},
+        'troy': {'password': 'troy2025', 'access_level': 'EXECUTIVE', 'employee_id': 'TROY_EXECUTIVE'},
+        'william': {'password': 'william2025', 'access_level': 'EXECUTIVE', 'employee_id': 'WILLIAM_EXECUTIVE'},
+        'executive': {'password': 'executive2025', 'access_level': 'EXECUTIVE', 'employee_id': 'EXECUTIVE_ACCESS'},
+        'admin': {'password': 'admin2025', 'access_level': 'ADMIN', 'employee_id': 'ADMIN_USER'},
+        'matthew': {'password': 'ragle2025', 'access_level': 'FIELD_OPERATOR', 'employee_id': '210013'},
+        'fleet': {'password': 'fleet', 'access_level': 'FLEET_OPERATOR', 'employee_id': 'FLEET_OPERATOR'},
+        'demo': {'password': 'demo', 'access_level': 'DEMO', 'employee_id': 'DEMO_USER'}
+    }
     
-    if auth_result['authenticated']:
-        session['authenticated'] = True
-        session['username'] = auth_result['username']
-        session['access_level'] = auth_result['access_level']
-        session['permissions'] = auth_result['permissions']
-        session['employee_id'] = auth_result['employee_id']
-        session['full_name'] = auth_result.get('full_name', username.upper())
-        session['session_token'] = auth_result['session_token']
-        session['login_time'] = datetime.now().isoformat()
-        return redirect('/dashboard')
-    else:
-        return redirect('/login?error=1')
+    username_lower = username.lower()
+    
+    if username_lower in master_credentials:
+        creds = master_credentials[username_lower]
+        if creds['password'] == password:
+            session['authenticated'] = True
+            session['username'] = username_lower
+            session['access_level'] = creds['access_level']
+            session['employee_id'] = creds['employee_id']
+            session['full_name'] = username.upper()
+            session['login_time'] = datetime.now().isoformat()
+            return redirect('/dashboard')
+    
+    return redirect('/login?error=1')
 
 @app.route('/logout')
 def logout():

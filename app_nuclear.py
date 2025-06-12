@@ -1098,6 +1098,7 @@ def enterprise_dashboard():
                 <div class="nav-item" onclick="showAnalytics()">Analytics</div>
                 <div class="nav-item" onclick="showReports()">Reports</div>
                 <div class="nav-item" onclick="location.href='/watson-control'" style="background: #ff6b6b; color: white;">🔧 Watson Control</div>
+                <div class="nav-item" onclick="location.href='/agent-canvas'" style="background: #667eea; color: white;">🎯 Agent Canvas</div>
                 <div class="nav-item" onclick="showSettings()">Settings</div>
             </div>
         </div>
@@ -2284,6 +2285,57 @@ def api_cross_module_command():
         
     except Exception as e:
         return jsonify({'error': f'Command execution failed: {str(e)}'}), 500
+
+@app.route('/agent-canvas')
+def agent_action_canvas():
+    """Agent Action Canvas with real-time module intelligence"""
+    from agent_action_canvas import generate_agent_action_canvas
+    
+    # Check authentication
+    if not session.get('authenticated'):
+        return redirect('/login')
+    
+    access_level = session.get('access_level', 'BASIC')
+    employee_id = session.get('employee_id')
+    
+    canvas_html = generate_agent_action_canvas(access_level, employee_id or '')
+    
+    # Canvas response with cache bypass
+    resp = make_response(canvas_html)
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    resp.headers['Pragma'] = 'no-cache'
+    resp.headers['Expires'] = '0'
+    resp.headers['Last-Modified'] = datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')
+    resp.headers['ETag'] = f'"{int(time.time())}-agent-canvas"'
+    resp.headers['Vary'] = '*'
+    
+    return resp
+
+@app.route('/api/master-sync', methods=['POST'])
+def api_master_sync():
+    """Execute master synchronization"""
+    from master_sync_engine import execute_master_sync, run_validation_cycle
+    
+    if not session.get('authenticated'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    access_level = session.get('access_level', 'BASIC')
+    if access_level != 'MASTER_CONTROL':
+        return jsonify({'error': 'Master control access required'}), 403
+    
+    try:
+        data = request.get_json() or {}
+        operation = data.get('operation', 'full_sync')
+        
+        if operation == 'validation_cycle':
+            result = run_validation_cycle()
+        else:
+            result = execute_master_sync()
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'error': f'Master sync failed: {str(e)}'}), 500
 
 @app.route('/api/watson-command', methods=['POST'])
 def api_watson_command():

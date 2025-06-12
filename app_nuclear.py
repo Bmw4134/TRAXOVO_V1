@@ -2289,7 +2289,7 @@ def api_cross_module_command():
 @app.route('/agent-canvas')
 def agent_action_canvas():
     """Agent Action Canvas with real-time module intelligence"""
-    from agent_action_canvas import generate_agent_action_canvas
+    from agent_canvas_fixed import generate_agent_action_canvas
     
     # Check authentication
     if not session.get('authenticated'):

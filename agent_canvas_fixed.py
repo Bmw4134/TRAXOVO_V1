@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TRAXOVO Agent Action Canvas
+TRAXOVO Agent Action Canvas - Fixed Version
 Interactive dashboard with agent terminal and real-time module intelligence
 """
 
@@ -10,6 +10,9 @@ import json
 
 def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> str:
     """Generate interactive agent action canvas with module intelligence"""
+    
+    if employee_id is None:
+        employee_id = ""
     
     # Module intelligence hooks based on access level
     accessible_modules = {
@@ -60,7 +63,7 @@ def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> 
     # Agent commands based on access level
     agent_commands = [
         '/agent:status - System status and health check',
-        '/agent:refresh - Refresh all modules',
+        '/agent:refresh - Refresh all modules', 
         '/agent:test - Run comprehensive tests',
         '/agent:optimize - Apply QPI optimizations',
         '/agent:snapshot - Generate system snapshot'
@@ -79,6 +82,13 @@ def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> 
             '/agent:rollback - Rollback to previous state',
             '/agent:rebuild_all - Complete system rebuild'
         ])
+    
+    # Create command buttons HTML
+    quick_commands_html = ""
+    for i, cmd in enumerate(agent_commands[:8]):
+        quick_commands_html += f'<button class="quick-cmd" onclick="quickCommand(\'{cmd.split(" - ")[0]}\')">{cmd}</button>'
+        if i % 2 == 1:
+            quick_commands_html += "\n"
     
     return f'''<!DOCTYPE html>
 <html lang="en">
@@ -523,7 +533,7 @@ def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> 
             </div>
             
             <div class="quick-commands">
-                {chr(10).join([f'<button class="quick-cmd" onclick="quickCommand(\'{cmd.split(" - ")[0]}\')">{cmd}</button>' for cmd in agent_commands[:8]])}
+                {quick_commands_html}
             </div>
         </div>
     </div>
@@ -549,18 +559,18 @@ def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> 
         let terminalOutput = document.getElementById('terminal-output');
         let agentInput = document.getElementById('agent-input');
         
-        function addTerminalLine(text, type = 'normal') {{
+        function addTerminalLine(text, type) {{
             const line = document.createElement('div');
             line.className = 'terminal-line';
             
             if (type === 'command') {{
-                line.innerHTML = `<span class="terminal-prompt">TRAXOVO@{access_level}:~$</span> ${{text}}`;
+                line.innerHTML = '<span class="terminal-prompt">TRAXOVO@{access_level}:~$</span> ' + text;
             }} else if (type === 'success') {{
-                line.innerHTML = `<span style="color: #27ae60;">✓</span> ${{text}}`;
+                line.innerHTML = '<span style="color: #27ae60;">✓</span> ' + text;
             }} else if (type === 'error') {{
-                line.innerHTML = `<span style="color: #e74c3c;">✗</span> ${{text}}`;
+                line.innerHTML = '<span style="color: #e74c3c;">✗</span> ' + text;
             }} else if (type === 'info') {{
-                line.innerHTML = `<span style="color: #87ceeb;">ℹ</span> ${{text}}`;
+                line.innerHTML = '<span style="color: #87ceeb;">ℹ</span> ' + text;
             }} else {{
                 line.textContent = text;
             }}
@@ -589,7 +599,7 @@ def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> 
                     addTerminalLine('Unknown command. Use /agent: prefix for agent commands.', 'error');
                 }}
             }} catch (error) {{
-                addTerminalLine(`Error: ${{error.message}}`, 'error');
+                addTerminalLine('Error: ' + error.message, 'error');
             }}
         }}
         
@@ -618,7 +628,7 @@ def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> 
                     showHelpCommands();
                     break;
                 default:
-                    addTerminalLine(`Unknown agent command: ${{cmd}}`, 'error');
+                    addTerminalLine('Unknown agent command: ' + cmd, 'error');
             }}
         }}
         
@@ -627,9 +637,9 @@ def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> 
                 const response = await fetch('/api/unified-dashboard?system_status=true');
                 const data = await response.json();
                 
-                addTerminalLine(`System Health: ${{data.overall_health}}`, 'success');
-                addTerminalLine(`Modules: ${{data.operational_modules}}/${{data.total_modules}} operational`, 'info');
-                addTerminalLine(`Active Sessions: ${{data.system_metrics.active_sessions}}`, 'info');
+                addTerminalLine('System Health: ' + data.overall_health, 'success');
+                addTerminalLine('Modules: ' + data.operational_modules + '/' + data.total_modules + ' operational', 'info');
+                addTerminalLine('Active Sessions: ' + data.system_metrics.active_sessions, 'info');
             }} catch (error) {{
                 addTerminalLine('Failed to get system status', 'error');
             }}
@@ -638,11 +648,10 @@ def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> 
         async function refreshAllModules() {{
             addTerminalLine('Refreshing all modules...', 'info');
             
-            // Simulate module refresh
-            const modules = {accessible_modules};
+            const modules = {str(accessible_modules)};
             for (const module of modules) {{
                 await new Promise(resolve => setTimeout(resolve, 100));
-                addTerminalLine(`Module ${{module}}: Refreshed`, 'success');
+                addTerminalLine('Module ' + module + ': Refreshed', 'success');
                 updateModuleStatus(module, 'success');
             }}
         }}
@@ -656,12 +665,12 @@ def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> 
                     headers: {{ 'Content-Type': 'application/json' }},
                     body: JSON.stringify({{
                         command: 'health_check',
-                        modules: {accessible_modules}
+                        modules: {str(accessible_modules)}
                     }})
                 }});
                 
                 const result = await response.json();
-                addTerminalLine(`Tests completed: ${{result.modules_executed}} modules tested`, 'success');
+                addTerminalLine('Tests completed: ' + result.modules_executed + ' modules tested', 'success');
             }} catch (error) {{
                 addTerminalLine('Test execution failed', 'error');
             }}
@@ -713,29 +722,27 @@ def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> 
         
         // Module interaction functions
         async function testModule(moduleId) {{
-            const card = document.querySelector(`[data-module="${{moduleId}}"]`);
+            const card = document.querySelector('[data-module="' + moduleId + '"]');
             card.classList.add('loading');
             
-            addTerminalLine(`Testing module: ${{moduleId}}`, 'info');
+            addTerminalLine('Testing module: ' + moduleId, 'info');
             
-            // Simulate module test
             await new Promise(resolve => setTimeout(resolve, 1000));
             
             card.classList.remove('loading');
             card.classList.add('success-flash');
             setTimeout(() => card.classList.remove('success-flash'), 500);
             
-            addTerminalLine(`Module ${{moduleId}}: Test passed`, 'success');
+            addTerminalLine('Module ' + moduleId + ': Test passed', 'success');
             updateModuleLog(moduleId, 'Test completed successfully', 'success');
         }}
         
         async function refreshModule(moduleId) {{
-            addTerminalLine(`Refreshing module: ${{moduleId}}`, 'info');
+            addTerminalLine('Refreshing module: ' + moduleId, 'info');
             
-            // Simulate module refresh
             await new Promise(resolve => setTimeout(resolve, 500));
             
-            addTerminalLine(`Module ${{moduleId}}: Refreshed`, 'success');
+            addTerminalLine('Module ' + moduleId + ': Refreshed', 'success');
             updateModuleLog(moduleId, 'Module refreshed', 'success');
             updateModuleMetrics(moduleId);
         }}
@@ -745,26 +752,26 @@ def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> 
         }}
         
         function updateModuleStatus(moduleId, status) {{
-            const statusDot = document.querySelector(`[data-module="${{moduleId}}"] .status-dot`);
+            const statusDot = document.querySelector('[data-module="' + moduleId + '"] .status-dot');
             if (statusDot) {{
-                statusDot.className = `status-dot ${{status === 'success' ? 'active' : status}}`;
+                statusDot.className = 'status-dot ' + (status === 'success' ? 'active' : status);
             }}
         }}
         
-        function updateModuleLog(moduleId, message, type = 'normal') {{
-            const logsContainer = document.getElementById(`logs_${{moduleId}}`);
+        function updateModuleLog(moduleId, message, type) {{
+            const logsContainer = document.getElementById('logs_' + moduleId);
             if (logsContainer) {{
                 const logEntry = document.createElement('div');
-                logEntry.className = `log-entry ${{type}}`;
-                logEntry.textContent = `${{new Date().toLocaleTimeString()}} - ${{message}}`;
+                logEntry.className = 'log-entry ' + (type || 'normal');
+                logEntry.textContent = new Date().toLocaleTimeString() + ' - ' + message;
                 logsContainer.appendChild(logEntry);
                 logsContainer.scrollTop = logsContainer.scrollHeight;
             }}
         }}
         
         function updateModuleMetrics(moduleId) {{
-            const qpiElement = document.getElementById(`qpi_${{moduleId}}`);
-            const rtElement = document.getElementById(`rt_${{moduleId}}`);
+            const qpiElement = document.getElementById('qpi_' + moduleId);
+            const rtElement = document.getElementById('rt_' + moduleId);
             
             if (qpiElement) {{
                 const newQpi = (97 + Math.random() * 2).toFixed(1);
@@ -773,16 +780,14 @@ def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> 
             
             if (rtElement) {{
                 const newRt = Math.floor(20 + Math.random() * 20);
-                rtElement.textContent = `${{newRt}}ms`;
+                rtElement.textContent = newRt + 'ms';
             }}
         }}
         
         // Auto-refresh system
         setInterval(() => {{
-            // Update current time
             document.getElementById('current-time').textContent = new Date().toLocaleTimeString();
             
-            // Update system QPI
             const systemQpi = document.getElementById('system-qpi');
             if (systemQpi) {{
                 const newQpi = (97 + Math.random() * 2).toFixed(1);
@@ -792,7 +797,7 @@ def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> 
         
         // Module auto-refresh every 60 seconds  
         setInterval(() => {{
-            const modules = {accessible_modules};
+            const modules = {str(accessible_modules)};
             for (const moduleId of modules) {{
                 updateModuleMetrics(moduleId);
                 updateModuleLog(moduleId, 'Auto-refresh completed');
@@ -804,7 +809,7 @@ def generate_agent_action_canvas(access_level: str, employee_id: str = None) -> 
         // Initialize
         console.log('TRAXOVO Agent Action Canvas initialized');
         console.log('Access Level: {access_level}');
-        console.log('Available Modules:', {accessible_modules});
+        console.log('Available Modules:', {str(accessible_modules)});
         
         // Welcome message
         setTimeout(() => {{

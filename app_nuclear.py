@@ -1097,6 +1097,7 @@ def enterprise_dashboard():
                 <div class="nav-item" onclick="showFleet()">Fleet</div>
                 <div class="nav-item" onclick="showAnalytics()">Analytics</div>
                 <div class="nav-item" onclick="showReports()">Reports</div>
+                <div class="nav-item" onclick="location.href='/watson-control'" style="background: #ff6b6b; color: white;">🔧 Watson Control</div>
                 <div class="nav-item" onclick="showSettings()">Settings</div>
             </div>
         </div>

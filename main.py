@@ -1,6 +1,6 @@
 """
-NEXUS COMMAND - Watson Intelligence Platform
-Production-ready application optimized for Cloud Run deployment
+TRAXOVO Watson Intelligence Platform - Lightweight Deployment
+Optimized for standard cloud deployment without reserved VM requirements
 """
 
 import os
@@ -8,7 +8,7 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "nexus_watson_supreme_production")
+app.secret_key = os.environ.get("SESSION_SECRET", "watson_intelligence_2025")
 
 # Production configuration
 app.config['ENV'] = 'production'
@@ -34,12 +34,12 @@ USERS = {
 }
 
 @app.route('/')
-def landing():
-    """Premium landing page with real data integration"""
+def home():
+    """Landing page"""
     if 'user' in session:
         return redirect(url_for('dashboard'))
     
-    return render_template('premium_landing.html')
+    return render_template('landing.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

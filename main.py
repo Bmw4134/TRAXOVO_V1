@@ -108,6 +108,37 @@ def test():
     """Simple test page"""
     return '<h1>TRAXOVO Watson Test Page</h1><p>Server is running correctly on port 5000</p>'
 
+@app.route('/ragle')
+def ragle_dashboard():
+    """Ragle System Dashboard"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return redirect(url_for('home'))
+    
+    return render_template('ragle_dashboard.html', user=user)
+
+@app.route('/ragle/api/data')
+def ragle_api_data():
+    """Ragle system API data"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    return jsonify({
+        'status': 'operational',
+        'systems': {
+            'processing_units': 847,
+            'active_connections': 12,
+            'data_throughput': '1.2TB/hr',
+            'efficiency_rating': '94.3%'
+        },
+        'alerts': [
+            {'level': 'info', 'message': 'System optimization completed'},
+            {'level': 'warning', 'message': 'Memory usage at 78%'}
+        ],
+        'timestamp': datetime.now().isoformat()
+    })
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)

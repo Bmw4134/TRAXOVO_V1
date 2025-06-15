@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Ragle System Dashboard - TRAXOVO Watson{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-white mb-0">
+                <i class="fas fa-cogs me-2"></i>Ragle System Control Center
+            </h2>
+            <div class="text-white-50">
+                Welcome, {{ user.full_name }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4" id="ragle-dashboard">
+    <!-- System Status -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">System Status</h6>
+                        <h3 class="mb-0" id="system-status">OPERATIONAL</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-power-off fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Processing Units -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Processing Units</h6>
+                        <h3 class="mb-0" id="processing-units">847</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-microchip fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Connections -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Active Connections</h6>
+                        <h3 class="mb-0" id="active-connections">12</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-network-wired fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Efficiency Rating -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Efficiency Rating</h6>
+                        <h3 class="mb-0" id="efficiency-rating">94.3%</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Throughput -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tachometer-alt me-2"></i>Real-time Performance
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Data Throughput</h6>
+                        <h4 class="text-primary" id="data-throughput">1.2TB/hr</h4>
+                        <div class="progress mb-3">
+                            <div class="progress-bar bg-primary" style="width: 75%"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Memory Usage</h6>
+                        <h4 class="text-warning">78%</h4>
+                        <div class="progress mb-3">
+                            <div class="progress-bar bg-warning" style="width: 78%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>CPU Load</h6>
+                        <h4 class="text-success">62%</h4>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: 62%"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Network I/O</h6>
+                        <h4 class="text-info">45%</h4>
+                        <div class="progress">
+                            <div class="progress-bar bg-info" style="width: 45%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Alerts -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>System Alerts
+                </h5>
+            </div>
+            <div class="card-body" id="alerts-container">
+                <div class="alert alert-info alert-sm">
+                    <strong>INFO:</strong> System optimization completed
+                </div>
+                <div class="alert alert-warning alert-sm">
+                    <strong>WARNING:</strong> Memory usage at 78%
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-sliders-h me-2"></i>Ragle Control Panel
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <button class="btn btn-success w-100 mb-2" onclick="executeCommand('optimize')">
+                            <i class="fas fa-magic me-2"></i>Optimize System
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100 mb-2" onclick="executeCommand('refresh')">
+                            <i class="fas fa-sync me-2"></i>Refresh Data
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-warning w-100 mb-2" onclick="executeCommand('maintenance')">
+                            <i class="fas fa-tools me-2"></i>Maintenance Mode
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-danger w-100 mb-2" onclick="executeCommand('shutdown')">
+                            <i class="fas fa-power-off me-2"></i>Emergency Shutdown
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let ragleData = {};
+
+function updateDashboard() {
+    fetch('/ragle/api/data')
+        .then(response => response.json())
+        .then(data => {
+            ragleData = data;
+            
+            // Update metrics
+            document.getElementById('processing-units').textContent = data.systems.processing_units;
+            document.getElementById('active-connections').textContent = data.systems.active_connections;
+            document.getElementById('data-throughput').textContent = data.systems.data_throughput;
+            document.getElementById('efficiency-rating').textContent = data.systems.efficiency_rating;
+            
+            // Update alerts
+            const alertsContainer = document.getElementById('alerts-container');
+            alertsContainer.innerHTML = '';
+            data.alerts.forEach(alert => {
+                const alertClass = alert.level === 'warning' ? 'alert-warning' : 'alert-info';
+                const alertHtml = `
+                    <div class="alert ${alertClass} alert-sm">
+                        <strong>${alert.level.toUpperCase()}:</strong> ${alert.message}
+                    </div>
+                `;
+                alertsContainer.innerHTML += alertHtml;
+            });
+            
+            console.log('Ragle dashboard updated');
+        })
+        .catch(error => {
+            console.error('Error updating Ragle dashboard:', error);
+        });
+}
+
+function executeCommand(command) {
+    console.log(`Executing Ragle command: ${command}`);
+    
+    switch(command) {
+        case 'optimize':
+            showNotification('System optimization initiated', 'success');
+            break;
+        case 'refresh':
+            updateDashboard();
+            showNotification('Data refreshed', 'info');
+            break;
+        case 'maintenance':
+            showNotification('Maintenance mode activated', 'warning');
+            break;
+        case 'shutdown':
+            if(confirm('Are you sure you want to initiate emergency shutdown?')) {
+                showNotification('Emergency shutdown initiated', 'danger');
+            }
+            break;
+    }
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    updateDashboard();
+    setInterval(updateDashboard, 5000); // Update every 5 seconds
+});
+</script>
+{% endblock %}

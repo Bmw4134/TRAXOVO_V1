@@ -41,6 +41,34 @@ db.init_app(app)
 # Setup NEXUS Universal Navigation
 app = setup_universal_navigation(app)
 
+# Global security middleware
+@app.before_request
+def enforce_authentication():
+    """Global security enforcement for all protected routes"""
+    protected_paths = [
+        '/dashboard', '/ultimate-troy-dashboard', '/ground-works-complete', 
+        '/api-performance-benchmark', '/api/', '/admin', '/settings',
+        '/ground-works-data', '/benchmark', '/troy-dashboard'
+    ]
+    
+    # Allow public routes
+    public_routes = ['/', '/login', '/authenticate', '/logout', '/static/', '/favicon.ico']
+    
+    # Check if current path requires authentication
+    current_path = request.path
+    requires_auth = any(current_path.startswith(path) for path in protected_paths)
+    is_public = any(current_path.startswith(path) for path in public_routes)
+    
+    if requires_auth and not is_public:
+        if not session.get('authenticated'):
+            session.clear()
+            return redirect('/login')
+        
+        # Verify session integrity
+        if not session.get('username') or not session.get('login_time'):
+            session.clear()
+            return redirect('/login')
+
 @app.route('/')
 def home():
     """Landing page with authentication check"""
@@ -90,8 +118,16 @@ def require_auth(f):
     
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # Strict authentication check
         if not session.get('authenticated'):
+            session.clear()  # Clear any partial session data
             return redirect('/login')
+        
+        # Verify session integrity
+        if not session.get('username') or not session.get('login_time'):
+            session.clear()
+            return redirect('/login')
+            
         return f(*args, **kwargs)
     return decorated_function
 

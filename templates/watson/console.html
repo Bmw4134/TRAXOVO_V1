@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watson Intelligence Console</title>
+    <link rel="stylesheet" href="/api/styles">
+    <style>
+        .watson-header {
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%);
+            border-bottom: 2px solid #00ff64;
+        }
+        
+        .watson-brand {
+            color: #00ff64;
+            text-shadow: 0 0 20px rgba(0, 255, 100, 0.5);
+            font-weight: 800;
+        }
+        
+        .console-terminal {
+            background: #000;
+            color: #00ff64;
+            font-family: 'Courier New', monospace;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border: 1px solid #00ff64;
+            box-shadow: 0 0 20px rgba(0, 255, 100, 0.3);
+        }
+        
+        .console-line {
+            margin-bottom: 0.5rem;
+        }
+        
+        .console-prompt::before {
+            content: "watson@nexus:~$ ";
+            color: #0088ff;
+        }
+        
+        .watson-metric {
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            border: 1px solid #00ff64;
+            color: #00ff64;
+        }
+        
+        .supreme-access {
+            background: linear-gradient(135deg, #ff0080 0%, #00ff80 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            text-shadow: 0 0 30px rgba(255, 0, 128, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="nexus-container">
+        <header class="nexus-header watson-header">
+            <div class="nexus-brand watson-brand">Watson Intelligence Console</div>
+            <div class="header-actions">
+                <a href="/dashboard" style="color: #00ff64; text-decoration: none;">← Command Center</a>
+            </div>
+        </header>
+
+        <nav class="nexus-sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">Watson Systems</div>
+                <a href="/watson/supreme" class="nav-item supreme-access">Supreme Console</a>
+                <a href="/watson/control" class="nav-item">System Control</a>
+                <a href="/watson/modules" class="nav-item">Module Registry</a>
+                <a href="/watson/health" class="nav-item">Health Monitor</a>
+            </div>
+        </nav>
+
+        <main class="nexus-main">
+            <h1>Watson Intelligence Console</h1>
+            
+            <div class="console-terminal">
+                <div class="console-line">Watson Intelligence System v2.0.0 - Quantum Nexus Integration</div>
+                <div class="console-line">Copyright (c) 2025 Watson Intelligence Platform</div>
+                <div class="console-line">System Status: <span style="color: #00ff64;">OPERATIONAL</span></div>
+                <div class="console-line">Quantum Coherence: <span style="color: #00ff64;">98.7%</span></div>
+                <div class="console-line">Active Modules: <span style="color: #00ff64;">{{ user.access_level * 3 }}/32</span></div>
+                <div class="console-line console-prompt">system.status --full</div>
+                <div class="console-line">All systems nominal. Ready for command input.</div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="metric-card watson-metric">
+                    <div class="metric-value">∞</div>
+                    <div class="metric-label">Processing Power</div>
+                </div>
+                <div class="metric-card watson-metric">
+                    <div class="metric-value">100%</div>
+                    <div class="metric-label">System Authority</div>
+                </div>
+                <div class="metric-card watson-metric">
+                    <div class="metric-value">99.9%</div>
+                    <div class="metric-label">Uptime</div>
+                </div>
+                <div class="metric-card watson-metric">
+                    <div class="metric-value">{{ user.access_level }}</div>
+                    <div class="metric-label">Access Level</div>
+                </div>
+            </div>
+            
+            <div class="module-grid">
+                <div class="module-card quantum-glow">
+                    <div class="module-header">
+                        <div class="module-title supreme-access">Supreme Watson Console</div>
+                        <div class="module-status" style="background: #ff0080; color: white;">Supreme</div>
+                    </div>
+                    <p>Ultimate system control with omniscient access and autonomous optimization capabilities.</p>
+                    <a href="/watson/supreme" style="color: #ff0080;">Access Supreme Console →</a>
+                </div>
+                
+                <div class="module-card quantum-glow">
+                    <div class="module-header">
+                        <div class="module-title">Module Registry</div>
+                        <div class="module-status status-active">Active</div>
+                    </div>
+                    <p>Complete registry of all integrated modules from our entire development history.</p>
+                    <a href="/watson/modules" style="color: var(--primary-color);">View Registry →</a>
+                </div>
+                
+                <div class="module-card quantum-glow">
+                    <div class="module-header">
+                        <div class="module-title">System Health Monitor</div>
+                        <div class="module-status status-active">Active</div>
+                    </div>
+                    <p>Real-time monitoring of all system components and quantum coherence levels.</p>
+                    <a href="/watson/health" style="color: var(--primary-color);">Health Dashboard →</a>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -43,7 +43,7 @@ def home():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """Production-ready authentication system"""
+    """Authentication system"""
     if request.method == 'GET':
         return redirect(url_for('home'))
     
@@ -73,7 +73,7 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
-    """Watson Intelligence Dashboard"""
+    """Main dashboard"""
     user = session.get('user')
     if not user or not user.get('authenticated'):
         return redirect(url_for('home'))
@@ -84,7 +84,7 @@ def dashboard():
 
 @app.route('/logout')
 def logout():
-    """Secure logout with session cleanup"""
+    """Logout"""
     session.clear()
     flash('Successfully logged out')
     return redirect(url_for('home'))

@@ -10,7 +10,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "watson_intelligence_2025")
 
-# Production configuration
+# Deployment configuration
 app.config['ENV'] = 'production'
 app.config['DEBUG'] = False
 app.config['TESTING'] = False

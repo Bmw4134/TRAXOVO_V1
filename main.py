@@ -103,7 +103,12 @@ def api_status():
 @app.route('/health')
 def health():
     """Health check endpoint"""
-    return jsonify({'status': 'healthy'})
+    return jsonify({'status': 'healthy', 'message': 'TRAXOVO Watson Intelligence is operational'})
+
+@app.route('/test')
+def test():
+    """Simple test page"""
+    return '<h1>TRAXOVO Watson Test Page</h1><p>Server is running correctly on port 5000</p>'
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

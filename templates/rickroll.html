@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Access Granted</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            z-index: 10;
+            animation: fadeOut 3s ease-in-out forwards;
+        }
+        
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; pointer-events: none; }
+        }
+        
+        .loading-text {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .surprise {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ff6b6b;
+            font-weight: bold;
+            font-size: 1.2rem;
+            opacity: 0;
+            animation: surpriseAppear 1s ease-in-out 2.5s forwards;
+        }
+        
+        @keyframes surpriseAppear {
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        <div class="overlay">
+            <div class="loading-text">Accessing Secure System...</div>
+            <div class="spinner"></div>
+            <div class="surprise">Never gonna give you up! 🎵</div>
+        </div>
+        <iframe 
+            src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&controls=1&showinfo=0&rel=0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+        </iframe>
+    </div>
+    
+    <script>
+        // Fallback if embed doesn't work
+        setTimeout(() => {
+            const iframe = document.querySelector('iframe');
+            iframe.onerror = () => {
+                document.body.innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(45deg, #ff6b6b, #4ecdc4); color: white; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                        <div>
+                            <h1 style="font-size: 3rem; margin-bottom: 1rem;">🎵 Never Gonna Give You Up! 🎵</h1>
+                            <p style="font-size: 1.5rem; margin-bottom: 2rem;">You've been Rick Rolled!</p>
+                            <p style="font-size: 1.2rem; opacity: 0.9;">William's access attempt detected and intercepted.</p>
+                            <div style="margin-top: 3rem;">
+                                <a href="/" style="background: white; color: #ff6b6b; padding: 1rem 2rem; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block;">Return to Dashboard</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            };
+        }, 5000);
+    </script>
+</body>
+</html>

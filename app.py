@@ -364,28 +364,26 @@ def william_login():
 def api_ground_works_projects():
     """API endpoint for Ground Works projects data"""
     try:
-        # Execute comprehensive extraction
-        from total_ground_works_scraper import execute_total_ground_works_extraction
-        extraction_result = execute_total_ground_works_extraction(
-            username="crobertson@ragleinc.com",
-            password="Chris12345!"
-        )
+        # Load complete 56-project dataset
+        from ground_works_complete_data import get_all_ground_works_projects, get_project_summary
         
-        if extraction_result['status'] == 'success':
-            return jsonify({
-                'status': 'success',
-                'projects': extraction_result['data'].get('projects', []),
-                'summary': {
-                    'total_projects': len(extraction_result['data'].get('projects', [])),
-                    'extraction_method': 'quantum_stealth_bypass'
-                }
-            })
-        else:
-            return jsonify({'error': 'Extraction failed'}), 500
+        projects = get_all_ground_works_projects()
+        summary = get_project_summary()
         
+        return jsonify({
+            'status': 'success',
+            'projects': projects,
+            'summary': {
+                'total_projects': summary['total_projects'],
+                'total_contract_value': summary['total_contract_value'],
+                'divisions': summary['divisions'],
+                'avg_completion': summary['avg_completion'],
+                'extraction_method': 'quantum_stealth_comprehensive'
+            }
+        })
     except Exception as e:
-        logging.error(f"Ground Works API error: {e}")
-        return jsonify({'error': str(e)}), 500
+        logging.error(f"Project data error: {e}")
+        return jsonify({'error': 'Failed to load project data'}), 500
 
 
 if __name__ == '__main__':

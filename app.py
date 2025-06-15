@@ -114,6 +114,24 @@ def api_ground_works_projects():
         'extraction_timestamp': datetime.now().isoformat()
     })
 
+@app.route('/api/groundworks/data')
+def api_groundworks_data():
+    """Ground Works data endpoint for dashboard compatibility"""
+    try:
+        from comprehensive_project_extractor import ComprehensiveProjectExtractor
+        extractor = ComprehensiveProjectExtractor()
+        authentic_projects = extractor.extract_all_projects()
+    except Exception as e:
+        logging.error(f"Error loading authentic projects: {e}")
+        return jsonify({'error': 'Data extraction failed', 'details': str(e)}), 500
+    
+    return jsonify({
+        'projects': authentic_projects,
+        'total': len(authentic_projects),
+        'contract_value': sum(p.get('contract_amount', 0) for p in authentic_projects),
+        'data_source': 'authentic_ragle_extraction'
+    })
+
 @app.route('/api/complete-projects')
 def api_complete_projects():
     """Verified complete project dataset endpoint"""

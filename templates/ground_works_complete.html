@@ -421,7 +421,7 @@
                 
                 // Add timestamp to prevent caching
                 const timestamp = new Date().getTime();
-                const response = await fetch(`/api/groundworks/data?t=${timestamp}`, {
+                const response = await fetch(`/api/ground-works/projects?t=${timestamp}`, {
                     cache: 'no-cache',
                     headers: {
                         'Cache-Control': 'no-cache',
@@ -456,7 +456,7 @@
 
         async function loadComprehensiveData() {
             try {
-                const response = await fetch('/api/groundworks/data');
+                const response = await fetch('/api/ground-works/projects');
                 if (!response.ok) {
                     throw new Error(`Fallback failed: ${response.status}`);
                 }

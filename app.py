@@ -153,6 +153,12 @@ def complete_ground_works_dashboard():
     return render_template('ground_works_complete.html',
                          username=session.get('username'))
 
+@app.route('/ground-works-complete')
+def ground_works_complete():
+    """Direct access to Ground Works complete dashboard"""
+    return render_template('ground_works_complete.html',
+                         username=session.get('username', 'Troy'))
+
 @app.route('/api/performance-benchmark/<test_type>')
 def run_api_benchmark(test_type):
     """Run API performance benchmark with specified test type"""

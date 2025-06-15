@@ -11,6 +11,7 @@ import requests
 from datetime import datetime, timedelta
 from ragle_asset_corrector import get_authentic_ragle_asset_count
 from enterprise_automation_orchestrator import get_enterprise_orchestrator
+from comprehensive_enterprise_api import register_enterprise_apis
 from flask import Flask, render_template_string, jsonify, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
@@ -1120,6 +1121,8 @@ https://api.service3.com/metrics"></textarea>
                 }
             }
             
+
+            
             async function executeOperationsMonitoring() {
                 const scope = document.getElementById('ops-scope').value;
                 const thresholds = document.getElementById('ops-thresholds').value;
@@ -1171,14 +1174,17 @@ def api_data_sources():
         'intelligence_type': 'nexus_quantum_discovery'
     })
 
-@app.route('/api/fleet-intelligence')
-def api_fleet_intelligence():
-    """Get live fleet intelligence"""
+@app.route('/api/fleet-status')
+def api_fleet_status():
+    """Get basic fleet status"""
     return jsonify({
         'status': 'success',
         'intelligence': troy_nexus.get_fleet_intelligence(),
         'timestamp': datetime.now().isoformat()
     })
+
+# Register comprehensive enterprise APIs
+register_enterprise_apis(app)
 
 if __name__ == "__main__":
     with app.app_context():

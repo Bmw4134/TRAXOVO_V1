@@ -6,6 +6,7 @@ Optimized for standard cloud deployment without reserved VM requirements
 import os
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 from datetime import datetime
+from quantum_nexus_orchestrator import quantum_orchestrator
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "watson_intelligence_2025")

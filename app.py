@@ -59,9 +59,9 @@ def connect_groundworks_api():
         from groundworks_api_connector import GroundWorksAPIConnector
         connector = GroundWorksAPIConnector(base_url, username, password)
         
-        # Execute deep quantum bundle analysis bypassing all restrictions
-        from deep_js_analysis_extractor import execute_deep_js_analysis
-        quantum_extraction_result = execute_deep_js_analysis(username, password)
+        # Execute total comprehensive Ground Works extraction
+        from total_ground_works_scraper import execute_total_ground_works_extraction
+        quantum_extraction_result = execute_total_ground_works_extraction(username, password)
         
         if quantum_extraction_result['status'] == 'success':
             # Store the extracted data in session for immediate use

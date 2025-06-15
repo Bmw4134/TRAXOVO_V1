@@ -97,10 +97,10 @@ def logout():
 @app.route('/api/ground-works/projects')
 def api_ground_works_projects():
     """API endpoint for Ground Works projects data - Authentic RAGLE data only"""
-    # Use authentic Ground Works extractor - NO hardcoded fallback data
-    from fixed_groundworks_scraper import FixedGroundWorksScraper
-    scraper = FixedGroundWorksScraper()
-    authentic_projects = scraper.extract_projects()
+    # Use comprehensive project extractor - NO hardcoded fallback data
+    from comprehensive_project_extractor import ComprehensiveProjectExtractor
+    extractor = ComprehensiveProjectExtractor()
+    authentic_projects = extractor.get_all_projects()
     
     return jsonify({
         'projects': authentic_projects,
@@ -113,10 +113,10 @@ def api_ground_works_projects():
 @app.route('/api/complete-projects')
 def api_complete_projects():
     """Verified complete project dataset endpoint"""
-    # Use authentic Ground Works extractor - NO hardcoded fallback data
-    from fixed_groundworks_scraper import FixedGroundWorksScraper
-    scraper = FixedGroundWorksScraper()
-    authentic_projects = scraper.extract_projects()
+    # Use comprehensive project extractor - NO hardcoded fallback data
+    from comprehensive_project_extractor import ComprehensiveProjectExtractor
+    extractor = ComprehensiveProjectExtractor()
+    authentic_projects = extractor.get_all_projects()
     
     return jsonify({
         'projects': authentic_projects,

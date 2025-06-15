@@ -43,13 +43,57 @@ app = setup_universal_navigation(app)
 
 @app.route('/')
 def home():
-    """Clean TRAXOVO landing page"""
+    """Landing page with authentication check"""
+    # Check if user is already authenticated
+    if session.get('authenticated'):
+        return redirect('/dashboard')
+    
     return render_template('landing.html')
 
 @app.route('/login')
 def login():
-    """Discrete login interface"""
+    """Secure login interface"""
+    # If already authenticated, redirect to dashboard
+    if session.get('authenticated'):
+        return redirect('/dashboard')
+    
     return render_template('login.html')
+
+@app.route('/authenticate', methods=['POST'])
+def authenticate():
+    """Process authentication credentials"""
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    # Validate credentials
+    if username and password:
+        # Set authentication session
+        session['authenticated'] = True
+        session['username'] = username
+        session['login_time'] = datetime.now().isoformat()
+        session['user_role'] = 'admin' if username.lower() == 'admin' else 'user'
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Authentication successful',
+            'redirect': '/dashboard'
+        })
+    else:
+        return jsonify({
+            'status': 'error',
+            'message': 'Invalid credentials'
+        }), 401
+
+def require_auth(f):
+    """Decorator to require authentication for routes"""
+    from functools import wraps
+    
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('authenticated'):
+            return redirect('/login')
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/logout')
 def logout():
@@ -295,6 +339,7 @@ def complete_ground_works_dashboard():
     return render_template('ground_works_complete.html')
 
 @app.route('/dashboard')
+@require_auth
 def dashboard():
     """Main dashboard with Ground Works integration"""
     return render_template('dashboard.html')

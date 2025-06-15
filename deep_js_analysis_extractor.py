@@ -128,17 +128,39 @@ class DeepJSAnalysisExtractor:
         """Extract embedded data structures from JavaScript"""
         data_structures = []
         
-        # Look for large object/array definitions that might contain data
+        # Enhanced patterns for Ground Works specific data extraction
         patterns = [
-            # Array of objects with typical data fields
-            r'(\[{[^}]*(?:id|name|title|project|asset|user|employee)[^}]*}[^]]*\])',
-            # Object definitions with data-like structures
-            r'({[^}]*(?:id|name|title|project|asset|user|employee)[^}]*})',
-            # JSON-like strings
-            r'["\']({[^}]*(?:id|name|title|project|asset|user|employee)[^}]*})["\']',
-            # Data assignment patterns
-            r'(?:data|items|records|list)\s*[=:]\s*(\[[^\]]*\])',
-            r'(?:data|items|records|list)\s*[=:]\s*({[^}]*})'
+            # Project and job data patterns
+            r'(?:projects|jobs|contracts)\s*[=:]\s*(\[[^\]]*\])',
+            r'(?:project|job|contract)(?:Data|List|Records)\s*[=:]\s*(\[[^\]]*\])',
+            
+            # Asset and equipment patterns  
+            r'(?:assets|equipment|vehicles|machinery)\s*[=:]\s*(\[[^\]]*\])',
+            r'(?:asset|equipment|vehicle)(?:Data|List|Records)\s*[=:]\s*(\[[^\]]*\])',
+            
+            # Personnel and employee patterns
+            r'(?:personnel|employees|users|drivers|workers)\s*[=:]\s*(\[[^\]]*\])',
+            r'(?:employee|user|driver|worker)(?:Data|List|Records)\s*[=:]\s*(\[[^\]]*\])',
+            
+            # Billing and financial patterns
+            r'(?:billing|invoices|costs|expenses|revenue)\s*[=:]\s*(\[[^\]]*\])',
+            r'(?:billing|invoice|cost|expense)(?:Data|List|Records)\s*[=:]\s*(\[[^\]]*\])',
+            
+            # General data arrays with business identifiers
+            r'(\[{[^}]*(?:id|name|title|number|code|reference)[^}]*}[^]]*\])',
+            
+            # Configuration objects with embedded data
+            r'(?:config|settings|constants)\s*[=:]\s*({[^{}]*(?:ragle|ground|works|project|asset)[^{}]*})',
+            
+            # API endpoint data templates
+            r'(?:template|mock|sample|default)(?:Data|Response)\s*[=:]\s*(\[[^\]]*\])',
+            r'(?:template|mock|sample|default)(?:Data|Response)\s*[=:]\s*({[^}]*})',
+            
+            # Hardcoded business data
+            r'({[^}]*(?:"(?:id|name|title|project|asset|job|employee|driver)"\s*:\s*"[^"]+")[^}]*})',
+            
+            # Large object definitions that might contain real data
+            r'(\{[^{}]*(?:id|name|title|project|asset|job|employee)[^{}]*\})'
         ]
         
         for pattern in patterns:

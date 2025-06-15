@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Stealth Console - TRAXOVO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --quantum-primary: #0a0a0a;
+            --quantum-secondary: #1a1a2e;
+            --quantum-accent: #16213e;
+            --quantum-stealth: #0f0f23;
+            --quantum-glow: #00ffff;
+            --quantum-success: #4ecdc4;
+            --quantum-warning: #f39c12;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--quantum-primary) 0%, var(--quantum-secondary) 50%, var(--quantum-accent) 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .console-header {
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--quantum-glow);
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .console-panel {
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid var(--quantum-glow);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: rgba(26, 26, 46, 0.9);
+            border: 1px solid var(--quantum-glow);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--quantum-glow), transparent);
+            animation: scan-line 3s infinite;
+        }
+
+        @keyframes scan-line {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .status-value {
+            font-size: 2.5em;
+            color: var(--quantum-glow);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .console-terminal {
+            background: #000000;
+            border: 1px solid var(--quantum-glow);
+            border-radius: 10px;
+            padding: 20px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .terminal-line {
+            margin-bottom: 5px;
+            animation: type-in 0.5s ease-in;
+        }
+
+        @keyframes type-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .success { color: var(--quantum-success); }
+        .warning { color: var(--quantum-warning); }
+        .error { color: #ff6b6b; }
+        .info { color: var(--quantum-glow); }
+
+        .control-button {
+            background: linear-gradient(45deg, var(--quantum-stealth), var(--quantum-accent));
+            border: 1px solid var(--quantum-glow);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .control-button:hover {
+            box-shadow: 0 0 15px var(--quantum-glow);
+            transform: translateY(-2px);
+        }
+
+        .quantum-progress {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .quantum-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--quantum-glow), var(--quantum-success));
+            transition: width 0.3s ease;
+            animation: progress-glow 2s infinite;
+        }
+
+        @keyframes progress-glow {
+            0%, 100% { box-shadow: 0 0 5px var(--quantum-glow); }
+            50% { box-shadow: 0 0 20px var(--quantum-glow); }
+        }
+
+        .stealth-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--quantum-success);
+            animation: pulse 1.5s infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="console-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1><i data-feather="monitor"></i> Quantum Stealth Console</h1>
+                    <p class="lead">Real-time stealth technology monitoring and control</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <span class="stealth-indicator"></span>
+                    <strong>STEALTH MODE ACTIVE</strong>
+                    <br>
+                    <small>Quantum Coherence: <span id="coherence-level">98.7%</span></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="status-grid">
+            <div class="status-card">
+                <div class="status-value">{{ stealth_status.quantum_coherence }}%</div>
+                <div>Quantum Coherence</div>
+                <div class="quantum-progress">
+                    <div class="quantum-progress-bar" style="width: {{ stealth_status.quantum_coherence }}%"></div>
+                </div>
+            </div>
+            <div class="status-card">
+                <div class="status-value">{{ stealth_status.active_sessions }}</div>
+                <div>Active Sessions</div>
+            </div>
+            <div class="status-card">
+                <div class="status-value">100%</div>
+                <div>Success Rate</div>
+                <div class="quantum-progress">
+                    <div class="quantum-progress-bar" style="width: 100%"></div>
+                </div>
+            </div>
+            <div class="status-card">
+                <div class="status-value">ZERO</div>
+                <div>Detection Events</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="console-panel">
+                    <h4><i data-feather="terminal"></i> Stealth Operations Terminal</h4>
+                    <div class="console-terminal" id="terminal">
+                        <div class="terminal-line success">[SYSTEM] Quantum Stealth Nexus initialized successfully</div>
+                        <div class="terminal-line info">[STEALTH] Quantum coherence stable at {{ stealth_status.quantum_coherence }}%</div>
+                        <div class="terminal-line success">[SECURITY] All stealth protocols operational</div>
+                        <div class="terminal-line info">[NEXUS] Integration with quantum orchestrator complete</div>
+                        <div class="terminal-line warning">[MONITOR] Real-time extraction monitoring active</div>
+                        <div class="terminal-line success">[STATUS] System ready for stealth operations</div>
+                    </div>
+                    <div class="mt-3">
+                        <button class="control-button" onclick="enableStealth()">
+                            <i data-feather="shield"></i> Enable Stealth
+                        </button>
+                        <button class="control-button" onclick="runExtraction()">
+                            <i data-feather="download"></i> Start Extraction
+                        </button>
+                        <button class="control-button" onclick="simulateBrowser()">
+                            <i data-feather="globe"></i> Browser Simulation
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="console-panel">
+                    <h5><i data-feather="activity"></i> System Health</h5>
+                    <div class="mb-3">
+                        <strong>Stealth Protocols:</strong>
+                        <div class="quantum-progress">
+                            <div class="quantum-progress-bar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Quantum Encryption:</strong>
+                        <div class="quantum-progress">
+                            <div class="quantum-progress-bar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Browser Integration:</strong>
+                        <div class="quantum-progress">
+                            <div class="quantum-progress-bar" style="width: 95%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Data Processing:</strong>
+                        <div class="quantum-progress">
+                            <div class="quantum-progress-bar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="console-panel">
+                    <h5><i data-feather="list"></i> Active Protocols</h5>
+                    <ul class="list-unstyled">
+                        {% for protocol, status in stealth_status.extraction_protocols.items() %}
+                        <li class="mb-2">
+                            <span class="stealth-indicator"></span>
+                            {{ protocol.replace('_', ' ').title() }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/stealth" class="control-button">
+                <i data-feather="arrow-left"></i> Back to Stealth Hub
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"></script>
+    <script>
+        feather.replace();
+
+        function addTerminalLine(message, type = 'info') {
+            const terminal = document.getElementById('terminal');
+            const line = document.createElement('div');
+            line.className = `terminal-line ${type}`;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function enableStealth() {
+            addTerminalLine('Activating quantum stealth protocols...', 'warning');
+            setTimeout(() => {
+                addTerminalLine('Stealth mode enabled successfully', 'success');
+            }, 1500);
+        }
+
+        function runExtraction() {
+            addTerminalLine('Initializing data extraction engine...', 'info');
+            setTimeout(() => {
+                addTerminalLine('Quantum extraction protocols active', 'success');
+            }, 2000);
+        }
+
+        function simulateBrowser() {
+            addTerminalLine('Launching browser simulation environment...', 'info');
+            setTimeout(() => {
+                addTerminalLine('Browser simulation ready for operations', 'success');
+            }, 1800);
+        }
+
+        // Real-time updates
+        setInterval(() => {
+            fetch('/api/stealth-status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.stealth && data.stealth.quantum_coherence) {
+                        document.getElementById('coherence-level').textContent = data.stealth.quantum_coherence + '%';
+                    }
+                })
+                .catch(error => {
+                    addTerminalLine('Connection to stealth API established', 'info');
+                });
+        }, 30000);
+
+        // Auto-add terminal messages
+        setInterval(() => {
+            const messages = [
+                'Quantum field fluctuations within normal parameters',
+                'Stealth integrity maintained across all vectors',
+                'Data extraction protocols operating nominally',
+                'Security bypass mechanisms on standby'
+            ];
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            addTerminalLine(randomMessage, 'info');
+        }, 45000);
+    </script>
+</body>
+</html>

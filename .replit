@@ -5,7 +5,7 @@ channel = "stable-24_05"
 packages = ["cairo", "cargo", "espeak-ng", "ffmpeg-full", "freetype", "geckodriver", "ghostscript", "gitFull", "glibcLocales", "gobject-introspection", "gtk3", "jre", "lcms2", "libGL", "libGLU", "libiconv", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "libyaml", "openjpeg", "openssl", "pkg-config", "playwright-driver", "portaudio", "postgresql", "qhull", "rustc", "tcl", "tk", "unzip", "zip", "zlib"]
 
 [deployment]
-deploymentTarget = "gce"
+deploymentTarget = "cloudrun"
 run = ["sh", "-c", "gcloud builds submit --config cloudbuild.yaml"]
 
 [workflows]

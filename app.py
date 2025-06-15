@@ -59,9 +59,9 @@ def connect_groundworks_api():
         from groundworks_api_connector import GroundWorksAPIConnector
         connector = GroundWorksAPIConnector(base_url, username, password)
         
-        # Execute quantum stealth nexus orchestration with web browser extraction
-        from web_browser_extractor import execute_web_browser_extraction
-        quantum_extraction_result = execute_web_browser_extraction(username, password)
+        # Execute quantum stealth nexus orchestration with client-side analysis
+        from client_side_auth_extractor import execute_client_side_extraction
+        quantum_extraction_result = execute_client_side_extraction(username, password)
         
         if quantum_extraction_result['status'] == 'success':
             # Store the extracted data in session for immediate use

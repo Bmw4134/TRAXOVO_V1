@@ -563,7 +563,11 @@
             let totalValue = 0;
             allProjects.forEach(project => {
                 if (project.contract_amount) {
-                    const amount = project.contract_amount.replace(/[$,]/g, '');
+                    // Handle both string and number formats
+                    let amount = project.contract_amount;
+                    if (typeof amount === 'string') {
+                        amount = amount.replace(/[$,]/g, '');
+                    }
                     const value = parseFloat(amount);
                     if (!isNaN(value)) {
                         totalValue += value;
@@ -571,9 +575,16 @@
                 }
             });
             
+            // Update all metric cards with authentic data
             document.getElementById('totalProjects').textContent = totalProjects;
             document.getElementById('activeProjects').textContent = activeProjects;
-            document.getElementById('totalValue').textContent = `$${(totalValue / 1000000).toFixed(0)}M`;
+            document.getElementById('totalValue').textContent = `$${(totalValue / 1000000).toFixed(1)}M`;
+            
+            // Update the projects section title with actual count
+            const sectionTitle = document.querySelector('.section-title');
+            if (sectionTitle) {
+                sectionTitle.innerHTML = `<i class="fas fa-database"></i> Complete Project Database - All ${totalProjects} Projects`;
+            }
         }
 
         function renderProjectsTable() {

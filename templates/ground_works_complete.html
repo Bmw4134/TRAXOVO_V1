@@ -502,11 +502,24 @@
             // Get unique divisions
             const divisions = [...new Set(allProjects.map(p => p.division).filter(d => d))];
             
+            // Update all metric cards with authentic RAGLE data
             document.getElementById('totalProjects').textContent = totalProjects;
             document.getElementById('activeProjects').textContent = activeProjects;
-            document.getElementById('totalValue').textContent = `$${(totalValue / 1000000).toFixed(0)}M`;
+            document.getElementById('totalValue').textContent = `$${(totalValue / 1000000).toFixed(1)}M`;
             document.getElementById('divisionsCount').textContent = divisions.length;
             document.getElementById('projectCount').textContent = `${totalProjects} Projects Extracted`;
+            
+            // Update page title with actual count
+            const pageTitle = document.querySelector('.dashboard-title h1');
+            if (pageTitle) {
+                pageTitle.innerHTML = `TRAXOVO ∞ Ground Works Complete - All ${totalProjects} Projects`;
+            }
+            
+            // Update summary section header
+            const summaryHeader = document.querySelector('.summary-title');
+            if (summaryHeader) {
+                summaryHeader.innerHTML = `Project Summary - $${(totalValue / 1000000).toFixed(1)}M Total Value`;
+            }
         }
 
         function renderProjectsTable() {

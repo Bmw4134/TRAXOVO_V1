@@ -51,11 +51,9 @@ app = setup_universal_navigation(app)
 @app.before_request
 def enforce_authentication():
     """Global security enforcement for all protected routes - NO BYPASS ALLOWED"""
-    # CRITICAL: Force authentication on /ground-works-complete
+    # CRITICAL: Force authentication on /ground-works-complete - KILL 1 DEPLOYMENT FIX
     if request.path == '/ground-works-complete':
-        if not session.get('authenticated') or not session.get('username'):
-            session.clear()
-            return redirect('/login')
+        return redirect('/login')
     
     protected_paths = [
         '/dashboard', '/ultimate-troy-dashboard', '/ground-works-complete', 

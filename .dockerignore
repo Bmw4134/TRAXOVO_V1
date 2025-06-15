@@ -75,6 +75,14 @@ MANIFEST.in
 pyproject.toml
 uv.lock
 
+# Replit-specific files that shouldn't be in container
+.replit
+.replitignore
+.upm/
+.pythonlibs/
+.config/
+.prettierignore
+
 # Egg info directory
 *.egg-info/
 

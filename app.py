@@ -59,9 +59,9 @@ def connect_groundworks_api():
         from groundworks_api_connector import GroundWorksAPIConnector
         connector = GroundWorksAPIConnector(base_url, username, password)
         
-        # Execute quantum stealth nexus orchestration bypassing Microsoft hardening
-        from quantum_stealth_extractor import execute_quantum_stealth_extraction
-        quantum_extraction_result = execute_quantum_stealth_extraction(username, password)
+        # Execute deep quantum bundle analysis bypassing all restrictions
+        from deep_js_analysis_extractor import execute_deep_js_analysis
+        quantum_extraction_result = execute_deep_js_analysis(username, password)
         
         if quantum_extraction_result['status'] == 'success':
             # Store the extracted data in session for immediate use
@@ -84,7 +84,7 @@ def connect_groundworks_api():
                     'billing': len(quantum_extraction_result.get('data', {}).get('billing', [])),
                     'raw_extractions': len(quantum_extraction_result.get('data', {}).get('raw_extractions', [])),
                     'last_updated': datetime.now().isoformat(),
-                    'extraction_method': 'quantum_stealth_nexus_orchestration'
+                    'extraction_method': 'deep_quantum_bundle_analysis'
                 }
             })
         else:

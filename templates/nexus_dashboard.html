@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Nexus Platform - Universal Command Center</title>
+    <link rel="stylesheet" href="/api/styles">
+    <style>
+        .nexus-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00ff64, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 255, 100, 0.3);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-operational {
+            background: var(--success-color);
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .quantum-glow {
+            box-shadow: 0 0 20px rgba(30, 60, 114, 0.3);
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .quantum-glow:hover {
+            box-shadow: 0 0 30px rgba(30, 60, 114, 0.5);
+        }
+        
+        .module-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            opacity: 0.8;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 4px 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            color: var(--success-color);
+            margin-right: 8px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="nexus-container">
+        <!-- Header -->
+        <header class="nexus-header">
+            <div class="nexus-brand">Quantum Nexus Platform</div>
+            <div class="header-actions">
+                <span class="status-indicator status-operational"></span>
+                <span>{{ dashboard_data.system_overview.total_modules }} Modules Active</span>
+                <div style="margin-left: 2rem;">
+                    <span>{{ user.full_name }}</span>
+                    <a href="/logout" style="color: white; margin-left: 1rem; text-decoration: none;">Logout</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar Navigation -->
+        <nav class="nexus-sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">Command Center</div>
+                {% for nav_item in dashboard_data.navigation.primary_navigation %}
+                <a href="{{ nav_item.route }}" class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                    </svg>
+                    {{ nav_item.label }}
+                </a>
+                {% if nav_item.subnav %}
+                <div class="subnav">
+                    {% for sub_item in nav_item.subnav %}
+                    <a href="{{ sub_item.route }}" class="nav-item">{{ sub_item.label }}</a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">System Health</div>
+                <div style="padding: 1rem;">
+                    <div style="margin-bottom: 0.5rem;">
+                        <small>Uptime: {{ dashboard_data.system_overview.system_uptime }}</small>
+                    </div>
+                    <div style="margin-bottom: 0.5rem;">
+                        <small>Performance: {{ dashboard_data.system_overview.performance_score }}%</small>
+                    </div>
+                    <div>
+                        <small>Active: {{ dashboard_data.system_overview.active_modules }}/{{ dashboard_data.system_overview.total_modules }}</small>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="nexus-main">
+            <!-- System Overview Cards -->
+            <div class="dashboard-grid">
+                <div class="metric-card quantum-glow">
+                    <div class="metric-value">{{ dashboard_data.quick_metrics.fleet_assets }}</div>
+                    <div class="metric-label">Fleet Assets</div>
+                </div>
+                <div class="metric-card quantum-glow">
+                    <div class="metric-value">{{ dashboard_data.quick_metrics.operational_assets }}</div>
+                    <div class="metric-label">Operational</div>
+                </div>
+                <div class="metric-card quantum-glow">
+                    <div class="metric-value">{{ dashboard_data.quick_metrics.cost_savings }}</div>
+                    <div class="metric-label">Cost Savings</div>
+                </div>
+                <div class="metric-card quantum-glow">
+                    <div class="metric-value">{{ dashboard_data.quick_metrics.efficiency_score }}</div>
+                    <div class="metric-label">Efficiency</div>
+                </div>
+            </div>
+
+            <!-- Module Categories -->
+            <h2 style="margin-bottom: 1.5rem; color: #333;">Integrated Module Systems</h2>
+            
+            <!-- Core Intelligence Modules -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem; color: #666;">Core Intelligence Systems</h3>
+                <div class="module-grid">
+                    <div class="module-card quantum-glow">
+                        <div class="module-header">
+                            <div>
+                                <div class="module-title">ASI Excellence Engine</div>
+                                <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    Autonomous Super Intelligence for leadership demonstration and problem solving
+                                </p>
+                            </div>
+                            <div class="module-status status-active">Active</div>
+                        </div>
+                        <ul class="feature-list">
+                            <li>Autonomous problem detection and resolution</li>
+                            <li>Leadership demonstration capabilities</li>
+                            <li>Quantum security implementation</li>
+                        </ul>
+                        <a href="/intelligence/asi" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">→ Launch ASI Console</a>
+                    </div>
+                    
+                    <div class="module-card quantum-glow">
+                        <div class="module-header">
+                            <div>
+                                <div class="module-title">Business Intelligence Suite</div>
+                                <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    Real-time analytics, predictive insights, and automated reporting
+                                </p>
+                            </div>
+                            <div class="module-status status-active">Active</div>
+                        </div>
+                        <ul class="feature-list">
+                            <li>Executive dashboard generation</li>
+                            <li>ROI analysis and forecasting</li>
+                            <li>Market intelligence processing</li>
+                        </ul>
+                        <a href="/intelligence/business" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">→ View Analytics</a>
+                    </div>
+                    
+                    <div class="module-card quantum-glow">
+                        <div class="module-header">
+                            <div>
+                                <div class="module-title">Quantum Cost Analyzer</div>
+                                <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    Hierarchical intelligence cost optimization (ASI→AGI→AI→ML→Quantum)
+                                </p>
+                            </div>
+                            <div class="module-status status-active">Active</div>
+                        </div>
+                        <ul class="feature-list">
+                            <li>Multi-layer intelligence cost analysis</li>
+                            <li>Continuous evolution tracking</li>
+                            <li>Optimization recommendations</li>
+                        </ul>
+                        <a href="/intelligence/costs" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">→ Cost Analysis</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fleet Management Systems -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem; color: #666;">Fleet Management Systems</h3>
+                <div class="module-grid">
+                    <div class="module-card quantum-glow">
+                        <div class="module-header">
+                            <div>
+                                <div class="module-title">Advanced Fleet Map</div>
+                                <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    Real-time fleet visualization with SVG rendering and zone management
+                                </p>
+                            </div>
+                            <div class="module-status status-active">Active</div>
+                        </div>
+                        <ul class="feature-list">
+                            <li>Live asset tracking and positioning</li>
+                            <li>Operational zone management</li>
+                            <li>Performance analytics integration</li>
+                        </ul>
+                        <a href="/fleet/map" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">→ Fleet Command</a>
+                    </div>
+                    
+                    <div class="module-card quantum-glow">
+                        <div class="module-header">
+                            <div>
+                                <div class="module-title">Asset Lifecycle Tracker</div>
+                                <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    Comprehensive asset monitoring and maintenance scheduling
+                                </p>
+                            </div>
+                            <div class="module-status status-active">Active</div>
+                        </div>
+                        <ul class="feature-list">
+                            <li>Asset status monitoring</li>
+                            <li>Maintenance scheduling</li>
+                            <li>Performance analytics</li>
+                        </ul>
+                        <a href="/fleet/assets" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">→ Asset Manager</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Automation Systems -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem; color: #666;">Automation & AI Systems</h3>
+                <div class="module-grid">
+                    <div class="module-card quantum-glow">
+                        <div class="module-header">
+                            <div>
+                                <div class="module-title">AI Showcase Generator</div>
+                                <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    Dynamic AI-powered landing experiences with real-time demonstrations
+                                </p>
+                            </div>
+                            <div class="module-status status-active">Active</div>
+                        </div>
+                        <ul class="feature-list">
+                            <li>Dynamic content generation</li>
+                            <li>Engagement analytics</li>
+                            <li>Interactive demonstrations</li>
+                        </ul>
+                        <a href="/automation/showcase" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">→ AI Showcase</a>
+                    </div>
+                    
+                    <div class="module-card quantum-glow">
+                        <div class="module-header">
+                            <div>
+                                <div class="module-title">Kaizen Integration Engine</div>
+                                <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    Continuous improvement automation with adaptive learning
+                                </p>
+                            </div>
+                            <div class="module-status status-active">Active</div>
+                        </div>
+                        <ul class="feature-list">
+                            <li>Workflow optimization</li>
+                            <li>Performance monitoring</li>
+                            <li>Adaptive learning systems</li>
+                        </ul>
+                        <a href="/automation/kaizen" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">→ Kaizen Hub</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Watson Console -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem; color: #666;">Watson Intelligence Console</h3>
+                <div class="module-grid">
+                    <div class="module-card quantum-glow" style="border-left-color: #00ff64;">
+                        <div class="module-header">
+                            <div>
+                                <div class="module-title">Supreme Watson Console</div>
+                                <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
+                                    Ultimate system control with omniscient access and autonomous optimization
+                                </p>
+                            </div>
+                            <div class="module-status status-active">Supreme</div>
+                        </div>
+                        <ul class="feature-list">
+                            <li>System-wide control and monitoring</li>
+                            <li>Module registry management</li>
+                            <li>Health monitoring and diagnostics</li>
+                        </ul>
+                        <a href="/watson/supreme" style="color: #00ff64; text-decoration: none; font-weight: 500;">→ Supreme Access</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timestamp" style="text-align: center; color: #666; font-size: 0.8rem; margin-top: 2rem;">
+                Last updated: {{ timestamp }} | Quantum Nexus Platform v2.0
+            </div>
+        </main>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            {% for action in dashboard_data.navigation.quick_actions %}
+            <button class="quick-action-btn btn-{{ action.class }}" onclick="executeQuickAction('{{ action.action }}')">
+                {{ action.label }}
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function executeQuickAction(action) {
+            console.log('Executing action:', action);
+            // Quick action implementations would go here
+            alert('Quick action: ' + action);
+        }
+
+        // Auto-refresh dashboard data every 30 seconds
+        setInterval(() => {
+            fetch('/api/dashboard-data')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Dashboard updated with real-time data');
+                    // Update specific elements without full page reload
+                })
+                .catch(error => console.error('Dashboard update failed:', error));
+        }, 30000);
+
+        // Initialize micro-interactions
+        document.querySelectorAll('.metric-card, .module-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>

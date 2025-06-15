@@ -13,6 +13,8 @@ from ragle_asset_corrector import get_authentic_ragle_asset_count
 from enterprise_automation_orchestrator import get_enterprise_orchestrator
 from comprehensive_enterprise_api import register_enterprise_apis
 from flask import Flask, render_template_string, jsonify, request, redirect, url_for
+from anti_reverse_engineering_protection import add_rickroll_protection, protect_route
+from rickroll_security import setup_rickroll_traps, rickroll_protection
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -713,7 +715,248 @@ def home():
     
     return html_content
 
+@app.route('/ground-works-suite')
+@rickroll_protection
+def ground_works_suite():
+    """Ground Works Suite - Complete System Replacement Demo"""
+    from ground_works_suite import get_ground_works_suite
+    suite = get_ground_works_suite()
+    summary = suite.generate_executive_summary()
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Ground Works Suite - Complete System Replacement</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { 
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: #333;
+                line-height: 1.6;
+            }
+            .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+            .header {
+                background: rgba(255,255,255,0.95);
+                border-radius: 20px;
+                padding: 30px;
+                margin-bottom: 30px;
+                text-align: center;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            }
+            .header h1 {
+                color: #2c3e50;
+                font-size: 2.5em;
+                margin-bottom: 10px;
+                font-weight: 700;
+            }
+            .status-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+            .status-card {
+                background: rgba(255,255,255,0.95);
+                border-radius: 15px;
+                padding: 25px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+                transition: transform 0.3s ease;
+            }
+            .status-card:hover { transform: translateY(-5px); }
+            .status-card h3 {
+                color: #2c3e50;
+                margin-bottom: 15px;
+                font-size: 1.4em;
+            }
+            .metric {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 12px;
+                padding: 8px 0;
+                border-bottom: 1px solid #ecf0f1;
+            }
+            .metric:last-child { border-bottom: none; }
+            .metric-label { color: #7f8c8d; font-weight: 500; }
+            .metric-value { 
+                color: #27ae60; 
+                font-weight: 700;
+                font-size: 1.1em;
+            }
+            .systems-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+                gap: 20px;
+                margin: 30px 0;
+            }
+            .system-card {
+                background: rgba(255,255,255,0.95);
+                border-radius: 15px;
+                padding: 20px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            }
+            .system-title {
+                color: #2c3e50;
+                font-size: 1.3em;
+                margin-bottom: 10px;
+                font-weight: 600;
+            }
+            .system-replaces {
+                color: #e74c3c;
+                font-style: italic;
+                margin-bottom: 15px;
+                padding: 8px 12px;
+                background: #ffeaa7;
+                border-radius: 8px;
+                border-left: 4px solid #e74c3c;
+            }
+            .capabilities {
+                list-style: none;
+                margin: 15px 0;
+            }
+            .capabilities li {
+                color: #555;
+                margin-bottom: 8px;
+                padding-left: 20px;
+                position: relative;
+            }
+            .capabilities li:before {
+                content: "✓";
+                color: #27ae60;
+                font-weight: bold;
+                position: absolute;
+                left: 0;
+            }
+            .roi-impact {
+                background: #d5f4e6;
+                color: #27ae60;
+                padding: 10px 15px;
+                border-radius: 8px;
+                margin-top: 15px;
+                font-weight: 600;
+                text-align: center;
+            }
+            .deployment-ready {
+                background: linear-gradient(135deg, #27ae60, #2ecc71);
+                color: white;
+                text-align: center;
+                padding: 40px;
+                border-radius: 20px;
+                margin: 30px 0;
+                box-shadow: 0 10px 30px rgba(39,174,96,0.3);
+            }
+            .deployment-ready h2 {
+                font-size: 2.2em;
+                margin-bottom: 15px;
+            }
+            .cta-button {
+                background: rgba(255,255,255,0.2);
+                color: white;
+                padding: 15px 30px;
+                border: 2px solid white;
+                border-radius: 50px;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 1.1em;
+                transition: all 0.3s ease;
+                display: inline-block;
+                margin: 10px;
+            }
+            .cta-button:hover {
+                background: white;
+                color: #27ae60;
+                transform: translateY(-2px);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Ground Works Suite</h1>
+                <p>Complete Enterprise System Replacement - Advanced Automation Platform</p>
+                <p><strong>Status:</strong> {{ summary.executive_overview.implementation_status }}</p>
+            </div>
+
+            <div class="status-grid">
+                <div class="status-card">
+                    <h3>Key Achievements</h3>
+                    <div class="metric">
+                        <span class="metric-label">Systems Replaced:</span>
+                        <span class="metric-value">{{ summary.key_achievements.systems_replaced }}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Automation Coverage:</span>
+                        <span class="metric-value">{{ summary.key_achievements.automation_coverage }}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Efficiency Improvement:</span>
+                        <span class="metric-value">{{ summary.key_achievements.efficiency_improvement }}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Annual Cost Reduction:</span>
+                        <span class="metric-value">{{ summary.key_achievements.cost_reduction }}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">First Year ROI:</span>
+                        <span class="metric-value">{{ summary.key_achievements.roi_achievement }}</span>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <h3>Financial Impact</h3>
+                    <div class="metric">
+                        <span class="metric-label">Implementation Investment:</span>
+                        <span class="metric-value">{{ summary.financial_impact.cost_benefit_analysis.implementation_investment }}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Annual Savings:</span>
+                        <span class="metric-value">{{ summary.financial_impact.cost_benefit_analysis.annual_cost_savings }}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total Annual Benefit:</span>
+                        <span class="metric-value">{{ summary.financial_impact.cost_benefit_analysis.total_annual_benefit }}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Net ROI:</span>
+                        <span class="metric-value">{{ summary.financial_impact.cost_benefit_analysis.net_roi }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <h2 style="text-align: center; color: white; margin: 40px 0 20px;">System Replacement Modules</h2>
+            <div class="systems-grid">
+                {% for system_id, system in summary.system_capabilities.system_modules.items() %}
+                <div class="system-card">
+                    <div class="system-title">{{ system.name }}</div>
+                    <div class="system-replaces">Replaces: {{ system.replaces }}</div>
+                    <ul class="capabilities">
+                        {% for capability in system.capabilities %}
+                        <li>{{ capability }}</li>
+                        {% endfor %}
+                    </ul>
+                    <div class="roi-impact">{{ system.roi_impact }}</div>
+                    <div class="roi-impact" style="background: #e8f4f8; color: #2980b9; margin-top: 8px;">{{ system.efficiency_gain }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="deployment-ready">
+                <h2>Deployment Complete</h2>
+                <p>Ground Works Suite is fully operational and demonstrates comprehensive automation capabilities</p>
+                <p><strong>Platform URL:</strong> {{ summary.deployment_evidence.platform_url }}</p>
+                <a href="/" class="cta-button">View Live Dashboard</a>
+                <a href="/nexus-hub" class="cta-button">Access Control Center</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    """, summary=summary)
+
 @app.route('/nexus-hub')
+@rickroll_protection
 def nexus_hub():
     """Troy's Automation Nexus Hub - Main control interface"""
     return render_template_string("""
@@ -1182,6 +1425,10 @@ def api_fleet_status():
         'intelligence': troy_nexus.get_fleet_intelligence(),
         'timestamp': datetime.now().isoformat()
     })
+
+# Apply comprehensive anti-reverse engineering protection with rickroll redirects
+app = add_rickroll_protection(app)
+app = setup_rickroll_traps(app)
 
 # Register comprehensive enterprise APIs
 register_enterprise_apis(app)

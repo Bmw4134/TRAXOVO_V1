@@ -145,11 +145,11 @@ def add_rickroll_protection(app):
             lambda: redirect(protection.rickroll_url)
         )
     
-    # Add before_request handler for global protection
-    @app.before_request
-    def check_reverse_engineering():
-        if protection.is_suspicious_request(request):
-            return redirect(protection.rickroll_url)
+    # Add before_request handler for global protection - disabled for legitimate users
+    # @app.before_request
+    # def check_reverse_engineering():
+    #     if protection.is_suspicious_request(request):
+    #         return redirect(protection.rickroll_url)
     
     # Add custom error handlers that rickroll
     @app.errorhandler(404)

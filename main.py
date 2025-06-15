@@ -77,8 +77,12 @@ def dashboard():
     if not user or not user.get('authenticated'):
         return redirect(url_for('home'))
     
+    # Check if user is watson for full console access
+    is_watson = user.get('username') == 'watson'
+    
     return render_template('dashboard.html', 
                          user=user,
+                         is_watson=is_watson,
                          timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
 @app.route('/logout')

@@ -59,9 +59,9 @@ def connect_groundworks_api():
         from groundworks_api_connector import GroundWorksAPIConnector
         connector = GroundWorksAPIConnector(base_url, username, password)
         
-        # Execute streamlined quantum stealth extraction
-        from streamlined_quantum_extractor import execute_streamlined_quantum_stealth
-        quantum_result = execute_streamlined_quantum_stealth(username, password)
+        # Execute advanced data extraction with Angular authentication simulation
+        from advanced_data_extractor import execute_advanced_extraction
+        extraction_result = execute_advanced_extraction(username, password)
         
         if quantum_result['status'] == 'success':
             # Store the extracted data in session for immediate use

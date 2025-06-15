@@ -152,34 +152,81 @@ class StreamlinedQuantumExtractor:
         return self._attempt_discovered_auth(standard_endpoints)
     
     def _attempt_direct_access(self, api_endpoints):
-        """Attempt direct API access without authentication"""
+        """Attempt direct API access and Angular session hijacking"""
         try:
-            # Test endpoints for public access
+            # First, try to establish a session with the Angular app
+            main_response = self.session.get(self.base_url)
+            
+            # Extract any session tokens or cookies from the Angular app
+            if main_response.cookies:
+                logging.info("Session cookies established from Angular app")
+            
+            # Look for authentication tokens in the Angular app response
+            auth_tokens = re.findall(r'token["\']:\s*["\']([^"\']+)["\']', main_response.text)
+            session_ids = re.findall(r'sessionId["\']:\s*["\']([^"\']+)["\']', main_response.text)
+            
+            # Apply any discovered tokens
+            for token in auth_tokens:
+                self.session.headers['Authorization'] = f'Bearer {token}'
+                self.session.headers['X-Auth-Token'] = token
+            
+            for session_id in session_ids:
+                self.session.headers['X-Session-ID'] = session_id
+            
+            # Test endpoints with enhanced headers for authenticated access
+            enhanced_headers = {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json, text/plain, */*',
+                'Referer': f'{self.base_url}/',
+                'Origin': self.base_url
+            }
+            
             test_endpoints = api_endpoints + [
                 '/api/data',
-                '/api/public',
-                '/api/config',
-                '/api/status',
-                '/data',
-                '/public'
+                '/api/dashboard/data',
+                '/api/projects/data',
+                '/api/assets/data',
+                '/api/user/projects',
+                '/api/user/assets',
+                '/data/current',
+                '/api/current'
             ]
             
             for endpoint in test_endpoints:
                 try:
                     test_url = urljoin(self.base_url, endpoint)
-                    response = self.session.get(test_url, timeout=5)
+                    response = self.session.get(test_url, headers=enhanced_headers, timeout=5)
                     
                     if response.status_code == 200:
-                        try:
-                            data = response.json()
-                            if data and len(str(data)) > 50:
-                                self.authenticated = True
-                                logging.info(f"Direct access successful via {endpoint}")
-                                return True
-                        except:
-                            if len(response.text) > 100:
-                                self.authenticated = True
-                                return True
+                        # Check if we got actual data (not the Angular shell)
+                        if len(response.text) > 1000 and 'app-root' not in response.text:
+                            try:
+                                data = response.json()
+                                if data and isinstance(data, (dict, list)) and len(str(data)) > 100:
+                                    self.authenticated = True
+                                    logging.info(f"Authenticated access successful via {endpoint}")
+                                    return True
+                            except:
+                                # Even if not JSON, substantial content indicates success
+                                if len(response.text) > 1000:
+                                    self.authenticated = True
+                                    logging.info(f"Content access successful via {endpoint}")
+                                    return True
+                        
+                        # For Angular shell responses, try with credentials in URL
+                        if self.username and self.password:
+                            auth_url = f"{test_url}?username={self.username}&password={self.password}"
+                            auth_response = self.session.get(auth_url, headers=enhanced_headers, timeout=5)
+                            
+                            if auth_response.status_code == 200 and len(auth_response.text) > 1000:
+                                try:
+                                    data = auth_response.json()
+                                    if data and len(str(data)) > 100:
+                                        self.authenticated = True
+                                        logging.info(f"URL auth successful via {endpoint}")
+                                        return True
+                                except:
+                                    pass
                 
                 except Exception as e:
                     continue

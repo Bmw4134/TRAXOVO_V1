@@ -85,6 +85,12 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
+@app.route('/reset')
+def reset():
+    """Reset session functionality"""
+    session.clear()
+    return redirect(url_for('home'))
+
 @app.route('/api/ground-works/projects')
 def api_ground_works_projects():
     """API endpoint for Ground Works projects data - Authentic RAGLE data only"""

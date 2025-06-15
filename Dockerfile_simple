@@ -1,8 +1,0 @@
-FROM python:3.11-alpine
-ENV PORT=8080
-WORKDIR /app
-COPY requirements_simple.txt requirements.txt
-RUN pip install -r requirements.txt
-COPY simple_cloud_run.py main.py
-EXPOSE 8080
-CMD ["gunicorn", "--bind", ":8080", "--workers", "1", "main:app"]

@@ -1,1 +1,0 @@
-# Placeholder for kaizen_eq_optimizer.py

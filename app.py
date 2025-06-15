@@ -45,6 +45,12 @@ def login():
     """Discrete login interface"""
     return render_template('login.html')
 
+@app.route('/logout')
+def logout():
+    """Universal logout functionality"""
+    session.clear()
+    return redirect('/')
+
 @app.route('/api/groundworks/connect', methods=['POST'])
 def connect_groundworks_api():
     """Connect to Ground Works API with user credentials"""

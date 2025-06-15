@@ -334,6 +334,7 @@ except ImportError:
     ground_works_system = InlineGroundWorksSystem()
 
 @app.route('/ground-works-complete')
+@require_auth
 def complete_ground_works_dashboard():
     """Complete Ground Works replacement dashboard with authentic RAGLE data"""
     return render_template('ground_works_complete.html')
@@ -345,6 +346,7 @@ def dashboard():
     return render_template('dashboard.html')
 
 @app.route('/ultimate-troy-dashboard')
+@require_auth
 def ultimate_troy_dashboard():
     """Ultimate comprehensive dashboard for Troy showcasing all extracted data"""
     return render_template('ultimate_troy_dashboard.html')
@@ -586,6 +588,7 @@ def get_benchmark_endpoints():
     })
 
 @app.route('/api-performance-benchmark')
+@require_auth
 def api_performance_benchmark_dashboard():
     """API Performance Benchmark Dashboard"""
     return render_template('api_performance_benchmark.html')

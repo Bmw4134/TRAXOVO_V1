@@ -37,9 +37,7 @@ USERS = {
 @app.route('/')
 def home():
     """Landing page"""
-    if 'user' in session:
-        return redirect(url_for('dashboard'))
-    
+    session.clear()  # Force logout on home page access
     return render_template('landing.html')
 
 @app.route('/login', methods=['GET', 'POST'])

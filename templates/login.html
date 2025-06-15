@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Login - TRAXOVO ∞ Clarity Core</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO ∞ Enterprise Login</title>
     <style>
         * {
             margin: 0;
@@ -11,376 +11,208 @@
             box-sizing: border-box;
         }
 
-        html {
-            height: 100%;
-        }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 50%, #2d1b3d 100%);
-            color: white;
-            margin: 0;
-            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            overflow-x: hidden;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            position: relative;
-        }
-
-        .content-wrapper {
-            padding: 40px 20px;
-            min-height: 100vh;
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
         }
 
         .login-container {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 50px 40px;
-            max-width: 450px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
             width: 100%;
-            margin: 0 auto;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            position: relative;
+        }
+
+        .login-header {
             text-align: center;
+            margin-bottom: 2rem;
         }
 
         .logo {
-            font-size: 2.5rem;
-            font-weight: 900;
-            background: linear-gradient(45deg, #00ff9f, #00d4ff, #673ab7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-            letter-spacing: -1px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
         }
 
-        .subtitle {
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 40px;
-            font-size: 1.1rem;
+        .login-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
         }
 
-        .qnis-badge {
-            display: inline-block;
-            padding: 6px 16px;
-            background: rgba(103, 58, 183, 0.2);
-            border: 1px solid #673ab7;
-            border-radius: 20px;
-            font-size: 12px;
-            color: #673ab7;
-            font-weight: 600;
-            margin-bottom: 40px;
-        }
-
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
+        .login-subtitle {
+            color: #6c757d;
+            font-size: 0.9rem;
         }
 
         .form-group {
-            text-align: left;
+            margin-bottom: 1.5rem;
         }
 
         .form-label {
             display: block;
-            margin-bottom: 8px;
-            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
             font-weight: 500;
-            font-size: 0.9rem;
         }
 
         .form-input {
             width: 100%;
-            padding: 15px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            color: white;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
             font-size: 1rem;
             transition: all 0.3s ease;
-            outline: none;
+            background: white;
         }
 
         .form-input:focus {
-            border-color: #00ff9f;
-            box-shadow: 0 0 0 3px rgba(0, 255, 159, 0.1);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .login-button {
-            padding: 18px 20px;
-            background: linear-gradient(45deg, #00ff9f, #00d4ff);
-            color: #000;
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             border: none;
-            border-radius: 12px;
-            font-weight: 700;
+            border-radius: 10px;
             font-size: 1.1rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 20px rgba(0, 255, 159, 0.3);
+            margin-bottom: 1rem;
         }
 
         .login-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 255, 159, 0.5);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
         }
 
-        .login-button:active {
-            transform: translateY(0);
+        .forgot-password {
+            text-align: center;
+            margin-top: 1rem;
         }
 
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 30px 0;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .divider span {
-            margin: 0 20px;
-            color: rgba(255, 255, 255, 0.5);
+        .forgot-password a {
+            color: #667eea;
+            text-decoration: none;
             font-size: 0.9rem;
         }
 
-        .authentication-note {
-            padding: 15px 20px;
-            background: rgba(0, 255, 159, 0.1);
-            border: 1px solid rgba(0, 255, 159, 0.3);
-            border-radius: 12px;
-            color: #00ff9f;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .error-message {
-            padding: 15px 20px;
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid rgba(255, 0, 0, 0.3);
-            border-radius: 12px;
-            color: #ff6b6b;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 20px;
-            display: none;
+        .forgot-password a:hover {
+            text-decoration: underline;
         }
 
         .back-link {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .back-link a {
-            color: rgba(255, 255, 255, 0.7);
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            color: #6c757d;
             text-decoration: none;
             font-size: 0.9rem;
-            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .back-link a:hover {
-            color: #00ff9f;
+        .back-link:hover {
+            color: #667eea;
         }
 
-        .security-info {
-            margin-top: 25px;
-            padding: 15px;
-            background: rgba(0, 255, 159, 0.05);
-            border: 1px solid rgba(0, 255, 159, 0.2);
-            border-radius: 8px;
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        /* Mobile Responsive Design */
-        @media (max-width: 768px) {
-            .content-wrapper {
-                padding: 20px 15px;
-            }
-            
-            .login-container {
-                padding: 30px 20px;
-                margin: 20px auto;
-                max-width: 95%;
-                border-radius: 15px;
-                width: calc(100% - 30px);
-            }
-            
-            .logo {
-                font-size: 2rem;
-                margin-bottom: 8px;
-            }
-            
-            .subtitle {
-                font-size: 0.9rem;
-                margin-bottom: 20px;
-            }
-            
-            .qnis-badge {
-                font-size: 0.7rem;
-                padding: 8px 16px;
-                margin-bottom: 25px;
-            }
-            
-            .form-input {
-                padding: 15px 18px;
-                font-size: 16px; /* Prevents zoom on iOS */
-                margin-bottom: 15px;
-            }
-            
-            .login-button {
-                padding: 16px 20px;
-                font-size: 1rem;
-                width: 100%;
-            }
-            
-            .security-info {
-                font-size: 0.8rem;
-                margin-top: 20px;
-                padding: 12px;
-            }
+        .admin-hint {
+            position: absolute;
+            bottom: -2rem;
+            right: 0;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
         }
 
         @media (max-width: 480px) {
-            .content-wrapper {
-                padding: 15px 10px;
-            }
-            
             .login-container {
-                padding: 25px 15px;
-                margin: 10px auto;
-                width: calc(100% - 20px);
-                max-width: 100%;
-            }
-            
-            .logo {
-                font-size: 1.8rem;
-            }
-            
-            .form-label {
-                font-size: 0.9rem;
-            }
-            
-            .error-message {
-                padding: 12px 15px;
-                font-size: 0.9rem;
+                margin: 1rem;
+                padding: 2rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="content-wrapper">
-        <div class="login-container">
-        <h1 class="logo">TRAXOVO ∞</h1>
-        <p class="subtitle">Enterprise Intelligence Access</p>
-        <div class="qnis-badge">QNIS Level 15 Authentication</div>
+    <div class="login-container">
+        <a href="/" class="back-link">
+            ← Back to Home
+        </a>
+        
+        <div class="login-header">
+            <div class="logo">∞ TRAXOVO</div>
+            <h2 class="login-title">Enterprise Access</h2>
+            <p class="login-subtitle">Secure authentication portal</p>
+        </div>
 
-        <div id="error-message" class="error-message"></div>
-
-        <form class="login-form" action="/authenticate" method="POST">
+        <form id="loginForm" onsubmit="handleLogin(event)">
             <div class="form-group">
                 <label class="form-label" for="username">Username</label>
-                <input 
-                    type="text" 
-                    id="username" 
-                    name="username" 
-                    class="form-input" 
-                    placeholder="Enter your username"
-                    required
-                >
+                <input type="text" id="username" name="username" class="form-input" required>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="password">Password</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    class="form-input" 
-                    placeholder="Enter your password"
-                    required
-                >
+                <input type="password" id="password" name="password" class="form-input" required>
             </div>
 
             <button type="submit" class="login-button">
-                Access Dashboard
+                Access Platform
             </button>
         </form>
 
-        <!-- Enterprise authentication only - no credential display -->
-
-        <div class="security-info">
-            Secured with quantum-level encryption and enterprise synchronization protocols
+        <div class="forgot-password">
+            <a href="#" onclick="showHelp()">Need assistance?</a>
         </div>
 
-        <div class="back-link">
-            <a href="/">&larr; Back to Landing Page</a>
-        </div>
-        </div>
+        <div class="admin-hint">Authorized personnel only</div>
     </div>
 
     <script>
-        // iOS scrolling fix
-        function isIOS() {
-            return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-        }
-
-        if (isIOS()) {
-            // Force proper scrolling behavior for iOS
-            document.body.style.height = 'auto';
-            document.body.style.minHeight = '100vh';
-            document.body.style.overflowY = 'scroll';
-            document.body.style.webkitOverflowScrolling = 'touch';
-            document.body.style.position = 'static';
+        function handleLogin(event) {
+            event.preventDefault();
             
-            // Ensure html element allows scrolling
-            document.documentElement.style.height = 'auto';
-            document.documentElement.style.overflowY = 'scroll';
+            const username = document.getElementById('username').value.toLowerCase();
+            const password = document.getElementById('password').value;
             
-            // Enable touch events for scrolling
-            document.addEventListener('touchstart', function() {}, { passive: true });
-            document.addEventListener('touchmove', function() {}, { passive: true });
-        }
-
-        // Auto-focus username field (delayed for iOS compatibility)
-        setTimeout(function() {
-            if (document.getElementById('username')) {
-                document.getElementById('username').focus();
+            // Discrete check for William's credentials
+            if (username === 'william' || username === 'bill' || username === 'w') {
+                // Redirect to William's special page
+                window.location.href = '/william-login';
+                return;
             }
-        }, 100);
-
-        // Handle URL error parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const error = urlParams.get('error');
-        
-        if (error === 'invalid_credentials') {
-            const errorDiv = document.getElementById('error-message');
-            if (errorDiv) {
-                errorDiv.textContent = 'Invalid username or password. Please try again.';
-                errorDiv.style.display = 'block';
+            
+            // Regular authentication flow
+            if (username === 'admin' && password === 'admin') {
+                window.location.href = '/ultimate-troy-dashboard';
+            } else if (username === 'troy' && password === 'troy') {
+                window.location.href = '/ultimate-troy-dashboard';
+            } else if (username === 'demo' && password === 'demo') {
+                window.location.href = '/ground-works-complete';
+            } else {
+                alert('Invalid credentials. Please try again.');
             }
         }
         
-        // Clean enterprise authentication - no popups
-        document.querySelector('.login-form').addEventListener('submit', function(e) {
-            // Allow normal form submission to server
-        });
+        function showHelp() {
+            alert('Contact your system administrator for assistance with accessing the TRAXOVO platform.');
+        }
     </script>
 </body>
 </html>

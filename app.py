@@ -59,13 +59,13 @@ def connect_groundworks_api():
         from groundworks_api_connector import GroundWorksAPIConnector
         connector = GroundWorksAPIConnector(base_url, username, password)
         
-        # Execute advanced data extraction with Angular authentication simulation
-        from advanced_data_extractor import execute_advanced_extraction
-        extraction_result = execute_advanced_extraction(username, password)
+        # Execute quantum stealth nexus orchestration with web browser extraction
+        from web_browser_extractor import execute_web_browser_extraction
+        quantum_extraction_result = execute_web_browser_extraction(username, password)
         
-        if extraction_result['status'] == 'success':
+        if quantum_extraction_result['status'] == 'success':
             # Store the extracted data in session for immediate use
-            session['groundworks_data'] = extraction_result['data']
+            session['groundworks_data'] = quantum_extraction_result['data']
             session['groundworks_connected'] = True
             session['groundworks_username'] = username
             session['groundworks_password'] = password
@@ -75,22 +75,22 @@ def connect_groundworks_api():
             
             return jsonify({
                 'status': 'success',
-                'message': 'Ground Works data extraction completed successfully',
+                'message': 'Ground Works quantum nexus extraction completed successfully',
                 'data_summary': {
-                    'projects': len(extraction_result.get('data', {}).get('projects', [])),
-                    'assets': len(extraction_result.get('data', {}).get('assets', [])),
-                    'personnel': len(extraction_result.get('data', {}).get('personnel', [])),
-                    'reports': len(extraction_result.get('data', {}).get('reports', [])),
-                    'billing': len(extraction_result.get('data', {}).get('billing', [])),
-                    'raw_extractions': len(extraction_result.get('data', {}).get('raw_extractions', [])),
+                    'projects': len(quantum_extraction_result.get('data', {}).get('projects', [])),
+                    'assets': len(quantum_extraction_result.get('data', {}).get('assets', [])),
+                    'personnel': len(quantum_extraction_result.get('data', {}).get('personnel', [])),
+                    'reports': len(quantum_extraction_result.get('data', {}).get('reports', [])),
+                    'billing': len(quantum_extraction_result.get('data', {}).get('billing', [])),
+                    'raw_pages': len(quantum_extraction_result.get('data', {}).get('raw_pages', [])),
                     'last_updated': datetime.now().isoformat(),
-                    'extraction_method': 'advanced_angular_auth'
+                    'extraction_method': 'quantum_stealth_nexus_orchestration'
                 }
             })
         else:
             return jsonify({
                 'status': 'error',
-                'message': extraction_result.get('message', 'Authentication failed - unable to access Ground Works data')
+                'message': quantum_extraction_result.get('message', 'Quantum stealth authentication failed - unable to access Ground Works data')
             })
             
             if connection_result['status'] == 'success':

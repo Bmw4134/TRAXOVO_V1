@@ -419,13 +419,24 @@
             try {
                 console.log('Loading authentic Ground Works projects...');
                 
-                const response = await fetch('/api/groundworks/data');
+                // Add timestamp to prevent caching
+                const timestamp = new Date().getTime();
+                const response = await fetch(`/api/groundworks/data?t=${timestamp}`, {
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    }
+                });
+                
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 const data = await response.json();
                 console.log('Authentic projects loaded:', data);
+                console.log('Total projects from API:', data.projects ? data.projects.length : 0);
+                console.log('Summary data:', data.summary);
                 
                 allProjects = data.projects || [];
                 filteredProjects = [...allProjects];

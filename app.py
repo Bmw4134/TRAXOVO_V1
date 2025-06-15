@@ -243,13 +243,20 @@ def get_groundworks_data():
         
         extraction_result = extract_groundworks_data()
         
-        return jsonify({
+        response = jsonify({
             'status': 'success',
             'data': extraction_result,
             'projects_count': extraction_result['total_extracted'],
             'extraction_method': 'robust_http_scraper',
             'data_source': 'https://groundworks.ragleinc.com'
         })
+        
+        # Add cache-busting headers
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        
+        return response
                 
     except Exception as e:
         logging.error(f"Fixed Ground Works extraction error: {e}")

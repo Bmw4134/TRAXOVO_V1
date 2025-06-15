@@ -98,9 +98,13 @@ def logout():
 def api_ground_works_projects():
     """API endpoint for Ground Works projects data - Authentic RAGLE data only"""
     # Use comprehensive project extractor - NO hardcoded fallback data
-    from comprehensive_project_extractor import ComprehensiveProjectExtractor
-    extractor = ComprehensiveProjectExtractor()
-    authentic_projects = extractor.get_all_projects()
+    try:
+        from comprehensive_project_extractor import ComprehensiveProjectExtractor
+        extractor = ComprehensiveProjectExtractor()
+        authentic_projects = extractor.extract_all_projects()
+    except Exception as e:
+        logging.error(f"Error loading authentic projects: {e}")
+        return jsonify({'error': 'Data extraction failed', 'details': str(e)}), 500
     
     return jsonify({
         'projects': authentic_projects,
@@ -116,7 +120,7 @@ def api_complete_projects():
     # Use comprehensive project extractor - NO hardcoded fallback data
     from comprehensive_project_extractor import ComprehensiveProjectExtractor
     extractor = ComprehensiveProjectExtractor()
-    authentic_projects = extractor.get_all_projects()
+    authentic_projects = extractor.extract_all_projects()
     
     return jsonify({
         'projects': authentic_projects,

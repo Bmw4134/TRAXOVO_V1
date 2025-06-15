@@ -470,8 +470,15 @@
                 
             } catch (error) {
                 console.error('❌ Error loading data:', error);
-                // Load with hardcoded comprehensive data
-                loadComprehensiveProjectData();
+                // Use empty array if API fails - no fallback to hardcoded data
+                allProjects = [];
+                filteredProjects = [];
+                updateMetrics();
+                renderProjectsTable();
+                
+                // Show error message instead of fake data
+                document.getElementById('projectsContainer').innerHTML = 
+                    '<div class="loading">Unable to load authentic project data. Please check API connection.</div>';
             }
         }
 

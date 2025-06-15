@@ -185,22 +185,37 @@
     </div>
 
     <script>
-        function handleLogin(event) {
+        async function handleLogin(event) {
             event.preventDefault();
             
-            const username = document.getElementById('username').value.toLowerCase();
+            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
             // Discrete check for William's credentials
-            if (username === 'william' || username === 'bill' || username === 'w') {
-                // Redirect to William's special page
+            if (username.toLowerCase() === 'william' || username.toLowerCase() === 'bill' || username.toLowerCase() === 'w') {
                 window.location.href = '/william-login';
                 return;
             }
             
-            // Regular authentication flow
-            if (username === 'admin' && password === 'admin') {
-                window.location.href = '/ultimate-troy-dashboard';
+            try {
+                const response = await fetch('/authenticate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    window.location.href = result.redirect || '/dashboard';
+                } else {
+                    alert('Authentication failed: ' + result.message);
+                }
+            } catch (error) {
+                alert('Login error: ' + error.message);
+            }
             } else if (username === 'troy' && password === 'troy') {
                 window.location.href = '/ultimate-troy-dashboard';
             } else if (username === 'demo' && password === 'demo') {

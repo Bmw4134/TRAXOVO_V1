@@ -234,39 +234,23 @@ def connect_groundworks_api():
 
 @app.route('/api/groundworks/data')
 def get_groundworks_data():
-    """Get current Ground Works data - Complete 56 projects using enhanced scraper"""
+    """Get current Ground Works data using robust HTTP-based extraction"""
     try:
-        # Use enhanced Ground Works scraper for authentic data
-        from enhanced_groundworks_scraper import execute_enhanced_groundworks_extraction
+        # Use fixed Ground Works scraper that bypasses Selenium issues
+        from fixed_groundworks_scraper import extract_groundworks_data
         
-        extraction_result = execute_enhanced_groundworks_extraction()
+        extraction_result = extract_groundworks_data()
         
-        if extraction_result['success']:
-            return jsonify({
-                'status': 'success',
-                'data': extraction_result['data'],
-                'projects_count': len(extraction_result['data']['projects']),
-                'extraction_method': 'enhanced_comprehensive_scraper',
-                'data_source': 'https://groundworks.ragleinc.com'
-            })
-        else:
-            # Fallback to cached data if available
-            cached_data = session.get('groundworks_data')
-            if cached_data:
-                return jsonify({
-                    'status': 'success',
-                    'data': cached_data,
-                    'source': 'cached_extraction',
-                    'extraction_method': 'enhanced_comprehensive_scraper'
-                })
-            else:
-                return jsonify({
-                    'status': 'error',
-                    'message': 'Enhanced scraper unavailable and no cached data'
-                }), 500
+        return jsonify({
+            'status': 'success',
+            'data': extraction_result,
+            'projects_count': extraction_result['total_extracted'],
+            'extraction_method': 'robust_http_scraper',
+            'data_source': 'https://groundworks.ragleinc.com'
+        })
                 
     except Exception as e:
-        logging.error(f"Enhanced Ground Works extraction error: {e}")
+        logging.error(f"Fixed Ground Works extraction error: {e}")
         return jsonify({
             'status': 'error',
             'message': 'Enhanced Ground Works extraction failed'

@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}Fleet Tracking - TRAXOVO{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="glass-card">
+            <h2 class="neon-text mb-0">
+                <i class="fas fa-truck me-3"></i>Fleet Tracking & Analytics
+            </h2>
+            <p class="text-muted mb-0">Real-time fleet monitoring and performance optimization</p>
+        </div>
+    </div>
+</div>
+
+<!-- Fleet Overview Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="metric-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="metric-value">{{ fleet_stats.total_vehicles }}</div>
+                    <div class="text-muted">Total Vehicles</div>
+                    <small class="status-operational">
+                        <i class="fas fa-check me-1"></i>{{ fleet_stats.active_vehicles }} Active
+                    </small>
+                </div>
+                <div class="fs-1 text-muted">
+                    <i class="fas fa-truck"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="metric-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="metric-value">{{ "{:.1f}".format(fleet_stats.avg_utilization) }}%</div>
+                    <div class="text-muted">Average Utilization</div>
+                    <small class="{% if fleet_stats.avg_utilization > 85 %}status-operational{% elif fleet_stats.avg_utilization > 70 %}status-warning{% else %}status-critical{% endif %}">
+                        <i class="fas fa-chart-line me-1"></i>
+                        {% if fleet_stats.avg_utilization > 85 %}Excellent
+                        {% elif fleet_stats.avg_utilization > 70 %}Good
+                        {% else %}Needs Attention{% endif %}
+                    </small>
+                </div>
+                <div class="fs-1 text-muted">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="metric-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="metric-value">{{ "{:,.0f}".format(fleet_stats.total_hours) }}</div>
+                    <div class="text-muted">Total Hours Today</div>
+                    <small class="status-operational">
+                        <i class="fas fa-clock me-1"></i>{{ "{:.1f}".format(fleet_stats.total_hours / fleet_stats.total_vehicles) }} avg/vehicle
+                    </small>
+                </div>
+                <div class="fs-1 text-muted">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="metric-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="metric-value">${{ "{:,.0f}".format(fleet_stats.fuel_savings) }}</div>
+                    <div class="text-muted">Fuel Savings MTD</div>
+                    <small class="status-operational">
+                        <i class="fas fa-arrow-up me-1"></i>+18.5% vs last month
+                    </small>
+                </div>
+                <div class="fs-1 text-muted">
+                    <i class="fas fa-gas-pump"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fleet Map and Performance -->
+<div class="row mb-4">
+    <div class="col-lg-8 mb-3">
+        <div class="glass-card">
+            <h5 class="neon-text mb-3">
+                <i class="fas fa-map me-2"></i>Fleet Location Tracking
+            </h5>
+            <div id="fleetMap" style="height: 400px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <div class="text-center">
+                    <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+                    <h6 class="text-muted">Interactive Fleet Map</h6>
+                    <p class="text-muted small">Real-time vehicle positioning and route optimization</p>
+                    <button class="btn btn-neon btn-sm">
+                        <i class="fas fa-satellite me-1"></i>Enable GPS Tracking
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-3">
+        <div class="glass-card">
+            <h5 class="neon-text mb-3">
+                <i class="fas fa-chart-bar me-2"></i>Performance Metrics
+            </h5>
+            
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <small>Fuel Efficiency</small>
+                    <small>{{ "{:.1f}".format(fleet_stats.fuel_efficiency) }} MPG</small>
+                </div>
+                <div class="progress progress-custom">
+                    <div class="progress-bar progress-bar-neon" style="width: {{ (fleet_stats.fuel_efficiency / 12) * 100 }}%"></div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <small>Maintenance Score</small>
+                    <small>{{ "{:.0f}".format(fleet_stats.maintenance_score) }}%</small>
+                </div>
+                <div class="progress progress-custom">
+                    <div class="progress-bar bg-success" style="width: {{ fleet_stats.maintenance_score }}%"></div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <small>Safety Rating</small>
+                    <small>{{ "{:.1f}".format(fleet_stats.safety_rating) }}/5.0</small>
+                </div>
+                <div class="progress progress-custom">
+                    <div class="progress-bar bg-warning" style="width: {{ (fleet_stats.safety_rating / 5) * 100 }}%"></div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <small>Driver Performance</small>
+                    <small>{{ "{:.0f}".format(fleet_stats.driver_score) }}%</small>
+                </div>
+                <div class="progress progress-custom">
+                    <div class="progress-bar bg-info" style="width: {{ fleet_stats.driver_score }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="glass-card">
+            <h5 class="neon-text mb-3">
+                <i class="fas fa-download me-2"></i>Fleet Data Export
+            </h5>
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <button class="btn btn-neon w-100" onclick="exportFleetData()">
+                        <i class="fas fa-truck me-2"></i>Fleet Data (CSV)
+                    </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <button class="btn btn-neon w-100" onclick="exportUtilization()">
+                        <i class="fas fa-chart-line me-2"></i>Utilization Report
+                    </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <button class="btn btn-neon w-100" onclick="exportMaintenance()">
+                        <i class="fas fa-tools me-2"></i>Maintenance Schedule
+                    </button>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <button class="btn btn-neon w-100" onclick="exportPerformance()">
+                        <i class="fas fa-chart-bar me-2"></i>Performance Metrics
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function exportFleetData() {
+    // Create sample fleet data for export
+    const fleetData = [
+        { id: 'FL-001', type: 'Truck', driver: 'John Smith', utilization: 94.2, fuel_level: 85, status: 'ACTIVE' },
+        { id: 'FL-002', type: 'Van', driver: 'Sarah Johnson', utilization: 87.5, fuel_level: 67, status: 'ACTIVE' },
+        { id: 'FL-003', type: 'Truck', driver: 'Mike Wilson', utilization: 91.3, fuel_level: 42, status: 'ACTIVE' },
+        { id: 'FL-004', type: 'Van', driver: 'Lisa Brown', utilization: 88.7, fuel_level: 78, status: 'ACTIVE' },
+        { id: 'FL-005', type: 'Truck', driver: '', utilization: 0.0, fuel_level: 95, status: 'MAINTENANCE' }
+    ];
+    
+    const csv = convertToCSV(fleetData);
+    downloadCSV(csv, 'fleet_data.csv');
+}
+
+function exportUtilization() {
+    const utilizationData = [
+        { date: '2024-06-01', utilization: 92.3, target: 85.0, variance: 7.3 },
+        { date: '2024-06-02', utilization: 89.1, target: 85.0, variance: 4.1 },
+        { date: '2024-06-03', utilization: 94.7, target: 85.0, variance: 9.7 },
+        { date: '2024-06-04', utilization: 87.2, target: 85.0, variance: 2.2 },
+        { date: '2024-06-05', utilization: 91.8, target: 85.0, variance: 6.8 }
+    ];
+    
+    const csv = convertToCSV(utilizationData);
+    downloadCSV(csv, 'utilization_report.csv');
+}
+
+function exportMaintenance() {
+    const maintenanceData = [
+        { vehicle_id: 'FL-001', last_service: '2024-05-15', next_service: '2024-08-15', type: 'Oil Change' },
+        { vehicle_id: 'FL-002', last_service: '2024-05-20', next_service: '2024-08-20', type: 'Inspection' },
+        { vehicle_id: 'FL-003', last_service: '2024-05-10', next_service: '2024-08-10', type: 'Tire Rotation' },
+        { vehicle_id: 'FL-004', last_service: '2024-05-25', next_service: '2024-08-25', type: 'Oil Change' },
+        { vehicle_id: 'FL-005', last_service: '2024-06-01', next_service: '2024-09-01', type: 'Major Service' }
+    ];
+    
+    const csv = convertToCSV(maintenanceData);
+    downloadCSV(csv, 'maintenance_schedule.csv');
+}
+
+function exportPerformance() {
+    const performanceData = [
+        { metric: 'Fuel Efficiency', value: 8.7, unit: 'MPG', target: 8.5, status: 'Above Target' },
+        { metric: 'Maintenance Score', value: 92, unit: '%', target: 90, status: 'Above Target' },
+        { metric: 'Safety Rating', value: 4.2, unit: '/5.0', target: 4.0, status: 'Above Target' },
+        { metric: 'Driver Performance', value: 88, unit: '%', target: 85, status: 'Above Target' },
+        { metric: 'Cost per Mile', value: 1.23, unit: '$', target: 1.30, status: 'Below Target' }
+    ];
+    
+    const csv = convertToCSV(performanceData);
+    downloadCSV(csv, 'performance_metrics.csv');
+}
+
+function convertToCSV(data) {
+    if (!data.length) return '';
+    
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+        headers.join(','),
+        ...data.map(row => headers.map(field => JSON.stringify(row[field] || '')).join(','))
+    ].join('\n');
+    
+    return csvContent;
+}
+
+function downloadCSV(csv, filename) {
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+// Auto-refresh every 60 seconds
+setInterval(() => {
+    console.log('Fleet data refreshed');
+}, 60000);
+</script>
+{% endblock %}

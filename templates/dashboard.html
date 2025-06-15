@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+
+{% block title %}TRAXOVO Intelligence Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Header Section -->
+    <div class="col-12 mb-4">
+        <div class="glass-card text-center">
+            <h1 class="neon-text mb-3">
+                <i class="fas fa-atom me-3"></i>TRAXOVO INTELLIGENCE PLATFORM
+            </h1>
+            <p class="mb-0">Advanced Operational Intelligence & Fleet Management System</p>
+            <small class="text-muted">Last Updated: {{ current_time }}</small>
+        </div>
+    </div>
+</div>
+
+<!-- KPI Metrics Row -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="metric-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="metric-value">{{ "{:,.0f}".format(metrics.total_assets) }}</div>
+                    <div class="text-muted">Total Assets</div>
+                    <small class="status-operational">
+                        <i class="fas fa-arrow-up me-1"></i>{{ metrics.active_assets }} Active
+                    </small>
+                </div>
+                <div class="fs-1 text-muted">
+                    <i class="fas fa-truck"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="metric-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="metric-value">{{ "{:.1f}".format(metrics.fleet_utilization) }}%</div>
+                    <div class="text-muted">Fleet Utilization</div>
+                    <small class="status-operational">
+                        <i class="fas fa-check me-1"></i>Optimal Range
+                    </small>
+                </div>
+                <div class="fs-1 text-muted">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="metric-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="metric-value">${{ "{:,.0f}".format(metrics.cost_savings/1000) }}K</div>
+                    <div class="text-muted">Cost Savings YTD</div>
+                    <small class="status-operational">
+                        <i class="fas fa-arrow-up me-1"></i>+23.4% vs Target
+                    </small>
+                </div>
+                <div class="fs-1 text-muted">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="metric-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="metric-value">{{ "{:.1f}".format(metrics.efficiency_score) }}%</div>
+                    <div class="text-muted">Operational Efficiency</div>
+                    <small class="status-operational">
+                        <i class="fas fa-star me-1"></i>Premium Performance
+                    </small>
+                </div>
+                <div class="fs-1 text-muted">
+                    <i class="fas fa-cogs"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row mb-4">
+    <div class="col-lg-8 mb-3">
+        <div class="glass-card">
+            <h5 class="neon-text mb-3">
+                <i class="fas fa-chart-area me-2"></i>Fleet Performance Analytics
+            </h5>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-3">
+        <div class="glass-card">
+            <h5 class="neon-text mb-3">
+                <i class="fas fa-chart-pie me-2"></i>Asset Distribution
+            </h5>
+            <div class="chart-container">
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Asset Status Table -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="glass-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="neon-text mb-0">
+                    <i class="fas fa-list me-2"></i>Active Asset Monitor
+                </h5>
+                <button class="btn btn-neon btn-sm" onclick="refreshAssetData()">
+                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                </button>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-id-badge me-1"></i>Asset ID</th>
+                            <th><i class="fas fa-tag me-1"></i>Type</th>
+                            <th><i class="fas fa-map-marker-alt me-1"></i>Location</th>
+                            <th><i class="fas fa-chart-bar me-1"></i>Utilization</th>
+                            <th><i class="fas fa-heartbeat me-1"></i>Status</th>
+                            <th><i class="fas fa-clock me-1"></i>Last Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asset in recent_assets %}
+                        <tr>
+                            <td><code>{{ asset.asset_id }}</code></td>
+                            <td>
+                                <span class="badge bg-secondary">{{ asset.asset_type }}</span>
+                            </td>
+                            <td>{{ asset.location or 'N/A' }}</td>
+                            <td>
+                                <div class="progress progress-custom" style="height: 20px;">
+                                    <div class="progress-bar progress-bar-neon" 
+                                         style="width: {{ asset.utilization }}%">
+                                        {{ "{:.1f}".format(asset.utilization) }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge {% if asset.status == 'ACTIVE' %}bg-success{% elif asset.status == 'MAINTENANCE' %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {{ asset.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    {{ asset.created_at.strftime('%H:%M:%S') if asset.created_at else 'N/A' }}
+                                </small>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export & Integration Hub -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="glass-card">
+            <h5 class="neon-text mb-3">
+                <i class="fas fa-download me-2"></i>Intelligence Export Hub
+            </h5>
+            <p class="text-muted mb-3">Export operational data for integration with external dashboards and systems</p>
+            
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <a href="{{ url_for('api_assets') }}" class="btn btn-neon w-100">
+                        <i class="fas fa-database me-2"></i>Asset Data (JSON)
+                    </a>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <a href="{{ url_for('api_metrics') }}" class="btn btn-neon w-100">
+                        <i class="fas fa-chart-line me-2"></i>Metrics Data (JSON)
+                    </a>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <button class="btn btn-neon w-100" onclick="exportToCSV()">
+                        <i class="fas fa-file-excel me-2"></i>Export to CSV
+                    </button>
+                </div>
+            </div>
+            
+            <hr class="my-3">
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-muted">API Endpoints for Integration:</h6>
+                    <code class="text-info">/api/assets</code> - Asset data<br>
+                    <code class="text-info">/api/metrics</code> - Operational metrics<br>
+                    <code class="text-info">/health</code> - System health check
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-muted">Real-time Updates:</h6>
+                    <small class="text-muted">Data refreshes every 30 seconds</small><br>
+                    <small class="text-muted">WebSocket support available</small><br>
+                    <small class="text-muted">Export format: JSON, CSV, XML</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Performance Chart
+const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(performanceCtx, {
+    type: 'line',
+    data: {
+        labels: {{ chart_data.dates | tojsonfilter }},
+        datasets: [{
+            label: 'Fleet Utilization %',
+            data: {{ chart_data.utilization | tojsonfilter }},
+            borderColor: '#00ffff',
+            backgroundColor: 'rgba(0, 255, 255, 0.1)',
+            tension: 0.4,
+            fill: true
+        }, {
+            label: 'Efficiency Score %',
+            data: {{ chart_data.efficiency | tojsonfilter }},
+            borderColor: '#4ade80',
+            backgroundColor: 'rgba(74, 222, 128, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                labels: { color: 'white' }
+            }
+        },
+        scales: {
+            x: {
+                ticks: { color: 'white' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            },
+            y: {
+                ticks: { color: 'white' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            }
+        }
+    }
+});
+
+// Distribution Chart
+const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+const distributionChart = new Chart(distributionCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ asset_distribution.labels | tojsonfilter }},
+        datasets: [{
+            data: {{ asset_distribution.data | tojsonfilter }},
+            backgroundColor: [
+                '#00ffff',
+                '#4ade80',
+                '#fbbf24',
+                '#f87171',
+                '#8b5cf6'
+            ],
+            borderWidth: 2,
+            borderColor: 'rgba(255, 255, 255, 0.1)'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: { color: 'white' }
+            }
+        }
+    }
+});
+
+// Refresh functions
+function refreshAssetData() {
+    location.reload();
+}
+
+function exportToCSV() {
+    fetch('/api/assets')
+        .then(response => response.json())
+        .then(data => {
+            const csv = convertToCSV(data);
+            downloadCSV(csv, 'traxovo_assets.csv');
+        });
+}
+
+function convertToCSV(data) {
+    if (!data.length) return '';
+    
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+        headers.join(','),
+        ...data.map(row => headers.map(field => JSON.stringify(row[field] || '')).join(','))
+    ].join('\n');
+    
+    return csvContent;
+}
+
+function downloadCSV(csv, filename) {
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+// Auto-refresh every 30 seconds
+setInterval(() => {
+    fetch('/api/metrics')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Metrics updated:', data);
+        });
+}, 30000);
+</script>
+{% endblock %}

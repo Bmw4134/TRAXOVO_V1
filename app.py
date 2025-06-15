@@ -253,6 +253,11 @@ except ImportError:
 @app.route('/ground-works-complete')
 def complete_ground_works_dashboard():
     """Complete Ground Works replacement dashboard with authentic RAGLE data"""
+    return render_template('ground_works_complete.html')
+
+@app.route('/ultimate-troy-dashboard')
+def ultimate_troy_dashboard():
+    """Ultimate comprehensive dashboard for Troy showcasing all extracted data"""
     dashboard_data = ground_works_system.get_dashboard_data()
     
     return f"""

@@ -1,6 +1,4 @@
-# Reduce Docker image size by excluding unnecessary files
-
-# Python cache and build artifacts
+# Python cache files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -22,21 +20,33 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Development files
+.git/
+.gitignore
+README.md
+*.md
+.pytest_cache/
+tests/
+test_*.py
+*_test.py
+
+# Environment files
+.env
+.venv
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
 
-# IDE and editor files
+# IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS generated files
+# OS files
 .DS_Store
 .DS_Store?
 ._*
@@ -45,48 +55,31 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 
-# Git
-.git/
-.gitignore
+# Compressed static files (keep originals, exclude compressed versions)
+*.gz
 
-# Node modules (if any)
+# Development dependencies
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Documentation and markdown files
-*.md
-README*
-CHANGELOG*
-LICENSE*
-docs/
+# Large asset directories that aren't essential for core functionality
+static/images/previews/
+static/img/
+static/assets/
 
-# Test files
-tests/
-test/
-*_test.py
-test_*.py
+# Documentation and setup files
+setup.py
+MANIFEST.in
+pyproject.toml
+uv.lock
 
-# Large data files and archives
-*.zip
-*.tar.gz
-*.rar
-*.7z
-*.csv
-*.xlsx
-*.xls
-*.json
-*.log
+# Egg info directory
+*.egg-info/
 
-# Archive and backup directories
-archived_modules/
-backup/
-old/
-deprecated/
-
-# Development and debugging files
-.pytest_cache/
+# Development tools
+.mypy_cache/
 .coverage
 htmlcov/
 .tox/
@@ -96,62 +89,12 @@ coverage.xml
 *.cover
 .hypothesis/
 
-# Environment files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Logs
+*.log
+logs/
 
 # Temporary files
-tmp/
-temp/
 *.tmp
 *.temp
-
-# Large directories that aren't needed in production
-agi_burn_suite/
-agi_evolution/
-agi_transcendence/
-agents/
-5_DATA/
-4_QA_AUTOMATION/
-3_ATTENDANCE_MODULE/
-2_ANALYTICS_ENGINE/
-1_UI_COMPONENTS/
-0_BOOTSTRAP/
-archived_modules/
-
-# Cache and temporary files
-.cache/
-.replit/
-nix/
-
-# Large data files and exports
-*.zip
-*.tar.gz
-*.rar
-*.7z
-*.csv
-*.xlsx
-*.xls
-*.pdf
-exports/
-uploads/
-
-# Deployment and configuration files not needed in container
-Dockerfile*
-docker-compose*
-*.md
-*.txt
-*.sh
-*.json
-DEPLOYMENT_*
-ULTIMATE_*
-QQ_*
-TRAXOVO_*
-GAUGE*
-KAIZEN*
-MEGA_*
-QUANTUM_*
-SYSTEMSMITH*
+temp/
+tmp/

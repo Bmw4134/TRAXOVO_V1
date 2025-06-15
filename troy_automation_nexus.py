@@ -666,7 +666,7 @@ def home():
             <div class="control-buttons">
                 <a href="/nexus-hub" class="nexus-button">Launch Nexus Hub</a>
                 <a href="/fleet-automation" class="nexus-button secondary-button">Fleet Automation</a>
-                <a href="/data-intelligence" class="nexus-button secondary-button">Data Intelligence</a>
+                <a href="/ground-works-suite" class="nexus-button secondary-button">Ground Works Suite</a>
                 <a href="/api-orchestration" class="nexus-button secondary-button">API Orchestration</a>
             </div>
         </div>

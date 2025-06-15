@@ -1,9 +1,9 @@
 """
-TRAXOVO Fleet Management Platform - Professional Version
-Clean, professional fleet management system for demonstration
+Universal Automation Assistant - For Troy
+A comprehensive tool to automate any business task
 """
 
-from app_simplified import app
+from automation_assistant import app
 import os
 import logging
 
@@ -13,14 +13,14 @@ logger = logging.getLogger(__name__)
 
 if __name__ == '__main__':
     print("="*60)
-    print("TRAXOVO FLEET MANAGEMENT PLATFORM")
-    print("Professional Enterprise Solution")
+    print("UNIVERSAL AUTOMATION ASSISTANT")
+    print("Automate Everything, Simplify Everything")
     print("="*60)
     
-    print("→ Fleet Management System: Ready")
-    print("→ Database: Connected")
-    print("→ Authentic Data: Integrated")
-    print("→ Starting Professional Server...")
+    print("→ Automation Engine: Ready")
+    print("→ API Integration: Active")
+    print("→ AI Assistance: Available")
+    print("→ Starting Automation Server...")
     print("="*60)
     
     # Start server

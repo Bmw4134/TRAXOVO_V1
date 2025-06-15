@@ -1,374 +1,432 @@
 """
 TRAXOVO One-Click API Performance Benchmark Tool
-Comprehensive testing and analysis of API performance, reliability, and integration capabilities
+Enterprise-grade API performance testing and analytics system
 """
 
 import time
+import statistics
 import json
 import requests
-import statistics
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
-from typing import Dict, List, Any, Optional
-import asyncio
-import aiohttp
+from datetime import datetime, timedelta
+from typing import Dict, List, Any
+import concurrent.futures
+import threading
+import logging
 
 class APIPerformanceBenchmark:
-    """One-click API performance benchmark tool with comprehensive testing capabilities"""
+    """One-click API performance benchmark and analytics tool"""
     
     def __init__(self):
-        self.test_results = []
-        self.benchmark_start_time = None
-        self.benchmark_end_time = None
-        self.test_apis = self._initialize_test_apis()
+        self.benchmark_results = {}
+        self.test_configurations = {
+            'light': {'concurrent_users': 5, 'requests_per_user': 10, 'duration': 30},
+            'standard': {'concurrent_users': 25, 'requests_per_user': 50, 'duration': 60},
+            'stress': {'concurrent_users': 100, 'requests_per_user': 100, 'duration': 120},
+            'enterprise': {'concurrent_users': 500, 'requests_per_user': 200, 'duration': 300}
+        }
         
-    def _initialize_test_apis(self) -> List[Dict]:
-        """Initialize comprehensive list of APIs for performance testing"""
+    def get_api_endpoints(self) -> List[Dict]:
+        """Get list of API endpoints to benchmark"""
         return [
             {
-                "name": "JSONPlaceholder Posts",
-                "url": "https://jsonplaceholder.typicode.com/posts",
-                "method": "GET",
-                "timeout": 10,
-                "expected_status": 200,
-                "test_type": "public_api",
-                "category": "Testing API"
+                'name': 'Ground Works Projects',
+                'endpoint': '/api/ground-works/projects',
+                'method': 'GET',
+                'category': 'data_retrieval',
+                'expected_response_time': 200,
+                'critical': True
             },
             {
-                "name": "JSONPlaceholder Users",
-                "url": "https://jsonplaceholder.typicode.com/users",
-                "method": "GET",
-                "timeout": 10,
-                "expected_status": 200,
-                "test_type": "public_api",
-                "category": "Testing API"
+                'name': 'Ground Works Data',
+                'endpoint': '/api/groundworks/data',
+                'method': 'GET',
+                'category': 'data_retrieval',
+                'expected_response_time': 150,
+                'critical': True
             },
             {
-                "name": "GitHub API - Public Repos",
-                "url": "https://api.github.com/repositories",
-                "method": "GET",
-                "timeout": 15,
-                "expected_status": 200,
-                "test_type": "public_api",
-                "category": "Development API"
+                'name': 'RAGLE Daily Hours',
+                'endpoint': '/api/ragle-daily-hours',
+                'method': 'GET',
+                'category': 'analytics',
+                'expected_response_time': 300,
+                'critical': False
             },
             {
-                "name": "CoinGecko Crypto API",
-                "url": "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd",
-                "method": "GET",
-                "timeout": 10,
-                "expected_status": 200,
-                "test_type": "public_api",
-                "category": "Financial API"
+                'name': 'Ground Works Connect',
+                'endpoint': '/api/groundworks/connect',
+                'method': 'POST',
+                'category': 'authentication',
+                'expected_response_time': 500,
+                'critical': True,
+                'payload': {'username': 'test', 'password': 'test', 'base_url': 'test'}
             },
             {
-                "name": "REST Countries API",
-                "url": "https://restcountries.com/v3.1/name/usa",
-                "method": "GET",
-                "timeout": 10,
-                "expected_status": 200,
-                "test_type": "public_api",
-                "category": "Geographic API"
+                'name': 'Dashboard Home',
+                'endpoint': '/',
+                'method': 'GET',
+                'category': 'ui',
+                'expected_response_time': 100,
+                'critical': True
             },
             {
-                "name": "OpenWeatherMap Sample",
-                "url": "https://samples.openweathermap.org/data/2.5/weather?q=London&appid=sample",
-                "method": "GET",
-                "timeout": 10,
-                "expected_status": [200, 401],  # 401 expected for sample endpoint
-                "test_type": "public_api",
-                "category": "Weather API"
+                'name': 'Ultimate Troy Dashboard',
+                'endpoint': '/ultimate-troy-dashboard',
+                'method': 'GET',
+                'category': 'dashboard',
+                'expected_response_time': 400,
+                'critical': False
             },
             {
-                "name": "HTTPBin Test API",
-                "url": "https://httpbin.org/json",
-                "method": "GET",
-                "timeout": 10,
-                "expected_status": 200,
-                "test_type": "public_api",
-                "category": "Testing API"
-            },
-            {
-                "name": "TRAXOVO Internal - Asset Data",
-                "url": "/api/comprehensive-data",
-                "method": "GET",
-                "timeout": 30,
-                "expected_status": 200,
-                "test_type": "internal_api",
-                "category": "TRAXOVO Core"
-            },
-            {
-                "name": "TRAXOVO Internal - GAUGE Status",
-                "url": "/api/gauge-status",
-                "method": "GET",
-                "timeout": 20,
-                "expected_status": 200,
-                "test_type": "internal_api",
-                "category": "TRAXOVO Integration"
-            },
-            {
-                "name": "TRAXOVO Internal - Health Check",
-                "url": "/health",
-                "method": "GET",
-                "timeout": 10,
-                "expected_status": 200,
-                "test_type": "internal_api",
-                "category": "TRAXOVO Core"
+                'name': 'Ground Works Complete',
+                'endpoint': '/ground-works-complete',
+                'method': 'GET',
+                'category': 'dashboard',
+                'expected_response_time': 500,
+                'critical': False
             }
         ]
-
-    def run_comprehensive_benchmark(self, base_url: str = "https://f2699832-8135-4557-9ec0-8d4d723b9ba2-00-347mwnpgyu8te.janeway.replit.dev") -> Dict[str, Any]:
-        """Run comprehensive API performance benchmark"""
-        print("🚀 Starting TRAXOVO API Performance Benchmark...")
+    
+    def benchmark_endpoint(self, endpoint: Dict, base_url: str = "http://localhost:5000") -> Dict:
+        """Benchmark a single endpoint with detailed metrics"""
+        url = f"{base_url}{endpoint['endpoint']}"
+        method = endpoint['method']
+        payload = endpoint.get('payload', None)
         
-        self.benchmark_start_time = datetime.now()
-        self.test_results = []
-        
-        # Run tests in parallel for better performance
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            future_to_api = {}
-            
-            for api in self.test_apis:
-                url = api['url']
-                if url.startswith('/'):
-                    url = base_url + url
-                    
-                future = executor.submit(self._test_single_api, api, url)
-                future_to_api[future] = api
-            
-            for future in as_completed(future_to_api):
-                api = future_to_api[future]
-                try:
-                    result = future.result()
-                    self.test_results.append(result)
-                    print(f"✓ Tested {api['name']}: {result['status']}")
-                except Exception as e:
-                    error_result = {
-                        "api_name": api['name'],
-                        "status": "error",
-                        "error_message": str(e),
-                        "response_time": 0,
-                        "reliability_score": 0
-                    }
-                    self.test_results.append(error_result)
-                    print(f"✗ Error testing {api['name']}: {str(e)}")
-        
-        self.benchmark_end_time = datetime.now()
-        
-        # Generate comprehensive analysis
-        return self._generate_benchmark_report()
-
-    def _test_single_api(self, api_config: Dict, url: str) -> Dict[str, Any]:
-        """Test a single API endpoint with comprehensive metrics"""
-        response_times = []
-        success_count = 0
-        total_tests = 3  # Test each API 3 times for reliability
-        
-        for attempt in range(total_tests):
-            try:
-                start_time = time.time()
-                
-                response = requests.request(
-                    method=api_config['method'],
-                    url=url,
-                    timeout=api_config['timeout'],
-                    headers={'User-Agent': 'TRAXOVO-Benchmark/1.0'}
-                )
-                
+        # Timing measurements
+        start_time = time.time()
+        try:
+            if method == 'GET':
+                response = requests.get(url, timeout=30)
                 end_time = time.time()
                 response_time = (end_time - start_time) * 1000  # Convert to milliseconds
-                response_times.append(response_time)
                 
-                # Check if response status is expected
-                expected_statuses = api_config['expected_status']
-                if isinstance(expected_statuses, int):
-                    expected_statuses = [expected_statuses]
-                
-                if response.status_code in expected_statuses:
-                    success_count += 1
-                    
-            except Exception as e:
-                # Add timeout/error as maximum response time
-                response_times.append(api_config['timeout'] * 1000)
-                print(f"Error testing {api_config['name']} (attempt {attempt + 1}): {str(e)}")
-        
-        # Calculate metrics
-        avg_response_time = statistics.mean(response_times) if response_times else 0
-        min_response_time = min(response_times) if response_times else 0
-        max_response_time = max(response_times) if response_times else 0
-        success_rate = (success_count / total_tests) * 100
-        
-        # Calculate reliability score based on success rate and response time
-        reliability_score = self._calculate_reliability_score(success_rate, avg_response_time)
-        
-        # Determine status
-        if success_rate >= 90 and avg_response_time < 2000:
-            status = "excellent"
-        elif success_rate >= 70 and avg_response_time < 5000:
-            status = "good"
-        elif success_rate >= 50:
-            status = "fair"
-        else:
-            status = "poor"
-        
-        return {
-            "api_name": api_config['name'],
-            "category": api_config['category'],
-            "test_type": api_config['test_type'],
-            "url": url,
-            "status": status,
-            "success_rate": round(success_rate, 1),
-            "avg_response_time": round(avg_response_time, 1),
-            "min_response_time": round(min_response_time, 1),
-            "max_response_time": round(max_response_time, 1),
-            "reliability_score": round(reliability_score, 1),
-            "total_tests": total_tests,
-            "successful_tests": success_count,
-            "recommendation": self._get_api_recommendation(status, success_rate, avg_response_time)
-        }
-
-    def _calculate_reliability_score(self, success_rate: float, avg_response_time: float) -> float:
-        """Calculate overall reliability score based on success rate and performance"""
-        # Weight success rate more heavily than response time
-        success_weight = 0.7
-        performance_weight = 0.3
-        
-        # Normalize response time (assume 5000ms is very poor, 100ms is excellent)
-        performance_score = max(0, 100 - (avg_response_time / 50))
-        
-        reliability_score = (success_rate * success_weight) + (performance_score * performance_weight)
-        return min(100, max(0, reliability_score))
-
-    def _get_api_recommendation(self, status: str, success_rate: float, avg_response_time: float) -> str:
-        """Generate recommendation based on API performance"""
-        if status == "excellent":
-            return "Recommended for production use. Excellent performance and reliability."
-        elif status == "good":
-            return "Suitable for production with monitoring. Good performance overall."
-        elif status == "fair":
-            if success_rate < 70:
-                return "Reliability concerns. Consider implementing retry logic."
-            else:
-                return "Acceptable for non-critical applications. Monitor performance."
-        else:
-            return "Not recommended for production. Investigate connectivity issues."
-
-    def _generate_benchmark_report(self) -> Dict[str, Any]:
-        """Generate comprehensive benchmark analysis report"""
-        if not self.test_results:
-            return {"error": "No test results available"}
-        
-        duration = (self.benchmark_end_time - self.benchmark_start_time).total_seconds()
-        
-        # Calculate overall statistics
-        successful_apis = [r for r in self.test_results if r.get('status') not in ['error', 'poor']]
-        total_successful_tests = sum(r.get('successful_tests', 0) for r in self.test_results)
-        total_tests = sum(r.get('total_tests', 0) for r in self.test_results)
-        
-        overall_success_rate = (total_successful_tests / total_tests * 100) if total_tests > 0 else 0
-        avg_response_times = [r.get('avg_response_time', 0) for r in self.test_results if r.get('avg_response_time', 0) > 0]
-        overall_avg_response = statistics.mean(avg_response_times) if avg_response_times else 0
-        
-        # Find best and worst performing APIs
-        best_performance = min(self.test_results, key=lambda x: x.get('avg_response_time', float('inf')))
-        most_reliable = max(self.test_results, key=lambda x: x.get('reliability_score', 0))
-        
-        # Categorize results
-        categories = {}
-        for result in self.test_results:
-            category = result.get('category', 'Unknown')
-            if category not in categories:
-                categories[category] = []
-            categories[category].append(result)
-        
-        # Production readiness assessment
-        production_ready = [r for r in self.test_results if r.get('status') in ['excellent', 'good']]
-        
-        return {
-            "benchmark_summary": {
-                "total_apis_tested": len(self.test_results),
-                "successful_tests": len(successful_apis),
-                "total_duration": round(duration, 2),
-                "benchmark_timestamp": self.benchmark_start_time.isoformat()
-            },
-            "performance_insights": {
-                "overall_success_rate": round(overall_success_rate, 1),
-                "overall_avg_response": round(overall_avg_response, 1),
-                "fastest_api": best_performance.get('api_name', 'Unknown'),
-                "most_reliable": most_reliable.get('api_name', 'Unknown'),
-                "production_ready_count": len(production_ready),
-                "recommended_for_production": [api['api_name'] for api in production_ready]
-            },
-            "api_results": self.test_results,
-            "category_breakdown": {
-                category: {
-                    "total_apis": len(apis),
-                    "avg_performance": round(statistics.mean([api.get('avg_response_time', 0) for api in apis]), 1),
-                    "avg_reliability": round(statistics.mean([api.get('reliability_score', 0) for api in apis]), 1)
+                return {
+                    'endpoint': endpoint['name'],
+                    'url': url,
+                    'status_code': response.status_code,
+                    'response_time_ms': response_time,
+                    'content_length': len(response.text),
+                    'success': response.status_code < 400,
+                    'timestamp': datetime.now().isoformat(),
+                    'category': endpoint['category'],
+                    'critical': endpoint['critical']
                 }
-                for category, apis in categories.items()
-            },
-            "recommendations": self._generate_overall_recommendations(production_ready, self.test_results),
-            "next_steps": [
-                "Review APIs with poor performance for optimization opportunities",
-                "Implement monitoring for production-ready APIs",
-                "Consider retry logic for APIs with reliability concerns",
-                "Schedule regular performance benchmarks"
-            ]
+            elif method == 'POST':
+                response = requests.post(url, json=payload, timeout=30)
+                end_time = time.time()
+                response_time = (end_time - start_time) * 1000
+                
+                return {
+                    'endpoint': endpoint['name'],
+                    'url': url,
+                    'status_code': response.status_code,
+                    'response_time_ms': response_time,
+                    'content_length': len(response.text),
+                    'success': response.status_code < 400,
+                    'timestamp': datetime.now().isoformat(),
+                    'category': endpoint['category'],
+                    'critical': endpoint['critical']
+                }
+                    
+        except Exception as e:
+            end_time = time.time()
+            return {
+                'endpoint': endpoint['name'],
+                'url': url,
+                'status_code': 0,
+                'response_time_ms': (end_time - start_time) * 1000,
+                'content_length': 0,
+                'success': False,
+                'error': str(e),
+                'timestamp': datetime.now().isoformat(),
+                'category': endpoint['category'],
+                'critical': endpoint['critical']
+            }
+    
+    def run_concurrent_benchmark(self, test_type: str = 'standard') -> Dict:
+        """Run concurrent benchmark test with specified configuration"""
+        config = self.test_configurations[test_type]
+        endpoints = self.get_api_endpoints()
+        
+        benchmark_start = datetime.now()
+        all_results = []
+        
+        # Create concurrent tasks using ThreadPoolExecutor
+        with concurrent.futures.ThreadPoolExecutor(max_workers=config['concurrent_users']) as executor:
+            # Submit all benchmark tasks
+            futures = []
+            for _ in range(config['concurrent_users']):
+                for _ in range(config['requests_per_user']):
+                    for endpoint in endpoints:
+                        future = executor.submit(self.benchmark_endpoint, endpoint)
+                        futures.append(future)
+            
+            # Collect results as they complete
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    result = future.result()
+                    all_results.append(result)
+                except Exception as e:
+                    # Handle failed requests
+                    all_results.append({
+                        'endpoint': 'unknown',
+                        'success': False,
+                        'error': str(e),
+                        'response_time_ms': 0,
+                        'timestamp': datetime.now().isoformat()
+                    })
+        
+        benchmark_end = datetime.now()
+        
+        # Calculate comprehensive analytics
+        analytics = self.calculate_performance_analytics(all_results, config, 
+                                                        benchmark_start, benchmark_end)
+        
+        return {
+            'test_type': test_type,
+            'configuration': config,
+            'start_time': benchmark_start.isoformat(),
+            'end_time': benchmark_end.isoformat(),
+            'total_duration': (benchmark_end - benchmark_start).total_seconds(),
+            'raw_results': all_results,
+            'analytics': analytics,
+            'summary': self.generate_performance_summary(analytics)
         }
-
-    def _generate_overall_recommendations(self, production_ready: List[Dict], all_results: List[Dict]) -> List[str]:
-        """Generate overall recommendations based on benchmark results"""
+    
+    def calculate_performance_analytics(self, results: List[Dict], config: Dict, 
+                                      start_time: datetime, end_time: datetime) -> Dict:
+        """Calculate comprehensive performance analytics from benchmark results"""
+        
+        # Group results by endpoint
+        endpoint_groups = {}
+        for result in results:
+            endpoint_name = result['endpoint']
+            if endpoint_name not in endpoint_groups:
+                endpoint_groups[endpoint_name] = []
+            endpoint_groups[endpoint_name].append(result)
+        
+        # Calculate metrics for each endpoint
+        endpoint_analytics = {}
+        for endpoint_name, endpoint_results in endpoint_groups.items():
+            response_times = [r['response_time_ms'] for r in endpoint_results if r['success']]
+            success_count = len([r for r in endpoint_results if r['success']])
+            total_count = len(endpoint_results)
+            
+            if response_times:
+                endpoint_analytics[endpoint_name] = {
+                    'total_requests': total_count,
+                    'successful_requests': success_count,
+                    'failed_requests': total_count - success_count,
+                    'success_rate': (success_count / total_count) * 100,
+                    'avg_response_time': statistics.mean(response_times),
+                    'min_response_time': min(response_times),
+                    'max_response_time': max(response_times),
+                    'median_response_time': statistics.median(response_times),
+                    'p95_response_time': self.percentile(response_times, 95),
+                    'p99_response_time': self.percentile(response_times, 99),
+                    'requests_per_second': success_count / (end_time - start_time).total_seconds(),
+                    'category': endpoint_results[0]['category'],
+                    'critical': endpoint_results[0]['critical']
+                }
+            else:
+                endpoint_analytics[endpoint_name] = {
+                    'total_requests': total_count,
+                    'successful_requests': 0,
+                    'failed_requests': total_count,
+                    'success_rate': 0,
+                    'avg_response_time': 0,
+                    'requests_per_second': 0,
+                    'category': endpoint_results[0]['category'],
+                    'critical': endpoint_results[0]['critical']
+                }
+        
+        # Calculate overall system analytics
+        all_response_times = [r['response_time_ms'] for r in results if r['success']]
+        total_success = len([r for r in results if r['success']])
+        total_requests = len(results)
+        
+        overall_analytics = {
+            'total_requests': total_requests,
+            'successful_requests': total_success,
+            'failed_requests': total_requests - total_success,
+            'overall_success_rate': (total_success / total_requests) * 100 if total_requests > 0 else 0,
+            'avg_response_time': statistics.mean(all_response_times) if all_response_times else 0,
+            'median_response_time': statistics.median(all_response_times) if all_response_times else 0,
+            'p95_response_time': self.percentile(all_response_times, 95) if all_response_times else 0,
+            'p99_response_time': self.percentile(all_response_times, 99) if all_response_times else 0,
+            'total_throughput': total_success / (end_time - start_time).total_seconds(),
+            'concurrent_users': config['concurrent_users'],
+            'requests_per_user': config['requests_per_user']
+        }
+        
+        return {
+            'endpoints': endpoint_analytics,
+            'overall': overall_analytics,
+            'performance_grade': self.calculate_performance_grade(overall_analytics, endpoint_analytics)
+        }
+    
+    def percentile(self, data: List[float], percentile: int) -> float:
+        """Calculate percentile value from data"""
+        if not data:
+            return 0
+        sorted_data = sorted(data)
+        index = (percentile / 100) * (len(sorted_data) - 1)
+        lower = int(index)
+        upper = lower + 1
+        
+        if upper >= len(sorted_data):
+            return sorted_data[-1]
+        
+        weight = index - lower
+        return sorted_data[lower] * (1 - weight) + sorted_data[upper] * weight
+    
+    def calculate_performance_grade(self, overall: Dict, endpoints: Dict) -> Dict:
+        """Calculate performance grade and recommendations"""
+        grade_score = 100
+        issues = []
         recommendations = []
         
-        production_rate = len(production_ready) / len(all_results) * 100
+        # Check overall success rate
+        if overall['overall_success_rate'] < 95:
+            grade_score -= 20
+            issues.append("Low success rate - system reliability issues detected")
+            recommendations.append("Investigate failed requests and improve error handling")
         
-        if production_rate >= 80:
-            recommendations.append("Excellent API ecosystem. Most APIs are production-ready.")
-        elif production_rate >= 60:
-            recommendations.append("Good API performance overall. Some optimization opportunities exist.")
+        # Check response times
+        if overall['avg_response_time'] > 1000:
+            grade_score -= 15
+            issues.append("High average response time - performance optimization needed")
+            recommendations.append("Optimize database queries and implement caching")
+        
+        if overall['p95_response_time'] > 2000:
+            grade_score -= 10
+            issues.append("High P95 response time - inconsistent performance")
+            recommendations.append("Identify and optimize slow endpoints")
+        
+        # Check critical endpoints
+        critical_issues = 0
+        for endpoint_name, metrics in endpoints.items():
+            if metrics['critical'] and metrics['success_rate'] < 98:
+                critical_issues += 1
+                issues.append(f"Critical endpoint '{endpoint_name}' has reliability issues")
+        
+        if critical_issues > 0:
+            grade_score -= critical_issues * 10
+            recommendations.append("Prioritize fixing critical endpoint issues")
+        
+        # Check throughput
+        if overall['total_throughput'] < 10:
+            grade_score -= 10
+            issues.append("Low throughput - scalability concerns")
+            recommendations.append("Implement load balancing and horizontal scaling")
+        
+        # Determine letter grade
+        if grade_score >= 90:
+            letter_grade = "A"
+            status = "Excellent"
+        elif grade_score >= 80:
+            letter_grade = "B"
+            status = "Good"
+        elif grade_score >= 70:
+            letter_grade = "C"
+            status = "Fair"
+        elif grade_score >= 60:
+            letter_grade = "D"
+            status = "Poor"
         else:
-            recommendations.append("API performance needs improvement. Focus on reliability and response times.")
-        
-        # API-specific recommendations
-        slow_apis = [r for r in all_results if r.get('avg_response_time', 0) > 3000]
-        if slow_apis:
-            recommendations.append(f"Consider optimizing {len(slow_apis)} slow-performing APIs.")
-        
-        unreliable_apis = [r for r in all_results if r.get('success_rate', 100) < 80]
-        if unreliable_apis:
-            recommendations.append(f"Address reliability issues in {len(unreliable_apis)} APIs.")
-        
-        return recommendations
-
-    def get_quick_benchmark_summary(self) -> Dict[str, Any]:
-        """Get a quick summary of the last benchmark run"""
-        if not self.test_results:
-            return {"status": "no_data", "message": "No benchmark data available. Run benchmark first."}
-        
-        excellent_count = len([r for r in self.test_results if r.get('status') == 'excellent'])
-        good_count = len([r for r in self.test_results if r.get('status') == 'good'])
-        total_count = len(self.test_results)
+            letter_grade = "F"
+            status = "Critical"
         
         return {
-            "status": "available",
-            "total_apis": total_count,
-            "excellent_apis": excellent_count,
-            "good_apis": good_count,
-            "production_ready": excellent_count + good_count,
-            "last_benchmark": self.benchmark_start_time.isoformat() if self.benchmark_start_time else None
+            'score': max(0, grade_score),
+            'letter_grade': letter_grade,
+            'status': status,
+            'issues': issues,
+            'recommendations': recommendations
         }
+    
+    def generate_performance_summary(self, analytics: Dict) -> Dict:
+        """Generate executive summary of performance benchmark"""
+        overall = analytics['overall']
+        grade = analytics['performance_grade']
+        
+        # Calculate cost impact estimates
+        failed_requests = overall['failed_requests']
+        avg_response_time = overall['avg_response_time']
+        
+        # Estimated productivity impact
+        if avg_response_time > 1000:
+            productivity_impact = "High - User experience significantly degraded"
+        elif avg_response_time > 500:
+            productivity_impact = "Medium - Noticeable delays in user interactions"
+        else:
+            productivity_impact = "Low - Acceptable performance levels"
+        
+        # Infrastructure recommendations
+        if overall['total_throughput'] < 50:
+            infrastructure_rec = "Scale up server resources and implement load balancing"
+        elif overall['total_throughput'] < 100:
+            infrastructure_rec = "Optimize current infrastructure and monitor scaling needs"
+        else:
+            infrastructure_rec = "Current infrastructure performs well under load"
+        
+        return {
+            'performance_status': grade['status'],
+            'grade': f"{grade['letter_grade']} ({grade['score']}/100)",
+            'key_metrics': {
+                'success_rate': f"{overall['overall_success_rate']:.1f}%",
+                'avg_response_time': f"{overall['avg_response_time']:.0f}ms",
+                'throughput': f"{overall['total_throughput']:.1f} req/sec",
+                'p95_response_time': f"{overall['p95_response_time']:.0f}ms"
+            },
+            'productivity_impact': productivity_impact,
+            'infrastructure_recommendation': infrastructure_rec,
+            'immediate_actions': grade['recommendations'][:3],
+            'estimated_monthly_cost_impact': self.estimate_cost_impact(overall, failed_requests)
+        }
+    
+    def estimate_cost_impact(self, overall: Dict, failed_requests: int) -> str:
+        """Estimate monthly cost impact of performance issues"""
+        # Simplified cost calculation based on failed requests and response times
+        base_cost_per_failed_request = 0.50  # Estimated cost per failed request
+        response_time_penalty = max(0, (overall['avg_response_time'] - 200) * 0.01)
+        
+        monthly_failed_cost = failed_requests * base_cost_per_failed_request * 30
+        monthly_performance_cost = response_time_penalty * overall['successful_requests'] * 30
+        
+        total_estimated_cost = monthly_failed_cost + monthly_performance_cost
+        
+        if total_estimated_cost < 100:
+            return "Low impact - Under $100/month"
+        elif total_estimated_cost < 500:
+            return f"Medium impact - ~${total_estimated_cost:.0f}/month"
+        else:
+            return f"High impact - ~${total_estimated_cost:.0f}/month in productivity losses"
+    
+    def run_quick_benchmark(self) -> Dict:
+        """Run a quick 30-second benchmark for immediate feedback"""
+        return self.run_concurrent_benchmark('light')
+    
+    def run_standard_benchmark(self) -> Dict:
+        """Run a standard 1-minute benchmark for comprehensive analysis"""
+        return self.run_concurrent_benchmark('standard')
+    
+    def run_stress_test(self) -> Dict:
+        """Run a 2-minute stress test for scalability analysis"""
+        return self.run_concurrent_benchmark('stress')
+    
+    def run_enterprise_test(self) -> Dict:
+        """Run a 5-minute enterprise-grade performance test"""
+        return self.run_concurrent_benchmark('enterprise')
 
-def get_api_benchmark_tool():
-    """Get API benchmark tool instance"""
+def get_benchmark_tool():
+    """Get API Performance Benchmark tool instance"""
     return APIPerformanceBenchmark()
 
-def run_quick_benchmark():
-    """Run quick API performance benchmark"""
-    benchmark_tool = APIPerformanceBenchmark()
-    return benchmark_tool.run_comprehensive_benchmark()
-
-def get_benchmark_results():
-    """Get existing benchmark results"""
-    benchmark_tool = APIPerformanceBenchmark()
-    return benchmark_tool.get_quick_benchmark_summary()
+# Test function for immediate execution
+if __name__ == "__main__":
+    benchmark = APIPerformanceBenchmark()
+    print("Running quick API performance benchmark...")
+    results = benchmark.run_quick_benchmark()
+    print(f"Benchmark completed with grade: {results['summary']['grade']}")

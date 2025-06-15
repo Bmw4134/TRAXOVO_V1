@@ -482,6 +482,46 @@ def api_complete_projects():
         'message': 'Complete 56-project dataset successfully extracted from Ground Works system'
     })
 
+# API Performance Benchmark Integration
+@app.route('/api/benchmark/run/<test_type>')
+def run_api_benchmark(test_type):
+    """Run API performance benchmark with specified test type"""
+    from api_performance_benchmark import get_benchmark_tool
+    
+    benchmark = get_benchmark_tool()
+    
+    if test_type == 'quick':
+        results = benchmark.run_quick_benchmark()
+    elif test_type == 'standard':
+        results = benchmark.run_standard_benchmark()
+    elif test_type == 'stress':
+        results = benchmark.run_stress_test()
+    elif test_type == 'enterprise':
+        results = benchmark.run_enterprise_test()
+    else:
+        return jsonify({'error': 'Invalid test type'}), 400
+    
+    return jsonify(results)
+
+@app.route('/api/benchmark/endpoints')
+def get_benchmark_endpoints():
+    """Get list of available endpoints for benchmarking"""
+    from api_performance_benchmark import get_benchmark_tool
+    
+    benchmark = get_benchmark_tool()
+    endpoints = benchmark.get_api_endpoints()
+    
+    return jsonify({
+        'endpoints': endpoints,
+        'total_count': len(endpoints),
+        'categories': list(set(ep['category'] for ep in endpoints))
+    })
+
+@app.route('/api-performance-benchmark')
+def api_performance_benchmark_dashboard():
+    """API Performance Benchmark Dashboard"""
+    return render_template('api_performance_benchmark.html')
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)

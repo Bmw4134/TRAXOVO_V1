@@ -3,7 +3,7 @@ TRAXOVO NEXUS - Production Ready Main Application
 Billion Dollar Enterprise Intelligence Platform with Authentic RAGLE Data Integration
 """
 
-from app_nuclear import app
+from app_corrected import app
 import os
 import logging
 

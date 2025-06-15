@@ -41,71 +41,108 @@ class GroundWorksAPIConnector:
     def authenticate(self):
         """Authenticate with Ground Works system"""
         try:
-            # Try common authentication endpoints
+            # Get the main page first to understand the system
+            main_page = self.session.get(f"{self.base_url}/")
+            
+            # Analyze the main page to find login form and method
+            login_form_data = self._analyze_login_form(main_page.text)
+            
+            # Try the detected login endpoint first
+            if login_form_data.get('action'):
+                success = self._attempt_form_login(login_form_data)
+                if success:
+                    return True
+            
+            # Try common authentication endpoints with different methods
             auth_endpoints = [
-                '/login',
-                '/auth/login',
-                '/api/auth/login',
-                '/account/login',
-                '/signin'
+                ('/', 'POST'),  # Root with POST
+                ('/login', 'POST'),
+                ('/auth', 'POST'),
+                ('/signin', 'POST'),
+                ('/user/login', 'POST'),
+                ('/account/signin', 'POST'),
+                ('/api/login', 'POST'),
+                ('/auth/signin', 'POST')
             ]
             
-            login_data = {
-                'username': self.username,
-                'password': self.password,
-                'email': self.username,  # Some systems use email
-                'login': self.username
-            }
+            login_data_variations = [
+                {
+                    'username': self.username,
+                    'password': self.password
+                },
+                {
+                    'email': self.username,
+                    'password': self.password
+                },
+                {
+                    'login': self.username,
+                    'password': self.password
+                },
+                {
+                    'user': self.username,
+                    'pass': self.password
+                },
+                {
+                    'userid': self.username,
+                    'userpassword': self.password
+                }
+            ]
             
-            for endpoint in auth_endpoints:
-                try:
-                    # First get the login page to check for CSRF tokens
-                    login_page = self.session.get(f"{self.base_url}{endpoint}")
-                    
-                    # Look for CSRF token in the response
-                    csrf_token = self._extract_csrf_token(login_page.text)
-                    if csrf_token:
-                        login_data['_token'] = csrf_token
-                        login_data['csrf_token'] = csrf_token
-                    
-                    # Attempt login
-                    response = self.session.post(
-                        f"{self.base_url}{endpoint}",
-                        data=login_data,
-                        allow_redirects=True,
-                        timeout=10
-                    )
-                    
-                    # Check if authentication was successful
-                    if self._check_authentication_success(response):
-                        self.authenticated = True
-                        logging.info(f"Successfully authenticated via {endpoint}")
-                        return True
+            for endpoint, method in auth_endpoints:
+                for login_data in login_data_variations:
+                    try:
+                        # First get the page to check for forms and CSRF tokens
+                        if endpoint != '/':
+                            page_response = self.session.get(f"{self.base_url}{endpoint}")
+                        else:
+                            page_response = main_page
                         
-                except Exception as e:
-                    continue
-            
-            # Try JSON-based authentication
-            for endpoint in auth_endpoints:
-                try:
-                    response = self.session.post(
-                        f"{self.base_url}{endpoint}",
-                        json=login_data,
-                        timeout=10
-                    )
-                    
-                    if response.status_code == 200:
-                        try:
-                            result = response.json()
-                            if result.get('success') or result.get('authenticated') or 'token' in result:
-                                self.authenticated = True
-                                logging.info(f"Successfully authenticated via JSON {endpoint}")
-                                return True
-                        except:
-                            pass
-                            
-                except Exception as e:
-                    continue
+                        # Look for CSRF token in the response
+                        csrf_token = self._extract_csrf_token(page_response.text)
+                        if csrf_token:
+                            login_data['_token'] = csrf_token
+                            login_data['csrf_token'] = csrf_token
+                            login_data['authenticity_token'] = csrf_token
+                        
+                        # Try different content types
+                        for content_type in ['form', 'json']:
+                            try:
+                                if content_type == 'form':
+                                    response = self.session.post(
+                                        f"{self.base_url}{endpoint}",
+                                        data=login_data,
+                                        allow_redirects=True,
+                                        timeout=10
+                                    )
+                                else:
+                                    response = self.session.post(
+                                        f"{self.base_url}{endpoint}",
+                                        json=login_data,
+                                        timeout=10
+                                    )
+                                
+                                # Check if authentication was successful
+                                if self._check_authentication_success(response):
+                                    self.authenticated = True
+                                    logging.info(f"Successfully authenticated via {endpoint} with {content_type}")
+                                    return True
+                                
+                                # Check for JSON success response
+                                if response.status_code == 200:
+                                    try:
+                                        result = response.json()
+                                        if result.get('success') or result.get('authenticated') or 'token' in result:
+                                            self.authenticated = True
+                                            logging.info(f"Successfully authenticated via JSON {endpoint}")
+                                            return True
+                                    except:
+                                        pass
+                                        
+                            except Exception as e:
+                                continue
+                                
+                    except Exception as e:
+                        continue
             
             return False
             

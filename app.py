@@ -11,6 +11,9 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+# Import NEXUS Universal Navigation
+from nexus_universal_navigation import setup_universal_navigation
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -34,6 +37,9 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 
 # Initialize the app with the extension
 db.init_app(app)
+
+# Setup NEXUS Universal Navigation
+app = setup_universal_navigation(app)
 
 @app.route('/')
 def home():

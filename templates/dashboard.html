@@ -1,88 +1,209 @@
 {% extends "base.html" %}
 
+{% block title %}Watson Dashboard - TRAXOVO Intelligence{% endblock %}
+
 {% block content %}
-<div class="header">
-    <h1>Watson Intelligence Dashboard</h1>
-    <p>Welcome, {{ user.full_name }} | {{ user.department }}</p>
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title text-primary">
+                    <i class="fas fa-tachometer-alt me-2"></i>Watson Command Console
+                </h2>
+                <p class="text-muted">Welcome back, {{ session.user }}. System status: <span class="badge bg-success">Operational</span></p>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="grid">
-    <div class="metric-card">
-        <div class="metric-value">100%</div>
-        <div class="metric-label">System Uptime</div>
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-server fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">System Status</h5>
+                <div class="badge bg-success mb-2">Online</div>
+                <p class="card-text small">All systems operational</p>
+            </div>
+        </div>
     </div>
     
-    <div class="metric-card">
-        <div class="metric-value">{{ user.access_level }}</div>
-        <div class="metric-label">Access Level</div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-brain fa-3x text-info mb-3"></i>
+                <h5 class="card-title">AI Modules</h5>
+                <div class="badge bg-info mb-2">Active</div>
+                <p class="card-text small">Intelligence systems running</p>
+            </div>
+        </div>
     </div>
     
-    <div class="metric-card">
-        <div class="metric-value">Active</div>
-        <div class="metric-label">Status</div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-network-wired fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Network</h5>
+                <div class="badge bg-warning mb-2">Connected</div>
+                <p class="card-text small">HyperMesh network active</p>
+            </div>
+        </div>
     </div>
     
-    <div class="metric-card">
-        <div class="metric-value" id="realtime-timestamp">{{ timestamp }}</div>
-        <div class="metric-label">Last Update</div>
-    </div>
-</div>
-
-<div class="card">
-    <h3>Intelligence Modules</h3>
-    <div class="grid">
-        <div class="metric-card">
-            <h4>Watson Core</h4>
-            <p><span class="status-indicator"></span>Operational</p>
-        </div>
-        
-        <div class="metric-card">
-            <h4>Fleet Management</h4>
-            <p><span class="status-indicator"></span>Active</p>
-        </div>
-        
-        <div class="metric-card">
-            <h4>Business Intelligence</h4>
-            <p><span class="status-indicator"></span>Processing</p>
-        </div>
-        
-        <div class="metric-card">
-            <h4>Security Suite</h4>
-            <p><span class="status-indicator"></span>Protected</p>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Security</h5>
+                <div class="badge bg-success mb-2">Secured</div>
+                <p class="card-text small">All protocols active</p>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="card">
-    <h3>System Information</h3>
-    <p><strong>User:</strong> {{ user.username }}</p>
-    <p><strong>Role:</strong> {{ user.role }}</p>
-    <p><strong>Department:</strong> {{ user.department }}</p>
-    <p><strong>Session Started:</strong> {{ timestamp }}</p>
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Real-time Analytics</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="analyticsChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bell me-2"></i>System Alerts</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success alert-sm">
+                    <i class="fas fa-check-circle me-2"></i>All systems operational
+                </div>
+                <div class="alert alert-info alert-sm">
+                    <i class="fas fa-info-circle me-2"></i>Last sync: <span id="lastSync">--:--</span>
+                </div>
+                <div class="alert alert-warning alert-sm">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Scheduled maintenance in 24h
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-terminal me-2"></i>Watson Command Interface</h5>
+            </div>
+            <div class="card-body">
+                <div id="commandOutput" class="bg-dark text-light p-3 rounded mb-3" style="height: 200px; overflow-y: auto; font-family: monospace;">
+                    Watson Intelligence Console v1.0.0<br>
+                    System initialized successfully.<br>
+                    Ready for commands...<br>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-text">watson@traxovo:~$</span>
+                    <input type="text" class="form-control" id="commandInput" placeholder="Enter command">
+                    <button class="btn btn-primary" id="executeCommand">Execute</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-function updateTimestamp() {
+// Initialize chart
+const ctx = document.getElementById('analyticsChart').getContext('2d');
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'System Performance',
+            data: [],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+
+// Update chart with real-time data
+function updateChart() {
     const now = new Date();
-    const timestamp = now.getFullYear() + '-' + 
-                     String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                     String(now.getDate()).padStart(2, '0') + ' ' + 
-                     String(now.getHours()).padStart(2, '0') + ':' + 
-                     String(now.getMinutes()).padStart(2, '0') + ':' + 
-                     String(now.getSeconds()).padStart(2, '0');
+    const timeLabel = now.toLocaleTimeString();
+    const value = Math.random() * 100;
     
-    const element = document.getElementById('realtime-timestamp');
-    if (element) {
-        element.textContent = timestamp;
+    chart.data.labels.push(timeLabel);
+    chart.data.datasets[0].data.push(value);
+    
+    if (chart.data.labels.length > 10) {
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
     }
     
+    chart.update();
+    document.getElementById('lastSync').textContent = timeLabel;
     console.log('Dashboard updated with real-time data');
 }
 
-// Update timestamp every 2 seconds
-setInterval(updateTimestamp, 2000);
+// Command interface
+document.getElementById('executeCommand').addEventListener('click', function() {
+    const input = document.getElementById('commandInput');
+    const output = document.getElementById('commandOutput');
+    const command = input.value.trim();
+    
+    if (command) {
+        output.innerHTML += '<br>$ ' + command + '<br>';
+        
+        // Simulate command responses
+        switch(command.toLowerCase()) {
+            case 'status':
+                output.innerHTML += 'System Status: All modules operational<br>';
+                break;
+            case 'help':
+                output.innerHTML += 'Available commands: status, help, clear, version<br>';
+                break;
+            case 'clear':
+                output.innerHTML = 'Watson Intelligence Console v1.0.0<br>System initialized successfully.<br>Ready for commands...<br>';
+                break;
+            case 'version':
+                output.innerHTML += 'Watson Intelligence Platform v1.0.0<br>';
+                break;
+            default:
+                output.innerHTML += 'Command not found: ' + command + '<br>';
+        }
+        
+        input.value = '';
+        output.scrollTop = output.scrollHeight;
+    }
+});
 
-// Initial update
-updateTimestamp();
+document.getElementById('commandInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('executeCommand').click();
+    }
+});
+
+// Start real-time updates
+updateChart();
+setInterval(updateChart, 2000);
 </script>
 {% endblock %}

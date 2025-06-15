@@ -1,38 +1,65 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="header">
-    <h1>TRAXOVO Watson Intelligence</h1>
-    <p>Advanced Autonomous System Intelligence Platform</p>
-</div>
-
-<div class="card">
-    <h2>Secure Access Portal</h2>
-    <form method="POST" action="{{ url_for('login') }}">
-        <div class="form-group">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center text-white">
+        <div class="mb-5">
+            <i class="fas fa-brain fa-5x mb-4"></i>
+            <h1 class="display-4 fw-bold mb-4">TRAXOVO Watson Intelligence Platform</h1>
+            <p class="lead mb-5">Advanced autonomous system intelligence for enterprise-level AI management and distributed computational analysis.</p>
         </div>
-        
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card bg-transparent border-light">
+                    <div class="card-body text-white">
+                        <i class="fas fa-network-wired fa-2x mb-3"></i>
+                        <h5>HyperMesh Network</h5>
+                        <p class="small">Distributed computational architecture for real-time analysis</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-transparent border-light">
+                    <div class="card-body text-white">
+                        <i class="fas fa-chart-line fa-2x mb-3"></i>
+                        <h5>Real-time Telemetry</h5>
+                        <p class="small">Advanced monitoring and intelligence gathering systems</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-transparent border-light">
+                    <div class="card-body text-white">
+                        <i class="fas fa-shield-alt fa-2x mb-3"></i>
+                        <h5>Secure Management</h5>
+                        <p class="small">Enterprise-grade security and credential management</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <button type="submit" class="btn">Access System</button>
-    </form>
-</div>
 
-<div class="card">
-    <h3>System Status</h3>
-    <p><span class="status-indicator"></span>All systems operational</p>
-    <p>Secure connection established</p>
-    <p>Watson Intelligence Core: Active</p>
-</div>
-
-<div class="card">
-    <h3>Demo Credentials</h3>
-    <p><strong>Username:</strong> demo</p>
-    <p><strong>Password:</strong> demo123</p>
+        <div class="card bg-white">
+            <div class="card-body">
+                <h3 class="text-dark mb-4">Access Watson Command Console</h3>
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control form-control-lg" name="username" placeholder="Username" required>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="password" class="form-control form-control-lg" name="password" placeholder="Password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg mt-3 px-5">
+                        <i class="fas fa-sign-in-alt me-2"></i>Initialize Watson Console
+                    </button>
+                </form>
+                <div class="mt-3 text-muted small">
+                    Demo credentials: username: <strong>demo</strong>, password: <strong>demo123</strong>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

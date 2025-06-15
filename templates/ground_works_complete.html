@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAXOVO ∞ Ground Works Complete - All Projects</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo h1 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .status-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .status-badge {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3);
+        }
+        
+        .project-count {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .main-container {
+            max-width: 1600px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+        
+        .summary-card h3 {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .summary-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .projects-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+        
+        .projects-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .projects-table thead {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+        
+        .projects-table th,
+        .projects-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .projects-table th {
+            font-weight: 600;
+            position: sticky;
+            top: 80px;
+            z-index: 10;
+        }
+        
+        .projects-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-active {
+            background: #28a745;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-open {
+            background: #ffc107;
+            color: #333;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .contract-amount {
+            font-weight: 600;
+            color: #28a745;
+        }
+        
+        .division-tag {
+            background: #e9ecef;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #495057;
+        }
+        
+        .division-dallas {
+            background: #cce5ff;
+            color: #0056b3;
+        }
+        
+        .division-houston {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .division-west-texas {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .division-texas-district {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 0 1rem;
+            }
+            
+            .projects-table {
+                font-size: 0.8rem;
+            }
+            
+            .projects-table th,
+            .projects-table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-infinity" style="color: #007bff; font-size: 2rem;"></i>
+                <h1>TRAXOVO ∞ Ground Works Complete</h1>
+            </div>
+            <div class="status-info">
+                <div class="project-count" id="projectCount">Loading Projects...</div>
+                <div class="status-badge">
+                    <i class="fas fa-check-circle"></i>
+                    Quantum Extraction Active
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="summary-cards" id="summaryCards">
+            <div class="summary-card">
+                <h3>Total Projects</h3>
+                <div class="value" id="totalProjects">-</div>
+            </div>
+            <div class="summary-card">
+                <h3>Active Projects</h3>
+                <div class="value" id="activeProjects">-</div>
+            </div>
+            <div class="summary-card">
+                <h3>Total Contract Value</h3>
+                <div class="value" id="totalValue">-</div>
+            </div>
+            <div class="summary-card">
+                <h3>Divisions</h3>
+                <div class="value" id="divisionsCount">-</div>
+            </div>
+        </div>
+
+        <div class="projects-section">
+            <div class="section-title">
+                <i class="fas fa-project-diagram"></i>
+                All Ground Works Projects
+            </div>
+            
+            <div class="filters">
+                <select class="filter-select" id="divisionFilter">
+                    <option value="">All Divisions</option>
+                    <option value="Dallas Heavy Highway">Dallas Heavy Highway</option>
+                    <option value="Houston Heavy Highway">Houston Heavy Highway</option>
+                    <option value="West Texas">West Texas</option>
+                    <option value="Texas District">Texas District</option>
+                </select>
+                
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Open">Open</option>
+                </select>
+                
+                <select class="filter-select" id="yearFilter">
+                    <option value="">All Years</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2019">2019</option>
+                </select>
+            </div>
+
+            <div id="projectsContainer">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    <p>Loading Ground Works projects...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allProjects = [];
+        let filteredProjects = [];
+
+        async function loadProjects() {
+            try {
+                console.log('Loading Ground Works projects...');
+                
+                const response = await fetch('/api/ground-works/projects');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Projects loaded:', data);
+                
+                allProjects = data.projects || [];
+                filteredProjects = [...allProjects];
+                
+                updateSummary();
+                renderProjectsTable();
+                
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                document.getElementById('projectsContainer').innerHTML = `
+                    <div class="error">
+                        <strong>Error loading projects:</strong> ${error.message}
+                        <br><small>Attempting to load from comprehensive extractor...</small>
+                    </div>
+                `;
+                
+                // Fallback to comprehensive data
+                setTimeout(loadComprehensiveData, 2000);
+            }
+        }
+
+        async function loadComprehensiveData() {
+            try {
+                const response = await fetch('/api/groundworks/data');
+                if (!response.ok) {
+                    throw new Error(`Fallback failed: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Fallback data loaded:', data);
+                
+                if (data.projects) {
+                    allProjects = data.projects;
+                    filteredProjects = [...allProjects];
+                    updateSummary();
+                    renderProjectsTable();
+                }
+                
+            } catch (error) {
+                console.error('Fallback also failed:', error);
+                document.getElementById('projectsContainer').innerHTML = `
+                    <div class="error">
+                        <strong>Unable to load project data.</strong>
+                        <br>Please check the connection to Ground Works system.
+                    </div>
+                `;
+            }
+        }
+
+        function updateSummary() {
+            const totalProjects = allProjects.length;
+            const activeProjects = allProjects.filter(p => p.status === 'Active').length;
+            
+            // Calculate total contract value
+            let totalValue = 0;
+            allProjects.forEach(project => {
+                if (project.contract_amount) {
+                    const amount = project.contract_amount.replace(/[$,]/g, '');
+                    const value = parseFloat(amount);
+                    if (!isNaN(value)) {
+                        totalValue += value;
+                    }
+                }
+            });
+            
+            // Get unique divisions
+            const divisions = [...new Set(allProjects.map(p => p.division).filter(d => d))];
+            
+            document.getElementById('totalProjects').textContent = totalProjects;
+            document.getElementById('activeProjects').textContent = activeProjects;
+            document.getElementById('totalValue').textContent = `$${(totalValue / 1000000).toFixed(0)}M`;
+            document.getElementById('divisionsCount').textContent = divisions.length;
+            document.getElementById('projectCount').textContent = `${totalProjects} Projects Extracted`;
+        }
+
+        function renderProjectsTable() {
+            const container = document.getElementById('projectsContainer');
+            
+            if (filteredProjects.length === 0) {
+                container.innerHTML = '<div class="loading">No projects match the current filters.</div>';
+                return;
+            }
+            
+            let tableHTML = `
+                <table class="projects-table">
+                    <thead>
+                        <tr>
+                            <th>Number</th>
+                            <th>Description</th>
+                            <th>Division</th>
+                            <th>Contract Amount</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            filteredProjects.forEach(project => {
+                const divisionClass = getDivisionClass(project.division);
+                const statusClass = project.status === 'Active' ? 'status-active' : 'status-open';
+                const location = [project.city, project.state].filter(l => l).join(', ') || '-';
+                
+                tableHTML += `
+                    <tr>
+                        <td><strong>${project.number}</strong></td>
+                        <td>${project.description}</td>
+                        <td><span class="division-tag ${divisionClass}">${project.division || '-'}</span></td>
+                        <td class="contract-amount">${project.contract_amount}</td>
+                        <td>${location}</td>
+                        <td><span class="${statusClass}">${project.status}</span></td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = tableHTML;
+        }
+
+        function getDivisionClass(division) {
+            if (!division) return '';
+            if (division.includes('Dallas')) return 'division-dallas';
+            if (division.includes('Houston')) return 'division-houston';
+            if (division.includes('West Texas')) return 'division-west-texas';
+            if (division.includes('Texas District')) return 'division-texas-district';
+            return '';
+        }
+
+        function applyFilters() {
+            const divisionFilter = document.getElementById('divisionFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const yearFilter = document.getElementById('yearFilter').value;
+            
+            filteredProjects = allProjects.filter(project => {
+                let matches = true;
+                
+                if (divisionFilter && project.division !== divisionFilter) {
+                    matches = false;
+                }
+                
+                if (statusFilter && project.status !== statusFilter) {
+                    matches = false;
+                }
+                
+                if (yearFilter && !project.number.startsWith(yearFilter)) {
+                    matches = false;
+                }
+                
+                return matches;
+            });
+            
+            renderProjectsTable();
+        }
+
+        // Event listeners
+        document.getElementById('divisionFilter').addEventListener('change', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        document.getElementById('yearFilter').addEventListener('change', applyFilters);
+
+        // Initialize
+        console.log('TRAXOVO Ground Works Complete Initialized');
+        loadProjects();
+    </script>
+</body>
+</html>

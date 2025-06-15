@@ -417,15 +417,15 @@
 
         async function loadProjects() {
             try {
-                console.log('Loading Ground Works projects...');
+                console.log('Loading authentic Ground Works projects...');
                 
-                const response = await fetch('/api/ground-works/projects');
+                const response = await fetch('/api/groundworks/data');
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 const data = await response.json();
-                console.log('Projects loaded:', data);
+                console.log('Authentic projects loaded:', data);
                 
                 allProjects = data.projects || [];
                 filteredProjects = [...allProjects];
@@ -438,12 +438,8 @@
                 document.getElementById('projectsContainer').innerHTML = `
                     <div class="error">
                         <strong>Error loading projects:</strong> ${error.message}
-                        <br><small>Attempting to load from comprehensive extractor...</small>
                     </div>
                 `;
-                
-                // Fallback to comprehensive data
-                setTimeout(loadComprehensiveData, 2000);
             }
         }
 
@@ -483,8 +479,9 @@
             let totalValue = 0;
             allProjects.forEach(project => {
                 if (project.contract_amount) {
-                    const amount = project.contract_amount.replace(/[$,]/g, '');
-                    const value = parseFloat(amount);
+                    const value = typeof project.contract_amount === 'number' ? 
+                        project.contract_amount : 
+                        parseFloat(String(project.contract_amount).replace(/[$,]/g, ''));
                     if (!isNaN(value)) {
                         totalValue += value;
                     }
@@ -527,14 +524,21 @@
             filteredProjects.forEach(project => {
                 const divisionClass = getDivisionClass(project.division);
                 const statusClass = project.status === 'Active' ? 'status-active' : 'status-open';
-                const location = [project.city, project.state].filter(l => l).join(', ') || '-';
+                const location = project.location || [project.city, project.state].filter(l => l).join(', ') || '-';
+                
+                // Format contract amount
+                const contractAmount = project.contract_amount ? 
+                    (typeof project.contract_amount === 'number' ? 
+                        `$${project.contract_amount.toLocaleString()}` : 
+                        `$${parseFloat(String(project.contract_amount).replace(/[$,]/g, '')).toLocaleString()}`) 
+                    : '$0';
                 
                 tableHTML += `
                     <tr>
-                        <td><strong>${project.number}</strong></td>
-                        <td>${project.description}</td>
+                        <td><strong>${project.id || project.number}</strong></td>
+                        <td>${project.name || project.description}</td>
                         <td><span class="division-tag ${divisionClass}">${project.division || '-'}</span></td>
-                        <td class="contract-amount">${project.contract_amount}</td>
+                        <td class="contract-amount">${contractAmount}</td>
                         <td>${location}</td>
                         <td><span class="${statusClass}">${project.status}</span></td>
                     </tr>

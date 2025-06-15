@@ -39,19 +39,17 @@ with app.app_context():
     logging.info("Database tables created")
 
 def enforce_authentication():
-    """Global security enforcement for all protected routes"""
+    """Simple authentication check for protected routes"""
     if request.endpoint and request.endpoint in ['dashboard', 'ultimate_troy_dashboard', 'complete_ground_works_dashboard']:
-        if 'authenticated' not in session or not session.get('authenticated'):
+        if 'user_name' not in session:
             return redirect(url_for('login'))
 
 app.before_request(enforce_authentication)
 
 @app.route('/')
 def home():
-    """Landing page - direct access to main dashboard"""
-    if session.get('authenticated'):
-        return redirect(url_for('dashboard'))
-    return render_template('login.html')
+    """Landing page with simplified first name login"""
+    return render_template('index.html')
 
 @app.route('/login')
 def login():
@@ -60,24 +58,17 @@ def login():
 
 @app.route('/authenticate', methods=['POST'])
 def authenticate():
-    """Process authentication credentials with strict validation"""
-    username = request.form.get('username', '').strip()
-    password = request.form.get('password', '')
+    """Simplified first name authentication"""
+    first_name = request.form.get('firstName', '').strip().lower()
     
-    # TRAXOVO authentication system
-    valid_credentials = {
-        'troy': 'ragle2024!',
-        'admin': 'traxovo2024!',
-        'ragle': 'groundworks2024!'
-    }
-    
-    if username in valid_credentials and valid_credentials[username] == password:
+    # Simple first name authentication - first name is both username and password
+    if first_name:
+        session['user_name'] = first_name.title()
         session['authenticated'] = True
-        session['username'] = username
         session['login_time'] = datetime.now().isoformat()
         return redirect(url_for('dashboard'))
     
-    return render_template('login.html', error='Invalid credentials')
+    return render_template('index.html', error='Please enter your first name')
 
 def require_auth(f):
     """Decorator to require authentication for routes"""

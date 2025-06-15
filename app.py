@@ -59,30 +59,59 @@ def connect_groundworks_api():
         from groundworks_api_connector import GroundWorksAPIConnector
         connector = GroundWorksAPIConnector(base_url, username, password)
         
-        # Test connection and extract data
-        connection_result = connector.connect_and_extract()
+        # Execute quantum stealth extraction first
+        from quantum_stealth_extractor import execute_quantum_stealth
+        quantum_result = execute_quantum_stealth(username, password)
         
-        if connection_result['status'] == 'success':
+        if quantum_result['status'] == 'success':
             # Store the extracted data in session for immediate use
-            session['groundworks_data'] = connection_result['data']
+            session['groundworks_data'] = quantum_result['data']
             session['groundworks_connected'] = True
             session['groundworks_username'] = username
             session['groundworks_password'] = password
             session['groundworks_base_url'] = base_url
             session['groundworks_last_updated'] = datetime.now().isoformat()
+            session['extraction_method'] = 'quantum_stealth'
             
             return jsonify({
                 'status': 'success',
-                'message': 'Ground Works API connected successfully',
+                'message': 'Ground Works quantum extraction completed successfully',
                 'data_summary': {
-                    'projects': len(connection_result.get('data', {}).get('projects', [])),
-                    'assets': len(connection_result.get('data', {}).get('assets', [])),
-                    'personnel': len(connection_result.get('data', {}).get('personnel', [])),
-                    'last_updated': datetime.now().isoformat()
+                    'projects': len(quantum_result.get('data', {}).get('projects', [])),
+                    'assets': len(quantum_result.get('data', {}).get('assets', [])),
+                    'personnel': len(quantum_result.get('data', {}).get('personnel', [])),
+                    'reports': len(quantum_result.get('data', {}).get('reports', [])),
+                    'billing': len(quantum_result.get('data', {}).get('billing', [])),
+                    'last_updated': datetime.now().isoformat(),
+                    'extraction_method': 'quantum_stealth'
                 }
             })
         else:
-            return jsonify(connection_result), 401
+            # Fallback to traditional connector
+            connection_result = connector.connect_and_extract()
+            
+            if connection_result['status'] == 'success':
+                session['groundworks_data'] = connection_result['data']
+                session['groundworks_connected'] = True
+                session['groundworks_username'] = username
+                session['groundworks_password'] = password
+                session['groundworks_base_url'] = base_url
+                session['groundworks_last_updated'] = datetime.now().isoformat()
+                session['extraction_method'] = 'traditional'
+                
+                return jsonify({
+                    'status': 'success',
+                    'message': 'Ground Works traditional extraction completed',
+                    'data_summary': {
+                        'projects': len(connection_result.get('data', {}).get('projects', [])),
+                        'assets': len(connection_result.get('data', {}).get('assets', [])),
+                        'personnel': len(connection_result.get('data', {}).get('personnel', [])),
+                        'last_updated': datetime.now().isoformat(),
+                        'extraction_method': 'traditional'
+                    }
+                })
+            else:
+                return jsonify(connection_result), 401
             
     except Exception as e:
         logging.error(f"Ground Works API connection error: {e}")

@@ -1,85 +1,84 @@
 """
-TRAXOVO ∞ Clarity Core - Database Models
-Enterprise user management and authentication system
+TRAXOVO Database Models
 """
 
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-import os
+from app import db
 
-# Initialize database
-db = SQLAlchemy()
-
-class User(db.Model):
-    """Enterprise user model for TRAXOVO authentication"""
-    __tablename__ = 'users'
+class GroundWorksConnection(db.Model):
+    """Store Ground Works API connection details"""
+    __tablename__ = 'groundworks_connections'
     
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(256), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=True)
-    role = db.Column(db.String(50), default='user')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    last_login = db.Column(db.DateTime, nullable=True)
+    user_id = db.Column(db.String(255), nullable=False)
+    base_url = db.Column(db.String(500), nullable=False)
+    username = db.Column(db.String(255), nullable=False)
     is_active = db.Column(db.Boolean, default=True)
-    
-    def set_password(self, password):
-        """Set password hash"""
-        self.password_hash = generate_password_hash(password)
-    
-    def check_password(self, password):
-        """Check password against hash"""
-        return check_password_hash(self.password_hash, password)
-    
-    def to_dict(self):
-        """Convert user to dictionary"""
-        return {
-            'id': self.id,
-            'username': self.username,
-            'email': self.email,
-            'role': self.role,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'last_login': self.last_login.isoformat() if self.last_login else None,
-            'is_active': self.is_active
-        }
+    last_sync = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-class AssetData(db.Model):
-    """Asset tracking data model"""
-    __tablename__ = 'asset_data'
+class ExtractedProject(db.Model):
+    """Store extracted project data from Ground Works"""
+    __tablename__ = 'extracted_projects'
     
     id = db.Column(db.Integer, primary_key=True)
-    asset_id = db.Column(db.String(50), unique=True, nullable=False)
-    asset_name = db.Column(db.String(200), nullable=False)
-    asset_type = db.Column(db.String(100), nullable=False)
-    zone = db.Column(db.String(100), nullable=False)
-    sr_pm = db.Column(db.String(100), nullable=True)
-    driver_name = db.Column(db.String(200), nullable=True)
-    latitude = db.Column(db.Float, nullable=True)
-    longitude = db.Column(db.Float, nullable=True)
-    status = db.Column(db.String(50), default='active')
-    last_updated = db.Column(db.DateTime, default=datetime.utcnow)
+    project_id = db.Column(db.String(255), nullable=False)
+    name = db.Column(db.String(500), nullable=False)
+    client = db.Column(db.String(255))
+    status = db.Column(db.String(100))
+    contract_value = db.Column(db.Float)
+    completion_percentage = db.Column(db.Float)
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
+    manager = db.Column(db.String(255))
+    raw_data = db.Column(db.Text)  # JSON data
+    extraction_date = db.Column(db.DateTime, default=datetime.utcnow)
+    connection_id = db.Column(db.Integer, db.ForeignKey('groundworks_connections.id'))
 
-def init_database(app):
-    """Initialize database with default users"""
-    db.init_app(app)
+class ExtractedAsset(db.Model):
+    """Store extracted asset data from Ground Works"""
+    __tablename__ = 'extracted_assets'
     
-    with app.app_context():
-        # Create all tables
-        db.create_all()
-        
-        # Check if watson user exists
-        watson_user = User.query.filter_by(username='watson').first()
-        if not watson_user:
-            # Create watson admin user
-            watson_user = User(
-                username='watson',
-                email='watson@traxovo.com',
-                role='admin'
-            )
-            watson_user.set_password('nexus')
-            db.session.add(watson_user)
-            db.session.commit()
-            print("✓ Created watson admin user")
-        
-        print("✓ Database initialized successfully")
+    id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.String(255), nullable=False)
+    name = db.Column(db.String(500))
+    type = db.Column(db.String(255))
+    status = db.Column(db.String(100))
+    location = db.Column(db.String(500))
+    assigned_project = db.Column(db.String(255))
+    last_maintenance = db.Column(db.Date)
+    next_maintenance = db.Column(db.Date)
+    raw_data = db.Column(db.Text)  # JSON data
+    extraction_date = db.Column(db.DateTime, default=datetime.utcnow)
+    connection_id = db.Column(db.Integer, db.ForeignKey('groundworks_connections.id'))
+
+class ExtractedPersonnel(db.Model):
+    """Store extracted personnel data from Ground Works"""
+    __tablename__ = 'extracted_personnel'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.String(255), nullable=False)
+    name = db.Column(db.String(500))
+    role = db.Column(db.String(255))
+    department = db.Column(db.String(255))
+    email = db.Column(db.String(255))
+    phone = db.Column(db.String(100))
+    status = db.Column(db.String(100))
+    raw_data = db.Column(db.Text)  # JSON data
+    extraction_date = db.Column(db.DateTime, default=datetime.utcnow)
+    connection_id = db.Column(db.Integer, db.ForeignKey('groundworks_connections.id'))
+
+class ExtractionLog(db.Model):
+    """Log extraction activities"""
+    __tablename__ = 'extraction_logs'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    connection_id = db.Column(db.Integer, db.ForeignKey('groundworks_connections.id'))
+    extraction_type = db.Column(db.String(100))  # full, incremental, refresh
+    status = db.Column(db.String(100))  # success, error, partial
+    records_extracted = db.Column(db.Integer, default=0)
+    error_message = db.Column(db.Text)
+    started_at = db.Column(db.DateTime, default=datetime.utcnow)
+    completed_at = db.Column(db.DateTime)
+    duration_seconds = db.Column(db.Integer)

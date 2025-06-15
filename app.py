@@ -35,6 +35,120 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 # Initialize the app with the extension
 db.init_app(app)
 
+@app.route('/')
+def home():
+    """Main TRAXOVO dashboard"""
+    return render_template('dashboard.html')
+
+@app.route('/api/groundworks/connect', methods=['POST'])
+def connect_groundworks_api():
+    """Connect to Ground Works API with user credentials"""
+    try:
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
+        base_url = data.get('base_url', 'https://groundworks.ragleinc.com')
+        
+        if not username or not password:
+            return jsonify({
+                'status': 'error',
+                'message': 'Username and password required'
+            }), 400
+        
+        # Import and initialize the Ground Works connector
+        from groundworks_api_connector import GroundWorksAPIConnector
+        connector = GroundWorksAPIConnector(base_url, username, password)
+        
+        # Test connection and extract data
+        connection_result = connector.connect_and_extract()
+        
+        if connection_result['status'] == 'success':
+            # Store the extracted data in session for immediate use
+            session['groundworks_data'] = connection_result['data']
+            session['groundworks_connected'] = True
+            session['groundworks_username'] = username
+            session['groundworks_password'] = password
+            session['groundworks_base_url'] = base_url
+            session['groundworks_last_updated'] = datetime.now().isoformat()
+            
+            return jsonify({
+                'status': 'success',
+                'message': 'Ground Works API connected successfully',
+                'data_summary': {
+                    'projects': len(connection_result.get('data', {}).get('projects', [])),
+                    'assets': len(connection_result.get('data', {}).get('assets', [])),
+                    'personnel': len(connection_result.get('data', {}).get('personnel', [])),
+                    'last_updated': datetime.now().isoformat()
+                }
+            })
+        else:
+            return jsonify(connection_result), 401
+            
+    except Exception as e:
+        logging.error(f"Ground Works API connection error: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': f'Connection failed: {str(e)}'
+        }), 500
+
+@app.route('/api/groundworks/data')
+def get_groundworks_data():
+    """Get current Ground Works data"""
+    if not session.get('groundworks_connected'):
+        return jsonify({
+            'status': 'error',
+            'message': 'Ground Works API not connected'
+        }), 401
+    
+    return jsonify({
+        'status': 'success',
+        'data': session.get('groundworks_data', {}),
+        'last_updated': session.get('groundworks_last_updated')
+    })
+
+@app.route('/api/groundworks/refresh', methods=['POST'])
+def refresh_groundworks_data():
+    """Refresh Ground Works data"""
+    if not session.get('groundworks_connected'):
+        return jsonify({
+            'status': 'error',
+            'message': 'Ground Works API not connected'
+        }), 401
+    
+    try:
+        # Re-extract data using stored credentials
+        from groundworks_api_connector import GroundWorksAPIConnector
+        connector = GroundWorksAPIConnector(
+            session.get('groundworks_base_url', 'https://groundworks.ragleinc.com'),
+            session.get('groundworks_username'),
+            session.get('groundworks_password')
+        )
+        refresh_result = connector.connect_and_extract()
+        
+        if refresh_result['status'] == 'success':
+            session['groundworks_data'] = refresh_result['data']
+            session['groundworks_last_updated'] = datetime.now().isoformat()
+            
+            return jsonify({
+                'status': 'success',
+                'message': 'Data refreshed successfully',
+                'data_summary': {
+                    'projects': len(refresh_result['data'].get('projects', [])),
+                    'assets': len(refresh_result['data'].get('assets', [])),
+                    'personnel': len(refresh_result['data'].get('personnel', [])),
+                    'last_updated': session['groundworks_last_updated']
+                }
+            })
+        else:
+            return jsonify(refresh_result), 500
+            
+    except Exception as e:
+        logging.error(f"Ground Works data refresh error: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': f'Refresh failed: {str(e)}'
+        }), 500
+
 @app.route('/validation')
 def visual_validation():
     """Visual validation dashboard for authentic RAGLE INC data"""

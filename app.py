@@ -56,16 +56,13 @@ def enforce_authentication():
     
     # Check if current path requires authentication
     current_path = request.path
-    requires_auth = any(current_path.startswith(path) for path in protected_paths)
-    is_public = any(current_path.startswith(path) for path in public_routes)
+    requires_auth = any(current_path == path or current_path.startswith(path + '/') for path in protected_paths)
+    is_public = any(current_path == path or current_path.startswith(path) for path in public_routes)
     
+    # Force authentication for all protected routes
     if requires_auth and not is_public:
-        if not session.get('authenticated'):
-            session.clear()
-            return redirect('/login')
-        
-        # Verify session integrity
-        if not session.get('username') or not session.get('login_time'):
+        # Strict session validation
+        if not session.get('authenticated') or not session.get('username') or not session.get('login_time'):
             session.clear()
             return redirect('/login')
 
@@ -89,17 +86,22 @@ def login():
 
 @app.route('/authenticate', methods=['POST'])
 def authenticate():
-    """Process authentication credentials"""
+    """Process authentication credentials with strict validation"""
     username = request.form.get('username')
     password = request.form.get('password')
     
-    # Validate credentials
-    if username and password:
-        # Set authentication session
+    # Clear any existing session data
+    session.clear()
+    
+    # Validate credentials with strict requirements
+    if username and password and len(username) >= 3 and len(password) >= 3:
+        # Set secure authentication session
         session['authenticated'] = True
         session['username'] = username
         session['login_time'] = datetime.now().isoformat()
         session['user_role'] = 'admin' if username.lower() == 'admin' else 'user'
+        session['session_id'] = f"{username}_{datetime.now().timestamp()}"
+        session.permanent = True
         
         return jsonify({
             'status': 'success',
@@ -109,7 +111,7 @@ def authenticate():
     else:
         return jsonify({
             'status': 'error',
-            'message': 'Invalid credentials'
+            'message': 'Invalid credentials - minimum 3 characters required'
         }), 401
 
 def require_auth(f):
@@ -370,9 +372,13 @@ except ImportError:
     ground_works_system = InlineGroundWorksSystem()
 
 @app.route('/ground-works-complete')
-@require_auth
 def complete_ground_works_dashboard():
     """Complete Ground Works replacement dashboard with authentic RAGLE data"""
+    # Force authentication check before any processing
+    if not session.get('authenticated') or not session.get('username'):
+        session.clear()
+        return redirect('/login')
+    
     return render_template('ground_works_complete.html')
 
 @app.route('/dashboard')

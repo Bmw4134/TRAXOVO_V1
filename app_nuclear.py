@@ -374,9 +374,10 @@ def landing_page():
                         
                         <div class="map-preview">
                             <div class="map-placeholder">
-                                🗺️ Live Telematics Interface<br>
-                                <small>717 Assets Tracked • DFW Region</small><br>
-                                <small>Employee ID 210013 - MATTHEW C. SHAYLOR Active</small>
+                                🗺️ Live RAGLE Fleet Telematics<br>
+                                <small>48,236 Assets Tracked • DFW Operations</small><br>
+                                <small>Employee ID 210013 - MATTHEW C. SHAYLOR Active</small><br>
+                                <small>6 Active Projects • $285M Fleet Value</small>
                             </div>
                         </div>
                     </div>
@@ -1420,23 +1421,23 @@ def enterprise_dashboard():
                 <h3 style="margin-bottom: 15px; color: #87ceeb;">Fleet Overview</h3>
                 
                 <div class="metric-card">
-                    <div class="metric-value">717</div>
-                    <div class="metric-label">Total Assets</div>
+                    <div class="metric-value">48,236</div>
+                    <div class="metric-label">Total RAGLE Assets</div>
                 </div>
                 
                 <div class="metric-card">
-                    <div class="metric-value">89</div>
+                    <div class="metric-value">47,892</div>
                     <div class="metric-label">Active Units</div>
                 </div>
                 
                 <div class="metric-card">
-                    <div class="metric-value">87%</div>
-                    <div class="metric-label">Utilization</div>
+                    <div class="metric-value">87.3%</div>
+                    <div class="metric-label">Fleet Utilization</div>
                 </div>
                 
                 <div class="metric-card">
-                    <div class="metric-value">$2.4M</div>
-                    <div class="metric-label">Asset Value</div>
+                    <div class="metric-value">$285M</div>
+                    <div class="metric-label">Total Fleet Value</div>
                 </div>
                 
                 <div class="widget">
@@ -1470,20 +1471,20 @@ def enterprise_dashboard():
             <div class="main-panel">
                 <div class="quick-stats">
                     <div class="stat-card">
-                        <div class="stat-value">$267K</div>
-                        <div class="stat-label">Monthly Revenue</div>
+                        <div class="stat-value">$285M</div>
+                        <div class="stat-label">Total Fleet Value</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">92%</div>
-                        <div class="stat-label">Efficiency</div>
+                        <div class="stat-value">87.3%</div>
+                        <div class="stat-label">Fleet Efficiency</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">156</div>
-                        <div class="stat-label">Jobs Active</div>
+                        <div class="stat-value">6</div>
+                        <div class="stat-label">Active Projects</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">24/7</div>
-                        <div class="stat-label">Monitoring</div>
+                        <div class="stat-value">1,500</div>
+                        <div class="stat-label">Operational Records</div>
                     </div>
                 </div>
                 

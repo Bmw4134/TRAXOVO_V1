@@ -27,6 +27,12 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "traxovo-enterprise-key")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
+# Enhanced session security configuration
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PERMANENT_SESSION_LIFETIME'] = 3600
+
 # Configure the database
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -41,10 +47,16 @@ db.init_app(app)
 # Setup NEXUS Universal Navigation
 app = setup_universal_navigation(app)
 
-# Global security middleware
+# Global security middleware - CRITICAL SECURITY ENFORCEMENT
 @app.before_request
 def enforce_authentication():
-    """Global security enforcement for all protected routes"""
+    """Global security enforcement for all protected routes - NO BYPASS ALLOWED"""
+    # CRITICAL: Force authentication on /ground-works-complete
+    if request.path == '/ground-works-complete':
+        if not session.get('authenticated') or not session.get('username'):
+            session.clear()
+            return redirect('/login')
+    
     protected_paths = [
         '/dashboard', '/ultimate-troy-dashboard', '/ground-works-complete', 
         '/api-performance-benchmark', '/api/', '/admin', '/settings',
@@ -374,9 +386,12 @@ except ImportError:
 @app.route('/ground-works-complete')
 def complete_ground_works_dashboard():
     """Complete Ground Works replacement dashboard with authentic RAGLE data"""
-    # Force authentication check before any processing
-    if not session.get('authenticated') or not session.get('username'):
-        session.clear()
+    # CRITICAL SECURITY: Triple authentication check
+    if not session.get('authenticated'):
+        return redirect('/login')
+    if not session.get('username'):
+        return redirect('/login')
+    if not session.get('login_time'):
         return redirect('/login')
     
     return render_template('ground_works_complete.html')

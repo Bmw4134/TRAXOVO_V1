@@ -3,1302 +3,365 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRAXOVO ∞ Clarity Core - Enterprise Intelligence Platform</title>
-    <link rel="stylesheet" href="/static/enterprise_polish.css">
+    <title>TRAXOVO ∞ Enterprise Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 50%, #2d1b3d 100%);
-            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            overflow-x: hidden;
-            letter-spacing: -0.025em;
+            color: #333;
         }
-
-        .hero-section {
-            min-height: 100vh;
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .logo {
             display: flex;
             align-items: center;
-            justify-content: center;
-            position: relative;
-            padding: 0 20px;
+            gap: 1rem;
         }
-
-        /* Enterprise Canvas Background */
-        #enterprise-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            opacity: 0.3;
-        }
-
-        .hero-content {
-            text-align: center;
-            max-width: 1200px;
-            z-index: 2;
-        }
-
-        .logo-container {
-            margin-bottom: 40px;
-        }
-
-        .main-logo {
-            font-size: 5rem;
-            font-weight: 900;
-            background: linear-gradient(45deg, #00ff9f, #00d4ff, #673ab7, #ff6b6b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 15px;
-            letter-spacing: -3px;
-            text-shadow: 0 0 30px rgba(0, 255, 159, 0.3);
-            animation: logoGlow 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes logoGlow {
-            0% { text-shadow: 0 0 30px rgba(0, 255, 159, 0.3); }
-            100% { text-shadow: 0 0 50px rgba(0, 212, 255, 0.5); }
-        }
-
-        .tagline {
-            font-size: 1.6rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 30px;
-            font-weight: 400;
-            line-height: 1.4;
-        }
-
-        .qnis-level {
-            display: inline-block;
-            padding: 12px 30px;
-            background: linear-gradient(135deg, rgba(103, 58, 183, 0.3), rgba(0, 255, 159, 0.2));
-            border: 2px solid #00ff9f;
-            border-radius: 30px;
-            font-size: 16px;
-            color: #00ff9f;
+        
+        .logo h1 {
+            color: #2c3e50;
+            font-size: 1.8rem;
             font-weight: 700;
-            margin-bottom: 40px;
-            box-shadow: 0 0 20px rgba(0, 255, 159, 0.3);
-            animation: pulse 2s infinite;
         }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 20px rgba(0, 255, 159, 0.3); }
-            50% { box-shadow: 0 0 30px rgba(0, 255, 159, 0.6); }
-            100% { box-shadow: 0 0 20px rgba(0, 255, 159, 0.3); }
+        
+        .status-badge {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3);
         }
-
-        .live-metrics {
+        
+        .hero-section {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: white;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-buttons {
             display: flex;
+            gap: 2rem;
             justify-content: center;
-            gap: 40px;
-            margin: 40px 0;
             flex-wrap: wrap;
         }
-
-        .metric-item {
-            text-align: center;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
+        
+        .cta-button {
+            background: rgba(255, 255, 255, 0.95);
+            color: #667eea;
+            padding: 1.2rem 2.5rem;
+            border: none;
             border-radius: 15px;
-            border: 1px solid rgba(0, 255, 159, 0.3);
-            min-width: 150px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-
-        .metric-value {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: #00ff9f;
-            display: block;
-            margin-bottom: 5px;
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+            color: #667eea;
+            text-decoration: none;
         }
-
-        .metric-label {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        
+        .cta-button.primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
         }
-
+        
+        .cta-button.primary:hover {
+            color: white;
+        }
+        
+        .features-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            margin: 2rem;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin: 60px 0;
+            gap: 2rem;
         }
-
+        
         .feature-card {
-            background: linear-gradient(135deg, 
-                rgba(255, 255, 255, 0.1) 0%,
-                rgba(255, 255, 255, 0.05) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.125);
-            border-radius: 20px;
-            padding: 32px;
-            text-align: left;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(20px) saturate(180%);
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            position: relative;
-            overflow: hidden;
+            text-align: center;
+            padding: 2rem;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            transition: transform 0.3s ease;
         }
-
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #00ff9f, transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
+        
         .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 
-                0 25px 50px rgba(0, 0, 0, 0.15),
-                0 0 0 1px rgba(0, 255, 159, 0.1);
-            border-color: rgba(0, 255, 159, 0.3);
+            transform: translateY(-5px);
         }
-
-        .feature-card:hover::before {
-            opacity: 1;
-            border-color: #00ff9f;
-            box-shadow: 0 10px 30px rgba(0, 255, 159, 0.2);
-        }
-
+        
         .feature-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(45deg, #00ff9f, #00d4ff);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            font-size: 24px;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-
+        
         .feature-title {
             font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-            color: #00ff9f;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #2c3e50;
         }
-
+        
         .feature-description {
-            color: rgba(255, 255, 255, 0.7);
+            color: #6c757d;
             line-height: 1.6;
         }
-
-        .cta-section {
-            margin: 80px 0 40px 0;
-        }
-
-        .login-button {
-            display: inline-block;
-            padding: 18px 40px;
-            background: linear-gradient(45deg, #00ff9f, #00d4ff);
-            color: #000;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 20px rgba(0, 255, 159, 0.3);
-        }
-
-        .login-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 255, 159, 0.5);
-        }
-
-        .stats-section {
+        
+        .quick-access {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 40px;
-            margin: 60px 0;
-            padding: 40px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem;
         }
-
-        .stat-item {
+        
+        .access-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
             text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
-
-        .stat-number {
+        
+        .access-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .access-icon {
             font-size: 2.5rem;
-            font-weight: 900;
-            color: #00ff9f;
-            margin-bottom: 10px;
+            margin-bottom: 1rem;
+            color: #667eea;
         }
-
-        .stat-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        
+        .access-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
         }
-
-        .background-animation {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.1;
-            z-index: 1;
+        
+        .access-link {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
-
-        .floating-particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: #00ff9f;
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
+        
+        .access-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+            text-decoration: none;
         }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
-
+        
         .footer {
             text-align: center;
-            padding: 40px 20px;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.9rem;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(0, 0, 0, 0.1);
+            margin-top: 3rem;
         }
-
+        
         @media (max-width: 768px) {
-            .main-logo {
+            .hero-title {
                 font-size: 2.5rem;
             }
             
-            .features-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
             }
             
-            .stats-section {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
+            .features-section {
+                margin: 1rem;
+                padding: 2rem;
+            }
+            
+            .quick-access {
+                margin: 1rem;
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="background-animation">
-        <!-- Animated background particles -->
-        <div class="floating-particle" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
-        <div class="floating-particle" style="top: 60%; left: 80%; animation-delay: 2s;"></div>
-        <div class="floating-particle" style="top: 80%; left: 20%; animation-delay: 4s;"></div>
-        <div class="floating-particle" style="top: 30%; left: 70%; animation-delay: 1s;"></div>
-        <div class="floating-particle" style="top: 50%; left: 50%; animation-delay: 3s;"></div>
-    </div>
-
-    <div class="hero-section">
-        <div class="hero-content">
-            <div class="logo-container">
-                <h1 class="main-logo">TRAXOVO ∞ Clarity Core</h1>
-                <p class="tagline">Advanced Autonomous Enterprise Intelligence Platform<br>
-                Real-time Asset Management • Quantum Intelligence • Enterprise Automation</p>
-                <div class="qnis-level">QNIS Quantum Intelligence Level 15 • WATSON SUPERUSER ACTIVE</div>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-infinity" style="font-size: 2rem; color: #667eea;"></i>
+                <h1>TRAXOVO Enterprise Platform</h1>
             </div>
-
-            <!-- Live Platform Metrics -->
-            <div class="live-metrics">
-                <div class="metric-item">
-                    <span class="metric-value" id="assetCount">548</span>
-                    <span class="metric-label">Active Assets</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-value" id="jobsiteCount">117</span>
-                    <span class="metric-label">Live Locations</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-value" id="efficiency">97.8%</span>
-                    <span class="metric-label">System Efficiency</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-value" id="savings">$127K</span>
-                    <span class="metric-label">Annual Savings</span>
-                </div>
-            </div>
-
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3 class="feature-title">SR PM Project Management</h3>
-                    <p class="feature-description">Real-time asset tracking and utilization monitoring across 152 authenticated jobsites with waste prevention alerts and maintenance optimization.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">🗺️</div>
-                    <h3 class="feature-title">Live Asset Telemetry</h3>
-                    <p class="feature-description">QNIS/PTNI unified asset tracking with 1.2s data latency, intelligent geofencing, and comprehensive fleet management across all divisions.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">⚙️</div>
-                    <h3 class="feature-title">Maintenance Intelligence</h3>
-                    <p class="feature-description">Authentic maintenance data integration with red/yellow tag tracking, service schedules, and predictive maintenance recommendations.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3 class="feature-title">Advanced Analytics</h3>
-                    <p class="feature-description">Multi-AI powered analysis with comprehensive data visualization, performance optimization, and real-time organizational insights.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h3 class="feature-title">Enterprise Security</h3>
-                    <p class="feature-description">Secure enterprise synchronization protocols with quantum-level encryption and authenticated access control systems.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3 class="feature-title">Automation Engine</h3>
-                    <p class="feature-description">Intelligent automation with master control protocols, self-healing systems, and continuous optimization algorithms.</p>
-                </div>
-            </div>
-
-            <div class="stats-section">
-                <div class="stat-item">
-                    <div class="stat-number">642</div>
-                    <div class="stat-label">Active Assets</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">152</div>
-                    <div class="stat-label">Jobsites</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">1.2s</div>
-                    <div class="stat-label">Data Latency</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">99.7%</div>
-                    <div class="stat-label">System Integrity</div>
-                </div>
-            </div>
-
-            <!-- QNIS/PTNI LLM Interface -->
-            <div class="qnis-llm-section" style="margin: 60px 0; padding: 40px; background: rgba(0, 20, 40, 0.8); border-radius: 20px; border: 1px solid rgba(0, 255, 159, 0.3); backdrop-filter: blur(15px);">
-                <h2 style="text-align: center; color: #00ff9f; margin-bottom: 30px; font-size: 1.8rem; font-weight: 700;">QNIS/PTNI Intelligence Assistant</h2>
-                <p style="text-align: center; color: rgba(255, 255, 255, 0.8); margin-bottom: 30px; font-size: 1.1rem;">Ask me about your enterprise operations, asset management, or system configuration</p>
-                
-                <div class="llm-interface" style="max-width: 800px; margin: 0 auto;">
-                    <div class="chat-container" id="qnis-chat" style="
-                        background: rgba(10, 10, 30, 0.9); border-radius: 15px; padding: 20px;
-                        min-height: 300px; max-height: 400px; overflow-y: auto;
-                        border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px;
-                        display: flex; flex-direction: column; gap: 15px;
-                    ">
-                        <div class="chat-message system-message" style="
-                            background: rgba(0, 255, 159, 0.1); padding: 15px; border-radius: 12px;
-                            border-left: 4px solid #00ff9f; color: #e2e8f0;
-                        ">
-                            <strong style="color: #00ff9f;">QNIS Assistant:</strong> Welcome to TRAXOVO ∞ Clarity Core. I'm your quantum intelligence assistant, powered by PTNI neural networks. I can help you understand our enterprise platform, analyze your operations, or guide you through system features. What would you like to know?
-                        </div>
-                    </div>
-                    
-                    <div class="input-section" style="display: flex; gap: 15px; align-items: flex-end;">
-                        <div style="flex: 1;">
-                            <textarea id="qnis-input" placeholder="Ask about asset tracking, project management, automation features, or system capabilities..." style="
-                                width: 100%; min-height: 60px; max-height: 120px; padding: 15px;
-                                background: rgba(30, 30, 60, 0.9); border: 2px solid rgba(255, 255, 255, 0.1);
-                                border-radius: 12px; color: white; font-size: 14px; resize: vertical;
-                                transition: border-color 0.3s ease;
-                            " onkeydown="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendQNISMessage(); }"></textarea>
-                        </div>
-                        <button onclick="sendQNISMessage()" class="btn-enterprise" style="
-                            background: linear-gradient(135deg, #00ff9f 0%, #00d4ff 100%);
-                            border: none; border-radius: 12px; padding: 14px 28px;
-                            font-weight: 600; font-size: 14px; color: #000; cursor: pointer;
-                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                            box-shadow: 0 4px 15px rgba(0, 255, 159, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-                            position: relative; overflow: hidden;
-                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(0, 255, 159, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4)'"
-                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0, 255, 159, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3)'">
-                            Send
-                        </button>
-                    </div>
-                    
-                    <div class="quick-actions" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; justify-content: center;">
-                        <button onclick="askQNIS('Tell me about asset tracking capabilities')" class="quick-action-btn">Asset Tracking</button>
-                        <button onclick="askQNIS('How does the automation engine work?')" class="quick-action-btn">Automation</button>
-                        <button onclick="askQNIS('Show me maintenance intelligence features')" class="quick-action-btn">Maintenance</button>
-                        <button onclick="askQNIS('What is QNIS Level 15 intelligence?')" class="quick-action-btn">QNIS Level 15</button>
-                        <button onclick="runStressTest('asset_processing')" class="quick-action-btn stress-test">Live Demo</button>
-                        <button onclick="runStressTest('real_time_sync')" class="quick-action-btn stress-test">Real-Time Test</button>
-                    </div>
-                    
-                    <!-- Interactive Demo Selector -->
-                    <div class="demo-selector" style="
-                        margin-top: 30px; padding: 25px; background: rgba(0, 255, 159, 0.05);
-                        border-radius: 15px; border: 1px solid rgba(0, 255, 159, 0.2);
-                        text-align: center;
-                    ">
-                        <h4 style="color: #00ff9f; margin-bottom: 15px; font-size: 1.1rem;">
-                            🎯 What would you like to see this platform demonstrate?
-                        </h4>
-                        <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-top: 20px;">
-                            <button onclick="runPlatformDemo('asset_intelligence')" class="demo-btn">
-                                📊 Asset Intelligence Analysis
-                            </button>
-                            <button onclick="runPlatformDemo('automation_showcase')" class="demo-btn">
-                                🤖 Automation Engine Demo
-                            </button>
-                            <button onclick="runPlatformDemo('real_time_monitoring')" class="demo-btn">
-                                📡 Real-Time Fleet Monitoring
-                            </button>
-                            <button onclick="runPlatformDemo('predictive_analytics')" class="demo-btn">
-                                🔮 Predictive Maintenance
-                            </button>
-                            <button onclick="runPlatformDemo('security_protocols')" class="demo-btn">
-                                🛡️ Security & Compliance
-                            </button>
-                            <button onclick="runPlatformDemo('performance_metrics')" class="demo-btn">
-                                ⚡ Performance Optimization
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cta-section">
-                <a href="/login" class="login-button">Access Enterprise Dashboard</a>
-                <div style="margin-top: 20px; display: flex; justify-content: center; gap: 20px;">
-                    <button onclick="showAutomationSuite()" style="
-                        background: rgba(103, 58, 183, 0.2); color: #673ab7;
-                        padding: 12px 24px; border: 1px solid #673ab7; border-radius: 25px;
-                        cursor: pointer; font-weight: 600; transition: all 0.3s ease;
-                    " onmouseover="this.style.background='rgba(103, 58, 183, 0.3)'"
-                       onmouseout="this.style.background='rgba(103, 58, 183, 0.2)'">
-                        Browser Automation Suite
-                    </button>
-                    <button onclick="showMirrorStatus()" style="
-                        background: rgba(255, 107, 107, 0.2); color: #ff6b6b;
-                        padding: 12px 24px; border: 1px solid #ff6b6b; border-radius: 25px;
-                        cursor: pointer; font-weight: 600; transition: all 0.3s ease;
-                    " onmouseover="this.style.background='rgba(255, 107, 107, 0.3)'"
-                       onmouseout="this.style.background='rgba(255, 107, 107, 0.2)'">
-                        MIRROR STATUS
-                    </button>
-                </div>
+            <div class="status-badge">
+                <i class="fas fa-check-circle"></i> System Ready
             </div>
         </div>
-    </div>
+    </header>
 
-    <canvas id="enterprise-canvas"></canvas>
+    <section class="hero-section">
+        <h1 class="hero-title">Autonomous Enterprise Intelligence</h1>
+        <p class="hero-subtitle">
+            Advanced quantum stealth data extraction and workflow optimization platform 
+            with cutting-edge AI-driven automation for comprehensive business intelligence.
+        </p>
+        <div class="cta-buttons">
+            <a href="/ultimate-troy-dashboard" class="cta-button primary">
+                <i class="fas fa-chart-line"></i>
+                Ultimate Dashboard
+            </a>
+            <a href="/ground-works-complete" class="cta-button">
+                <i class="fas fa-database"></i>
+                Ground Works Suite
+            </a>
+            <a href="/william-login" class="cta-button">
+                <i class="fas fa-user"></i>
+                William Login
+            </a>
+        </div>
+    </section>
 
-    <div class="footer">
-        <p>&copy; 2025 TRAXOVO ∞ Clarity Core - Advanced Enterprise Intelligence Platform</p>
-        <p>Powered by Quantum Intelligence Architecture</p>
-    </div>
-
-    <script>
-        // Enterprise Canvas Animation
-        const canvas = document.getElementById('enterprise-canvas');
-        const ctx = canvas.getContext('2d');
-        
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-        
-        // Enterprise network visualization
-        const nodes = [];
-        const connections = [];
-        
-        // Create network nodes
-        for (let i = 0; i < 50; i++) {
-            nodes.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 0.5,
-                vy: (Math.random() - 0.5) * 0.5,
-                radius: Math.random() * 2 + 1
-            });
-        }
-        
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Update and draw nodes
-            nodes.forEach(node => {
-                node.x += node.vx;
-                node.y += node.vy;
-                
-                // Bounce off edges
-                if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
-                if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
-                
-                // Draw node
-                ctx.beginPath();
-                ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(0, 255, 159, 0.6)';
-                ctx.fill();
-            });
-            
-            // Draw connections
-            ctx.strokeStyle = 'rgba(0, 255, 159, 0.1)';
-            ctx.lineWidth = 0.5;
-            
-            for (let i = 0; i < nodes.length; i++) {
-                for (let j = i + 1; j < nodes.length; j++) {
-                    const dx = nodes[i].x - nodes[j].x;
-                    const dy = nodes[i].y - nodes[j].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distance < 150) {
-                        ctx.beginPath();
-                        ctx.moveTo(nodes[i].x, nodes[i].y);
-                        ctx.lineTo(nodes[j].x, nodes[j].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-            
-            requestAnimationFrame(animate);
-        }
-        
-        animate();
-
-        // Quick action button styles
-        const style = document.createElement('style');
-        style.textContent = `
-            .quick-action-btn {
-                background: rgba(255, 255, 255, 0.1);
-                color: rgba(255, 255, 255, 0.8);
-                padding: 8px 16px;
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                border-radius: 20px;
-                cursor: pointer;
-                font-size: 13px;
-                font-weight: 500;
-                transition: all 0.3s ease;
-            }
-            .quick-action-btn:hover {
-                background: rgba(0, 255, 159, 0.2);
-                border-color: #00ff9f;
-                color: #00ff9f;
-                transform: translateY(-1px);
-            }
-            .quick-action-btn.stress-test {
-                background: rgba(255, 215, 0, 0.1);
-                border-color: rgba(255, 215, 0, 0.3);
-                color: #ffd700;
-            }
-            .quick-action-btn.stress-test:hover {
-                background: rgba(255, 215, 0, 0.2);
-                border-color: #ffd700;
-                box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-            }
-            .demo-btn {
-                background: rgba(0, 212, 255, 0.1);
-                color: #00d4ff;
-                padding: 12px 20px;
-                border: 1px solid rgba(0, 212, 255, 0.3);
-                border-radius: 25px;
-                cursor: pointer;
-                font-size: 14px;
-                font-weight: 600;
-                transition: all 0.3s ease;
-                min-width: 160px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-            }
-            .demo-btn:hover {
-                background: rgba(0, 212, 255, 0.2);
-                border-color: #00d4ff;
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
-            }
-            .demo-running {
-                background: rgba(255, 107, 107, 0.2) !important;
-                border-color: #ff6b6b !important;
-                color: #ff6b6b !important;
-                animation: pulse-demo 1.5s infinite;
-            }
-            @keyframes pulse-demo {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0.7; }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // QNIS/PTNI LLM Functions
-        async function sendQNISMessage() {
-            const input = document.getElementById('qnis-input');
-            const message = input.value.trim();
-            
-            if (!message) return;
-            
-            // Add user message to chat
-            addChatMessage(message, 'user');
-            input.value = '';
-            
-            // Show typing indicator
-            const typingDiv = addChatMessage('QNIS is processing your request...', 'system');
-            
-            try {
-                const response = await fetch('/api/qnis-llm', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: message,
-                        context: 'landing_page'
-                    })
-                });
-                
-                const data = await response.json();
-                
-                // Remove typing indicator
-                typingDiv.remove();
-                
-                // Add QNIS response
-                addChatMessage(data.response, 'qnis');
-                
-            } catch (error) {
-                typingDiv.remove();
-                addChatMessage('I apologize, but I\'m experiencing a temporary connection issue. Please try again in a moment, or proceed to the enterprise dashboard for full access.', 'system');
-            }
-        }
-        
-        function addChatMessage(message, type) {
-            const chatLog = document.getElementById('qnis-chat-log');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `chat-message ${type}-message`;
-            
-            if (type === 'user') {
-                messageDiv.style.cssText = `
-                    background: rgba(0, 212, 255, 0.1); padding: 15px; border-radius: 12px;
-                    border-left: 4px solid #00d4ff; color: #e2e8f0; margin-bottom: 15px;
-                `;
-                messageDiv.innerHTML = `<strong style="color: #00d4ff;">You:</strong> ${message}`;
-            } else if (type === 'qnis') {
-                messageDiv.style.cssText = `
-                    background: rgba(0, 255, 159, 0.1); padding: 15px; border-radius: 12px;
-                    border-left: 4px solid #00ff9f; color: #e2e8f0; margin-bottom: 15px;
-                `;
-                messageDiv.innerHTML = `<strong style="color: #00ff9f;">QNIS Assistant:</strong> ${message}`;
-            } else {
-                messageDiv.style.cssText = `
-                    background: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 8px;
-                    color: rgba(255, 255, 255, 0.7); font-style: italic; margin-bottom: 15px;
-                `;
-                messageDiv.textContent = message;
-            }
-            
-            chatLog.appendChild(messageDiv);
-            chatLog.scrollTop = chatLog.scrollHeight;
-            return messageDiv;
-        }
-        
-        function askQNIS(question) {
-            document.getElementById('qnis-input').value = question;
-            sendQNISMessage();
-        }
-        
-        function showAutomationSuite() {
-            addChatMessage('Show me the browser automation suite capabilities', 'user');
-            addChatMessage('Our Browser Automation Suite features advanced iframe/X-Frame bypass capabilities with 99.4% detection evasion success rate. It includes stealth mode browsing, user agent rotation, fingerprint masking, and PTNI neural pattern simulation for human-like interaction. The suite can perform automated form filling, data extraction, login sequences, and report downloads across multiple platforms simultaneously.', 'qnis');
-        }
-        
-        function showMirrorStatus() {
-            addChatMessage('What is the current mirror status?', 'user');
-            addChatMessage('MIRROR STATUS: All enterprise intelligence mirrors are synchronized and operational. Real-time data replication is active across 487 assets and 152 jobsites. System redundancy is at 99.97% uptime with quantum-grade security protocols engaged. Watson superuser authentication bypass is active with QNIS Level 15 quantum intelligence processing all requests.', 'qnis');
-        }
-        
-        // Animate live metrics
-        function animateMetrics() {
-            const metrics = [
-                { id: 'assetCount', target: 548, current: 0, increment: 14 },
-                { id: 'jobsiteCount', target: 117, current: 0, increment: 3 },
-                { id: 'efficiency', target: 97.8, current: 0, increment: 2.5, suffix: '%' },
-                { id: 'savings', target: 127, current: 0, increment: 3, prefix: '$', suffix: 'K' }
-            ];
-            
-            function updateMetric(metric) {
-                if (metric.current < metric.target) {
-                    metric.current = Math.min(metric.current + metric.increment, metric.target);
-                    const element = document.getElementById(metric.id);
-                    const value = metric.id === 'efficiency' ? metric.current.toFixed(1) : Math.floor(metric.current);
-                    element.textContent = `${metric.prefix || ''}${value}${metric.suffix || ''}`;
-                    setTimeout(() => updateMetric(metric), 100);
-                }
-            }
-            
-            metrics.forEach(metric => updateMetric(metric));
-        }
-        
-        // Start animations when page loads
-        setTimeout(animateMetrics, 500);
-        
-        // Platform Demo Functions
-        async function runPlatformDemo(demoType) {
-            const button = event.target;
-            const originalText = button.innerHTML;
-            
-            // Visual feedback
-            button.classList.add('demo-running');
-            button.innerHTML = '⚡ Running Demo...';
-            button.disabled = true;
-            
-            // Add demo execution to chat
-            const demoMessages = {
-                'asset_intelligence': {
-                    user: 'Run Asset Intelligence Analysis demonstration',
-                    response: 'Executing Asset Intelligence Analysis...\n\n🔍 Scanning 487 active assets across 152 jobsites\n📊 Processing real-time utilization metrics\n⚡ Analyzing equipment performance patterns\n🎯 Identifying optimization opportunities\n\nResults:\n• Asset efficiency: 94.2% average\n• Underutilized equipment: 23 units identified\n• Maintenance alerts: 7 critical, 15 preventive\n• Cost savings potential: $47,200 annually\n\nRecommendations generated and ready for implementation.'
-                },
-                'automation_showcase': {
-                    user: 'Demonstrate automation engine capabilities',
-                    response: 'Initiating Automation Engine Demonstration...\n\n🤖 Browser Automation Suite: 99.4% success rate\n🛡️ Stealth protocols: ACTIVE\n🔄 Multi-platform synchronization: RUNNING\n📋 Automated form processing: 847 forms/hour\n🎯 Data extraction accuracy: 99.8%\n\nLive automation tasks:\n• Fleet report downloads: 12 sources\n• Compliance document updates: 34 files\n• Maintenance schedule optimization: 152 sites\n• Real-time data synchronization: CONTINUOUS\n\nAutomation engine operating at peak efficiency.'
-                },
-                'real_time_monitoring': {
-                    user: 'Show real-time fleet monitoring capabilities',
-                    response: 'Activating Real-Time Fleet Monitoring...\n\n📡 Live GPS tracking: 487 assets\n⚡ Data refresh rate: 15-second intervals\n🎯 Geofence monitoring: 152 active zones\n📊 Performance metrics: STREAMING\n\nCurrent status:\n• Assets in motion: 234 units\n• Idle equipment: 198 units\n• Off-site assets: 55 units\n• Maintenance required: 12 units\n\nAlert system monitoring:\n• Speed violations: 0 active\n• Unauthorized usage: 0 incidents\n• Maintenance overdue: 3 alerts\n\nAll systems operational and monitored in real-time.'
-                },
-                'predictive_analytics': {
-                    user: 'Demonstrate predictive maintenance capabilities',
-                    response: 'Launching Predictive Maintenance Analysis...\n\n🔮 AI-powered failure prediction: ACTIVE\n📈 Historical data analysis: 24 months\n⚙️ Component wear pattern recognition: PROCESSING\n🎯 Maintenance optimization: CALCULATING\n\nPredictive insights:\n• High-risk equipment: 8 units identified\n• Optimal maintenance windows: 47 scheduled\n• Parts ordering recommendations: 23 items\n• Cost avoidance potential: $127,000\n\nPredictive models:\n• Engine failure prediction: 94% accuracy\n• Hydraulic system analysis: 97% accuracy\n• Transmission monitoring: 91% accuracy\n\nMaintenance intelligence optimized for maximum uptime.'
-                },
-                'security_protocols': {
-                    user: 'Show security and compliance protocols',
-                    response: 'Executing Security & Compliance Demonstration...\n\n🛡️ Quantum security protocols: LEVEL 15 ACTIVE\n🔐 Multi-layer authentication: OPERATIONAL\n📋 Compliance monitoring: CONTINUOUS\n🎯 Threat detection: REAL-TIME\n\nSecurity status:\n• User authentication: 100% secured\n• Data encryption: AES-256 active\n• API protection: Rate limiting enforced\n• Session management: Auto-timeout enabled\n\nCompliance monitoring:\n• OSHA compliance: 98.7% across all sites\n• DOT regulations: 100% compliant\n• Environmental standards: 99.2% compliance\n• Safety protocols: All active\n\nSecurity architecture maintains enterprise-grade protection.'
-                },
-                'performance_metrics': {
-                    user: 'Analyze platform performance optimization',
-                    response: 'Initiating Performance Optimization Analysis...\n\n⚡ System performance metrics: ANALYZING\n📊 Resource utilization: MONITORING\n🎯 Optimization opportunities: IDENTIFYING\n🔧 Auto-tuning protocols: ACTIVE\n\nCurrent performance:\n• API response time: 147ms average\n• Database query speed: 43ms average\n• Page load time: 1.1s\n• System uptime: 99.97%\n\nOptimization results:\n• Cache hit ratio: 94.3%\n• Memory utilization: 67% optimal\n• CPU efficiency: 89% optimal\n• Network throughput: 98% optimal\n\nPerformance targets exceeded across all metrics. System operating at peak efficiency with automated optimization protocols maintaining optimal performance.'
-                }
-            };
-            
-            const demo = demoMessages[demoType];
-            if (demo) {
-                addChatMessage(demo.user, 'user');
-                
-                // Simulate processing time
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                addChatMessage(demo.response, 'qnis');
-            }
-            
-            // Reset button
-            setTimeout(() => {
-                button.classList.remove('demo-running');
-                button.innerHTML = originalText;
-                button.disabled = false;
-            }, 3000);
-        }
-        
-        async function runStressTest(testType) {
-            const button = event.target;
-            const originalText = button.innerHTML;
-            
-            button.innerHTML = '🔥 Testing...';
-            button.disabled = true;
-            
-            if (testType === 'asset_processing') {
-                addChatMessage('Execute asset processing stress test', 'user');
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                addChatMessage('STRESS TEST RESULTS:\n\n🔥 Asset Processing Load Test\n• Processed 487 assets in 0.34 seconds\n• Concurrent user simulation: 50 users\n• Response time under load: 189ms average\n• Zero errors or timeouts\n• Memory usage: 72% peak\n• CPU utilization: 84% peak\n\nPlatform performance validated under stress conditions.', 'qnis');
-            } else if (testType === 'real_time_sync') {
-                addChatMessage('Execute real-time synchronization stress test', 'user');
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                addChatMessage('REAL-TIME SYNC STRESS TEST:\n\n⚡ Synchronization Load Test\n• 152 jobsites synchronized simultaneously\n• Data update frequency: 5-second intervals\n• Concurrent connections: 487 active\n• Sync accuracy: 99.97%\n• Network bandwidth: 67% utilized\n• Zero data loss or corruption\n\nReal-time synchronization performs flawlessly under maximum load.', 'qnis');
-            }
-            
-            setTimeout(() => {
-                button.innerHTML = originalText;
-                button.disabled = false;
-            }, 2000);
-        }
-
-        function askQNIS(question) {
-            document.getElementById('qnis-input').value = question;
-            sendQNISMessage();
-        }
-
-        function addChatMessage(sender, message) {
-            const chatContainer = document.getElementById('qnis-chat');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'chat-message';
-            
-            if (sender === 'user') {
-                messageDiv.style.cssText = `
-                    background: rgba(0, 212, 255, 0.1); padding: 15px; border-radius: 12px;
-                    border-right: 4px solid #00d4ff; color: #e2e8f0; margin-left: 60px;
-                `;
-                messageDiv.innerHTML = `<strong style="color: #00d4ff;">You:</strong> ${message}`;
-            } else {
-                messageDiv.style.cssText = `
-                    background: rgba(0, 255, 159, 0.1); padding: 15px; border-radius: 12px;
-                    border-left: 4px solid #00ff9f; color: #e2e8f0; margin-right: 60px;
-                `;
-                messageDiv.innerHTML = `<strong style="color: #00ff9f;">QNIS Assistant:</strong> ${message}`;
-            }
-            
-            chatContainer.appendChild(messageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        function addTypingIndicator() {
-            const chatContainer = document.getElementById('qnis-chat');
-            const typingDiv = document.createElement('div');
-            const typingId = 'typing-' + Date.now();
-            typingDiv.id = typingId;
-            typingDiv.className = 'chat-message typing-indicator';
-            typingDiv.style.cssText = `
-                background: rgba(0, 255, 159, 0.1); padding: 15px; border-radius: 12px;
-                border-left: 4px solid #00ff9f; color: #e2e8f0; margin-right: 60px;
-            `;
-            typingDiv.innerHTML = `
-                <strong style="color: #00ff9f;">QNIS Assistant:</strong> 
-                <span style="opacity: 0.7;">Analyzing query...</span>
-                <div style="display: inline-block; margin-left: 10px;">
-                    <span style="animation: pulse 1.5s ease-in-out infinite;">●</span>
-                    <span style="animation: pulse 1.5s ease-in-out infinite 0.5s;">●</span>
-                    <span style="animation: pulse 1.5s ease-in-out infinite 1s;">●</span>
+    <section class="features-section">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
                 </div>
-            `;
+                <h3 class="feature-title">AI-Driven Intelligence</h3>
+                <p class="feature-description">
+                    Advanced machine learning algorithms automatically analyze patterns and optimize workflows across multiple enterprise systems.
+                </p>
+            </div>
             
-            chatContainer.appendChild(typingDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            return typingId;
-        }
-
-        function removeTypingIndicator(typingId) {
-            const typingDiv = document.getElementById(typingId);
-            if (typingDiv) typingDiv.remove();
-        }
-
-        // Browser Automation Suite with iframe/X-Frame bypass
-        function showAutomationSuite() {
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-                background: rgba(0, 10, 30, 0.95); backdrop-filter: blur(12px);
-                z-index: 20000; display: flex; align-items: center; justify-content: center;
-                opacity: 0; animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-            `;
-            
-            modal.innerHTML = `
-                <div style="
-                    background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
-                    border-radius: 20px; width: 90%; max-width: 1200px; max-height: 90vh;
-                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-                    overflow: hidden; position: relative;
-                ">
-                    <!-- Header -->
-                    <div style="
-                        background: linear-gradient(90deg, #673ab7 0%, #9c27b0 100%);
-                        padding: 28px 36px; display: flex; align-items: center; justify-content: space-between;
-                    ">
-                        <div>
-                            <h2 style="margin: 0; color: white; font-size: 24px; font-weight: 700;">QNIS/PTNI Browser Automation Suite</h2>
-                            <p style="margin: 6px 0 0 0; color: rgba(255, 255, 255, 0.8); font-size: 14px;">Advanced iframe/X-Frame bypass capabilities</p>
-                        </div>
-                        <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="
-                            background: rgba(255, 255, 255, 0.1); border: none; border-radius: 8px;
-                            width: 32px; height: 32px; cursor: pointer; color: white;
-                        ">✕</button>
-                    </div>
-                    
-                    <!-- Content -->
-                    <div style="padding: 36px; overflow-y: auto; max-height: 70vh;">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px;">
-                            
-                            <!-- X-Frame Bypass Module -->
-                            <div style="background: rgba(103, 58, 183, 0.1); border: 1px solid rgba(103, 58, 183, 0.3); border-radius: 15px; padding: 24px;">
-                                <h3 style="color: #673ab7; margin-bottom: 16px; font-size: 18px;">X-Frame Options Bypass</h3>
-                                <p style="color: #e2e8f0; margin-bottom: 20px; font-size: 14px; line-height: 1.6;">
-                                    Advanced techniques to bypass X-Frame-Options and Content-Security-Policy restrictions for legitimate automation tasks.
-                                </p>
-                                <div style="margin-bottom: 16px;">
-                                    <input type="url" id="target-url" placeholder="Enter target URL" style="
-                                        width: 100%; padding: 12px; background: rgba(30, 30, 60, 0.9);
-                                        border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px;
-                                        color: white; font-size: 14px;
-                                    ">
-                                </div>
-                                <button onclick="initiateFrameBypass()" style="
-                                    background: linear-gradient(45deg, #673ab7, #9c27b0); color: white;
-                                    padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer;
-                                    font-weight: 600; width: 100%; transition: all 0.3s ease;
-                                ">Initialize Bypass Protocol</button>
-                            </div>
-                            
-                            <!-- Headless Browser Control -->
-                            <div style="background: rgba(0, 150, 255, 0.1); border: 1px solid rgba(0, 150, 255, 0.3); border-radius: 15px; padding: 24px;">
-                                <h3 style="color: #0096ff; margin-bottom: 16px; font-size: 18px;">Headless Browser Control</h3>
-                                <p style="color: #e2e8f0; margin-bottom: 20px; font-size: 14px; line-height: 1.6;">
-                                    QNIS-powered headless browser automation with stealth detection evasion and human-like behavior patterns.
-                                </p>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                                    <button onclick="launchHeadlessBrowser()" style="
-                                        background: rgba(0, 150, 255, 0.2); color: #0096ff;
-                                        padding: 10px 16px; border: 1px solid #0096ff; border-radius: 6px;
-                                        cursor: pointer; font-size: 13px; font-weight: 500;
-                                    ">Launch Browser</button>
-                                    <button onclick="enableStealthMode()" style="
-                                        background: rgba(0, 150, 255, 0.2); color: #0096ff;
-                                        padding: 10px 16px; border: 1px solid #0096ff; border-radius: 6px;
-                                        cursor: pointer; font-size: 13px; font-weight: 500;
-                                    ">Stealth Mode</button>
-                                </div>
-                                <div id="browser-status" style="
-                                    background: rgba(0, 0, 0, 0.3); padding: 12px; border-radius: 6px;
-                                    color: #94a3b8; font-size: 13px; font-family: monospace;
-                                ">Browser Status: Inactive</div>
-                            </div>
-                            
-                            <!-- Automation Scripts -->
-                            <div style="background: rgba(0, 255, 159, 0.1); border: 1px solid rgba(0, 255, 159, 0.3); border-radius: 15px; padding: 24px;">
-                                <h3 style="color: #00ff9f; margin-bottom: 16px; font-size: 18px;">Automation Scripts</h3>
-                                <p style="color: #e2e8f0; margin-bottom: 20px; font-size: 14px; line-height: 1.6;">
-                                    Pre-configured automation scripts for common enterprise tasks and data extraction workflows.
-                                </p>
-                                <select id="automation-script" style="
-                                    width: 100%; padding: 12px; background: rgba(30, 30, 60, 0.9);
-                                    border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px;
-                                    color: white; font-size: 14px; margin-bottom: 16px;
-                                ">
-                                    <option value="form-fill">Automated Form Filling</option>
-                                    <option value="data-extract">Data Extraction</option>
-                                    <option value="login-sequence">Login Sequence</option>
-                                    <option value="report-download">Report Download</option>
-                                    <option value="monitoring">Site Monitoring</option>
-                                </select>
-                                <button onclick="executeAutomationScript()" style="
-                                    background: linear-gradient(45deg, #00ff9f, #00d4ff); color: #000;
-                                    padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer;
-                                    font-weight: 600; width: 100%; transition: all 0.3s ease;
-                                ">Execute Script</button>
-                            </div>
-                            
-                            <!-- PTNI Neural Patterns -->
-                            <div style="background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.3); border-radius: 15px; padding: 24px;">
-                                <h3 style="color: #ff6b6b; margin-bottom: 16px; font-size: 18px;">PTNI Neural Patterns</h3>
-                                <p style="color: #e2e8f0; margin-bottom: 20px; font-size: 14px; line-height: 1.6;">
-                                    Pattern-based Technical Neural Intelligence for advanced behavior mimicking and detection evasion.
-                                </p>
-                                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
-                                    <label style="color: #ff6b6b; font-size: 13px; font-weight: 500;">Mouse Movement Pattern:</label>
-                                    <select id="mouse-pattern" style="
-                                        padding: 8px; background: rgba(30, 30, 60, 0.9);
-                                        border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px;
-                                        color: white; font-size: 13px;
-                                    ">
-                                        <option value="human-like">Human-like Curves</option>
-                                        <option value="precise">Precise Linear</option>
-                                        <option value="jittery">Nervous/Jittery</option>
-                                        <option value="confident">Confident Strokes</option>
-                                    </select>
-                                </div>
-                                <button onclick="calibratePTNI()" style="
-                                    background: linear-gradient(45deg, #ff6b6b, #ff4757); color: white;
-                                    padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer;
-                                    font-weight: 600; width: 100%; transition: all 0.3s ease;
-                                ">Calibrate Neural Patterns</button>
-                            </div>
-                        </div>
-                        
-                        <!-- Automation Console -->
-                        <div style="margin-top: 24px; background: rgba(0, 0, 0, 0.4); border-radius: 12px; padding: 20px;">
-                            <h4 style="color: #00ff9f; margin-bottom: 12px; font-size: 16px;">Automation Console</h4>
-                            <div id="automation-console" style="
-                                background: #000; padding: 16px; border-radius: 8px; font-family: monospace;
-                                color: #00ff9f; font-size: 13px; min-height: 150px; max-height: 200px;
-                                overflow-y: auto; white-space: pre-wrap;
-                            ">TRAXOVO ∞ Automation Suite v3.0.1
-Ready for commands...
-
-Available modules:
-- X-Frame Bypass Engine
-- Headless Browser Controller  
-- PTNI Neural Pattern Engine
-- Stealth Detection Evasion
-- Human Behavior Simulation
-
-Type 'help' for command list or select actions above.</div>
-                        </div>
-                    </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
                 </div>
-            `;
+                <h3 class="feature-title">Quantum Stealth Technology</h3>
+                <p class="feature-description">
+                    Breakthrough security technology enables seamless data extraction while maintaining enterprise-grade protection and compliance.
+                </p>
+            </div>
             
-            document.body.appendChild(modal);
-        }
-
-        // Browser Automation Functions
-        function initiateFrameBypass() {
-            const targetUrl = document.getElementById('target-url').value;
-            const console = document.getElementById('automation-console');
-            
-            if (!targetUrl) {
-                appendToConsole('ERROR: Target URL required');
-                return;
-            }
-            
-            appendToConsole('\\n=== X-FRAME BYPASS PROTOCOL INITIATED ===');
-            appendToConsole('Target: ' + targetUrl);
-            appendToConsole('Analyzing frame restrictions...');
-            
-            setTimeout(() => {
-                appendToConsole('✓ X-Frame-Options: DENY detected');
-                appendToConsole('✓ CSP frame-ancestors detected');
-                appendToConsole('Initializing bypass techniques...');
-                
-                setTimeout(() => {
-                    appendToConsole('✓ Proxy tunnel established');
-                    appendToConsole('✓ Header injection successful');
-                    appendToConsole('✓ Frame isolation bypassed');
-                    appendToConsole('✓ Content accessible via secure proxy');
-                    appendToConsole('\\nBYPASS SUCCESSFUL - Frame content ready for automation');
-                }, 2000);
-            }, 1500);
-        }
-
-        function launchHeadlessBrowser() {
-            const statusDiv = document.getElementById('browser-status');
-            const console = document.getElementById('automation-console');
-            
-            appendToConsole('\\n=== HEADLESS BROWSER LAUNCH ===');
-            appendToConsole('Initializing Chrome headless instance...');
-            
-            statusDiv.innerHTML = 'Browser Status: <span style="color: #ffa500;">Launching...</span>';
-            
-            setTimeout(() => {
-                statusDiv.innerHTML = 'Browser Status: <span style="color: #00ff9f;">Active</span> | PID: 1337 | Memory: 245MB';
-                appendToConsole('✓ Browser launched successfully');
-                appendToConsole('✓ Stealth plugins loaded');
-                appendToConsole('✓ User-Agent randomization active');
-                appendToConsole('✓ Viewport scaling configured');
-                appendToConsole('Browser ready for automation tasks');
-            }, 2000);
-        }
-
-        function enableStealthMode() {
-            appendToConsole('\\n=== STEALTH MODE ACTIVATION ===');
-            appendToConsole('Loading stealth detection evasion...');
-            appendToConsole('✓ WebDriver property masking');
-            appendToConsole('✓ Canvas fingerprint randomization');
-            appendToConsole('✓ WebGL noise injection');
-            appendToConsole('✓ Font enumeration blocking');
-            appendToConsole('✓ Timezone/locale spoofing');
-            appendToConsole('STEALTH MODE: FULLY ACTIVE');
-        }
-
-        function executeAutomationScript() {
-            const script = document.getElementById('automation-script').value;
-            const scriptNames = {
-                'form-fill': 'Automated Form Filling',
-                'data-extract': 'Data Extraction Engine',
-                'login-sequence': 'Login Sequence Automation',
-                'report-download': 'Report Download Manager',
-                'monitoring': 'Site Monitoring Protocol'
-            };
-            
-            appendToConsole('\\n=== SCRIPT EXECUTION ===');
-            appendToConsole('Script: ' + scriptNames[script]);
-            appendToConsole('Loading automation modules...');
-            
-            setTimeout(() => {
-                appendToConsole('✓ Script loaded successfully');
-                appendToConsole('✓ Target elements identified');
-                appendToConsole('✓ Human behavior patterns applied');
-                appendToConsole('✓ Execution complete');
-                appendToConsole('Results: ' + Math.floor(Math.random() * 100) + '% success rate');
-            }, 2500);
-        }
-
-        function calibratePTNI() {
-            const pattern = document.getElementById('mouse-pattern').value;
-            appendToConsole('\\n=== PTNI NEURAL CALIBRATION ===');
-            appendToConsole('Pattern Type: ' + pattern);
-            appendToConsole('Analyzing human behavior datasets...');
-            appendToConsole('✓ Neural patterns optimized');
-            appendToConsole('✓ Movement algorithms updated');
-            appendToConsole('✓ Timing variations calibrated');
-            appendToConsole('PTNI Ready: Human-like behavior patterns active');
-        }
-
-        function appendToConsole(text) {
-            const console = document.getElementById('automation-console');
-            if (console) {
-                console.textContent += text + '\\n';
-                console.scrollTop = console.scrollHeight;
-            }
-        }
-
-        // MIRROR STATUS Function (OMEGA PROTOCOL)
-        function showMirrorStatus() {
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-                background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px);
-                z-index: 25000; display: flex; align-items: center; justify-content: center;
-                opacity: 0; animation: fadeIn 0.5s ease forwards;
-            `;
-            
-            modal.innerHTML = `
-                <div style="
-                    background: linear-gradient(145deg, #0a0a0a 0%, #1a0a0a 100%);
-                    border: 2px solid #ff6b6b; border-radius: 20px;
-                    width: 95%; max-width: 1400px; max-height: 95vh;
-                    box-shadow: 0 0 50px rgba(255, 107, 107, 0.5);
-                    overflow: hidden; position: relative;
-                ">
-                    <!-- OMEGA Header -->
-                    <div style="
-                        background: linear-gradient(90deg, #ff6b6b 0%, #ff4757 100%);
-                        padding: 20px 30px; display: flex; align-items: center; justify-content: space-between;
-                        border-bottom: 1px solid rgba(255, 107, 107, 0.3);
-                    ">
-                        <div>
-                            <h2 style="margin: 0; color: white; font-size: 28px; font-weight: 900; letter-spacing: 2px;">⚠️ OMEGA PROTOCOL ACTIVE</h2>
-                            <p style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px; font-weight: 600;">NEXUS–TRAXOVO Intelligence Core Mirror Status</p>
-                        </div>
-                        <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="
-                            background: rgba(255, 255, 255, 0.1); border: none; border-radius: 10px;
-                            width: 40px; height: 40px; cursor: pointer; color: white; font-size: 18px;
-                        ">✕</button>
-                    </div>
-                    
-                    <!-- Mirror Status Content -->
-                    <div style="padding: 30px; overflow-y: auto; max-height: 80vh;">
-                        <div id="mirror-analysis" style="font-family: monospace; color: #00ff9f; font-size: 14px; line-height: 1.6;">
-                            <div style="color: #ff6b6b; font-size: 18px; margin-bottom: 20px; font-weight: bold;">🔍 SYSTEM MIRROR ANALYSIS INITIATED</div>
-                            <div>Scanning project files and data structures...</div>
-                        </div>
-                    </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-rocket"></i>
                 </div>
-            `;
-            
-            document.body.appendChild(modal);
-            
-            // Execute mirror analysis
-            performMirrorAnalysis();
-        }
+                <h3 class="feature-title">Real-time Automation</h3>
+                <p class="feature-description">
+                    Intelligent automation engine processes complex workflows and delivers actionable insights in real-time across all connected systems.
+                </p>
+            </div>
+        </div>
+    </section>
 
-        async function performMirrorAnalysis() {
-            const analysisDiv = document.getElementById('mirror-analysis');
-            
-            const steps = [
-                'Analyzing uploaded files and data buckets...',
-                'Scanning authentication and user management...',
-                'Checking asset tracking and GAUGE integration...',
-                'Reviewing dashboard UI components...',
-                'Examining automation workflows...',
-                'Validating data consistency...',
-                'Detecting orphaned modules...',
-                'Generating comprehensive status report...'
-            ];
-            
-            for (let i = 0; i < steps.length; i++) {
-                await new Promise(resolve => setTimeout(resolve, 800));
-                analysisDiv.innerHTML += '\\n✓ ' + steps[i];
-                analysisDiv.scrollTop = analysisDiv.scrollHeight;
-            }
-            
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // Generate detailed mirror status
-            const mirrorReport = `
+    <section class="quick-access">
+        <div class="access-card">
+            <div class="access-icon">
+                <i class="fas fa-project-diagram"></i>
+            </div>
+            <h3 class="access-title">Project Management</h3>
+            <p>Complete project portfolio with 56 extracted projects</p>
+            <a href="/ultimate-troy-dashboard" class="access-link">View Projects</a>
+        </div>
+        
+        <div class="access-card">
+            <div class="access-icon">
+                <i class="fas fa-analytics"></i>
+            </div>
+            <h3 class="access-title">Business Intelligence</h3>
+            <p>Advanced analytics and performance metrics</p>
+            <a href="/ground-works-complete" class="access-link">View Analytics</a>
+        </div>
+        
+        <div class="access-card">
+            <div class="access-icon">
+                <i class="fas fa-cogs"></i>
+            </div>
+            <h3 class="access-title">System Administration</h3>
+            <p>Platform configuration and management tools</p>
+            <a href="/william-login" class="access-link">Admin Access</a>
+        </div>
+        
+        <div class="access-card">
+            <div class="access-icon">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <h3 class="access-title">Financial Overview</h3>
+            <p>Contract values and revenue analysis</p>
+            <a href="/ultimate-troy-dashboard" class="access-link">View Financials</a>
+        </div>
+    </section>
 
-============= MIRROR STATUS REPORT =============
-
-📁 FILE CATEGORIZATION STATUS:
-   ✓ Asset Data: 487 active assets categorized
-   ✓ CSV Files: 12 data files processed
-   ✓ Authentication: watson/troy/william users configured
-   ✓ Templates: Landing and dashboard templates active
-   ✓ GAUGE Integration: API endpoints ready
-
-🔐 AUTHENTICATION SYSTEM:
-   ✓ User Management: Active
-   ✓ Session Handling: Configured
-   ✓ Access Control: Enterprise-grade
-
-📊 DASHBOARD COMPONENTS:
-   ✓ Enhanced Dashboard: Full AWS/Palantir styling
-   ✓ Modal System: Enterprise-grade implemented
-   ✓ Real-time Updates: 30s automation, 60s safety
-   ✓ QNIS Integration: Level 15 intelligence active
-
-🗺️ ASSET TRACKING:
-   ✓ GAUGE API: Credential management ready
-   ✓ Polygon Mapping: Jobs/Projects/Locations structure
-   ✓ Asset Monitoring: 152 jobsites configured
-   ✓ Maintenance Intelligence: Red/yellow tag tracking
-
-⚙️ AUTOMATION MODULES:
-   ✓ Browser Automation Suite: iframe/X-Frame bypass ready
-   ✓ QNIS/PTNI Engine: Neural patterns calibrated
-   ✓ Headless Browser: Stealth mode available
-   ✓ Automation Scripts: 5 pre-configured workflows
-
-🔄 DATA CONSISTENCY:
-   ✓ Main Application: app.py operational
-   ✓ Template Rendering: Enhanced dashboard active
-   ✓ API Endpoints: GAUGE and automation ready
-   ✓ Static Assets: All resources loaded
-
-⚠️ IDENTIFIED GAPS:
-   • GAUGE API credentials need user input for live data
-   • LLM backend endpoint needs OpenAI integration
-   • Database schema optimization pending
-   • Mirror synchronization protocols ready for activation
-
-🎯 SYSTEM INTEGRITY: 97.8%
-📡 API Response Time: 128ms average
-🔋 Resource Utilization: Optimal
-🛡️ Security Status: Enterprise-grade active
-
-============= END MIRROR REPORT =============
-
-OMEGA PROTOCOL STATUS: All core modules operational
-Recommendations: Activate GAUGE credentials and LLM integration for full functionality`;
-
-            analysisDiv.innerHTML += mirrorReport;
-            analysisDiv.scrollTop = analysisDiv.scrollHeight;
-        }
-
-        // CSS animations
-        const animations = document.createElement('style');
-        animations.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; transform: scale(0.95); }
-                to { opacity: 1; transform: scale(1); }
-            }
-            @keyframes pulse {
-                0%, 100% { opacity: 0.4; }
-                50% { opacity: 1; }
-            }
-        `;
-        document.head.appendChild(animations);
-    </script>
+    <footer class="footer">
+        <p>&copy; 2025 TRAXOVO Enterprise Platform. Advanced autonomous intelligence system.</p>
+    </footer>
 </body>
 </html>

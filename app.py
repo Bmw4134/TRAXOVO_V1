@@ -37,8 +37,8 @@ db.init_app(app)
 
 @app.route('/')
 def home():
-    """Main TRAXOVO dashboard"""
-    return render_template('dashboard.html')
+    """Clean TRAXOVO landing page"""
+    return render_template('landing.html')
 
 @app.route('/api/groundworks/connect', methods=['POST'])
 def connect_groundworks_api():
@@ -254,6 +254,11 @@ except ImportError:
 def complete_ground_works_dashboard():
     """Complete Ground Works replacement dashboard with authentic RAGLE data"""
     return render_template('ground_works_complete.html')
+
+@app.route('/dashboard')
+def dashboard():
+    """Main dashboard with Ground Works integration"""
+    return render_template('dashboard.html')
 
 @app.route('/ultimate-troy-dashboard')
 def ultimate_troy_dashboard():

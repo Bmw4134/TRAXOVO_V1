@@ -34,21 +34,43 @@ except Exception as e:
     print(f"Data integration setup: {e}")
     integrator = None
 
-# Simple user database
+# Simple user database with first name authentication
 USERS = {
     'watson': {
-        'password': 'watson123',
+        'password': 'watson',
         'full_name': 'Watson Supreme Intelligence',
         'role': 'watson',
         'department': 'Command Center',
-        'access_level': 11
+        'access_level': 11,
+        'needs_password_reset': False,
+        'is_new_user': False
     },
     'demo': {
-        'password': 'demo123',
+        'password': 'demo',
         'full_name': 'Demo User',
         'role': 'operator',
         'department': 'Operations',
-        'access_level': 5
+        'access_level': 3,
+        'needs_password_reset': True,
+        'is_new_user': True
+    },
+    'admin': {
+        'password': 'admin',
+        'full_name': 'System Administrator',
+        'role': 'admin',
+        'department': 'IT Operations',
+        'access_level': 10,
+        'needs_password_reset': True,
+        'is_new_user': True
+    },
+    'sarah': {
+        'password': 'sarah',
+        'full_name': 'Sarah Johnson',
+        'role': 'operator',
+        'department': 'Field Operations',
+        'access_level': 4,
+        'needs_password_reset': True,
+        'is_new_user': True
     }
 }
 
@@ -87,15 +109,88 @@ def login():
             'role': user_data['role'],
             'department': user_data['department'],
             'access_level': user_data['access_level'],
-            'authenticated': True
+            'authenticated': True,
+            'needs_password_reset': user_data.get('needs_password_reset', False),
+            'is_new_user': user_data.get('is_new_user', False)
         }
         print(f"Login successful for user: {username}")
         print(f"Session data: {session['user']}")
+        
+        # Check if password reset is needed
+        if user_data.get('needs_password_reset', False):
+            return redirect(url_for('password_reset'))
+        
+        # Check if user needs onboarding
+        if user_data.get('is_new_user', False):
+            return redirect(url_for('onboarding'))
+            
         return redirect(url_for('dashboard'))
     else:
         flash('Invalid credentials')
         print(f"Login failed: Invalid credentials for {username}")
         return redirect(url_for('home'))
+
+@app.route('/password-reset', methods=['GET', 'POST'])
+def password_reset():
+    """Password reset for new users"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        new_password = request.form.get('new_password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+        
+        if not new_password or len(new_password) < 6:
+            flash('Password must be at least 6 characters long')
+            return render_template('password_reset.html', user=user)
+        
+        if new_password != confirm_password:
+            flash('Passwords do not match')
+            return render_template('password_reset.html', user=user)
+        
+        # Update password in user database
+        username = user['username'].lower()
+        if username in USERS:
+            USERS[username]['password'] = new_password
+            USERS[username]['needs_password_reset'] = False
+            
+            # Update session
+            session['user']['needs_password_reset'] = False
+            
+            flash('Password updated successfully')
+            
+            # Check if user still needs onboarding
+            if user.get('is_new_user', False):
+                return redirect(url_for('onboarding'))
+            else:
+                return redirect(url_for('dashboard'))
+    
+    return render_template('password_reset.html', user=user)
+
+@app.route('/onboarding')
+def onboarding():
+    """User onboarding guide"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return redirect(url_for('home'))
+    
+    return render_template('onboarding.html', user=user)
+
+@app.route('/complete-onboarding', methods=['POST'])
+def complete_onboarding():
+    """Complete user onboarding"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return redirect(url_for('home'))
+    
+    # Mark user as no longer new
+    username = user['username'].lower()
+    if username in USERS:
+        USERS[username]['is_new_user'] = False
+        session['user']['is_new_user'] = False
+    
+    return redirect(url_for('dashboard'))
 
 @app.route('/dashboard')
 def dashboard():

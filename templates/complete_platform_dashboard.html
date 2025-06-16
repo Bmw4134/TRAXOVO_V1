@@ -87,7 +87,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h3 class="mb-1">${{ "{:,.0f}".format(operational_metrics.total_operational_cost) }}</h3>
+                            <h3 class="mb-1">{{ operational_metrics.operational_hours }}</h3>
                             <p class="mb-0">Daily Operations</p>
                         </div>
                         <i class="fas fa-dollar-sign fa-2x opacity-75"></i>
@@ -104,13 +104,13 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h3 class="mb-1">{{ "{:.1f}%".format(operational_metrics.overall_efficiency) }}</h3>
+                            <h3 class="mb-1">{{ "{:.1f}%".format(operational_metrics.efficiency_score) }}</h3>
                             <p class="mb-0">System Efficiency</p>
                         </div>
                         <i class="fas fa-chart-line fa-2x opacity-75"></i>
                     </div>
                     <div class="progress mt-2" style="height: 4px;">
-                        <div class="progress-bar bg-white" style="width: {{ operational_metrics.overall_efficiency }}%"></div>
+                        <div class="progress-bar bg-white" style="width: {{ operational_metrics.efficiency_score }}%"></div>
                     </div>
                     <small class="text-light">AI optimization</small>
                 </div>
@@ -178,24 +178,24 @@
                                             <tbody>
                                                 {% for asset in equipment_data[:8] %}
                                                 <tr>
-                                                    <td><span class="badge bg-primary">{{ asset.asset_id }}</span></td>
-                                                    <td>{{ asset.equipment_type }}</td>
-                                                    <td>{{ asset.current_location }}</td>
+                                                    <td><span class="badge bg-primary">{{ asset['asset_id'] }}</span></td>
+                                                    <td>{{ asset['equipment_type'] }}</td>
+                                                    <td>{{ asset['current_location'] }}</td>
                                                     <td>
-                                                        <span class="badge bg-{{ 'success' if asset.operational_status == 'Active' else 'warning' if asset.operational_status == 'Idle' else 'danger' }}">
-                                                            {{ asset.operational_status }}
+                                                        <span class="badge bg-{{ 'success' if asset['operational_status'] == 'Active' else 'warning' if asset['operational_status'] == 'Idle' else 'danger' }}">
+                                                            {{ asset['operational_status'] }}
                                                         </span>
                                                     </td>
-                                                    <td>{{ asset.assigned_operator }}</td>
-                                                    <td>{{ asset.hours_operated_today }}h</td>
+                                                    <td>{{ asset['assigned_operator'] }}</td>
+                                                    <td>{{ asset['hours_operated_today'] }}h</td>
                                                     <td>
                                                         <div class="progress" style="height: 20px;">
-                                                            <div class="progress-bar bg-{{ 'success' if asset.efficiency_score > 80 else 'warning' if asset.efficiency_score > 60 else 'danger' }}" 
-                                                                 style="width: {{ asset.efficiency_score }}%">{{ asset.efficiency_score }}%</div>
+                                                            <div class="progress-bar bg-{{ 'success' if asset['efficiency_score'] > 80 else 'warning' if asset['efficiency_score'] > 60 else 'danger' }}" 
+                                                                 style="width: {{ asset['efficiency_score'] }}%">{{ asset['efficiency_score'] }}%</div>
                                                         </div>
                                                     </td>
-                                                    <td class="text-{{ 'success' if asset.maintenance_hours_remaining > 100 else 'warning' if asset.maintenance_hours_remaining > 50 else 'danger' }}">
-                                                        {{ asset.maintenance_hours_remaining }}h
+                                                    <td class="text-{{ 'success' if asset['maintenance_hours_remaining'] > 100 else 'warning' if asset['maintenance_hours_remaining'] > 50 else 'danger' }}">
+                                                        {{ asset['maintenance_hours_remaining'] }}h
                                                     </td>
                                                 </tr>
                                                 {% endfor %}
@@ -222,20 +222,20 @@
                                                 <div class="card-body">
                                                     <div class="d-flex justify-content-between align-items-center">
                                                         <div>
-                                                            <h6 class="text-primary mb-1">{{ person.employee_name }}</h6>
-                                                            <p class="text-light mb-1">{{ person.department }} - {{ person.role }}</p>
-                                                            <small class="text-muted">Location: {{ person.current_location }}</small>
+                                                            <h6 class="text-primary mb-1">{{ person['employee_name'] }}</h6>
+                                                            <p class="text-light mb-1">{{ person['department'] }} - {{ person['role'] }}</p>
+                                                            <small class="text-muted">Location: {{ person['current_location'] }}</small>
                                                         </div>
                                                         <div class="text-end">
-                                                            <span class="badge bg-{{ 'success' if person.status == 'Present' else 'warning' if person.status == 'Break' else 'danger' }} mb-1">
-                                                                {{ person.status }}
+                                                            <span class="badge bg-{{ 'success' if person['status'] == 'Present' else 'warning' if person['status'] == 'Break' else 'danger' }} mb-1">
+                                                                {{ person['status'] }}
                                                             </span>
                                                             <br>
-                                                            <small class="text-light">{{ person.hours_worked_today }}h today</small>
+                                                            <small class="text-light">{{ person['hours_worked_today'] }}h today</small>
                                                         </div>
                                                     </div>
                                                     <div class="progress mt-2" style="height: 4px;">
-                                                        <div class="progress-bar bg-success" style="width: {{ (person.hours_worked_today / 8 * 100)|round }}%"></div>
+                                                        <div class="progress-bar bg-success" style="width: {{ (person['hours_worked_today'] / 8 * 100)|round }}%"></div>
                                                     </div>
                                                 </div>
                                             </div>

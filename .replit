@@ -6,7 +6,7 @@ packages = ["cairo", "cargo", "espeak-ng", "ffmpeg-full", "freetype", "geckodriv
 
 [deployment]
 deploymentTarget = "cloudrun"
-run = ["sh", "-c", "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"]
+run = ["sh", "-c", "python main.py"]
 
 [workflows]
 runButton = "Run Clean App"

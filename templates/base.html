@@ -58,6 +58,15 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/error-handler.js') }}"></script>
+    <!-- Performance Engine -->
+    <script src="{{ url_for('static', filename='js/performance-engine.js') }}"></script>
+
+    <!-- Adaptive Display Engine -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/adaptive-display-core.css') }}">
+    <script src="{{ url_for('static', filename='js/adaptive-display-engine.js') }}"></script>
+
+    <!-- TRAXOVO Nexus Integration -->
+    <script src="{{ url_for('static', filename='js/nexus-integration.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

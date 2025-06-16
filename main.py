@@ -225,6 +225,7 @@ def dashboard():
     
     # Replace placeholder data with real database integration
     from data_integration_real import RealDataIntegrator
+from data_analyzer import IntelligentDataAnalyzer
     integrator = RealDataIntegrator()
     
     # Executive message for Troy's attention

@@ -53,19 +53,6 @@ def authenticate_user(username, password):
         else:
             return {'error': 'Invalid credentials'}
     
-    # Brett admin authentication
-    if username.lower() == 'brett':
-        if password == 'brett':
-            return {
-                'username': 'brett',
-                'full_name': 'Brett System Administrator',
-                'authenticated': True,
-                'role': 'admin',
-                'access_level': 10
-            }
-        else:
-            return {'error': 'Invalid credentials'}
-    
     # Simple first name authentication for regular users
     if username == password:
         return {

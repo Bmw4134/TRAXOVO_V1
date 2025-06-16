@@ -37,10 +37,6 @@
             
             // Platform-specific modules
             this.registerModule('ragleSystem', this.createRagleIntegration());
-            this.registerModule('attendanceMatrix', this.createAttendanceIntegration());
-            this.registerModule('equipmentBilling', this.createEquipmentIntegration());
-            this.registerModule('jobZones', this.createJobZonesIntegration());
-            this.registerModule('geofences', this.createGeofencesIntegration());
         }
         
         registerModule(name, moduleInstance) {
@@ -122,7 +118,7 @@
         
         createUnifiedDashboard() {
             // Coordinate all platform modules for unified experience
-            const modules = ['ragleSystem', 'attendanceMatrix', 'equipmentBilling', 'jobZones', 'geofences'];
+            const modules = ['ragleSystem'];
             const moduleData = {};
             
             modules.forEach(moduleName => {
@@ -144,37 +140,7 @@
             };
         }
         
-        createAttendanceIntegration() {
-            return {
-                getData: () => this.fetchAttendanceData(),
-                getStatus: () => 'active',
-                syncAttendance: (data) => this.syncAttendanceData(data)
-            };
-        }
-        
-        createEquipmentIntegration() {
-            return {
-                getData: () => this.fetchEquipmentData(),
-                getStatus: () => 'operational',
-                updateBilling: (data) => this.updateEquipmentBilling(data)
-            };
-        }
-        
-        createJobZonesIntegration() {
-            return {
-                getData: () => this.fetchJobZonesData(),
-                getStatus: () => 'active',
-                updateZones: (data) => this.updateJobZones(data)
-            };
-        }
-        
-        createGeofencesIntegration() {
-            return {
-                getData: () => this.fetchGeofencesData(),
-                getStatus: () => 'operational',
-                updateGeofences: (data) => this.updateGeofences(data)
-            };
-        }
+
         
         // Data fetching methods
         async fetchRagleData() {
@@ -187,45 +153,7 @@
             }
         }
         
-        async fetchAttendanceData() {
-            try {
-                const response = await fetch('/api/attendance');
-                return await response.json();
-            } catch (error) {
-                console.warn('Attendance data fetch failed:', error);
-                return null;
-            }
-        }
-        
-        async fetchEquipmentData() {
-            try {
-                const response = await fetch('/api/equipment');
-                return await response.json();
-            } catch (error) {
-                console.warn('Equipment data fetch failed:', error);
-                return null;
-            }
-        }
-        
-        async fetchJobZonesData() {
-            try {
-                const response = await fetch('/api/job-zones');
-                return await response.json();
-            } catch (error) {
-                console.warn('Job zones data fetch failed:', error);
-                return null;
-            }
-        }
-        
-        async fetchGeofencesData() {
-            try {
-                const response = await fetch('/api/geofences');
-                return await response.json();
-            } catch (error) {
-                console.warn('Geofences data fetch failed:', error);
-                return null;
-            }
-        }
+
         
         // Optimization methods
         reduceDisplayEffects() {

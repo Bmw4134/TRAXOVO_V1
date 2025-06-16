@@ -16,6 +16,13 @@ app.config['ENV'] = 'production'
 app.config['DEBUG'] = False
 app.config['TESTING'] = False
 
+# Initialize database
+try:
+    from models import init_db
+    init_db(app)
+except ImportError:
+    pass  # Database models are optional
+
 # Simple user database
 USERS = {
     'watson': {

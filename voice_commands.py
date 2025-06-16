@@ -34,49 +34,72 @@ class VoiceCommandProcessor:
     
     def process_voice_command(self, transcribed_text):
         """
-        Process voice command using OpenAI GPT-4o for natural language understanding
+        Process voice command using OpenAI GPT-4o with rate limit handling
         """
-        try:
-            response = openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": """You are a voice command interpreter for the TRAXOVO Intelligence Platform. 
-                        
-                        Available commands:
-                        - Navigation: "go to dashboard", "open ragle system", "go home", "logout"
-                        - System commands: "show status", "optimize system", "refresh", "clear screen", "help", "version"
-                        - Ragle commands: "optimize ragle", "refresh ragle data", "maintenance mode", "emergency shutdown"
-                        
-                        Respond with JSON in this format:
+        import time
+        
+        # First try local pattern matching as fallback
+        local_result = self._try_local_matching(transcribed_text)
+        if local_result['confidence'] > 0.7:
+            return local_result
+        
+        # Try OpenAI with rate limit handling
+        for attempt in range(3):
+            try:
+                response = openai_client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
                         {
-                            "action": "navigation|command|ragle_action|unknown",
-                            "target": "specific_target_or_command",
-                            "confidence": 0.0-1.0,
-                            "interpretation": "human readable interpretation"
+                            "role": "system",
+                            "content": """You are a voice command interpreter for the TRAXOVO Intelligence Platform. 
+                            
+                            Available commands:
+                            - Navigation: "go to dashboard", "open ragle system", "go home", "logout"
+                            - System commands: "show status", "optimize system", "refresh", "clear screen", "help", "version"
+                            - Ragle commands: "optimize ragle", "refresh ragle data", "maintenance mode", "emergency shutdown"
+                            
+                            Respond with JSON in this format:
+                            {
+                                "action": "navigation|command|ragle_action|unknown",
+                                "target": "specific_target_or_command",
+                                "confidence": 0.0-1.0,
+                                "interpretation": "human readable interpretation"
+                            }
+                            
+                            For navigation, target should be: "dashboard", "ragle", "home", or "logout"
+                            For commands, target should be: "status", "optimize", "refresh", "clear", "help", or "version"
+                            For ragle actions, target should be: "optimize", "refresh", "maintenance", or "shutdown"
+                            """
+                        },
+                        {
+                            "role": "user",
+                            "content": f"User said: '{transcribed_text}'"
                         }
-                        
-                        For navigation, target should be: "dashboard", "ragle", "home", or "logout"
-                        For commands, target should be: "status", "optimize", "refresh", "clear", "help", or "version"
-                        For ragle actions, target should be: "optimize", "refresh", "maintenance", or "shutdown"
-                        """
-                    },
-                    {
-                        "role": "user",
-                        "content": f"User said: '{transcribed_text}'"
-                    }
-                ],
-                response_format={"type": "json_object"},
-                max_tokens=200
-            )
-            
-            content = response.choices[0].message.content
-            if content:
-                result = json.loads(content)
-            else:
-                raise Exception("Empty response from OpenAI")
-            return result
+                    ],
+                    response_format={"type": "json_object"},
+                    max_tokens=200,
+                    timeout=10
+                )
+                
+                content = response.choices[0].message.content
+                if content:
+                    result = json.loads(content)
+                    return result
+                else:
+                    raise Exception("Empty response from OpenAI")
+                    
+            except Exception as e:
+                if "rate_limit" in str(e).lower() or "quota" in str(e).lower():
+                    if attempt < 2:  # Wait and retry
+                        time.sleep(2 ** attempt)  # Exponential backoff
+                        continue
+                    else:
+                        print("Using local processing: API quota exceeded")
+                        return local_result
+                else:
+                    raise e
+        
+        return local_result
             
         except Exception as e:
             return {

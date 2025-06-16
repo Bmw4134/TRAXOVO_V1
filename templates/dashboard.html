@@ -264,8 +264,129 @@ document.getElementById('commandInput').addEventListener('keypress', function(e)
 });
 {% endif %}
 
+// Voice command demonstration function
+function testVoiceCommand(command) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.innerHTML = `
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <strong><i class="fas fa-microphone me-2"></i>Processing Voice Command...</strong><br>
+            <small>Command: "${command}"</small>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    
+    fetch('/api/voice/process', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text: command })
+    })
+    .then(response => response.json())
+    .then(data => {
+        toast.remove();
+        
+        if (data.success) {
+            const result = data.result;
+            const interpretation = result.command_analysis.interpretation;
+            
+            const successToast = document.createElement('div');
+            successToast.className = 'toast-notification';
+            successToast.innerHTML = `
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong><i class="fas fa-check-circle me-2"></i>Voice Command Processed</strong><br>
+                    <small>Understood: ${interpretation}</small><br>
+                    <small>Action: ${result.execution.message || 'Executing...'}</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.body.appendChild(successToast);
+            
+            const execution = result.execution;
+            if (execution.type === 'redirect') {
+                setTimeout(() => {
+                    window.location.href = execution.url;
+                }, 2000);
+            }
+            
+            setTimeout(() => {
+                if (successToast.parentNode) {
+                    successToast.remove();
+                }
+            }, 5000);
+        } else {
+            const errorToast = document.createElement('div');
+            errorToast.className = 'toast-notification';
+            errorToast.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Voice Command Failed</strong><br>
+                    <small>Error: ${data.error}</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.body.appendChild(errorToast);
+            
+            setTimeout(() => {
+                if (errorToast.parentNode) {
+                    errorToast.remove();
+                }
+            }, 5000);
+        }
+    })
+    .catch(error => {
+        toast.remove();
+        console.error('Voice command error:', error);
+        
+        const errorToast = document.createElement('div');
+        errorToast.className = 'toast-notification';
+        errorToast.innerHTML = `
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong><i class="fas fa-wifi me-2"></i>Connection Error</strong><br>
+                <small>Please check your connection and try again</small>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        document.body.appendChild(errorToast);
+        
+        setTimeout(() => {
+            if (errorToast.parentNode) {
+                errorToast.remove();
+            }
+        }, 5000);
+    });
+}
+
 // Start real-time updates
 updateChart();
 setInterval(updateChart, 2000);
 </script>
+
+<style>
+    .toast-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 400px;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    .toast-notification .alert {
+        margin-bottom: 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+</style>
 {% endblock %}

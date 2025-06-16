@@ -454,9 +454,14 @@ def process_voice_command():
         if not text_input:
             return jsonify({'error': 'No text input provided'}), 400
         
-        # Process the voice command using local pattern matching (reliable, no external dependencies)
-        from voice_commands_local import process_voice_input
-        result = process_voice_input(text_input=text_input)
+        # Process the voice command with fallback to local processing
+        try:
+            from voice_commands import process_voice_input
+            result = process_voice_input(text_input=text_input)
+        except Exception as e:
+            print(f"OpenAI processing failed, using local fallback: {e}")
+            from voice_commands_local import process_voice_input
+            result = process_voice_input(text_input=text_input)
         
         return jsonify({
             'success': True,

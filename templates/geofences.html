@@ -1,0 +1,223 @@
+
+{% extends "base.html" %}
+
+{% block title %}Geofences - TRAXOVO Watson{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-white mb-0">
+                <i class="fas fa-shield-alt me-2"></i>Geofence Management
+            </h2>
+            <div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createGeofenceModal">
+                    <i class="fas fa-plus me-2"></i>Create Geofence
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Active Geofences</h6>
+                        <h3 class="mb-0" id="active-geofences">47</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-location-arrow fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Assets Tracked</h6>
+                        <h3 class="mb-0" id="assets-tracked">312</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-crosshairs fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Alerts Today</h6>
+                        <h3 class="mb-0" id="alerts-today">7</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Compliance Rate</h6>
+                        <h3 class="mb-0" id="compliance-rate">94%</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-map-pin me-2"></i>Live Geofence Monitor</h5>
+            </div>
+            <div class="card-body">
+                <div id="geofence-map" style="height: 450px; background: #34495e; border-radius: 8px; position: relative;">
+                    <div class="d-flex align-items-center justify-content-center h-100 text-white">
+                        <div class="text-center">
+                            <i class="fas fa-satellite fa-3x mb-3"></i>
+                            <h5>Real-time Geofence Tracking</h5>
+                            <p>Live monitoring of all assets and personnel within defined boundaries</p>
+                            <div class="row mt-4">
+                                <div class="col-4">
+                                    <div class="border rounded p-2">
+                                        <small class="text-success">● Inside Zone</small><br>
+                                        <strong>247 Assets</strong>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="border rounded p-2">
+                                        <small class="text-warning">● Border Zone</small><br>
+                                        <strong>12 Assets</strong>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="border rounded p-2">
+                                        <small class="text-danger">● Outside Zone</small><br>
+                                        <strong>3 Assets</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Recent Alerts</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger alert-sm">
+                    <strong>Equipment EQ-045:</strong> Left authorized zone at 14:23
+                </div>
+                <div class="alert alert-warning alert-sm">
+                    <strong>Worker W-189:</strong> Approaching zone boundary
+                </div>
+                <div class="alert alert-info alert-sm">
+                    <strong>Vehicle V-034:</strong> Entered restricted area
+                </div>
+                <div class="alert alert-success alert-sm">
+                    <strong>Equipment EQ-112:</strong> Returned to authorized zone
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-outline-primary btn-sm w-100 mb-2">
+                    <i class="fas fa-download me-2"></i>Export Alert Log
+                </button>
+                <button class="btn btn-outline-info btn-sm w-100 mb-2">
+                    <i class="fas fa-chart-line me-2"></i>Generate Report
+                </button>
+                <button class="btn btn-outline-warning btn-sm w-100">
+                    <i class="fas fa-cogs me-2"></i>Configure Alerts
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Geofence Configuration</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Geofence ID</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Assets Monitored</th>
+                                <th>Alert Rules</th>
+                                <th>Created Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>GF-001</td>
+                                <td>Main Construction Site</td>
+                                <td>Work Zone</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>89</td>
+                                <td>Entry/Exit + After Hours</td>
+                                <td>2025-01-15</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>GF-012</td>
+                                <td>Equipment Storage Yard</td>
+                                <td>Security Zone</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>156</td>
+                                <td>24/7 Monitoring</td>
+                                <td>2025-02-03</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

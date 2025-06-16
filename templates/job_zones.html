@@ -1,0 +1,172 @@
+
+{% extends "base.html" %}
+
+{% block title %}Job Zones - TRAXOVO Watson{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-white mb-0">
+                <i class="fas fa-map-marked-alt me-2"></i>Job Zones Management
+            </h2>
+            <div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createZoneModal">
+                    <i class="fas fa-plus me-2"></i>Create Zone
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Total Zones</h6>
+                        <h3 class="mb-0" id="total-zones">34</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-map fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Active Jobs</h6>
+                        <h3 class="mb-0" id="active-jobs">12</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-hammer fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Workers on Site</h6>
+                        <h3 class="mb-0" id="workers-on-site">147</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Equipment Deployed</h6>
+                        <h3 class="mb-0" id="equipment-deployed">89</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-truck fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-globe me-2"></i>Interactive Zone Map</h5>
+            </div>
+            <div class="card-body">
+                <div id="job-zones-map" style="height: 400px; background: #2c3e50; border-radius: 8px; position: relative;">
+                    <div class="d-flex align-items-center justify-content-center h-100 text-white">
+                        <div class="text-center">
+                            <i class="fas fa-map fa-3x mb-3"></i>
+                            <h5>Interactive Job Zones Map</h5>
+                            <p>Real-time visualization of all job sites and worker locations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Zone Alerts</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning alert-sm">
+                    <strong>Zone Alpha-7:</strong> Equipment requires maintenance
+                </div>
+                <div class="alert alert-info alert-sm">
+                    <strong>Zone Beta-3:</strong> New workers assigned
+                </div>
+                <div class="alert alert-success alert-sm">
+                    <strong>Zone Gamma-1:</strong> Job completed ahead of schedule
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Job Zones Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Zone ID</th>
+                                <th>Zone Name</th>
+                                <th>Job Type</th>
+                                <th>Status</th>
+                                <th>Workers</th>
+                                <th>Equipment</th>
+                                <th>Progress</th>
+                                <th>Est. Completion</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>ZONE-001</td>
+                                <td>Downtown Construction</td>
+                                <td>Commercial Build</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>23</td>
+                                <td>12</td>
+                                <td>67%</td>
+                                <td>2025-08-15</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                    <button class="btn btn-sm btn-outline-info">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

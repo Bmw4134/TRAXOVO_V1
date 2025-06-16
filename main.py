@@ -150,6 +150,99 @@ def ragle_api_data():
         'timestamp': datetime.now().isoformat()
     })
 
+@app.route('/attendance')
+def attendance_matrix():
+    """Attendance Matrix Dashboard"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return redirect(url_for('home'))
+    
+    return render_template('attendance_matrix.html', user=user)
+
+@app.route('/equipment-billing')
+def equipment_billing():
+    """Equipment Billing Dashboard"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return redirect(url_for('home'))
+    
+    return render_template('equipment_billing.html', user=user)
+
+@app.route('/job-zones')
+def job_zones():
+    """Job Zones Management Dashboard"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return redirect(url_for('home'))
+    
+    return render_template('job_zones.html', user=user)
+
+@app.route('/geofences')
+def geofences():
+    """Geofence Management Dashboard"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return redirect(url_for('home'))
+    
+    return render_template('geofences.html', user=user)
+
+@app.route('/api/attendance')
+def api_attendance():
+    """Attendance API"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    return jsonify({
+        'status': 'present',
+        'clock_in': '08:00',
+        'hours_today': 8.5,
+        'weekly_hours': 42.5,
+        'overtime': 2.5
+    })
+
+@app.route('/api/equipment')
+def api_equipment():
+    """Equipment API"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    return jsonify({
+        'total_equipment': 247,
+        'active_rentals': 89,
+        'monthly_revenue': 847000,
+        'utilization_rate': 78
+    })
+
+@app.route('/api/job-zones')
+def api_job_zones():
+    """Job Zones API"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    return jsonify({
+        'total_zones': 34,
+        'active_jobs': 12,
+        'workers_on_site': 147,
+        'equipment_deployed': 89
+    })
+
+@app.route('/api/geofences')
+def api_geofences():
+    """Geofences API"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    return jsonify({
+        'active_geofences': 47,
+        'assets_tracked': 312,
+        'alerts_today': 7,
+        'compliance_rate': 94
+    })
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)

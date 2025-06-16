@@ -29,52 +29,35 @@
 <body>
     <!-- Sidebar -->
     {% if session.user %}
+    <!-- Mobile Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h5><i class="fas fa-brain me-2"></i>TRAXOVO</h5>
-            <button class="sidebar-close" id="sidebarClose">
-                <i class="fas fa-times"></i>
-            </button>
+            <h4><i class="fas fa-brain me-2"></i>TRAXOVO</h4>
+            <button class="sidebar-close" id="sidebarClose" aria-label="Close sidebar">&times;</button>
         </div>
-        <nav class="sidebar-menu">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('dashboard') }}">
-                        <i class="fas fa-tachometer-alt"></i>Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/ragle">
-                        <i class="fas fa-chart-line"></i>Ragle System
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/attendance">
-                        <i class="fas fa-users"></i>Attendance Matrix
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/equipment-billing">
-                        <i class="fas fa-calculator"></i>Equipment Billing
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/job-zones">
-                        <i class="fas fa-map-marker-alt"></i>Job Zones
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/geofences">
-                        <i class="fas fa-map"></i>Geofences
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logout') }}">
-                        <i class="fas fa-sign-out-alt"></i>Logout
-                    </a>
-                </li>
-            </ul>
-        </nav>
+        <div class="sidebar-content">
+            <a href="{{ url_for('dashboard') }}" class="sidebar-item">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="{{ url_for('ragle_dashboard') }}" class="sidebar-item">
+                <i class="fas fa-cogs"></i>Ragle System
+            </a>
+            <a href="{{ url_for('attendance_matrix') }}" class="sidebar-item">
+                <i class="fas fa-clock"></i>Attendance Matrix
+            </a>
+            <a href="{{ url_for('equipment_billing') }}" class="sidebar-item">
+                <i class="fas fa-tools"></i>Equipment Billing
+            </a>
+            <a href="{{ url_for('job_zones') }}" class="sidebar-item">
+                <i class="fas fa-map-marked-alt"></i>Job Zones
+            </a>
+            <a href="{{ url_for('geofences') }}" class="sidebar-item">
+                <i class="fas fa-shield-alt"></i>Geofences
+            </a>
+            <a href="{{ url_for('logout') }}" class="sidebar-item">
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     {% endif %}
@@ -132,7 +115,7 @@
     <script src="{{ url_for('static', filename='js/nexus-integration.js') }}"></script>
     <script src="{{ url_for('static', filename='js/enterprise-interactions.js') }}"></script>
     <script src="{{ url_for('static', filename='js/real-data-dashboard.js') }}"></script>
-    
+
     <script>
     // Single Hamburger Menu Functionality
     document.addEventListener('DOMContentLoaded', function() {
@@ -140,14 +123,14 @@
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
         const closeBtn = document.getElementById('sidebarClose');
-        
+
         console.log('Hamburger Menu Elements:', { hamburger, sidebar, overlay, closeBtn });
-        
+
         if (hamburger && sidebar && overlay) {
             // Remove any existing event listeners
             hamburger.replaceWith(hamburger.cloneNode(true));
             const newHamburger = document.getElementById('hamburgerMenu');
-            
+
             newHamburger.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -156,14 +139,14 @@
                 overlay.classList.add('show');
                 document.body.classList.add('sidebar-open');
             });
-            
+
             function closeSidebar() {
                 console.log('Closing sidebar');
                 sidebar.classList.remove('show');
                 overlay.classList.remove('show');
                 document.body.classList.remove('sidebar-open');
             }
-            
+
             if (closeBtn) {
                 closeBtn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -171,7 +154,7 @@
                     closeSidebar();
                 });
             }
-            
+
             if (overlay) {
                 overlay.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -179,14 +162,14 @@
                     closeSidebar();
                 });
             }
-            
+
             // Close on escape key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && sidebar.classList.contains('show')) {
                     closeSidebar();
                 }
             });
-            
+
             console.log('Hamburger menu initialized successfully');
         } else {
             console.error('Missing hamburger menu elements:', { hamburger, sidebar, overlay });

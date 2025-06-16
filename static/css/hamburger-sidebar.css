@@ -1,7 +1,7 @@
 
-/* Hamburger Menu Styles - Single Instance Only */
+/* Hamburger Menu Styles - Always Visible on Mobile */
 .hamburger-menu {
-    display: none;
+    display: flex;
     flex-direction: column;
     justify-content: space-between;
     width: 24px;

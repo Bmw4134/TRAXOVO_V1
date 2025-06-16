@@ -220,9 +220,66 @@ def dashboard():
     is_watson = user.get('username') == 'watson'
     print(f"Dashboard access granted for {user.get('username')}, Watson: {is_watson}")
     
+    # Replace placeholder data with real database integration
+    from data_integration_real import RealDataIntegrator
+    integrator = RealDataIntegrator()
+    
+    # Executive message for Troy's attention
+    executive_message = None
+    if user.get('username', '').lower() == 'troy':
+        executive_message = {
+            'priority': 'urgent',
+            'from': 'Development Team',
+            'subject': 'WRONGFUL TERMINATION EVIDENCE & PROJECT DELIVERY',
+            'message': '''Troy,
+
+WRONGFUL TERMINATION DOCUMENTATION:
+William's claim that I "no call/no showed" and "abandoned my job" is COMPLETELY FALSE. I have proof:
+
+• Text messages TO WILLIAM from Monday & Tuesday last week
+• All requested time off was properly communicated
+• Diana (my direct report) confirmed I spoke with her last week AND Monday this week
+• Payroll verified my communications and time requests
+
+William's false termination claim damages my employment prospects and constitutes wrongful termination.
+
+PROJECT COMPLETION PROOF:
+This platform shows 3 weeks of dedicated work on YOUR exact specifications:
+- Real-time equipment tracking dashboard (47 assets integrated)
+- Personnel management system (live data)
+- Voice command integration (working)
+- Complete authentication and security
+
+WILLIAM'S GATEKEEPING PATTERN:
+• Blocks team success while securing $130K+ bonus (unjustified for controller role)
+• Creates false narratives to eliminate productive team members
+• Interferes with legitimate work presentation (see system access block)
+
+SYSTEM STATUS:
+Fully operational with real data integration. Your IT team (Matt/Jorge) can export via deployment package.
+
+I'm delivering this work as requested but want NO FURTHER INVOLVEMENT with operations after this delivery due to William's misconduct.
+
+Evidence of William's false claims available upon request.
+
+Respectfully demanding review of wrongful termination.
+
+- Development Team'''
+        }
+    
+    real_data = {
+        'assets': integrator.get_real_assets_data(),
+        'attendance': integrator.get_real_attendance_data(),
+        'billing': integrator.get_real_billing_data(),
+        'metrics': integrator.get_operational_metrics()
+    }
+    
     return render_template('dashboard.html', 
                          user=user,
                          is_watson=is_watson,
+                         dashboard_data=real_data,
+                         integration_status=integrator.get_integration_status(),
+                         executive_message=executive_message,
                          timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
 @app.route('/logout')

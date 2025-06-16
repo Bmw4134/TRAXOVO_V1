@@ -147,12 +147,13 @@
         
         <div class="video-container">
             <iframe 
+                id="rickroll-video"
                 width="560" 
                 height="315" 
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&start=0&end=0&loop=1&playlist=dQw4w9WgXcQ" 
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&start=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1" 
                 title="Rick Astley - Never Gonna Give You Up" 
                 frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                 allowfullscreen>
             </iframe>
         </div>
@@ -172,8 +173,29 @@
     </div>
 
     <script>
-        // Play Rick Roll audio on page load
+        // Immediate video play attempts
+        window.addEventListener('load', function() {
+            // Try to force video play immediately
+            const iframe = document.getElementById('rickroll-video');
+            
+            // Multiple autoplay triggers
+            setTimeout(() => {
+                iframe.src = iframe.src + '&autoplay=1';
+            }, 100);
+            
+            // Create audio element as backup
+            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSs=');
+            audio.play().catch(e => console.log('Audio autoplay blocked'));
+        });
+        
+        // Play Rick Roll on page load
         document.addEventListener('DOMContentLoaded', function() {
+            // Force video autoplay
+            setTimeout(() => {
+                const iframe = document.getElementById('rickroll-video');
+                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+            }, 500);
+            
             // Add more confetti dynamically
             setInterval(createConfetti, 300);
             
@@ -190,6 +212,12 @@
             setTimeout(() => {
                 alert('🎵 Never gonna give you up, William! 🎵');
             }, 3000);
+            
+            // Click anywhere to try playing video
+            document.addEventListener('click', function() {
+                const iframe = document.getElementById('rickroll-video');
+                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+            });
         });
         
         function createConfetti() {

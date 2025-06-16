@@ -57,12 +57,30 @@ class VoiceCommandProcessor:
     
     def _match_navigation(self, text):
         """Match navigation commands"""
+        # Check for Ragle first (more specific)
+        if any(phrase in text for phrase in ['ragle', 'ragle system', 'processing units']):
+            return {
+                'command_analysis': {
+                    'intent': 'navigation',
+                    'target': 'ragle',
+                    'interpretation': 'Navigate to Ragle System'
+                },
+                'execution': {
+                    'type': 'redirect',
+                    'url': '/ragle',
+                    'message': 'Opening Ragle System...'
+                }
+            }
+        
+        # Check other navigation patterns
         for target, patterns in self.navigation_patterns.items():
+            if target == 'ragle':  # Skip ragle, already handled above
+                continue
+                
             for pattern in patterns:
-                if pattern in text or any(word in text for word in pattern.split()):
+                if pattern in text:
                     url_map = {
                         'dashboard': '/dashboard',
-                        'ragle': '/ragle',
                         'attendance': '/attendance',
                         'equipment': '/equipment',
                         'jobzones': '/jobzones', 

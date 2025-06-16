@@ -6,6 +6,7 @@ Minimal Flask application optimized for Replit deployment
 import os
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 from datetime import datetime, timedelta
+from voice_commands import process_voice_input, transcribe_audio
 
 # Create Flask app
 app = Flask(__name__)
@@ -423,6 +424,75 @@ def rate_limit_exceeded(error):
 @app.errorhandler(504)
 def gateway_timeout(error):
     return jsonify({'error': 'Gateway timeout', 'message': 'Service temporarily unavailable'}), 504
+
+@app.route('/api/voice/process', methods=['POST'])
+def process_voice_command():
+    """Process voice command with natural language understanding"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        data = request.get_json()
+        text_input = data.get('text')
+        
+        if not text_input:
+            return jsonify({'error': 'No text input provided'}), 400
+        
+        # Process the voice command
+        result = process_voice_input(text_input=text_input)
+        
+        return jsonify({
+            'success': True,
+            'result': result,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'error': 'Voice processing failed',
+            'message': str(e)
+        }), 500
+
+@app.route('/api/voice/transcribe', methods=['POST'])
+def transcribe_voice():
+    """Transcribe audio file using OpenAI Whisper"""
+    user = session.get('user')
+    if not user or not user.get('authenticated'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        if 'audio' not in request.files:
+            return jsonify({'error': 'No audio file provided'}), 400
+        
+        audio_file = request.files['audio']
+        if audio_file.filename == '':
+            return jsonify({'error': 'No audio file selected'}), 400
+        
+        # Save temporarily and transcribe
+        temp_filename = f"temp_audio_{datetime.now().timestamp()}.wav"
+        audio_file.save(temp_filename)
+        
+        try:
+            transcribed_text = transcribe_audio(temp_filename)
+            os.remove(temp_filename)  # Clean up
+            
+            return jsonify({
+                'success': True,
+                'transcription': transcribed_text,
+                'timestamp': datetime.now().isoformat()
+            })
+            
+        except Exception as e:
+            if os.path.exists(temp_filename):
+                os.remove(temp_filename)
+            raise e
+            
+    except Exception as e:
+        return jsonify({
+            'error': 'Transcription failed',
+            'message': str(e)
+        }), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

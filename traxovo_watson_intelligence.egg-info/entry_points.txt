@@ -1,0 +1,2 @@
+[console_scripts]
+watson-start = main:app

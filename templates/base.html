@@ -163,12 +163,7 @@
     });
     </script>
 
-    <!-- Load JavaScript modules -->
-    <script src="{{ url_for('static', filename='js/error-handler.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/enterprise-polish.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/nexus-integration.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/real-data-dashboard.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/adaptive-display.js') }}"></script>
+    <!-- Core JavaScript modules (loaded once) -->
     
     {% if session.user %}
     <!-- Voice commands only for authenticated users -->

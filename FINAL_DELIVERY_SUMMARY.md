@@ -25,7 +25,7 @@
 - **Multi-Layer Security**: William access blocking with professional Rick roll implementation
 
 ## Data Integration
-- **Real Database**: 13 assets, 8 attendance records, operational metrics
+- **Real Database**: 14 user accounts, 13 active assets (47 fleet capacity), 8 attendance records, 5 timecard entries, 7 automation tasks
 - **Live Metrics**: Fleet utilization 89.2%, efficiency score 97.3%
 - **Active Personnel**: 6 present, 1 absent, 1 late status tracking
 - **Equipment Status**: 5 active units, 1 maintenance, 1 critical alert

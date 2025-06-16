@@ -69,4 +69,30 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    const loginButton = document.getElementById('loginButton');
+    loginButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Authenticating...';
+    loginButton.disabled = true;
+    
+    // Add a small delay to show the loading state
+    setTimeout(() => {
+        // Let the form submit normally
+        this.submit();
+    }, 100);
+});
+
+// Auto-fill demo credentials on click
+document.addEventListener('DOMContentLoaded', function() {
+    const demoText = document.querySelector('.text-muted.small');
+    if (demoText) {
+        demoText.style.cursor = 'pointer';
+        demoText.addEventListener('click', function() {
+            document.querySelector('input[name="username"]').value = 'demo';
+            document.querySelector('input[name="password"]').value = 'demo123';
+        });
+    }
+});
+</script>
 {% endblock %}

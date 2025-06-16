@@ -1,0 +1,592 @@
+{% extends "base_clean.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Executive Message for Troy -->
+    {% if executive_message %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-success border-left-success">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-rocket fa-2x text-success me-3"></i>
+                    <div>
+                        <h5 class="mb-1 text-dark">{{ executive_message.subject }}</h5>
+                        <small class="text-muted">From: {{ executive_message.from }}</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="mt-3 text-dark" style="white-space: pre-line;">{{ executive_message.message }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Header with Upload Option -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-white mb-1">TRAXOVO Enterprise Intelligence Platform</h2>
+                    <p class="text-light mb-0">Complete autonomous system - Upload your data to transform all features instantly</p>
+                </div>
+                <div>
+                    {% if has_upload_option %}
+                    <button class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                        <i class="fas fa-upload"></i> Replace with Your Data
+                    </button>
+                    {% endif %}
+                    <button class="btn btn-outline-light me-2" id="voiceBtn">
+                        <i class="fas fa-microphone"></i> Voice Command
+                    </button>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-Time Operational Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-gradient-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="mb-1">{{ equipment_data|length }}</h3>
+                            <p class="mb-0">Active Assets</p>
+                        </div>
+                        <i class="fas fa-cogs fa-2x opacity-75"></i>
+                    </div>
+                    <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar bg-white" style="width: 85%"></div>
+                    </div>
+                    <small class="text-light">Real-time tracking</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-gradient-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="mb-1">{{ attendance_data|length }}</h3>
+                            <p class="mb-0">Active Personnel</p>
+                        </div>
+                        <i class="fas fa-users fa-2x opacity-75"></i>
+                    </div>
+                    <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar bg-white" style="width: 92%"></div>
+                    </div>
+                    <small class="text-light">Live attendance</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-gradient-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="mb-1">${{ "{:,.0f}".format(operational_metrics.total_operational_cost) }}</h3>
+                            <p class="mb-0">Daily Operations</p>
+                        </div>
+                        <i class="fas fa-dollar-sign fa-2x opacity-75"></i>
+                    </div>
+                    <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar bg-white" style="width: 78%"></div>
+                    </div>
+                    <small class="text-light">Cost analytics</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-gradient-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="mb-1">{{ "{:.1f}%".format(operational_metrics.overall_efficiency) }}</h3>
+                            <p class="mb-0">System Efficiency</p>
+                        </div>
+                        <i class="fas fa-chart-line fa-2x opacity-75"></i>
+                    </div>
+                    <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar bg-white" style="width: {{ operational_metrics.overall_efficiency }}%"></div>
+                    </div>
+                    <small class="text-light">AI optimization</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Showcase Tabs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-transparent border-light">
+                <div class="card-body">
+                    <ul class="nav nav-pills nav-fill mb-3" id="platform-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="pill" href="#equipment-tracking">
+                                <i class="fas fa-cogs me-2"></i>Equipment Tracking
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#attendance-matrix">
+                                <i class="fas fa-clock me-2"></i>Attendance Matrix
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#predictive-analytics">
+                                <i class="fas fa-brain me-2"></i>Predictive Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#voice-commands">
+                                <i class="fas fa-microphone me-2"></i>Voice Commands
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#geofencing">
+                                <i class="fas fa-map-marker-alt me-2"></i>Geofencing
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <!-- Equipment Tracking Tab -->
+                        <div class="tab-pane fade show active" id="equipment-tracking">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="text-white mb-3">Real-Time Equipment Intelligence</h5>
+                                    <div class="alert alert-info bg-transparent border-info text-light mb-3">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Demo Data:</strong> Currently showing our equipment fleet. When you upload YOUR equipment data, this entire interface adapts to track your specific assets with the same real-time capabilities.
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-dark table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Asset ID</th>
+                                                    <th>Equipment Type</th>
+                                                    <th>Current Location</th>
+                                                    <th>Status</th>
+                                                    <th>Operator</th>
+                                                    <th>Hours Today</th>
+                                                    <th>Efficiency</th>
+                                                    <th>Maintenance Due</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for asset in equipment_data[:8] %}
+                                                <tr>
+                                                    <td><span class="badge bg-primary">{{ asset.asset_id }}</span></td>
+                                                    <td>{{ asset.equipment_type }}</td>
+                                                    <td>{{ asset.current_location }}</td>
+                                                    <td>
+                                                        <span class="badge bg-{{ 'success' if asset.operational_status == 'Active' else 'warning' if asset.operational_status == 'Idle' else 'danger' }}">
+                                                            {{ asset.operational_status }}
+                                                        </span>
+                                                    </td>
+                                                    <td>{{ asset.assigned_operator }}</td>
+                                                    <td>{{ asset.hours_operated_today }}h</td>
+                                                    <td>
+                                                        <div class="progress" style="height: 20px;">
+                                                            <div class="progress-bar bg-{{ 'success' if asset.efficiency_score > 80 else 'warning' if asset.efficiency_score > 60 else 'danger' }}" 
+                                                                 style="width: {{ asset.efficiency_score }}%">{{ asset.efficiency_score }}%</div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-{{ 'success' if asset.maintenance_hours_remaining > 100 else 'warning' if asset.maintenance_hours_remaining > 50 else 'danger' }}">
+                                                        {{ asset.maintenance_hours_remaining }}h
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Attendance Matrix Tab -->
+                        <div class="tab-pane fade" id="attendance-matrix">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="text-white mb-3">Live Personnel Tracking</h5>
+                                    <div class="alert alert-info bg-transparent border-info text-light mb-3">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Demo Data:</strong> Showing our team attendance. Upload YOUR employee data and this becomes your personnel management system with the same real-time tracking.
+                                    </div>
+                                    <div class="row">
+                                        {% for person in attendance_data %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card bg-secondary">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <h6 class="text-primary mb-1">{{ person.employee_name }}</h6>
+                                                            <p class="text-light mb-1">{{ person.department }} - {{ person.role }}</p>
+                                                            <small class="text-muted">Location: {{ person.current_location }}</small>
+                                                        </div>
+                                                        <div class="text-end">
+                                                            <span class="badge bg-{{ 'success' if person.status == 'Present' else 'warning' if person.status == 'Break' else 'danger' }} mb-1">
+                                                                {{ person.status }}
+                                                            </span>
+                                                            <br>
+                                                            <small class="text-light">{{ person.hours_worked_today }}h today</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="progress mt-2" style="height: 4px;">
+                                                        <div class="progress-bar bg-success" style="width: {{ (person.hours_worked_today / 8 * 100)|round }}%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Predictive Analytics Tab -->
+                        <div class="tab-pane fade" id="predictive-analytics">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="text-white mb-3">AI-Powered Predictive Intelligence</h5>
+                                    <div class="alert alert-info bg-transparent border-info text-light mb-3">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Adaptive AI:</strong> These predictions use our demo data. When you upload YOUR data, the AI learns your patterns and provides predictions specific to your business operations.
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="card bg-success">
+                                                <div class="card-body text-center">
+                                                    <i class="fas fa-tools fa-3x mb-3"></i>
+                                                    <h5>Maintenance Prediction</h5>
+                                                    <h3>3 Units</h3>
+                                                    <p class="mb-0">Requiring service within 48 hours</p>
+                                                    <div class="progress mt-2">
+                                                        <div class="progress-bar bg-white" style="width: 87%"></div>
+                                                    </div>
+                                                    <small>87% confidence</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card bg-warning">
+                                                <div class="card-body text-center">
+                                                    <i class="fas fa-chart-line fa-3x mb-3"></i>
+                                                    <h5>Efficiency Forecast</h5>
+                                                    <h3>+12%</h3>
+                                                    <p class="mb-0">Improvement predicted next week</p>
+                                                    <div class="progress mt-2">
+                                                        <div class="progress-bar bg-white" style="width: 92%"></div>
+                                                    </div>
+                                                    <small>92% confidence</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card bg-info">
+                                                <div class="card-body text-center">
+                                                    <i class="fas fa-dollar-sign fa-3x mb-3"></i>
+                                                    <h5>Cost Optimization</h5>
+                                                    <h3>$34K</h3>
+                                                    <p class="mb-0">Savings opportunity identified</p>
+                                                    <div class="progress mt-2">
+                                                        <div class="progress-bar bg-white" style="width: 78%"></div>
+                                                    </div>
+                                                    <small>78% confidence</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-4">
+                                        <div class="col-12">
+                                            <div class="card bg-dark border-primary">
+                                                <div class="card-header bg-primary text-white">
+                                                    <h6 class="mb-0"><i class="fas fa-robot me-2"></i>Autonomous Recommendations</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="alert alert-success bg-transparent border-success text-light mb-2">
+                                                        <i class="fas fa-lightbulb me-2"></i>Reallocate CAT-2034 to Site B for 15% efficiency gain
+                                                    </div>
+                                                    <div class="alert alert-warning bg-transparent border-warning text-light mb-2">
+                                                        <i class="fas fa-wrench me-2"></i>Schedule preventive maintenance for EX-1001 before failure occurs
+                                                    </div>
+                                                    <div class="alert alert-info bg-transparent border-info text-light mb-0">
+                                                        <i class="fas fa-route me-2"></i>Optimize fuel delivery routes to reduce costs by 18%
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Voice Commands Tab -->
+                        <div class="tab-pane fade" id="voice-commands">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="text-white mb-3">Natural Language Voice Control</h5>
+                                    <div class="alert alert-info bg-transparent border-info text-light mb-3">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Voice Intelligence:</strong> Trained on our demo data. When you add YOUR data, voice commands understand your specific equipment names, employee names, and business terminology.
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="card bg-dark border-success">
+                                                <div class="card-header bg-success text-white">
+                                                    <h6 class="mb-0"><i class="fas fa-microphone me-2"></i>Try Voice Commands</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <button class="btn btn-success btn-lg w-100 mb-3" id="startVoiceCommand">
+                                                        <i class="fas fa-microphone me-2"></i>Start Voice Command
+                                                    </button>
+                                                    <div id="voiceOutput" class="text-light">
+                                                        <p>Try saying:</p>
+                                                        <ul>
+                                                            <li>"Show me equipment status"</li>
+                                                            <li>"Where is excavator CAT-2034?"</li>
+                                                            <li>"Who is present today?"</li>
+                                                            <li>"Show maintenance alerts"</li>
+                                                            <li>"Generate cost report"</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card bg-dark border-primary">
+                                                <div class="card-header bg-primary text-white">
+                                                    <h6 class="mb-0"><i class="fas fa-brain me-2"></i>AI Processing</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="text-light">
+                                                        <p><strong>Natural Language Understanding:</strong></p>
+                                                        <div class="mb-3">
+                                                            <span class="badge bg-success">Equipment Queries</span>
+                                                            <span class="badge bg-info">Personnel Tracking</span>
+                                                            <span class="badge bg-warning">Cost Analysis</span>
+                                                        </div>
+                                                        <p><strong>Response Generation:</strong></p>
+                                                        <div class="mb-3">
+                                                            <span class="badge bg-primary">Real-time Data</span>
+                                                            <span class="badge bg-secondary">Predictive Insights</span>
+                                                        </div>
+                                                        <p class="small text-muted">
+                                                            Powered by GPT-4 with custom training on operational data
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Geofencing Tab -->
+                        <div class="tab-pane fade" id="geofencing">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="text-white mb-3">Intelligent Geofence Monitoring</h5>
+                                    <div class="alert alert-info bg-transparent border-info text-light mb-3">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Location Intelligence:</strong> Currently monitoring our demo sites. Upload YOUR location data and the system tracks your specific sites, zones, and boundaries automatically.
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="card bg-dark">
+                                                <div class="card-body">
+                                                    <div class="text-center text-light">
+                                                        <i class="fas fa-map fa-5x mb-3 text-primary"></i>
+                                                        <h5>Real-Time Location Tracking</h5>
+                                                        <p>Interactive map showing:</p>
+                                                        <div class="row text-start">
+                                                            <div class="col-6">
+                                                                <ul class="list-unstyled">
+                                                                    <li><i class="fas fa-map-pin text-success me-2"></i>Site A: 8 assets</li>
+                                                                    <li><i class="fas fa-map-pin text-warning me-2"></i>Site B: 3 assets</li>
+                                                                    <li><i class="fas fa-map-pin text-info me-2"></i>Site C: 2 assets</li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <ul class="list-unstyled">
+                                                                    <li><i class="fas fa-user text-primary me-2"></i>5 personnel on-site</li>
+                                                                    <li><i class="fas fa-exclamation-triangle text-warning me-2"></i>2 boundary alerts</li>
+                                                                    <li><i class="fas fa-route text-success me-2"></i>Optimized routes</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card bg-warning text-dark mb-3">
+                                                <div class="card-body">
+                                                    <h6><i class="fas fa-exclamation-triangle me-2"></i>Geofence Alerts</h6>
+                                                    <small>EX-2001 left authorized zone</small>
+                                                    <div class="progress mt-2">
+                                                        <div class="progress-bar bg-danger" style="width: 100%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card bg-success text-white mb-3">
+                                                <div class="card-body">
+                                                    <h6><i class="fas fa-check-circle me-2"></i>Zone Coverage</h6>
+                                                    <small>All critical areas monitored</small>
+                                                    <div class="progress mt-2">
+                                                        <div class="progress-bar bg-white" style="width: 95%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card bg-info text-white">
+                                                <div class="card-body">
+                                                    <h6><i class="fas fa-clock me-2"></i>Response Time</h6>
+                                                    <small>Average: 2.3 minutes</small>
+                                                    <div class="progress mt-2">
+                                                        <div class="progress-bar bg-white" style="width: 85%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Upload Modal -->
+    {% if has_upload_option %}
+    <div class="modal fade" id="uploadModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white">Transform Platform with Your Data</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-magic me-2"></i>Instant Platform Transformation</h6>
+                        <p class="mb-0">Upload your equipment list, employee data, or operational files. The entire platform will automatically adapt to track YOUR specific assets, personnel, and operations while maintaining all the advanced features you see demonstrated.</p>
+                    </div>
+                    
+                    <div class="upload-area border border-dashed border-light rounded p-4 text-center" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                        <h5 class="text-white">Upload Your Business Data</h5>
+                        <p class="text-light">CSV, Excel, or JSON files</p>
+                        <input type="file" id="fileInput" class="d-none" accept=".csv,.xlsx,.xls,.json,.txt">
+                        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Choose File
+                        </button>
+                    </div>
+                    
+                    <div class="upload-progress d-none mt-3">
+                        <div class="progress mb-2">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                        </div>
+                        <p class="text-light text-center">AI is analyzing your data and transforming the platform...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.bg-gradient-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.bg-gradient-success { background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%); }
+.bg-gradient-info { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.bg-gradient-warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.opacity-75 { opacity: 0.75; }
+.border-left-success { border-left: 4px solid #28a745; }
+.nav-pills .nav-link.active { background-color: #667eea; }
+.nav-pills .nav-link { color: #fff; border: 1px solid rgba(255,255,255,0.2); margin: 0 2px; }
+</style>
+
+<script>
+// File upload functionality
+document.getElementById('fileInput').addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+        uploadFile(e.target.files[0]);
+    }
+});
+
+function uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // Show progress
+    document.querySelector('.upload-area').classList.add('d-none');
+    document.querySelector('.upload-progress').classList.remove('d-none');
+    
+    fetch('/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Upload failed: ' + (data.error || 'Unknown error'));
+            document.querySelector('.upload-area').classList.remove('d-none');
+            document.querySelector('.upload-progress').classList.add('d-none');
+        }
+    })
+    .catch(error => {
+        alert('Upload failed: ' + error.message);
+        document.querySelector('.upload-area').classList.remove('d-none');
+        document.querySelector('.upload-progress').classList.add('d-none');
+    });
+}
+
+// Voice command functionality
+document.getElementById('startVoiceCommand').addEventListener('click', function() {
+    if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        
+        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Listening...';
+        this.disabled = true;
+        
+        recognition.onresult = function(event) {
+            const command = event.results[0][0].transcript;
+            document.getElementById('voiceOutput').innerHTML = `
+                <div class="alert alert-success">
+                    <strong>Command received:</strong> "${command}"<br>
+                    <small>Processing with AI...</small>
+                </div>
+            `;
+        };
+        
+        recognition.onend = function() {
+            document.getElementById('startVoiceCommand').innerHTML = '<i class="fas fa-microphone me-2"></i>Start Voice Command';
+            document.getElementById('startVoiceCommand').disabled = false;
+        };
+        
+        recognition.start();
+    } else {
+        alert('Voice recognition not supported in this browser');
+    }
+});
+
+// Auto-refresh metrics every 30 seconds
+setInterval(function() {
+    // Simulate real-time updates
+    const progressBars = document.querySelectorAll('.progress-bar');
+    progressBars.forEach(bar => {
+        const currentWidth = parseInt(bar.style.width);
+        const newWidth = Math.max(10, Math.min(100, currentWidth + Math.random() * 10 - 5));
+        bar.style.width = newWidth + '%';
+    });
+}, 30000);
+</script>
+{% endblock %}

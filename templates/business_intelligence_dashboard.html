@@ -1,0 +1,376 @@
+{% extends "base_clean.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Executive Message for Troy -->
+    {% if executive_message %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-warning border-left-warning">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle fa-2x text-warning me-3"></i>
+                    <div>
+                        <h5 class="mb-1 text-dark">{{ executive_message.subject }}</h5>
+                        <small class="text-muted">From: {{ executive_message.from }}</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="mt-3 text-dark" style="white-space: pre-line;">{{ executive_message.message }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-white mb-1">{{ scenario_data.scenario }}</h2>
+                    <p class="text-light mb-0">Welcome, {{ user.full_name }} - Advanced Business Intelligence & Predictive Analytics</p>
+                </div>
+                <div>
+                    <button class="btn btn-outline-light me-2" id="refreshData">
+                        <i class="fas fa-sync-alt"></i> Refresh Analytics
+                    </button>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-Time Metrics Dashboard -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-gradient-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="mb-1">{{ scenario_data.real_time_metrics.active_equipment if 'active_equipment' in scenario_data.real_time_metrics else scenario_data.real_time_metrics.active_vehicles if 'active_vehicles' in scenario_data.real_time_metrics else scenario_data.real_time_metrics.active_lines if 'active_lines' in scenario_data.real_time_metrics else scenario_data.real_time_metrics.stores_above_target }}</h3>
+                            <p class="mb-0">Active Units</p>
+                        </div>
+                        <i class="fas fa-cogs fa-2x opacity-75"></i>
+                    </div>
+                    <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar bg-white" style="width: 85%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-gradient-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="mb-1">{{ "${:,.0f}".format(scenario_data.real_time_metrics.total_sales_today) if 'total_sales_today' in scenario_data.real_time_metrics else "{:,.0f}".format(scenario_data.real_time_metrics.fuel_cost_today) if 'fuel_cost_today' in scenario_data.real_time_metrics else "{:,.0f}".format(scenario_data.real_time_metrics.total_output_today) if 'total_output_today' in scenario_data.real_time_metrics else scenario_data.real_time_metrics.total_miles_today }}</h3>
+                            <p class="mb-0">{{ 'Daily Revenue' if 'total_sales_today' in scenario_data.real_time_metrics else 'Fuel Cost' if 'fuel_cost_today' in scenario_data.real_time_metrics else 'Output Today' if 'total_output_today' in scenario_data.real_time_metrics else 'Miles Today' }}</p>
+                        </div>
+                        <i class="fas fa-{{ 'dollar-sign' if 'total_sales_today' in scenario_data.real_time_metrics else 'gas-pump' if 'fuel_cost_today' in scenario_data.real_time_metrics else 'industry' if 'total_output_today' in scenario_data.real_time_metrics else 'route' }} fa-2x opacity-75"></i>
+                    </div>
+                    <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar bg-white" style="width: 92%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-gradient-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="mb-1">{{ scenario_data.real_time_metrics.projects_on_schedule if 'projects_on_schedule' in scenario_data.real_time_metrics else scenario_data.real_time_metrics.on_time_deliveries if 'on_time_deliveries' in scenario_data.real_time_metrics else "{:.1f}%".format(scenario_data.real_time_metrics.average_efficiency) if 'average_efficiency' in scenario_data.real_time_metrics else "{:.1f}%".format(scenario_data.real_time_metrics.average_conversion) }}</h3>
+                            <p class="mb-0">{{ 'On Schedule' if 'projects_on_schedule' in scenario_data.real_time_metrics else 'On-Time' if 'on_time_deliveries' in scenario_data.real_time_metrics else 'Efficiency' if 'average_efficiency' in scenario_data.real_time_metrics else 'Conversion' }}</p>
+                        </div>
+                        <i class="fas fa-{{ 'clock' if 'projects_on_schedule' in scenario_data.real_time_metrics or 'on_time_deliveries' in scenario_data.real_time_metrics else 'chart-line' }} fa-2x opacity-75"></i>
+                    </div>
+                    <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar bg-white" style="width: 78%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-gradient-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="mb-1">{{ "{:.1f}".format(scenario_data.real_time_metrics.total_hours_today) if 'total_hours_today' in scenario_data.real_time_metrics else "{:.1f}".format(scenario_data.real_time_metrics.average_fuel_efficiency) if 'average_fuel_efficiency' in scenario_data.real_time_metrics else "{:.1f}".format(scenario_data.real_time_metrics.quality_score) if 'quality_score' in scenario_data.real_time_metrics else scenario_data.real_time_metrics.total_foot_traffic }}</h3>
+                            <p class="mb-0">{{ 'Hours Today' if 'total_hours_today' in scenario_data.real_time_metrics else 'Fuel Efficiency' if 'average_fuel_efficiency' in scenario_data.real_time_metrics else 'Quality Score' if 'quality_score' in scenario_data.real_time_metrics else 'Foot Traffic' }}</p>
+                        </div>
+                        <i class="fas fa-{{ 'stopwatch' if 'total_hours_today' in scenario_data.real_time_metrics else 'tint' if 'average_fuel_efficiency' in scenario_data.real_time_metrics else 'star' if 'quality_score' in scenario_data.real_time_metrics else 'users' }} fa-2x opacity-75"></i>
+                    </div>
+                    <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar bg-white" style="width: 65%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Predictive Analytics Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-transparent border-light">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-brain me-2"></i>AI Predictive Analytics & Autonomous Insights</h5>
+                </div>
+                <div class="card-body bg-dark">
+                    <div class="row">
+                        {% for prediction in predictions.predictions %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-secondary border-light">
+                                <div class="card-body">
+                                    <h6 class="text-primary">{{ prediction.metric }}</h6>
+                                    <p class="text-light mb-2">{{ prediction.prediction }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted small">Confidence</span>
+                                        <span class="text-success">{{ prediction.confidence }}%</span>
+                                    </div>
+                                    <div class="progress mt-2" style="height: 6px;">
+                                        <div class="progress-bar bg-success" style="width: {{ prediction.confidence }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Autonomous Recommendations -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-transparent border-light">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-robot me-2"></i>Autonomous Decision Support System</h5>
+                </div>
+                <div class="card-body bg-dark">
+                    {% for recommendation in predictions.recommendations %}
+                    <div class="alert alert-success bg-transparent border-success text-light mb-2">
+                        <i class="fas fa-lightbulb me-2"></i>{{ recommendation }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Insights Dashboard -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-transparent border-light">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Intelligent Insights</h5>
+                </div>
+                <div class="card-body bg-dark">
+                    {% for insight in scenario_data.key_insights %}
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-arrow-right text-primary me-3"></i>
+                        <span class="text-light">{{ insight }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-transparent border-light">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Priority Alerts</h5>
+                </div>
+                <div class="card-body bg-dark">
+                    {% if 'safety_incidents' in scenario_data %}
+                        {% for incident in scenario_data.safety_incidents[:3] %}
+                        <div class="alert alert-{{ 'danger' if incident.severity == 'High' else 'warning' if incident.severity == 'Medium' else 'info' }} bg-transparent border-{{ 'danger' if incident.severity == 'High' else 'warning' if incident.severity == 'Medium' else 'info' }} text-light mb-2">
+                            <small class="text-muted">{{ incident.date }}</small><br>
+                            <strong>{{ incident.type }}</strong> - {{ incident.location }}<br>
+                            <span class="badge bg-{{ 'danger' if incident.severity == 'High' else 'warning' if incident.severity == 'Medium' else 'info' }}">{{ incident.severity }}</span>
+                        </div>
+                        {% endfor %}
+                    {% elif 'quality_issues' in scenario_data %}
+                        {% for issue in scenario_data.quality_issues[:3] %}
+                        <div class="alert alert-{{ 'danger' if issue.severity == 'Critical' else 'warning' if issue.severity == 'Major' else 'info' }} bg-transparent border-{{ 'danger' if issue.severity == 'Critical' else 'warning' if issue.severity == 'Major' else 'info' }} text-light mb-2">
+                            <small class="text-muted">{{ issue.timestamp }}</small><br>
+                            <strong>{{ issue.issue_type }}</strong> - {{ issue.line }}<br>
+                            <span class="badge bg-{{ 'danger' if issue.severity == 'Critical' else 'warning' if issue.severity == 'Major' else 'info' }}">{{ issue.severity }}</span>
+                        </div>
+                        {% endfor %}
+                    {% elif 'inventory_alerts' in scenario_data %}
+                        {% for alert in scenario_data.inventory_alerts[:3] %}
+                        <div class="alert alert-{{ 'danger' if alert.priority == 'High' else 'warning' if alert.priority == 'Medium' else 'info' }} bg-transparent border-{{ 'danger' if alert.priority == 'High' else 'warning' if alert.priority == 'Medium' else 'info' }} text-light mb-2">
+                            <strong>{{ alert.alert_type }}</strong> - {{ alert.product }}<br>
+                            <small>{{ alert.store }} - Stock: {{ alert.current_stock }}</small><br>
+                            <span class="badge bg-{{ 'danger' if alert.priority == 'High' else 'warning' if alert.priority == 'Medium' else 'info' }}">{{ alert.priority }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info bg-transparent border-info text-light">
+                            <i class="fas fa-check-circle me-2"></i>All systems operating within normal parameters
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Data Tables -->
+    {% if 'equipment_data' in scenario_data %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-transparent border-light">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Live Equipment Tracking & Analytics</h5>
+                </div>
+                <div class="card-body bg-dark">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Equipment ID</th>
+                                    <th>Type</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Operator</th>
+                                    <th>Hours Today</th>
+                                    <th>Fuel Level</th>
+                                    <th>Cost/Hour</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for equipment in scenario_data.equipment_data[:10] %}
+                                <tr>
+                                    <td><span class="badge bg-primary">{{ equipment.id }}</span></td>
+                                    <td>{{ equipment.type }}</td>
+                                    <td>{{ equipment.location }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if equipment.status == 'Active' else 'warning' if equipment.status == 'Idle' else 'danger' if equipment.status == 'Maintenance' else 'info' }}">
+                                            {{ equipment.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ equipment.operator }}</td>
+                                    <td>{{ equipment.hours_today }}h</td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar bg-{{ 'success' if equipment.fuel_level > 50 else 'warning' if equipment.fuel_level > 25 else 'danger' }}" 
+                                                 style="width: {{ equipment.fuel_level }}%">{{ equipment.fuel_level }}%</div>
+                                        </div>
+                                    </td>
+                                    <td>${{ equipment.cost_per_hour }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if 'projects' in scenario_data %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-transparent border-light">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>Project Performance & Timeline Analytics</h5>
+                </div>
+                <div class="card-body bg-dark">
+                    <div class="row">
+                        {% for project in scenario_data.projects %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-secondary">
+                                <div class="card-body">
+                                    <h6 class="text-primary">{{ project.name }}</h6>
+                                    <div class="mb-2">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-light">Completion</span>
+                                            <span class="text-success">{{ project.completion }}%</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" style="width: {{ project.completion }}%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-light">Budget Used</span>
+                                            <span class="text-{{ 'warning' if project.budget_used > project.completion else 'info' }}">{{ project.budget_used }}%</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-{{ 'warning' if project.budget_used > project.completion else 'info' }}" style="width: {{ project.budget_used }}%"></div>
+                                        </div>
+                                    </div>
+                                    <p class="text-muted small mb-0">{{ project.days_remaining }} days remaining</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.bg-gradient-success {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+}
+.bg-gradient-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+.opacity-75 {
+    opacity: 0.75;
+}
+.border-left-warning {
+    border-left: 4px solid #ffc107;
+}
+</style>
+
+<script>
+// Auto-refresh functionality
+document.getElementById('refreshData').addEventListener('click', function() {
+    location.reload();
+});
+
+// Auto-refresh every 30 seconds
+setInterval(function() {
+    // Add visual indicator for live updates
+    const refreshBtn = document.getElementById('refreshData');
+    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    
+    setTimeout(function() {
+        refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Analytics';
+    }, 1000);
+}, 30000);
+
+// Initialize real-time status indicators
+document.addEventListener('DOMContentLoaded', function() {
+    // Add pulsing effect to active status badges
+    const activeElements = document.querySelectorAll('.badge:contains("Active")');
+    activeElements.forEach(function(element) {
+        element.style.animation = 'pulse 2s infinite';
+    });
+});
+
+// Add CSS animation for pulse effect
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

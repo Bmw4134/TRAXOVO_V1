@@ -160,34 +160,31 @@ class TRAXOVODataIntegrator:
             if any(keyword in file_path.lower() for keyword in ['attendance', 'personnel', 'employee', 'worker']):
                 logger.info(f"Processing attendance data from {file_path}")
                 
-                # Process based on file type
-                if analysis['file_type'] == '.csv':
-                    df = pd.read_csv(file_path)
-                elif analysis['file_type'] in ['.xlsx', '.xls']:
-                    df = pd.read_excel(file_path)
-                else:
-                    return []
-                    
                 attendance_records = []
-                for _, row in df.iterrows():
-                    record = {
-                        'employee_id': row.get('employee_id', row.get('id', row.get('worker_id', 'unknown'))),
-                        'name': row.get('name', row.get('employee_name', 'Unknown')),
-                        'clock_in': row.get('clock_in', row.get('start_time', None)),
-                        'clock_out': row.get('clock_out', row.get('end_time', None)),
-                        'date': row.get('date', row.get('work_date', datetime.now().date())),
-                        'hours_worked': row.get('hours_worked', row.get('total_hours', 0)),
-                        'location': row.get('location', row.get('site', 'Main Office')),
-                        'department': row.get('department', 'Operations')
-                    }
-                    attendance_records.append(record)
+                
+                # Process CSV files only for deployment optimization
+                if analysis['file_type'] == '.csv':
+                    with open(file_path, 'r', encoding='utf-8') as csvfile:
+                        reader = csv.DictReader(csvfile)
+                        for row in reader:
+                            record = {
+                                'employee_id': row.get('employee_id', row.get('id', row.get('worker_id', 'unknown'))),
+                                'name': row.get('name', row.get('employee_name', 'Unknown')),
+                                'clock_in': row.get('clock_in', row.get('start_time', None)),
+                                'clock_out': row.get('clock_out', row.get('end_time', None)),
+                                'date': row.get('date', row.get('work_date', str(datetime.now().date()))),
+                                'hours_worked': row.get('hours_worked', row.get('total_hours', 0)),
+                                'location': row.get('location', row.get('site', 'Main Office')),
+                                'department': row.get('department', 'Operations')
+                            }
+                            attendance_records.append(record)
                     
                 self.processed_data['attendance'] = attendance_records
                 logger.info(f"Processed {len(attendance_records)} attendance records")
                 
                 # Cache the data
                 with open(f'{self.data_cache_dir}/attendance.json', 'w') as f:
-                    json.dump(attendance_records, f, indent=2, default=str)
+                    json.dump(attendance_records, f, indent=2)
                     
                 return attendance_records
                 
@@ -201,32 +198,30 @@ class TRAXOVODataIntegrator:
             if any(keyword in file_path.lower() for keyword in ['billing', 'invoice', 'financial', 'cost', 'revenue']):
                 logger.info(f"Processing billing data from {file_path}")
                 
-                if analysis['file_type'] == '.csv':
-                    df = pd.read_csv(file_path)
-                elif analysis['file_type'] in ['.xlsx', '.xls']:
-                    df = pd.read_excel(file_path)
-                else:
-                    return []
-                    
                 billing_records = []
-                for _, row in df.iterrows():
-                    record = {
-                        'invoice_id': row.get('invoice_id', row.get('id', f"INV-{len(billing_records)+1}")),
-                        'asset_id': row.get('asset_id', row.get('equipment_id', 'unknown')),
-                        'customer': row.get('customer', row.get('client', 'Unknown Client')),
-                        'amount': float(row.get('amount', row.get('total', row.get('cost', 0)))),
-                        'date': row.get('date', row.get('invoice_date', datetime.now().date())),
-                        'status': row.get('status', 'active'),
-                        'description': row.get('description', row.get('service', 'Equipment Rental'))
-                    }
-                    billing_records.append(record)
+                
+                # Process CSV files only for deployment optimization
+                if analysis['file_type'] == '.csv':
+                    with open(file_path, 'r', encoding='utf-8') as csvfile:
+                        reader = csv.DictReader(csvfile)
+                        for row in reader:
+                            record = {
+                                'invoice_id': row.get('invoice_id', row.get('id', f"INV-{len(billing_records)+1}")),
+                                'asset_id': row.get('asset_id', row.get('equipment_id', 'unknown')),
+                                'customer': row.get('customer', row.get('client', 'Unknown Client')),
+                                'amount': float(row.get('amount', row.get('total', row.get('cost', 0)))),
+                                'date': row.get('date', row.get('invoice_date', str(datetime.now().date()))),
+                                'status': row.get('status', 'active'),
+                                'description': row.get('description', row.get('service', 'Equipment Rental'))
+                            }
+                            billing_records.append(record)
                     
                 self.processed_data['billing'] = billing_records
                 logger.info(f"Processed {len(billing_records)} billing records")
                 
                 # Cache the data
                 with open(f'{self.data_cache_dir}/billing.json', 'w') as f:
-                    json.dump(billing_records, f, indent=2, default=str)
+                    json.dump(billing_records, f, indent=2)
                     
                 return billing_records
                 

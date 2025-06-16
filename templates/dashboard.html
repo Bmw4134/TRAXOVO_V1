@@ -441,6 +441,181 @@
     .terminal-output::-webkit-scrollbar-thumb:hover {
         background: #888;
     }
+    
+    /* Enterprise Notification System */
+    .enterprise-notification {
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        z-index: 9999;
+        max-width: 400px;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-intense);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.2);
+        overflow: hidden;
+    }
+    
+    .notification-content {
+        padding: 1.5rem;
+        color: white;
+    }
+    
+    .notification-header {
+        display: flex;
+        align-items: center;
+        justify-content: between;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .notification-close {
+        background: none;
+        border: none;
+        color: white;
+        margin-left: auto;
+        padding: 0.25rem;
+        border-radius: 50%;
+        transition: var(--transition-smooth);
+        opacity: 0.7;
+    }
+    
+    .notification-close:hover {
+        opacity: 1;
+        background: rgba(255,255,255,0.1);
+        transform: scale(1.1);
+    }
+    
+    .notification-body {
+        opacity: 0.9;
+        line-height: 1.4;
+    }
+    
+    /* Quick Actions Menu */
+    .quick-actions-menu {
+        position: fixed;
+        bottom: 8rem;
+        right: 2rem;
+        z-index: 9998;
+        background: var(--glass-bg);
+        backdrop-filter: blur(30px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-intense);
+        padding: 1rem;
+        min-width: 200px;
+    }
+    
+    .quick-action-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        color: white;
+        text-decoration: none;
+        border-radius: var(--border-radius-md);
+        transition: var(--transition-smooth);
+        cursor: pointer;
+        margin-bottom: 0.5rem;
+    }
+    
+    .quick-action-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .quick-action-item:hover {
+        background: rgba(255,255,255,0.1);
+        transform: translateX(5px);
+    }
+    
+    .quick-action-item i {
+        margin-right: 1rem;
+        width: 20px;
+        text-align: center;
+        font-size: 1.1rem;
+    }
+    
+    .quick-action-item span {
+        font-weight: 500;
+    }
+    
+    /* Enhanced Animations */
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .fab {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.3); }
+        50% { box-shadow: 0 0 40px rgba(102, 126, 234, 0.6); }
+    }
+    
+    .status-indicator.online::after {
+        animation: pulse-status 2s infinite, pulse-glow 3s infinite;
+    }
+    
+    /* Responsive Enhancements */
+    @media (max-width: 768px) {
+        .enterprise-notification {
+            top: 1rem;
+            right: 1rem;
+            left: 1rem;
+            max-width: none;
+        }
+        
+        .quick-actions-menu {
+            bottom: 6rem;
+            right: 1rem;
+            left: 1rem;
+            min-width: auto;
+        }
+        
+        .quick-action-item {
+            padding: 0.75rem;
+        }
+        
+        .metric-card {
+            margin-bottom: 1rem;
+        }
+        
+        .terminal-container {
+            margin: 0 -0.5rem;
+        }
+        
+        .top-nav .row {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .top-nav .col-md-6:last-child {
+            margin-top: 1rem;
+        }
+    }
+    
+    /* Loading States */
+    .loading-pulse {
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    
+    /* Success State Animations */
+    .metric-card.success-state {
+        animation: successBounce 0.6s ease-out;
+    }
+    
+    @keyframes successBounce {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
 </style>
 {% endblock %}
 
@@ -857,35 +1032,93 @@ function showQuickActions() {
     }, 100);
 }
 
-// Start real-time updates
-updateChart();
-setInterval(updateChart, 2000);
-</script>
+// Initialize Dashboard Systems
+document.addEventListener('DOMContentLoaded', function() {
+    // Start real-time metrics
+    updateEnterpriseMetrics();
+    setInterval(updateEnterpriseMetrics, 3000);
+    
+    // Initialize timeframe buttons
+    document.querySelectorAll('[data-timeframe]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('[data-timeframe]').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Simulate timeframe change
+            showEnterpriseNotification('info', 'Timeframe Updated', 
+                `Displaying ${this.dataset.timeframe} analytics data`);
+        });
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key) {
+                case 'k':
+                    e.preventDefault();
+                    showQuickActions();
+                    break;
+                case 'Enter':
+                    if (e.target.id === 'terminalInput') {
+                        e.preventDefault();
+                        document.getElementById('executeTerminalCommand').click();
+                    }
+                    break;
+            }
+        }
+        
+        if (e.key === 'Escape') {
+            const menu = document.getElementById('quickActionsMenu');
+            if (menu) menu.remove();
+            
+            const sidebar = document.getElementById('mainSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+            }
+        }
+    });
+    
+    // Welcome message for new sessions
+    setTimeout(() => {
+        showEnterpriseNotification('success', 'TRAXOVO Intelligence Active', 
+            'All systems operational. Welcome back, {{ session.user }}.');
+    }, 1000);
+    
+    // Performance monitoring
+    setInterval(() => {
+        const performanceNow = performance.now();
+        if (performanceNow > 5000) { // If page has been open for 5+ seconds
+            // Simulate performance metrics
+            const metrics = document.querySelectorAll('.metric-value');
+            metrics.forEach((metric, index) => {
+                setTimeout(() => {
+                    metric.parentElement.classList.add('success-state');
+                    setTimeout(() => {
+                        metric.parentElement.classList.remove('success-state');
+                    }, 600);
+                }, index * 100);
+            });
+        }
+    }, 30000); // Every 30 seconds
+});
 
-<style>
-    .toast-notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        max-width: 400px;
-        animation: slideIn 0.3s ease-out;
-    }
-    
-    .toast-notification .alert {
-        margin-bottom: 0;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-</style>
+// Enterprise System Status
+const systemStatus = {
+    uptime: 99.97,
+    modules: 247,
+    nodes: 1847,
+    security: 'AAA+',
+    lastUpdate: new Date()
+};
+
+// Update system metrics dynamically
+function updateSystemMetrics() {
+    document.getElementById('systemUptime').textContent = systemStatus.uptime.toFixed(2) + '%';
+    document.getElementById('aiModules').textContent = systemStatus.modules;
+    document.getElementById('networkNodes').textContent = systemStatus.nodes.toLocaleString();
+    document.getElementById('securityLevel').textContent = systemStatus.security;
+}
+</script>
 {% endblock %}

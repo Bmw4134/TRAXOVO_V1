@@ -1,8 +1,0 @@
-README.md
-pyproject.toml
-traxovo_watson_intelligence.egg-info/PKG-INFO
-traxovo_watson_intelligence.egg-info/SOURCES.txt
-traxovo_watson_intelligence.egg-info/dependency_links.txt
-traxovo_watson_intelligence.egg-info/entry_points.txt
-traxovo_watson_intelligence.egg-info/requires.txt
-traxovo_watson_intelligence.egg-info/top_level.txt

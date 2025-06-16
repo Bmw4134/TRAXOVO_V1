@@ -1,5 +1,0 @@
-attached_assets
-data_cache
-instance
-static
-templates

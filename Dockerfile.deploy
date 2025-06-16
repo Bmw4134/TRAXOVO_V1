@@ -1,0 +1,41 @@
+# Deployment-optimized Dockerfile for TRAXOVO Intelligence Platform
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install only essential system dependencies
+RUN apt-update && apt-get install -y \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy only essential files
+COPY main.py .
+COPY models.py .
+COPY data_integration_simple.py .
+COPY voice_commands_local.py voice_commands.py
+COPY templates/ templates/
+COPY static/ static/
+COPY pyproject.toml .
+
+# Install Python dependencies (optimized list)
+RUN pip install --no-cache-dir \
+    flask>=2.3.3 \
+    flask-login>=0.6.3 \
+    flask-sqlalchemy>=3.1.1 \
+    gunicorn>=21.2.0 \
+    openai>=1.86.0 \
+    werkzeug>=2.3.7 \
+    sqlalchemy>=2.0.41
+
+# Set environment variables
+ENV FLASK_ENV=production
+ENV FLASK_DEBUG=false
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Expose port
+EXPOSE 5000
+
+# Run the application
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "main:app"]

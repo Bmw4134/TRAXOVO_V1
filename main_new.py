@@ -140,7 +140,7 @@ def upload_file():
         return jsonify({'error': 'No file selected'}), 400
     
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
+        filename = secure_filename(file.filename or 'upload')
         filepath = os.path.join(UPLOAD_FOLDER, f"{user['username']}_{filename}")
         file.save(filepath)
         
@@ -187,8 +187,8 @@ def get_chart_data(chart_type):
     if not chart_config:
         return jsonify({'error': 'Chart not found'}), 404
     
-    # Generate mock chart data based on config
-    # In a real implementation, this would use the actual data
+    # Generate sample chart data for demonstration
+    # Real implementation would load actual uploaded data
     if chart_type == 'bar':
         return jsonify({
             'labels': ['Category A', 'Category B', 'Category C', 'Category D'],

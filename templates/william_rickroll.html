@@ -68,6 +68,22 @@
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
+            position: relative;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 1000;
+            cursor: not-allowed;
         }
         
         .spinning-emoji {
@@ -150,12 +166,15 @@
                 id="rickroll-video"
                 width="560" 
                 height="315" 
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&start=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1" 
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&start=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&disablekb=1&fs=0" 
                 title="Rick Astley - Never Gonna Give You Up" 
                 frameborder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                style="pointer-events: none;"
                 allowfullscreen>
             </iframe>
+            <!-- Invisible overlay to prevent interaction -->
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 100;"></div>
         </div>
         
         <div class="message">

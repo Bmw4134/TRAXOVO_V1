@@ -10,7 +10,9 @@ from voice_commands import process_voice_input, transcribe_audio
 
 # Create Flask app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "watson_intelligence_2025")
+app.secret_key = os.environ.get("SESSION_SECRET")
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_TYPE'] = 'filesystem'
 
 # Deployment configuration
 app.config['ENV'] = 'production'
@@ -65,13 +67,19 @@ def login():
     username = request.form.get('username', '').strip()
     password = request.form.get('password', '').strip()
     
+    print(f"Login attempt - Username: {username}, Password: {'*' * len(password) if password else 'None'}")
+    
     if not username or not password:
         flash('Username and password are required')
+        print("Login failed: Missing username or password")
         return redirect(url_for('home'))
     
     # Check credentials
     user_data = USERS.get(username.lower())
+    print(f"User data found: {user_data is not None}")
+    
     if user_data and user_data['password'] == password:
+        session.permanent = True
         session['user'] = {
             'username': username,
             'user_id': username,
@@ -81,20 +89,27 @@ def login():
             'access_level': user_data['access_level'],
             'authenticated': True
         }
+        print(f"Login successful for user: {username}")
+        print(f"Session data: {session['user']}")
         return redirect(url_for('dashboard'))
     else:
         flash('Invalid credentials')
+        print(f"Login failed: Invalid credentials for {username}")
         return redirect(url_for('home'))
 
 @app.route('/dashboard')
 def dashboard():
     """Main dashboard"""
     user = session.get('user')
+    print(f"Dashboard access attempt - User in session: {user}")
+    
     if not user or not user.get('authenticated'):
+        print("Dashboard access denied: No authenticated user")
         return redirect(url_for('home'))
     
     # Check if user is watson for full console access
     is_watson = user.get('username') == 'watson'
+    print(f"Dashboard access granted for {user.get('username')}, Watson: {is_watson}")
     
     return render_template('dashboard.html', 
                          user=user,

@@ -134,28 +134,51 @@
     <script src="{{ url_for('static', filename='js/real-data-dashboard.js') }}"></script>
     
     <script>
-    // Hamburger Menu Functionality
+    // Single Hamburger Menu Functionality
     document.addEventListener('DOMContentLoaded', function() {
         const hamburger = document.getElementById('hamburgerMenu');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
         const closeBtn = document.getElementById('sidebarClose');
         
-        if (hamburger && sidebar) {
-            hamburger.addEventListener('click', function() {
+        console.log('Hamburger Menu Elements:', { hamburger, sidebar, overlay, closeBtn });
+        
+        if (hamburger && sidebar && overlay) {
+            // Remove any existing event listeners
+            hamburger.replaceWith(hamburger.cloneNode(true));
+            const newHamburger = document.getElementById('hamburgerMenu');
+            
+            newHamburger.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Hamburger clicked - opening sidebar');
                 sidebar.classList.add('show');
                 overlay.classList.add('show');
                 document.body.classList.add('sidebar-open');
             });
             
             function closeSidebar() {
+                console.log('Closing sidebar');
                 sidebar.classList.remove('show');
                 overlay.classList.remove('show');
                 document.body.classList.remove('sidebar-open');
             }
             
-            if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
-            if (overlay) overlay.addEventListener('click', closeSidebar);
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeSidebar();
+                });
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeSidebar();
+                });
+            }
             
             // Close on escape key
             document.addEventListener('keydown', function(e) {
@@ -163,6 +186,10 @@
                     closeSidebar();
                 }
             });
+            
+            console.log('Hamburger menu initialized successfully');
+        } else {
+            console.error('Missing hamburger menu elements:', { hamburger, sidebar, overlay });
         }
     });
     </script>

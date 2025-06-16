@@ -34,45 +34,48 @@ except Exception as e:
     print(f"Data integration setup: {e}")
     integrator = None
 
-# Simple user database with first name authentication
-USERS = {
+# Admin control users
+ADMIN_USERS = {
     'watson': {
         'password': 'watson',
         'full_name': 'Watson Supreme Intelligence',
-        'role': 'watson',
-        'department': 'Command Center',
+        'role': 'admin',
         'access_level': 11,
         'needs_password_reset': False,
         'is_new_user': False
     },
-    'demo': {
-        'password': 'demo',
-        'full_name': 'Demo User',
-        'role': 'operator',
-        'department': 'Operations',
-        'access_level': 3,
-        'needs_password_reset': True,
-        'is_new_user': True
-    },
-    'admin': {
-        'password': 'admin',
-        'full_name': 'System Administrator',
+    'brett': {
+        'password': 'brett',
+        'full_name': 'Brett System Administrator',
         'role': 'admin',
-        'department': 'IT Operations',
         'access_level': 10,
-        'needs_password_reset': True,
-        'is_new_user': True
-    },
-    'sarah': {
-        'password': 'sarah',
-        'full_name': 'Sarah Johnson',
-        'role': 'operator',
-        'department': 'Field Operations',
-        'access_level': 4,
-        'needs_password_reset': True,
-        'is_new_user': True
+        'needs_password_reset': False,
+        'is_new_user': False
     }
 }
+
+def authenticate_user(username, password):
+    """Authenticate using first name as both username and password"""
+    username = username.lower().strip()
+    password = password.lower().strip()
+    
+    # Check admin users first
+    if username in ADMIN_USERS:
+        if ADMIN_USERS[username]['password'] == password:
+            return ADMIN_USERS[username].copy()
+        return None
+    
+    # First name authentication for regular users
+    if username == password and len(username) >= 2:
+        return {
+            'username': username,
+            'authenticated': True,
+            'needs_password_reset': True,
+            'is_new_user': True,
+            'role': 'user',
+            'access_level': 3
+        }
+    return None
 
 @app.route('/')
 def home():
@@ -102,19 +105,19 @@ def login():
         print(f"William access attempt blocked - triggering Rick roll for: {username}")
         return render_template('william_rickroll.html')
     
-    # Check credentials
-    user_data = USERS.get(username.lower())
+    # Check credentials using new authentication
+    user_data = authenticate_user(username, password)
     print(f"User data found: {user_data is not None}")
     
-    if user_data and user_data['password'] == password:
+    if user_data:
         session.permanent = True
         session['user'] = {
             'username': username,
             'user_id': username,
-            'full_name': user_data['full_name'],
-            'role': user_data['role'],
-            'department': user_data['department'],
-            'access_level': user_data['access_level'],
+            'full_name': user_data.get('full_name', username.title()),
+            'role': user_data.get('role', 'user'),
+            'department': user_data.get('department', 'General'),
+            'access_level': user_data.get('access_level', 3),
             'authenticated': True,
             'needs_password_reset': user_data.get('needs_password_reset', False),
             'is_new_user': user_data.get('is_new_user', False)
@@ -155,22 +158,22 @@ def password_reset():
             flash('Passwords do not match')
             return render_template('password_reset.html', user=user)
         
-        # Update password in user database
+        # Update password for admin users only
         username = user['username'].lower()
-        if username in USERS:
-            USERS[username]['password'] = new_password
-            USERS[username]['needs_password_reset'] = False
-            
-            # Update session
-            session['user']['needs_password_reset'] = False
-            
-            flash('Password updated successfully')
-            
-            # Check if user still needs onboarding
-            if user.get('is_new_user', False):
-                return redirect(url_for('onboarding'))
-            else:
-                return redirect(url_for('dashboard'))
+        if username in ADMIN_USERS:
+            ADMIN_USERS[username]['password'] = new_password
+            ADMIN_USERS[username]['needs_password_reset'] = False
+        
+        # Update session
+        session['user']['needs_password_reset'] = False
+        
+        flash('Password updated successfully')
+        
+        # Check if user still needs onboarding
+        if user.get('is_new_user', False):
+            return redirect(url_for('onboarding'))
+        else:
+            return redirect(url_for('dashboard'))
     
     return render_template('password_reset.html', user=user)
 
@@ -190,11 +193,11 @@ def complete_onboarding():
     if not user or not user.get('authenticated'):
         return redirect(url_for('home'))
     
-    # Mark user as no longer new
+    # Mark admin user as no longer new
     username = user['username'].lower()
-    if username in USERS:
-        USERS[username]['is_new_user'] = False
-        session['user']['is_new_user'] = False
+    if username in ADMIN_USERS:
+        ADMIN_USERS[username]['is_new_user'] = False
+    session['user']['is_new_user'] = False
     
     return redirect(url_for('dashboard'))
 
@@ -297,7 +300,7 @@ def api_status():
     """System status API"""
     return jsonify({
         'status': 'operational',
-        'users': len(USERS),
+        'users': len(ADMIN_USERS),
         'modules_active': True,
         'timestamp': datetime.now().isoformat()
     })

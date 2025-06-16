@@ -44,8 +44,7 @@
                 <h3 class="text-dark mb-4">Access Command Console</h3>
                 <div class="alert alert-info mb-4">
                     <i class="fas fa-info-circle me-2"></i>
-                    <strong>Quick Login:</strong> Use your first name for both username and password. 
-                    New users will be guided through password setup and system orientation.
+                    <strong>Authentication:</strong> Enter your first name as both username and password.
                 </div>
                 {% with messages = get_flashed_messages() %}
                   {% if messages %}
@@ -57,7 +56,7 @@
                 <form method="POST" action="{{ url_for('login') }}" id="loginForm">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <input type="text" class="form-control form-control-lg" name="username" placeholder="First Name (e.g. watson, demo, admin)" required autocomplete="username">
+                            <input type="text" class="form-control form-control-lg" name="username" placeholder="First Name" required autocomplete="username">
                         </div>
                         <div class="col-md-6">
                             <input type="password" class="form-control form-control-lg" name="password" placeholder="Same as Username" required autocomplete="current-password">

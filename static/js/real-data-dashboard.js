@@ -54,24 +54,18 @@
         }
         
         async updateRealTimeData() {
-            const endpoints = [
-                { url: '/ragle/api/data', target: 'ragle-metrics' },
-                { url: '/api/attendance', target: 'attendance-metrics' },
-                { url: '/api/equipment', target: 'equipment-metrics' },
-                { url: '/api/geofences', target: 'geofences-metrics' }
-            ];
+            // Only update Ragle metrics since other endpoints don't exist
+            const endpoint = { url: '/ragle/api/data', target: 'ragle-metrics' };
             
-            for (const endpoint of endpoints) {
-                try {
-                    const response = await fetch(endpoint.url);
-                    const data = await response.json();
-                    
-                    this.dataCache.set(endpoint.target, data);
-                    this.updateDashboardMetrics(endpoint.target, data);
-                    
-                } catch (error) {
-                    console.warn(`Failed to update ${endpoint.target}:`, error);
-                }
+            try {
+                const response = await fetch(endpoint.url);
+                const data = await response.json();
+                
+                this.dataCache.set(endpoint.target, data);
+                this.updateDashboardMetrics(endpoint.target, data);
+                
+            } catch (error) {
+                console.warn(`Failed to update ${endpoint.target}:`, error);
             }
         }
         
@@ -81,25 +75,6 @@
                 this.updateMetricCard('processing-units', data.systems.processing_units);
                 this.updateMetricCard('active-connections', data.systems.active_connections);
                 this.updateMetricCard('efficiency-rating', data.systems.efficiency_rating);
-            }
-            
-            if (target === 'attendance-metrics') {
-                this.updateMetricCard('personnel-present', data.personnel_present || data.status);
-                this.updateMetricCard('total-hours', data.total_hours_today || data.hours_today);
-                this.updateMetricCard('weekly-hours', data.weekly_hours);
-            }
-            
-            if (target === 'equipment-metrics') {
-                this.updateMetricCard('total-equipment', data.total_equipment);
-                this.updateMetricCard('active-rentals', data.active_rentals);
-                this.updateMetricCard('monthly-revenue', data.monthly_revenue);
-                this.updateMetricCard('utilization-rate', data.utilization_rate);
-            }
-            
-            if (target === 'geofences-metrics') {
-                this.updateMetricCard('active-geofences', data.active_geofences);
-                this.updateMetricCard('assets-tracked', data.assets_tracked);
-                this.updateMetricCard('compliance-rate', data.compliance_rate);
             }
         }
         

@@ -153,14 +153,13 @@ BREAKTHROUGH TECHNOLOGY:
 The system is production-ready and will instantly transform when you add your actual business data.'''
             }
         
-        return render_template('complete_platform_dashboard.html', 
+        return render_template('showcase_dashboard.html', 
                              user=user, 
                              executive_message=executive_message,
                              equipment_data=equipment_data,
                              attendance_data=attendance_data,
                              operational_metrics=operational_metrics,
-                             billing_data=billing_data,
-                             has_upload_option=True)
+                             billing_data=billing_data)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():

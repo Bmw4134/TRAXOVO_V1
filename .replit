@@ -2,7 +2,7 @@ modules = ["python-3.11", "postgresql-16", "nodejs-20", "python3"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["cairo", "cargo", "espeak-ng", "ffmpeg-full", "freetype", "geckodriver", "ghostscript", "gitFull", "glibcLocales", "gobject-introspection", "gtk3", "jre", "lcms2", "libGL", "libGLU", "libiconv", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "libyaml", "openjpeg", "openssl", "pkg-config", "playwright-driver", "portaudio", "postgresql", "qhull", "rustc", "tcl", "tk", "unzip", "zip", "zlib"]
+packages = ["gitFull", "glibcLocales", "openssl", "pkg-config", "postgresql", "zlib"]
 
 [deployment]
 deploymentTarget = "cloudrun"

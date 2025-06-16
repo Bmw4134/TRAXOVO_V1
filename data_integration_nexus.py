@@ -7,7 +7,7 @@ Automatically discovers and integrates real data from multiple sources
 import os
 import json
 import sqlite3
-import pandas as pd
+import csv
 from datetime import datetime, timedelta
 import glob
 import logging
@@ -91,18 +91,21 @@ class TRAXOVODataIntegrator:
                         analysis['key_fields'] = ['id', 'asset_id', 'device_id', 'serial_number']
                         
             elif file_ext == '.csv':
-                df = pd.read_csv(file_path, nrows=1000)  # Sample first 1000 rows
-                analysis['records_count'] = len(df)
-                analysis['columns'] = df.columns.tolist()
-                analysis['data_types'] = df.dtypes.to_dict()
-                analysis['sample_data'] = df.head(3).to_dict('records')
-                
-            elif file_ext in ['.xlsx', '.xls']:
-                df = pd.read_excel(file_path, nrows=1000)
-                analysis['records_count'] = len(df)
-                analysis['columns'] = df.columns.tolist()
-                analysis['data_types'] = df.dtypes.to_dict()
-                analysis['sample_data'] = df.head(3).to_dict('records')
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as csvfile:
+                    reader = csv.DictReader(csvfile)
+                    columns = reader.fieldnames if reader.fieldnames else []
+                    sample_data = []
+                    row_count = 0
+                    for row in reader:
+                        if row_count < 3:
+                            sample_data.append(row)
+                        row_count += 1
+                        if row_count >= 1000:  # Limit analysis to 1000 rows
+                            break
+                    
+                    analysis['records_count'] = row_count
+                    analysis['columns'] = columns
+                    analysis['sample_data'] = sample_data
                 
             return analysis
             

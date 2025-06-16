@@ -4,11 +4,7 @@ gunicorn>=21.2.0
 openai>=1.86.0
 werkzeug>=2.3.7
 flask-sqlalchemy>=3.1.1
-pandas>=2.3.0
 sqlalchemy>=2.0.41
-oauthlib>=3.2.2
-pyjwt>=2.10.1
-flask-dance>=7.1.0
 
 [dev]
 pytest>=7.4.0

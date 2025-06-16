@@ -21,11 +21,7 @@ Requires-Dist: gunicorn>=21.2.0
 Requires-Dist: openai>=1.86.0
 Requires-Dist: werkzeug>=2.3.7
 Requires-Dist: flask-sqlalchemy>=3.1.1
-Requires-Dist: pandas>=2.3.0
 Requires-Dist: sqlalchemy>=2.0.41
-Requires-Dist: oauthlib>=3.2.2
-Requires-Dist: pyjwt>=2.10.1
-Requires-Dist: flask-dance>=7.1.0
 Provides-Extra: dev
 Requires-Dist: pytest>=7.4.0; extra == "dev"
 Requires-Dist: black>=23.7.0; extra == "dev"

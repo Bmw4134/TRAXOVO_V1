@@ -18,6 +18,16 @@ app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
 app.config['SESSION_PERMANENT'] = False
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
+# Security configurations
+app.config['SESSION_COOKIE_SECURE'] = True if os.environ.get('HTTPS') else False
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
+# Admin access tracking
+admin_access_attempts = {}
+MAX_ADMIN_ATTEMPTS = 3
+LOCKOUT_DURATION = 300  # 5 minutes
+
 # Upload configuration
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'csv', 'xlsx', 'xls', 'json', 'txt'}
@@ -35,14 +45,37 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def authenticate_user(username, password):
-    """Authentication with secure Watson password"""
+    """Authentication with secure Watson password and brute force protection"""
+    from datetime import datetime, timedelta
+    import time
+    
     # William protection - Rick roll trap
     if username.lower() == 'william':
         return {'error': 'rickroll', 'username': username}
     
-    # Watson authentication - multiple access methods
+    # Watson authentication - secure admin access only
     if username.lower() == 'watson':
-        if password == 'Btpp@1513!' or password.lower() == 'watson':
+        client_ip = request.remote_addr if request else 'unknown'
+        current_time = datetime.now()
+        
+        # Check if IP is locked out for admin attempts
+        if client_ip in admin_access_attempts:
+            attempts = admin_access_attempts[client_ip]
+            if attempts['count'] >= MAX_ADMIN_ATTEMPTS:
+                lockout_end = attempts['last_attempt'] + timedelta(seconds=LOCKOUT_DURATION)
+                if current_time < lockout_end:
+                    remaining = int((lockout_end - current_time).total_seconds())
+                    return {'error': f'Admin access locked. Try again in {remaining} seconds.'}
+                else:
+                    # Reset attempts after lockout period
+                    del admin_access_attempts[client_ip]
+        
+        # Only accept the secure password for admin access
+        if password == 'Btpp@1513!':
+            # Clear failed attempts on successful login
+            if client_ip in admin_access_attempts:
+                del admin_access_attempts[client_ip]
+            
             return {
                 'username': 'watson',
                 'full_name': 'Watson Supreme Intelligence',
@@ -51,7 +84,14 @@ def authenticate_user(username, password):
                 'access_level': 11
             }
         else:
-            return {'error': 'Invalid credentials'}
+            # Track failed admin attempts
+            if client_ip not in admin_access_attempts:
+                admin_access_attempts[client_ip] = {'count': 0, 'last_attempt': current_time}
+            
+            admin_access_attempts[client_ip]['count'] += 1
+            admin_access_attempts[client_ip]['last_attempt'] = current_time
+            
+            return {'error': 'Access denied - Invalid admin credentials'}
     
     # Simple first name authentication for regular users
     if username == password:

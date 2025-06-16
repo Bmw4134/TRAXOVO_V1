@@ -37,7 +37,7 @@ except Exception as e:
 # Simple user database
 USERS = {
     'watson': {
-        'password': 'Btpp@1513',
+        'password': 'watson123',
         'full_name': 'Watson Supreme Intelligence',
         'role': 'watson',
         'department': 'Command Center',

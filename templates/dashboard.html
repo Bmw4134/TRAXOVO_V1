@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Watson Dashboard - TRAXOVO Intelligence{% endblock %}
+{% block title %}Dashboard - TRAXOVO Intelligence{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -8,7 +8,7 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h2 class="card-title text-primary">
-                    <i class="fas fa-tachometer-alt me-2"></i>Watson Command Console
+                    <i class="fas fa-tachometer-alt me-2"></i>Command Console
                 </h2>
                 <p class="text-muted">Welcome back, {{ session.user }}. System status: <span class="badge bg-success">Operational</span></p>
             </div>
@@ -126,16 +126,16 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-terminal me-2"></i>Watson Command Interface</h5>
+                <h5 class="mb-0"><i class="fas fa-terminal me-2"></i>Command Interface</h5>
             </div>
             <div class="card-body">
                 <div id="commandOutput" class="bg-dark text-light p-3 rounded mb-3" style="height: 200px; overflow-y: auto; font-family: monospace;">
-                    Watson Intelligence Console v1.0.0<br>
+                    TRAXOVO Intelligence Console v1.0.0<br>
                     System initialized successfully.<br>
                     Ready for commands...<br>
                 </div>
                 <div class="input-group">
-                    <span class="input-group-text">watson@traxovo:~$</span>
+                    <span class="input-group-text">admin@traxovo:~$</span>
                     <input type="text" class="form-control" id="commandInput" placeholder="Enter command">
                     <button class="btn btn-primary" id="executeCommand">Execute</button>
                 </div>
@@ -152,8 +152,8 @@
             </div>
             <div class="card-body text-center">
                 <i class="fas fa-shield-alt fa-3x text-warning mb-3"></i>
-                <h5>Watson Command Interface</h5>
-                <p class="text-muted">Access restricted to Watson security clearance only</p>
+                <h5>Command Interface</h5>
+<parameter name="text-muted">Access restricted to administrator clearance only</p>
                 <div class="badge bg-warning">CLASSIFIED</div>
             </div>
         </div>

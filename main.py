@@ -1,5 +1,5 @@
 """
-TRAXOVO Watson Intelligence Platform - Clean Deployment
+TRAXOVO Intelligence Platform - Clean Deployment
 Minimal Flask application optimized for Replit deployment
 """
 

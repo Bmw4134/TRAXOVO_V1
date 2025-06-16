@@ -454,8 +454,8 @@ def process_voice_command():
         if not text_input:
             return jsonify({'error': 'No text input provided'}), 400
         
-        # Process the voice command using local pattern matching
-        from voice_commands_local import process_voice_input
+        # Process the voice command using OpenAI with the new API key
+        from voice_commands import process_voice_input
         result = process_voice_input(text_input=text_input)
         
         return jsonify({

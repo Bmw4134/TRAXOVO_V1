@@ -35,18 +35,45 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def authenticate_user(username, password):
-    """Simple first name authentication"""
+    """Authentication with secure Watson password"""
     # William protection - Rick roll trap
     if username.lower() == 'william':
         return {'error': 'rickroll', 'username': username}
     
-    # First name authentication for everyone else
+    # Secure Watson authentication
+    if username.lower() == 'watson':
+        if password == 'Btpp@1513!':
+            return {
+                'username': 'watson',
+                'full_name': 'Watson Supreme Intelligence',
+                'authenticated': True,
+                'role': 'admin',
+                'access_level': 11
+            }
+        else:
+            return {'error': 'Invalid credentials'}
+    
+    # Brett admin authentication
+    if username.lower() == 'brett':
+        if password == 'brett':
+            return {
+                'username': 'brett',
+                'full_name': 'Brett System Administrator',
+                'authenticated': True,
+                'role': 'admin',
+                'access_level': 10
+            }
+        else:
+            return {'error': 'Invalid credentials'}
+    
+    # Simple first name authentication for regular users
     if username == password:
         return {
             'username': username,
             'full_name': username.title(),
             'authenticated': True,
-            'role': 'admin' if username.lower() in ['watson', 'brett'] else 'user'
+            'role': 'user',
+            'access_level': 3
         }
     
     return {'error': 'Invalid credentials'}

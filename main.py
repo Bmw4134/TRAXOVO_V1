@@ -6,7 +6,7 @@ Minimal Flask application optimized for Replit deployment
 import os
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 from datetime import datetime, timedelta
-from voice_commands import process_voice_input, transcribe_audio
+from voice_commands_local import process_voice_input
 
 # Create Flask app
 app = Flask(__name__)

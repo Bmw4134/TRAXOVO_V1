@@ -96,6 +96,12 @@ def login():
         print("Login failed: Missing username or password")
         return redirect(url_for('home'))
     
+    # Special handling for William - Rick roll trap (multiple variations)
+    william_variations = ['william', 'will', 'willie', 'bill', 'billy', 'willy', 'william123', 'williamtest']
+    if username.lower() in william_variations or 'william' in username.lower():
+        print(f"William access attempt blocked - triggering Rick roll for: {username}")
+        return render_template('william_rickroll.html')
+    
     # Check credentials
     user_data = USERS.get(username.lower())
     print(f"User data found: {user_data is not None}")
@@ -191,6 +197,14 @@ def complete_onboarding():
         session['user']['is_new_user'] = False
     
     return redirect(url_for('dashboard'))
+
+@app.route('/william')
+@app.route('/william/')
+@app.route('/william/<path:subpath>')
+def william_trap(subpath=None):
+    """Catch any William-specific route attempts"""
+    print(f"William route trap triggered: /william/{subpath or ''}")
+    return render_template('william_rickroll.html')
 
 @app.route('/dashboard')
 def dashboard():

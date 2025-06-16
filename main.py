@@ -440,6 +440,7 @@ def process_voice_command():
             return jsonify({'error': 'No text input provided'}), 400
         
         # Process the voice command
+        from voice_commands import process_voice_input
         result = process_voice_input(text_input=text_input)
         
         return jsonify({
@@ -474,6 +475,7 @@ def transcribe_voice():
         audio_file.save(temp_filename)
         
         try:
+            from voice_commands import transcribe_audio
             transcribed_text = transcribe_audio(temp_filename)
             os.remove(temp_filename)  # Clean up
             

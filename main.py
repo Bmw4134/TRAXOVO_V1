@@ -228,41 +228,22 @@ def dashboard():
     executive_message = None
     if user.get('username', '').lower() == 'troy':
         executive_message = {
-            'priority': 'urgent',
+            'priority': 'high',
             'from': 'Development Team',
-            'subject': 'WRONGFUL TERMINATION EVIDENCE & PROJECT DELIVERY',
+            'subject': 'Project Delivery & Personnel Documentation',
             'message': '''Troy,
 
-WRONGFUL TERMINATION DOCUMENTATION:
-William's claim that I "no call/no showed" and "abandoned my job" is COMPLETELY FALSE. I have proof:
-
-• Text messages TO WILLIAM from Monday & Tuesday last week
-• All requested time off was properly communicated
-• Diana (my direct report) confirmed I spoke with her last week AND Monday this week
-• Payroll verified my communications and time requests
-
-William's false termination claim damages my employment prospects and constitutes wrongful termination.
-
-PROJECT COMPLETION PROOF:
-This platform shows 3 weeks of dedicated work on YOUR exact specifications:
+PROJECT COMPLETION:
+This platform demonstrates 3 weeks of dedicated development work on your specifications:
 - Real-time equipment tracking dashboard (13 active assets of 47 total fleet capacity)
-- Comprehensive user management (14 accounts: executives, directors, operations)
+- Comprehensive user management (14 accounts: executives, directors, operations)  
 - Live attendance tracking (8 records) with detailed timecard system (5 entries)
-- Personnel management system (live data)
-- Voice command integration (working)
-- Complete authentication and security
+- Voice command integration with natural language processing
+- Complete authentication and security systems
 
-WILLIAM'S GATEKEEPING PATTERN:
-• Blocks team success while securing $130K+ bonus (unjustified for controller role)
-• Creates false narratives to eliminate productive team members
-• Interferes with legitimate work presentation (see system access block)
-
-PERSONAL INVESTMENT & INNOVATION:
-I spent my own money to complete this system because I solved the autonomous functions you've been trying to figure out. This deliverable was going to push Ragle into the future with advanced automation capabilities.
-
-BREAKTHROUGH TECHNOLOGY:
-• Voice command integration with natural language processing
-• Real-time autonomous data integration 
+TECHNOLOGY BREAKTHROUGH:
+I solved the autonomous functions you've been seeking to implement. Key innovations include:
+• Real-time autonomous data integration
 • Quantum-enhanced API orchestration for rate limit bypass
 • Self-healing dashboard systems with predictive analytics
 • Advanced authentication with behavioral pattern recognition
@@ -275,14 +256,18 @@ Fully operational with comprehensive data integration:
 • 5 detailed timecard entries with break/lunch tracking
 • 7 automation tasks running (backup, sync, monitoring)
 • Fleet metrics showing 47 total asset capacity
-Your IT team (Matt/Jorge) can extract via deployment package for continued use.
 
-WRONGFUL TERMINATION RESOLUTION:
-William's false "no call/no show" claim is documented as incorrect. I have proof of communications and Diana/Payroll verification. This situation requires resolution before I pursue other opportunities.
+DEPLOYMENT READY:
+Your IT team (Matt/Jorge) can extract the complete system via deployment package for continued use.
 
-The autonomous technology I developed represents significant value for Ragle's future operations.
+PERSONNEL MATTER:
+I need to document that William's termination claim of "no call/no show" is inaccurate. I have communications records with William from Monday & Tuesday last week, Diana confirmed our conversations, and Payroll verified my time requests. This discrepancy needs clarification as it affects future employment opportunities.
 
-- Development Team'''
+PERSONAL INVESTMENT:
+I invested my own resources to complete this autonomous technology platform, demonstrating the value it represents for Ragle's operational advancement.
+
+Respectfully submitted,
+Development Team'''
         }
     
     real_data = {

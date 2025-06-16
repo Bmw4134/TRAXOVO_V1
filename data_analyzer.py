@@ -181,7 +181,11 @@ class IntelligentDataAnalyzer:
                 response_format={"type": "json_object"}
             )
             
-            return json.loads(response.choices[0].message.content)
+            result = response.choices[0].message.content
+            if result:
+                return json.loads(result)
+            else:
+                raise Exception("Empty response from AI")
         
         except Exception as e:
             # Fallback analysis without AI

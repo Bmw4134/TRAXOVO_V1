@@ -1,0 +1,444 @@
+{% extends "base_clean.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Executive Message for Troy -->
+    {% if executive_message %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info border-left-primary">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-envelope fa-2x text-primary me-3"></i>
+                    <div>
+                        <h5 class="mb-1">{{ executive_message.subject }}</h5>
+                        <small class="text-muted">From: {{ executive_message.from }}</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="mt-3" style="white-space: pre-line;">{{ executive_message.message }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-white mb-1">TRAXOVO Intelligence Platform</h2>
+                    <p class="text-light mb-0">Welcome, {{ user.full_name }} - Upload your data for intelligent analysis</p>
+                </div>
+                <div>
+                    <button class="btn btn-outline-light me-2" id="voiceBtn">
+                        <i class="fas fa-microphone"></i> Voice Command
+                    </button>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if not analyzed_data %}
+    <!-- File Upload Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-transparent border-light">
+                <div class="card-body text-center">
+                    <i class="fas fa-cloud-upload-alt fa-5x text-primary mb-4"></i>
+                    <h3 class="text-white mb-3">Upload Your Data</h3>
+                    <p class="text-light mb-4">
+                        Upload CSV, Excel, or JSON files and let our AI understand your data automatically.<br>
+                        The system will analyze your data and create intelligent dashboards tailored to your content.
+                    </p>
+                    
+                    <div class="upload-area border border-dashed border-light rounded p-5 mb-4" id="uploadArea">
+                        <div class="upload-content">
+                            <i class="fas fa-file-upload fa-3x text-light mb-3"></i>
+                            <p class="text-light mb-3">Drag and drop your file here, or click to browse</p>
+                            <input type="file" id="fileInput" class="d-none" accept=".csv,.xlsx,.xls,.json,.txt">
+                            <button class="btn btn-primary btn-lg" onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-folder-open me-2"></i>Choose File
+                            </button>
+                        </div>
+                        <div class="upload-progress d-none">
+                            <div class="progress mb-3">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                            </div>
+                            <p class="text-light mb-0">Analyzing your data with AI...</p>
+                        </div>
+                    </div>
+
+                    <div class="row text-start">
+                        <div class="col-md-6">
+                            <div class="card bg-dark border-secondary">
+                                <div class="card-body">
+                                    <h6 class="text-primary mb-2"><i class="fas fa-file-alt me-2"></i>Supported Formats</h6>
+                                    <ul class="list-unstyled text-light small mb-0">
+                                        <li><i class="fas fa-check text-success me-2"></i>CSV files (.csv)</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Excel files (.xlsx, .xls)</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>JSON files (.json)</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Text files (.txt)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-dark border-secondary">
+                                <div class="card-body">
+                                    <h6 class="text-success mb-2"><i class="fas fa-brain me-2"></i>AI Analysis</h6>
+                                    <ul class="list-unstyled text-light small mb-0">
+                                        <li><i class="fas fa-check text-success me-2"></i>Automatic data type detection</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Intelligent chart suggestions</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Key insights extraction</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Custom dashboard generation</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Data Analysis Dashboard -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-transparent border-light">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="text-white mb-0">
+                            <i class="fas fa-chart-line me-2"></i>{{ analyzed_data.dashboard_config.title }}
+                        </h4>
+                        <button class="btn btn-outline-primary" onclick="uploadNewFile()">
+                            <i class="fas fa-upload me-2"></i>Upload New File
+                        </button>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-primary">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-database fa-2x mb-2"></i>
+                                    <h3 class="mb-1">{{ analyzed_data.rows }}</h3>
+                                    <p class="mb-0">Total Records</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-columns fa-2x mb-2"></i>
+                                    <h3 class="mb-1">{{ analyzed_data.columns|length }}</h3>
+                                    <p class="mb-0">Data Fields</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-file-alt fa-2x mb-2"></i>
+                                    <h3 class="mb-1">{{ analyzed_data.data_type|replace('_', ' ')|title }}</h3>
+                                    <p class="mb-0">Data Type</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                                    <h3 class="mb-1">{{ analyzed_data.suggested_charts|length }}</h3>
+                                    <p class="mb-0">Suggested Charts</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Insights -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-transparent border-light">
+                <div class="card-body">
+                    <h5 class="text-white mb-3"><i class="fas fa-lightbulb me-2"></i>AI Insights</h5>
+                    <ul class="list-unstyled">
+                        {% for insight in analyzed_data.key_insights %}
+                        <li class="text-light mb-2"><i class="fas fa-arrow-right text-primary me-2"></i>{{ insight }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-transparent border-light">
+                <div class="card-body">
+                    <h5 class="text-white mb-3"><i class="fas fa-info-circle me-2"></i>Data Purpose</h5>
+                    <p class="text-light">{{ analyzed_data.purpose }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    {% if analyzed_data.suggested_charts %}
+    <div class="row">
+        {% for chart in analyzed_data.suggested_charts %}
+        <div class="col-md-6 mb-4">
+            <div class="card bg-transparent border-light">
+                <div class="card-body">
+                    <h6 class="text-white mb-3">{{ chart.title }}</h6>
+                    <div class="chart-container">
+                        <canvas id="chart{{ loop.index }}" width="400" height="200"></canvas>
+                    </div>
+                    <p class="text-light small mt-2">{{ chart.description }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Data Preview -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-transparent border-light">
+                <div class="card-body">
+                    <h5 class="text-white mb-3"><i class="fas fa-table me-2"></i>Data Preview</h5>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped">
+                            <thead>
+                                <tr>
+                                    {% for column in analyzed_data.columns %}
+                                    <th>{{ column }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in analyzed_data.sample_data %}
+                                <tr>
+                                    {% for column in analyzed_data.columns %}
+                                    <td>{{ row[column] if row[column] is not none else '-' }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Voice Command Modal -->
+<div class="modal fade" id="voiceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title text-white">Voice Command</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-microphone fa-3x text-primary mb-3" id="micIcon"></i>
+                <p class="text-white" id="voiceStatus">Click to start voice command</p>
+                <button class="btn btn-primary" id="startVoice">Start Listening</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// File upload functionality
+document.getElementById('fileInput').addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+        uploadFile(e.target.files[0]);
+    }
+});
+
+// Drag and drop functionality
+const uploadArea = document.getElementById('uploadArea');
+uploadArea.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    uploadArea.classList.add('border-primary');
+});
+
+uploadArea.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    uploadArea.classList.remove('border-primary');
+});
+
+uploadArea.addEventListener('drop', function(e) {
+    e.preventDefault();
+    uploadArea.classList.remove('border-primary');
+    
+    if (e.dataTransfer.files.length > 0) {
+        uploadFile(e.dataTransfer.files[0]);
+    }
+});
+
+function uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // Show progress
+    document.querySelector('.upload-content').classList.add('d-none');
+    document.querySelector('.upload-progress').classList.remove('d-none');
+    
+    fetch('/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Refresh page to show analysis
+            window.location.reload();
+        } else {
+            alert('Upload failed: ' + (data.error || 'Unknown error'));
+            // Reset upload area
+            document.querySelector('.upload-content').classList.remove('d-none');
+            document.querySelector('.upload-progress').classList.add('d-none');
+        }
+    })
+    .catch(error => {
+        alert('Upload failed: ' + error.message);
+        // Reset upload area
+        document.querySelector('.upload-content').classList.remove('d-none');
+        document.querySelector('.upload-progress').classList.add('d-none');
+    });
+}
+
+function uploadNewFile() {
+    window.location.href = '/logout';
+}
+
+// Voice command functionality
+document.getElementById('voiceBtn').addEventListener('click', function() {
+    const modal = new bootstrap.Modal(document.getElementById('voiceModal'));
+    modal.show();
+});
+
+document.getElementById('startVoice').addEventListener('click', function() {
+    if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+        
+        recognition.onstart = function() {
+            document.getElementById('voiceStatus').textContent = 'Listening...';
+            document.getElementById('micIcon').classList.add('text-danger');
+            document.getElementById('startVoice').disabled = true;
+        };
+        
+        recognition.onresult = function(event) {
+            const command = event.results[0][0].transcript;
+            document.getElementById('voiceStatus').textContent = `Command: "${command}"`;
+            
+            // Send to server
+            fetch('/voice-command', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({text: command})
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('voiceStatus').textContent = data.message || 'Command processed';
+            });
+        };
+        
+        recognition.onerror = function() {
+            document.getElementById('voiceStatus').textContent = 'Voice recognition error';
+            document.getElementById('micIcon').classList.remove('text-danger');
+            document.getElementById('startVoice').disabled = false;
+        };
+        
+        recognition.onend = function() {
+            document.getElementById('micIcon').classList.remove('text-danger');
+            document.getElementById('startVoice').disabled = false;
+        };
+        
+        recognition.start();
+    } else {
+        document.getElementById('voiceStatus').textContent = 'Voice recognition not supported';
+    }
+});
+
+// Initialize charts if data exists
+{% if analyzed_data and analyzed_data.suggested_charts %}
+{% for chart in analyzed_data.suggested_charts %}
+// Chart {{ loop.index }}
+fetch('/api/chart-data/{{ chart.type }}')
+    .then(response => response.json())
+    .then(data => {
+        const ctx = document.getElementById('chart{{ loop.index }}').getContext('2d');
+        new Chart(ctx, {
+            type: '{{ chart.type }}',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    data: data.data,
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(255, 205, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(153, 102, 255, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(255, 205, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
+                    }
+                },
+                scales: {
+                    {% if chart.type != 'pie' %}
+                    x: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                    {% endif %}
+                }
+            }
+        });
+    });
+{% endfor %}
+{% endif %}
+</script>
+{% endblock %}

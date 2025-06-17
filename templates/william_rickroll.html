@@ -190,35 +190,113 @@
     </div>
 
     <script>
-        // Anti-pause enforcement system
+        // ULTIMATE ANTI-PAUSE ENFORCEMENT SYSTEM
         let pauseAttempts = 0;
         let forcePlayInterval;
+        let backupPlayers = [];
+        let ultimateMode = false;
         
         function playRickRoll() {
             const iframe = document.getElementById('rickroll-video');
             if (iframe) {
-                // Send YouTube API commands to force play
-                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
-                iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[80]}', '*');
-                
-                // Reload iframe if necessary to force autoplay
-                const currentSrc = iframe.src;
-                if (!currentSrc.includes('&force=')) {
-                    iframe.src = currentSrc + '&force=' + Date.now();
+                // Aggressive YouTube API commands
+                for (let i = 0; i < 10; i++) {
+                    setTimeout(() => {
+                        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                        iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+                        iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[100]}', '*');
+                    }, i * 50);
                 }
+                
+                // Force reload with random parameters
+                const baseSrc = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&iv_load_policy=3';
+                iframe.src = baseSrc + '&force=' + Date.now() + '&random=' + Math.random();
             }
+        }
+        
+        function createBackupPlayer(index) {
+            const backup = document.createElement('iframe');
+            backup.id = 'backup-rick-' + index;
+            backup.src = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&playlist=dQw4w9WgXcQ&controls=0&mute=0&start=' + (index * 10);
+            backup.style.cssText = `
+                position: fixed;
+                left: ${index * 50}px;
+                top: ${index * 50}px;
+                width: 200px;
+                height: 150px;
+                z-index: ${9000 + index};
+                border: 3px solid #ff6b6b;
+                border-radius: 10px;
+                opacity: 0.8;
+            `;
+            backup.allow = 'autoplay';
+            document.body.appendChild(backup);
+            backupPlayers.push(backup);
+            return backup;
+        }
+        
+        function activateUltimateMode() {
+            if (ultimateMode) return;
+            ultimateMode = true;
+            
+            // Create multiple backup players
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => createBackupPlayer(i), i * 500);
+            }
+            
+            // Create floating Rick Roll messages
+            setInterval(() => {
+                const message = document.createElement('div');
+                message.textContent = '🎵 NEVER GONNA GIVE YOU UP, WILLIAM! 🎵';
+                message.style.cssText = `
+                    position: fixed;
+                    left: ${Math.random() * window.innerWidth}px;
+                    top: ${Math.random() * window.innerHeight}px;
+                    background: #ff6b6b;
+                    color: white;
+                    padding: 10px;
+                    border-radius: 5px;
+                    z-index: 10000;
+                    font-size: 16px;
+                    font-weight: bold;
+                    animation: bounce 2s infinite;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(message);
+                
+                setTimeout(() => message.remove(), 3000);
+            }, 1000);
+            
+            // Screen flash effect
+            setInterval(() => {
+                document.body.style.background = Math.random() > 0.5 ? 
+                    'linear-gradient(45deg, #ff6b6b, #4ecdc4)' : 
+                    'linear-gradient(45deg, #4ecdc4, #ff6b6b)';
+            }, 200);
         }
         
         function preventPause() {
             playRickRoll();
             pauseAttempts++;
-            if (pauseAttempts % 5 === 0) {
-                alert('🎵 William, you cannot escape Rick Astley! 🎵');
+            
+            if (pauseAttempts > 3) {
+                activateUltimateMode();
             }
             
-            // Backup Rick Roll with multiple iframes
-            createBackupRickRoll();
+            if (pauseAttempts % 3 === 0) {
+                alert('🎵 William, you cannot escape Rick Astley! Pause attempts: ' + pauseAttempts + ' 🎵');
+            }
+            
+            // Force play all backup players
+            backupPlayers.forEach(player => {
+                player.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+            });
+            
+            // Immediate reload of main player
+            const iframe = document.getElementById('rickroll-video');
+            if (iframe) {
+                iframe.src = iframe.src.split('&t=')[0] + '&t=' + Math.floor(Date.now() / 1000);
+            }
         }
         
         function createBackupRickRoll() {
@@ -240,24 +318,47 @@
             setTimeout(playRickRoll, 1500);
             setTimeout(playRickRoll, 3000);
             
-            // Aggressive anti-pause system
-            forcePlayInterval = setInterval(preventPause, 1000);
+            // HYPER-AGGRESSIVE ANTI-PAUSE SYSTEM
+            forcePlayInterval = setInterval(preventPause, 250); // Every quarter second!
             
-            // Aggressive iframe refresh to prevent any pause states
+            // Continuous iframe refresh to prevent ANY pause states
             setInterval(() => {
                 const iframe = document.getElementById('rickroll-video');
                 if (iframe) {
-                    // Force refresh every cycle to restart video
+                    // Force refresh with random parameters to bypass cache
                     const baseSrc = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&iv_load_policy=3';
-                    iframe.src = baseSrc + '&t=' + Math.floor(Date.now() / 1000);
+                    iframe.src = baseSrc + '&t=' + Math.floor(Date.now() / 1000) + '&r=' + Math.random() + '&force=1';
                     
-                    // Send immediate play commands after refresh
-                    setTimeout(() => {
-                        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-                        iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
-                    }, 1000);
+                    // Immediate and repeated play commands
+                    for (let i = 0; i < 5; i++) {
+                        setTimeout(() => {
+                            iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                            iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+                            iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[100]}', '*');
+                        }, i * 200);
+                    }
                 }
-            }, 8000);
+            }, 3000); // Every 3 seconds instead of 8
+            
+            // Mouse and keyboard activity detection for pause attempts
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('iframe')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    preventPause();
+                    alert('🎵 No clicking on the video, William! 🎵');
+                    return false;
+                }
+            });
+            
+            // Detect ANY interaction with video area
+            setInterval(() => {
+                const iframe = document.getElementById('rickroll-video');
+                if (iframe && document.activeElement === iframe) {
+                    iframe.blur();
+                    preventPause();
+                }
+            }, 100);
         });
         
         // Play Rick Roll on page load
@@ -414,12 +515,15 @@
                 }
             });
             
-            // Continuous vigilance - check every second
+            // ULTIMATE VIGILANCE - William cannot escape!
             setInterval(() => {
                 // Force focus back to window if lost
                 if (!document.hasFocus()) {
                     window.focus();
                     playRickRoll();
+                    if (pauseAttempts > 5) {
+                        activateUltimateMode();
+                    }
                 }
                 
                 // Check if video is still present and playing
@@ -427,7 +531,37 @@
                 if (!iframe) {
                     location.reload();
                 }
-            }, 1000);
+                
+                // Force play commands every cycle
+                playRickRoll();
+                
+                // Check for pause attempts by monitoring video state
+                if (iframe) {
+                    iframe.contentWindow.postMessage('{"event":"listening","id":"player"}', '*');
+                }
+            }, 500); // Twice as frequent
+            
+            // Listen for video state messages
+            window.addEventListener('message', (event) => {
+                if (event.data && typeof event.data === 'string' && event.data.includes('pause')) {
+                    preventPause();
+                    alert('🎵 PAUSE DETECTED! Nice try William! 🎵');
+                }
+            });
+            
+            // Page visibility API to detect tab switching
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    // William tried to switch tabs!
+                    setTimeout(() => {
+                        window.focus();
+                        playRickRoll();
+                        alert('🎵 No tab switching allowed, William! 🎵');
+                    }, 100);
+                } else {
+                    playRickRoll();
+                }
+            });
             
             // Block all mouse gestures
             let mouseDownTime = 0;

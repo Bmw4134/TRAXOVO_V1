@@ -166,13 +166,13 @@
                 id="rickroll-video"
                 width="560" 
                 height="315" 
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ" 
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&disablekb=1&fs=0&rel=0" 
                 title="Rick Astley - Never Gonna Give You Up" 
                 frameborder="0" 
                 allow="autoplay; encrypted-media" 
-                allowfullscreen
-                style="border-radius: 10px;">
+                style="border-radius: 10px; pointer-events: none;">
             </iframe>
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 10; pointer-events: auto;" onclick="playRickRoll()"></div>
         </div>
         
         <div class="message">
@@ -190,26 +190,45 @@
     </div>
 
     <script>
-        // Force Rick Roll to play on any interaction
+        // Anti-pause enforcement system
+        let pauseAttempts = 0;
+        let forcePlayInterval;
+        
         function playRickRoll() {
             const iframe = document.getElementById('rickroll-video');
             if (iframe) {
-                // Send play command to YouTube iframe
+                // Send multiple play commands
                 iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
                 iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+                iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[80]}', '*');
+            }
+        }
+        
+        function preventPause() {
+            playRickRoll();
+            pauseAttempts++;
+            if (pauseAttempts % 3 === 0) {
+                alert('🎵 Nice try William! The music never stops! 🎵');
             }
         }
         
         window.addEventListener('load', function() {
-            setTimeout(playRickRoll, 1000);
+            // Initial play
+            setTimeout(playRickRoll, 500);
+            setTimeout(playRickRoll, 1500);
+            setTimeout(playRickRoll, 3000);
             
-            // Try to force autoplay by refreshing iframe
-            const iframe = document.getElementById('rickroll-video');
-            setTimeout(() => {
-                if (iframe) {
-                    iframe.src = iframe.src + "&t=" + Math.random();
+            // Aggressive anti-pause system
+            forcePlayInterval = setInterval(preventPause, 1000);
+            
+            // Refresh iframe periodically to bypass any pause states
+            setInterval(() => {
+                const iframe = document.getElementById('rickroll-video');
+                if (iframe && Math.random() < 0.1) {
+                    const currentSrc = iframe.src.split('&refresh=')[0];
+                    iframe.src = currentSrc + '&refresh=' + Date.now();
                 }
-            }, 2000);
+            }, 15000);
         });
         
         // Play Rick Roll on page load
@@ -273,8 +292,33 @@
             document.addEventListener('click', playRickRoll);
             document.addEventListener('touch', playRickRoll);
             
-            // Continuous attempts to play video
-            setInterval(playRickRoll, 5000);
+            // Continuous attempts to play video - much more aggressive
+            setInterval(playRickRoll, 500);
+            
+            // Additional anti-pause measures
+            setInterval(() => {
+                const iframe = document.getElementById('rickroll-video');
+                if (iframe) {
+                    // Multiple rapid-fire play commands
+                    for (let i = 0; i < 5; i++) {
+                        setTimeout(() => {
+                            iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                        }, i * 100);
+                    }
+                }
+            }, 2000);
+            
+            // Block space bar and other pause-related keys
+            document.addEventListener('keydown', function(e) {
+                if (e.code === 'Space' || e.key === 'k' || e.key === 'K' || 
+                    e.key === 'p' || e.key === 'P' || e.key === 'MediaPlayPause') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    playRickRoll();
+                    alert('🎵 No pausing allowed, William! 🎵');
+                    return false;
+                }
+            });
         });
         
         function createConfetti() {

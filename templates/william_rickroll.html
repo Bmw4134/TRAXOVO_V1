@@ -166,15 +166,13 @@
                 id="rickroll-video"
                 width="560" 
                 height="315" 
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&start=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&disablekb=1&fs=0" 
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=1&rel=0&modestbranding=1" 
                 title="Rick Astley - Never Gonna Give You Up" 
                 frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                style="pointer-events: none;"
+                allow="autoplay; encrypted-media" 
                 allowfullscreen>
             </iframe>
-            <!-- Invisible overlay to prevent interaction -->
-            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 100;"></div>
+            <div class="video-overlay"></div>
         </div>
         
         <div class="message">
@@ -209,33 +207,59 @@
         
         // Play Rick Roll on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Force video autoplay
-            setTimeout(() => {
-                const iframe = document.getElementById('rickroll-video');
-                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-            }, 500);
-            
             // Add more confetti dynamically
             setInterval(createConfetti, 300);
             
             // Log the Rick roll event
             console.log('🎵 William has been Rick Rolled! 🎵');
             
-            // Prevent back button
+            // Prevent back button and navigation
             history.pushState(null, null, location.href);
             window.onpopstate = function() {
                 history.go(1);
             };
             
-            // Show alert after a delay
+            // Disable common escape keys
+            document.addEventListener('keydown', function(e) {
+                // Prevent F5, Ctrl+R, Ctrl+W, Alt+F4, Escape, etc.
+                if (e.key === 'F5' || 
+                    (e.ctrlKey && (e.key === 'r' || e.key === 'R' || e.key === 'w' || e.key === 'W')) ||
+                    (e.altKey && e.key === 'F4') ||
+                    e.key === 'Escape') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    alert('🎵 Nice try William! No escape from Rick Astley! 🎵');
+                    return false;
+                }
+            });
+            
+            // Show persistent alerts
             setTimeout(() => {
                 alert('🎵 Never gonna give you up, William! 🎵');
-            }, 3000);
+            }, 2000);
             
-            // Click anywhere to try playing video
-            document.addEventListener('click', function() {
-                const iframe = document.getElementById('rickroll-video');
-                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+            // Prevent right-click context menu
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                alert('🎵 No right-clicking your way out of this, William! 🎵');
+                return false;
+            });
+            
+            // Disable text selection
+            document.addEventListener('selectstart', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Override common browser shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || 
+                                 e.key === 's' || e.key === 'S' ||
+                                 e.key === 'i' || e.key === 'I')) {
+                    e.preventDefault();
+                    alert('🎵 Developer tools won\'t save you, William! 🎵');
+                    return false;
+                }
             });
         });
         

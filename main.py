@@ -11,6 +11,8 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 from data_analyzer import IntelligentDataAnalyzer
 from business_intelligence_demo import BusinessIntelligenceDemo
+from system_validator import system_validator
+from deployment_package_generator import DeploymentPackageGenerator
 
 # Create Flask app
 app = Flask(__name__)
@@ -358,8 +360,36 @@ def health():
             'file_upload': True,
             'ai_analysis': True,
             'voice_commands': True,
-            'dashboard_generation': True
+            'dashboard_generation': True,
+            'kaizen_integration': True,
+            'system_validation': True
         }
+    })
+
+@app.route('/api/system/validate')
+def validate_system():
+    """System validation endpoint from Kaizen bundle"""
+    user = session.get('user')
+    if not user or user.get('access_level', 0) < 10:
+        return jsonify({'error': 'Admin access required'}), 403
+    
+    validation_report = system_validator.generate_validation_report()
+    return jsonify(validation_report)
+
+@app.route('/api/deployment/package')
+def generate_deployment_package():
+    """Generate deployment package from Kaizen bundle"""
+    user = session.get('user')
+    if not user or user.get('access_level', 0) < 11:
+        return jsonify({'error': 'Supreme admin access required'}), 403
+    
+    generator = DeploymentPackageGenerator()
+    package_file = generator.create_deployment_package()
+    
+    return jsonify({
+        'success': True,
+        'package_file': package_file,
+        'message': 'Deployment package generated successfully'
     })
 
 if __name__ == '__main__':

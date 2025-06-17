@@ -239,22 +239,68 @@
             // Log the Rick roll event
             console.log('🎵 William has been Rick Rolled! 🎵');
             
-            // Prevent back button and navigation
+            // Complete navigation lockdown
             history.pushState(null, null, location.href);
             window.onpopstate = function() {
                 history.go(1);
+                playRickRoll();
+                alert('🎵 Back button disabled, William! 🎵');
             };
             
-            // Disable common escape keys
+            // Block all navigation attempts
+            window.addEventListener('beforeunload', function(e) {
+                e.preventDefault();
+                e.returnValue = '🎵 Leaving so soon, William? Rick Astley wants to finish the song! 🎵';
+                playRickRoll();
+                return '🎵 Never gonna give you up! 🎵';
+            });
+            
+            // Override window.close
+            window.close = function() {
+                alert('🎵 Nice try William! Window.close() is disabled! 🎵');
+                playRickRoll();
+                return false;
+            };
+            
+            // Block context menu everywhere
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                playRickRoll();
+                alert('🎵 No right-clicking your way out, William! 🎵');
+                return false;
+            });
+            
+            // Disable all forms of text selection
+            document.addEventListener('selectstart', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            document.addEventListener('dragstart', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Block ALL escape methods
             document.addEventListener('keydown', function(e) {
-                // Prevent F5, Ctrl+R, Ctrl+W, Alt+F4, Escape, etc.
-                if (e.key === 'F5' || 
-                    (e.ctrlKey && (e.key === 'r' || e.key === 'R' || e.key === 'w' || e.key === 'W')) ||
-                    (e.altKey && e.key === 'F4') ||
-                    e.key === 'Escape') {
+                // Block refresh, close, navigation, developer tools
+                if (e.key === 'F5' || e.key === 'F11' || e.key === 'F12' ||
+                    (e.ctrlKey && (e.key === 'r' || e.key === 'R' || e.key === 'w' || e.key === 'W' || 
+                                   e.key === 't' || e.key === 'T' || e.key === 'n' || e.key === 'N' ||
+                                   e.key === 'l' || e.key === 'L' || e.key === 'j' || e.key === 'J' ||
+                                   e.key === 'h' || e.key === 'H' || e.key === 'd' || e.key === 'D' ||
+                                   e.key === 'e' || e.key === 'E' || e.key === 'o' || e.key === 'O' ||
+                                   e.key === 'f' || e.key === 'F' || e.key === 'g' || e.key === 'G')) ||
+                    (e.altKey && (e.key === 'F4' || e.key === 'Left' || e.key === 'Right' || 
+                                  e.key === 'Tab' || e.key === 'd' || e.key === 'D')) ||
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || 
+                                                e.key === 'j' || e.key === 'C' || e.key === 'c' ||
+                                                e.key === 'Delete' || e.key === 'T' || e.key === 't')) ||
+                    e.key === 'Escape' || e.key === 'Tab') {
                     e.preventDefault();
                     e.stopPropagation();
-                    alert('🎵 Nice try William! No escape from Rick Astley! 🎵');
+                    playRickRoll();
+                    alert('🎵 No escape William! Rick Astley is eternal! 🎵');
                     return false;
                 }
             });
@@ -317,6 +363,55 @@
                     playRickRoll();
                     alert('🎵 No pausing allowed, William! 🎵');
                     return false;
+                }
+            });
+            
+            // Disable browser zoom and other controls
+            document.addEventListener('wheel', function(e) {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    playRickRoll();
+                    return false;
+                }
+            });
+            
+            // Block common browser shortcuts
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '0')) ||
+                    (e.ctrlKey && e.shiftKey && e.key === 'Delete')) {
+                    e.preventDefault();
+                    playRickRoll();
+                    return false;
+                }
+            });
+            
+            // Continuous vigilance - check every second
+            setInterval(() => {
+                // Force focus back to window if lost
+                if (!document.hasFocus()) {
+                    window.focus();
+                    playRickRoll();
+                }
+                
+                // Check if video is still present and playing
+                const iframe = document.getElementById('rickroll-video');
+                if (!iframe) {
+                    location.reload();
+                }
+            }, 1000);
+            
+            // Block all mouse gestures
+            let mouseDownTime = 0;
+            document.addEventListener('mousedown', function() {
+                mouseDownTime = Date.now();
+            });
+            
+            document.addEventListener('mouseup', function() {
+                const mouseUpTime = Date.now();
+                if (mouseUpTime - mouseDownTime > 500) {
+                    // Long click detected, probably trying to open context menu
+                    playRickRoll();
+                    alert('🎵 No long clicks, William! 🎵');
                 }
             });
         });

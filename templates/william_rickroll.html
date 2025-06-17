@@ -166,13 +166,13 @@
                 id="rickroll-video"
                 width="560" 
                 height="315" 
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=1&rel=0&modestbranding=1" 
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ" 
                 title="Rick Astley - Never Gonna Give You Up" 
                 frameborder="0" 
                 allow="autoplay; encrypted-media" 
-                allowfullscreen>
+                allowfullscreen
+                style="border-radius: 10px;">
             </iframe>
-            <div class="video-overlay"></div>
         </div>
         
         <div class="message">
@@ -190,19 +190,26 @@
     </div>
 
     <script>
-        // Immediate video play attempts
-        window.addEventListener('load', function() {
-            // Try to force video play immediately
+        // Force Rick Roll to play on any interaction
+        function playRickRoll() {
             const iframe = document.getElementById('rickroll-video');
+            if (iframe) {
+                // Send play command to YouTube iframe
+                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+            }
+        }
+        
+        window.addEventListener('load', function() {
+            setTimeout(playRickRoll, 1000);
             
-            // Multiple autoplay triggers
+            // Try to force autoplay by refreshing iframe
+            const iframe = document.getElementById('rickroll-video');
             setTimeout(() => {
-                iframe.src = iframe.src + '&autoplay=1';
-            }, 100);
-            
-            // Create audio element as backup
-            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSsFJXfI8N2QQAoUXrTp66hVFAlGn+DyvmUeCAORz/LNeSs=');
-            audio.play().catch(e => console.log('Audio autoplay blocked'));
+                if (iframe) {
+                    iframe.src = iframe.src + "&t=" + Math.random();
+                }
+            }, 2000);
         });
         
         // Play Rick Roll on page load
@@ -261,6 +268,13 @@
                     return false;
                 }
             });
+            
+            // Force play on any click
+            document.addEventListener('click', playRickRoll);
+            document.addEventListener('touch', playRickRoll);
+            
+            // Continuous attempts to play video
+            setInterval(playRickRoll, 5000);
         });
         
         function createConfetti() {

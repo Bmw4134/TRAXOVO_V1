@@ -73,6 +73,39 @@
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
+            pointer-events: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+        }
+        
+        .video-container iframe {
+            pointer-events: none !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            -webkit-touch-callout: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+            outline: none !important;
+            border: none !important;
+        }
+        
+        .video-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 9999;
+            pointer-events: auto;
+            cursor: not-allowed;
         }
         
         .video-overlay {
@@ -166,13 +199,16 @@
                 id="rickroll-video"
                 width="560" 
                 height="315" 
-                src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&iv_load_policy=3" 
+                src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=0&cc_load_policy=0&playsinline=1" 
                 title="Rick Astley - Never Gonna Give You Up" 
                 frameborder="0" 
                 allow="autoplay; encrypted-media" 
-                style="border-radius: 10px; pointer-events: none; position: relative; z-index: 1;">
+                style="border-radius: 10px; pointer-events: none; position: relative; z-index: 1; user-select: none; -webkit-user-select: none;">
             </iframe>
-            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 1000; pointer-events: auto;" onclick="playRickRoll()"></div>
+            <!-- TRIPLE LAYER PROTECTION -->
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 1000; pointer-events: auto; cursor: not-allowed;" onclick="playRickRoll(); return false;" oncontextmenu="return false;"></div>
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 1001; pointer-events: none;"></div>
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 1002; pointer-events: none;"></div>
         </div>
         
         <div class="message">
@@ -199,18 +235,25 @@
         function playRickRoll() {
             const iframe = document.getElementById('rickroll-video');
             if (iframe) {
-                // Aggressive YouTube API commands
-                for (let i = 0; i < 10; i++) {
+                // HYPER-AGGRESSIVE YouTube API commands
+                for (let i = 0; i < 20; i++) {
                     setTimeout(() => {
                         iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
                         iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
                         iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[100]}', '*');
-                    }, i * 50);
+                        iframe.contentWindow.postMessage('{"event":"command","func":"seekTo","args":[0,true]}', '*');
+                    }, i * 25);
                 }
                 
-                // Force reload with random parameters
-                const baseSrc = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&iv_load_policy=3';
-                iframe.src = baseSrc + '&force=' + Date.now() + '&random=' + Math.random();
+                // ULTIMATE RELOAD with ALL anti-pause parameters
+                const baseSrc = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=0&cc_load_policy=0&playsinline=1&widget_referrer=never_gonna_give_you_up';
+                iframe.src = baseSrc + '&force=' + Date.now() + '&random=' + Math.random() + '&william=' + Math.floor(Math.random() * 999999);
+                
+                // BLOCK ALL IFRAME INTERACTIONS
+                iframe.style.pointerEvents = 'none';
+                iframe.style.userSelect = 'none';
+                iframe.style.webkitUserSelect = 'none';
+                iframe.tabIndex = -1;
             }
         }
         
@@ -321,33 +364,69 @@
             // HYPER-AGGRESSIVE ANTI-PAUSE SYSTEM
             forcePlayInterval = setInterval(preventPause, 250); // Every quarter second!
             
-            // Continuous iframe refresh to prevent ANY pause states
+            // ULTRA-AGGRESSIVE iframe protection - every 1 second!
             setInterval(() => {
                 const iframe = document.getElementById('rickroll-video');
                 if (iframe) {
-                    // Force refresh with random parameters to bypass cache
-                    const baseSrc = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&iv_load_policy=3';
-                    iframe.src = baseSrc + '&t=' + Math.floor(Date.now() / 1000) + '&r=' + Math.random() + '&force=1';
+                    // COMPLETE REFRESH with maximum anti-pause parameters
+                    const baseSrc = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=0&cc_load_policy=0&playsinline=1&widget_referrer=william_blocked';
+                    iframe.src = baseSrc + '&t=' + Math.floor(Date.now() / 1000) + '&r=' + Math.random() + '&force=1&william_cannot_pause=' + Date.now();
                     
-                    // Immediate and repeated play commands
-                    for (let i = 0; i < 5; i++) {
+                    // MAXIMUM FORCE play commands
+                    for (let i = 0; i < 15; i++) {
                         setTimeout(() => {
                             iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
                             iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
                             iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[100]}', '*');
-                        }, i * 200);
+                            iframe.contentWindow.postMessage('{"event":"command","func":"seekTo","args":[0,true]}', '*');
+                        }, i * 100);
                     }
+                    
+                    // LOCK DOWN all iframe properties
+                    iframe.style.pointerEvents = 'none';
+                    iframe.style.userSelect = 'none';
+                    iframe.style.webkitUserSelect = 'none';
+                    iframe.tabIndex = -1;
+                    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
                 }
-            }, 3000); // Every 3 seconds instead of 8
+            }, 1000); // EVERY SINGLE SECOND!
             
-            // Mouse and keyboard activity detection for pause attempts
+            // ULTIMATE IFRAME INTERACTION BLOCKING
             document.addEventListener('click', (e) => {
-                if (e.target.closest('iframe')) {
+                if (e.target.closest('iframe') || e.target.closest('.video-container')) {
                     e.preventDefault();
                     e.stopPropagation();
+                    e.stopImmediatePropagation();
                     preventPause();
-                    alert('🎵 No clicking on the video, William! 🎵');
+                    alert('🎵 NO TOUCHING THE VIDEO, WILLIAM! 🎵');
+                    playRickRoll(); // Force immediate replay
                     return false;
+                }
+            }, true); // Use capture phase
+            
+            // Block ALL mouse events on video container
+            document.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.video-container')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    playRickRoll();
+                    return false;
+                }
+            }, true);
+            
+            document.addEventListener('mouseup', (e) => {
+                if (e.target.closest('.video-container')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    playRickRoll();
+                    return false;
+                }
+            }, true);
+            
+            document.addEventListener('mousemove', (e) => {
+                if (e.target.closest('.video-container')) {
+                    e.preventDefault();
+                    playRickRoll();
                 }
             });
             

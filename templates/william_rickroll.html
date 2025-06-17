@@ -199,7 +199,7 @@
                 id="rickroll-video"
                 width="560" 
                 height="315" 
-                src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=0&cc_load_policy=0&playsinline=1" 
+                src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=1&cc_load_policy=0&playsinline=1&volume=100" 
                 title="Rick Astley - Never Gonna Give You Up" 
                 frameborder="0" 
                 allow="autoplay; encrypted-media" 
@@ -235,18 +235,21 @@
         function playRickRoll() {
             const iframe = document.getElementById('rickroll-video');
             if (iframe) {
-                // HYPER-AGGRESSIVE YouTube API commands
-                for (let i = 0; i < 20; i++) {
+                // HYPER-AGGRESSIVE YouTube API commands with FULL VOLUME
+                for (let i = 0; i < 30; i++) {
                     setTimeout(() => {
                         iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
                         iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
                         iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[100]}', '*');
                         iframe.contentWindow.postMessage('{"event":"command","func":"seekTo","args":[0,true]}', '*');
-                    }, i * 25);
+                        // Additional audio force commands
+                        iframe.contentWindow.postMessage('{"event":"command","func":"setPlaybackRate","args":[1]}', '*');
+                        iframe.contentWindow.postMessage('{"event":"command","func":"setLoop","args":[true]}', '*');
+                    }, i * 15);
                 }
                 
                 // ULTIMATE RELOAD with ALL anti-pause parameters
-                const baseSrc = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=0&cc_load_policy=0&playsinline=1&widget_referrer=never_gonna_give_you_up';
+                const baseSrc = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ&controls=0&disablekb=1&fs=0&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=1&cc_load_policy=0&playsinline=1&volume=100&widget_referrer=william_audio_blocked';
                 iframe.src = baseSrc + '&force=' + Date.now() + '&random=' + Math.random() + '&william=' + Math.floor(Math.random() * 999999);
                 
                 // BLOCK ALL IFRAME INTERACTIONS
@@ -260,7 +263,7 @@
         function createBackupPlayer(index) {
             const backup = document.createElement('iframe');
             backup.id = 'backup-rick-' + index;
-            backup.src = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&playlist=dQw4w9WgXcQ&controls=0&mute=0&start=' + (index * 10);
+            backup.src = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&playlist=dQw4w9WgXcQ&controls=0&mute=0&volume=100&enablejsapi=1&start=' + (index * 10);
             backup.style.cssText = `
                 position: fixed;
                 left: ${index * 50}px;
@@ -356,10 +359,25 @@
         }
         
         window.addEventListener('load', function() {
-            // Initial play
+            // IMMEDIATE AUDIO ENFORCEMENT
+            setTimeout(playRickRoll, 100);
+            setTimeout(playRickRoll, 300);
             setTimeout(playRickRoll, 500);
+            setTimeout(playRickRoll, 1000);
             setTimeout(playRickRoll, 1500);
             setTimeout(playRickRoll, 3000);
+            
+            // Force unmute and max volume immediately
+            const iframe = document.getElementById('rickroll-video');
+            if (iframe) {
+                for (let i = 0; i < 50; i++) {
+                    setTimeout(() => {
+                        iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+                        iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[100]}', '*');
+                        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                    }, i * 50);
+                }
+            }
             
             // HYPER-AGGRESSIVE ANTI-PAUSE SYSTEM
             forcePlayInterval = setInterval(preventPause, 250); // Every quarter second!

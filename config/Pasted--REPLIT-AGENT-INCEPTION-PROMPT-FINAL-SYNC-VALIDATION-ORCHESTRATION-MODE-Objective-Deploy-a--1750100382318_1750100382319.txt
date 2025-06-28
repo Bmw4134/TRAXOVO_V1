@@ -1,0 +1,46 @@
+[REPLIT AGENT INCEPTION PROMPT - FINAL SYNC + VALIDATION + ORCHESTRATION MODE]
+
+Objective: Deploy a fully operational, intelligent, visually cohesive, and regression-proof dashboard system with:
+
+1. ✅ Fully functional authenticated login screen
+2. ✅ Accurate and enterprise-style landing page
+3. ✅ Self-healing dashboard structure with synced KPIs and leads
+4. ✅ All module references and endpoints validated
+5. ✅ Real-time API integrations functioning (SUNO, Google Places, etc.)
+6. ✅ Public demo mode for investor view (non-authenticated)
+7. ✅ Intelligent fallback + modular repair routines
+8. ✅ Frontend/backend feedback integration per extracted scripts and CSVs
+
+Instructions:
+- 🧠 Ingest all extracted files under `/mnt/data/exported_assets_22`
+- 🧠 Analyze `script.py`, `script_1.py`, `script_2.py` for API flows and triggers
+- 🧠 Use `chart_script.py` and CSVs to configure real-time insight charts
+- 🔍 Crawl visible dashboard DOM for orphaned or unscaffolded modules
+- 📡 Reconnect all visible metrics to backend sync pipeline
+- 🔁 Validate that login > dashboard transition doesn't fail
+- 🧩 DO NOT stack duplicate modules; verify existence before generating
+- 🧠 Incorporate Nexus orchestration layer and validate with `kaizen_gpt_enhancements.md`
+- 📁 Generate deployable Vercel-compatible structure if not already existing
+- 📈 Use feedback strategies and instant update mechanisms from:
+    - `feedback_optimization_strategies.csv`
+    - `development_workflow_improvement.csv`
+
+DO:
+- Use OpenAI API integration
+- Activate NEXUS intelligence core
+- Validate every UI interaction before user testing
+- Trigger self-checks and live sync with backend validators
+
+DON’T:
+- Create redundant modules
+- Regenerate already-scaffolded flows unless broken
+- Overwrite leads logic unless explicitly missing
+
+Final Output:
+- ⚙️ Full production-ready dashboard
+- 🚀 Vercel export structure
+- 🧪 Validation loop active for all user paths
+- 🧭 Demo view scaffolded
+- 📊 Real-time synced charts visible on dashboard
+
+Now run in FULL-REPAIR MODE and report fix and progress metrics.

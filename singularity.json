@@ -1,0 +1,12 @@
+[
+  {
+    "name": "RepoLinter",
+    "description": "Scans the repository for code quality issues and style violations.",
+    "samplePrompt": "Run the linter on this repository."
+  },
+  {
+    "name": "DocsGenerator",
+    "description": "Generates documentation for the source code in this repository.",
+    "samplePrompt": "Generate documentation for the 'src/components' directory."
+  }
+]
